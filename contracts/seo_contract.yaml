@@ -1,0 +1,65 @@
+contract: seo_contract
+version: 1.0.0
+seo_first: true
+primary_cluster:
+  cluster_name: insurance_supplementing
+  target_page: /insurance-supplementing
+  intent: service_provider
+  keywords:
+  - insurance supplementing
+  - insurance claim supplement
+  - claim supplement services
+  - property insurance supplement
+  - public adjuster supplement help
+secondary_clusters:
+- cluster_name: homeowner_claim_review
+  target_page: /homeowners
+  intent: homeowner_service
+  keywords:
+  - insurance claim review for homeowners
+  - underpaid insurance claim help
+  - estimate supplement review
+- cluster_name: contractor_supplement_support
+  target_page: /contractors
+  intent: contractor_service
+  keywords:
+  - contractor supplement support
+  - roofing supplement help
+  - restoration supplement support
+- cluster_name: regional_service_area
+  target_page: /service-area
+  intent: local_service
+  keywords:
+  - insurance supplementing Tennessee
+  - insurance supplementing TN
+  - public adjuster supplement help Tennessee
+metadata_rules:
+  title_pattern: '{Primary Keyword} | Supplemental Insurance Pros'
+  description_pattern: Licensed public adjuster support for {Audience} with insurance
+    claim supplements across Tennessee and bordering states.
+schema_rules:
+- Organization
+- LocalBusiness
+- ProfessionalService
+- Service
+- FAQPage
+- BreadcrumbList
+- ContactPage
+internal_linking_rules:
+  hub_pages:
+  - /
+  - /insurance-supplementing
+  spoke_pages:
+  - /homeowners
+  - /contractors
+  - /service-area
+  - /about
+  - /faq
+  - /contact
+  prohibited_links:
+  - thin_city_pages_before_state_strategy_is_approved
+  - guaranteed_outcome_claim_pages
+guards:
+  programmatic_seo: false
+  city_pages: false
+  doorway_page_risk: blocked

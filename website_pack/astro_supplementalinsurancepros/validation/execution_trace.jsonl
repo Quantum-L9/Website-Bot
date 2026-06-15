@@ -1,0 +1,9 @@
+{"command":"node scripts/preflight.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS_WITH_UNKNOWNS\",\n  \"checks\": 17\n}","stderr":""}
+{"command":"node scripts/verify-source.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS\",\n  \"checks\": 49\n}","stderr":""}
+{"command":"node scripts/verify-build.mjs","exit_code":0,"stdout":"{\n  \"status\": \"BLOCKED\",\n  \"checks\": 1\n}","stderr":""}
+{"command":"node scripts/verify-smoke.mjs","exit_code":0,"stdout":"{\n  \"status\": \"BLOCKED\",\n  \"checks\": 1\n}","stderr":""}
+{"command":"node scripts/verify-form.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS_WITH_UNKNOWNS\",\n  \"checks\": 10\n}","stderr":""}
+{"command":"node scripts/verify-analytics.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS_WITH_UNKNOWNS\",\n  \"checks\": 3\n}","stderr":""}
+{"command":"node scripts/verify-crm.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS_WITH_UNKNOWNS\",\n  \"checks\": 3\n}","stderr":""}
+{"command":"node scripts/verify-seo.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS\",\n  \"checks\": 15\n}","stderr":""}
+{"command":"node scripts/verify-rollback.mjs","exit_code":0,"stdout":"{\n  \"status\": \"PASS\",\n  \"checks\": 3\n}","stderr":""}

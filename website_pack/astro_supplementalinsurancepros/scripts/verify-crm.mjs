@@ -1,0 +1,12 @@
+import { parseEnvExample, result, writeJsonl, statusFromRows } from './lib.mjs';
+const env = parseEnvExample();
+const rows = [];
+const provider = env.PUBLIC_CRM_PROVIDER || 'unknown';
+const mode = env.PUBLIC_CRM_SYNC_MODE || 'unknown';
+const endpoint = env.PUBLIC_CRM_ENDPOINT || 'UNKNOWN';
+rows.push(result('CRM-PROVIDER', 'crm_validation', '.env.example', 'CRM provider declared or Unknown labeled', provider, provider === 'acculynx' ? 'PASS' : 'UNKNOWN', 'medium', 'Confirm CRM provider.'));
+rows.push(result('CRM-PHASE', 'crm_validation', '.env.example', 'CRM sync remains phase_2 until configured', mode, mode === 'phase_2' ? 'PASS' : 'FAIL', 'high', 'Set PUBLIC_CRM_SYNC_MODE=phase_2 unless live sync is implemented.'));
+rows.push(result('CRM-ENDPOINT', 'crm_validation', '.env.example', 'CRM endpoint not hardcoded and Unknown labeled if absent', endpoint.includes('UNKNOWN') ? 'UNKNOWN_DECLARED' : 'CONFIGURED', endpoint.includes('UNKNOWN') ? 'UNKNOWN' : 'PASS', 'high', 'Configure PUBLIC_CRM_ENDPOINT and credential storage before live CRM test.'));
+writeJsonl('validation/crm_checks.jsonl', rows);
+console.log(JSON.stringify({ status: statusFromRows(rows), checks: rows.length }, null, 2));
+if (rows.some((r) => r.status === 'FAIL')) process.exit(1);

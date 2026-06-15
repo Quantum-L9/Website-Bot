@@ -1,0 +1,22 @@
+contract: design_contract
+version: 1.0.0
+status: placeholder
+visual_direction: trustworthy_professional_clear_local_service
+tokens:
+  colors: '{{COLOR_TOKENS_PLACEHOLDER}}'
+  typography: '{{TYPOGRAPHY_PLACEHOLDER}}'
+  spacing: '{{SPACING_PLACEHOLDER}}'
+layout_rules:
+- mobile_first
+- prominent_phone_and_form_cta
+- short_sections
+- trust_claims_near_top
+- audience_split_visible_above_fold
+- no_visual_clutter
+- compliance_disclaimer_visible_but_not_overwhelming
+accessibility:
+  wcag_target: WCAG_2_2_AA
+  contrast_required: true
+  keyboard_navigation_required: true
+  form_labels_required: true
+  focus_states_required: true

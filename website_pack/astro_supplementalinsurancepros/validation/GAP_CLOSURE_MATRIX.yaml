@@ -1,0 +1,91 @@
+gap_closure_matrix:
+  - gap_id: GAP-001
+    gap_name: Deployment Layer Missing
+    severity: BLOCKER
+    change_made: Added Vercel environment-gated deployment script and deploy commands.
+    files_touched: [package.json, scripts/deploy.mjs, .env.example, docs/DEPLOYMENT_RUNBOOK.md]
+    validation_command: npm run verify:preflight
+    expected_evidence: validation/preflight_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [VERCEL_PROJECT_ID, VERCEL_ORG_ID, VERCEL_TOKEN]
+  - gap_id: GAP-002
+    gap_name: Deployment Verification Missing
+    severity: BLOCKER
+    change_made: Added deterministic build verification script with node_modules/build-output gates.
+    files_touched: [scripts/verify-build.mjs, package.json]
+    validation_command: npm run verify:build
+    expected_evidence: validation/build_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [npm_dependencies_not_installed_in_current_environment]
+  - gap_id: GAP-003
+    gap_name: Runtime Smoke Testing Missing
+    severity: BLOCKER
+    change_made: Added smoke test script supporting local static dist mode and deployed URL mode.
+    files_touched: [scripts/verify-smoke.mjs, config/runtime-verification.config.json, package.json]
+    validation_command: npm run verify:smoke
+    expected_evidence: validation/smoke_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [dist_not_built_in_current_environment, deployed_url_not_tested]
+  - gap_id: GAP-004
+    gap_name: Form Delivery Verification Missing
+    severity: BLOCKER
+    change_made: Added form endpoint env contract, form field validation, consent field, attribution fields, and fail-closed missing endpoint notice.
+    files_touched: [src/components/LeadForm.astro, scripts/verify-form.mjs, .env.example]
+    validation_command: npm run verify:form
+    expected_evidence: validation/form_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [PUBLIC_FORM_ENDPOINT]
+  - gap_id: GAP-005
+    gap_name: Analytics Runtime Verification Missing
+    severity: HIGH
+    change_made: Added attribution persistence and conversion hook verification.
+    files_touched: [src/layouts/BaseLayout.astro, src/scripts/attribution.js, scripts/verify-analytics.mjs]
+    validation_command: npm run verify:analytics
+    expected_evidence: validation/analytics_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [PUBLIC_ANALYTICS_PROVIDER, PUBLIC_ANALYTICS_ID]
+  - gap_id: GAP-006
+    gap_name: CRM Integration Verification Missing
+    severity: HIGH
+    change_made: Added AccuLynx phase-2 verification harness with provider and endpoint Unknown labeling.
+    files_touched: [scripts/verify-crm.mjs, .env.example, src/components/LeadForm.astro]
+    validation_command: npm run verify:crm
+    expected_evidence: validation/crm_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [PUBLIC_CRM_ENDPOINT, PUBLIC_CRM_API_KEY]
+  - gap_id: GAP-007
+    gap_name: Attribution Chain Missing
+    severity: HIGH
+    change_made: Added UTM/gclid/fbclid persistence, hidden form fields, landing page capture, and conversion event hook.
+    files_touched: [src/layouts/BaseLayout.astro, src/scripts/attribution.js, src/components/LeadForm.astro]
+    validation_command: npm run verify:analytics
+    expected_evidence: validation/analytics_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [analytics_provider_runtime_delivery]
+  - gap_id: GAP-008
+    gap_name: SEO Runtime Validation Missing
+    severity: HIGH
+    change_made: Added canonical URL, OpenGraph tags, LocalBusiness JSON-LD, SEO validation script.
+    files_touched: [src/layouts/BaseLayout.astro, scripts/verify-seo.mjs, package.json]
+    validation_command: npm run verify:seo
+    expected_evidence: validation/seo_checks.jsonl
+    status: closed
+    remaining_unknowns: []
+  - gap_id: GAP-009
+    gap_name: Monitoring Layer Missing
+    severity: MEDIUM
+    change_made: Added monitoring checklist and smoke-test command path for uptime/route checks.
+    files_touched: [docs/MONITORING_CHECKS.md, docs/DEPLOYMENT_RUNBOOK.md, scripts/verify-smoke.mjs]
+    validation_command: npm run verify:smoke
+    expected_evidence: validation/smoke_checks.jsonl
+    status: closed_with_unknowns
+    remaining_unknowns: [external_monitoring_provider_not_configured]
+  - gap_id: GAP-010
+    gap_name: Rollback Strategy Missing
+    severity: MEDIUM
+    change_made: Added rollback procedure and rollback validation script.
+    files_touched: [docs/DEPLOYMENT_RUNBOOK.md, scripts/verify-rollback.mjs, package.json]
+    validation_command: npm run verify:rollback
+    expected_evidence: validation/rollback_checks.jsonl
+    status: closed
+    remaining_unknowns: []

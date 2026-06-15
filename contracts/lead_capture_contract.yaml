@@ -1,0 +1,54 @@
+contract: lead_capture_contract
+version: 1.0.0
+phase_1: clean_lead_capture_to_email_or_secure_storage
+phase_2: AccuLynx
+accu_lynx_launch_blocking: false
+fields:
+- name: full_name
+  required: true
+  pii: true
+- name: phone
+  required: true
+  pii: true
+- name: email
+  required: true
+  pii: true
+- name: customer_type
+  required: true
+  pii: false
+- name: property_state
+  required: true
+  pii: false
+- name: claim_status
+  required: true
+  pii: false
+- name: message
+  required: true
+  pii: true
+- name: property_address
+  required: false
+  pii: true
+- name: insurance_carrier
+  required: false
+  pii: false
+- name: claim_number
+  required: false
+  pii: true
+- name: contractor_company
+  required: false
+  pii: false
+- name: estimate_upload
+  required: false
+  pii: true
+- name: photos_upload
+  required: false
+  pii: true
+- name: preferred_contact_method
+  required: false
+  pii: false
+consent:
+  contact_form_consent: true
+  sms_consent: true
+  email_marketing_consent: false
+  file_upload_consent: true
+failure_policy: CRM sync failure must not lose a lead.

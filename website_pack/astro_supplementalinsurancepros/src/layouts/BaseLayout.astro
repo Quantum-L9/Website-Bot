@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+const {
+  title = 'Supplemental Insurance Pros',
+  description = 'Insurance supplementing support for homeowners and contractors.',
+  path = Astro.url?.pathname || '/',
+} = Astro.props;
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://supplementalinsurancepros.com').replace(/\/$/, '');
+const canonicalUrl = `${siteUrl}${path}`;
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Supplemental Insurance Pros',
+  url: siteUrl,
+  description,
+  areaServed: ['TN', 'KY', 'VA', 'NC', 'GA', 'AL', 'MS', 'AR', 'MO'],
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+    <script is:inline>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
+  const existing = JSON.parse(window.localStorage.getItem('sip_attribution') || '{}');
+  const next = { ...existing };
+  for (const key of keys) { const value = params.get(key); if (value) next[key] = value; }
+  next.landing_page = existing.landing_page || window.location.pathname;
+  next.last_seen_page = window.location.pathname;
+  next.updated_at = new Date().toISOString();
+  window.localStorage.setItem('sip_attribution', JSON.stringify(next));
+  window.sipTrackConversion = function sipTrackConversion(eventName, payload) { window.dispatchEvent(new CustomEvent('sip:conversion', { detail: { eventName, payload, attribution: next } })); };
+})();
+</script>
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <strong><a href="/">Supplemental Insurance Pros</a></strong>
+        <nav aria-label="Main navigation">
+          <a href="/insurance-supplementing">Supplementing</a>
+          <a href="/homeowners">Homeowners</a>
+          <a href="/contractors">Contractors</a>
+          <a href="/service-area">Service Area</a>
+          <a href="/faq">FAQ</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <slot />
+    <footer>
+      <div class="container" style="padding:32px 20px">
+        <p><strong>Supplemental Insurance Pros</strong> | Licensed public adjuster-led insurance supplementing support.</p>
+        <p>Phone: {import.meta.env.PUBLIC_CONTACT_PHONE || 'UNKNOWN_REQUIRED_BEFORE_LAUNCH'} | Email: {import.meta.env.PUBLIC_CONTACT_EMAIL || 'UNKNOWN_REQUIRED_BEFORE_LAUNCH'} | Address: {import.meta.env.PUBLIC_CONTACT_ADDRESS || 'UNKNOWN_REQUIRED_BEFORE_LAUNCH'}</p>
+        <p class="notice">Disclaimer placeholders must be replaced before public launch: public adjuster disclaimer, no-guarantee disclaimer, and not-legal-advice disclaimer.</p>
+      </div>
+    </footer>
+  </body>
+</html>

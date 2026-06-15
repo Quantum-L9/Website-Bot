@@ -1,0 +1,244 @@
+website_object_model:
+  version: 1.0.0
+  source: domain_spec
+  framework: astro
+  host: vercel
+  routes:
+  - path: /
+    template: homepage
+    components:
+    - hero
+    - trust_bar
+    - audience_paths
+    - service_summary
+    - process
+    - service_area
+    - faq_preview
+    - final_cta
+    seo_cluster: null
+    indexability: index
+  - path: /insurance-supplementing
+    template: service_page
+    components:
+    - hero
+    - problem
+    - what_is_supplementing
+    - process
+    - documents_needed
+    - compliance_note
+    - cta
+    seo_cluster: insurance_supplementing
+    indexability: index
+  - path: /homeowners
+    template: audience_page
+    components: &id001
+    - hero
+    - pain_points
+    - how_we_help
+    - what_to_prepare
+    - proof
+    - cta
+    seo_cluster: homeowner_claim_review
+    indexability: index
+  - path: /contractors
+    template: audience_page
+    components: *id001
+    seo_cluster: contractor_supplement_support
+    indexability: index
+  - path: /service-area
+    template: service_area_page
+    components:
+    - hero
+    - state_list
+    - service_area_rules
+    - no_city_page_bloat_note
+    - cta
+    seo_cluster: regional_service_area
+    indexability: index
+  - path: /about
+    template: about_page
+    components: []
+    seo_cluster: null
+    indexability: index
+  - path: /faq
+    template: faq_page
+    components:
+    - hero
+    - faq_groups
+    - disclaimer
+    - cta
+    seo_cluster: null
+    indexability: index
+  - path: /contact
+    template: contact_page
+    components: []
+    seo_cluster: null
+    indexability: index
+  - path: /thank-you
+    template: thank_you_page
+    components: []
+    seo_cluster: null
+    indexability: noindex
+  global:
+    business_name: Supplemental Insurance Pros
+    domain: supplementalinsurancepros.com
+    ctas:
+    - Request a Claim Review
+    - Talk to a Licensed Public Adjuster
+    - Upload Your Estimate
+    - Get Supplement Support
+    service_area:
+    - TN
+    - KY
+    - VA
+    - NC
+    - GA
+    - AL
+    - MS
+    - AR
+    - MO
+  forms:
+    lead_capture:
+      contract: lead_capture_contract
+      version: 1.0.0
+      phase_1: clean_lead_capture_to_email_or_secure_storage
+      phase_2: AccuLynx
+      accu_lynx_launch_blocking: false
+      fields:
+      - name: full_name
+        required: true
+        pii: true
+      - name: phone
+        required: true
+        pii: true
+      - name: email
+        required: true
+        pii: true
+      - name: customer_type
+        required: true
+        pii: false
+      - name: property_state
+        required: true
+        pii: false
+      - name: claim_status
+        required: true
+        pii: false
+      - name: message
+        required: true
+        pii: true
+      - name: property_address
+        required: false
+        pii: true
+      - name: insurance_carrier
+        required: false
+        pii: false
+      - name: claim_number
+        required: false
+        pii: true
+      - name: contractor_company
+        required: false
+        pii: false
+      - name: estimate_upload
+        required: false
+        pii: true
+      - name: photos_upload
+        required: false
+        pii: true
+      - name: preferred_contact_method
+        required: false
+        pii: false
+      consent:
+        contact_form_consent: true
+        sms_consent: true
+        email_marketing_consent: false
+        file_upload_consent: true
+      failure_policy: CRM sync failure must not lose a lead.
+  validation_flags:
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.identity.logo_status
+    value: placeholder
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.identity.contact_placeholders.phone
+    value: '{{PHONE_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.identity.contact_placeholders.email
+    value: '{{EMAIL_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.identity.contact_placeholders.address
+    value: '{{ADDRESS_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.conversion.secondary_conversions[0].destination
+    value: '{{PHONE_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.authority.licenses[0].license_number
+    value: '{{LICENSE_NUMBER_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.authority.testimonials_status
+    value: placeholder
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.geography.physical_locations[0].address
+    value: '{{ADDRESS_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.geography.physical_locations[0].display_status
+    value: placeholder
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.design.design_status
+    value: placeholder
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.design.brand_tokens.colors
+    value: '{{COLOR_TOKENS_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.design.brand_tokens.typography
+    value: '{{TYPOGRAPHY_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.design.brand_tokens.spacing
+    value: '{{SPACING_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.compliance.disclaimers[0].text
+    value: '{{PUBLIC_ADJUSTER_DISCLAIMER_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.compliance.disclaimers[1].text
+    value: '{{NO_GUARANTEE_DISCLAIMER_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.compliance.disclaimers[2].text
+    value: '{{NOT_LEGAL_ADVICE_DISCLAIMER_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.compliance.state_specific_rules.status
+    value: Unknown
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.integrations.email.notification_recipients[0]
+    value: '{{EMAIL_PLACEHOLDER}}'
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.integrations.email.sender_domain_status
+    value: unknown
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.deployment.repo_provider
+    value: unknown
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.assets.logo
+    value: placeholder
+  - severity: warn
+    type: placeholder_or_unknown
+    path: domain_spec.assets.photos
+    value: placeholder

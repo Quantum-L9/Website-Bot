@@ -1,0 +1,63 @@
+validation_scope: execute canonical pack against Supplemental Pros domain_spec
+validation_timestamp: '20260612_040100'
+files_generated_count: 25
+checks:
+- check_id: domain_spec_root
+  status: PASS
+  evidence: domain_spec root wrapper present
+  severity: info
+  remediation: ''
+- check_id: astro_lock
+  status: PASS
+  evidence: deployment.framework=astro
+  severity: info
+  remediation: ''
+- check_id: vercel_lock
+  status: PASS
+  evidence: deployment.host=vercel
+  severity: info
+  remediation: ''
+- check_id: accu_lynx_phase_2
+  status: PASS
+  evidence: crm.phase=phase_2_hardened_sync, launch_blocking=False
+  severity: info
+  remediation: ''
+- &id001
+  check_id: duplicate_route
+  status: WARN
+  evidence: duplicate findings=[]
+  severity: medium
+  remediation: Source spec should remove duplicate /contractors string entry
+- &id002
+  check_id: placeholder_scan
+  status: WARN
+  evidence: placeholder_or_unknown_count=22
+  severity: medium
+  remediation: Replace launch placeholders before public production launch
+- check_id: no_city_pages
+  status: PASS
+  evidence: local_pages.enabled=False
+  severity: info
+  remediation: ''
+- check_id: astro_project_generated
+  status: PASS
+  evidence: Astro source project generated under website_pack/astro_supplementalinsurancepros
+  severity: info
+  remediation: ''
+- check_id: website_code_generated
+  status: PASS
+  evidence: Real .astro pages, layout, component, CSS, robots.txt, llms.txt generated
+  severity: info
+  remediation: ''
+- check_id: route_file_count
+  status: PASS
+  evidence: astro_files=11
+  severity: info
+  remediation: ''
+final_status: PASS_WITH_FINDINGS
+readiness_score: 89
+release_recommendation: review_before_public_launch_due_to_placeholders
+blocking_findings: []
+non_blocking_findings:
+- *id001
+- *id002

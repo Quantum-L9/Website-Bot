@@ -1,0 +1,618 @@
+domain_spec:
+  metadata:
+    spec_id: supplementalinsurancepros_com
+    version: 1.0.0
+    created_date: 2026-06-12
+    status: build_ready
+    business_model_type: lead_generation
+    site_type: local_seo_site
+    owner: Igor Beylin
+    source_files:
+    - supplementalinsurancepros.com.txt
+    - l9_website_factory_agent_pack_v1_95_ready_20260611_233900.zip
+    revision_notes:
+    - Converted from legacy flat sample into strict canonical domain_spec wrapper.
+    - Astro/Vercel locked.
+    - AccuLynx retained as phase_2_hardened_sync and non-launch-blocking.
+  identity:
+    business_name: Supplemental Insurance Pros
+    legal_name: Supplemental Insurance Pros
+    domain: supplementalinsurancepros.com
+    canonical_url: https://supplementalinsurancepros.com
+    tagline: Insurance supplementing support for homeowners and contractors.
+    logo_status: placeholder
+    brand_positioning:
+      one_liner: Licensed public adjuster-led insurance supplementing support for
+        homeowners and contractors across Tennessee and bordering states.
+      category: insurance_supplementing
+      primary_value: Help property claim stakeholders identify missed scope, organize
+        documentation, and pursue legitimate claim supplements without overpromising
+        carrier outcomes.
+    contact_placeholders:
+      phone: '{{PHONE_PLACEHOLDER}}'
+      email: '{{EMAIL_PLACEHOLDER}}'
+      address: '{{ADDRESS_PLACEHOLDER}}'
+  market:
+    industry: insurance_claim_support
+    niche: insurance_supplementing
+    business_model: b2b2c
+    monetization_model:
+    - services
+    - lead
+    competitive_angle: Licensed public adjuster with over 20 years of experience serving
+      both homeowners and contractors.
+    buying_triggers:
+    - carrier_estimate_missing_scope
+    - underpaid_property_claim
+    - contractor_estimate_gap
+    - storm_damage_claim
+    - supplement_documentation_needed
+    objections:
+    - uncertainty_about_public_adjuster_role
+    - concern_about_claim_delay
+    - concern_about_cost
+    - fear_of_conflict_with_insurer
+    - uncertainty_about_required_documents
+  audience:
+    primary_segments:
+    - name: homeowners
+      priority: 1
+      intent: Need help reviewing a property insurance estimate or claim supplement.
+      conversion_path: homepage -> homeowners -> contact
+    - name: contractors
+      priority: 2
+      intent: Need supplement support and documentation structure for restoration
+        or repair jobs.
+      conversion_path: homepage -> contractors -> contact
+    secondary_segments:
+    - restoration_companies
+    - property_managers
+    excluded_segments:
+    - insurance_carriers_seeking_adjusting_vendor_services
+    - legal_claim_dispute_clients_seeking_attorney_services
+    decision_makers:
+    - homeowner
+    - contractor_owner
+    - project_manager
+    pain_points:
+    - claim_scope_missing_items
+    - estimate_does_not_match_real_repair_cost
+    - supplement_documentation_is_disorganized
+    - claim_language_is_confusing
+    - contractor_needs_scope_support_without_overbuilding_internal_staff
+    trust_requirements:
+    - licensed_public_adjuster_status
+    - over_20_years_experience_claim
+    - clear_no_guarantee_disclaimer
+    - plain_english_process
+    - conservative_compliance_language
+  offer:
+    core_offer: Insurance claim supplementing and estimate review support.
+    offer_type: service
+    service_lines:
+    - name: Insurance Supplementing
+      slug: insurance-supplementing
+      description: Review claim scope, organize supporting documentation, and help
+        prepare supplement-ready claim materials.
+      priority: 1
+    - name: Homeowner Claim Review
+      slug: homeowners
+      description: Help homeowners understand potential gaps in a property insurance
+        estimate and what documentation may be needed.
+      priority: 2
+    - name: Contractor Supplement Support
+      slug: contractors
+      description: Help contractors structure supplement documentation for covered
+        repair scope without promising carrier approval.
+      priority: 3
+    proof_points:
+    - Licensed Public Adjuster
+    - Over 20 years of experience
+    - Supports homeowners and contractors
+    - Conservative compliance-first claim language
+    pricing_visibility: quote_based
+    deliverables:
+    - estimate_review
+    - scope_gap_summary
+    - supplement_documentation_guidance
+    - claim_support_intake
+    guarantees:
+    - no_claim_payment_guarantee
+    - no_carrier_outcome_guarantee
+  conversion:
+    primary_conversion:
+      label: Request a Claim Review
+      type: form_submit
+      destination: lead_capture_form
+    secondary_conversions:
+    - label: Call Now
+      type: phone_call
+      destination: '{{PHONE_PLACEHOLDER}}'
+    - label: Upload Your Estimate
+      type: upload
+      destination: lead_capture_form
+    cta_library:
+    - Request a Claim Review
+    - Talk to a Licensed Public Adjuster
+    - Upload Your Estimate
+    - Get Supplement Support
+    lead_capture:
+      enabled: true
+      file_upload_enabled: true
+      consent_required: true
+      fields:
+      - name: full_name
+        required: true
+        pii: true
+      - name: phone
+        required: true
+        pii: true
+      - name: email
+        required: true
+        pii: true
+      - name: customer_type
+        required: true
+        pii: false
+      - name: property_state
+        required: true
+        pii: false
+      - name: claim_status
+        required: true
+        pii: false
+      - name: message
+        required: true
+        pii: true
+      - name: property_address
+        required: false
+        pii: true
+      - name: insurance_carrier
+        required: false
+        pii: false
+      - name: claim_number
+        required: false
+        pii: true
+      - name: contractor_company
+        required: false
+        pii: false
+      - name: estimate_upload
+        required: false
+        pii: true
+      - name: photos_upload
+        required: false
+        pii: true
+      - name: preferred_contact_method
+        required: false
+        pii: false
+    conversion_paths:
+    - audience_segment: homeowners
+      entry_page: /
+      supporting_pages:
+      - /homeowners
+      - /insurance-supplementing
+      - /faq
+      final_action: submit_claim_review_form
+    - audience_segment: contractors
+      entry_page: /
+      supporting_pages:
+      - /contractors
+      - /insurance-supplementing
+      - /faq
+      final_action: submit_contractor_support_form
+    thank_you_flow:
+      path: /thank-you
+      indexability: noindex
+      post_submit_message: We received your request. A team member will review it
+        and follow up.
+  authority:
+    credibility_claims:
+    - Licensed Public Adjuster
+    - Over 20 years of experience
+    - Homeowner and contractor support
+    experience:
+      years: 20+
+      display_text: Over 20 years of experience
+    licenses:
+    - license_type: public_adjuster
+      states:
+      - TN
+      - KY
+      - VA
+      - NC
+      - GA
+      - AL
+      - MS
+      - AR
+      - MO
+      license_number: '{{LICENSE_NUMBER_PLACEHOLDER}}'
+      display_rule: Display only where legally accurate and approved.
+    testimonials_status: placeholder
+    case_studies:
+      status: none_initial_launch
+      rule: Do not fabricate case studies or claim outcomes.
+  geography:
+    service_area_model: state_based
+    primary_regions:
+    - TN
+    - KY
+    - VA
+    - NC
+    - GA
+    - AL
+    - MS
+    - AR
+    - MO
+    excluded_regions: []
+    physical_locations:
+    - address: '{{ADDRESS_PLACEHOLDER}}'
+      display_status: placeholder
+      rule: Hide street address until approved for publication.
+    local_pages:
+      enabled: false
+      strategy: none
+      page_limit: 0
+      future_phase: state_pages_after_launch_only
+    map_embed:
+      enabled: false
+      reason: address_placeholder
+  content:
+    sitemap_strategy: minimal_conversion
+    content_status: briefed
+    content_tone:
+      voice: direct_trustworthy_professional_claim_literate
+      reading_level: plain_english_grade_8_to_10
+      banned_claims:
+      - guaranteed_claim_increase
+      - guaranteed_payment
+      - guaranteed_approval
+      - legal_advice_unless_approved
+      - carrier_outcome_promises
+      - generic_roofing_company_positioning
+    required_pages:
+    - path: /
+      purpose: Position the company, route homeowners and contractors, explain trust
+        points, capture leads.
+      template: homepage
+      priority: 1
+    - path: /insurance-supplementing
+      purpose: Explain insurance supplementing, estimate review, documentation, and
+        supplement support.
+      template: service_page
+      priority: 2
+    - path: /homeowners
+      purpose: Explain claim review help for homeowners and set realistic expectations.
+      template: audience_page
+      priority: 3
+    - path: /contractors
+      purpose: Explain supplement support for contractors handling property restoration
+        or repair work.
+      template: audience_page
+      priority: 4
+    - path: /service-area
+      purpose: Cover Tennessee and bordering states without premature city-page bloat.
+      template: service_area_page
+      priority: 5
+    - path: /about
+      purpose: Build trust around licensed public adjuster status and experience.
+      template: about_page
+      priority: 6
+    - path: /faq
+      purpose: Answer supplementing, process, homeowner, contractor, and compliance
+        questions.
+      template: faq_page
+      priority: 7
+    - path: /contact
+      purpose: Lead form, phone CTA, service email placeholder, and contact instructions.
+      template: contact_page
+      priority: 8
+    - path: /thank-you
+      purpose: Post-submit confirmation page.
+      template: thank_you_page
+      priority: 9
+      noindex: true
+    page_templates:
+    - template_name: homepage
+      applies_to:
+      - /
+      required_sections:
+      - hero
+      - trust_bar
+      - audience_paths
+      - service_summary
+      - process
+      - service_area
+      - faq_preview
+      - final_cta
+    - template_name: service_page
+      applies_to:
+      - /insurance-supplementing
+      required_sections:
+      - hero
+      - problem
+      - what_is_supplementing
+      - process
+      - documents_needed
+      - compliance_note
+      - cta
+    - template_name: audience_page
+      applies_to:
+      - /homeowners
+      - /contractors
+      required_sections:
+      - hero
+      - pain_points
+      - how_we_help
+      - what_to_prepare
+      - proof
+      - cta
+    - template_name: service_area_page
+      applies_to:
+      - /service-area
+      required_sections:
+      - hero
+      - state_list
+      - service_area_rules
+      - no_city_page_bloat_note
+      - cta
+    - template_name: faq_page
+      applies_to:
+      - /faq
+      required_sections:
+      - hero
+      - faq_groups
+      - disclaimer
+      - cta
+    faq_bank:
+    - question: What is insurance supplementing?
+      answer_brief: A supplement is a documented request for additional covered scope
+        or cost items that may not have been included in the original estimate.
+    - question: Do you guarantee claim approval?
+      answer_brief: No. The site must not guarantee approval, payment, or outcome.
+    - question: Do you work with contractors?
+      answer_brief: Yes. Contractors are a primary audience for supplement documentation
+        support.
+    - question: What states do you serve?
+      answer_brief: Tennessee and bordering states, subject to licensing and compliance
+        requirements.
+  seo:
+    seo_first: true
+    primary_keyword_cluster:
+      cluster_name: insurance_supplementing
+      target_page: /insurance-supplementing
+      intent: service_provider
+      keywords:
+      - insurance supplementing
+      - insurance claim supplement
+      - claim supplement services
+      - property insurance supplement
+      - public adjuster supplement help
+    secondary_keyword_clusters:
+    - cluster_name: homeowner_claim_review
+      target_page: /homeowners
+      intent: homeowner_service
+      keywords:
+      - insurance claim review for homeowners
+      - underpaid insurance claim help
+      - estimate supplement review
+    - cluster_name: contractor_supplement_support
+      target_page: /contractors
+      intent: contractor_service
+      keywords:
+      - contractor supplement support
+      - roofing supplement help
+      - restoration supplement support
+    - cluster_name: regional_service_area
+      target_page: /service-area
+      intent: local_service
+      keywords:
+      - insurance supplementing Tennessee
+      - insurance supplementing TN
+      - public adjuster supplement help Tennessee
+    metadata_rules:
+      title_pattern: '{Primary Keyword} | Supplemental Insurance Pros'
+      description_pattern: Licensed public adjuster support for {Audience} with insurance
+        claim supplements across Tennessee and bordering states.
+    schema_rules:
+    - Organization
+    - LocalBusiness
+    - ProfessionalService
+    - Service
+    - FAQPage
+    - BreadcrumbList
+    - ContactPage
+    internal_linking_rules:
+      hub_pages:
+      - /
+      - /insurance-supplementing
+      spoke_pages:
+      - /homeowners
+      - /contractors
+      - /service-area
+      - /about
+      - /faq
+      - /contact
+      prohibited_links:
+      - thin_city_pages_before_state_strategy_is_approved
+      - guaranteed_outcome_claim_pages
+    programmatic_seo:
+      enabled: false
+      reason: avoid_doorway_page_risk_until_core_site_validates
+    local_seo:
+      enabled: true
+      depth: conservative
+      location_page_strategy: service_area_overview_first
+      city_pages: false
+  design:
+    design_status: placeholder
+    visual_direction: trustworthy_professional_clear_local_service
+    brand_tokens:
+      colors: '{{COLOR_TOKENS_PLACEHOLDER}}'
+      typography: '{{TYPOGRAPHY_PLACEHOLDER}}'
+      spacing: '{{SPACING_PLACEHOLDER}}'
+    layout_rules:
+    - mobile_first
+    - prominent_phone_and_form_cta
+    - short_sections
+    - trust_claims_near_top
+    - audience_split_visible_above_fold
+    - no_visual_clutter
+    - compliance_disclaimer_visible_but_not_overwhelming
+    accessibility_rules:
+      wcag_target: WCAG_2_2_AA
+      contrast_required: true
+      keyboard_navigation_required: true
+      form_labels_required: true
+      focus_states_required: true
+  compliance:
+    compliance_required: true
+    regulated_industry: true
+    disclaimers:
+    - name: public_adjuster_disclaimer
+      required: true
+      text: '{{PUBLIC_ADJUSTER_DISCLAIMER_PLACEHOLDER}}'
+      placement:
+      - footer
+      - contact_page
+      - service_pages
+    - name: no_guarantee_disclaimer
+      required: true
+      text: '{{NO_GUARANTEE_DISCLAIMER_PLACEHOLDER}}'
+      placement:
+      - footer
+      - service_pages
+      - faq
+    - name: not_legal_advice_disclaimer
+      required: true
+      text: '{{NOT_LEGAL_ADVICE_DISCLAIMER_PLACEHOLDER}}'
+      placement:
+      - footer
+      - faq
+    consent_rules:
+      contact_form_consent: true
+      sms_consent: true
+      email_marketing_consent: false
+      file_upload_consent: true
+    prohibited_claims:
+    - guaranteed_claim_payment
+    - guaranteed_claim_increase
+    - guaranteed_approval
+    - carrier_outcome_promises
+    - legal_advice
+    state_specific_rules:
+      status: Unknown
+      validation_required_before_launch: true
+      affected_states:
+      - TN
+      - KY
+      - VA
+      - NC
+      - GA
+      - AL
+      - MS
+      - AR
+      - MO
+  integrations:
+    crm:
+      enabled: true
+      platform: AccuLynx
+      phase: phase_2_hardened_sync
+      launch_blocking: false
+      phase_1_strategy: clean_lead_capture_to_email_or_secure_storage
+      failure_policy: CRM sync failure must not lose a lead.
+    analytics:
+      enabled: true
+      tools:
+      - Google Analytics 4
+      - Google Search Console
+    email:
+      notification_recipients:
+      - '{{EMAIL_PLACEHOLDER}}'
+      sender_domain_status: unknown
+    payments:
+      enabled: false
+      platform: none
+    scheduling:
+      enabled: false
+      platform: none
+    forms:
+      enabled: true
+      phase_1_destination: secure_email_or_database
+      phase_2_destination: AccuLynx
+    storage:
+      enabled: true
+      purpose: lead_backup_and_optional_upload_storage
+      launch_blocking: false
+    webhooks:
+      enabled: false
+      phase: phase_2
+  deployment:
+    framework: astro
+    host: vercel
+    dns_provider: GoDaddy
+    repo_provider: unknown
+    ci_cd: vercel_preview_to_production
+    build_command: npm run build
+    output_directory: dist
+    environments:
+    - development
+    - preview
+    - production
+    launch_checklist:
+    - validate_dns_records
+    - connect_vercel_project
+    - confirm_ssl
+    - verify_astro_build
+    - test_contact_form
+    - test_file_upload_path_or_disable_upload_until_ready
+    - install_analytics
+    - verify_search_console
+    - generate_sitemap_xml
+    - generate_robots_txt
+    - verify_noindex_on_thank_you
+    - confirm_required_disclaimers_visible
+  validation:
+    required_field_policy: allow_unknown_with_report
+    unknown_field_policy: label_unknown
+    blocking_gates:
+    - domain_matches_canonical_url
+    - seo_first_true
+    - homepage_exists
+    - primary_conversion_exists
+    - required_disclaimers_placed
+    - astro_framework_locked
+    - vercel_host_locked
+    - crm_launch_blocking_false
+    - no_city_page_bloat
+    non_blocking_warnings:
+    - phone_placeholder
+    - email_placeholder
+    - address_placeholder
+    - license_number_placeholder
+    - public_adjuster_disclaimer_placeholder
+    - no_guarantee_disclaimer_placeholder
+    - brand_tokens_placeholder
+    - sender_domain_status_unknown
+  assets:
+    logo: placeholder
+    photos: placeholder
+    icons: generated_or_stock_allowed_with_review
+    documents: none_initially
+  experiments:
+    enabled: false
+    future_tests:
+    - homeowner_vs_contractor_cta_order
+    - upload_estimate_cta_visibility
+    - phone_first_vs_form_first
+  future_outputs:
+    enabled: true
+    asset_types:
+    - website
+    - landing_page
+    - seo_campaign
+    - local_seo_pages
+    - blog_cluster
+    - email_sequence
+    - lead_magnet
+  notes:
+  - This pilot is intentionally conservative: minimal route count, no city pages,
+      no launch-blocking AccuLynx sync.
+  - Replace placeholders before public launch where legally required.

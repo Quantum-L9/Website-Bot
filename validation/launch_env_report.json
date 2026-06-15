@@ -1,0 +1,31 @@
+{
+  "validation_scope": "launch_env_contract",
+  "timestamp_utc": "2026-06-13T02:43:02.102Z",
+  "required_checked": 16,
+  "optional_until_claimed_checked": 11,
+  "missing_required": [
+    "PROJECT_LICENSE",
+    "SUPPORT_CONTACT_EMAIL",
+    "SECURITY_CONTACT_EMAIL",
+    "PUBLIC_SITE_URL",
+    "PRODUCTION_DOMAIN",
+    "FORM_PROVIDER",
+    "FORM_ENDPOINT_URL",
+    "LEAD_NOTIFICATION_EMAIL",
+    "VERCEL_ORG_ID",
+    "VERCEL_PROJECT_ID",
+    "VERCEL_TOKEN",
+    "LEGAL_DISCLAIMER_APPROVED",
+    "LEGAL_DISCLAIMER_VERSION",
+    "LEGAL_REVIEW_OWNER",
+    "PUBLIC_ADJUSTER_LICENSE_NUMBER",
+    "PUBLIC_ADJUSTER_LICENSE_STATE"
+  ],
+  "gate_failures": [
+    "LEGAL_DISCLAIMER_APPROVED must be true for launch.",
+    "DOMAIN_VERIFICATION_REQUIRED must be false only after domain verification passes.",
+    "PUBLIC_ADJUSTER_LICENSE_NUMBER required while LICENSE_DISPLAY_REQUIRED is true."
+  ],
+  "status": "FAIL_CLOSED",
+  "note": "This validates env presence and launch gates only. It does not verify external credentials."
+}

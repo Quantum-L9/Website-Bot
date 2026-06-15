@@ -1,0 +1,46 @@
+---
+const formEndpoint = import.meta.env.PUBLIC_FORM_ENDPOINT || '';
+const hasConfiguredEndpoint = Boolean(formEndpoint && !formEndpoint.includes('UNKNOWN'));
+---
+<form
+  name="claim-review"
+  method="post"
+  enctype="multipart/form-data"
+  action={hasConfiguredEndpoint ? formEndpoint : undefined}
+  data-form-endpoint={hasConfiguredEndpoint ? 'configured' : 'unknown'}
+  data-conversion="claim_review_request"
+  data-crm-provider="acculynx"
+  data-crm-sync-mode="phase_2"
+>
+  <div class="grid two">
+    <div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" autocomplete="name" required /></div>
+    <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" autocomplete="tel" required /></div>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" autocomplete="email" required /></div>
+    <div class="field"><label for="customer_type">I am a</label><select id="customer_type" name="customer_type" required><option>Homeowner</option><option>Contractor</option></select></div>
+    <div class="field"><label for="property_state">Property state</label><select id="property_state" name="property_state" required><option>TN</option><option>KY</option><option>VA</option><option>NC</option><option>GA</option><option>AL</option><option>MS</option><option>AR</option><option>MO</option></select></div>
+    <div class="field"><label for="claim_status">Claim status</label><input id="claim_status" name="claim_status" required /></div>
+  </div>
+  <input type="hidden" id="utm_source" name="utm_source" />
+  <input type="hidden" id="utm_medium" name="utm_medium" />
+  <input type="hidden" id="utm_campaign" name="utm_campaign" />
+  <input type="hidden" id="landing_page" name="landing_page" />
+  <div class="field"><label for="message">What do you need reviewed?</label><textarea id="message" name="message" required></textarea></div>
+  <div class="field"><label for="estimate_upload">Upload estimate, optional</label><input id="estimate_upload" type="file" name="estimate_upload" /></div>
+  <div class="field"><label><input type="checkbox" name="consent_contact" required /> I agree to be contacted about my request. SMS consent language must be finalized before launch.</label></div>
+  {!hasConfiguredEndpoint && <p class="notice" role="status">Form delivery endpoint is not configured yet. Set PUBLIC_FORM_ENDPOINT before production launch.</p>}
+  <button class="btn" type="submit">Request a Claim Review</button>
+</form>
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[name="claim-review"]');
+    if (!form) return;
+    const attribution = JSON.parse(window.localStorage.getItem('sip_attribution') || '{}');
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'landing_page']) {
+      const field = form.querySelector(`[name="${key}"]`);
+      if (field && attribution[key]) field.value = attribution[key];
+    }
+    form.addEventListener('submit', function () {
+      if (window.sipTrackConversion) window.sipTrackConversion('claim_review_request', { form: 'claim-review' });
+    });
+  });
+</script>

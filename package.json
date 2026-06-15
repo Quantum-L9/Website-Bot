@@ -1,0 +1,25 @@
+{
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "verify:preflight": "node scripts/preflight.mjs",
+    "verify:source": "node scripts/verify-source.mjs",
+    "verify:build": "node scripts/verify-build.mjs",
+    "verify:smoke": "node scripts/verify-smoke.mjs",
+    "verify:form": "node scripts/verify-form.mjs",
+    "verify:analytics": "node scripts/verify-analytics.mjs",
+    "verify:crm": "node scripts/verify-crm.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
+    "verify:rollback": "node scripts/verify-rollback.mjs",
+    "verify:all": "node scripts/verify-all.mjs",
+    "deploy:preview": "node scripts/deploy.mjs --preview",
+    "deploy:production": "node scripts/deploy.mjs --prod",
+    "verify:launch-env": "node scripts/verify-launch-env.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "latest",
+    "@esbuild/linux-x64": "^0.25.12",
+    "astro": "latest"
+  }
+}

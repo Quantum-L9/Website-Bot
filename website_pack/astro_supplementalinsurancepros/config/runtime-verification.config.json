@@ -1,0 +1,45 @@
+{
+  "site": {
+    "domain": "supplementalinsurancepros.com",
+    "defaultUrl": "https://supplementalinsurancepros.com",
+    "framework": "astro",
+    "deploymentTarget": "vercel"
+  },
+  "routes": [
+    "/",
+    "/insurance-supplementing/",
+    "/homeowners/",
+    "/contractors/",
+    "/service-area/",
+    "/about/",
+    "/faq/",
+    "/contact/",
+    "/thank-you/"
+  ],
+  "requiredPublicEnv": [
+    "PUBLIC_SITE_URL",
+    "PUBLIC_CONTACT_PHONE",
+    "PUBLIC_CONTACT_EMAIL",
+    "PUBLIC_CONTACT_ADDRESS",
+    "PUBLIC_PA_LICENSE_NUMBER",
+    "PUBLIC_PUBLIC_ADJUSTER_DISCLAIMER",
+    "PUBLIC_FORM_ENDPOINT"
+  ],
+  "optionalRuntimeEnv": [
+    "PUBLIC_ANALYTICS_PROVIDER",
+    "PUBLIC_ANALYTICS_ID",
+    "PUBLIC_CRM_PROVIDER",
+    "PUBLIC_CRM_ENDPOINT"
+  ],
+  "form": {
+    "component": "src/components/LeadForm.astro",
+    "requiredFields": ["full_name", "phone", "email", "customer_type", "property_state", "claim_status", "message", "consent_contact"],
+    "uploadField": "estimate_upload",
+    "successRoute": "/thank-you/"
+  },
+  "seo": {
+    "requiredPublicFiles": ["robots.txt", "llms.txt"],
+    "requiredHeadMarkers": ["<title>", "name=\"description\"", "rel=\"canonical\"", "application/ld+json"],
+    "sitemapExpectedAfterBuild": "sitemap-index.xml"
+  }
+}

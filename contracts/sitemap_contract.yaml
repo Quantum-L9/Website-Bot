@@ -1,0 +1,64 @@
+contract: sitemap_contract
+version: 1.0.0
+routes:
+- order: 1
+  path: /
+  template: homepage
+  purpose: Position the company, route homeowners and contractors, explain trust points,
+    capture leads.
+  priority: 1
+  indexability: index
+- order: 2
+  path: /insurance-supplementing
+  template: service_page
+  purpose: Explain insurance supplementing, estimate review, documentation, and supplement
+    support.
+  priority: 2
+  indexability: index
+- order: 3
+  path: /homeowners
+  template: audience_page
+  purpose: Explain claim review help for homeowners and set realistic expectations.
+  priority: 3
+  indexability: index
+- order: 4
+  path: /contractors
+  template: audience_page
+  purpose: Explain supplement support for contractors handling property restoration
+    or repair work.
+  priority: 4
+  indexability: index
+- order: 5
+  path: /service-area
+  template: service_area_page
+  purpose: Cover Tennessee and bordering states without premature city-page bloat.
+  priority: 5
+  indexability: index
+- order: 6
+  path: /about
+  template: about_page
+  purpose: Build trust around licensed public adjuster status and experience.
+  priority: 6
+  indexability: index
+- order: 7
+  path: /faq
+  template: faq_page
+  purpose: Answer supplementing, process, homeowner, contractor, and compliance questions.
+  priority: 7
+  indexability: index
+- order: 8
+  path: /contact
+  template: contact_page
+  purpose: Lead form, phone CTA, service email placeholder, and contact instructions.
+  priority: 8
+  indexability: index
+- order: 9
+  path: /thank-you
+  template: thank_you_page
+  purpose: Post-submit confirmation page.
+  priority: 9
+  indexability: noindex
+rules:
+  minimal_conversion: true
+  city_pages: false
+  thank_you_noindex: true

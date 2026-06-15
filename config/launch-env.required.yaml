@@ -1,0 +1,70 @@
+launch_env_contract:
+  version: "1.0.0"
+  project: "Supplemental Insurance Pros Astro site"
+  policy: "fail_closed_for_production_launch"
+  values_must_not_be_fabricated: true
+  groups:
+    license:
+      required_for_launch: true
+      variables:
+        PROJECT_LICENSE: "Operator-selected project license; blank means launch docs must remain Unknown."
+        LICENSE_CHOICE_REQUIRED: "Must be false only after license is selected and documented."
+    support:
+      required_for_launch: true
+      variables:
+        SUPPORT_CONTACT_EMAIL: "Public support email or operational intake address."
+        SUPPORT_CONTACT_URL: "Optional support URL."
+    security:
+      required_for_launch: true
+      variables:
+        SECURITY_CONTACT_EMAIL: "Security disclosure email."
+        SECURITY_DISCLOSURE_URL: "Optional disclosure URL."
+    domain:
+      required_for_launch: true
+      variables:
+        PUBLIC_SITE_URL: "Canonical public site URL including scheme."
+        PRODUCTION_DOMAIN: "Production domain expected to resolve to deployment."
+        DOMAIN_VERIFICATION_REQUIRED: "Must remain true until domain check passes."
+    form:
+      required_for_launch: true
+      variables:
+        FORM_PROVIDER: "Provider name, e.g. webhook, formspree, custom, crm_proxy."
+        FORM_ENDPOINT_URL: "Server-side or trusted endpoint that receives lead submissions."
+        FORM_WEBHOOK_SECRET: "Secret for form webhook validation, stored only as secret."
+        LEAD_NOTIFICATION_EMAIL: "Lead notification recipient, if email routing is used."
+    acculynx:
+      required_for_launch: false
+      required_for_crm_launch_claim: true
+      variables:
+        ACCULYNX_API_BASE_URL: "AccuLynx API base URL supplied by operator."
+        ACCULYNX_CLIENT_ID: "Secret or client id supplied by operator."
+        ACCULYNX_CLIENT_SECRET: "Secret supplied by operator."
+        ACCULYNX_API_TOKEN: "Secret token supplied by operator."
+        ACCULYNX_TEST_MODE: "Must be true for synthetic validation until production handoff is approved."
+    analytics:
+      required_for_launch: false
+      required_for_analytics_launch_claim: true
+      variables:
+        ANALYTICS_PROVIDER: "Approved analytics provider."
+        ANALYTICS_MEASUREMENT_ID: "Provider measurement/site id."
+        ANALYTICS_CONVERSION_EVENT: "Conversion event name."
+        ANALYTICS_THANK_YOU_EVENT: "Thank-you page event name."
+    vercel:
+      required_for_deployment: true
+      variables:
+        VERCEL_ORG_ID: "Vercel org id from project settings."
+        VERCEL_PROJECT_ID: "Vercel project id from project settings."
+        VERCEL_TOKEN: "Secret deployment token."
+        VERCEL_PRODUCTION_DEPLOYMENT: "Must be true only when production deploy is explicitly authorized."
+    legal:
+      required_for_launch: true
+      variables:
+        LEGAL_DISCLAIMER_APPROVED: "Must be true after legal/client approval."
+        LEGAL_DISCLAIMER_VERSION: "Approved disclaimer version identifier."
+        LEGAL_REVIEW_OWNER: "Person/entity responsible for legal approval."
+    licensing:
+      required_for_launch: true
+      variables:
+        PUBLIC_ADJUSTER_LICENSE_NUMBER: "Official public adjuster license number."
+        PUBLIC_ADJUSTER_LICENSE_STATE: "Primary licensing state."
+        LICENSE_DISPLAY_REQUIRED: "Must be false only if licensing display is not required."

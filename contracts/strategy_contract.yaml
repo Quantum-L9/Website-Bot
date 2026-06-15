@@ -1,0 +1,90 @@
+contract: strategy_contract
+version: 1.0.0
+source: domain_spec
+identity:
+  business_name: Supplemental Insurance Pros
+  domain: supplementalinsurancepros.com
+  positioning:
+    one_liner: Licensed public adjuster-led insurance supplementing support for homeowners
+      and contractors across Tennessee and bordering states.
+    category: insurance_supplementing
+    primary_value: Help property claim stakeholders identify missed scope, organize
+      documentation, and pursue legitimate claim supplements without overpromising
+      carrier outcomes.
+audience_paths:
+- audience_segment: homeowners
+  entry_page: /
+  supporting_pages:
+  - /homeowners
+  - /insurance-supplementing
+  - /faq
+  final_action: submit_claim_review_form
+- audience_segment: contractors
+  entry_page: /
+  supporting_pages:
+  - /contractors
+  - /insurance-supplementing
+  - /faq
+  final_action: submit_contractor_support_form
+offer_stack:
+- name: Insurance Supplementing
+  slug: insurance-supplementing
+  description: Review claim scope, organize supporting documentation, and help prepare
+    supplement-ready claim materials.
+  priority: 1
+- name: Homeowner Claim Review
+  slug: homeowners
+  description: Help homeowners understand potential gaps in a property insurance estimate
+    and what documentation may be needed.
+  priority: 2
+- name: Contractor Supplement Support
+  slug: contractors
+  description: Help contractors structure supplement documentation for covered repair
+    scope without promising carrier approval.
+  priority: 3
+trust_model:
+  proof_points:
+  - Licensed Public Adjuster
+  - Over 20 years of experience
+  - Supports homeowners and contractors
+  - Conservative compliance-first claim language
+  authority:
+    credibility_claims:
+    - Licensed Public Adjuster
+    - Over 20 years of experience
+    - Homeowner and contractor support
+    experience:
+      years: 20+
+      display_text: Over 20 years of experience
+    licenses:
+    - license_type: public_adjuster
+      states:
+      - TN
+      - KY
+      - VA
+      - NC
+      - GA
+      - AL
+      - MS
+      - AR
+      - MO
+      license_number: '{{LICENSE_NUMBER_PLACEHOLDER}}'
+      display_rule: Display only where legally accurate and approved.
+    testimonials_status: placeholder
+    case_studies:
+      status: none_initial_launch
+      rule: Do not fabricate case studies or claim outcomes.
+constraints:
+  no_guarantees:
+  - no_claim_payment_guarantee
+  - no_carrier_outcome_guarantee
+  banned_claims:
+  - guaranteed_claim_increase
+  - guaranteed_payment
+  - guaranteed_approval
+  - legal_advice_unless_approved
+  - carrier_outcome_promises
+  - generic_roofing_company_positioning
+findings:
+  duplicate_routes: []
+  unknown_count: 22

@@ -1,0 +1,116 @@
+contract: content_contract
+version: 1.0.0
+tone:
+  voice: direct_trustworthy_professional_claim_literate
+  reading_level: plain_english_grade_8_to_10
+  banned_claims: &id001
+  - guaranteed_claim_increase
+  - guaranteed_payment
+  - guaranteed_approval
+  - legal_advice_unless_approved
+  - carrier_outcome_promises
+  - generic_roofing_company_positioning
+pages:
+- path: /
+  template: homepage
+  purpose: Position the company, route homeowners and contractors, explain trust points,
+    capture leads.
+  required_sections:
+  - hero
+  - trust_bar
+  - audience_paths
+  - service_summary
+  - process
+  - service_area
+  - faq_preview
+  - final_cta
+  cta_policy: &id002
+  - Request a Claim Review
+  - Talk to a Licensed Public Adjuster
+  - Upload Your Estimate
+  - Get Supplement Support
+  claims_policy: *id001
+- path: /insurance-supplementing
+  template: service_page
+  purpose: Explain insurance supplementing, estimate review, documentation, and supplement
+    support.
+  required_sections:
+  - hero
+  - problem
+  - what_is_supplementing
+  - process
+  - documents_needed
+  - compliance_note
+  - cta
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /homeowners
+  template: audience_page
+  purpose: Explain claim review help for homeowners and set realistic expectations.
+  required_sections: &id003
+  - hero
+  - pain_points
+  - how_we_help
+  - what_to_prepare
+  - proof
+  - cta
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /contractors
+  template: audience_page
+  purpose: Explain supplement support for contractors handling property restoration
+    or repair work.
+  required_sections: *id003
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /service-area
+  template: service_area_page
+  purpose: Cover Tennessee and bordering states without premature city-page bloat.
+  required_sections:
+  - hero
+  - state_list
+  - service_area_rules
+  - no_city_page_bloat_note
+  - cta
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /about
+  template: about_page
+  purpose: Build trust around licensed public adjuster status and experience.
+  required_sections: []
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /faq
+  template: faq_page
+  purpose: Answer supplementing, process, homeowner, contractor, and compliance questions.
+  required_sections:
+  - hero
+  - faq_groups
+  - disclaimer
+  - cta
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /contact
+  template: contact_page
+  purpose: Lead form, phone CTA, service email placeholder, and contact instructions.
+  required_sections: []
+  cta_policy: *id002
+  claims_policy: *id001
+- path: /thank-you
+  template: thank_you_page
+  purpose: Post-submit confirmation page.
+  required_sections: []
+  cta_policy: *id002
+  claims_policy: *id001
+faq_bank:
+- question: What is insurance supplementing?
+  answer_brief: A supplement is a documented request for additional covered scope
+    or cost items that may not have been included in the original estimate.
+- question: Do you guarantee claim approval?
+  answer_brief: No. The site must not guarantee approval, payment, or outcome.
+- question: Do you work with contractors?
+  answer_brief: Yes. Contractors are a primary audience for supplement documentation
+    support.
+- question: What states do you serve?
+  answer_brief: Tennessee and bordering states, subject to licensing and compliance
+    requirements.

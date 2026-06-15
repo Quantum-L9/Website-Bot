@@ -1,0 +1,1 @@
+{"check_id":"SMOKE-DIST","check_class":"runtime_smoke_validation","target_artifact":"dist","command_or_inspection_method":"node script inspection","expected_result":"dist exists for static route check","actual_result":"dist missing","status":"BLOCKED","severity":"critical","remediation_if_failed":"Run npm run build first.","evidence":"dist"}

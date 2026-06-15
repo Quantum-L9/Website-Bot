@@ -1,0 +1,48 @@
+validation_scope: deployment_and_runtime_gap_closure
+validation_timestamp: '2026-06-12T04:15:00Z'
+validator_identity_or_agent: l9_high_velocity_copilot
+pack_name: astro_supplementalinsurancepros_runtime_gap_closure
+framework: Astro
+host_target: Vercel
+final_status: deployment_ready_with_unknowns
+release_recommendation: configure_operator_values_then_run_full_build_and_deployed_smoke_tests
+checks_run_count: 112
+checks_passed_count: 93
+checks_failed_count: 0
+checks_blocked_count: 2
+checks_unknown_count: 17
+blocked_checks:
+  - npm run verify:build blocked because dependencies are not installed in current environment
+  - npm run verify:smoke blocked because dist output is absent until build runs
+unknowns:
+  - PUBLIC_CONTACT_PHONE
+  - PUBLIC_CONTACT_EMAIL
+  - PUBLIC_CONTACT_ADDRESS
+  - PUBLIC_PA_LICENSE_NUMBER
+  - PUBLIC_PUBLIC_ADJUSTER_DISCLAIMER
+  - PUBLIC_FORM_ENDPOINT
+  - PUBLIC_ANALYTICS_PROVIDER
+  - PUBLIC_ANALYTICS_ID
+  - PUBLIC_CRM_ENDPOINT
+  - PUBLIC_CRM_API_KEY
+  - VERCEL_PROJECT_ID
+  - VERCEL_ORG_ID
+  - VERCEL_TOKEN
+findings:
+  - id: RUNTIME-001
+    severity: high
+    status: closed_with_unknowns
+    description: Deployment and runtime verification now exist, but external credentials and operator values remain unset.
+  - id: RUNTIME-002
+    severity: medium
+    status: closed
+    description: SEO runtime validation path and metadata support added.
+  - id: RUNTIME-003
+    severity: medium
+    status: closed_with_unknowns
+    description: AccuLynx CRM remains correctly phase-2 and cannot be end-to-end verified until credentials exist.
+evidence_links_or_paths:
+  - validation/*.jsonl
+  - validation/GAP_CLOSURE_MATRIX.yaml
+  - docs/DEPLOYMENT_RUNBOOK.md
+  - README_DEPLOYMENT.md
