@@ -58,9 +58,9 @@ export class WebsiteFactoryLLM {
       budget: {
         monthlyBudgetPerClient: config.monthlyBudget ?? 200,
         weeklyTarget: config.weeklyBudget ?? 50,
-        weeklyCeiling: (config.weeklyBudget ?? 50) * 2,
-        globalHardCeiling: 500,
-        surgeAllowance: true,
+        weeklyHardCeiling: (config.weeklyBudget ?? 50) * 2,
+        globalMonthlyHardCeiling: 500,
+        surgeThreshold: 0.6,
       },
     };
 
@@ -248,12 +248,12 @@ export class WebsiteFactoryLLM {
   // FULL SITE VISUAL QA PLAN
   // ─────────────────────────────────────────────────────────────
 
-  planFullSiteQA(siteUrl: string, pages: string[]) {
+  planFullSiteQA(pages: string[], options?: { competitorUrl?: string }) {
     const config: FullSiteQAConfig = {
-      siteUrl,
       pages,
-      includeCompetitorComparison: true,
-      includeConversionAudit: true,
+      viewports: Object.values(this.router.getViewports()),
+      competitorUrl: options?.competitorUrl,
+      conversionAudit: true,
     };
     return this.router.planVisualQA(config);
   }

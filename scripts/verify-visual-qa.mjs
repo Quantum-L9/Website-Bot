@@ -103,7 +103,7 @@ async function main() {
   if (process.env.OPENROUTER_API_KEY) {
     console.log('\n🤖 Running vision analysis...\n');
     // Dynamic import of the LLM service
-    const { createWebsiteFactoryLLM } = await import('../src/services/llm.ts');
+    const { createWebsiteFactoryLLM } = await import('../dist/services/llm.js');
     const llm = createWebsiteFactoryLLM();
 
     const issues = [];
