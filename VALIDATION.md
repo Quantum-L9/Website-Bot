@@ -25,6 +25,8 @@ npm run verify:all
 | CRM | `npm run verify:crm` | AccuLynx contract, auth/env, payload shape |
 | SEO | `npm run verify:seo` | robots, sitemap, llms, metadata, canonical requirements |
 | Rollback | `npm run verify:rollback` | rollback procedure readiness |
+| Launch Env | `npm run verify:launch-env` | fail-closed environment variable gate for production |
+| Visual QA | `npm run verify:visual-qa` | LLM vision-based layout validation across viewports |
 | Full | `npm run verify:all` | aggregate gate |
 
 ## Evidence Files

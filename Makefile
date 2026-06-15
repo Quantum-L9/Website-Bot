@@ -1,32 +1,49 @@
 SHELL := /bin/sh
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev build preview verify verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback deploy-preview deploy-production clean
+.PHONY: help install dev build preview verify verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback verify-launch-env verify-visual-qa build-router generate-domain-spec generate-content deploy-preview deploy-production clean
 
 help:
-	@printf '%s\n' 'Supplemental Insurance Pros Astro command surface'
+	@printf '%s\n' 'L9 Website Factory Bot — command surface'
 	@printf '%s\n' ''
-	@printf '%-24s %s\n' 'make install' 'Install dependencies with npm ci'
-	@printf '%-24s %s\n' 'make dev' 'Run Astro dev server'
-	@printf '%-24s %s\n' 'make build' 'Build static site into dist/'
-	@printf '%-24s %s\n' 'make preview' 'Serve built site locally'
-	@printf '%-24s %s\n' 'make verify' 'Run full local verification suite'
-	@printf '%-24s %s\n' 'make deploy-preview' 'Run Vercel preview deployment wrapper'
-	@printf '%-24s %s\n' 'make deploy-production' 'Run Vercel production deployment wrapper after preview passes'
+	@printf '%s\n' '── Setup ──'
+	@printf '%-28s %s\n' 'make install' 'Install all workspace dependencies (root + packages)'
+	@printf '%-28s %s\n' 'make build-router' 'Build @l9/llm-router TypeScript package'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Development ──'
+	@printf '%-28s %s\n' 'make dev' 'Run Astro dev server'
+	@printf '%-28s %s\n' 'make build' 'Build static site into dist/'
+	@printf '%-28s %s\n' 'make preview' 'Serve built site locally'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Verification ──'
+	@printf '%-28s %s\n' 'make verify' 'Run full local verification suite'
+	@printf '%-28s %s\n' 'make verify-launch-env' 'Validate all launch environment variables (fail-closed)'
+	@printf '%-28s %s\n' 'make verify-visual-qa' 'Run visual layout QA via LLM vision (requires OPENROUTER_API_KEY)'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Generation ──'
+	@printf '%-28s %s\n' 'make generate-domain-spec' 'Generate domain spec from operator inputs via LLM'
+	@printf '%-28s %s\n' 'make generate-content' 'Generate page content via LLM router'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Deployment ──'
+	@printf '%-28s %s\n' 'make deploy-preview' 'Run Vercel preview deployment wrapper'
+	@printf '%-28s %s\n' 'make deploy-production' 'Run Vercel production deployment (requires preview pass + operator auth)'
 
 install:
 	npm ci
 
+build-router:
+	cd packages/llm-router && npx tsc
+
 dev:
 	npm run dev
 
-build:
+build: build-router
 	npm run build
 
 preview:
 	npm run preview
 
-verify: verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback
+verify: verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback verify-launch-env
 	npm run verify:all
 
 verify-preflight:
@@ -56,6 +73,18 @@ verify-seo:
 verify-rollback:
 	npm run verify:rollback
 
+verify-launch-env:
+	npm run verify:launch-env
+
+verify-visual-qa:
+	npm run verify:visual-qa
+
+generate-domain-spec:
+	npm run generate:domain-spec
+
+generate-content:
+	npm run generate:content
+
 deploy-preview:
 	npm run deploy:preview
 
@@ -63,4 +92,4 @@ deploy-production:
 	npm run deploy:production
 
 clean:
-	rm -rf dist .astro
+	rm -rf dist .astro packages/llm-router/dist

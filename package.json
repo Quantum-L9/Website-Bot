@@ -1,4 +1,12 @@
 {
+  "name": "l9-website-factory",
+  "version": "2.0.0",
+  "description": "L9 Website Factory Bot - deterministic website generation pipeline with @l9/llm-router integration",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/llm-router"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -15,11 +23,20 @@
     "verify:all": "node scripts/verify-all.mjs",
     "deploy:preview": "node scripts/deploy.mjs --preview",
     "deploy:production": "node scripts/deploy.mjs --prod",
-    "verify:launch-env": "node scripts/verify-launch-env.mjs"
+    "verify:launch-env": "node scripts/verify-launch-env.mjs",
+    "verify:visual-qa": "node scripts/verify-visual-qa.mjs",
+    "build:router": "cd packages/llm-router && npx tsc",
+    "generate:domain-spec": "npx tsx src/services/generate-domain-spec.ts",
+    "generate:content": "npx tsx src/services/generate-content.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "latest",
     "@esbuild/linux-x64": "^0.25.12",
+    "@l9/llm-router": "workspace:*",
     "astro": "latest"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
   }
 }

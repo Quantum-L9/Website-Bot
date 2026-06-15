@@ -20,9 +20,12 @@ When sources conflict, stop and report the conflict. Do not silently choose the 
 - Framework: Astro.
 - Package manager: npm.
 - Deployment target: Vercel.
+- LLM Router: @l9/llm-router (workspace package in packages/llm-router).
+- LLM Providers: OpenRouter (general) + Perplexity (search-grounded).
 - CRM direction: AccuLynx, phase 2 runtime verification.
 - Production deployment: preview-first only.
 - Readiness claims: evidence-backed only.
+- Visual QA: Required before production deployment (verify:visual-qa).
 
 ## Allowed Changes
 

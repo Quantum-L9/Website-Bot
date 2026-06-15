@@ -4,53 +4,62 @@
 
 Deployment target is Vercel. Deployment must be preview-first. Production deployment requires explicit operator authorization.
 
+## Prerequisites
+
+1. Node.js 18+ installed.
+2. npm 9+ installed.
+3. Workspace dependencies installed: `npm ci` (installs root + `packages/llm-router`).
+4. LLM Router built: `npm run build:router` (or `make build-router`).
+
+## Required Environment Variables
+
+See `.env.example` for the canonical variable list. See `config/launch-env.required.yaml` for the fail-closed launch contract.
+
+### LLM Intelligence (required for generation and visual QA)
+
+| Variable | Purpose |
+|----------|---------|
+| `OPENROUTER_API_KEY` | OpenRouter API key — routes to GPT-4o, Claude, Gemini |
+| `PERPLEXITY_API_KEY` | Perplexity API key — search-grounded research tasks |
+| `CLIENT_ID` | Unique client identifier for budget isolation |
+| `MONTHLY_BUDGET_PER_CLIENT` | Monthly token budget in USD (default: 200) |
+| `WEEKLY_BUDGET_TARGET` | Weekly soft budget target in USD (default: 50) |
+| `SITE_URL` | Live site URL for visual QA and SEO verification |
+
+### Vercel Deployment (required for deploy)
+
+| Variable | Purpose |
+|----------|---------|
+| `VERCEL_ORG_ID` | Vercel org id from project settings |
+| `VERCEL_PROJECT_ID` | Vercel project id from project settings |
+| `VERCEL_TOKEN` | Secret deployment token |
+
+### Site Runtime (required for launch)
+
+| Variable | Purpose |
+|----------|---------|
+| `PUBLIC_FORM_ENDPOINT` | Server-side endpoint for lead form submissions |
+| `PUBLIC_ANALYTICS_ID` | Analytics measurement/site id |
+| `ACCULYNX_API_KEY` | AccuLynx CRM integration key (phase 2) |
+
 ## Deployment Preconditions
 
 Before any preview deployment:
 
 ```bash
 npm ci
+npm run build:router
 npm run build
 npm run verify:all
 ```
 
 If external checks are blocked because credentials are missing, the report must state the exact missing values.
 
-## Required Environment Variables
-
-See `.env.example` for the canonical variable list.
-
-Required Vercel values:
-
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-- `VERCEL_TOKEN`
-
-Required public runtime values before launch:
-
-- `PUBLIC_SITE_URL`
-- `PUBLIC_FORM_ENDPOINT`
-- `PUBLIC_ANALYTICS_PROVIDER`
-- `PUBLIC_ANALYTICS_ID`
-
-AccuLynx phase 2 values:
-
-- `ACCU_LYNX_API_ENDPOINT`
-- `ACCU_LYNX_API_KEY`
-- `ACCU_LYNX_ACCOUNT_ID`
-
-Business launch values:
-
-- `PUBLIC_BUSINESS_PHONE`
-- `PUBLIC_BUSINESS_EMAIL`
-- `PUBLIC_BUSINESS_ADDRESS`
-- `PUBLIC_LICENSE_NUMBER`
-- `PUBLIC_DISCLAIMER_TEXT`
-
 ## Preview Deployment Flow
 
 ```bash
 npm ci
+npm run build:router
 npm run build
 npm run verify:all
 npm run deploy:preview
@@ -64,11 +73,22 @@ VERIFY_BASE_URL=https://preview-url.example npm run verify:all
 
 Save deployment logs and verification evidence before production promotion.
 
+## Visual QA (Optional Pre-Production)
+
+After preview deployment, run visual QA to validate layout across viewports:
+
+```bash
+SITE_URL=https://preview-url.example npm run verify:visual-qa
+```
+
+This captures screenshots at desktop, tablet, and mobile viewports and validates layout via LLM vision. Results are written to `validation/visual_qa_report.json`.
+
 ## Production Deployment Flow
 
 Only after preview verification passes and the operator explicitly authorizes production:
 
 ```bash
+npm run verify:launch-env
 npm run deploy:production
 ```
 
@@ -77,6 +97,16 @@ After production deploy:
 ```bash
 VERIFY_BASE_URL=https://production-domain.example npm run verify:all
 ```
+
+## Fail-Closed Launch Environment Gate
+
+Production deployment must not proceed until:
+
+```bash
+npm run verify:launch-env
+```
+
+The command writes `validation/launch_env_report.json` and exits nonzero while required vars are missing or approval gates remain unresolved. Secrets must be set in Vercel or a secure local secret store. Do not commit `.env.local`.
 
 ## Rollback
 
@@ -91,16 +121,7 @@ Rollback depends on Vercel deployment history. At minimum, record:
 
 - Do not deploy production before preview passes.
 - Do not commit `.env.local`.
-- Do not hardcode Vercel tokens.
+- Do not hardcode API keys or Vercel tokens.
 - Do not call deployment successful without URL and verification evidence.
 - Do not treat local build success as deployment proof.
-
-## Fail-Closed Launch Environment Gate
-
-Production deployment must not proceed until:
-
-```bash
-npm run verify:launch-env
-```
-
-The command writes `validation/launch_env_report.json` and exits nonzero while required vars are missing or approval gates remain unresolved. Secrets must be set in Vercel or a secure local secret store. Do not commit `.env.local`.
+- Do not skip `build:router` before `build` — the Astro site depends on the compiled router.
