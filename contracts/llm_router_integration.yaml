@@ -1,0 +1,136 @@
+# ═══════════════════════════════════════════════════════════════
+# L9 Website Factory → @l9/llm-router Integration Contract
+# ═══════════════════════════════════════════════════════════════
+# This contract defines how the Website Factory Bot consumes
+# the shared LLM Router module for all AI-powered operations.
+# ═══════════════════════════════════════════════════════════════
+
+contract:
+  name: llm_router_integration
+  version: "1.0.0"
+  owner: l9-website-factory
+  dependency: "@l9/llm-router@^1.0.0"
+  location: packages/llm-router
+
+# ─────────────────────────────────────────────────────────────
+# TASK TYPE MAPPING
+# ─────────────────────────────────────────────────────────────
+# Maps Website Factory operations to LLM Router TaskTypes
+
+task_mapping:
+  content_generation:
+    router_task_type: CONTENT_GENERATION
+    used_by:
+      - page copy generation
+      - blog post writing
+      - meta description generation
+      - FAQ content creation
+    default_complexity: MEDIUM
+    provider: openrouter
+
+  design_intelligence:
+    router_task_type: STRATEGIC_REASONING
+    used_by:
+      - color palette selection
+      - layout architecture decisions
+      - typography reasoning
+      - brand voice calibration
+    default_complexity: HIGH
+    provider: openrouter
+
+  competitor_research:
+    router_task_type: COMPETITOR_RESEARCH
+    used_by:
+      - market positioning analysis
+      - content gap identification
+      - design inspiration research
+    default_complexity: MEDIUM
+    provider: perplexity
+
+  visual_qa:
+    router_task_type: LAYOUT_VALIDATION
+    used_by:
+      - post-build layout validation
+      - responsive design verification
+      - visual regression detection
+    default_complexity: MEDIUM
+    provider: openrouter (vision model)
+
+  site_mining:
+    router_task_type: SCREENSHOT_ANALYSIS
+    used_by:
+      - existing site analysis
+      - content extraction guidance
+      - structure pattern recognition
+    default_complexity: MEDIUM
+    provider: openrouter (vision model)
+
+  domain_spec_generation:
+    router_task_type: STRATEGIC_REASONING
+    used_by:
+      - domain specification synthesis
+      - business model reasoning
+      - conversion architecture planning
+    default_complexity: HIGH
+    provider: openrouter
+
+  fact_verification:
+    router_task_type: FACT_VERIFICATION
+    used_by:
+      - credential verification
+      - license number validation
+      - business claim checking
+    default_complexity: LOW
+    provider: perplexity
+
+# ─────────────────────────────────────────────────────────────
+# BUDGET ALLOCATION
+# ─────────────────────────────────────────────────────────────
+
+budget:
+  monthly_per_client: 200
+  weekly_target: 50
+  weekly_ceiling: 100
+  surge_aware: true
+  note: >
+    Website Factory typically front-loads spend during initial
+    site generation (high complexity reasoning for domain spec
+    and design decisions), then drops to near-zero during
+    maintenance. Budget should accommodate burst patterns.
+
+# ─────────────────────────────────────────────────────────────
+# GOVERNANCE
+# ─────────────────────────────────────────────────────────────
+
+governance:
+  never_invent:
+    - phone numbers
+    - email addresses
+    - physical addresses
+    - license numbers
+    - credentials
+    - certifications
+    - legal claims
+    - testimonials
+  
+  always_verify:
+    - business claims via FACT_VERIFICATION before including in site
+    - competitor data via COMPETITOR_RESEARCH before positioning
+  
+  visual_qa_required:
+    - before any production deployment
+    - after major layout changes
+    - when responsive breakpoints are modified
+
+# ─────────────────────────────────────────────────────────────
+# ENVIRONMENT VARIABLES
+# ─────────────────────────────────────────────────────────────
+
+env_vars:
+  required:
+    - PERPLEXITY_API_KEY
+    - OPENROUTER_API_KEY
+  optional:
+    - CLIENT_ID
+    - MONTHLY_BUDGET_PER_CLIENT
+    - WEEKLY_BUDGET_TARGET

@@ -1,9 +1,19 @@
 launch_env_contract:
-  version: "1.0.0"
-  project: "Supplemental Insurance Pros Astro site"
+  version: "2.0.0"
+  project: "L9 Website Factory Bot"
   policy: "fail_closed_for_production_launch"
   values_must_not_be_fabricated: true
   groups:
+    llm_intelligence:
+      required_for_launch: false
+      required_for_generation_claims: true
+      variables:
+        OPENROUTER_API_KEY: "OpenRouter API key for general-purpose LLM routing. Required for content generation and visual QA."
+        PERPLEXITY_API_KEY: "Perplexity API key for search-grounded tasks. Required for competitor research and fact verification."
+        CLIENT_ID: "Unique client identifier for budget tracking and multi-tenant isolation."
+        MONTHLY_BUDGET_PER_CLIENT: "Monthly token budget in USD per client. Default 200."
+        WEEKLY_BUDGET_TARGET: "Weekly soft budget target in USD. Default 50."
+        SITE_URL: "Live site URL for visual QA screenshot capture and SEO verification."
     license:
       required_for_launch: true
       variables:
