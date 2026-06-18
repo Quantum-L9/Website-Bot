@@ -1,120 +1,68 @@
-# Runbook
+# Website-Bot v2.0 — Runbook
 
-## Purpose
+## Prerequisites
 
-This runbook gives an operator or AI agent the exact procedures for local validation, preview deployment, runtime verification, failure triage, and rollback.
+- Node.js >= 20.0.0
+- npm >= 10
+- `tsconfig.json` at repo root (included in this pack) — requires `module: NodeNext` and `moduleResolution: NodeNext`
+- `domain_spec/domain_spec.normalized.yaml` populated per WOM spec
 
-## Normal Local Verification
+## Required Secrets (GitHub)
 
-```bash
-npm ci
-npm run build
-npm run verify:all
-```
+| Secret | Purpose |
+|--------|---------|
+| OPENROUTER_API_KEY | LLM calls (content, design, schema) |
+| PERPLEXITY_API_KEY | Optional — alternative LLM routing |
+| VERCEL_TOKEN | Programmatic deploy |
+| POSTHOG_KEY | Analytics injection |
+| DATAFORSEO_LOGIN | SEO rank baseline |
+| DATAFORSEO_PASSWORD | SEO rank baseline |
+| SEO_BOT_URL | Handoff auto-registration |
+| SEO_BOT_API_KEY | Handoff auth |
 
-If route checks require a running local site:
+## Required Vars (GitHub)
 
-```bash
-npm run preview
-```
+| Var | Purpose |
+|-----|---------|
+| CLIENT_ID | Unique client identifier |
+| VERCEL_PROJECT_ID | Vercel project ID |
+| VERCEL_TEAM_ID | Vercel team ID (optional) |
 
-Then run smoke verification in another terminal if the script supports `VERIFY_BASE_URL`:
-
-```bash
-VERIFY_BASE_URL=http://127.0.0.1:4321 npm run verify:smoke
-```
-
-## Preview Deployment Procedure
-
-1. Confirm `.env.local` exists locally or deployment env vars exist in Vercel.
-2. Run local build and verification.
-3. Deploy preview.
-4. Capture preview URL.
-5. Run post-preview verification against the preview URL.
-6. Save logs and validation output.
+## Local Development
 
 ```bash
 npm ci
-npm run build
-npm run verify:all
-npm run deploy:preview
-VERIFY_BASE_URL=https://preview-url.example npm run verify:all
+npm run typecheck          # tsc --noEmit — requires tsconfig.json
+npm run pipeline:dry       # Full dry-run — no external calls
+npm run pipeline           # Full pipeline
 ```
 
-## Production Promotion Procedure
-
-Production deploy requires explicit operator approval and a passing preview verification report.
+## Stage Skip Syntax
 
 ```bash
-npm run deploy:production
-VERIFY_BASE_URL=https://production-domain.example npm run verify:all
+npx tsx scripts/run-pipeline.ts --skip=vercel-deploy,visual-qa
 ```
 
-## Failure Triage
+## Pipeline Stages
 
-### Dependency install fails
+| # | Stage | Skippable | Blocks on failure |
+|---|-------|-----------|-------------------|
+| 1 | domain-spec-loader | No | Yes |
+| 2 | unknown-resolver | No | Yes (error-severity flags) |
+| 3 | design-intelligence | Yes | Yes |
+| 4 | content-generation | Yes | Yes |
+| 5 | schema-generator | Yes | Yes |
+| 6 | posthog-snippet | Yes | No (warn only) |
+| 7 | vercel-deploy | Yes | Yes |
+| 8 | seo-baseline | Yes | No (warn only) |
+| 9 | visual-qa | Yes | Only on CRITICAL |
+| 10 | handoff-emitter | No | Yes |
 
-- Confirm Node.js 20+ and npm 10+.
-- Remove `node_modules` and rerun `npm ci`.
-- Inspect `package-lock.json` consistency.
-- Do not switch package managers without approval.
+## LLM Cost Control
 
-### Build fails
+Set env vars to override models:
+- `LLM_CONTENT_MODEL` (default: perplexity/llama-3.1-sonar-large-128k-online)
+- `LLM_DESIGN_MODEL`  (default: openai/gpt-4o)
+- `LLM_SCHEMA_MODEL`  (default: openai/gpt-4o-mini)
 
-- Read the first fatal Astro error.
-- Inspect `astro.config.mjs` and source files under `src/`.
-- Do not deploy.
-
-### Smoke test fails
-
-- Confirm preview server is running.
-- Confirm required routes exist.
-- Confirm `robots.txt`, `llms.txt`, and `sitemap.xml` are accessible.
-- Record failed route, status, and expected status.
-
-### Form verification blocked
-
-- Provide `PUBLIC_FORM_ENDPOINT`.
-- Submit a synthetic test lead only.
-- Confirm delivery destination receipt.
-- Do not use real customer data.
-
-### AccuLynx verification blocked
-
-- Provide AccuLynx endpoint/account/key through environment variables.
-- Do not expose API keys client-side.
-- Confirm test record creation before marking CRM verification closed.
-
-### Analytics verification blocked
-
-- Provide analytics provider/id.
-- Confirm page-view and conversion event receipt in provider debug or realtime view.
-
-## Rollback Procedure
-
-Rollback is not active until a preview or production deployment exists. Minimum rollback evidence:
-
-- previous deployment identified
-- rollback command or Vercel dashboard procedure documented
-- post-rollback smoke test passed
-
-## Incident Notes
-
-For every failure, record:
-
-- command run
-- timestamp
-- exit code
-- log excerpt
-- environment values present or missing
-- whether issue happened locally, preview, or production
-
-## Launch Configuration Procedure
-
-1. Copy `.env.example` to `.env.local`.
-2. Fill operator-owned values without committing secrets.
-3. Run `npm run verify:launch-env`.
-4. Resolve every missing value and gate failure.
-5. Run `npm run verify:all`.
-6. Deploy preview only after local checks pass.
-7. Promote to production only after preview verification, legal approval, domain verification, form delivery, and required runtime checks pass.
+All usage is written to `llm_usage` table in `website-bot.db` for cost auditing.

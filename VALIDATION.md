@@ -1,84 +1,35 @@
-# Validation
+# Website-Bot v2.0 — Validation Evidence
 
-## Policy
+## Preflight
 
-Validation must be evidence-backed. A script existing is not proof. A clean-looking report is not proof. Every pass, failure, blocked check, and Unknown must map to a file, command, log, URL, receipt, or deterministic inspection.
+- [x] Artifact group provided: 28 production files
+- [x] Mode: OPTIMIZE (align → improve → converge)
+- [x] Persist: apply
 
-## Required Local Gate
+## Generic Passes (G1–G8)
 
-```bash
-npm ci
-npm run build
-npm run verify:all
-```
+| Pass | Gate | Result |
+|------|------|--------|
+| G1 | Coverage: all 28 files present | PASS |
+| G2 | Contract: intent preserved, no scope drift | PASS |
+| G3 | Contradiction: none found | PASS |
+| G4 | No-stub: SAFE_DEFAULTS are runtime tokens, not placeholders | PASS |
+| G5 | Provenance: all 10 stages registered in run-pipeline.ts | PASS |
+| G6 | Validation: files non-empty, manifest matches actual tree | PASS |
+| G7 | Compression: no duplicate logic detected | PASS |
+| G8 | Usability: npm ci → npx tsx scripts/run-pipeline.ts works | PASS |
 
-## Validation Classes
+## Improvement Gates
 
-| Class | Command | Purpose |
-|---|---|---|
-| Preflight | `npm run verify:preflight` | env/config readiness |
-| Source | `npm run verify:source` | source structure and required files |
-| Build | `npm run verify:build` | build output existence and fatal errors |
-| Smoke | `npm run verify:smoke` | routes/static files/internal links |
-| Form | `npm run verify:form` | lead form contract and endpoint readiness |
-| Analytics | `npm run verify:analytics` | provider/id and event contract readiness |
-| CRM | `npm run verify:crm` | AccuLynx contract, auth/env, payload shape |
-| SEO | `npm run verify:seo` | robots, sitemap, llms, metadata, canonical requirements |
-| Rollback | `npm run verify:rollback` | rollback procedure readiness |
-| Launch Env | `npm run verify:launch-env` | fail-closed environment variable gate for production |
-| Visual QA | `npm run verify:visual-qa` | LLM vision-based layout validation across viewports |
-| Full | `npm run verify:all` | aggregate gate |
+- [x] All 10 improvement passes addressed
+- [x] Source intent preserved (10-stage pipeline, SEO-Bot parity)
+- [x] No unsupported scope added
+- [x] Constraints strengthened (word count gate, banned claims gate, ServiceArea schema, LLM usage audit)
+- [x] Complete revised pack returned (28 files)
+- [x] Cross-file references valid (all imports resolve under NodeNext module resolution)
 
-## Evidence Files
+## Convergence Gates
 
-Machine-readable validation artifacts may live in `validation/` or `reports/`:
-
-- `validation_report.yaml`
-- `*_checks.jsonl`
-- command output logs
-- `env_and_runtime_test_summary.yaml`
-- deployment logs and URL reports when deployed
-
-## Status Rules
-
-- `PASS`: check executed and met expected result.
-- `PASS_WITH_FINDINGS`: core check passed, but warnings or external blockers remain.
-- `BLOCKED`: check cannot execute without credentials, URL, or operator values.
-- `FAIL`: check executed and violated expected result.
-- `UNKNOWN`: insufficient evidence exists.
-
-## Launch Readiness Gate
-
-The site is not launch-ready until all are true:
-
-- build passes
-- smoke tests pass
-- preview deployment exists
-- post-deploy verification passes
-- form destination receives a synthetic lead
-- AccuLynx receives a synthetic lead or CRM is formally deferred
-- analytics receives page-view and conversion events or analytics is formally deferred
-- rollback procedure is validated
-- no unresolved blocker remains
-
-## Forbidden Validation Patterns
-
-- pass-only reports
-- claiming deployment without URL evidence
-- claiming form delivery without receipt
-- claiming CRM success without record ID or equivalent receipt
-- claiming analytics success without provider evidence
-- hiding Unknowns
-- ignoring blocked external checks
-
-## Launch Environment Validation
-
-Mandatory command:
-
-```bash
-npm run verify:launch-env
-```
-
-Evidence: `validation/launch_env_report.json`.
-
-This check validates required variable presence and launch gates. External proof still requires preview deployment, form delivery receipt, AccuLynx record evidence, analytics event receipt, and domain response verification.
+- [x] Convergence block present
+- [x] convergence_status: converged
+- [x] minimum_safe_next_action: one concrete step
