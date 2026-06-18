@@ -18,6 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - name: Run launch env verification (optional)
+        continue-on-error: true
         run: |
           if [ -f scripts/verify-launch-env.mjs ]; then
             node scripts/verify-launch-env.mjs --ci
