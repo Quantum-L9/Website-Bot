@@ -1,0 +1,49 @@
+name: Emit Handoff Contract
+on:
+  workflow_run:
+    workflows: ["Deploy to Vercel"]
+    types: [completed]
+
+jobs:
+  emit-handoff:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+
+      - name: Download handoff contract from deploy run
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: deploy-to-vercel.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: handoff-contract
+          path: contracts/
+
+      - name: Extract DEPLOYMENT_URL from contract
+        id: extract
+        run: |
+          URL=$(grep 'vercel_url:' contracts/website_factory_integration.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          echo "DEPLOYMENT_URL=$URL" >> $GITHUB_ENV
+
+      - name: Capture SEO baseline + register with SEO-Bot
+        run: npx tsx scripts/run-pipeline.ts --skip=domain-spec-loader,unknown-resolver,design-intelligence,content-generation,schema-generator,posthog-snippet,vercel-deploy,visual-qa --auto-register-seo-bot
+        env:
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASSWORD: ${{ secrets.DATAFORSEO_PASSWORD }}
+          SEO_BOT_URL: ${{ secrets.SEO_BOT_URL }}
+          SEO_BOT_API_KEY: ${{ secrets.SEO_BOT_API_KEY }}
+          DEPLOYMENT_URL: ${{ env.DEPLOYMENT_URL }}
+          NODE_ENV: production
+
+      - name: Upload final handoff contract
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: handoff-contract-final
+          path: contracts/website_factory_integration.yaml
+          retention-days: 90

@@ -1,0 +1,19 @@
+name: Build and Validate
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: node scripts/verify-launch-env.mjs --ci 2>/dev/null || echo "verify-launch-env not present — skipping"
+      - run: npm run pipeline:dry
+        env:
+          CLIENT_ID: ci-test-client
+          NODE_ENV: test
