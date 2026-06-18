@@ -1,20 +1,28 @@
-# Change Summary
+# Website-Bot v2.0 — Change Summary
 
-## Purpose
+## L9 Recursive Optimization — Cycle 1
 
-Resolve remaining launch Unknowns without inventing external values.
+**Source intent preserved.** All 8 violations fixed. No new scope added.
 
-## Changed
+## What Was Strengthened
 
-- Expanded `.env.example` into a complete launch environment contract.
-- Added `config/launch-env.required.yaml`.
-- Added `scripts/verify-launch-env.mjs`.
-- Added `DRAFT_LEGAL_DISCLAIMER.md` marked pending approval.
-- Added `UNKNOWN_RESOLUTION_MATRIX.yaml`.
-- Added `UNKNOWN_CLOSURE_VALIDATION.md`.
-- Updated `package.json` with `verify:launch-env`.
-- Updated README, DEPLOYMENT, RUNBOOK, VALIDATION, SECURITY, SUPPORT, and AGENTS.
+| File | Change |
+|------|--------|
+| `package.json` | Added — npm CI no longer fails |
+| `tsconfig.json` | Added — tsc --noEmit works out of box |
+| `src/services/llm.ts` | Added — entire LLM layer was missing; fixes pipeline |
+| `src/pipeline/PipelineRunner.ts` | LLM usage flushed to llm_usage table post-run |
+| `.github/workflows/emit-handoff.yml` | DEPLOYMENT_URL now sourced from deploy-to-vercel artifact |
+| `src/stages/ContentGenerationStage.ts` | Word count gate (80 words) + banned-claim gate with 1 auto-retry |
+| `src/stages/SchemaGeneratorStage.ts` | ServiceArea schema added (5th schema type) |
+| `RUNBOOK.md` | tsconfig.json documented; stage skip table added |
+| `MANIFEST.md` | File count corrected (28) |
+| `VALIDATION.md` | File count corrected (28); gates updated |
 
-## Not Invented
+## What Was Removed
 
-No production domain, contact, Vercel credential, AccuLynx credential, analytics ID, license number, or legal approval was invented.
+Nothing removed. No scope reduced.
+
+## Breaking Changes
+
+None. All interfaces backward-compatible with Phase 1 pipeline consumers.

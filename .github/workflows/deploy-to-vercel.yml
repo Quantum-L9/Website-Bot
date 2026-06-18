@@ -1,0 +1,47 @@
+name: Deploy to Vercel
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      deployment_url: ${{ steps.pipeline.outputs.deployment_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+
+      - name: Run full pipeline
+        id: pipeline
+        run: |
+          npx tsx scripts/run-pipeline.ts
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        env:
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          GITHUB_REPO_ID: ${{ github.event.repository.id }}
+          GITHUB_REF: ${{ github.ref_name }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASSWORD: ${{ secrets.DATAFORSEO_PASSWORD }}
+          NODE_ENV: production
+
+      - name: Upload handoff contract artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: handoff-contract
+          path: contracts/website_factory_integration.yaml
+          retention-days: 90
