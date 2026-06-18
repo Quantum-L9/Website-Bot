@@ -20,9 +20,16 @@ export class DomainSpecLoaderStage implements Stage {
     try { raw = readFileSync(this.specPath, 'utf-8'); }
     catch (e) { throw new BuildError('SPEC_LOAD_FAILED', `Cannot read spec at ${this.specPath}: ${e}`); }
 
-    let spec: DomainSpec;
-    try { spec = parse(raw) as DomainSpec; }
+    let parsed: unknown;
+    try { parsed = parse(raw); }
     catch (e) { throw new BuildError('VALIDATION_FAILED', `YAML parse error: ${e}`); }
+
+    // Support both flat format and nested { domain_spec: { ... } } wrapper
+    const spec = (
+      parsed && typeof parsed === 'object' && 'domain_spec' in parsed
+        ? (parsed as Record<string, unknown>).domain_spec
+        : parsed
+    ) as DomainSpec;
 
     const required: Array<keyof DomainSpec> = ['client_id', 'business_name', 'vertical', 'geography', 'routes'];
     for (const key of required) {

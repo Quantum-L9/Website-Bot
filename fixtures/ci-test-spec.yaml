@@ -1,0 +1,38 @@
+client_id: ci-test-client
+business_name: CI Test Business
+vertical: insurance_supplementing
+geography:
+  states:
+    - TN
+    - KY
+  primary_state: TN
+design:
+  status: resolved
+  palette:
+    primary: "#1a365d"
+    secondary: "#2b6cb0"
+  fonts:
+    heading: Inter
+    body: Inter
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - services-overview
+      - trust-signals
+  - slug: /services
+    title: Services
+    components:
+      - service-list
+      - cta
+  - slug: /contact
+    title: Contact
+    components:
+      - contact-form
+      - map
+seo_contract:
+  target_keywords:
+    - insurance supplement TN
+    - public adjuster Tennessee
+  site_url: ci-test.example.com

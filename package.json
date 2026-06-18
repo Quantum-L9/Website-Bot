@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "pipeline": "npx tsx scripts/run-pipeline.ts",
-    "pipeline:dry": "npx tsx scripts/run-pipeline.ts --dry-run",
+    "pipeline:dry": "npx tsx scripts/run-pipeline.ts --dry-run --spec=fixtures/ci-test-spec.yaml",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/verify-launch-env.mjs"
   },
