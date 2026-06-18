@@ -32,7 +32,7 @@ export class UnknownResolverStage implements Stage {
   name = 'unknown-resolver';
 
   async run(ctx: BuildContext): Promise<void> {
-    const flags = (ctx.domainSpec as unknown as { wom_flags?: WomFlag[] }).wom_flags ?? [];
+    const flags = ctx.domainSpec.wom_flags ?? [];
     if (!flags.length) {
       logger.info('No WOM flags found — skipping');
       return;

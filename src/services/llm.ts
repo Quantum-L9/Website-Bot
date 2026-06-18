@@ -52,19 +52,24 @@ async function call(
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new BuildError('LLM_CALL_FAILED', 'OPENROUTER_API_KEY not set');
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://github.com/cryptoxdog/Website-Bot',
-      'X-Title': 'L9-Website-Bot',
-    },
-    body: JSON.stringify({ model, messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user',   content: userPrompt },
-    ], temperature: 0.3 }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://github.com/cryptoxdog/Website-Bot',
+        'X-Title': 'L9-Website-Bot',
+      },
+      body: JSON.stringify({ model, messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userPrompt },
+      ], temperature: 0.3 }),
+    });
+  } catch (e) {
+    throw new BuildError('LLM_CALL_FAILED', `Network error calling OpenRouter: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
   if (!res.ok) {
     const body = await res.text();

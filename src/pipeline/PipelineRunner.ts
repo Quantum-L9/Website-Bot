@@ -27,6 +27,11 @@ export class PipelineRunner {
   async run(ctx: BuildContext): Promise<void> {
     const { db, sqlite } = getBuildDb();
 
+    let finalStatus: 'success' | 'failed' | 'partial' = 'success';
+    let errorCode: string | undefined;
+    let errorMsg: string | undefined;
+
+    try {
     // Insert build record
     if (!ctx.dryRun) {
       db.insert(builds).values({
@@ -37,10 +42,6 @@ export class PipelineRunner {
         dryRun: ctx.dryRun,
       }).run();
     }
-
-    let finalStatus: 'success' | 'failed' | 'partial' = 'success';
-    let errorCode: string | undefined;
-    let errorMsg: string | undefined;
 
     for (const stage of this.stages) {
       if (this.skipSet.has(stage.name)) {
@@ -95,11 +96,8 @@ export class PipelineRunner {
     }
 
     // ── V-04 FIX: flush LLM usage into llm_usage table ────────────────────
-    if (!ctx.dryRun && 'flushUsage' in ctx.llm) {
-      const records = (ctx.llm as unknown as { flushUsage(): unknown[] }).flushUsage() as Array<{
-        stage: string; taskType: string; model: string;
-        inputTokens: number; outputTokens: number; costUsd: number; recordedAt: string;
-      }>;
+    if (!ctx.dryRun) {
+      const records = ctx.llm.flushUsage();
       for (const rec of records) {
         db.insert(llmUsageTable).values({
           buildId: ctx.buildId,
@@ -129,7 +127,10 @@ export class PipelineRunner {
         .run();
     }
 
-    sqlite.close();
+    } finally {
+      sqlite.close();
+    }
+
     if (finalStatus === 'failed') throw new BuildError(errorCode as never, errorMsg ?? 'Pipeline failed');
     logger.info({ buildId: ctx.buildId, status: finalStatus }, 'Pipeline complete');
   }

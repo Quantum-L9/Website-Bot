@@ -8,11 +8,6 @@ import type { Stage } from '../pipeline/PipelineRunner.js';
 const logger = createModuleLogger('stage:seo-baseline');
 const DATAFORSEO_URL = 'https://api.dataforseo.com/v3/serp/google/organic/live/advanced';
 
-interface DataForSEOResult {
-  keyword: string;
-  rank: number | null;
-}
-
 export class SEOBaselineStage implements Stage {
   name = 'seo-baseline';
 
@@ -36,42 +31,56 @@ export class SEOBaselineStage implements Stage {
     const keywords = (seo_contract?.['target_keywords'] as string[] | undefined)
       ?? ctx.domainSpec.routes.map(r => `${r.title} ${geography.primary_state}`);
 
+    const targetKeywords = keywords.slice(0, 10); // Cap at 10 to control API cost
     const ranks: Record<string, number | null> = {};
     const credentials = Buffer.from(`${login}:${password}`).toString('base64');
 
-    for (const keyword of keywords.slice(0, 10)) { // Cap at 10 to control API cost
-      try {
-        const res = await fetch(DATAFORSEO_URL, {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${credentials}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify([{
-            keyword,
-            location_code: 2840, // United States
-            language_code: 'en',
-            depth: 100,
-          }]),
-        });
+    // Batch all keywords into a single DataForSEO request (supports up to 100 tasks)
+    const tasks = targetKeywords.map(keyword => ({
+      keyword,
+      location_code: 2840, // United States
+      language_code: 'en',
+      depth: 100,
+    }));
 
-        if (!res.ok) {
-          logger.warn({ keyword, status: res.status }, 'DataForSEO request failed — null rank');
-          ranks[keyword] = null;
-          continue;
-        }
+    try {
+      const res = await fetch(DATAFORSEO_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tasks),
+      });
 
-        const data = await res.json() as { tasks?: Array<{ result?: Array<{ items?: Array<{ type: string; rank_absolute: number; domain?: string }> }> }> };
-        const siteUrl = (ctx.domainSpec.seo_contract?.['site_url'] as string | undefined)?.replace(/^https?:\/\//, '') ?? '';
-        const item = data.tasks?.[0]?.result?.[0]?.items?.find(
-          i => i.type === 'organic' && (siteUrl ? i.domain?.includes(siteUrl) : false),
+      if (!res.ok) {
+        logger.warn({ status: res.status }, 'DataForSEO batch request failed — all ranks null');
+        for (const kw of targetKeywords) ranks[kw] = null;
+        ctx.baselineRanks = ranks;
+        return;
+      }
+
+      const data = await res.json() as {
+        tasks?: Array<{
+          data?: { keyword?: string };
+          result?: Array<{ items?: Array<{ type: string; rank_absolute: number; domain?: string }> }>;
+        }>;
+      };
+
+      const siteUrl = (ctx.domainSpec.seo_contract?.['site_url'] as string | undefined)?.replace(/^https?:\/\//, '') ?? '';
+
+      for (let i = 0; i < targetKeywords.length; i++) {
+        const keyword = targetKeywords[i];
+        const task = data.tasks?.[i];
+        const item = task?.result?.[0]?.items?.find(
+          it => it.type === 'organic' && (siteUrl ? it.domain?.includes(siteUrl) : false),
         );
         ranks[keyword] = item?.rank_absolute ?? null;
         logger.debug({ keyword, rank: ranks[keyword] }, 'Baseline rank captured');
-      } catch (e) {
-        logger.warn({ keyword, error: String(e) }, 'DataForSEO call error — null rank (non-blocking)');
-        ranks[keyword] = null;
       }
+    } catch (e) {
+      logger.warn({ error: String(e) }, 'DataForSEO batch call error — all ranks null (non-blocking)');
+      for (const kw of targetKeywords) ranks[kw] = null;
     }
 
     ctx.baselineRanks = ranks;

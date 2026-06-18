@@ -9,6 +9,7 @@ export interface DomainSpec {
   design: { status: 'resolved' | 'pending'; palette?: Record<string, string>; fonts?: Record<string, string> };
   routes: Array<{ slug: string; title: string; components: string[] }>;
   seo_contract?: Record<string, unknown>;
+  wom_flags?: Array<{ key: string; value: string; severity: 'error' | 'warning' | 'info' }>;
 }
 
 export interface BuildContext {

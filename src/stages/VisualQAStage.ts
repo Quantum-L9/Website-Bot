@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=visual_qa, stage_index=9, status=active, version=2.0.0
 // Runs verify-visual-qa.mjs as a subprocess. Blocks on CRITICAL findings.
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { existsSync } from 'fs';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
@@ -36,8 +36,9 @@ export class VisualQAStage implements Stage {
     logger.info({ deployUrl }, 'Running visual QA');
 
     try {
-      const output = execSync(
-        `node ${QA_SCRIPT} --url "${deployUrl}"`,
+      const output = execFileSync(
+        'node',
+        [QA_SCRIPT, '--url', deployUrl],
         { encoding: 'utf-8', timeout: 120_000, stdio: 'pipe' }
       );
 

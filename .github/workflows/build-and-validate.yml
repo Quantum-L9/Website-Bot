@@ -3,16 +3,27 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with: { node-version: '20', cache: 'npm' }
       - run: npm ci
       - run: npm run typecheck
-      - run: node scripts/verify-launch-env.mjs --ci 2>/dev/null || echo "verify-launch-env not present — skipping"
+      - name: Run launch env verification (optional)
+        run: |
+          if [ -f scripts/verify-launch-env.mjs ]; then
+            node scripts/verify-launch-env.mjs --ci
+          else
+            echo "verify-launch-env.mjs not present — skipping"
+          fi
       - run: npm run pipeline:dry
         env:
           CLIENT_ID: ci-test-client

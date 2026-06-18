@@ -38,8 +38,8 @@ export class PostHogSnippetStage implements Stage {
     }
 
     const snippet = `${MARKER}
-<script define:vars={{ posthogKey: '${posthogKey}', siteUrl: '${ctx.domainSpec.seo_contract?.['site_url'] ?? ''}' }}>
-  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a=u._i.push([i,s,a]),u.prefix=a,u.peopleProperties={},u._i=[],u.identify=function(t,e,o){u.push(["identify",t,e,o])},u.capture=function(t,e){u.push(["capture",t,e])},u.init(i,s,a),0;o<u._i.length;o++)n=u._i[o],g(u,n[0]);e.__SV=1})}(document,window.posthog||[]);
+<script define:vars={{ posthogKey: '${posthogKey}' }}>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a=u._i.push([i,s,a]),u.prefix=a,u.peopleProperties={},u._i=[],u.identify=function(t,e,o){u.push(["identify",t,e,o])},u.capture=function(t,e){u.push(["capture",t,e]),u.init(i,s,a),o=0;o<u._i.length;o++)n=u._i[o],g(u,n[0]);e.__SV=1})}(document,window.posthog||[]);
   posthog.init(posthogKey, { api_host: 'https://app.posthog.com', autocapture: true });
 
   // CTA conversion tracking

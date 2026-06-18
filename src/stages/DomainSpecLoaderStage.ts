@@ -31,6 +31,9 @@ export class DomainSpecLoaderStage implements Stage {
     if (!spec.geography.states?.length) {
       throw new BuildError('MISSING_INPUT', 'domain_spec.geography.states must contain at least one state');
     }
+    if (!spec.geography.primary_state) {
+      throw new BuildError('MISSING_INPUT', 'domain_spec.geography.primary_state is required');
+    }
     if (!spec.routes?.length) {
       throw new BuildError('MISSING_INPUT', 'domain_spec.routes must contain at least one route');
     }

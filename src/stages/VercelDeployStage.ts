@@ -75,6 +75,10 @@ export class VercelDeployStage implements Stage {
       const statusRes = await fetch(`${VERCEL_API}/v13/deployments/${deployment.id}${teamQuery}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!statusRes.ok) {
+        logger.warn({ status: statusRes.status, poll: i + 1 }, 'Vercel poll returned non-ok — retrying');
+        continue;
+      }
       const status = (await statusRes.json()) as VercelDeploymentResponse;
 
       logger.debug({ readyState: status.readyState, poll: i + 1 }, 'Polling deployment status');

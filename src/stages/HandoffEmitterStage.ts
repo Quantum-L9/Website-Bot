@@ -62,8 +62,9 @@ export class HandoffEmitterStage implements Stage {
         return;
       }
 
+      const normalizedUrl = seoBotUrl.replace(/\/+$/, '');
       try {
-        const res = await fetch(`${seoBotUrl}/api/clients/register`, {
+        const res = await fetch(`${normalizedUrl}/api/clients/register`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${seoBotKey}`,
