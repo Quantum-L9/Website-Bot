@@ -50,7 +50,7 @@ export class HandoffEmitterStage implements Stage {
       writeFileSync(OUTPUT_PATH, stringify(contract), 'utf-8');
       logger.info({ path: OUTPUT_PATH }, 'Handoff contract written');
     } else {
-      logger.info('[dry-run] Would write handoff contract', { path: OUTPUT_PATH });
+      logger.info({ path: OUTPUT_PATH }, '[dry-run] Would write handoff contract');
     }
 
     // ── SEO-Bot registration ────────────────────────────────────────────
