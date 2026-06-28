@@ -2,7 +2,7 @@
 
 ## Project Identity
 
-This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline powered by `@l9/llm-router`. It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. Currently configured for Supplemental Insurance Pros, prepared for Vercel preview-first deployment.
+This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline powered by `@quantum-l9/llm-router`. It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. Currently configured for Supplemental Insurance Pros, prepared for Vercel preview-first deployment.
 
 ## Verified Repo Facts
 
@@ -14,7 +14,7 @@ This repository contains the L9 Website Factory Bot — a deterministic website 
 | Build output | `dist/` | Astro static build convention and local validation bundle |
 | Deployment target | Vercel | deployment scripts and docs |
 | CRM direction | AccuLynx phase 2 | env contract and verification scripts |
-| LLM Router | @l9/llm-router (workspace) | `packages/llm-router/`, `src/services/llm.ts` |
+| LLM Router | @quantum-l9/llm-router (GitHub Packages dependency) | `src/services/llm.ts` |
 | LLM Providers | OpenRouter + Perplexity | `contracts/llm_router_integration.yaml` |
 
 Unsupported values remain `Unknown` until the operator supplies them. Do not invent contact, license, disclaimer, analytics, CRM, or deployment values.
@@ -22,8 +22,7 @@ Unsupported values remain `Unknown` until the operator supplies them. Do not inv
 ## Quick Start
 
 ```bash
-npm ci                    # Install all workspace dependencies (root + packages/llm-router)
-npm run build:router      # Build the @l9/llm-router TypeScript package
+npm ci                    # Install dependencies (incl. @quantum-l9/llm-router from GitHub Packages)
 npm run build             # Build the Astro site into dist/
 npm run preview           # Serve built site locally
 ```
@@ -32,9 +31,8 @@ Canonical operator commands are available through `make`:
 
 ```bash
 make help                 # Show all available commands
-make install              # Install workspace dependencies
-make build-router         # Build @l9/llm-router
-make build                # Build site (auto-builds router first)
+make install              # Install dependencies
+make build                # Build site
 make verify               # Run full verification suite
 make verify-visual-qa     # Run LLM vision-based layout QA
 make generate-domain-spec # Generate domain spec via LLM

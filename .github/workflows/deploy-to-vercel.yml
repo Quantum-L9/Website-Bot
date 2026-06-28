@@ -5,6 +5,11 @@ on:
 
 permissions:
   contents: read
+  packages: read
+
+concurrency:
+  group: deploy-to-vercel-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -16,8 +21,14 @@ jobs:
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@quantum-l9'
+      - run: npm install --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run full pipeline
         id: pipeline

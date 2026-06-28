@@ -10,6 +10,7 @@
     "validate": "node scripts/verify-launch-env.mjs"
   },
   "dependencies": {
+    "@quantum-l9/llm-router": "^1.0.0",
     "better-sqlite3": "^9.4.3",
     "drizzle-orm": "^0.30.10",
     "pino": "^9.1.0",

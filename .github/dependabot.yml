@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Root npm project
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    labels: ['dependencies', 'type:dependency']
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+
+  # GitHub Actions used by workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '07:00'
+    labels: ['dependencies', 'type:dependency']

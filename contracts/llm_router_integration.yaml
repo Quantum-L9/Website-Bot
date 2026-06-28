@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# L9 Website Factory → @l9/llm-router Integration Contract
+# L9 Website Factory → @quantum-l9/llm-router Integration Contract
 # ═══════════════════════════════════════════════════════════════
 # This contract defines how the Website Factory Bot consumes
 # the shared LLM Router module for all AI-powered operations.
@@ -9,8 +9,8 @@ contract:
   name: llm_router_integration
   version: "1.0.0"
   owner: l9-website-factory
-  dependency: "@l9/llm-router@^1.0.0"
-  location: packages/llm-router
+  dependency: "@quantum-l9/llm-router@^1.0.0"
+  location: "GitHub Packages (installed into node_modules; consumed via src/services/llm.ts)"
 
 # ─────────────────────────────────────────────────────────────
 # TASK TYPE MAPPING

@@ -8,8 +8,7 @@ Deployment target is Vercel. Deployment must be preview-first. Production deploy
 
 1. Node.js 18+ installed.
 2. npm 9+ installed.
-3. Workspace dependencies installed: `npm ci` (installs root + `packages/llm-router`).
-4. LLM Router built: `npm run build:router` (or `make build-router`).
+3. Dependencies installed: `npm ci` (installs `@quantum-l9/llm-router` from GitHub Packages).
 
 ## Required Environment Variables
 
@@ -48,7 +47,6 @@ Before any preview deployment:
 
 ```bash
 npm ci
-npm run build:router
 npm run build
 npm run verify:all
 ```
@@ -59,7 +57,6 @@ If external checks are blocked because credentials are missing, the report must 
 
 ```bash
 npm ci
-npm run build:router
 npm run build
 npm run verify:all
 npm run deploy:preview
@@ -124,4 +121,4 @@ Rollback depends on Vercel deployment history. At minimum, record:
 - Do not hardcode API keys or Vercel tokens.
 - Do not call deployment successful without URL and verification evidence.
 - Do not treat local build success as deployment proof.
-- Do not skip `build:router` before `build` — the Astro site depends on the compiled router.
+- The router is installed prebuilt from GitHub Packages (`@quantum-l9/llm-router`); there is no separate router build step.

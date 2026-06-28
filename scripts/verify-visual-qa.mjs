@@ -24,7 +24,7 @@ import { join } from 'node:path';
 const SCREENSHOTS_DIR = join(process.cwd(), 'validation', 'screenshots');
 const REPORT_PATH = join(process.cwd(), 'validation', 'visual_qa_report.json');
 
-// Viewports to test (matches @l9/llm-router VIEWPORTS)
+// Viewports to test (matches @quantum-l9/llm-router VIEWPORTS)
 const VIEWPORTS = [
   { name: 'desktop_1920', width: 1920, height: 1080 },
   { name: 'desktop_1440', width: 1440, height: 900 },
