@@ -30,7 +30,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download handoff contract from deploy run
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v21
         with:
           workflow: deploy-to-vercel.yml
           run_id: ${{ github.event.workflow_run.id }}
