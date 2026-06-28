@@ -8,7 +8,7 @@ help:
 	@printf '%s\n' ''
 	@printf '%s\n' '── Setup ──'
 	@printf '%-28s %s\n' 'make install' 'Install all workspace dependencies (root + packages)'
-	@printf '%-28s %s\n' 'make build-router' 'Build @l9/llm-router TypeScript package'
+	@printf '%-28s %s\n' 'make build-router' 'Build @quantum-l9/llm-router TypeScript package'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Development ──'
 	@printf '%-28s %s\n' 'make dev' 'Run Astro dev server'
