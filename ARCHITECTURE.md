@@ -9,7 +9,7 @@ This is a generated Astro static website with verification scripts and deploymen
 1. Domain specification: source of truth for business, audience, service area, compliance, and conversion assumptions.
 2. Website object model: generated intermediate contract.
 3. Astro implementation: static site source in `src/` and assets in `public/`.
-4. LLM intelligence layer: `@quantum-l9/llm-router` in `packages/llm-router`, consumed via `src/services/llm.ts`.
+4. LLM intelligence layer: `@quantum-l9/llm-router` installed from GitHub Packages, consumed via `src/services/llm.ts`.
 5. Verification layer: scripts in `scripts/` and evidence in `validation/`.
 6. Deployment layer: Vercel wrapper scripts and environment-driven configuration.
 

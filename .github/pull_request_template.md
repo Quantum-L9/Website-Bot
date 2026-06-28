@@ -17,7 +17,7 @@
 - [ ] `area:frontend` — UI
 - [ ] `area:infrastructure` — docker, deployment, config
 - [ ] `area:workflows` — .github/, CI
-- [ ] `area:llm-router` — packages/llm-router
+- [ ] `area:llm-router` — @quantum-l9/llm-router consumption (src/services/llm.ts)
 
 ## Checklist
 

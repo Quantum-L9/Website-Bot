@@ -10,7 +10,7 @@ contract:
   version: "1.0.0"
   owner: l9-website-factory
   dependency: "@quantum-l9/llm-router@^1.0.0"
-  location: packages/llm-router
+  location: "GitHub Packages (installed into node_modules; consumed via src/services/llm.ts)"
 
 # ─────────────────────────────────────────────────────────────
 # TASK TYPE MAPPING
