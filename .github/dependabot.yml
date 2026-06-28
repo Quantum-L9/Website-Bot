@@ -13,7 +13,7 @@ updates:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
 
-  # Bundled @l9/llm-router package
+  # Bundled @quantum-l9/llm-router package
   - package-ecosystem: npm
     directory: /packages/llm-router
     schedule:
