@@ -11,6 +11,43 @@ import type { Stage } from '../pipeline/PipelineRunner.js';
 const logger = createModuleLogger('stage:handoff-emitter');
 const OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
 
+type KeywordPriority = 'critical' | 'high' | 'medium' | 'low';
+
+/** Hostname of a URL, used as the SEO-Bot client `domain` (it normalizes further). */
+function hostnameOf(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  }
+}
+
+/**
+ * Typed targetKeywords for the SEO-Bot v2 contract. Prefers
+ * `seo_contract.target_keywords` (string or {keyword, priority}); otherwise
+ * derives from routes + primary state, mirroring SEOBaselineStage. Always >= 1
+ * because the domain spec requires at least one route.
+ */
+function buildTargetKeywords(ctx: BuildContext): Array<{ keyword: string; priority: KeywordPriority }> {
+  const raw = (ctx.domainSpec.seo_contract as { target_keywords?: unknown } | undefined)?.target_keywords;
+  if (Array.isArray(raw)) {
+    const typed = raw
+      .map((k): { keyword: string; priority: KeywordPriority } =>
+        typeof k === 'string'
+          ? { keyword: k, priority: 'medium' }
+          : { keyword: String((k as { keyword?: unknown }).keyword ?? ''), priority: ((k as { priority?: KeywordPriority }).priority ?? 'medium') })
+      .filter(k => k.keyword.length > 0);
+    if (typed.length > 0) return typed;
+  }
+  const ps = ctx.domainSpec.geography.primary_state;
+  return ctx.domainSpec.routes.map(r => ({ keyword: `${r.title} ${ps}`.trim(), priority: 'medium' as KeywordPriority }));
+}
+
+function buildCompetitorUrls(ctx: BuildContext): string[] {
+  const urls = (ctx.domainSpec.seo_contract as { competitor_urls?: unknown } | undefined)?.competitor_urls;
+  return Array.isArray(urls) ? urls.map(String) : [];
+}
+
 export class HandoffEmitterStage implements Stage {
   name = 'handoff-emitter';
 
@@ -63,6 +100,26 @@ export class HandoffEmitterStage implements Stage {
       }
 
       const normalizedUrl = seoBotUrl.replace(/\/+$/, '');
+      const vercelUrl = deployUrl as string; // guaranteed non-null here (checked above, !dryRun)
+      const primaryState = ctx.domainSpec.geography.primary_state;
+
+      // WebsiteFactoryContractV2 — the shape SEO-Bot's POST /api/clients/register
+      // validates with Zod. Keep keys aligned with that schema.
+      const registration = {
+        schema_version: '2.0',
+        client_id: ctx.clientId,
+        domain: hostnameOf(vercelUrl),
+        name: ctx.domainSpec.business_name,
+        industry: ctx.domainSpec.vertical,
+        ...(primaryState.length === 2 ? { state: primaryState } : {}),
+        ...(process.env.POSTHOG_PROJECT_ID ? { posthog_project_id: process.env.POSTHOG_PROJECT_ID } : {}),
+        ...(process.env.POSTHOG_KEY ? { posthog_api_key: process.env.POSTHOG_KEY } : {}),
+        targetKeywords: buildTargetKeywords(ctx),
+        competitorUrls: buildCompetitorUrls(ctx),
+        vercelUrl,
+        seo_contract: contract,
+      };
+
       try {
         const res = await fetch(`${normalizedUrl}/api/clients/register`, {
           method: 'POST',
@@ -70,11 +127,7 @@ export class HandoffEmitterStage implements Stage {
             Authorization: `Bearer ${seoBotKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            clientId: ctx.clientId,
-            deploymentUrl: deployUrl,
-            handoffContract: contract,
-          }),
+          body: JSON.stringify(registration),
         });
 
         if (!res.ok) {
