@@ -23,7 +23,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Check out the actual branch (not a detached HEAD at the event SHA),
           # so the commit/push below has a current branch + upstream.
