@@ -24,10 +24,10 @@ jobs:
           cache: 'npm'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@quantum-l9'
-      # npm install (not ci): the committed lockfile predates the
-      # @quantum-l9/llm-router registry dependency and can't be regenerated
-      # without a Packages-scoped token. CI resolves it via NODE_AUTH_TOKEN.
-      - run: npm install --no-audit --no-fund
+      # npm ci: the committed lockfile now pins @quantum-l9/llm-router (resolved
+      # from GitHub Packages), so installs are reproducible. NODE_AUTH_TOKEN
+      # grants the packages:read needed to fetch that registry dependency.
+      - run: npm ci --no-audit --no-fund
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run typecheck
