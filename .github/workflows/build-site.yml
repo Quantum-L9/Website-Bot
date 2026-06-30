@@ -37,17 +37,47 @@ permissions:
   packages: read
 
 concurrency:
-  # One build at a time per client; don't cancel an in-flight deploy.
-  group: build-site-${{ github.event.client_payload.client_id || github.event.inputs.client_id || 'default' }}
+  # One build at a time per client; don't cancel an in-flight deploy. Fallback
+  # chain matches the job's CLIENT_ID resolution so "default" runs that resolve
+  # to vars.CLIENT_ID serialize on the same key.
+  group: build-site-${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID || 'default' }}
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Only build/deploy from the protected default branch. repository_dispatch
+    # already runs on the default branch; this also stops a workflow_dispatch
+    # launched from an unreviewed ref from deploying that code to production.
+    if: github.ref == 'refs/heads/main'
+    env:
+      CLIENT_ID: ${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID }}
+      SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'domain_spec/domain_spec.normalized.yaml' }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+
+      # Defense-in-depth on the dispatch-supplied inputs: require a client id and
+      # constrain the spec path to a known-safe, in-repo location so an unexpected
+      # path can't read files outside the spec dirs (or leak contents via a YAML
+      # parse error). CLIENT_ID/SPEC_PATH are passed via env (never interpolated
+      # into a run script), so there is no shell-injection surface.
+      - name: Validate inputs (client id + spec path)
+        run: |
+          if [ -z "$CLIENT_ID" ]; then
+            echo "CLIENT_ID is required (client_payload.client_id / input.client_id / vars.CLIENT_ID)"; exit 1
+          fi
+          case "$SPEC_PATH" in
+            /*|*..*) echo "SPEC_PATH must be a relative in-repo path (no absolute or .. segments): $SPEC_PATH"; exit 1;;
+          esac
+          case "$SPEC_PATH" in
+            domain_spec/*.yaml|domain_spec/*.yml|inputs/*.yaml|inputs/*.yml) : ;;
+            *) echo "SPEC_PATH must be a .yaml/.yml under domain_spec/ or inputs/: $SPEC_PATH"; exit 1;;
+          esac
+          test -f "$SPEC_PATH" || { echo "Spec file not found in repo: $SPEC_PATH"; exit 1; }
+          echo "Validated CLIENT_ID and SPEC_PATH=$SPEC_PATH"
+
       - uses: actions/setup-node@v6
         with:
           node-version: '20'
@@ -61,8 +91,6 @@ jobs:
       - name: Build + deploy + register (full pipeline)
         run: npx tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
         env:
-          CLIENT_ID: ${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID }}
-          SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'domain_spec/domain_spec.normalized.yaml' }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
