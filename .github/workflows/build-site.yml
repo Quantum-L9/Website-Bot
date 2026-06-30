@@ -1,0 +1,86 @@
+name: Build Site (on-demand)
+# Programmatic, on-demand trigger for the website-factory pipeline.
+#
+# Two triggers:
+#   - repository_dispatch (type: build-site)  — fired by SEO-Bot (or any system)
+#     via POST /repos/<owner>/<repo>/dispatches with a client_payload of
+#     { client_id, spec_path }. This is how the platform requests an initial
+#     site build for a client whose normalized domain spec already exists in
+#     this repo (the spec is authored upstream during onboarding — it is NOT
+#     synthesized here, and is intentionally not carried inline to avoid the
+#     dispatch payload-size limit).
+#   - workflow_dispatch — the same build, runnable by hand from the Actions tab.
+#
+# It runs the FULL pipeline with --auto-register-seo-bot, so a single pass does
+# build -> Vercel deploy -> handoff POST to SEO-Bot /api/clients/register (the
+# VercelDeployStage feeds the deployment URL to HandoffEmitterStage in-process).
+#
+# NOTE (Infisical rollout, Pillar 4/5): once @quantum-l9 Infisical is stood up,
+# the per-secret env block below collapses to the 3 INFISICAL_* bootstrap vars
+# and the run line is wrapped as `infisical run -- npx tsx scripts/run-pipeline.ts ...`.
+on:
+  repository_dispatch:
+    types: [build-site]
+  workflow_dispatch:
+    inputs:
+      client_id:
+        description: 'Client ID to build for (defaults to the repo CLIENT_ID var)'
+        required: false
+        default: ''
+      spec_path:
+        description: 'Path to the normalized domain spec'
+        required: false
+        default: 'domain_spec/domain_spec.normalized.yaml'
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  # One build at a time per client; don't cancel an in-flight deploy.
+  group: build-site-${{ github.event.client_payload.client_id || github.event.inputs.client_id || 'default' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@quantum-l9'
+      - run: npm ci --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build + deploy + register (full pipeline)
+        run: npx tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
+        env:
+          CLIENT_ID: ${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID }}
+          SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'domain_spec/domain_spec.normalized.yaml' }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          GITHUB_REPO_ID: ${{ github.event.repository.id }}
+          GITHUB_REF: ${{ github.ref_name }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASSWORD: ${{ secrets.DATAFORSEO_PASSWORD }}
+          SEO_BOT_URL: ${{ secrets.SEO_BOT_URL }}
+          SEO_BOT_API_KEY: ${{ secrets.SEO_BOT_API_KEY }}
+          NODE_ENV: production
+
+      - name: Upload handoff contract artifact
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: handoff-contract
+          path: contracts/website_factory_integration.yaml
+          retention-days: 90
