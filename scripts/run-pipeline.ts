@@ -19,10 +19,18 @@ import type { DomainSpec } from '../src/pipeline/BuildContext.js';
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const autoRegisterSeoBot = args.includes('--auto-register-seo-bot');
-const specPath = args.find(a => a.startsWith('--spec='))?.replace('--spec=', '')
-  ?? 'domain_spec/domain_spec.normalized.yaml';
+const explicitSpec = args.find(a => a.startsWith('--spec='))?.replace('--spec=', '');
+const DEFAULT_SPEC_PATH = 'domain_spec/domain_spec.normalized.yaml';
+const specPath = explicitSpec ?? DEFAULT_SPEC_PATH;
 const skipArg = args.find(a => a.startsWith('--skip='));
 const skipStages = skipArg ? skipArg.replace('--skip=', '').split(',') : [];
+
+if (!explicitSpec) {
+  console.warn(
+    `[spec] no --spec provided; defaulting to ${DEFAULT_SPEC_PATH}. ` +
+    `Pass --spec=<flat DomainSpec> (e.g. fixtures/ci-test-spec.yaml) to override.`,
+  );
+}
 
 if (dryRun) console.log('[DRY RUN] No external calls or file writes will be made');
 
