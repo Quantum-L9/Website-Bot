@@ -1,7 +1,7 @@
 // L9_META: layer=cli, role=spec_normalizer, status=active, version=1.0.0
 //
 // Deterministically transform the rich NESTED authoring spec
-// (inputs/domain_spec.normalized.yaml) into the FLAT DomainSpec the pipeline
+// (inputs/domain_spec.source.yaml) into the FLAT DomainSpec the pipeline
 // consumes (domain_spec/domain_spec.normalized.yaml). Encodes the reviewed SD2
 // field mapping so new clients author only the rich format and the flat file is
 // generated, never hand-maintained.
@@ -146,7 +146,7 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
 function main() {
   const args = process.argv.slice(2);
   const check = args.includes('--check');
-  const inPath = getArg(args, '--in') ?? 'inputs/domain_spec.normalized.yaml';
+  const inPath = getArg(args, '--in') ?? 'inputs/domain_spec.source.yaml';
   const outPath = getArg(args, '--out') ?? 'domain_spec/domain_spec.normalized.yaml';
 
   const flat = buildFlatSpec(parse(readFileSync(inPath, 'utf-8')));
