@@ -19,6 +19,25 @@ This repository contains the L9 Website Factory Bot — a deterministic website 
 
 Unsupported values remain `Unknown` until the operator supplies them. Do not invent contact, license, disclaimer, analytics, CRM, or deployment values.
 
+## Domain Spec — input contract (flat, canonical)
+
+The pipeline consumes a **flat** `DomainSpec`, validated at stage 1 by
+`src/pipeline/validateDomainSpec.ts`. This is the canonical build input — see
+`fixtures/ci-test-spec.yaml` for a complete example and `src/pipeline/BuildContext.ts`
+for the type. Required shape:
+
+- `client_id: string`
+- `business_name: string`
+- `vertical: string`
+- `geography: { states: string[]; primary_state: string }`
+- `routes: Array<{ slug: string; title: string; components: string[] }>`
+- optional: `design`, `seo_contract`, `wom_flags`
+
+Run with an explicit spec: `npm run pipeline -- --spec=<path>` (defaults to
+`domain_spec/domain_spec.normalized.yaml`). The rich, deeply-nested authoring format
+under `inputs/` is **not** consumed directly — it must be converted to this flat schema
+first; the loader detects the nested format and fails with an actionable message.
+
 ## Quick Start
 
 ```bash
