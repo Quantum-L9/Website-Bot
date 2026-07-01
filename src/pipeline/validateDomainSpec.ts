@@ -76,6 +76,7 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
           (r.components as unknown[]).every((c) => typeof c === 'string' && c.length > 0),
         `routes[${i}].components must be an array of non-empty strings`,
       );
+      check(r.noindex === undefined || typeof r.noindex === 'boolean', `routes[${i}].noindex, when present, must be a boolean`);
     });
   }
 
