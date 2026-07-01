@@ -6,7 +6,7 @@
 // field mapping so new clients author only the rich format and the flat file is
 // generated, never hand-maintained.
 //
-// Usage:
+// Usage (both `--in <p>` and `--in=<p>` forms are accepted):
 //   tsx scripts/normalize-spec.ts                 # write domain_spec/domain_spec.normalized.yaml
 //   tsx scripts/normalize-spec.ts --check         # verify the committed flat file matches (CI guard)
 //   tsx scripts/normalize-spec.ts --in <p> --out <p>
@@ -27,6 +27,35 @@ const TITLE_OVERRIDES: Record<string, string> = { '/': 'Home', '/faq': 'FAQ' };
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+/** Read a flag value supporting both `--name=value` and `--name value` forms. */
+function getArg(args: string[], name: string): string | undefined {
+  const eq = args.find((a) => a.startsWith(`${name}=`));
+  if (eq) return eq.slice(name.length + 1);
+  const idx = args.indexOf(name);
+  if (idx !== -1 && idx + 1 < args.length && !args[idx + 1].startsWith('--')) return args[idx + 1];
+  return undefined;
+}
+
+/** Order-independent structural equality (objects compared key-by-key, not by
+ *  serialized string) so `--check` fails only on real semantic drift. */
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== typeof b || a === null || b === null) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((v, i) => deepEqual(v, b[i]));
+  }
+  if (typeof a === 'object') {
+    const ka = Object.keys(a as object);
+    const kb = Object.keys(b as object);
+    if (ka.length !== kb.length) return false;
+    return ka.every(
+      (k) => Object.prototype.hasOwnProperty.call(b, k) && deepEqual((a as any)[k], (b as any)[k]),
+    );
+  }
+  return false;
 }
 
 function titleFromPath(path: string): string {
@@ -71,21 +100,35 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     internal_linking_rules: ds.seo.internal_linking_rules,
   };
 
-  // wom_flags: unresolved placeholders + regulated-compliance gates (ordered as reviewed in SD2).
+  // wom_flags: emit a flag ONLY for items that are still UNRESOLVED (ordered as
+  // reviewed in SD2). Critically, the error-severity gates (license number +
+  // required disclaimers) are conditional on the underlying nested value still
+  // being a `{{…PLACEHOLDER}}` token — once an operator fills in the real value
+  // in inputs/, the flag drops and UnknownResolverStage stops blocking. Emitting
+  // them unconditionally would leave the pipeline permanently unable to proceed.
+  const contact = ds.identity?.contact_placeholders ?? {};
+  const licenses = (ds.authority?.licenses ?? []) as any[];
+  const licenseUnresolved = licenses.some((l) => hasPlaceholder(l?.license_number));
+  const stateRules = ds.compliance?.state_specific_rules;
+  const stateUnvalidated =
+    stateRules?.validation_required_before_launch === true || stateRules?.status === 'Unknown';
+
   const womFlags: DomainSpec['wom_flags'] = [
-    { key: 'identity.contact.phone', value: 'unresolved', severity: 'warning' },
-    { key: 'identity.contact.email', value: 'unresolved', severity: 'warning' },
-    { key: 'identity.contact.address', value: 'unresolved', severity: 'warning' },
-    { key: 'authority.license_number', value: 'unresolved', severity: 'error' },
+    ...(hasPlaceholder(contact.phone) ? [{ key: 'identity.contact.phone', value: 'unresolved', severity: 'warning' as const }] : []),
+    ...(hasPlaceholder(contact.email) ? [{ key: 'identity.contact.email', value: 'unresolved', severity: 'warning' as const }] : []),
+    ...(hasPlaceholder(contact.address) ? [{ key: 'identity.contact.address', value: 'unresolved', severity: 'warning' as const }] : []),
+    ...(licenseUnresolved ? [{ key: 'authority.license_number', value: 'unresolved', severity: 'error' as const }] : []),
     ...((ds.compliance?.disclaimers ?? []) as any[])
-      .filter((d) => d.required)
+      .filter((d) => d.required && hasPlaceholder(d.text))
       .map((d) => ({ key: `compliance.${d.name}`, value: 'unresolved', severity: 'error' as const })),
-    { key: 'design.brand_tokens', value: 'placeholder', severity: 'warning' },
-    {
-      key: 'state_compliance_unvalidated',
-      value: (ds.compliance?.state_specific_rules?.affected_states ?? primaryRegions).join(','),
-      severity: 'warning',
-    },
+    ...(designPending ? [{ key: 'design.brand_tokens', value: 'placeholder', severity: 'warning' as const }] : []),
+    ...(stateUnvalidated
+      ? [{
+          key: 'state_compliance_unvalidated',
+          value: (stateRules?.affected_states ?? primaryRegions).join(','),
+          severity: 'warning' as const,
+        }]
+      : []),
   ];
 
   return {
@@ -103,21 +146,19 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
 function main() {
   const args = process.argv.slice(2);
   const check = args.includes('--check');
-  const inPath = args.find((a) => a.startsWith('--in='))?.slice(5) ?? 'inputs/domain_spec.normalized.yaml';
-  const outPath = args.find((a) => a.startsWith('--out='))?.slice(6) ?? 'domain_spec/domain_spec.normalized.yaml';
+  const inPath = getArg(args, '--in') ?? 'inputs/domain_spec.normalized.yaml';
+  const outPath = getArg(args, '--out') ?? 'domain_spec/domain_spec.normalized.yaml';
 
   const flat = buildFlatSpec(parse(readFileSync(inPath, 'utf-8')));
   validateDomainSpec(flat, `${inPath} (normalized)`); // fail loud if the transform ever produces an invalid spec
 
   if (check) {
     const committed = parse(readFileSync(outPath, 'utf-8'));
-    const a = JSON.stringify(flat);
-    const b = JSON.stringify(committed);
-    if (a !== b) {
+    if (!deepEqual(flat, committed)) {
       console.error(`normalize-spec --check FAILED: ${outPath} is stale.\nRegenerate with: tsx scripts/normalize-spec.ts`);
       // Show the first differing key for a quick diagnosis.
       for (const k of Object.keys(flat)) {
-        if (JSON.stringify((flat as any)[k]) !== JSON.stringify((committed as any)?.[k])) {
+        if (!deepEqual((flat as any)[k], (committed as any)?.[k])) {
           console.error(`  first diff at key: ${k}`);
           break;
         }
