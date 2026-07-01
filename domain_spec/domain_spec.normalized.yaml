@@ -69,8 +69,11 @@ seo_contract:
   metadata_rules:
     title_pattern: '{Primary Keyword} | Supplemental Insurance Pros'
     description_pattern: Licensed public adjuster support for {Audience} with insurance claim supplements across Tennessee and bordering states.
-  # schema_rules apply PER MATCHING ROUTE, not site-wide (FAQPage→/faq, ContactPage→/contact,
-  # etc.) so SchemaGeneratorStage doesn't emit invalid structured data on the wrong pages.
+  # DECLARED INTENT (not yet enforced): these schema types are meant to apply PER
+  # MATCHING ROUTE, not site-wide (FAQPage→/faq, ContactPage→/contact, etc.).
+  # NOTE: SchemaGeneratorStage does not read schema_rules/schema_application today —
+  # it emits a fixed set. This annotation records the target contract for when that
+  # stage is taught to honor per-route application; until then it is informational.
   schema_rules: [Organization, LocalBusiness, ProfessionalService, Service, FAQPage, BreadcrumbList, ContactPage]
   schema_application: per_route
   internal_linking_rules:
