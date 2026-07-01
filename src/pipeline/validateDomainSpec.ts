@@ -55,7 +55,11 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
   if (!isObject(geo)) {
     errors.push('geography must be an object { states: string[], primary_state: string }');
   } else {
-    check(Array.isArray(geo.states) && (geo.states as unknown[]).length > 0, 'geography.states must be a non-empty array of state codes');
+    check(
+      Array.isArray(geo.states) && (geo.states as unknown[]).length > 0 &&
+        (geo.states as unknown[]).every((s) => typeof s === 'string' && s.length > 0),
+      'geography.states must be a non-empty array of non-empty state-code strings',
+    );
     check(typeof geo.primary_state === 'string' && (geo.primary_state as string).length > 0, 'geography.primary_state must be a non-empty string');
   }
 
@@ -67,8 +71,23 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
       if (!isObject(r)) { errors.push(`routes[${i}] must be an object { slug, title, components[] }`); return; }
       check(typeof r.slug === 'string' && (r.slug as string).length > 0, `routes[${i}].slug must be a non-empty string`);
       check(typeof r.title === 'string' && (r.title as string).length > 0, `routes[${i}].title must be a non-empty string`);
-      check(Array.isArray(r.components), `routes[${i}].components must be an array`);
+      check(
+        Array.isArray(r.components) &&
+          (r.components as unknown[]).every((c) => typeof c === 'string' && c.length > 0),
+        `routes[${i}].components must be an array of non-empty strings`,
+      );
     });
+  }
+
+  // `design` is required by the DomainSpec type; validate its shape (status must
+  // be resolved|pending; palette/fonts are optional maps).
+  const design = root.design;
+  if (!isObject(design)) {
+    errors.push("design must be an object { status: 'resolved' | 'pending', palette?, fonts? }");
+  } else {
+    check(design.status === 'resolved' || design.status === 'pending', "design.status must be 'resolved' or 'pending'");
+    check(design.palette === undefined || isObject(design.palette), 'design.palette, when present, must be an object');
+    check(design.fonts === undefined || isObject(design.fonts), 'design.fonts, when present, must be an object');
   }
 
   if (errors.length > 0) {

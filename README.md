@@ -31,7 +31,8 @@ for the type. Required shape:
 - `vertical: string`
 - `geography: { states: string[]; primary_state: string }`
 - `routes: Array<{ slug: string; title: string; components: string[] }>`
-- optional: `design`, `seo_contract`, `wom_flags`
+- `design: { status: 'resolved' | 'pending'; palette?: Record<string,string>; fonts?: Record<string,string> }`
+- optional: `seo_contract`, `wom_flags`
 
 Run with an explicit spec: `npm run pipeline -- --spec=<path>` (defaults to
 `domain_spec/domain_spec.normalized.yaml`). The rich, deeply-nested authoring format
