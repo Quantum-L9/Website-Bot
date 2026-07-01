@@ -7,6 +7,8 @@
     "pipeline": "npx tsx scripts/run-pipeline.ts",
     "pipeline:dry": "npx tsx scripts/run-pipeline.ts --dry-run --spec=fixtures/ci-test-spec.yaml",
     "typecheck": "tsc --noEmit",
+    "normalize-spec": "npx tsx scripts/normalize-spec.ts",
+    "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
     "validate": "node scripts/verify-launch-env.mjs"
   },
   "dependencies": {
