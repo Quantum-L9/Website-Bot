@@ -1,0 +1,20 @@
+{
+  "blocker_count": 1,
+  "not_applicable_count": 0,
+  "overall_status": "blocked",
+  "reports": [
+    "preflight-report.md",
+    "preflight-report.json",
+    "autofix-log.json",
+    "blockers.yaml",
+    "technical-debt.yaml",
+    "machine-summary.json"
+  ],
+  "resolved_count": 0,
+  "run_id": "10ea5271ce14",
+  "side_effect_receipts": [],
+  "source_commit": "10ea5271ce14ddf2e0e87f87928cbcd763b09027",
+  "technical_debt_count": 12,
+  "timestamp": "2026-07-16T01:42:36Z",
+  "tool_version": "2.1.0"
+}

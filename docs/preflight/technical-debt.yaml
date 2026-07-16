@@ -1,0 +1,93 @@
+# technical debt (json is valid yaml)
+{
+  "count": 12,
+  "findings": [
+    {
+      "blocking": false,
+      "category": "stale_or_duplicate_workflows",
+      "evidence": "duplicate workflow name: handoff-contract",
+      "path": ".github/workflows/deploy-to-vercel.yml, .github/workflows/emit-handoff.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/checkout@v7",
+      "line": 18,
+      "path": ".github/workflows/build-and-validate.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/setup-node@v6",
+      "line": 21,
+      "path": ".github/workflows/build-and-validate.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/checkout@v7",
+      "line": 20,
+      "path": ".github/workflows/deploy-to-vercel.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/setup-node@v6",
+      "line": 23,
+      "path": ".github/workflows/deploy-to-vercel.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "uses: actions/upload-artifact@v7",
+      "line": 54,
+      "path": ".github/workflows/deploy-to-vercel.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/checkout@v7",
+      "line": 19,
+      "path": ".github/workflows/emit-handoff.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/setup-node@v6",
+      "line": 22,
+      "path": ".github/workflows/emit-handoff.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "uses: dawidd6/action-download-artifact@v21",
+      "line": 33,
+      "path": ".github/workflows/emit-handoff.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "uses: actions/upload-artifact@v7",
+      "line": 60,
+      "path": ".github/workflows/emit-handoff.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/checkout@v7",
+      "line": 26,
+      "path": ".github/workflows/regen-lockfile.yml"
+    },
+    {
+      "blocking": false,
+      "category": "unpinned_actions",
+      "evidence": "- uses: actions/setup-node@v6",
+      "line": 32,
+      "path": ".github/workflows/regen-lockfile.yml"
+    }
+  ],
+  "run_id": "10ea5271ce14",
+  "source_commit": "10ea5271ce14ddf2e0e87f87928cbcd763b09027",
+  "timestamp": "2026-07-16T01:42:36Z",
+  "tool_version": "2.1.0"
+}
