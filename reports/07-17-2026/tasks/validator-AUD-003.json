@@ -1,0 +1,17 @@
+{
+  "schema_version": "l9.validator_stub.v1",
+  "finding_id": "AUD-003",
+  "task_file": "reports/07-17-2026/tasks/task-AUD-003.yaml",
+  "followup_file": "reports/07-17-2026/tasks/followup-AUD-003.json",
+  "validator_file": "reports/07-17-2026/tasks/validator-AUD-003.sh",
+  "phase": "pre_push",
+  "must_pass_before": [
+    "git_push",
+    "pr_create",
+    "advance_to_next_task"
+  ],
+  "operator_supplied_body_command": "make ci",
+  "rendered_body_command": "make ci",
+  "expected_exit_code": 0,
+  "generated_at": "2026-07-17T20:05:59.753689+00:00"
+}

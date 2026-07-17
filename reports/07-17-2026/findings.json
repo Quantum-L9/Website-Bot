@@ -1,0 +1,15 @@
+{
+  "base_ref": "d32e84b",
+  "msna_id": "AUD-003",
+  "findings": [
+    {"id": "AUD-003", "severity": "critical", "rule_broken": "rule-mode resolver duplicated across repos",
+     "evidence": "tools/rule_mode_resolver.py:1", "impact": "drift between repos", "correction": "consolidate to single source of truth",
+     "owner_layer": "governance", "blocks_release": true, "leverage_score": 4.9},
+    {"id": "PRD-001", "severity": "high", "rule_broken": "finding normalization duplicated in PR_Repair",
+     "evidence": "PR_Repair/normalize.py:1", "impact": "tool-specific parsers diverge from shared schema", "correction": "route through shared evidence model",
+     "owner_layer": "sdk", "blocks_release": true, "leverage_score": 4.7},
+    {"id": "LSP-002", "severity": "medium", "rule_broken": "rule packs compiled locally instead of installed",
+     "evidence": "debt_lsp/compile_rules.py:1", "impact": "editor bypasses CI-pinned rule versions", "correction": "install versioned rule artifact",
+     "owner_layer": "sdk", "blocks_release": false, "leverage_score": 3.1}
+  ]
+}

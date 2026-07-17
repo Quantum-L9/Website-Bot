@@ -1,0 +1,17 @@
+{
+  "schema_version": "l9.validator_stub.v1",
+  "finding_id": "LSP-002",
+  "task_file": "reports/07-17-2026/tasks/task-LSP-002.yaml",
+  "followup_file": "reports/07-17-2026/tasks/followup-LSP-002.json",
+  "validator_file": "reports/07-17-2026/tasks/validator-LSP-002.sh",
+  "phase": "pre_push",
+  "must_pass_before": [
+    "git_push",
+    "pr_create",
+    "advance_to_next_task"
+  ],
+  "operator_supplied_body_command": "make ci",
+  "rendered_body_command": "make ci",
+  "expected_exit_code": 0,
+  "generated_at": "2026-07-17T20:05:59.754508+00:00"
+}

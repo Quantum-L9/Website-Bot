@@ -1,0 +1,10 @@
+{
+  "target_repo": "UNKNOWN",
+  "prior_audit": "examples/example_findings.json",
+  "prior_base_ref": "d32e84b",
+  "new_base_ref": "UNKNOWN",
+  "finding_to_verify": "LSP-002",
+  "required_verified_status": "resolved",
+  "evidence_hint": "debt_lsp/compile_rules.py:1",
+  "residual_if_not_resolved": "install versioned rule artifact"
+}

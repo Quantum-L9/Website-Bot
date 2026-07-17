@@ -1,0 +1,10 @@
+{
+  "target_repo": "UNKNOWN",
+  "prior_audit": "examples/example_findings.json",
+  "prior_base_ref": "d32e84b",
+  "new_base_ref": "UNKNOWN",
+  "finding_to_verify": "PRD-001",
+  "required_verified_status": "resolved",
+  "evidence_hint": "PR_Repair/normalize.py:1",
+  "residual_if_not_resolved": "route through shared evidence model"
+}

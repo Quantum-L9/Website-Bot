@@ -1,0 +1,36 @@
+# --- Flawless-Victory task derived from finding AUD-003 ---
+task:
+  id: "AUD-003"
+  objective: "consolidate to single source of truth"
+  scope_fence:
+    owner_layer: "governance"
+    allowed_paths:
+      - "tools/rule_mode_resolver.py"
+  inspect_first:
+    - "tools/rule_mode_resolver.py:1"
+  constraint_to_satisfy: "rule-mode resolver duplicated across repos"
+  base_ref: "d32e84b"
+  regression_target: "drift between repos"
+  severity: "critical"
+  blocks_release: true
+  stop_if:
+    - "fix requires editing paths outside allowed_paths"
+    - "fix would weaken constraint_to_satisfy"
+    - "fix requires out-of-scope work"
+    - "validation cannot be run honestly"
+  followup_verify:
+    audit: "05-followup-remediation-audit.md"
+    require_verified_status: "resolved"
+    before_advancing_to_next_finding: true
+
+  execution_policy:
+    one_task_per_pr: true
+    branch_name: "l9/fix-AUD-003-consolidate-to-single-source-of-truth"
+    push_forbidden_until_validator_green: true
+    validator_stub: "reports/07-17-2026/tasks/validator-AUD-003.sh"
+    validator_manifest: "reports/07-17-2026/tasks/validator-AUD-003.json"
+    validation_phase: "pre_push"
+    stop_if:
+      - "git push is attempted before validator_stub exits 0"
+      - "a PR is created before validator_stub exits 0"
+      - "changes for multiple findings are combined in one branch"

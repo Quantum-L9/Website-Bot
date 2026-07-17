@@ -1,0 +1,44 @@
+{
+  "schema_version": "l9.manifest.v1",
+  "generated_at": "2026-07-17T20:05:59.754668+00:00",
+  "generated_by": "agent-a-planner/tools/plan.py",
+  "report_file": "examples/example_findings.json",
+  "findings_copy": "reports/07-17-2026/findings.json",
+  "base_ref": "d32e84b",
+  "declared_msna_id": "AUD-003",
+  "duplicate_map": {},
+  "top_n": 3,
+  "workdir": ".",
+  "contracts": [
+    {
+      "finding_id": "AUD-003",
+      "leverage_score": 4.9,
+      "branch": "l9/fix-AUD-003-consolidate-to-single-source-of-truth",
+      "task_file": "reports/07-17-2026/tasks/task-AUD-003.yaml",
+      "followup_file": "reports/07-17-2026/tasks/followup-AUD-003.json",
+      "validator_file": "reports/07-17-2026/tasks/validator-AUD-003.sh",
+      "validator_manifest": "reports/07-17-2026/tasks/validator-AUD-003.json",
+      "status": "ready"
+    },
+    {
+      "finding_id": "PRD-001",
+      "leverage_score": 4.7,
+      "branch": "l9/fix-PRD-001-route-through-shared-evidence-model",
+      "task_file": "reports/07-17-2026/tasks/task-PRD-001.yaml",
+      "followup_file": "reports/07-17-2026/tasks/followup-PRD-001.json",
+      "validator_file": "reports/07-17-2026/tasks/validator-PRD-001.sh",
+      "validator_manifest": "reports/07-17-2026/tasks/validator-PRD-001.json",
+      "status": "ready"
+    },
+    {
+      "finding_id": "LSP-002",
+      "leverage_score": 3.1,
+      "branch": "l9/fix-LSP-002-install-versioned-rule-artifact",
+      "task_file": "reports/07-17-2026/tasks/task-LSP-002.yaml",
+      "followup_file": "reports/07-17-2026/tasks/followup-LSP-002.json",
+      "validator_file": "reports/07-17-2026/tasks/validator-LSP-002.sh",
+      "validator_manifest": "reports/07-17-2026/tasks/validator-LSP-002.json",
+      "status": "ready"
+    }
+  ]
+}
