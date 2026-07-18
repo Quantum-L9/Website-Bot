@@ -45,13 +45,23 @@ Example: { "primary": "#1A3A5C", "secondary": "#E8F4FD", "accent": "#2196F3", "b
     }
 
     // The token values come straight from the LLM and are interpolated into
-    // tokens.css. Validate them against a strict shape so a malformed value
-    // (e.g. "#fff; } body { display:none") cannot inject arbitrary CSS.
-    const isColor = (v: string) => /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) || /^[a-zA-Z]+$/.test(v);
-    const isFont = (v: string) => /^[A-Za-z0-9][A-Za-z0-9 -]*$/.test(v);
-    const checkColor = (key: string, v: string | undefined) => {
+    // tokens.css. Enforce that each is a STRING of a strict shape so a malformed
+    // or non-string value (e.g. "#fff; } body { display:none", or a number)
+    // cannot inject arbitrary CSS.
+    const isColor = (v: unknown): v is string =>
+      typeof v === 'string' && (
+        /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ||   // hex
+        /^rgba?\([\d.,\s%]+\)$/i.test(v) ||                 // rgb()/rgba()
+        /^hsla?\([\d.,\s%]+\)$/i.test(v) ||                 // hsl()/hsla()
+        /^[a-zA-Z]+$/.test(v)                               // named keyword
+      );
+    // Font names: word tokens separated by single spaces or hyphens, no leading/
+    // trailing/double whitespace (so "Inter " is rejected).
+    const isFont = (v: unknown): v is string =>
+      typeof v === 'string' && /^[A-Za-z0-9]+(?:[ -][A-Za-z0-9]+)*$/.test(v);
+    const checkColor = (key: string, v: unknown) => {
       if (v !== undefined && !isColor(v)) {
-        throw new BuildError('VALIDATION_FAILED', `Design token '${key}' is not a valid CSS color: ${JSON.stringify(v)}`);
+        throw new BuildError('VALIDATION_FAILED', `Design token '${key}' is not a valid CSS color (hex, rgb()/hsl(), or a named color): ${JSON.stringify(v)}`);
       }
     };
     for (const key of ['primary', 'secondary', 'accent'] as const) checkColor(key, tokens[key]);
