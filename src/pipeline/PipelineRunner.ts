@@ -1,4 +1,5 @@
 // L9_META: layer=pipeline, role=orchestration_engine, status=active, version=2.0.0
+import { eq } from 'drizzle-orm';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from './BuildError.js';
 import { getBuildDb, builds, stageRuns, llmUsage as llmUsageTable } from './BuildDB.js';
@@ -123,7 +124,7 @@ export class PipelineRunner {
           errorCode,
           errorMsg,
         })
-        .where({ id: ctx.buildId } as never)
+        .where(eq(builds.id, ctx.buildId))
         .run();
     }
 
