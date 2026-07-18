@@ -87,7 +87,7 @@ Do not include guarantee claims or legal advice.
         : (parsed && typeof parsed === 'object' && Array.isArray((parsed as { faqs?: unknown }).faqs))
           ? (parsed as { faqs: unknown[] }).faqs
           : null;
-      if (!arr) throw new Error('expected a JSON array of { question, answer } objects');
+      if (!arr) throw new Error('expected a JSON array (or a { faqs: [...] } wrapper) of { question, answer } objects');
       faqs = arr.filter(
         (f): f is { question: string; answer: string } =>
           !!f && typeof f === 'object' &&
@@ -96,7 +96,8 @@ Do not include guarantee claims or legal advice.
       );
       if (faqs.length === 0) throw new Error('no valid { question, answer } entries in FAQ response');
     } catch (e) {
-      throw new BuildError('SCHEMA_GENERATION_FAILED', `FAQ JSON parse/shape failed (${(e as Error).message}): ${faqRaw}`, true);
+      const detail = e instanceof Error ? e.message : String(e);
+      throw new BuildError('SCHEMA_GENERATION_FAILED', `FAQ JSON parse/shape failed (${detail}): ${faqRaw}`, true);
     }
 
     const faqSchema = {
