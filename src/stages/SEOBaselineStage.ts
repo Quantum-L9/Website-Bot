@@ -28,8 +28,25 @@ export class SEOBaselineStage implements Stage {
     }
 
     const { geography, seo_contract } = ctx.domainSpec;
-    const keywords = (seo_contract?.['target_keywords'] as string[] | undefined)
-      ?? ctx.domainSpec.routes.map(r => `${r.title} ${geography.primary_state}`);
+    // target_keywords may be authored as plain strings or as { keyword, priority }
+    // objects (the v2 seo_contract shape HandoffEmitterStage consumes). Extract a
+    // trimmed string from each — accepting only a string element or a string
+    // `.keyword` — and drop everything else (null, numbers, nested objects) so we
+    // never crash on a null element or send "[object Object]" to DataForSEO.
+    const rawKeywords = seo_contract?.['target_keywords'];
+    const configured = Array.isArray(rawKeywords)
+      ? rawKeywords.flatMap((k): string[] => {
+          if (typeof k === 'string') { const s = k.trim(); return s ? [s] : []; }
+          if (k && typeof k === 'object') {
+            const kw = (k as { keyword?: unknown }).keyword;
+            if (typeof kw === 'string') { const s = kw.trim(); return s ? [s] : []; }
+          }
+          return [];
+        })
+      : [];
+    const keywords = configured.length > 0
+      ? configured
+      : ctx.domainSpec.routes.map(r => `${r.title} ${geography.primary_state}`);
 
     const targetKeywords = keywords.slice(0, 10); // Cap at 10 to control API cost
     const ranks: Record<string, number | null> = {};
