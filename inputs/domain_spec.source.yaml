@@ -223,7 +223,7 @@ domain_spec:
       - MS
       - AR
       - MO
-      license_number: '{{LICENSE_NUMBER_PLACEHOLDER}}'
+      license_number: 'TEST-PA-000000 (TEST VALUE — NOT A REAL LICENSE — replace before production)'
       display_rule: Display only where legally accurate and approved.
     testimonials_status: placeholder
     case_studies:
@@ -468,21 +468,21 @@ domain_spec:
     disclaimers:
     - name: public_adjuster_disclaimer
       required: true
-      text: '{{PUBLIC_ADJUSTER_DISCLAIMER_PLACEHOLDER}}'
+      text: '[DRAFT — NOT LEGALLY APPROVED — TEST ONLY] Supplemental Insurance Pros provides licensed public adjusting services and represents the policyholder, not any insurance carrier. Services are available only in states where we hold an active public adjuster license.'
       placement:
       - footer
       - contact_page
       - service_pages
     - name: no_guarantee_disclaimer
       required: true
-      text: '{{NO_GUARANTEE_DISCLAIMER_PLACEHOLDER}}'
+      text: '[DRAFT — NOT LEGALLY APPROVED — TEST ONLY] No outcome is guaranteed. Past results do not guarantee any future claim payment, settlement amount, or approval. Every claim is evaluated on its own facts.'
       placement:
       - footer
       - service_pages
       - faq
     - name: not_legal_advice_disclaimer
       required: true
-      text: '{{NOT_LEGAL_ADVICE_DISCLAIMER_PLACEHOLDER}}'
+      text: '[DRAFT — NOT LEGALLY APPROVED — TEST ONLY] The information on this site is for general purposes only and is not legal advice. Public adjusters are not attorneys and do not provide legal representation. Consult a licensed attorney for legal questions.'
       placement:
       - footer
       - faq
