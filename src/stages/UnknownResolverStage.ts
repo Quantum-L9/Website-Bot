@@ -8,18 +8,20 @@ import type { Stage } from '../pipeline/PipelineRunner.js';
 
 const logger = createModuleLogger('stage:unknown-resolver');
 
-// Template-level WOM placeholder tokens and their safe defaults
+// Vertical-neutral WOM placeholder tokens and their safe defaults. These are
+// generic across any client (contact fields, generic professional-license
+// number, design tokens). Compliance/disclaimer text is DELIBERATELY not
+// defaulted here — it is client- and vertical-specific and must be authored in
+// the DomainSpec's `compliance` section (carried through wom_flags), never
+// invented by the generic factory.
 const SAFE_DEFAULTS: Record<string, string> = {
-  '{{PHONE_PLACEHOLDER}}':                    'Unknown',
-  '{{EMAIL_PLACEHOLDER}}':                    'Unknown',
-  '{{ADDRESS_PLACEHOLDER}}':                  'Unknown',
-  '{{LICENSE_NUMBER_PLACEHOLDER}}':           'Unknown',
-  '{{COLOR_TOKENS_PLACEHOLDER}}':             'pending-design-pass',
-  '{{TYPOGRAPHY_PLACEHOLDER}}':               'pending-design-pass',
-  '{{SPACING_PLACEHOLDER}}':                  'pending-design-pass',
-  '{{PUBLIC_ADJUSTER_DISCLAIMER_PLACEHOLDER}}': 'Disclaimer pending legal review.',
-  '{{NO_GUARANTEE_DISCLAIMER_PLACEHOLDER}}':  'No guarantee of claim outcome or carrier approval.',
-  '{{NOT_LEGAL_ADVICE_PLACEHOLDER}}':         'This is not legal advice.',
+  '{{PHONE_PLACEHOLDER}}':          'Unknown',
+  '{{EMAIL_PLACEHOLDER}}':          'Unknown',
+  '{{ADDRESS_PLACEHOLDER}}':        'Unknown',
+  '{{LICENSE_NUMBER_PLACEHOLDER}}': 'Unknown',
+  '{{COLOR_TOKENS_PLACEHOLDER}}':   'pending-design-pass',
+  '{{TYPOGRAPHY_PLACEHOLDER}}':     'pending-design-pass',
+  '{{SPACING_PLACEHOLDER}}':        'pending-design-pass',
 };
 
 interface WomFlag {

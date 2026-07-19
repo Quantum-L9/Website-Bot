@@ -42,15 +42,16 @@ launch_env_contract:
         FORM_ENDPOINT_URL: "Server-side or trusted endpoint that receives lead submissions."
         FORM_WEBHOOK_SECRET: "Secret for form webhook validation, stored only as secret."
         LEAD_NOTIFICATION_EMAIL: "Lead notification recipient, if email routing is used."
-    acculynx:
+    crm:
       required_for_launch: false
       required_for_crm_launch_claim: true
       variables:
-        ACCULYNX_API_BASE_URL: "AccuLynx API base URL supplied by operator."
-        ACCULYNX_CLIENT_ID: "Secret or client id supplied by operator."
-        ACCULYNX_CLIENT_SECRET: "Secret supplied by operator."
-        ACCULYNX_API_TOKEN: "Secret token supplied by operator."
-        ACCULYNX_TEST_MODE: "Must be true for synthetic validation until production handoff is approved."
+        CRM_PROVIDER: "CRM provider selector (e.g. acculynx, hubspot, salesforce, none). Chooses which CRM integration, if any, is used."
+        CRM_API_BASE_URL: "CRM API base URL supplied by operator."
+        CRM_CLIENT_ID: "CRM client id supplied by operator."
+        CRM_CLIENT_SECRET: "CRM client secret supplied by operator (secret)."
+        CRM_API_TOKEN: "CRM API token supplied by operator (secret)."
+        CRM_TEST_MODE: "Must be true for synthetic validation until production handoff is approved."
     analytics:
       required_for_launch: false
       required_for_analytics_launch_claim: true
@@ -72,9 +73,11 @@ launch_env_contract:
         LEGAL_DISCLAIMER_APPROVED: "Must be true after legal/client approval."
         LEGAL_DISCLAIMER_VERSION: "Approved disclaimer version identifier."
         LEGAL_REVIEW_OWNER: "Person/entity responsible for legal approval."
-    licensing:
-      required_for_launch: true
+    professional_license:
+      required_for_launch: false
+      required_when_license_display_required: true
       variables:
-        PUBLIC_ADJUSTER_LICENSE_NUMBER: "Official public adjuster license number."
-        PUBLIC_ADJUSTER_LICENSE_STATE: "Primary licensing state."
-        LICENSE_DISPLAY_REQUIRED: "Must be false only if licensing display is not required."
+        PROFESSIONAL_LICENSE_NUMBER: "Professional/occupational license number, when the client's vertical requires displaying one."
+        PROFESSIONAL_LICENSE_STATE: "Primary licensing state/jurisdiction."
+        PROFESSIONAL_LICENSE_TYPE: "License type/profession (e.g. public_adjuster, contractor, attorney)."
+        LICENSE_DISPLAY_REQUIRED: "Set true only when the client's vertical/compliance requires displaying a professional license; otherwise false."

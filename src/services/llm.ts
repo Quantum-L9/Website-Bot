@@ -85,7 +85,10 @@ export function createWebsiteFactoryLLM(clientId: string): WebsiteFactoryLLM {
     async generateContent(prompt, _ctx) {
       const res = await run(
         { clientId, type: TaskType.CONTENT_GENERATION, complexity: TaskComplexity.MEDIUM, expectedOutputTokens: 3000, description: '[content-generation] page_copy' },
-        'You are an expert copywriter for insurance supplementing businesses. Write compliance-literate, SEO-optimized copy. Be direct. Never make guarantee claims.',
+        // Vertical-neutral: the user prompt already carries the business name,
+        // vertical, and geography from the DomainSpec, so the system prompt stays
+        // client-agnostic and only sets tone + compliance guardrails.
+        'You are an expert conversion copywriter for local service businesses. Write compliance-literate, SEO-optimized copy. Be direct. Never make guarantee claims.',
         prompt,
         'content-generation',
         'page_copy',

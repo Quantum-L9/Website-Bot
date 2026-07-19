@@ -1,11 +1,11 @@
 client_id: ci-test-client
 business_name: CI Test Business
-vertical: insurance_supplementing
+vertical: example_services
 geography:
   states:
-    - TN
-    - KY
-  primary_state: TN
+    - XX
+    - YY
+  primary_state: XX
 design:
   status: resolved
   palette:
@@ -33,6 +33,6 @@ routes:
       - map
 seo_contract:
   target_keywords:
-    - insurance supplement TN
-    - public adjuster Tennessee
+    - example services XX
+    - example provider XXtown
   site_url: ci-test.example.com
