@@ -7,7 +7,7 @@
 - Smoke validation: proves routes and static files load locally or against a base URL.
 - Form validation: verifies form contract and endpoint readiness.
 - Analytics validation: verifies analytics configuration and event contract.
-- CRM validation: verifies AccuLynx configuration contract and payload shape.
+- CRM validation: verifies the configured CRM provider's configuration contract and payload shape.
 - SEO validation: verifies robots, sitemap, llms, metadata, and canonical runtime files.
 - Rollback validation: verifies rollback procedure exists and can be followed.
 
@@ -39,4 +39,4 @@ A test is not considered complete unless it records:
 
 ## External Checks
 
-Live deployment, form delivery receipt, AccuLynx record creation, and analytics event receipt require operator credentials and runtime values.
+Live deployment, form delivery receipt, CRM record creation (for the configured CRM provider), and analytics event receipt require operator credentials and runtime values.

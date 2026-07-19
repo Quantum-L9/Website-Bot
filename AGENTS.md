@@ -22,7 +22,7 @@ When sources conflict, stop and report the conflict. Do not silently choose the 
 - Deployment target: Vercel.
 - LLM Router: @quantum-l9/llm-router (installed from GitHub Packages; consumed via src/services/llm.ts).
 - LLM Providers: OpenRouter (general) + Perplexity (search-grounded).
-- CRM direction: AccuLynx, phase 2 runtime verification.
+- CRM direction: configurable CRM provider (`CRM_PROVIDER`, e.g. acculynx, hubspot, salesforce, none), phase 2 runtime verification.
 - Production deployment: preview-first only.
 - Readiness claims: evidence-backed only.
 - Visual QA: Required before production deployment (verify:visual-qa).

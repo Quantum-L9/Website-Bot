@@ -1,8 +1,8 @@
-# Supplemental Insurance Pros Website
+# L9 Website Factory Bot
 
 ## Project Identity
 
-This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline powered by `@quantum-l9/llm-router`. It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. Currently configured for Supplemental Insurance Pros, prepared for Vercel preview-first deployment.
+This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline powered by `@quantum-l9/llm-router`. It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. The factory is client-agnostic and prepared for Vercel preview-first deployment. A worked reference client lives under `examples/supplemental-insurance-pros/` (see `examples/README.md`).
 
 ## Verified Repo Facts
 
@@ -13,7 +13,7 @@ This repository contains the L9 Website Factory Bot — a deterministic website 
 | Framework | Astro | `astro.config.mjs`, `package.json` |
 | Build output | `dist/` | Astro static build convention and local validation bundle |
 | Deployment target | Vercel | deployment scripts and docs |
-| CRM direction | AccuLynx phase 2 | env contract and verification scripts |
+| CRM direction | Configurable CRM provider (`CRM_PROVIDER`), phase 2 | env contract and verification scripts |
 | LLM Router | @quantum-l9/llm-router (GitHub Packages dependency) | `src/services/llm.ts` |
 | LLM Providers | OpenRouter + Perplexity | `contracts/llm_router_integration.yaml` |
 
@@ -34,18 +34,20 @@ for the type. Required shape:
 - `design: { status: 'resolved' | 'pending'; palette?: Record<string,string>; fonts?: Record<string,string> }`
 - optional: `seo_contract`, `wom_flags`
 
-Run with an explicit spec: `npm run pipeline -- --spec=<path>` (defaults to
-`domain_spec/domain_spec.normalized.yaml`). The rich, deeply-nested authoring format
-is **not** consumed directly — the loader detects it and fails with an actionable message.
+Run with an explicit spec: `npm run pipeline -- --spec=<path>`, pointing at the client's
+normalized spec (for the reference client, `examples/supplemental-insurance-pros/domain_spec.normalized.yaml`).
+The rich, deeply-nested authoring format is **not** consumed directly — the loader detects it and
+fails with an actionable message.
 
 ### Authoring flow (source → normalize → consume)
-1. **Author** the rich spec at `inputs/domain_spec.source.yaml` (business/market/compliance detail).
+1. **Author** the rich spec (the client's `domain_spec.source.yaml`, e.g.
+   `examples/supplemental-insurance-pros/domain_spec.source.yaml`) with business/market/compliance detail.
 2. **Normalize**: `npm run normalize-spec` → generates the flat, pipeline-ready
-   `domain_spec/domain_spec.normalized.yaml` (`scripts/normalize-spec.ts`). Never hand-edit the flat file.
+   `domain_spec.normalized.yaml` (`scripts/normalize-spec.ts`). Never hand-edit the flat file.
 3. **Consume**: the pipeline builds from the flat spec.
 
 CI guards drift: `npm run normalize-spec:check` (run in `build-and-validate.yml`) fails if the
-committed flat spec doesn't equal `normalize(inputs/domain_spec.source.yaml)` or isn't a valid `DomainSpec`.
+committed flat spec doesn't equal `normalize(<source spec>)` or isn't a valid `DomainSpec`.
 
 ## Quick Start
 
@@ -82,7 +84,7 @@ Copy the template and fill operator-specific values locally:
 cp .env.example .env.local
 ```
 
-Never commit `.env.local`. Required live-launch values include Vercel credentials, form endpoint, analytics provider/id, AccuLynx credentials, business contact values, license number, and approved disclaimer text.
+Never commit `.env.local`. Required live-launch values include Vercel credentials, form endpoint, analytics provider/id, CRM credentials (for the configured `CRM_PROVIDER`), business contact values, professional license (if the client's vertical requires one), and approved disclaimer text.
 
 ## Validation
 
@@ -133,7 +135,7 @@ Do not call the site launch-ready until all are true:
 3. `npm run verify:all` passes or labels external checks as blocked with evidence.
 4. Vercel preview URL is created and verified.
 5. Form endpoint receives a synthetic lead.
-6. AccuLynx receives a synthetic lead or CRM is formally deferred.
+6. The configured CRM provider receives a synthetic lead or CRM is formally deferred.
 7. Analytics receives page-view and conversion events or analytics is formally deferred.
 8. Rollback procedure is verified.
 9. No unresolved blocker remains.
@@ -153,25 +155,27 @@ Do not call the site launch-ready until all are true:
 
 Read `AGENTS.md` before modifying the repository. Agents must preserve Astro/Vercel locks, avoid fake claims, avoid invented values, and validate before reporting readiness.
 
-## Remaining Unknowns
+## Per-Client Launch Values
+
+Each client supplies these before launch (they remain `Unknown` in the factory until provided). See `examples/supplemental-insurance-pros/` for a worked example.
 
 - business phone
 - business email
 - business address
-- public adjuster license number
+- professional license number/state/type (if the client's vertical requires displaying one)
 - approved disclaimer text
 - support/security contact
 - license choice
 - form endpoint
 - Vercel org/project/token
 - analytics provider/id
-- AccuLynx endpoint/key/account
+- CRM provider selection and credentials (endpoint/keys/account)
 
 ## Launch Configuration Closure
 
 The remaining launch Unknowns are controlled through `.env.example`, `config/launch-env.required.yaml`, and `scripts/verify-launch-env.mjs`. No real-world values are invented in this repository.
 
-Before public launch, provide required support, security, domain, form, Vercel, legal approval, licensing, analytics, and AccuLynx values through `.env.local` or Vercel Project Settings.
+Before public launch, provide required support, security, domain, form, Vercel, legal approval, licensing, analytics, and CRM values through `.env.local` or Vercel Project Settings.
 
 Run:
 

@@ -33,7 +33,7 @@ The static site must not contain private CRM credentials, Vercel tokens, analyti
 ## Integration Boundaries
 
 - Forms: use `PUBLIC_FORM_ENDPOINT` only for an intentionally public-safe form endpoint.
-- AccuLynx: phase 2 verification; API keys must not be exposed to browser code.
+- CRM: the configured CRM provider (`CRM_PROVIDER`, e.g. AccuLynx, HubSpot, Salesforce, or none) is phase 2 verification; API keys must not be exposed to browser code.
 - Analytics: configured by public provider/id values only.
 - Vercel: deployment through environment variables and CLI wrapper.
 

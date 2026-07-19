@@ -39,7 +39,8 @@ See `.env.example` for the canonical variable list. See `config/launch-env.requi
 |----------|---------|
 | `PUBLIC_FORM_ENDPOINT` | Server-side endpoint for lead form submissions |
 | `PUBLIC_ANALYTICS_ID` | Analytics measurement/site id |
-| `ACCULYNX_API_KEY` | AccuLynx CRM integration key (phase 2) |
+| `CRM_PROVIDER` | CRM provider selector (e.g. acculynx, hubspot, salesforce, none) |
+| `CRM_API_TOKEN` | CRM API token for the configured provider (phase 2) |
 
 ## Deployment Preconditions
 

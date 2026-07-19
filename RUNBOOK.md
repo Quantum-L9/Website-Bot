@@ -5,7 +5,7 @@
 - Node.js >= 20.0.0
 - npm >= 10
 - `tsconfig.json` at repo root (included in this pack) — requires `module: NodeNext` and `moduleResolution: NodeNext`
-- `domain_spec/domain_spec.normalized.yaml` populated per WOM spec
+- a normalized DomainSpec for the target client (the bundled reference client is `examples/supplemental-insurance-pros/domain_spec.normalized.yaml`; real clients pass their own via `--spec` / `CLIENT_ID`)
 
 ## Required Secrets (GitHub)
 
