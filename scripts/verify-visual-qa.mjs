@@ -37,15 +37,18 @@ const VIEWPORTS = [
 // client's routes. Precedence: explicit QA_PAGES env (comma-separated) →
 // the spec's route slugs (SPEC_PATH or the default normalized spec) → home only.
 async function resolvePages() {
+  // Normalize to a leading-slash path so later `${siteUrl}${pagePath}` builds a
+  // valid URL for both env-supplied and spec-derived values (e.g. 'about' → '/about').
+  const toPath = (p) => (p.startsWith('/') ? p : `/${p}`);
   if (process.env.QA_PAGES) {
-    return process.env.QA_PAGES.split(',').map((s) => s.trim()).filter(Boolean);
+    return process.env.QA_PAGES.split(',').map((s) => s.trim()).filter(Boolean).map(toPath);
   }
   const specPath = process.env.SPEC_PATH || 'domain_spec/domain_spec.normalized.yaml';
   try {
     const { parse } = await import('yaml');
     const spec = parse(readFileSync(specPath, 'utf-8'));
     const root = spec?.domain_spec ?? spec;
-    const slugs = (root?.routes ?? []).map((r) => r.slug).filter(Boolean);
+    const slugs = (root?.routes ?? []).map((r) => r.slug).filter(Boolean).map(toPath);
     if (slugs.length) return slugs;
   } catch {
     // fall through to the safe default
