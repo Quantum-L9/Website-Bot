@@ -7,7 +7,7 @@ export interface DomainSpec {
   vertical: string;
   geography: { states: string[]; primary_state: string };
   design: { status: 'resolved' | 'pending'; palette?: Record<string, string>; fonts?: Record<string, string> };
-  routes: Array<{ slug: string; title: string; components: string[] }>;
+  routes: Array<{ slug: string; title: string; components: string[]; noindex?: boolean }>;
   seo_contract?: Record<string, unknown>;
   wom_flags?: Array<{ key: string; value: string; severity: 'error' | 'warning' | 'info' }>;
 }
