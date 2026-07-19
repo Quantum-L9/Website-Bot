@@ -3,7 +3,7 @@
 // Validates a parsed spec against the FLAT DomainSpec contract that the pipeline
 // consumes (see fixtures/ci-test-spec.yaml for the canonical shape). Throws
 // BuildError('VALIDATION_FAILED') with precise, actionable messages, and detects
-// the rich NESTED authoring format (inputs/domain_spec.normalized.yaml) so the
+// the rich NESTED authoring format (inputs/domain_spec.source.yaml) so the
 // operator gets a real hint instead of a bare "field absent".
 import { BuildError } from './BuildError.js';
 import type { DomainSpec } from './BuildContext.js';

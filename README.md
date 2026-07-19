@@ -36,8 +36,16 @@ for the type. Required shape:
 
 Run with an explicit spec: `npm run pipeline -- --spec=<path>` (defaults to
 `domain_spec/domain_spec.normalized.yaml`). The rich, deeply-nested authoring format
-under `inputs/` is **not** consumed directly — it must be converted to this flat schema
-first; the loader detects the nested format and fails with an actionable message.
+is **not** consumed directly — the loader detects it and fails with an actionable message.
+
+### Authoring flow (source → normalize → consume)
+1. **Author** the rich spec at `inputs/domain_spec.source.yaml` (business/market/compliance detail).
+2. **Normalize**: `npm run normalize-spec` → generates the flat, pipeline-ready
+   `domain_spec/domain_spec.normalized.yaml` (`scripts/normalize-spec.ts`). Never hand-edit the flat file.
+3. **Consume**: the pipeline builds from the flat spec.
+
+CI guards drift: `npm run normalize-spec:check` (run in `build-and-validate.yml`) fails if the
+committed flat spec doesn't equal `normalize(inputs/domain_spec.source.yaml)` or isn't a valid `DomainSpec`.
 
 ## Quick Start
 
