@@ -33,8 +33,28 @@ const VIEWPORTS = [
   { name: 'pixel_7', width: 412, height: 915 },
 ];
 
-// Pages to validate (from sitemap contract)
-const PAGES = ['/', '/about', '/contact', '/faq', '/service-area'];
+// Pages to validate — derived from the DomainSpec, never hardcoded to one
+// client's routes. Precedence: explicit QA_PAGES env (comma-separated) →
+// the spec's route slugs (SPEC_PATH or the default normalized spec) → home only.
+async function resolvePages() {
+  if (process.env.QA_PAGES) {
+    return process.env.QA_PAGES.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  const specPath = process.env.SPEC_PATH || 'domain_spec/domain_spec.normalized.yaml';
+  try {
+    const { parse } = await import('yaml');
+    const spec = parse(readFileSync(specPath, 'utf-8'));
+    const root = spec?.domain_spec ?? spec;
+    const slugs = (root?.routes ?? []).map((r) => r.slug).filter(Boolean);
+    if (slugs.length) return slugs;
+  } catch {
+    // fall through to the safe default
+  }
+  console.log('⚠️  Could not derive pages from a DomainSpec — defaulting to home page only.');
+  return ['/'];
+}
+
+const PAGES = await resolvePages();
 
 async function main() {
   console.log('═══════════════════════════════════════════════════');
