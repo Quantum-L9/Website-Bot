@@ -35,12 +35,21 @@ See `.env.example` for the canonical variable list. See `config/launch-env.requi
 
 ### Site Runtime (required for launch)
 
+Names match the fail-closed launch contract in `config/launch-env.required.yaml`
+(validated by `scripts/verify-launch-env.mjs`). Values marked **secret** are
+server-side only and must never be exposed to browser code.
+
 | Variable | Purpose |
 |----------|---------|
-| `PUBLIC_FORM_ENDPOINT` | Server-side endpoint for lead form submissions |
-| `PUBLIC_ANALYTICS_ID` | Analytics measurement/site id |
-| `CRM_PROVIDER` | CRM provider selector (e.g. acculynx, hubspot, salesforce, none) |
-| `CRM_API_TOKEN` | CRM API token for the configured provider (phase 2) |
+| `FORM_PROVIDER` | Lead-form provider (e.g. webhook, formspree, custom, crm_proxy) |
+| `FORM_ENDPOINT_URL` | Server-side/trusted endpoint that receives lead submissions |
+| `FORM_WEBHOOK_SECRET` | **secret** — form webhook validation |
+| `LEAD_NOTIFICATION_EMAIL` | Lead notification recipient (if email routing is used) |
+| `ANALYTICS_PROVIDER` | Approved analytics provider |
+| `ANALYTICS_MEASUREMENT_ID` | Provider measurement/site id |
+| `CRM_PROVIDER` | CRM provider selector (e.g. `acculynx`, `hubspot`, `salesforce`, `none`) |
+| `CRM_API_TOKEN` | **secret** — CRM API token for the configured provider (phase 2) |
+| `CRM_CLIENT_SECRET` | **secret** — CRM client secret for the configured provider (phase 2) |
 
 ## Deployment Preconditions
 
