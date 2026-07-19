@@ -35,7 +35,7 @@ Include:
 - missing environment variable
 - Vercel credential issue
 - form delivery issue
-- AccuLynx integration issue
+- CRM integration issue (configured CRM provider)
 - analytics event issue
 
 ## Support Contact Gate

@@ -31,4 +31,4 @@ Security contact is Unknown. Until supplied, report security issues to the repos
 
 ## Secret Handling Contract
 
-Secrets must be supplied through environment variables or deployment secret storage only. Never commit `VERCEL_TOKEN`, `FORM_WEBHOOK_SECRET`, `ACCULYNX_CLIENT_SECRET`, `ACCULYNX_API_TOKEN`, or CRM/API secrets. Security reporting remains Unknown until `SECURITY_CONTACT_EMAIL` or `SECURITY_DISCLOSURE_URL` is provided.
+Secrets must be supplied through environment variables or deployment secret storage only. Never commit `VERCEL_TOKEN`, `FORM_WEBHOOK_SECRET`, `CRM_CLIENT_SECRET`, `CRM_API_TOKEN`, or other CRM/API secrets. Security reporting remains Unknown until `SECURITY_CONTACT_EMAIL` or `SECURITY_DISCLOSURE_URL` is provided.

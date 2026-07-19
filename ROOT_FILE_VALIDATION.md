@@ -45,11 +45,11 @@ Status: PASS_WITH_EXTERNAL_UNKNOWNS
 - security contact
 - final production domain verification
 - real form endpoint
-- AccuLynx credentials
+- CRM provider selection and credentials (CRM_PROVIDER, e.g. acculynx, hubspot, salesforce, none)
 - analytics provider/id
 - Vercel project/org/token
 - approved legal disclaimer
-- public adjuster license number
+- professional license number/state/type (if the client's vertical requires one)
 
 ## Validation Gates
 
