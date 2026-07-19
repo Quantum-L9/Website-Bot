@@ -39,6 +39,12 @@ Build it as a **draft** and flip it ready once the above are true.
 
 ## Build the core factory capability — design → build → deploy client sites
 
+> 📋 **Full phased build plan: [`docs/factory-upgrade-build-plan.md`](docs/factory-upgrade-build-plan.md)** —
+> the granular, execution-ready design (phases P-A → P-F: `astro_template/` extraction →
+> `SiteAssemblerStage` → `astro build` gate → per-client deploy → SEO-Bot `site_deployment`
+> handoff → provisioning), with the 12-stage order, `BuildContext` additions, and end-to-end
+> verification. The summary below is the headline; that doc is the plan of record.
+
 **This is the repo's purpose, not optional feature work.** `Quantum-L9/Website-Bot`
 is meant to **design, build, and deploy** Astro websites for many clients from a
 DomainSpec (then `Quantum-L9/SEO-Bot` grows each deployed site's SEO + Domain
