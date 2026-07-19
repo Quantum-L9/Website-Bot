@@ -33,7 +33,7 @@ jobs:
       - name: Run full pipeline
         id: pipeline
         run: |
-          npx tsx scripts/run-pipeline.ts --spec=domain_spec/domain_spec.normalized.yaml
+          npx tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
         env:
           CLIENT_ID: ${{ vars.CLIENT_ID }}

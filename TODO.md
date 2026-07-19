@@ -37,11 +37,33 @@ Build it as a **draft** and flip it ready once the above are true.
 
 ---
 
+## Factory generalization — finish making this a client-agnostic factory
+
+The client-specific drift has been removed from the factory: the reference
+client lives entirely under `examples/supplemental-insurance-pros/`, and
+`src/`/`scripts/`/`config/`/workflows are driven by the DomainSpec. Two pieces
+of genuine **feature work** remain to make the factory actually *produce* client
+sites (these are not de-hardcoding — they build the missing generation path):
+
+1. **Generic `astro_template/` + populated output.** `examples/…/astro_site/` is
+   a hand-authored client site; the pipeline generates copy into an in-memory map
+   and never materializes `.astro` files. Extract a client-neutral
+   `website_pack/astro_template/` (identity via `siteConfig`/`import.meta.env`)
+   and have the pipeline scaffold+fill it.
+2. **Namespace build output by `client_id`.** Stages write to root-relative paths
+   (`DesignIntelligenceStage` → `src/styles/tokens.css`, `PostHogSnippetStage` →
+   `src/layouts/Layout.astro` — a path that doesn't exist in the factory,
+   `HandoffEmitterStage` → `contracts/…`). Derive an output root from
+   `ctx.clientId` (e.g. `build/<client_id>/`, gitignored) and point the stages
+   there; fix `PostHogSnippetStage`'s layout target to the scaffolded project's
+   actual layout.
+
 ## Related — production deploy is currently gated (by design, not a bug)
 
-`deploy-to-vercel.yml` runs the pipeline against the committed flat spec
-(`domain_spec/domain_spec.normalized.yaml`). It now correctly **blocks at
-`UnknownResolverStage`** on the 4 `error`-severity compliance flags:
+`deploy-to-vercel.yml` runs the pipeline against the bundled reference client's
+flat spec (`examples/supplemental-insurance-pros/domain_spec.normalized.yaml`).
+It correctly **blocks at `UnknownResolverStage`** on the 4 `error`-severity
+compliance flags:
 
 - `authority.license_number`
 - `compliance.public_adjuster_disclaimer`
@@ -50,10 +72,10 @@ Build it as a **draft** and flip it ready once the above are true.
 
 **To green the production deploy:** supply the real public-adjuster license
 number and the 3 approved legal disclaimer texts in
-`inputs/domain_spec.source.yaml`, then regenerate the flat spec
-(`npm run normalize-spec`). The normalizer drops those error flags only once the
-underlying `{{…PLACEHOLDER}}` tokens are resolved, so the deploy proceeds past
-the launch gate.
+`examples/supplemental-insurance-pros/domain_spec.source.yaml`, then regenerate
+the flat spec (`npm run normalize-spec`). The normalizer drops those error flags
+only once the underlying `{{…PLACEHOLDER}}` tokens are resolved, so the deploy
+proceeds past the launch gate.
 
 ---
 

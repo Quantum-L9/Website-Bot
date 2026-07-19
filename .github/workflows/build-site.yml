@@ -30,7 +30,7 @@ on:
       spec_path:
         description: 'Path to the normalized domain spec'
         required: false
-        default: 'domain_spec/domain_spec.normalized.yaml'
+        default: 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml'
 
 permissions:
   contents: read
@@ -52,7 +52,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     env:
       CLIENT_ID: ${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID }}
-      SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'domain_spec/domain_spec.normalized.yaml' }}
+      SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -72,8 +72,8 @@ jobs:
             /*|*..*) echo "SPEC_PATH must be a relative in-repo path (no absolute or .. segments): $SPEC_PATH"; exit 1;;
           esac
           case "$SPEC_PATH" in
-            domain_spec/*.yaml|domain_spec/*.yml|inputs/*.yaml|inputs/*.yml) : ;;
-            *) echo "SPEC_PATH must be a .yaml/.yml under domain_spec/ or inputs/: $SPEC_PATH"; exit 1;;
+            domain_spec/*.yaml|domain_spec/*.yml|inputs/*.yaml|inputs/*.yml|examples/*/*.yaml|examples/*/*.yml) : ;;
+            *) echo "SPEC_PATH must be a .yaml/.yml under domain_spec/, inputs/, or examples/<client>/: $SPEC_PATH"; exit 1;;
           esac
           test -f "$SPEC_PATH" || { echo "Spec file not found in repo: $SPEC_PATH"; exit 1; }
           echo "Validated CLIENT_ID and SPEC_PATH=$SPEC_PATH"

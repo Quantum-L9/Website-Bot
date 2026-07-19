@@ -43,7 +43,7 @@ async function resolvePages() {
   if (process.env.QA_PAGES) {
     return process.env.QA_PAGES.split(',').map((s) => s.trim()).filter(Boolean).map(toPath);
   }
-  const specPath = process.env.SPEC_PATH || 'domain_spec/domain_spec.normalized.yaml';
+  const specPath = process.env.SPEC_PATH || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml';
   try {
     const { parse } = await import('yaml');
     const spec = parse(readFileSync(specPath, 'utf-8'));
