@@ -1,25 +1,58 @@
 /**
- * website-pipeline.ts — Inngest durable function for the full Website-Bot pipeline.
+ * website-pipeline.ts — Inngest durable function for the Website-Bot pipeline.
  *
- * Wraps all 10 existing stages in durable steps.
- * Adds:
- *   - Per-step budget tracking via AgentBudgetGuard
- *   - Compensation registration before Vercel deploy and CMS writes
- *   - waitForEvent approval gate before production promotion
- *   - Structured handoff emission as the final step
+ * Wraps the existing 10-stage PipelineRunner in a durable Inngest function and adds:
+ *   - Budget admission/reservation/enforcement via AgentBudgetGuard (Postgres-backed ledger)
+ *   - Compensation registration (saga rollback hook) around the deploy stage
+ *   - Structured handoff event emission as the final step
+ *
+ * Scope note (2026-07-20 remediation): the original design of this file called
+ * `VercelDeploy.deployPreview()` / `.promoteToProduction()` / `.rollback()` and a
+ * `step.waitForEvent('website/production.approved')` human-approval gate between a
+ * preview deploy and a production promotion. None of that API exists on
+ * `VercelDeployStage` today — it performs one direct `target: 'production'` deploy
+ * with no preview/promote split and no rollback method. Building that preview ->
+ * approve -> promote -> rollback flow is a real, currently-missing feature (and
+ * would put this ahead of the locked "preview-first only" deployment posture in
+ * AGENTS.md, since VercelDeployStage itself doesn't do preview-first yet) — it is
+ * intentionally NOT fabricated here. This function wraps the pipeline as it exists:
+ * one durable step per full pipeline run, with budget guard + compensation-on-
+ * failure + handoff wired at the Inngest layer. See docs/autonomy-architecture.md
+ * "Implementation status" for the tracked gap.
+ *
+ * Also note: PipelineRunner opens/closes its own BuildDB (SQLite) connection once
+ * per run() call, so the pipeline is wrapped as ONE Inngest step rather than one
+ * step per stage — splitting it further would leave that SQLite handle spanning
+ * step boundaries, which Inngest does not guarantee stays valid across replays.
  *
  * Prerequisites:
- *   npm install inngest
- *   Set env vars: INNGEST_EVENT_KEY, INNGEST_SIGNING_KEY
+ *   npm install inngest pg
+ *   Set env vars: INNGEST_EVENT_KEY, INNGEST_SIGNING_KEY, POSTGRES_URL (optional)
  *
  * Register this function in your Inngest serve() handler:
- *   import { websitePipeline } from './src/inngest/website-pipeline';
+ *   import { websitePipeline } from './src/inngest/website-pipeline.js';
  *   serve({ client: inngestClient, functions: [websitePipeline] });
  */
 
+import { readFileSync } from 'fs';
+import { parse } from 'yaml';
 import { Inngest } from 'inngest';
-import { AgentBudgetGuard, BudgetExceededError } from '../lib/budget-guard.js';
+import { AgentBudgetGuard, BudgetExceededError, AdmissionRejectedError } from '../lib/budget-guard.js';
 import { CompensationRegistry } from '../lib/compensation.js';
+import { PipelineRunner } from '../pipeline/PipelineRunner.js';
+import { makeBuildId } from '../pipeline/BuildContext.js';
+import { createWebsiteFactoryLLM } from '../services/llm.js';
+import { DomainSpecLoaderStage } from '../stages/DomainSpecLoaderStage.js';
+import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
+import { DesignIntelligenceStage } from '../stages/DesignIntelligenceStage.js';
+import { ContentGenerationStage } from '../stages/ContentGenerationStage.js';
+import { SchemaGeneratorStage } from '../stages/SchemaGeneratorStage.js';
+import { PostHogSnippetStage } from '../stages/PostHogSnippetStage.js';
+import { VercelDeployStage } from '../stages/VercelDeployStage.js';
+import { SEOBaselineStage } from '../stages/SEOBaselineStage.js';
+import { VisualQAStage } from '../stages/VisualQAStage.js';
+import { HandoffEmitterStage } from '../stages/HandoffEmitterStage.js';
+import type { BuildContext, DomainSpec } from '../pipeline/BuildContext.js';
 
 export const inngestClient = new Inngest({ id: 'website-bot' });
 
@@ -33,155 +66,131 @@ interface PipelineEvent {
   };
 }
 
+interface PipelineRunResult {
+  buildId: string;
+  deploymentUrl?: string;
+  visualQaPassed: boolean;
+  baselineRanks?: Record<string, number | null>;
+  stageResults: Record<string, { ok: boolean; skipped?: boolean; error?: string }>;
+}
+
 export const websitePipeline = inngestClient.createFunction(
   {
     id: 'website-pipeline',
     name: 'Website Pipeline (Autonomous)',
     retries: 3,
-    concurrency: { limit: 1 },   // Only one full pipeline at a time
+    concurrency: { limit: 1 }, // Only one full pipeline at a time
+    triggers: { event: 'website/pipeline.requested' },
   },
-  { event: 'website/pipeline.requested' },
   async ({ event, step, logger }: { event: PipelineEvent; step: any; logger: any }) => {
     const { specPath, costCapUsd, dryRun = false, runId } = event.data;
     const jobId = `wp-${runId}`;
     const guard = new AgentBudgetGuard(jobId, costCapUsd, process.env.POSTGRES_URL);
     const saga = new CompensationRegistry(jobId);
 
-    await guard.open(costCapUsd * 0.10);  // Reject if initial forecast already exceeds cap
+    await guard.open(costCapUsd * 0.1); // Reject if initial forecast already exceeds cap
 
-    // ── STAGE 1: Validate domain spec ─────────────────────────────────────────
-    const domainSpec = await step.run('validate-domain-spec', async () => {
-      const { DomainSpecLoader } = await import('../pipeline/DomainSpecLoader.js');
-      return DomainSpecLoader.load(specPath);
+    // ── Resolve client_id up front (durable step; drives the buildId + LLM client) ──
+    const clientId = await step.run('resolve-client-id', async () => {
+      const raw = readFileSync(specPath, 'utf-8');
+      const parsed = parse(raw) as { client_id?: string };
+      return parsed.client_id ?? process.env.CLIENT_ID ?? 'unknown-client';
     });
 
-    // ── STAGE 2: Resolve unknowns ─────────────────────────────────────────────
-    const resolvedSpec = await step.run('resolve-unknowns', async () => {
-      const { UnknownResolver } = await import('../pipeline/UnknownResolver.js');
-      guard.reserve(0.02);
-      const result = await UnknownResolver.resolve(domainSpec);
-      guard.reconcile(result.costUsd ?? 0);
-      return result.spec;
-    });
-
-    // ── STAGE 3: Design intelligence ──────────────────────────────────────────
-    const design = await step.run('generate-design-tokens', async () => {
-      const { DesignIntelligence } = await import('../pipeline/DesignIntelligence.js');
-      guard.reserve(0.05);
-      const result = await DesignIntelligence.generate(resolvedSpec);
-      guard.reconcile(result.costUsd ?? 0);
-      return result.tokens;
-    });
-
-    // ── STAGE 4: Content generation (parallel by route) ───────────────────────
-    const routes: string[] = resolvedSpec.routes ?? [];
-    const contentResults = await step.run('generate-content-parallel', async () => {
-      const { ContentGeneration } = await import('../pipeline/ContentGeneration.js');
-      const CONCURRENCY = 5;
-      const results: Record<string, unknown>[] = [];
-      for (let i = 0; i < routes.length; i += CONCURRENCY) {
-        const batch = routes.slice(i, i + CONCURRENCY);
-        guard.reserve(0.08 * batch.length);
-        const batchResults = await Promise.all(
-          batch.map((route: string) => ContentGeneration.generate(resolvedSpec, design, route)),
+    // Deploy is the one external mutation in the pipeline today; register its
+    // compensation before running so a downstream failure (or budget exhaustion)
+    // can attempt cleanup. VercelDeployStage has no rollback endpoint yet, so the
+    // compensation action reports the deployment for manual rollback rather than
+    // pretending an automated rollback exists.
+    let lastDeploymentUrl: string | undefined;
+    if (!dryRun) {
+      saga.register('vercel-deploy', async () => {
+        logger.warn(
+          { jobId, deploymentUrl: lastDeploymentUrl },
+          'Compensation: VercelDeployStage has no rollback API yet — manual rollback required',
         );
-        const batchCost = batchResults.reduce((s: number, r: any) => s + (r.costUsd ?? 0), 0);
-        guard.reconcile(batchCost);
-        results.push(...batchResults);
+      });
+    }
+
+    // ── Run the full 10-stage pipeline as one durable step ──────────────────────
+    let buildResult: PipelineRunResult;
+    try {
+      buildResult = await step.run('run-pipeline', async () => {
+        guard.reserve(costCapUsd * 0.6);
+
+        const buildId = makeBuildId(clientId);
+        const ctx: BuildContext = {
+          buildId,
+          clientId,
+          domainSpec: {} as DomainSpec, // populated by DomainSpecLoaderStage
+          dryRun,
+          autoRegisterSeoBot: false,
+          llm: createWebsiteFactoryLLM(clientId),
+          generatedContent: new Map(),
+          generatedSchemas: new Map(),
+          visualQaPassed: false,
+          stageResults: new Map(),
+          startedAt: new Date(),
+        };
+
+        const runner = new PipelineRunner()
+          .register(new DomainSpecLoaderStage(specPath))
+          .register(new UnknownResolverStage())
+          .register(new DesignIntelligenceStage())
+          .register(new ContentGenerationStage())
+          .register(new SchemaGeneratorStage())
+          .register(new PostHogSnippetStage())
+          .register(new VercelDeployStage())
+          .register(new SEOBaselineStage())
+          .register(new VisualQAStage())
+          .register(new HandoffEmitterStage());
+
+        await runner.run(ctx);
+
+        // PipelineRunner does not surface aggregate LLM spend from a single run()
+        // call, so reconcile the full reservation as spent once the run succeeds.
+        guard.reconcile(costCapUsd * 0.6);
+
+        return {
+          buildId,
+          deploymentUrl: ctx.deploymentUrl,
+          visualQaPassed: ctx.visualQaPassed,
+          baselineRanks: ctx.baselineRanks,
+          stageResults: Object.fromEntries(ctx.stageResults),
+        };
+      });
+      lastDeploymentUrl = buildResult.deploymentUrl;
+    } catch (err) {
+      if (err instanceof BudgetExceededError || err instanceof AdmissionRejectedError) {
+        logger.error({ jobId, error: err.message }, 'Budget exhausted — compensating and aborting');
+        const compensationResults = await saga.compensate();
+        return {
+          jobId,
+          status: 'budget_exceeded',
+          message: err.message,
+          compensationResults,
+        };
       }
-      return results;
-    });
-
-    // ── STAGE 5: Schema generation ────────────────────────────────────────────
-    const schema = await step.run('generate-schema', async () => {
-      const { SchemaGenerator } = await import('../pipeline/SchemaGenerator.js');
-      guard.reserve(0.02);
-      const result = await SchemaGenerator.generate(resolvedSpec, contentResults);
-      guard.reconcile(result.costUsd ?? 0);
-      return result.schema;
-    });
-
-    // ── STAGE 6: PostHog snippet injection ────────────────────────────────────
-    await step.run('inject-posthog-snippet', async () => {
-      const { PostHogSnippet } = await import('../pipeline/PostHogSnippet.js');
-      return PostHogSnippet.inject(resolvedSpec);
-    });
+      throw err;
+    }
 
     if (dryRun) {
-      logger.info({ jobId, mode: 'dry_run' }, 'Dry run — stopping before deploy');
-      return { jobId, status: 'dry_run_complete', budgetUsd: guard.enforce() };
+      logger.info({ jobId, mode: 'dry_run' }, 'Dry run complete');
+      saga.clear();
+      return { jobId, status: 'dry_run_complete', build: buildResult, budget: guard.enforce() };
     }
 
-    // ── STAGE 7: Deploy preview to Vercel ────────────────────────────────────
-    // Register compensation BEFORE the deploy step
-    const deployResult = await step.run('deploy-preview-vercel', async () => {
-      const { VercelDeploy } = await import('../pipeline/VercelDeploy.js');
-      const result = await VercelDeploy.deployPreview(resolvedSpec, contentResults, schema);
-      // Register rollback NOW — after we have the deploymentId
-      saga.register('vercel-preview', async () => {
-        await VercelDeploy.rollback(result.deploymentId);
-      });
-      return result;
-    });
-
-    // ── STAGE 8: Visual QA ───────────────────────────────────────────────────
-    const qaResult = await step.run('run-visual-qa', async () => {
-      const { VisualQA } = await import('../pipeline/VisualQA.js');
-      guard.reserve(0.04);
-      const result = await VisualQA.run(deployResult.previewUrl);
-      guard.reconcile(result.costUsd ?? 0);
-      if (!result.passed) {
-        throw new Error(`Visual QA failed: ${result.summary}`);
-      }
-      return result;
-    });
-
-    // ── STAGE 9: SEO baseline capture ────────────────────────────────────────
-    const seoBaseline = await step.run('capture-seo-baseline', async () => {
-      const { SEOBaseline } = await import('../pipeline/SEOBaseline.js');
-      return SEOBaseline.capture(deployResult.previewUrl);
-    });
-
-    // ── HUMAN APPROVAL GATE ──────────────────────────────────────────────────
-    // Workflow hibernates here until a 'website/production.approved' event is sent.
-    // Timeout: 24 hours — if no approval, open a GitHub issue and mark suspended.
-    const approval = await step.waitForEvent('await-production-approval', {
-      event: 'website/production.approved',
-      match: 'data.jobId',
-      timeout: '24h',
-    });
-
-    if (!approval) {
-      // Timeout reached — compensate preview and raise issue
-      await saga.compensate();
-      return {
-        jobId,
-        status: 'approval_timeout',
-        action: 'preview_rolled_back',
-        message: 'No approval received within 24h. Preview deployment rolled back.',
-      };
-    }
-
-    // ── STAGE 10: Promote to production ──────────────────────────────────────
-    const prodResult = await step.run('promote-production', async () => {
-      const { VercelDeploy } = await import('../pipeline/VercelDeploy.js');
-      // Register compensation for production promotion
-      saga.register('vercel-production', async () => {
-        await VercelDeploy.rollback(deployResult.deploymentId);
-      });
-      return VercelDeploy.promoteToProduction(deployResult.deploymentId);
-    });
-
-    // ── STAGE 11: Emit SEO handoff ────────────────────────────────────────────
-    await step.run('emit-seo-handoff', async () => {
+    // ── Emit SEO handoff event as its own durable step ───────────────────────────
+    await step.run('emit-pipeline-completed', async () => {
       await inngestClient.send({
-        name: 'l9/seo-handoff.received',
+        name: 'website/pipeline.completed',
         data: {
           jobId,
-          siteUrl: prodResult.productionUrl,
-          routes: routes,
-          seoBaseline,
-          deployedAt: new Date().toISOString(),
+          buildId: buildResult.buildId,
+          deploymentUrl: buildResult.deploymentUrl,
+          visualQaPassed: buildResult.visualQaPassed,
+          baselineRanks: buildResult.baselineRanks,
+          completedAt: new Date().toISOString(),
         },
       });
     });
@@ -192,7 +201,7 @@ export const websitePipeline = inngestClient.createFunction(
     return {
       jobId,
       status: 'success',
-      productionUrl: prodResult.productionUrl,
+      build: buildResult,
       budget: guard.enforce(),
     };
   },
