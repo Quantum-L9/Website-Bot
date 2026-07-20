@@ -1,7 +1,16 @@
 name: Deploy to Vercel
+# NOTE: no longer fires automatically on push to main. It used to deploy the
+# bundled examples/supplemental-insurance-pros reference spec as if it were a
+# real production client on every merge — that's CI drift: the reference
+# client was quarantined to examples/ and deliberately has no real
+# license/disclaimer data, so every auto-deploy failed fast (correctly) at the
+# UnknownResolverStage compliance gate. See docs/factory-upgrade-build-plan.md
+# (P-D), which already calls for retiring this push-to-deploy model. Real
+# production deploys for actual clients go through build-site.yml
+# (repository_dispatch / workflow_dispatch with a real client_id + spec_path).
+# This workflow stays available for manual, on-demand runs only.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -12,7 +12,7 @@ website-bot-phase2/
 ├── tsconfig.json                                   # TypeScript NodeNext config
 ├── .github/workflows/
 │   ├── build-and-validate.yml                      # PR type-check + dry-run
-│   ├── deploy-to-vercel.yml                        # Production deploy + artifact upload
+│   ├── deploy-to-vercel.yml                        # Manual/on-demand deploy + artifact upload (see build-site.yml for real per-client deploys)
 │   └── emit-handoff.yml                            # SEO-Bot registration (post-deploy)
 ├── contracts/
 │   └── website_factory_integration.yaml            # Handoff contract template v2.0
