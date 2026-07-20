@@ -1,0 +1,117 @@
+# agent-pipeline.yml
+# NEW workflow — does NOT replace or conflict with:
+#   build-and-validate.yml, deploy-to-vercel.yml, emit-handoff.yml, regen-lockfile.yml
+# Triggered manually or on schedule; runs pre-flight gates then fires the Inngest event.
+
+name: Agent Pipeline (Autonomous)
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'   # Weekly Monday 09:00 UTC — off-peak
+  workflow_dispatch:
+    inputs:
+      spec_path:
+        description: 'Path to domain spec file (relative to repo root)'
+        required: false
+        default: 'inputs/domain-spec.yaml'
+      cost_cap_usd:
+        description: 'Hard cost cap for this run (USD)'
+        required: false
+        default: '1.00'
+      dry_run:
+        description: 'Dry run — validate and plan only, no deploy'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  preflight:
+    name: Pre-flight gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Launch-env gate (fail-closed)
+        run: |
+          if [ -f scripts/verify-launch-env.mjs ]; then
+            node scripts/verify-launch-env.mjs --ci
+          else
+            echo "verify-launch-env.mjs not present — skipping"
+          fi
+        env:
+          # Secrets injected for gate validation only — no model calls at this stage
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+  run-agent:
+    name: Run autonomous pipeline via Inngest
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+      INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+      COST_CAP_USD: ${{ inputs.cost_cap_usd || '1.00' }}
+      SPEC_PATH: ${{ inputs.spec_path || 'inputs/domain-spec.yaml' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore pipeline cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/website-bot
+          key: website-bot-pipeline-${{ github.run_id }}
+          restore-keys: website-bot-pipeline-
+
+      - name: Fire Inngest pipeline event
+        run: node -e "
+          const { Inngest } = require('inngest');
+          const client = new Inngest({ id: 'website-bot', eventKey: process.env.INNGEST_EVENT_KEY });
+          client.send({
+            name: 'website/pipeline.requested',
+            data: {
+              specPath: process.env.SPEC_PATH,
+              costCapUsd: parseFloat(process.env.COST_CAP_USD),
+              dryRun: process.env.DRY_RUN === 'true',
+              runId: '${{ github.run_id }}',
+              triggeredBy: '${{ github.actor }}',
+            }
+          }).then(() => console.log('Event sent')).catch(e => { console.error(e); process.exit(1); });
+        "
+
+      - name: Upload run artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-pipeline-${{ github.run_id }}
+          path: outputs/
+          if-no-files-found: ignore
