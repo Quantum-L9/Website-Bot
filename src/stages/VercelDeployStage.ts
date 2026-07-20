@@ -84,7 +84,10 @@ export class VercelDeployStage implements Stage {
       logger.debug({ readyState: status.readyState, poll: i + 1 }, 'Polling deployment status');
 
       if (status.readyState === 'READY') {
-        ctx.deploymentUrl = `https://${status.alias?.[0] ?? status.url}`;
+        // alias/url from the Vercel API are normally bare hostnames, but strip any
+        // scheme defensively so we never produce "https://https://…".
+        const host = (status.alias?.[0] ?? status.url).replace(/^https?:\/\//, '');
+        ctx.deploymentUrl = `https://${host}`;
         logger.info({ deploymentUrl: ctx.deploymentUrl }, 'Deployment READY');
         return;
       }

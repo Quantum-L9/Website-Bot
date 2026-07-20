@@ -31,6 +31,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run typecheck
+      # Spec-drift guard: the committed flat normalized spec must equal
+      # normalize(<source>) for the bundled reference client under examples/, and
+      # be a structurally valid DomainSpec. Fails fast if source and generated drift.
+      - name: Spec drift + validity guard
+        run: npm run normalize-spec:check
       - name: Run launch env verification (optional)
         run: |
           if [ -f scripts/verify-launch-env.mjs ]; then

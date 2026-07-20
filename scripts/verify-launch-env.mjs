@@ -3,24 +3,28 @@ import fs from 'node:fs';
 
 const isCI = process.argv.includes('--ci') || process.env.CI === 'true';
 
-// Secrets/tokens — warn in CI, block only in production
+// Secrets/tokens — warn in CI, block only in production. Only real secrets/tokens
+// belong here (VERCEL_ORG_ID/PROJECT_ID are identifiers, not secrets → below).
+// CRM secrets are provider-agnostic (CRM_PROVIDER selects the vendor).
 const secretsForLaunch = [
-  'VERCEL_TOKEN', 'VERCEL_ORG_ID', 'VERCEL_PROJECT_ID',
-  'FORM_WEBHOOK_SECRET', 'ACCULYNX_API_TOKEN', 'ACCULYNX_CLIENT_SECRET',
+  'VERCEL_TOKEN',
+  'FORM_WEBHOOK_SECRET', 'CRM_API_TOKEN', 'CRM_CLIENT_SECRET',
 ];
 
-// Config values — required for production launch
+// Config values — required for production launch. A professional license is
+// vertical-specific, so it is NOT unconditionally required here — it is enforced
+// only via the conditional gate below when LICENSE_DISPLAY_REQUIRED is set.
 const requiredForLaunch = [
   'PROJECT_LICENSE', 'SUPPORT_CONTACT_EMAIL', 'SECURITY_CONTACT_EMAIL',
   'PUBLIC_SITE_URL', 'PRODUCTION_DOMAIN', 'FORM_PROVIDER', 'FORM_ENDPOINT_URL',
   'LEAD_NOTIFICATION_EMAIL',
   'LEGAL_DISCLAIMER_APPROVED', 'LEGAL_DISCLAIMER_VERSION', 'LEGAL_REVIEW_OWNER',
-  'PUBLIC_ADJUSTER_LICENSE_NUMBER', 'PUBLIC_ADJUSTER_LICENSE_STATE',
+  'VERCEL_ORG_ID', 'VERCEL_PROJECT_ID',
 ];
 
 const optionalUntilClaimed = [
   'SUPPORT_CONTACT_URL', 'SECURITY_DISCLOSURE_URL',
-  'ACCULYNX_API_BASE_URL', 'ACCULYNX_CLIENT_ID',
+  'CRM_PROVIDER', 'CRM_API_BASE_URL', 'CRM_CLIENT_ID',
   'ANALYTICS_PROVIDER', 'ANALYTICS_MEASUREMENT_ID',
   'ANALYTICS_CONVERSION_EVENT', 'ANALYTICS_THANK_YOU_EVENT',
 ];
@@ -47,8 +51,14 @@ if (process.env.LEGAL_DISCLAIMER_APPROVED !== 'true') {
 if (process.env.DOMAIN_VERIFICATION_REQUIRED !== 'false') {
   gateFailures.push('DOMAIN_VERIFICATION_REQUIRED must be false only after domain verification passes.');
 }
-if (process.env.LICENSE_DISPLAY_REQUIRED !== 'false' && isMissing(process.env.PUBLIC_ADJUSTER_LICENSE_NUMBER)) {
-  gateFailures.push('PUBLIC_ADJUSTER_LICENSE_NUMBER required while LICENSE_DISPLAY_REQUIRED is true.');
+if (process.env.LICENSE_DISPLAY_REQUIRED === 'true') {
+  // The professional_license contract defines NUMBER/STATE/TYPE — enforce all
+  // three together so a displayed license can't be partially specified.
+  const missingLicense = ['PROFESSIONAL_LICENSE_NUMBER', 'PROFESSIONAL_LICENSE_STATE', 'PROFESSIONAL_LICENSE_TYPE']
+    .filter((k) => isMissing(process.env[k]));
+  if (missingLicense.length) {
+    gateFailures.push(`${missingLicense.join(', ')} required while LICENSE_DISPLAY_REQUIRED is true.`);
+  }
 }
 
 // In CI: all missing env vars and gate failures are warnings, not blockers.

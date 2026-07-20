@@ -4,6 +4,7 @@ const {
   title = 'Supplemental Insurance Pros',
   description = 'Insurance supplementing support for homeowners and contractors.',
   path = Astro.url?.pathname || '/',
+  noindex = false,
 } = Astro.props;
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://supplementalinsurancepros.com').replace(/\/$/, '');
 const canonicalUrl = `${siteUrl}${path}`;
@@ -22,6 +23,7 @@ const organizationSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

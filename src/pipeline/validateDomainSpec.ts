@@ -3,7 +3,7 @@
 // Validates a parsed spec against the FLAT DomainSpec contract that the pipeline
 // consumes (see fixtures/ci-test-spec.yaml for the canonical shape). Throws
 // BuildError('VALIDATION_FAILED') with precise, actionable messages, and detects
-// the rich NESTED authoring format (inputs/domain_spec.normalized.yaml) so the
+// the rich NESTED authoring format (a *.source.yaml authoring spec) so the
 // operator gets a real hint instead of a bare "field absent".
 import { BuildError } from './BuildError.js';
 import type { DomainSpec } from './BuildContext.js';
@@ -65,10 +65,10 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
 
   const routes = root.routes;
   if (!Array.isArray(routes) || routes.length === 0) {
-    errors.push('routes must be a non-empty array of { slug, title, components[] }');
+    errors.push('routes must be a non-empty array of { slug, title, components[], noindex? }');
   } else {
     routes.forEach((r, i) => {
-      if (!isObject(r)) { errors.push(`routes[${i}] must be an object { slug, title, components[] }`); return; }
+      if (!isObject(r)) { errors.push(`routes[${i}] must be an object { slug, title, components[], noindex? }`); return; }
       check(typeof r.slug === 'string' && (r.slug as string).length > 0, `routes[${i}].slug must be a non-empty string`);
       check(typeof r.title === 'string' && (r.title as string).length > 0, `routes[${i}].title must be a non-empty string`);
       check(
@@ -76,6 +76,7 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
           (r.components as unknown[]).every((c) => typeof c === 'string' && c.length > 0),
         `routes[${i}].components must be an array of non-empty strings`,
       );
+      check(r.noindex === undefined || typeof r.noindex === 'boolean', `routes[${i}].noindex, when present, must be a boolean`);
     });
   }
 

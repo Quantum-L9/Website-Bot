@@ -20,7 +20,9 @@ const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const autoRegisterSeoBot = args.includes('--auto-register-seo-bot');
 const explicitSpec = args.find(a => a.startsWith('--spec='))?.replace('--spec=', '');
-const DEFAULT_SPEC_PATH = 'domain_spec/domain_spec.normalized.yaml';
+// Default targets the bundled reference client under examples/. Real client
+// builds pass --spec=<path> (or SPEC_PATH/CLIENT_ID via the workflows).
+const DEFAULT_SPEC_PATH = 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml';
 const specPath = explicitSpec ?? DEFAULT_SPEC_PATH;
 const skipArg = args.find(a => a.startsWith('--skip='));
 const skipStages = skipArg ? skipArg.replace('--skip=', '').split(',') : [];

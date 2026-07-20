@@ -296,6 +296,7 @@ domain_spec:
       template: about_page
       priority: 6
     - path: /faq
+      title: FAQ
       purpose: Answer supplementing, process, homeowner, contractor, and compliance
         questions.
       template: faq_page
@@ -361,6 +362,27 @@ domain_spec:
       - faq_groups
       - disclaimer
       - cta
+    - template_name: about_page
+      applies_to:
+      - /about
+      required_sections:
+      - hero
+      - credentials
+      - experience
+      - cta
+    - template_name: contact_page
+      applies_to:
+      - /contact
+      required_sections:
+      - hero
+      - contact_form
+      - cta
+    - template_name: thank_you_page
+      applies_to:
+      - /thank-you
+      required_sections:
+      - hero
+      - confirmation
     faq_bank:
     - question: What is insurance supplementing?
       answer_brief: A supplement is a documented request for additional covered scope

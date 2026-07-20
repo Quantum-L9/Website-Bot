@@ -79,8 +79,26 @@ Do not include guarantee claims or legal advice.
     catch (e) { throw new BuildError('SCHEMA_GENERATION_FAILED', `FAQ schema LLM call failed: ${e}`, true); }
 
     let faqs: Array<{ question: string; answer: string }>;
-    try { faqs = JSON.parse(faqRaw); }
-    catch (e) { throw new BuildError('SCHEMA_GENERATION_FAILED', `FAQ JSON parse failed: ${faqRaw}`, true); }
+    try {
+      const parsed: unknown = JSON.parse(faqRaw);
+      // Accept a bare array or a { faqs: [...] } wrapper; reject anything else.
+      const arr = Array.isArray(parsed)
+        ? parsed
+        : (parsed && typeof parsed === 'object' && Array.isArray((parsed as { faqs?: unknown }).faqs))
+          ? (parsed as { faqs: unknown[] }).faqs
+          : null;
+      if (!arr) throw new Error('expected a JSON array (or a { faqs: [...] } wrapper) of { question, answer } objects');
+      faqs = arr.filter(
+        (f): f is { question: string; answer: string } =>
+          !!f && typeof f === 'object' &&
+          typeof (f as { question?: unknown }).question === 'string' &&
+          typeof (f as { answer?: unknown }).answer === 'string',
+      );
+      if (faqs.length === 0) throw new Error('no valid { question, answer } entries in FAQ response');
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      throw new BuildError('SCHEMA_GENERATION_FAILED', `FAQ JSON parse/shape failed (${detail}): ${faqRaw}`, true);
+    }
 
     const faqSchema = {
       '@context': 'https://schema.org',

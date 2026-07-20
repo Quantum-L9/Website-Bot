@@ -1,0 +1,95 @@
+# Flat, normalized DomainSpec consumed by the pipeline (validated by
+# src/pipeline/validateDomainSpec.ts). Generated from the rich nested authoring
+# spec at inputs/domain_spec.normalized.yaml. Client: Supplemental Insurance Pros.
+#
+# Derivations to review (light judgment; everything else is a direct field copy):
+#   - route.title: derived from path.
+#   - route.components: page_templates[template].required_sections verbatim, EXCEPT
+#     /about, /contact, /thank-you (no page_template in source → sections derived).
+#   - vertical: market.niche ('insurance_supplementing').
+client_id: supplementalinsurancepros_com
+business_name: Supplemental Insurance Pros
+vertical: insurance_supplementing
+
+geography:
+  primary_state: TN
+  states: [TN, KY, VA, NC, GA, AL, MS, AR, MO]
+
+# brand_tokens are placeholders in the source → design stays pending.
+design:
+  status: pending
+
+routes:
+  - slug: /
+    title: Home
+    components: [hero, trust_bar, audience_paths, service_summary, process, service_area, faq_preview, final_cta]
+  - slug: /insurance-supplementing
+    title: Insurance Supplementing
+    components: [hero, problem, what_is_supplementing, process, documents_needed, compliance_note, cta]
+  - slug: /homeowners
+    title: Homeowners
+    components: [hero, pain_points, how_we_help, what_to_prepare, proof, cta]
+  - slug: /contractors
+    title: Contractors
+    components: [hero, pain_points, how_we_help, what_to_prepare, proof, cta]
+  - slug: /service-area
+    title: Service Area
+    components: [hero, state_list, service_area_rules, no_city_page_bloat_note, cta]
+  - slug: /about
+    title: About
+    components: [hero, credentials, experience, cta]   # derived (no page_template in source)
+  - slug: /faq
+    title: FAQ
+    components: [hero, faq_groups, disclaimer, cta]
+  - slug: /contact
+    title: Contact
+    components: [hero, contact_form, cta]              # derived (no page_template in source)
+  - slug: /thank-you
+    title: Thank You
+    components: [hero, confirmation]                    # derived (no page_template in source)
+    noindex: true
+
+seo_contract:
+  site_url: https://supplementalinsurancepros.com
+  target_keywords:
+    - insurance supplementing
+    - insurance claim supplement
+    - claim supplement services
+    - property insurance supplement
+    - public adjuster supplement help
+    - insurance claim review for homeowners
+    - underpaid insurance claim help
+    - estimate supplement review
+    - contractor supplement support
+    - roofing supplement help
+    - restoration supplement support
+    - insurance supplementing Tennessee
+    - insurance supplementing TN
+    - public adjuster supplement help Tennessee
+  metadata_rules:
+    title_pattern: '{Primary Keyword} | Supplemental Insurance Pros'
+    description_pattern: Licensed public adjuster support for {Audience} with insurance claim supplements across Tennessee and bordering states.
+  # DECLARED INTENT (not yet enforced): these schema types are meant to apply PER
+  # MATCHING ROUTE, not site-wide (FAQPage→/faq, ContactPage→/contact, etc.).
+  # NOTE: SchemaGeneratorStage does not read schema_rules/schema_application today —
+  # it emits a fixed set. This annotation records the target contract for when that
+  # stage is taught to honor per-route application; until then it is informational.
+  schema_rules: [Organization, LocalBusiness, ProfessionalService, Service, FAQPage, BreadcrumbList, ContactPage]
+  schema_application: per_route
+  internal_linking_rules:
+    hub_pages: [/, /insurance-supplementing]
+    spoke_pages: [/homeowners, /contractors, /service-area, /about, /faq, /contact]
+    prohibited_links: [thin_city_pages_before_state_strategy_is_approved, guaranteed_outcome_claim_pages]
+
+# Unresolved placeholders + regulated-compliance gates. UnknownResolverStage blocks
+# on severity=error before launch; warnings are surfaced but non-blocking.
+wom_flags:
+  - { key: identity.contact.phone, value: unresolved, severity: warning }
+  - { key: identity.contact.email, value: unresolved, severity: warning }
+  - { key: identity.contact.address, value: unresolved, severity: warning }
+  - { key: authority.license_number, value: unresolved, severity: error }        # regulated: PA license across 9 states
+  - { key: compliance.public_adjuster_disclaimer, value: unresolved, severity: error }
+  - { key: compliance.no_guarantee_disclaimer, value: unresolved, severity: error }
+  - { key: compliance.not_legal_advice_disclaimer, value: unresolved, severity: error }
+  - { key: design.brand_tokens, value: placeholder, severity: warning }
+  - { key: state_compliance_unvalidated, value: 'TN,KY,VA,NC,GA,AL,MS,AR,MO', severity: warning }

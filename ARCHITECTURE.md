@@ -2,7 +2,7 @@
 
 ## System Role
 
-This is a generated Astro static website with verification scripts and deployment wrappers. It is not the Website Factory itself. The factory produced this site from a canonical domain specification.
+This repository is the **L9 Website Factory** — it designs, builds, and deploys Astro lead-generation websites from a canonical domain specification. `Quantum-L9/SEO-Bot` works alongside it to grow each deployed site's SEO and Domain Authority. The factory is client-agnostic; a worked reference client lives under `examples/supplemental-insurance-pros/`.
 
 ## Layers
 
@@ -33,7 +33,7 @@ The static site must not contain private CRM credentials, Vercel tokens, analyti
 ## Integration Boundaries
 
 - Forms: use `PUBLIC_FORM_ENDPOINT` only for an intentionally public-safe form endpoint.
-- AccuLynx: phase 2 verification; API keys must not be exposed to browser code.
+- CRM: the configured CRM provider (`CRM_PROVIDER`, e.g. `acculynx`, `hubspot`, `salesforce`, `none`) is phase 2 verification; API keys must not be exposed to browser code.
 - Analytics: configured by public provider/id values only.
 - Vercel: deployment through environment variables and CLI wrapper.
 
