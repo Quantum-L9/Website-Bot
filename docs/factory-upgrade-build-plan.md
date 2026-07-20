@@ -145,13 +145,13 @@ Reference fixture: `examples/supplemental-insurance-pros/astro_site/` validates 
 ```
 
 ## Critical files
-- `Website-Bot/src/pipeline/BuildContext.ts` — add `outputDir`, `designTokens`, `siteConfig`, `distDir`, `deployTarget`.
-- `Website-Bot/scripts/run-pipeline.ts` — register `SiteAssembler` + `SiteBuild`, reorder, set `outputDir`.
-- `Website-Bot/src/stages/DesignIntelligenceStage.ts`, `PostHogSnippetStage.ts` — write to ctx/outputDir, fix layout target.
-- `Website-Bot/src/stages/VercelDeployStage.ts` — per-client repo push + project deploy.
-- `Website-Bot/src/stages/HandoffEmitterStage.ts` — emit `site_deployment`.
+- `src/pipeline/BuildContext.ts` — add `outputDir`, `designTokens`, `siteConfig`, `distDir`, `deployTarget`.
+- `scripts/run-pipeline.ts` — register `SiteAssembler` + `SiteBuild`, reorder, set `outputDir`.
+- `src/stages/DesignIntelligenceStage.ts`, `PostHogSnippetStage.ts` — write to ctx/outputDir, fix layout target.
+- `src/stages/VercelDeployStage.ts` — per-client repo push + project deploy.
+- `src/stages/HandoffEmitterStage.ts` — emit `site_deployment`.
 - `SEO-Bot/src/api/clients/register.ts` + `SEO-Bot/src/contracts/website_factory_v2.ts` — persist `site_deployment`.
-- New: `Website-Bot/astro_template/` (P-A); `Website-Bot/src/stages/SiteAssemblerStage.ts`, `SiteBuildStage.ts`.
+- New: `astro_template/` (P-A); `src/stages/SiteAssemblerStage.ts`, `SiteBuildStage.ts`.
 
 ## Reused utilities
 - `ctx.generatedContent`/`generatedSchemas` maps as-is (no key change).
