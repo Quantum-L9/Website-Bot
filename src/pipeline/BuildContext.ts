@@ -7,6 +7,7 @@ import type { PublicationEvidence } from './evidence/PublicationEvidence.js';
 import type { EvidenceGateStatus, ReleaseReceipt } from './evidence/ReleaseReceipt.js';
 import type { EvidenceStore } from './evidence/EvidenceStore.js';
 import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
+import type { ProvisioningReceipt, ProvisioningSpec } from '../provisioning/types.js';
 
 /**
  * Execution modes. Additive: today's single full run maps to `end-to-end`; the
@@ -51,6 +52,7 @@ export interface DomainSpec {
     seo_bot_github_credential_ref?: string;
     seo_bot_vercel_deploy_hook_ref?: string;
   };
+  provision?: ProvisioningSpec;
 }
 
 export interface SiteConfig {
@@ -84,6 +86,7 @@ export interface BuildContext {
   deploymentEvidence?: DeploymentEvidence;
   releaseReceipt?: ReleaseReceipt;
   releaseReceiptPath?: string;
+  provisioningReceipt?: ProvisioningReceipt;
   evidenceStore: EvidenceStore;
   evidenceIndex: EvidenceIndex;
   resume: boolean;

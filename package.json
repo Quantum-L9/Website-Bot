@@ -16,7 +16,11 @@
     "site:test:github": "node scripts/run-site-factory-tests.mjs --scope=github",
     "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
-    "evidence:test": "node scripts/run-site-factory-tests.mjs --scope=evidence"
+    "evidence:test": "node scripts/run-site-factory-tests.mjs --scope=evidence",
+    "typecheck:provisioning": "tsc -p tsconfig.provisioning.json --noEmit",
+    "provision:plan": "npx tsx scripts/provision-client.ts --plan",
+    "provision:client": "npx tsx scripts/provision-client.ts",
+    "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning"
   },
   "dependencies": {
     "@quantum-l9/llm-router": "^1.0.0",

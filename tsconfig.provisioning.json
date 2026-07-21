@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "src/provisioning/**/*.ts",
+    "src/services/hashing.ts",
+    "tests/unit/provisioning-request.test.ts",
+    "tests/unit/github-provisioner.test.ts",
+    "tests/unit/vercel-provisioner.test.ts",
+    "tests/unit/provisioning-transaction.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
+}

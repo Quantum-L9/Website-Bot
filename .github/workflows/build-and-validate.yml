@@ -43,6 +43,10 @@ jobs:
       # Astro assembler). No providers, no network.
       - name: Site factory local tests
         run: npm run site:test:local
+      # Provisioning transaction tests (idempotent adopt/create, compensation,
+      # secret-ref safety) + strict provisioning typecheck. No live providers.
+      - name: Provisioning tests
+        run: npm run provision:test
       # Spec-drift guard: the committed flat normalized spec must equal
       # normalize(<source>) for the bundled reference client under examples/, and
       # be a structurally valid DomainSpec. Fails fast if source and generated drift.
