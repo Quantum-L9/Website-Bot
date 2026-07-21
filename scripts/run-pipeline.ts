@@ -12,13 +12,22 @@ import { HandoffEmitterStage } from '../src/stages/HandoffEmitterStage.js';
 import { PipelineRunner } from '../src/pipeline/PipelineRunner.js';
 import { makeBuildId } from '../src/pipeline/BuildContext.js';
 import { createWebsiteFactoryLLM } from '../src/services/llm.js';
-import type { BuildContext } from '../src/pipeline/BuildContext.js';
+import { FileEvidenceStore } from '../src/pipeline/evidence/FileEvidenceStore.js';
+import { MemoryEvidenceStore } from '../src/pipeline/evidence/MemoryEvidenceStore.js';
+import type { BuildContext, ExecutionMode } from '../src/pipeline/BuildContext.js';
 import type { DomainSpec } from '../src/pipeline/BuildContext.js';
+import type { EvidenceStore } from '../src/pipeline/evidence/EvidenceStore.js';
 
 // ── Parse CLI args ──────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
+const resume = args.includes('--resume');
 const autoRegisterSeoBot = args.includes('--auto-register-seo-bot');
+// Execution mode. --dry-run maps to `plan` (in-memory, no writes/mutations); the
+// default full run is `end-to-end` (preserving today's `npm run pipeline`). The
+// new lighter modes (local-proof, publish-proof) are additive.
+const modeArg = args.find(a => a.startsWith('--mode='))?.replace('--mode=', '') as ExecutionMode | undefined;
+const mode: ExecutionMode = dryRun ? 'plan' : (modeArg ?? 'end-to-end');
 const explicitSpec = args.find(a => a.startsWith('--spec='))?.replace('--spec=', '');
 // Default targets the bundled reference client under examples/. Real client
 // builds pass --spec=<path> (or SPEC_PATH/CLIENT_ID via the workflows).
@@ -41,13 +50,31 @@ const CLIENT_ID = process.env.CLIENT_ID ?? 'unknown-client';
 const buildId = makeBuildId(CLIENT_ID);
 const llm = createWebsiteFactoryLLM(CLIENT_ID);
 
+// Evidence authority: plan/dry uses an in-memory, mutation-free store (no disk
+// evidence writes); every other mode persists to the canonical evidence root.
+const evidenceStore: EvidenceStore = mode === 'plan'
+  ? new MemoryEvidenceStore(CLIENT_ID, buildId, mode)
+  : new FileEvidenceStore({
+      clientId: CLIENT_ID,
+      buildId,
+      mode,
+      evidenceRoot: process.env.EVIDENCE_ROOT ?? 'build/evidence',
+    });
+const evidenceIndex = await evidenceStore.initialize();
+
 const ctx: BuildContext = {
   buildId,
   clientId: CLIENT_ID,
   domainSpec: {} as DomainSpec, // populated by DomainSpecLoaderStage
   dryRun,
+  mode,
   autoRegisterSeoBot,
   llm,
+  outputDir: process.env.OUTPUT_DIR ?? `build/sites/${CLIENT_ID}`,
+  evidenceStore,
+  evidenceIndex,
+  resume,
+  qualityEvidence: { seoBaseline: 'pending', visualQa: 'pending' },
   generatedContent: new Map(),
   generatedSchemas: new Map(),
   visualQaPassed: false,

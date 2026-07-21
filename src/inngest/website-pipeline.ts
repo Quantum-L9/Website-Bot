@@ -41,6 +41,9 @@ import { AgentBudgetGuard, BudgetExceededError, AdmissionRejectedError } from '.
 import { CompensationRegistry } from '../lib/compensation.js';
 import { PipelineRunner } from '../pipeline/PipelineRunner.js';
 import { makeBuildId } from '../pipeline/BuildContext.js';
+import { FileEvidenceStore } from '../pipeline/evidence/FileEvidenceStore.js';
+import { MemoryEvidenceStore } from '../pipeline/evidence/MemoryEvidenceStore.js';
+import type { ExecutionMode } from '../pipeline/BuildContext.js';
 import { createWebsiteFactoryLLM } from '../services/llm.js';
 import { DomainSpecLoaderStage } from '../stages/DomainSpecLoaderStage.js';
 import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
@@ -119,13 +122,29 @@ export const websitePipeline = inngestClient.createFunction(
         guard.reserve(costCapUsd * 0.6);
 
         const buildId = makeBuildId(clientId);
+        const mode: ExecutionMode = dryRun ? 'plan' : 'end-to-end';
+        const evidenceStore = mode === 'plan'
+          ? new MemoryEvidenceStore(clientId, buildId, mode)
+          : new FileEvidenceStore({
+              clientId,
+              buildId,
+              mode,
+              evidenceRoot: process.env.EVIDENCE_ROOT ?? 'build/evidence',
+            });
+        const evidenceIndex = await evidenceStore.initialize();
         const ctx: BuildContext = {
           buildId,
           clientId,
           domainSpec: {} as DomainSpec, // populated by DomainSpecLoaderStage
           dryRun,
+          mode,
           autoRegisterSeoBot: false,
           llm: createWebsiteFactoryLLM(clientId),
+          outputDir: process.env.OUTPUT_DIR ?? `build/sites/${clientId}`,
+          evidenceStore,
+          evidenceIndex,
+          resume: false,
+          qualityEvidence: { seoBaseline: 'pending', visualQa: 'pending' },
           generatedContent: new Map(),
           generatedSchemas: new Map(),
           visualQaPassed: false,

@@ -1,4 +1,6 @@
 // L9_META: layer=pipeline, role=stage_checkpoint, status=active, version=2.1.0
+import { BuildError } from './BuildError.js';
+import type { BuildContext } from './BuildContext.js';
 import { evidenceDigest } from './evidence/EvidenceCanonicalizer.js';
 import type { EvidenceReference } from './evidence/EvidenceReference.js';
 import { validateEvidenceReference } from './evidence/EvidenceReference.js';
@@ -42,4 +44,44 @@ export function validateStageCheckpoint(value: unknown): asserts value is StageC
   }
   if (checkpoint.inputDigest !== checkpointDigest(checkpoint.inputEvidence)) throw new Error('checkpoint input digest does not match references');
   if (checkpoint.outputDigest !== checkpointDigest(checkpoint.outputEvidence)) throw new Error('checkpoint output digest does not match references');
+}
+
+export async function writeStageCheckpoint(
+  ctx: BuildContext,
+  checkpoint: Omit<StageCheckpoint, 'schema' | 'buildId' | 'clientId' | 'inputDigest' | 'outputDigest'> & {
+    inputDigest?: string;
+    outputDigest?: string;
+  },
+): Promise<string> {
+  const value: StageCheckpoint = {
+    schema: 'website-bot.stage-checkpoint/v1',
+    buildId: ctx.buildId,
+    clientId: ctx.clientId,
+    ...checkpoint,
+    inputDigest: checkpointDigest(checkpoint.inputEvidence),
+    outputDigest: checkpointDigest(checkpoint.outputEvidence),
+  };
+  validateStageCheckpoint(value);
+  return ctx.evidenceStore.writeCheckpoint(value);
+}
+
+export async function checkpointIsValid(ctx: BuildContext, checkpoint: StageCheckpoint): Promise<boolean> {
+  try {
+    validateStageCheckpoint(checkpoint);
+    if (checkpoint.status !== 'passed' || checkpoint.buildId !== ctx.buildId || checkpoint.clientId !== ctx.clientId) return false;
+    for (const reference of [...checkpoint.inputEvidence, ...checkpoint.outputEvidence]) {
+      if (!await ctx.evidenceStore.verifyReference(reference)) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function requireCheckpoint(ctx: BuildContext, stage: string): Promise<StageCheckpoint> {
+  const checkpoint = await ctx.evidenceStore.readCheckpoint(stage);
+  if (!checkpoint || !await checkpointIsValid(ctx, checkpoint)) {
+    throw new BuildError('CHECKPOINT_INVALID', `Checkpoint is missing or stale for ${stage}`);
+  }
+  return checkpoint;
 }

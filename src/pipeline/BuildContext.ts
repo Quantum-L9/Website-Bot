@@ -1,12 +1,16 @@
-// L9_META: layer=pipeline, role=context_carrier, status=active, version=2.0.0
+// L9_META: layer=pipeline, role=context_carrier, status=active, version=3.0.0
 import type { WebsiteFactoryLLM } from '../services/llm.js';
-import type { EvidenceGateStatus } from './evidence/ReleaseReceipt.js';
+import type { AssemblyManifest } from './evidence/AssemblyManifest.js';
+import type { BuildProof } from './evidence/BuildProof.js';
+import type { DeploymentEvidence } from './evidence/DeploymentEvidence.js';
+import type { PublicationEvidence } from './evidence/PublicationEvidence.js';
+import type { EvidenceGateStatus, ReleaseReceipt } from './evidence/ReleaseReceipt.js';
+import type { EvidenceStore } from './evidence/EvidenceStore.js';
+import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
 
 /**
- * Execution modes for the release pipeline. Additive: today's single full run maps
- * to `end-to-end`; the lighter modes gate which stages run and whether provider
- * mutations occur. (Wired into the runner in a later change; declared here so the
- * evidence subsystem can reference it.)
+ * Execution modes. Additive: today's single full run maps to `end-to-end`; the
+ * lighter modes gate which stages run and whether provider mutations occur.
  */
 export type ExecutionMode = 'plan' | 'local-proof' | 'publish-proof' | 'end-to-end';
 
@@ -37,6 +41,29 @@ export interface DomainSpec {
   routes: Array<{ slug: string; title: string; components: string[]; noindex?: boolean }>;
   seo_contract?: Record<string, unknown>;
   wom_flags?: Array<{ key: string; value: string; severity: 'error' | 'warning' | 'info' }>;
+  deploy?: {
+    github_repo: string;
+    github_repo_id?: string;
+    source_branch?: string;
+    publish_credential_ref?: string;
+    vercel_project_id?: string;
+    vercel_deploy_hook?: string;
+    seo_bot_github_credential_ref?: string;
+    seo_bot_vercel_deploy_hook_ref?: string;
+  };
+}
+
+export interface SiteConfig {
+  businessName: string;
+  siteUrl: string;
+  vertical: string;
+  clientId: string;
+  namespace: string;
+  geography: { primaryState: string; states: string[] };
+  nav: Array<{ href: string; label: string }>;
+  schemas: { siteWide: object[]; perRoute: Record<string, object[]> };
+  designTokens: Record<string, string>;
+  leadFormAction?: string;
 }
 
 export interface BuildContext {
@@ -44,9 +71,27 @@ export interface BuildContext {
   clientId: string;
   domainSpec: DomainSpec;
   dryRun: boolean;
+  mode: ExecutionMode;
   autoRegisterSeoBot: boolean;
   llm: WebsiteFactoryLLM;
+  outputDir: string;
+  designTokens?: Record<string, string>;
+  siteConfig?: SiteConfig;
+  /** In-memory evidence fields are caches only. EvidenceStore is authoritative. */
+  assemblyManifest?: AssemblyManifest;
+  buildProof?: BuildProof;
+  publicationEvidence?: PublicationEvidence;
+  deploymentEvidence?: DeploymentEvidence;
+  releaseReceipt?: ReleaseReceipt;
+  releaseReceiptPath?: string;
+  evidenceStore: EvidenceStore;
+  evidenceIndex: EvidenceIndex;
+  resume: boolean;
+  qualityEvidence: QualityEvidence;
+  distDir?: string;
+  deployTarget?: DeployTarget;
   deploymentUrl?: string;
+  sourceCommitSha?: string;
   generatedContent: Map<string, string>;
   generatedSchemas: Map<string, object>;
   baselineRanks?: Record<string, number | null>;

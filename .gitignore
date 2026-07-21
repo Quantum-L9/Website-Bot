@@ -5,3 +5,8 @@ dist/
 
 build/
 website_pack/generated/
+
+# BuildDB (SQLite) local state — created by getBuildDb()
+*.db
+*.db-wal
+*.db-shm
