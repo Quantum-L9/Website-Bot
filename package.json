@@ -20,7 +20,13 @@
     "typecheck:provisioning": "tsc -p tsconfig.provisioning.json --noEmit",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",
-    "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning"
+    "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning",
+    "evidence:show": "npx tsx scripts/evidence.ts show",
+    "evidence:validate": "npx tsx scripts/evidence.ts validate",
+    "evidence:resume": "npx tsx scripts/evidence.ts resume",
+    "evidence:repair-index": "npx tsx scripts/evidence.ts repair-index",
+    "evidence:verify-external": "npx tsx scripts/evidence.ts verify-external",
+    "verify:all": "npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:dry"
   },
   "dependencies": {
     "@quantum-l9/llm-router": "^1.0.0",
