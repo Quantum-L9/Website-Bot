@@ -35,6 +35,10 @@ jobs:
       # (additionalProperties:false, required `schema` const). Cheap, no runtime.
       - name: Validate evidence schemas
         run: npm run evidence:schemas
+      # Evidence subsystem unit tests (store roundtrip/tamper, canonicalizer,
+      # checkpoint, reference guards). Deterministic, no providers.
+      - name: Evidence unit tests
+        run: npm run evidence:test
       # Spec-drift guard: the committed flat normalized spec must equal
       # normalize(<source>) for the bundled reference client under examples/, and
       # be a structurally valid DomainSpec. Fails fast if source and generated drift.
