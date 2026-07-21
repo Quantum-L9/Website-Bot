@@ -9,7 +9,14 @@
     "typecheck": "tsc --noEmit",
     "normalize-spec": "npx tsx scripts/normalize-spec.ts",
     "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
-    "validate": "node scripts/verify-launch-env.mjs"
+    "validate": "node scripts/verify-launch-env.mjs",
+    "evidence:schemas": "node scripts/validate-evidence-schemas.mjs",
+    "site:test": "node scripts/run-site-factory-tests.mjs --scope=all",
+    "site:test:local": "node scripts/run-site-factory-tests.mjs --scope=local",
+    "site:test:github": "node scripts/run-site-factory-tests.mjs --scope=github",
+    "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
+    "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
+    "evidence:test": "node scripts/run-site-factory-tests.mjs --scope=evidence"
   },
   "dependencies": {
     "@quantum-l9/llm-router": "^1.0.0",

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:stage-failure-evidence:v1",
+  "title": "Website-Bot Stage Failure Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "buildId",
+    "clientId",
+    "stage",
+    "attempt",
+    "code",
+    "message",
+    "recoverable",
+    "inputEvidence",
+    "failedAt"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.stage-failure/v1"
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recoverable": {
+      "type": "boolean"
+    },
+    "inputEvidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "providerStatus": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "providerRequestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sanitizedDetails": {
+      "type": "object"
+    },
+    "failedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema",
+        "logical_id",
+        "relative_path",
+        "sha256"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assembly",
+            "build",
+            "publication",
+            "deployment",
+            "release",
+            "handoff",
+            "registration_ack",
+            "failure"
+          ]
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logical_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "(^/|(^|/)\\.\\.(/|$))"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

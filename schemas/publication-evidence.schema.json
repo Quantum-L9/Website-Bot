@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:publication-evidence:v1",
+  "title": "Website-Bot GitHub Publication Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "publicationId",
+    "buildId",
+    "clientId",
+    "buildProofId",
+    "buildProofSha256",
+    "repository",
+    "branch",
+    "previousHeadSha",
+    "commitSha",
+    "treeSha",
+    "verifiedBranchHeadSha",
+    "sourceDigest",
+    "managedManifestDigest",
+    "changedPaths",
+    "deletedPaths",
+    "noOp",
+    "publishedAt",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.publication-evidence/v1"
+    },
+    "publicationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildProofId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildProofSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "repositoryId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previousHeadSha": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "commitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "treeSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "verifiedBranchHeadSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "sourceDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "managedManifestDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "changedPaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deletedPaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "noOp": {
+      "type": "boolean"
+    },
+    "publishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "passed"
+    }
+  }
+}

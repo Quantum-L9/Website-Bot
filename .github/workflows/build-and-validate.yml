@@ -31,6 +31,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run typecheck
+      # Release-evidence JSON Schemas must be structurally sound and fail-closed
+      # (additionalProperties:false, required `schema` const). Cheap, no runtime.
+      - name: Validate evidence schemas
+        run: npm run evidence:schemas
       # Spec-drift guard: the committed flat normalized spec must equal
       # normalize(<source>) for the bundled reference client under examples/, and
       # be a structurally valid DomainSpec. Fails fast if source and generated drift.

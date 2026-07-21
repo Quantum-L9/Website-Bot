@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:stage-checkpoint:v1",
+  "title": "Website-Bot Stage Checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "buildId",
+    "clientId",
+    "stage",
+    "attempt",
+    "inputEvidence",
+    "outputEvidence",
+    "inputDigest",
+    "outputDigest",
+    "status",
+    "startedAt",
+    "completedAt"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.stage-checkpoint/v1"
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stageVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "inputEvidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "outputEvidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "inputDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "outputDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "externalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema",
+        "logical_id",
+        "relative_path",
+        "sha256"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assembly",
+            "build",
+            "publication",
+            "deployment",
+            "release",
+            "handoff",
+            "registration_ack",
+            "failure"
+          ]
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logical_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "(^/|(^|/)\\.\\.(/|$))"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

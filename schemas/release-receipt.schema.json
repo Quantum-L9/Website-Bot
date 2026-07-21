@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:release-receipt:v1",
+  "title": "Website-Bot Release Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "receipt_id",
+    "build_id",
+    "client_id",
+    "mode",
+    "status",
+    "missing_gates",
+    "evidence",
+    "correlation",
+    "qa",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.release-receipt/v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "plan",
+        "local-proof",
+        "publish-proof",
+        "end-to-end"
+      ]
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "partial",
+        "succeeded",
+        "failed"
+      ]
+    },
+    "missing_gates": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "assembly",
+          "local_build",
+          "github_publication",
+          "vercel_deployment",
+          "visual_qa"
+        ]
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assembly"
+      ],
+      "properties": {
+        "assembly": {
+          "$ref": "#/$defs/reference"
+        },
+        "build": {
+          "$ref": "#/$defs/reference"
+        },
+        "publication": {
+          "$ref": "#/$defs/reference"
+        },
+        "deployment": {
+          "$ref": "#/$defs/reference"
+        },
+        "failure": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_digest",
+        "all_required_identities_match"
+      ],
+      "properties": {
+        "source_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "dist_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "commit_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "deployment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "all_required_identities_match": {
+          "type": "boolean"
+        }
+      }
+    },
+    "qa": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seo_baseline",
+        "visual_qa"
+      ],
+      "properties": {
+        "seo_baseline": {
+          "enum": [
+            "pending",
+            "passed",
+            "failed",
+            "skipped"
+          ]
+        },
+        "visual_qa": {
+          "enum": [
+            "pending",
+            "passed",
+            "failed",
+            "skipped"
+          ]
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finalized_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema",
+        "logical_id",
+        "relative_path",
+        "sha256"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assembly",
+            "build",
+            "publication",
+            "deployment",
+            "release",
+            "handoff",
+            "registration_ack",
+            "failure"
+          ]
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logical_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "(^/|(^|/)\\.\\.(/|$))"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:deployment-evidence:v1",
+  "title": "Website-Bot Vercel Deployment Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "deploymentEvidenceId",
+    "buildId",
+    "clientId",
+    "publicationId",
+    "publicationSha256",
+    "provider",
+    "projectId",
+    "deploymentId",
+    "requestedCommitSha",
+    "observedCommitSha",
+    "state",
+    "deploymentUrl",
+    "aliases",
+    "sourceRepository",
+    "sourceBranch",
+    "triggerMode",
+    "target",
+    "readyAt",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.deployment-evidence/v1"
+    },
+    "deploymentEvidenceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publicationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publicationSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "provider": {
+      "const": "vercel"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deploymentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requestedCommitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "observedCommitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "state": {
+      "const": "READY"
+    },
+    "deploymentUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "sourceRepository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "sourceBranch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "triggerMode": {
+      "enum": [
+        "api",
+        "deploy_hook"
+      ]
+    },
+    "target": {
+      "enum": [
+        "preview",
+        "production"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "readyAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "passed"
+    }
+  }
+}

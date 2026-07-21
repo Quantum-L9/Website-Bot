@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:build-proof:v1",
+  "title": "Website-Bot Local Build Proof",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "proofId",
+    "buildId",
+    "clientId",
+    "assemblyManifestSha256",
+    "sourceDir",
+    "distDir",
+    "sourceDigest",
+    "distDigest",
+    "packageManager",
+    "packageManagerVersion",
+    "installCommand",
+    "checkCommand",
+    "buildCommand",
+    "checks",
+    "builtRoutes",
+    "startedAt",
+    "completedAt",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.build-proof/v1"
+    },
+    "proofId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assemblyManifestSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceDir": {
+      "type": "string",
+      "minLength": 1
+    },
+    "distDir": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "distDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "packageManager": {
+      "const": "npm"
+    },
+    "packageManagerVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "installCommand": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "checkCommand": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "buildCommand": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/$defs/check"
+      }
+    },
+    "builtRoutes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "passed"
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "status",
+        "durationMs"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "install",
+            "astro-check",
+            "astro-build",
+            "route-assertion",
+            "sitemap-assertion"
+          ]
+        },
+        "status": {
+          "const": "passed"
+        },
+        "durationMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

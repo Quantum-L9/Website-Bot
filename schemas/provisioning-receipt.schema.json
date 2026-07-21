@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quantum-l9.example/schemas/website-bot.provisioning-receipt.v1.json",
+  "title": "Website-Bot Provisioning Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "clientId",
+    "idempotencyKey",
+    "spec",
+    "maintenance",
+    "errors",
+    "rollback",
+    "createdAt"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.provisioning-receipt/v1"
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "succeeded",
+        "rolled_back",
+        "failed"
+      ]
+    },
+    "clientId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "created",
+        "repositoryId",
+        "fullName",
+        "sourceBranch",
+        "htmlUrl"
+      ],
+      "properties": {
+        "provider": {
+          "const": "github"
+        },
+        "created": {
+          "type": "boolean"
+        },
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fullName": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "sourceBranch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "htmlUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "vercel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "created",
+        "projectId",
+        "projectName",
+        "linkedRepository",
+        "productionBranch",
+        "environmentKeys",
+        "deploymentTrigger"
+      ],
+      "properties": {
+        "provider": {
+          "const": "vercel"
+        },
+        "created": {
+          "type": "boolean"
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "teamId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "linkedRepository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "productionBranch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environmentKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          }
+        },
+        "deploymentTrigger": {
+          "const": "git-push"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "persisted"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "persisted": {
+          "type": "boolean"
+        },
+        "backupPath": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "maintenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "githubCredentialRef"
+      ],
+      "properties": {
+        "githubCredentialRef": {
+          "type": "string",
+          "pattern": "^env://[A-Z][A-Z0-9_]*$"
+        },
+        "vercelDeployHookRef": {
+          "type": "string",
+          "pattern": "^env://[A-Z][A-Z0-9_]*$"
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempted",
+        "completed",
+        "actions",
+        "errors"
+      ],
+      "properties": {
+        "attempted": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "succeeded"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "github",
+          "vercel"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "planned"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "github",
+          "vercel"
+        ]
+      }
+    }
+  ]
+}

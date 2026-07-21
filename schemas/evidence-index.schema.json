@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:evidence-index:v1",
+  "title": "Website-Bot Evidence Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "build_id",
+    "client_id",
+    "mode",
+    "revision",
+    "artifacts",
+    "chain_status",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.evidence-index/v1"
+    },
+    "build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "plan",
+        "local-proof",
+        "publish-proof",
+        "end-to-end"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "assembly": {
+          "$ref": "#/$defs/record"
+        },
+        "build": {
+          "$ref": "#/$defs/record"
+        },
+        "publication": {
+          "$ref": "#/$defs/record"
+        },
+        "deployment": {
+          "$ref": "#/$defs/record"
+        },
+        "release": {
+          "$ref": "#/$defs/record"
+        },
+        "handoff": {
+          "$ref": "#/$defs/record"
+        },
+        "registration_ack": {
+          "$ref": "#/$defs/record"
+        },
+        "failure": {
+          "$ref": "#/$defs/record"
+        }
+      }
+    },
+    "chain_status": {
+      "enum": [
+        "empty",
+        "assembling",
+        "built",
+        "published",
+        "deployed",
+        "released",
+        "handed_off",
+        "failed"
+      ]
+    },
+    "last_successful_stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "failed_stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema",
+        "logicalId",
+        "relativePath",
+        "sha256",
+        "writtenAt"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assembly",
+            "build",
+            "publication",
+            "deployment",
+            "release",
+            "handoff",
+            "registration_ack",
+            "failure"
+          ]
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logicalId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relativePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "writtenAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
