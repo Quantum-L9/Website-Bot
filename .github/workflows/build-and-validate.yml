@@ -39,6 +39,10 @@ jobs:
       # checkpoint, reference guards). Deterministic, no providers.
       - name: Evidence unit tests
         run: npm run evidence:test
+      # Local deterministic site-factory tests (evidence chain, receipt stages,
+      # Astro assembler). No providers, no network.
+      - name: Site factory local tests
+        run: npm run site:test:local
       # Spec-drift guard: the committed flat normalized spec must equal
       # normalize(<source>) for the bundled reference client under examples/, and
       # be a structurally valid DomainSpec. Fails fast if source and generated drift.
