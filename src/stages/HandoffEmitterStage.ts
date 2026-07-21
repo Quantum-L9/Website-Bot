@@ -1,17 +1,65 @@
-// L9_META: layer=stage, role=handoff_emitter, stage_index=10, status=active, version=2.0.0
+// L9_META: layer=stage, role=handoff_emitter, stage_index=10, status=active, version=2.1.0
 // Assembles and writes website_factory_integration.yaml v2.0.
 // Optionally POSTs to SEO-Bot /api/clients/register + calls llm.initClient.
+//
+// Evidence-backed (v2-locked): when an end-to-end validated release bundle exists,
+// the emitter builds the rich internal handoff record, persists it as authoritative
+// evidence, and PROJECTS its site/proof provenance into the v2 POST body as the
+// optional enriched block (schema_version stays '2.0' — no v3 on the wire). When no
+// bundle exists (today's default flow), it emits exactly the flat v2 handoff.
 import { writeFileSync } from 'fs';
 import { stringify } from 'yaml';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
+import {
+  buildWebsiteFactoryHandoffV3,
+  type WebsiteFactoryHandoffV3,
+} from '../contracts/WebsiteFactoryHandoffV3.js';
 
 const logger = createModuleLogger('stage:handoff-emitter');
 const OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
 
 type KeywordPriority = 'critical' | 'high' | 'medium' | 'low';
+
+/**
+ * When the end-to-end evidence chain is present, build the authoritative internal
+ * handoff record, persist it, and return the v2 enriched provenance projection
+ * ({ site, proof }) for the registration wire. Returns undefined (→ flat v2) when
+ * no validated bundle / deploy target is available, or on any evidence error.
+ * `integrity` is intentionally omitted: its digest is computed over the internal
+ * record shape, not the v2 body, and the enriched v2 contract treats an absent
+ * integrity envelope as "not asserted".
+ */
+async function buildEnrichedProvenance(
+  ctx: BuildContext,
+): Promise<Pick<WebsiteFactoryHandoffV3, 'site' | 'proof'> | undefined> {
+  if (ctx.mode !== 'end-to-end' || !ctx.deployTarget) return undefined;
+  try {
+    const bundle = await ctx.evidenceStore.loadValidatedReleaseBundle({
+      requireStatus: 'succeeded',
+      requireMode: 'end-to-end',
+    });
+    const record = buildWebsiteFactoryHandoffV3({
+      domainSpec: ctx.domainSpec,
+      clientId: ctx.clientId,
+      buildId: ctx.buildId,
+      releaseBundle: bundle,
+      deployTarget: ctx.deployTarget,
+      qualitySummary: {
+        seoBaseline: bundle.releaseReceipt.qa.seo_baseline,
+        visualQa: bundle.releaseReceipt.qa.visual_qa,
+      },
+    });
+    await ctx.evidenceStore.writeHandoff(record);
+    logger.info({ contractId: record.contract_id }, 'Authoritative handoff evidence persisted; projecting to v2 wire');
+    return { site: record.site, proof: record.proof };
+  } catch (error) {
+    logger.info({ reason: error instanceof Error ? error.message : String(error) }, 'No validated release bundle — emitting flat v2 handoff');
+    return undefined;
+  }
+}
 
 /** Hostname of a URL, used as the SEO-Bot client `domain` (it normalizes further). */
 function hostnameOf(url: string): string {
@@ -103,12 +151,16 @@ export class HandoffEmitterStage implements Stage {
       const vercelUrl = deployUrl as string; // guaranteed non-null here (checked above, !dryRun)
       const primaryState = ctx.domainSpec.geography.primary_state;
 
+      // Enriched provenance (present only when the end-to-end evidence chain exists;
+      // otherwise the POST is the unchanged flat v2 body).
+      const enriched = await buildEnrichedProvenance(ctx);
+
       // WebsiteFactoryContractV2 — the shape SEO-Bot's POST /api/clients/register
       // validates with Zod. Keep keys aligned with that schema.
       const registration = {
         schema_version: '2.0',
         client_id: ctx.clientId,
-        domain: hostnameOf(vercelUrl),
+        domain: enriched ? hostnameOf(enriched.site.deployment.deployment_url) : hostnameOf(vercelUrl),
         name: ctx.domainSpec.business_name,
         industry: ctx.domainSpec.vertical,
         ...(primaryState.length === 2 ? { state: primaryState } : {}),
@@ -118,6 +170,7 @@ export class HandoffEmitterStage implements Stage {
         competitorUrls: buildCompetitorUrls(ctx),
         vercelUrl,
         seo_contract: contract,
+        ...(enriched ? { site: enriched.site, proof: enriched.proof } : {}),
       };
 
       try {
