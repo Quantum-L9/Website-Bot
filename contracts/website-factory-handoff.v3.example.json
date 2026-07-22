@@ -1,0 +1,67 @@
+{
+  "protocol": "l9.website-factory.handoff",
+  "schema_version": "3.0",
+  "contract_id": "client:build:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "emitted_at": "2026-07-20T12:00:00.000Z",
+  "client": {
+    "id": "client",
+    "domain": "client.example.com",
+    "name": "Client Example",
+    "industry": "services",
+    "state": "NC"
+  },
+  "seo": {
+    "target_keywords": [
+      {
+        "keyword": "service nc",
+        "priority": "high"
+      }
+    ],
+    "competitor_urls": []
+  },
+  "site": {
+    "repository": {
+      "provider": "github",
+      "full_name": "Quantum-L9/client-site",
+      "repository_id": "123",
+      "branch": "main",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "managed_manifest_path": ".l9/generated-manifest.json",
+      "editable_root": "src/pages",
+      "page_path_strategy": "directory-index-astro"
+    },
+    "deployment": {
+      "provider": "vercel",
+      "project_id": "prj_1",
+      "deployment_id": "dpl_1",
+      "deployment_url": "https://client.example.com",
+      "state": "READY",
+      "requested_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "maintenance": {
+      "enabled": true,
+      "transport": "github-contents-api",
+      "github_credential_ref": "env://CLIENT_GITHUB_TOKEN",
+      "vercel_deploy_hook_ref": "env://CLIENT_VERCEL_HOOK",
+      "required_paths": [
+        ".l9/generated-manifest.json",
+        "src/pages/index.astro"
+      ]
+    }
+  },
+  "proof": {
+    "receipt_id": "rcpt_1",
+    "receipt_status": "succeeded",
+    "source_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "dist_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "local_build_status": "passed",
+    "publication_status": "passed",
+    "deployment_status": "passed"
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "payload_digest": "eb169bdf6a46c6dcbdee303801280b7233a3a2d8cfb80786b7cd7483d8fa79b5"
+  }
+}

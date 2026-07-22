@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:publication-evidence:v2",
+  "title": "Website-Bot GitHub Publication Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "publication_id",
+    "build_id",
+    "client_id",
+    "build_proof_id",
+    "build_proof_sha256",
+    "repository",
+    "branch",
+    "previous_head_sha",
+    "commit_sha",
+    "tree_sha",
+    "verified_branch_head_sha",
+    "source_digest",
+    "managed_manifest_digest",
+    "changed_paths",
+    "deleted_paths",
+    "no_op",
+    "published_at",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.publication-evidence/v2"
+    },
+    "publication_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_proof_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_proof_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "repository_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previous_head_sha": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "tree_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "verified_branch_head_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "source_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "managed_manifest_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "changed_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deleted_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "no_op": {
+      "type": "boolean"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "passed"
+    }
+  },
+  "x_l9_meta": {
+    "layer": "contract",
+    "role": "persisted_schema",
+    "status": "active",
+    "version": "2.0.0"
+  }
+}

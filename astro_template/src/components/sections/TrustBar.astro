@@ -1,0 +1,10 @@
+<!-- L9_META: layer=template, role=trust_bar_section, status=active, version=1.0.0 -->
+---
+interface Props { name?: string; content: string; }
+const { name = 'trust_bar', content } = Astro.props;
+const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+---
+<section class="trust-bar" data-section={name}>
+  <h2>Why clients trust us</h2>
+  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+</section>

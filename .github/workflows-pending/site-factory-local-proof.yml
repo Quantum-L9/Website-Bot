@@ -1,0 +1,75 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+name: Site Factory Local Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec_path:
+        description: Flat normalized DomainSpec path
+        required: true
+        default: fixtures/ci-test-spec.yaml
+        type: string
+      build_id:
+        description: Stable build ID for evidence rehydration
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: site-factory-local-proof-${{ inputs.build_id }}
+  cancel-in-progress: false
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - run: npm ci --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate and stage DomainSpec path
+        if: ${{ inputs.spec_path != '' }}
+        env:
+          SPEC_PATH_INPUT: ${{ inputs.spec_path }}
+        run: |
+          node scripts/validate-spec-path.mjs --input="$SPEC_PATH_INPUT" --copy-to=build/safe-input/domain-spec.yaml
+          echo "SPEC_PATH=build/safe-input/domain-spec.yaml" >> "$GITHUB_ENV"
+      - name: Validate implementation
+        run: |
+          npm run typecheck
+          npm run evidence:schemas
+          npm run evidence:contract-parity
+          npm run evidence:test
+      - name: Execute local source and Astro build proof
+        run: npm run pipeline:local-proof -- --spec="$SPEC_PATH" --build-id="$BUILD_ID"
+        env:
+          SPEC_PATH: build/safe-input/domain-spec.yaml
+          BUILD_ID: ${{ inputs.build_id }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          NODE_ENV: production
+      - name: Validate persisted chain after process boundary
+        run: npm run evidence:validate -- --client-id="$CLIENT_ID" --build-id="$BUILD_ID" --mode=local-proof
+        env:
+          BUILD_ID: ${{ inputs.build_id }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+      - name: Upload authoritative evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: website-bot-local-proof-${{ inputs.build_id }}
+          path: build/evidence/**
+          if-no-files-found: error
+          retention-days: 90

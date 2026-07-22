@@ -1,208 +1,101 @@
-/**
- * website-pipeline.ts — Inngest durable function for the Website-Bot pipeline.
- *
- * Wraps the existing 10-stage PipelineRunner in a durable Inngest function and adds:
- *   - Budget admission/reservation/enforcement via AgentBudgetGuard (Postgres-backed ledger)
- *   - Compensation registration (saga rollback hook) around the deploy stage
- *   - Structured handoff event emission as the final step
- *
- * Scope note (2026-07-20 remediation): the original design of this file called
- * `VercelDeploy.deployPreview()` / `.promoteToProduction()` / `.rollback()` and a
- * `step.waitForEvent('website/production.approved')` human-approval gate between a
- * preview deploy and a production promotion. None of that API exists on
- * `VercelDeployStage` today — it performs one direct `target: 'production'` deploy
- * with no preview/promote split and no rollback method. Building that preview ->
- * approve -> promote -> rollback flow is a real, currently-missing feature (and
- * would put this ahead of the locked "preview-first only" deployment posture in
- * AGENTS.md, since VercelDeployStage itself doesn't do preview-first yet) — it is
- * intentionally NOT fabricated here. This function wraps the pipeline as it exists:
- * one durable step per full pipeline run, with budget guard + compensation-on-
- * failure + handoff wired at the Inngest layer. See docs/autonomy-architecture.md
- * "Implementation status" for the tracked gap.
- *
- * Also note: PipelineRunner opens/closes its own BuildDB (SQLite) connection once
- * per run() call, so the pipeline is wrapped as ONE Inngest step rather than one
- * step per stage — splitting it further would leave that SQLite handle spanning
- * step boundaries, which Inngest does not guarantee stays valid across replays.
- *
- * Prerequisites:
- *   npm install inngest pg
- *   Set env vars: INNGEST_EVENT_KEY, INNGEST_SIGNING_KEY, POSTGRES_URL (optional)
- *
- * Register this function in your Inngest serve() handler:
- *   import { websitePipeline } from './src/inngest/website-pipeline.js';
- *   serve({ client: inngestClient, functions: [websitePipeline] });
- */
-
-import { readFileSync } from 'fs';
-import { parse } from 'yaml';
+// L9_META: layer=workflow, role=durable_pipeline_wrapper, status=active, version=2.0.0
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Inngest } from 'inngest';
-import { AgentBudgetGuard, BudgetExceededError, AdmissionRejectedError } from '../lib/budget-guard.js';
+import { parse } from 'yaml';
+import { AgentBudgetGuard, AdmissionRejectedError, BudgetExceededError } from '../lib/budget-guard.js';
 import { CompensationRegistry } from '../lib/compensation.js';
-import { PipelineRunner } from '../pipeline/PipelineRunner.js';
-import { makeBuildId } from '../pipeline/BuildContext.js';
+import { buildFactoryExecutionPlan, executeFactoryPlan } from '../pipeline/FactoryExecutionPlan.js';
+import type { BuildContext, ExecutionMode } from '../pipeline/BuildContext.js';
+import { validateDomainSpec } from '../pipeline/validateDomainSpec.js';
+import { FileEvidenceStore } from '../pipeline/evidence/FileEvidenceStore.js';
 import { createWebsiteFactoryLLM } from '../services/llm.js';
-import { DomainSpecLoaderStage } from '../stages/DomainSpecLoaderStage.js';
-import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
-import { DesignIntelligenceStage } from '../stages/DesignIntelligenceStage.js';
-import { ContentGenerationStage } from '../stages/ContentGenerationStage.js';
-import { SchemaGeneratorStage } from '../stages/SchemaGeneratorStage.js';
-import { PostHogSnippetStage } from '../stages/PostHogSnippetStage.js';
-import { VercelDeployStage } from '../stages/VercelDeployStage.js';
-import { SEOBaselineStage } from '../stages/SEOBaselineStage.js';
-import { VisualQAStage } from '../stages/VisualQAStage.js';
-import { HandoffEmitterStage } from '../stages/HandoffEmitterStage.js';
-import type { BuildContext, DomainSpec } from '../pipeline/BuildContext.js';
 
-export const inngestClient = new Inngest({ id: 'website-bot' });
+export const inngest = new Inngest({ id: 'website-bot' });
 
-interface PipelineEvent {
-  data: {
-    specPath: string;
-    costCapUsd: number;
-    dryRun?: boolean;
-    runId: string;
-    triggeredBy?: string;
-  };
-}
-
-interface PipelineRunResult {
+interface PipelineRequestedData {
+  specPath: string;
   buildId: string;
-  deploymentUrl?: string;
-  visualQaPassed: boolean;
-  baselineRanks?: Record<string, number | null>;
-  stageResults: Record<string, { ok: boolean; skipped?: boolean; error?: string }>;
+  mode?: ExecutionMode;
+  evidenceRoot?: string;
+  costCapUsd?: number;
+  autoRegisterSeoBot?: boolean;
+  provision?: boolean;
 }
 
-export const websitePipeline = inngestClient.createFunction(
+const MODES: ExecutionMode[] = ['local-proof', 'publish-proof', 'end-to-end'];
+
+export const websitePipeline = inngest.createFunction(
   {
     id: 'website-pipeline',
-    name: 'Website Pipeline (Autonomous)',
-    retries: 3,
-    concurrency: { limit: 1 }, // Only one full pipeline at a time
+    name: 'Website Pipeline (Evidence Backed)',
+    retries: 2,
     triggers: { event: 'website/pipeline.requested' },
   },
-  async ({ event, step, logger }: { event: PipelineEvent; step: any; logger: any }) => {
-    const { specPath, costCapUsd, dryRun = false, runId } = event.data;
-    const jobId = `wp-${runId}`;
-    const guard = new AgentBudgetGuard(jobId, costCapUsd, process.env.POSTGRES_URL);
-    const saga = new CompensationRegistry(jobId);
+  async ({ event, step }: { event: { data: PipelineRequestedData }; step: any }) => {
+    const data = event.data as PipelineRequestedData;
+    if (!data.specPath || !data.buildId) throw new Error('specPath and buildId are required');
+    const mode = data.mode ?? 'end-to-end';
+    if (!MODES.includes(mode)) throw new Error(`durable pipeline mode must be one of ${MODES.join(', ')}`);
+    const parsed = parse(readFileSync(data.specPath, 'utf-8')) as unknown;
+    const spec = validateDomainSpec(parsed, data.specPath);
+    const evidenceRoot = resolve(data.evidenceRoot ?? 'build/evidence', spec.client_id, data.buildId);
+    const guard = new AgentBudgetGuard(data.buildId, data.costCapUsd ?? Number(process.env.COST_CAP_USD ?? 1), process.env.POSTGRES_URL);
+    const compensation = new CompensationRegistry(data.buildId);
 
-    await guard.open(costCapUsd * 0.1); // Reject if initial forecast already exceeds cap
+    return await step.run('run-evidence-backed-pipeline', async () => {
+      const evidenceStore = new FileEvidenceStore({ rootDir: evidenceRoot, clientId: spec.client_id, buildId: data.buildId, mode });
+      const ctx: BuildContext = {
+        buildId: data.buildId,
+        clientId: spec.client_id,
+        domainSpec: spec,
+        dryRun: false,
+        mode,
+        autoRegisterSeoBot: data.autoRegisterSeoBot ?? false,
+        llm: createWebsiteFactoryLLM(spec.client_id),
+        outputDir: '',
+        evidenceStore,
+        evidenceIndex: await evidenceStore.initialize(),
+        resume: true,
+        qualityEvidence: { seoBaseline: 'pending', visualQa: 'pending' },
+        generatedContent: new Map(),
+        generatedSchemas: new Map(),
+        visualQaPassed: false,
+        stageResults: new Map(),
+        startedAt: new Date(),
+      };
+      const shouldProvision = Boolean(data.provision || (!spec.deploy && spec.provision?.enabled !== false && spec.provision));
+      const plan = buildFactoryExecutionPlan({ mode, specPath: data.specPath, provision: shouldProvision });
 
-    // ── Resolve client_id up front (durable step; drives the buildId + LLM client) ──
-    const clientId = await step.run('resolve-client-id', async () => {
-      const raw = readFileSync(specPath, 'utf-8');
-      const parsed = parse(raw) as { client_id?: string };
-      return parsed.client_id ?? process.env.CLIENT_ID ?? 'unknown-client';
-    });
-
-    // Deploy is the one external mutation in the pipeline today; register its
-    // compensation before running so a downstream failure (or budget exhaustion)
-    // can attempt cleanup. VercelDeployStage has no rollback endpoint yet, so the
-    // compensation action reports the deployment for manual rollback rather than
-    // pretending an automated rollback exists.
-    let lastDeploymentUrl: string | undefined;
-    if (!dryRun) {
-      saga.register('vercel-deploy', async () => {
-        logger.warn(
-          { jobId, deploymentUrl: lastDeploymentUrl },
-          'Compensation: VercelDeployStage has no rollback API yet — manual rollback required',
-        );
+      compensation.register('release-evidence', async () => {
+        const failure = await evidenceStore.referenceFor('failure');
+        if (!failure) throw new Error(`build ${data.buildId} failed without failure evidence`);
       });
-    }
-
-    // ── Run the full 10-stage pipeline as one durable step ──────────────────────
-    let buildResult: PipelineRunResult;
-    try {
-      buildResult = await step.run('run-pipeline', async () => {
-        guard.reserve(costCapUsd * 0.6);
-
-        const buildId = makeBuildId(clientId);
-        const ctx: BuildContext = {
-          buildId,
-          clientId,
-          domainSpec: {} as DomainSpec, // populated by DomainSpecLoaderStage
-          dryRun,
-          autoRegisterSeoBot: false,
-          llm: createWebsiteFactoryLLM(clientId),
-          generatedContent: new Map(),
-          generatedSchemas: new Map(),
-          visualQaPassed: false,
-          stageResults: new Map(),
-          startedAt: new Date(),
-        };
-
-        const runner = new PipelineRunner()
-          .register(new DomainSpecLoaderStage(specPath))
-          .register(new UnknownResolverStage())
-          .register(new DesignIntelligenceStage())
-          .register(new ContentGenerationStage())
-          .register(new SchemaGeneratorStage())
-          .register(new PostHogSnippetStage())
-          .register(new VercelDeployStage())
-          .register(new SEOBaselineStage())
-          .register(new VisualQAStage())
-          .register(new HandoffEmitterStage());
-
-        await runner.run(ctx);
-
-        // PipelineRunner does not surface aggregate LLM spend from a single run()
-        // call, so reconcile the full reservation as spent once the run succeeds.
-        guard.reconcile(costCapUsd * 0.6);
-
-        return {
-          buildId,
-          deploymentUrl: ctx.deploymentUrl,
-          visualQaPassed: ctx.visualQaPassed,
-          baselineRanks: ctx.baselineRanks,
-          stageResults: Object.fromEntries(ctx.stageResults),
-        };
-      });
-      lastDeploymentUrl = buildResult.deploymentUrl;
-    } catch (err) {
-      if (err instanceof BudgetExceededError || err instanceof AdmissionRejectedError) {
-        logger.error({ jobId, error: err.message }, 'Budget exhausted — compensating and aborting');
-        const compensationResults = await saga.compensate();
-        return {
-          jobId,
-          status: 'budget_exceeded',
-          message: err.message,
-          compensationResults,
-        };
+      try {
+        await guard.open();
+        guard.reserve(0);
+        await executeFactoryPlan(ctx, plan);
+        guard.reconcile(0);
+        const budget = guard.enforce();
+        const index = await evidenceStore.readIndex();
+        const release = await evidenceStore.referenceFor('release');
+        await step.sendEvent('emit-pipeline-completed', {
+          name: 'website/pipeline.completed',
+          data: { buildId: data.buildId, clientId: spec.client_id, mode, evidenceRoot, evidenceIndex: index, releaseReceipt: release ?? null, budget },
+        });
+        compensation.clear();
+        return { buildId: data.buildId, clientId: spec.client_id, mode, evidenceRoot, chainStatus: index.chain_status, releaseReceipt: release ?? null };
+      } catch (error) {
+        if (error instanceof BudgetExceededError || error instanceof AdmissionRejectedError) await compensation.compensate();
+        const failure = await evidenceStore.referenceFor('failure');
+        await step.sendEvent('emit-pipeline-failed', {
+          name: 'website/pipeline.failed',
+          data: { buildId: data.buildId, clientId: spec.client_id, mode, evidenceRoot, failureEvidence: failure ?? null },
+        });
+        throw error;
+      } finally {
+        await guard.close();
       }
-      throw err;
-    }
-
-    if (dryRun) {
-      logger.info({ jobId, mode: 'dry_run' }, 'Dry run complete');
-      saga.clear();
-      return { jobId, status: 'dry_run_complete', build: buildResult, budget: guard.enforce() };
-    }
-
-    // ── Emit SEO handoff event as its own durable step ───────────────────────────
-    await step.run('emit-pipeline-completed', async () => {
-      await inngestClient.send({
-        name: 'website/pipeline.completed',
-        data: {
-          jobId,
-          buildId: buildResult.buildId,
-          deploymentUrl: buildResult.deploymentUrl,
-          visualQaPassed: buildResult.visualQaPassed,
-          baselineRanks: buildResult.baselineRanks,
-          completedAt: new Date().toISOString(),
-        },
-      });
     });
-
-    saga.clear();
-    await guard.close();
-
-    return {
-      jobId,
-      status: 'success',
-      build: buildResult,
-      budget: guard.enforce(),
-    };
   },
 );

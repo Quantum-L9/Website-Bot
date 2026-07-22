@@ -1,0 +1,27 @@
+# L9_META: layer=architecture, role=boundary_classification, status=active, version=1.0.0
+{
+  "schema": "l9.boundary-classification/v1",
+  "systems": {
+    "website_bot": {
+      "classification": "platform_application",
+      "runtime_node": false,
+      "owns": ["website_factory_workflow", "release_evidence", "provider_orchestration"]
+    },
+    "seo_bot": {
+      "classification": "platform_application",
+      "runtime_node": false,
+      "owns": ["seo_maintenance_workflow", "verified_site_mutations"]
+    }
+  },
+  "boundaries": {
+    "website_bot_to_seo_bot": {
+      "type": "authenticated_platform_api",
+      "transport": "canonical_website_factory_handoff",
+      "protocol": "l9.website-factory.handoff/3.0",
+      "gate_required": false,
+      "transport_packet_required": false,
+      "rationale": "These are L9-managed platform applications, not runtime nodes. The HTTP boundary is explicitly scoped, authenticated, idempotent, evidence-backed, and readiness-verified."
+    }
+  },
+  "reclassification_rule": "If either system becomes a runtime node, direct HTTP becomes forbidden and the boundary must migrate to the canonical Gate and TransportPacket packages without local substitutes."
+}

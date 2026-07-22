@@ -1,0 +1,14 @@
+{
+  "protocol": "l9.website-factory.handoff",
+  "schema_version": "3.0",
+  "pack_source_path": "contracts/website-factory-handoff.v3.schema.json",
+  "runtime_authority_repository": "Quantum-L9/SEO-Bot",
+  "runtime_authority_path": "contracts/website-factory-handoff.v3.schema.json",
+  "schema_sha256": "e2cbd86bd2120746d0b9265579c84ec98e65eb00380b85298ac3d165e076337d",
+  "consumers": [
+    "Quantum-L9/Website-Bot",
+    "Quantum-L9/SEO-Bot"
+  ],
+  "rollout": "atomic-paired-change",
+  "generated_at": "2026-07-21"
+}

@@ -1,3 +1,4 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 client_id: ci-test-client
 business_name: CI Test Business
 vertical: example_services

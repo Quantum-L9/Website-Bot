@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:deployment-evidence:v2",
+  "title": "Website-Bot Vercel Deployment Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "deployment_evidence_id",
+    "build_id",
+    "client_id",
+    "publication_id",
+    "publication_sha256",
+    "provider",
+    "project_id",
+    "deployment_id",
+    "requested_commit_sha",
+    "observed_commit_sha",
+    "state",
+    "deployment_url",
+    "aliases",
+    "source_repository",
+    "source_branch",
+    "trigger_mode",
+    "target",
+    "ready_at",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.deployment-evidence/v2"
+    },
+    "deployment_evidence_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publication_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publication_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "provider": {
+      "const": "vercel"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deployment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "observed_commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "state": {
+      "const": "READY"
+    },
+    "deployment_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "source_repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "source_branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trigger_mode": {
+      "enum": [
+        "api",
+        "deploy_hook"
+      ]
+    },
+    "target": {
+      "enum": [
+        "preview",
+        "production"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ready_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "passed"
+    }
+  },
+  "x_l9_meta": {
+    "layer": "contract",
+    "role": "persisted_schema",
+    "status": "active",
+    "version": "2.0.0"
+  }
+}

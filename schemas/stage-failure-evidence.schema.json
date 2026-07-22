@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:stage-failure-evidence:v2",
+  "title": "Website-Bot Stage Failure Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "build_id",
+    "client_id",
+    "stage",
+    "attempt",
+    "code",
+    "message",
+    "recoverable",
+    "input_evidence",
+    "failed_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.stage-failure/v2"
+    },
+    "build_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recoverable": {
+      "type": "boolean"
+    },
+    "input_evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "provider_status": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "provider_request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sanitized_details": {
+      "type": "object"
+    },
+    "failed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema",
+        "logical_id",
+        "relative_path",
+        "sha256"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "assembly",
+            "build",
+            "publication",
+            "deployment",
+            "release",
+            "handoff",
+            "registration_ack",
+            "failure"
+          ]
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logical_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "(^/|(^|/)\\.\\.(/|$))"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  },
+  "x_l9_meta": {
+    "layer": "contract",
+    "role": "persisted_schema",
+    "status": "active",
+    "version": "2.0.0"
+  }
+}

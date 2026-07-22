@@ -1,0 +1,99 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+name: Provision and Build Client Site
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec_path:
+        description: Normalized DomainSpec containing a provision block
+        required: true
+        type: string
+      action:
+        description: Plan, provision only, or provision and run the end-to-end factory
+        required: true
+        default: plan
+        type: choice
+        options: [plan, provision, provision-and-build]
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: provision-client-${{ inputs.spec_path }}
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - run: npm ci --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate and stage DomainSpec path
+        if: ${{ inputs.spec_path != '' }}
+        env:
+          SPEC_PATH_INPUT: ${{ inputs.spec_path }}
+        run: |
+          node scripts/validate-spec-path.mjs --input="$SPEC_PATH_INPUT" --copy-to=build/safe-input/domain-spec.yaml
+          echo "SPEC_PATH=build/safe-input/domain-spec.yaml" >> "$GITHUB_ENV"
+      - name: Validate provisioning implementation
+        run: npm run provision:test
+      - name: Provisioning plan
+        if: inputs.action == 'plan'
+        run: npm run provision:plan -- --spec="${SPEC_PATH}"
+        env:
+          SPEC_PATH: build/safe-input/domain-spec.yaml
+      - name: Provision client resources
+        if: inputs.action == 'provision'
+        run: npm run provision:client -- --spec="${SPEC_PATH}"
+        env:
+          SPEC_PATH: build/safe-input/domain-spec.yaml
+          GITHUB_PROVISION_TOKEN: ${{ secrets.GITHUB_PROVISION_TOKEN }}
+          GITHUB_SITE_TOKEN: ${{ secrets.GITHUB_SITE_TOKEN }}
+          SEO_BOT_SITE_GITHUB_TOKEN: ${{ secrets.SEO_BOT_SITE_GITHUB_TOKEN }}
+          SEO_BOT_SITE_VERCEL_DEPLOY_HOOK: ${{ secrets.SEO_BOT_SITE_VERCEL_DEPLOY_HOOK }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          CLIENT_PUBLIC_SITE_URL: ${{ vars.CLIENT_PUBLIC_SITE_URL }}
+      - name: Provision, build, publish, deploy, and register
+        if: inputs.action == 'provision-and-build'
+        run: npm run pipeline:end-to-end -- --spec="${SPEC_PATH}" --provision --auto-register-seo-bot
+        env:
+          SPEC_PATH: build/safe-input/domain-spec.yaml
+          GITHUB_PROVISION_TOKEN: ${{ secrets.GITHUB_PROVISION_TOKEN }}
+          GITHUB_SITE_TOKEN: ${{ secrets.GITHUB_SITE_TOKEN }}
+          SEO_BOT_SITE_GITHUB_TOKEN: ${{ secrets.SEO_BOT_SITE_GITHUB_TOKEN }}
+          SEO_BOT_SITE_VERCEL_DEPLOY_HOOK: ${{ secrets.SEO_BOT_SITE_VERCEL_DEPLOY_HOOK }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          CLIENT_PUBLIC_SITE_URL: ${{ vars.CLIENT_PUBLIC_SITE_URL }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          SEO_BOT_URL: ${{ secrets.SEO_BOT_URL }}
+          SEO_BOT_API_KEY: ${{ secrets.SEO_BOT_API_KEY }}
+          PUBLIC_POSTHOG_KEY: ${{ secrets.PUBLIC_POSTHOG_KEY }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASSWORD: ${{ secrets.DATAFORSEO_PASSWORD }}
+          NODE_ENV: production
+      - name: Upload provisioning and release evidence
+        if: always() && inputs.action != 'plan'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: client-provisioning-evidence
+          path: |
+            build/provisioning/*.json
+            build/evidence/**
+            contracts/website_factory_integration.yaml
+            build/safe-input/domain-spec.yaml
+          if-no-files-found: warn
+          retention-days: 90

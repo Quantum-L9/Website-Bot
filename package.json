@@ -1,15 +1,41 @@
 {
   "name": "website-bot",
-  "version": "2.0.0",
-  "description": "L9 Website Factory — multi-stage pipeline, SEO-Bot parity build",
+  "version": "3.0.0",
+  "description": "L9 Website Factory: DomainSpec to proven Astro source, client GitHub commit, Vercel deployment, and release receipt",
   "type": "module",
   "scripts": {
     "pipeline": "npx tsx scripts/run-pipeline.ts",
-    "pipeline:dry": "npx tsx scripts/run-pipeline.ts --dry-run --spec=fixtures/ci-test-spec.yaml",
+    "pipeline:plan": "npx tsx scripts/run-pipeline.ts --mode=plan --spec=fixtures/ci-test-spec.yaml",
+    "pipeline:dry": "npm run pipeline:plan",
+    "pipeline:local-proof": "npx tsx scripts/run-pipeline.ts --mode=local-proof",
+    "pipeline:publish-proof": "npx tsx scripts/run-pipeline.ts --mode=publish-proof",
+    "pipeline:end-to-end": "npx tsx scripts/run-pipeline.ts --mode=end-to-end",
     "typecheck": "tsc --noEmit",
     "normalize-spec": "npx tsx scripts/normalize-spec.ts",
     "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
-    "validate": "node scripts/verify-launch-env.mjs"
+    "validate": "node scripts/verify-launch-env.mjs",
+    "site:validate": "npx tsx scripts/validate-site-factory.ts --spec=fixtures/ci-test-spec.yaml",
+    "site:test": "node scripts/run-site-factory-tests.mjs --scope=all",
+    "site:test:local": "node scripts/run-site-factory-tests.mjs --scope=local",
+    "site:test:github": "node scripts/run-site-factory-tests.mjs --scope=github",
+    "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
+    "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
+    "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
+    "verify:all": "npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries",
+    "provision:plan": "npx tsx scripts/provision-client.ts --plan",
+    "provision:client": "npx tsx scripts/provision-client.ts",
+    "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning",
+    "typecheck:provisioning": "tsc -p tsconfig.provisioning.json --noEmit",
+    "evidence:schemas": "node scripts/validate-evidence-schemas.mjs",
+    "evidence:contract-parity": "node scripts/validate-contract-lock.mjs",
+    "evidence:test": "node scripts/run-site-factory-tests.mjs --scope=evidence",
+    "evidence:show": "npx tsx scripts/evidence.ts show",
+    "evidence:validate": "npx tsx scripts/evidence.ts validate",
+    "evidence:resume": "npx tsx scripts/evidence.ts resume",
+    "evidence:repair-index": "npx tsx scripts/evidence.ts repair-index",
+    "evidence:verify-external": "npx tsx scripts/evidence.ts verify-external",
+    "alignment:boundaries": "node scripts/validate-l9-boundaries.mjs",
+    "spec-path:validate": "node scripts/validate-spec-path.mjs"
   },
   "dependencies": {
     "@quantum-l9/llm-router": "^1.0.0",
@@ -28,5 +54,7 @@
     "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   },
-  "engines": { "node": ">=20.0.0" }
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

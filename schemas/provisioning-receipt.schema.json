@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quantum-l9.example/schemas/website-bot.provisioning-receipt.v1.json",
+  "title": "Website-Bot Provisioning Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "client_id",
+    "idempotency_key",
+    "spec",
+    "maintenance",
+    "errors",
+    "rollback",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "website-bot.provisioning-receipt/v1"
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "succeeded",
+        "rolled_back",
+        "failed"
+      ]
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "created",
+        "repository_id",
+        "full_name",
+        "source_branch",
+        "html_url"
+      ],
+      "properties": {
+        "provider": {
+          "const": "github"
+        },
+        "created": {
+          "type": "boolean"
+        },
+        "repository_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "full_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "source_branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "html_url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "vercel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "created",
+        "project_id",
+        "project_name",
+        "linked_repository",
+        "production_branch",
+        "environment_keys",
+        "deployment_trigger"
+      ],
+      "properties": {
+        "provider": {
+          "const": "vercel"
+        },
+        "created": {
+          "type": "boolean"
+        },
+        "project_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "project_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "team_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "linked_repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "production_branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environment_keys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          }
+        },
+        "deployment_trigger": {
+          "const": "git-push"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "persisted"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "persisted": {
+          "type": "boolean"
+        },
+        "backup_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "maintenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "github_credential_ref"
+      ],
+      "properties": {
+        "github_credential_ref": {
+          "type": "string",
+          "pattern": "^env://[A-Z][A-Z0-9_]*$"
+        },
+        "vercel_deploy_hook_ref": {
+          "type": "string",
+          "pattern": "^env://[A-Z][A-Z0-9_]*$"
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempted",
+        "completed",
+        "actions",
+        "errors"
+      ],
+      "properties": {
+        "attempted": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "succeeded"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "github",
+          "vercel"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "planned"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "github",
+          "vercel"
+        ]
+      }
+    }
+  ],
+  "x_l9_meta": {
+    "layer": "contract",
+    "role": "persisted_schema",
+    "status": "active",
+    "version": "2.0.0"
+  }
+}

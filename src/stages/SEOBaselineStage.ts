@@ -1,6 +1,4 @@
-// L9_META: layer=stage, role=seo_baseline, stage_index=8, status=active, version=2.0.0
-// Captures Day-0 keyword rank baseline via DataForSEO API.
-// Graceful-degrades to null values when API is unavailable.
+// L9_META: layer=stage, role=seo_baseline, stage_index=12, status=active, version=3.0.0
 import { createModuleLogger } from '../core/logger.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
@@ -14,93 +12,67 @@ export class SEOBaselineStage implements Stage {
   async run(ctx: BuildContext): Promise<void> {
     const login = process.env.DATAFORSEO_LOGIN;
     const password = process.env.DATAFORSEO_PASSWORD;
-
     if (!login || !password) {
-      logger.warn('DATAFORSEO_LOGIN/PASSWORD not set — skipping SEO baseline (non-blocking)');
+      logger.warn('DATAFORSEO_LOGIN/PASSWORD not set; SEO baseline skipped');
       ctx.baselineRanks = {};
+      ctx.qualityEvidence.seoBaseline = 'skipped';
       return;
     }
-
     if (ctx.dryRun) {
       logger.info('[dry-run] Would capture SEO baseline ranks');
       ctx.baselineRanks = {};
+      ctx.qualityEvidence.seoBaseline = 'skipped';
       return;
     }
 
     const { geography, seo_contract } = ctx.domainSpec;
-    // target_keywords may be authored as plain strings or as { keyword, priority }
-    // objects (the v2 seo_contract shape HandoffEmitterStage consumes). Extract a
-    // trimmed string from each — accepting only a string element or a string
-    // `.keyword` — and drop everything else (null, numbers, nested objects) so we
-    // never crash on a null element or send "[object Object]" to DataForSEO.
-    const rawKeywords = seo_contract?.['target_keywords'];
+    const rawKeywords = seo_contract?.target_keywords;
     const configured = Array.isArray(rawKeywords)
-      ? rawKeywords.flatMap((k): string[] => {
-          if (typeof k === 'string') { const s = k.trim(); return s ? [s] : []; }
-          if (k && typeof k === 'object') {
-            const kw = (k as { keyword?: unknown }).keyword;
-            if (typeof kw === 'string') { const s = kw.trim(); return s ? [s] : []; }
+      ? rawKeywords.flatMap((keyword): string[] => {
+          if (typeof keyword === 'string') return keyword.trim() ? [keyword.trim()] : [];
+          if (keyword && typeof keyword === 'object') {
+            const value = (keyword as { keyword?: unknown }).keyword;
+            return typeof value === 'string' && value.trim() ? [value.trim()] : [];
           }
           return [];
         })
       : [];
-    const keywords = configured.length > 0
-      ? configured
-      : ctx.domainSpec.routes.map(r => `${r.title} ${geography.primary_state}`);
-
-    const targetKeywords = keywords.slice(0, 10); // Cap at 10 to control API cost
+    const keywords = configured.length > 0 ? configured : ctx.domainSpec.routes.map(route => `${route.title} ${geography.primary_state}`);
+    const targetKeywords = keywords.slice(0, 10);
     const ranks: Record<string, number | null> = {};
     const credentials = Buffer.from(`${login}:${password}`).toString('base64');
-
-    // Batch all keywords into a single DataForSEO request (supports up to 100 tasks)
-    const tasks = targetKeywords.map(keyword => ({
-      keyword,
-      location_code: 2840, // United States
-      language_code: 'en',
-      depth: 100,
-    }));
+    const tasks = targetKeywords.map(keyword => ({ keyword, location_code: 2840, language_code: 'en', depth: 100 }));
 
     try {
-      const res = await fetch(DATAFORSEO_URL, {
+      const response = await fetch(DATAFORSEO_URL, {
         method: 'POST',
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Basic ${credentials}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(tasks),
+        signal: AbortSignal.timeout(30_000),
       });
-
-      if (!res.ok) {
-        logger.warn({ status: res.status }, 'DataForSEO batch request failed — all ranks null');
-        for (const kw of targetKeywords) ranks[kw] = null;
+      if (!response.ok) {
+        for (const keyword of targetKeywords) ranks[keyword] = null;
         ctx.baselineRanks = ranks;
+        ctx.qualityEvidence.seoBaseline = 'failed';
+        logger.warn({ status: response.status }, 'DataForSEO request failed; SEO baseline marked failed');
         return;
       }
-
-      const data = await res.json() as {
-        tasks?: Array<{
-          data?: { keyword?: string };
-          result?: Array<{ items?: Array<{ type: string; rank_absolute: number; domain?: string }> }>;
-        }>;
-      };
-
-      const siteUrl = (ctx.domainSpec.seo_contract?.['site_url'] as string | undefined)?.replace(/^https?:\/\//, '') ?? '';
-
-      for (let i = 0; i < targetKeywords.length; i++) {
-        const keyword = targetKeywords[i];
-        const task = data.tasks?.[i];
-        const item = task?.result?.[0]?.items?.find(
-          it => it.type === 'organic' && (siteUrl ? it.domain?.includes(siteUrl) : false),
-        );
+      const data = await response.json() as { tasks?: Array<{ result?: Array<{ items?: Array<{ type: string; rank_absolute: number; domain?: string }> }> }> };
+      const rawSiteUrl = String(ctx.domainSpec.seo_contract?.site_url ?? '');
+      const siteHost = rawSiteUrl ? new URL(/^[A-Za-z][A-Za-z0-9+.-]*:/.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`).hostname : '';
+      for (let index = 0; index < targetKeywords.length; index++) {
+        const keyword = targetKeywords[index];
+        const item = data.tasks?.[index]?.result?.[0]?.items?.find(result => result.type === 'organic' && Boolean(siteHost) && result.domain?.includes(siteHost));
         ranks[keyword] = item?.rank_absolute ?? null;
-        logger.debug({ keyword, rank: ranks[keyword] }, 'Baseline rank captured');
       }
-    } catch (e) {
-      logger.warn({ error: String(e) }, 'DataForSEO batch call error — all ranks null (non-blocking)');
-      for (const kw of targetKeywords) ranks[kw] = null;
+      ctx.baselineRanks = ranks;
+      ctx.qualityEvidence.seoBaseline = 'passed';
+      logger.info({ keywords: Object.keys(ranks).length, found: Object.values(ranks).filter(value => value !== null).length }, 'SEO baseline completed');
+    } catch (error) {
+      for (const keyword of targetKeywords) ranks[keyword] = null;
+      ctx.baselineRanks = ranks;
+      ctx.qualityEvidence.seoBaseline = 'failed';
+      logger.warn({ error: String(error) }, 'DataForSEO request failed; SEO baseline marked failed');
     }
-
-    ctx.baselineRanks = ranks;
-    logger.info({ keywords: Object.keys(ranks).length, found: Object.values(ranks).filter(v => v !== null).length }, 'SEO baseline complete');
   }
 }

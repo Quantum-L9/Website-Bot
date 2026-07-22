@@ -1,0 +1,10 @@
+<!-- L9_META: layer=template, role=process_section, status=active, version=1.0.0 -->
+---
+interface Props { name?: string; content: string; }
+const { name = 'process', content } = Astro.props;
+const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+---
+<section class="process" data-section={name}>
+  <h2>Our process</h2>
+  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+</section>
