@@ -35,7 +35,7 @@ export class VisualQAStage implements Stage {
     }
 
     try {
-      const output = execFileSync('node', [QA_SCRIPT, '--url', deployUrl], {
+      const output = execFileSync(process.execPath, [QA_SCRIPT, '--url', deployUrl], {
         encoding: 'utf-8',
         timeout: 120_000,
         stdio: 'pipe',

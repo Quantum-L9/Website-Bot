@@ -9,6 +9,7 @@ import type { Stage, StageRunResult } from '../pipeline/PipelineRunner.js';
 import {
   canonicalJson,
   collectRegularFiles,
+  comparePaths,
   digestDirectory,
   gitBlobSha,
   isPublicationExcluded,
@@ -103,9 +104,9 @@ export class ClientSourcePublishStage implements Stage {
     const paths = filesBeforeManifest
       .map(path => normalizeManagedPath(normalizeRelativePath(relative(ctx.outputDir, path))))
       .filter(path => path !== MANIFEST_PATH)
-      .sort();
+      .sort(comparePaths);
     paths.push(MANIFEST_PATH);
-    paths.sort();
+    paths.sort(comparePaths);
     const generatedManifest: GeneratedManifest = {
       schema: 'website-bot.generated-manifest/v1',
       clientId: ctx.clientId,
@@ -161,11 +162,11 @@ export class ClientSourcePublishStage implements Stage {
     const changedPaths = [...localFiles.entries()]
       .filter(([path, content]) => remoteBlobs.get(path) !== gitBlobSha(content))
       .map(([path]) => path)
-      .sort();
+      .sort(comparePaths);
     const currentPathSet = new Set(localFiles.keys());
     const deletedPaths = [...new Set(previousManifest.paths)]
       .filter(path => !currentPathSet.has(path) && remoteBlobs.has(path))
-      .sort();
+      .sort(comparePaths);
 
     if (changedPaths.length === 0 && deletedPaths.length === 0) {
       const evidence: PublicationEvidence = {

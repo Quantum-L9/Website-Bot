@@ -73,9 +73,32 @@ export function canonicalJson(value: unknown): string {
   return JSON.stringify(normalize(value));
 }
 
+/**
+ * Deterministic, locale-independent path comparator (UTF-16 code-unit order).
+ *
+ * Manifest and evidence digests must be byte-stable across machines and
+ * locales, so path ordering intentionally uses code-unit comparison rather
+ * than `localeCompare` (whose collation varies by runtime ICU configuration).
+ */
+export function comparePaths(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+/**
+ * Computes the Git blob object ID for the given content.
+ *
+ * SHA-1 is mandated here by the Git object model itself: GitHub's Git Data API
+ * identifies every blob by its SHA-1 object ID, and this function exists solely
+ * to compare local content against remote `git/trees` blob SHAs to skip
+ * unchanged uploads. It is a protocol-compatibility identifier, not a security
+ * control; integrity of published sources is separately enforced with SHA-256
+ * digests (see `sha256Text` / `digestDirectory`).
+ */
 export function gitBlobSha(content: Uint8Array): string {
   const header = Buffer.from(`blob ${content.byteLength}\0`, 'utf-8');
-  return createHash('sha1').update(header).update(content).digest('hex');
+  return createHash('sha1').update(header).update(content).digest('hex'); // NOSONAR typescript:S4790 -- Git blob IDs are SHA-1 by protocol definition; not used as a security hash
 }
 
 export function collectRegularFiles(root: string, options: CollectFilesOptions = {}): string[] {

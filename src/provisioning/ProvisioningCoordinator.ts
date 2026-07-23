@@ -1,7 +1,7 @@
 // L9_META: layer=provisioning, role=transaction_coordinator, status=active, version=1.0.0
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
-import { canonicalJson, sha256Text } from '../services/hashing.js';
+import { canonicalJson, comparePaths, sha256Text } from '../services/hashing.js';
 import { GitHubProvisioner, GitHubProvisioningError } from './GitHubProvisioner.js';
 import { VercelProvisioner, VercelProvisioningError } from './VercelProvisioner.js';
 import { ProvisioningHttpError } from './http.js';
@@ -82,7 +82,7 @@ export class ProvisioningCoordinator {
         ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
         linkedRepository: github.fullName,
         productionBranch: github.sourceBranch,
-        environmentKeys: request.vercel.environment.map(item => item.key).sort(),
+        environmentKeys: request.vercel.environment.map(item => item.key).sort(comparePaths),
         deploymentTrigger: 'git-push',
       };
       return { ...baseReceipt, github, vercel };

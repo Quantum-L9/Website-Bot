@@ -1,6 +1,7 @@
 // L9_META: layer=provisioning, role=vercel_project_provisioner, status=active, version=1.0.0
 import type { FetchLike } from './http.js';
 import { ProvisioningHttpError, requestJson } from './http.js';
+import { comparePaths } from '../services/hashing.js';
 import { resolveEnvRef } from './secret-ref.js';
 import type { GitHubProvisioningResult, ProvisioningRequest, VercelProvisioningResult } from './types.js';
 
@@ -50,7 +51,7 @@ export class VercelProvisioner {
           ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
           linkedRepository: repository.fullName,
           productionBranch: repository.sourceBranch,
-          environmentKeys: request.vercel.environment.map(item => item.key).sort(),
+          environmentKeys: request.vercel.environment.map(item => item.key).sort(comparePaths),
           deploymentTrigger: 'git-push',
         };
       }
@@ -79,7 +80,7 @@ export class VercelProvisioner {
       ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
       linkedRepository: repository.fullName,
       productionBranch: repository.sourceBranch,
-      environmentKeys: request.vercel.environment.map(item => item.key).sort(),
+      environmentKeys: request.vercel.environment.map(item => item.key).sort(comparePaths),
       deploymentTrigger: 'git-push',
     };
     try {
