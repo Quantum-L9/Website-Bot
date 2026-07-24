@@ -93,20 +93,31 @@ jobs:
           restore-keys: website-bot-pipeline-
 
       - name: Fire Inngest pipeline event
-        run: node -e "
-          const { Inngest } = require('inngest');
+        env:
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_ACTOR: ${{ github.actor }}
+        run: |
+          cat > /tmp/fire-inngest-event.mjs <<'EOF'
+          import { Inngest } from 'inngest';
           const client = new Inngest({ id: 'website-bot', eventKey: process.env.INNGEST_EVENT_KEY });
-          client.send({
-            name: 'website/pipeline.requested',
-            data: {
-              specPath: process.env.SPEC_PATH,
-              costCapUsd: parseFloat(process.env.COST_CAP_USD),
-              dryRun: process.env.DRY_RUN === 'true',
-              runId: '${{ github.run_id }}',
-              triggeredBy: '${{ github.actor }}',
-            }
-          }).then(() => console.log('Event sent')).catch(e => { console.error(e); process.exit(1); });
-        "
+          try {
+            await client.send({
+              name: 'website/pipeline.requested',
+              data: {
+                specPath: process.env.SPEC_PATH,
+                costCapUsd: parseFloat(process.env.COST_CAP_USD),
+                dryRun: process.env.DRY_RUN === 'true',
+                runId: process.env.GH_RUN_ID,
+                triggeredBy: process.env.GH_ACTOR,
+              },
+            });
+            console.log('Event sent');
+          } catch (e) {
+            console.error(e);
+            process.exit(1);
+          }
+          EOF
+          node /tmp/fire-inngest-event.mjs
 
       - name: Upload run artifact
         if: always()
