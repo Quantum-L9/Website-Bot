@@ -8,6 +8,7 @@ export type BuildErrorCode =
   | 'CONTENT_GENERATION_FAILED'
   | 'CONTENT_VALIDATION_FAILED'
   | 'SCHEMA_GENERATION_FAILED'
+  | 'PLACEHOLDER_CONTENT_DETECTED'
   | 'PROVISIONING_FAILED'
   | 'PROVISION_ROLLBACK_FAILED'
   | 'SITE_ASSEMBLY_FAILED'
@@ -60,6 +61,7 @@ const DEFAULT_POLICY: BuildErrorPolicy = {
 
 export const BUILD_ERROR_POLICIES: Partial<Record<BuildErrorCode, BuildErrorPolicy>> = {
   BUILD_FAILED: { owner: 'site-build', retry: 'after-input-fix', redactEvidence: true, remediation: 'Fix the generated Astro source, then rebuild from the persisted assembly evidence.' },
+  PLACEHOLDER_CONTENT_DETECTED: { owner: 'placeholder-scan', retry: 'after-input-fix', redactEvidence: false, remediation: 'Fix the spec field or regenerate the flagged section; the finding list names every source, pattern, and excerpt.' },
   SOURCE_PUBLISH_CONFLICT: { owner: 'client-source-publish', retry: 'external-reverify', redactEvidence: true, remediation: 'Reconcile the client branch head before retrying publication.' },
   VERCEL_POLL_TIMEOUT: { owner: 'vercel-deploy', retry: 'external-reverify', redactEvidence: true, remediation: 'Inspect the deployment in Vercel and resume only after its terminal state is known.' },
   EVIDENCE_DIGEST_MISMATCH: { owner: 'evidence-store', retry: 'never', redactEvidence: true, remediation: 'Treat the artifact as corrupt, preserve it for forensics, and rebuild the affected evidence chain.' },

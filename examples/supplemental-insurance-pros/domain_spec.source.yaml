@@ -138,6 +138,7 @@ domain_spec:
     - Get Supplement Support
     lead_capture:
       enabled: true
+      form_action: '{{LEAD_FORM_ACTION_PLACEHOLDER}}'
       file_upload_enabled: true
       consent_required: true
       fields:

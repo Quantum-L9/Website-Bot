@@ -185,6 +185,7 @@ export class SiteAssemblerStage implements Stage {
       schemas: { siteWide, perRoute },
       designTokens: ctx.designTokens ?? {},
       leadFormAction: this.leadFormAction(ctx),
+      phone: ctx.domainSpec.seo_contract?.phone?.trim() || undefined,
     };
   }
 

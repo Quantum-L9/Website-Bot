@@ -1,3 +1,4 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 name: Build and Validate
 on:
   pull_request:
@@ -15,35 +16,42 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '20'
-          cache: 'npm'
-          registry-url: 'https://npm.pkg.github.com'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
           scope: '@quantum-l9'
-      # npm ci: the committed lockfile now pins @quantum-l9/llm-router (resolved
-      # from GitHub Packages), so installs are reproducible. NODE_AUTH_TOKEN
-      # grants the packages:read needed to fetch that registry dependency.
       - run: npm ci --no-audit --no-fund
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run typecheck
-      # Spec-drift guard: the committed flat normalized spec must equal
-      # normalize(<source>) for the bundled reference client under examples/, and
-      # be a structurally valid DomainSpec. Fails fast if source and generated drift.
-      - name: Spec drift + validity guard
+      - name: Strict TypeScript
+        run: npm run typecheck
+      - name: Spec drift and validity guard
         run: npm run normalize-spec:check
+      - name: Release evidence JSON Schemas
+        run: npm run evidence:schemas
+      - name: Cross-repository contract lock
+        run: npm run evidence:contract-parity
+      - name: Release evidence subsystem tests
+        run: npm run evidence:test
+      - name: Site-factory structural proof
+        run: npm run site:validate
+      - name: Site-factory deterministic local tests
+        run: npm run site:test:local
+      - name: Provisioning transaction tests
+        run: npm run provision:test
+      - name: Plan-mode pipeline proof
+        run: npm run pipeline:plan
+        env:
+          NODE_ENV: test
       - name: Run launch env verification (optional)
         run: |
           if [ -f scripts/verify-launch-env.mjs ]; then
             node scripts/verify-launch-env.mjs --ci
           else
-            echo "verify-launch-env.mjs not present — skipping"
+            echo "verify-launch-env.mjs not present; skipping"
           fi
-      - run: npm run pipeline:dry
-        env:
-          CLIENT_ID: ci-test-client
-          NODE_ENV: test

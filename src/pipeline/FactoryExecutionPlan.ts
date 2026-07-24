@@ -8,6 +8,7 @@ import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
 import { DesignIntelligenceStage } from '../stages/DesignIntelligenceStage.js';
 import { ContentGenerationStage } from '../stages/ContentGenerationStage.js';
 import { SchemaGeneratorStage } from '../stages/SchemaGeneratorStage.js';
+import { PlaceholderScanStage } from '../stages/PlaceholderScanStage.js';
 import { SiteAssemblerStage } from '../stages/SiteAssemblerStage.js';
 import { PostHogSnippetStage } from '../stages/PostHogSnippetStage.js';
 import { SiteBuildStage } from '../stages/SiteBuildStage.js';
@@ -37,10 +38,10 @@ export interface FactoryExecutionPlan {
 }
 
 const MANDATORY: Record<ExecutionMode,string[]> = {
-  plan: ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','site-assembler','posthog-snippet','release-receipt'],
-  'local-proof': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','site-assembler','posthog-snippet','site-build','release-receipt'],
-  'publish-proof': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','site-assembler','posthog-snippet','site-build','client-source-publish','release-receipt'],
-  'end-to-end': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','site-assembler','posthog-snippet','site-build','client-source-publish','vercel-deploy','release-receipt','seo-baseline','visual-qa','release-receipt-finalizer','handoff-emitter'],
+  plan: ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','placeholder-scan','site-assembler','posthog-snippet','release-receipt'],
+  'local-proof': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','placeholder-scan','site-assembler','posthog-snippet','site-build','release-receipt'],
+  'publish-proof': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','placeholder-scan','site-assembler','posthog-snippet','site-build','client-source-publish','release-receipt'],
+  'end-to-end': ['domain-spec-loader','unknown-resolver','design-intelligence','content-generation','schema-generator','placeholder-scan','site-assembler','posthog-snippet','site-build','client-source-publish','vercel-deploy','release-receipt','seo-baseline','visual-qa','release-receipt-finalizer','handoff-emitter'],
 };
 const REQUIRED_EVIDENCE: Record<ExecutionMode,string[]> = {
   plan: [],
@@ -80,7 +81,7 @@ export function buildFactoryExecutionPlan(options: FactoryExecutionPlanOptions):
   if (illegal.length) throw new BuildError('VALIDATION_FAILED', `Cannot skip mandatory ${options.mode} stages: ${illegal.join(', ')}`);
   const stages: Stage[]=[new DomainSpecLoaderStage(options.specPath)];
   if (options.provision) stages.push(new ProvisionClientStage(options.specPath,{persistDeployBlock:options.persistDeployBlock ?? true,rollbackCreatedResources:options.rollbackCreatedResources ?? true}));
-  stages.push(new UnknownResolverStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new SiteAssemblerStage(),new PostHogSnippetStage());
+  stages.push(new UnknownResolverStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new PlaceholderScanStage(),new SiteAssemblerStage(),new PostHogSnippetStage());
   if (options.mode !== 'plan') stages.push(new SiteBuildStage());
   if (options.mode === 'publish-proof' || options.mode === 'end-to-end') stages.push(new ClientSourcePublishStage());
   if (options.mode === 'end-to-end') stages.push(new VercelDeployStage());
@@ -95,4 +96,3 @@ export async function executeFactoryPlan(ctx: BuildContext, plan: FactoryExecuti
   for (const stage of plan.stages) runner.register(stage);
   await runner.run(ctx);
 }
-

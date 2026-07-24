@@ -24,14 +24,14 @@ on:
         default: 'false'
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 jobs:
   preflight:
     name: Pre-flight gates
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +41,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Type check
         run: npm run typecheck
@@ -64,6 +64,10 @@ jobs:
     needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     env:
       INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
       INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
@@ -83,7 +87,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Restore pipeline cache
         uses: actions/cache@v4
@@ -93,20 +97,31 @@ jobs:
           restore-keys: website-bot-pipeline-
 
       - name: Fire Inngest pipeline event
-        run: node -e "
-          const { Inngest } = require('inngest');
+        env:
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_ACTOR: ${{ github.actor }}
+        run: |
+          cat > /tmp/fire-inngest-event.mjs <<'EOF'
+          import { Inngest } from 'inngest';
           const client = new Inngest({ id: 'website-bot', eventKey: process.env.INNGEST_EVENT_KEY });
-          client.send({
-            name: 'website/pipeline.requested',
-            data: {
-              specPath: process.env.SPEC_PATH,
-              costCapUsd: parseFloat(process.env.COST_CAP_USD),
-              dryRun: process.env.DRY_RUN === 'true',
-              runId: '${{ github.run_id }}',
-              triggeredBy: '${{ github.actor }}',
-            }
-          }).then(() => console.log('Event sent')).catch(e => { console.error(e); process.exit(1); });
-        "
+          try {
+            await client.send({
+              name: 'website/pipeline.requested',
+              data: {
+                specPath: process.env.SPEC_PATH,
+                costCapUsd: parseFloat(process.env.COST_CAP_USD),
+                dryRun: process.env.DRY_RUN === 'true',
+                runId: process.env.GH_RUN_ID,
+                triggeredBy: process.env.GH_ACTOR,
+              },
+            });
+            console.log('Event sent');
+          } catch (e) {
+            console.error(e);
+            process.exit(1);
+          }
+          EOF
+          node /tmp/fire-inngest-event.mjs
 
       - name: Upload run artifact
         if: always()

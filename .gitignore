@@ -5,6 +5,11 @@ dist/
 *.log
 build/
 website_pack/generated/
+# Pipeline run-state (default location: .l9/data/)
+.l9/data/
 website-bot.db
 website-bot.db-shm
 website-bot.db-wal
+
+# Generated launch-env reports (per-run artifacts, not source)
+validation/launch_env_report.json

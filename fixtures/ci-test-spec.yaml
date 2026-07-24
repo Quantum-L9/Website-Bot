@@ -37,3 +37,5 @@ seo_contract:
     - example services XX
     - example provider XXtown
   site_url: ci-test.example.com
+  phone: "+15555550100"
+  lead_form_action: https://forms.example.com/ci-test-lead

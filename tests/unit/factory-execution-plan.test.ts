@@ -8,7 +8,7 @@ test('end-to-end plan owns the complete proof-gated topology', () => {
   const names = plan.stages.map(stage => stage.name);
   assert.deepEqual(names, [
     'domain-spec-loader', 'unknown-resolver', 'design-intelligence', 'content-generation',
-    'schema-generator', 'site-assembler', 'posthog-snippet', 'site-build',
+    'schema-generator', 'placeholder-scan', 'site-assembler', 'posthog-snippet', 'site-build',
     'client-source-publish', 'vercel-deploy', 'release-receipt', 'seo-baseline',
     'visual-qa', 'release-receipt-finalizer', 'handoff-emitter', 'terminal-convergence',
   ]);
