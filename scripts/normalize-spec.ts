@@ -91,7 +91,13 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   // seo_contract: flatten keyword clusters + carry rules; annotate per-route schema application.
   const clusters = [ds.seo.primary_keyword_cluster, ...(ds.seo.secondary_keyword_clusters ?? [])];
   const targetKeywords = clusters.flatMap((c: any) => c.keywords as string[]);
-  const seoContract = {
+  // lead_form_action: the concrete POST endpoint for lead forms. Authored at
+  // conversion.lead_capture.form_action in the nested spec. validateDomainSpec
+  // requires it whenever a route renders contact_form, so the transform carries
+  // it through (placeholders excluded — those surface as wom_flags instead).
+  const leadCapture = ds.conversion?.lead_capture ?? {};
+  const leadFormAction: unknown = leadCapture.form_action;
+  const seoContract: Record<string, unknown> = {
     site_url: ds.identity.canonical_url,
     target_keywords: targetKeywords,
     metadata_rules: ds.seo.metadata_rules,
@@ -99,6 +105,9 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     schema_application: 'per_route',
     internal_linking_rules: ds.seo.internal_linking_rules,
   };
+  if (typeof leadFormAction === 'string' && leadFormAction.trim() !== '' && !hasPlaceholder(leadFormAction)) {
+    seoContract.lead_form_action = leadFormAction.trim();
+  }
 
   // wom_flags: emit a flag ONLY for items that are still UNRESOLVED (ordered as
   // reviewed in SD2). Critically, the error-severity gates (license number +
@@ -107,6 +116,9 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   // in inputs/, the flag drops and UnknownResolverStage stops blocking. Emitting
   // them unconditionally would leave the pipeline permanently unable to proceed.
   const contact = ds.identity?.contact_placeholders ?? {};
+  if (typeof contact.phone === 'string' && contact.phone.trim() !== '' && !hasPlaceholder(contact.phone)) {
+    seoContract.phone = contact.phone.trim();
+  }
   const licenses = (ds.authority?.licenses ?? []) as any[];
   const licenseUnresolved = licenses.some((l) => hasPlaceholder(l?.license_number));
   const stateRules = ds.compliance?.state_specific_rules;
@@ -117,6 +129,7 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     ...(hasPlaceholder(contact.phone) ? [{ key: 'identity.contact.phone', value: 'unresolved', severity: 'warning' as const }] : []),
     ...(hasPlaceholder(contact.email) ? [{ key: 'identity.contact.email', value: 'unresolved', severity: 'warning' as const }] : []),
     ...(hasPlaceholder(contact.address) ? [{ key: 'identity.contact.address', value: 'unresolved', severity: 'warning' as const }] : []),
+    ...(hasPlaceholder(leadFormAction) ? [{ key: 'conversion.lead_capture.form_action', value: 'unresolved', severity: 'error' as const }] : []),
     ...(licenseUnresolved ? [{ key: 'authority.license_number', value: 'unresolved', severity: 'error' as const }] : []),
     ...((ds.compliance?.disclaimers ?? []) as any[])
       .filter((d) => d.required && hasPlaceholder(d.text))

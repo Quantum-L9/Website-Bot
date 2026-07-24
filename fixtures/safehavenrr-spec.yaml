@@ -1,0 +1,75 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+# Client spec derived from https://www.safehavenrr.com/ (go-live test run, Jul 23 2026)
+client_id: safehavenrr
+business_name: Safe Haven Roofing & Renovations
+vertical: roofing_and_renovations
+geography:
+  states:
+    - NC
+    - SC
+  primary_state: NC
+design:
+  status: resolved
+  palette:
+    primary: "#1f3a5f"
+    secondary: "#c8842c"
+  fonts:
+    heading: Inter
+    body: Inter
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - trust-signals
+      - services-overview
+      - storm-damage-callout
+      - warranty
+      - service-areas
+      - faq
+      - contact-form
+  - slug: /services
+    title: Services
+    components:
+      - service-list
+      - cta
+  - slug: /services/roof-replacement
+    title: Roof Replacement
+    components:
+      - service-detail
+      - cta
+  - slug: /services/roof-repair
+    title: Roof Repair
+    components:
+      - service-detail
+      - cta
+  - slug: /services/roof-inspection
+    title: Roof Inspection
+    components:
+      - service-detail
+      - cta
+  - slug: /services/storm-damage
+    title: Storm Damage & Insurance Documentation
+    components:
+      - service-detail
+      - cta
+  - slug: /services/gutters
+    title: Gutters & Downspouts
+    components:
+      - service-detail
+      - cta
+  - slug: /contact
+    title: Get a Quote
+    components:
+      - contact-form
+      - map
+seo_contract:
+  target_keywords:
+    - roof replacement Charlotte NC
+    - roof repair Charlotte
+    - storm damage roof inspection Charlotte
+    - metal roofing Charlotte NC
+    - roofing contractor Gastonia NC
+  site_url: safehavenrr.com
+  phone: "(704) 555-0100"
+  lead_form_action: https://formspree.io/f/safehavenrr-test

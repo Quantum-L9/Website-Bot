@@ -17,6 +17,105 @@ function validOptionalString(value: unknown): boolean {
   return value === undefined || (typeof value === 'string' && value.trim().length > 0);
 }
 
+/**
+ * Accept E.164 and common human formats: +16155550100, 615-555-0100,
+ * (615) 555-0100. Validates character set and digit count (7–15 digits per
+ * ITU-T E.164) rather than a brittle single layout pattern, so placeholders
+ * like "[phone number]" or "TBD" are rejected.
+ */
+function isValidPhone(value: string): boolean {
+  if (!/^\+?[0-9\s().-]+$/.test(value)) return false;
+  const digits = value.replace(/[^0-9]/g, '');
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function isHttpsNormalizableUrl(value: string): boolean {
+  const candidate = /^[A-Za-z][A-Za-z0-9+.-]*:/.test(value) ? value : `https://${value}`;
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === 'https:' && parsed.hostname.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function routesUseComponent(routes: unknown, componentName: string): boolean {
+  if (!Array.isArray(routes)) return false;
+  return routes.some(route =>
+    isObject(route) && Array.isArray(route.components)
+    && route.components.some(component => {
+      if (typeof component !== 'string') return false;
+      try { return normalizeComponentName(component) === componentName; }
+      catch { return false; }
+    }));
+}
+
+/**
+ * True when the spec carries an error-severity wom_flag declaring the lead
+ * form endpoint unresolved. Normalized specs authored before the operator
+ * fills in the real endpoint are still structurally valid — the flag hands
+ * enforcement to UnknownResolverStage, which blocks the build until the
+ * value is resolved. Without this, a spec could not even be normalized or
+ * loaded before the endpoint exists, breaking the authoring workflow.
+ */
+function hasUnresolvedLeadFormFlag(root: Record<string, unknown>): boolean {
+  if (!Array.isArray(root.wom_flags)) return false;
+  return root.wom_flags.some(flag =>
+    isObject(flag)
+    && flag.key === 'conversion.lead_capture.form_action'
+    && flag.value === 'unresolved'
+    && flag.severity === 'error');
+}
+
+/**
+ * Validate the seo_contract block against everything downstream stages
+ * actually consume, so contract violations surface at spec load instead of
+ * mid-pipeline (SiteAssembler previously hard-threw on lead_form_action).
+ */
+function validateSeoContract(root: Record<string, unknown>, errors: string[], check: (condition: boolean, message: string) => void): void {
+  const contract = root.seo_contract;
+  const wantsLeadForm = routesUseComponent(root.routes, 'contact_form') && !hasUnresolvedLeadFormFlag(root);
+  if (contract === undefined) {
+    if (wantsLeadForm) errors.push('seo_contract is required when any route uses the contact_form component (seo_contract.lead_form_action powers the form)');
+    return;
+  }
+  if (!isObject(contract)) { errors.push('seo_contract, when present, must be an object'); return; }
+  if (contract.site_url !== undefined) {
+    check(
+      typeof contract.site_url === 'string' && contract.site_url.trim().length > 0 && isHttpsNormalizableUrl(contract.site_url.trim()),
+      'seo_contract.site_url must be an HTTPS URL or bare hostname (e.g. https://example.com or example.com)',
+    );
+  }
+  if (contract.phone !== undefined) {
+    check(
+      typeof contract.phone === 'string' && isValidPhone(contract.phone.trim()),
+      'seo_contract.phone must be a real phone number (E.164 like +16155550100 or US formats like (615) 555-0100)',
+    );
+  }
+  if (wantsLeadForm) {
+    check(
+      typeof contract.lead_form_action === 'string' && contract.lead_form_action.trim().length > 0,
+      'seo_contract.lead_form_action is required because a route uses the contact_form component',
+    );
+  }
+  if (contract.lead_form_action !== undefined) {
+    if (typeof contract.lead_form_action !== 'string' || contract.lead_form_action.trim().length === 0) {
+      errors.push('seo_contract.lead_form_action, when present, must be a non-empty string');
+    } else {
+      let parsed: URL | undefined;
+      try { parsed = new URL(contract.lead_form_action); } catch { parsed = undefined; }
+      check(parsed !== undefined && parsed.protocol === 'https:', 'seo_contract.lead_form_action must be an absolute HTTPS URL');
+    }
+  }
+  if (contract.target_keywords !== undefined) {
+    check(
+      Array.isArray(contract.target_keywords) && contract.target_keywords.length > 0
+        && contract.target_keywords.every(keyword => typeof keyword === 'string' && keyword.trim().length > 0),
+      'seo_contract.target_keywords, when present, must be a non-empty array of non-empty strings',
+    );
+  }
+}
+
 export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpec {
   const root = isObject(parsed) && 'domain_spec' in parsed ? parsed.domain_spec : parsed;
   if (!isObject(root)) fail(`Spec at ${specPath} is not a YAML mapping. Expected the flat DomainSpec (see fixtures/ci-test-spec.yaml).`);
@@ -85,7 +184,7 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
     check(design.fonts === undefined || isObject(design.fonts), 'design.fonts, when present, must be an object');
   }
 
-  if (root.seo_contract !== undefined) check(isObject(root.seo_contract), 'seo_contract, when present, must be an object');
+  validateSeoContract(root, errors, check);
   const deploy = root.deploy;
   if (deploy !== undefined) {
     if (!isObject(deploy)) {

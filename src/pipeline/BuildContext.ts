@@ -22,6 +22,13 @@ export interface DeployTarget {
   seoBotVercelDeployHookRef?: string;
 }
 
+export interface SeoContract {
+  site_url?: string;
+  phone?: string;
+  lead_form_action?: string;
+  target_keywords?: string[];
+}
+
 export interface DomainSpec {
   client_id: string;
   business_name: string;
@@ -29,7 +36,7 @@ export interface DomainSpec {
   geography: { states: string[]; primary_state: string };
   design: { status: 'resolved' | 'pending'; palette?: Record<string, string>; fonts?: Record<string, string> };
   routes: Array<{ slug: string; title: string; components: string[]; noindex?: boolean }>;
-  seo_contract?: Record<string, unknown>;
+  seo_contract?: SeoContract;
   wom_flags?: Array<{ key: string; value: string; severity: 'error' | 'warning' | 'info' }>;
   deploy?: {
     github_repo: string;
@@ -55,6 +62,7 @@ export interface SiteConfig {
   schemas: { siteWide: object[]; perRoute: Record<string, object[]> };
   designTokens: Record<string, string>;
   leadFormAction?: string;
+  phone?: string;
 }
 
 export interface QualityEvidence {
