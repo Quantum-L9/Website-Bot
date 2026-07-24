@@ -1,0 +1,206 @@
+run_metadata:
+  run_id: e7becf2f-31e7-4a72-a7d1-ee4cfc4d683d
+  report_schema_version: 1.0.0
+  started_at: 2026-07-24T14:37:53.803Z
+  ended_at: 2026-07-24T14:37:53.871Z
+  duration: 68
+  last_completed_stage: execution_context_resolution_failed
+execution_context:
+  target_roots:
+    - /workspace
+    - packages/validation-executor
+  source_revision: 892f4c133b905377c1d3b4edcf8b33c111092050
+  running_revision: null
+  target_environment: local
+  environment_type: local
+  active_identity: cursoragent@cursor.com
+  preflight_commands:
+    - npm run typecheck
+    - npm run normalize-spec:check
+  e2e_commands: []
+  test_runner: node:test
+  test_runner_version: v22.14.0
+  configuration_sources:
+    - package.json
+    - tsconfig.json
+    - .env.example
+    - config/launch-env.required.yaml
+    - .github/workflows/ci.yml
+    - Makefile
+    - justfile
+  required_services:
+    - postgresql
+    - sqlite
+  target_endpoints:
+    - http://localhost:4321
+    - http://localhost:3000
+  required_dependencies:
+    - better-sqlite3
+    - drizzle-orm
+    - inngest
+    - pg
+    - pino
+    - yaml
+    - "@types/better-sqlite3"
+    - "@types/node"
+    - "@types/pg"
+    - pino-pretty
+    - tsx
+    - typescript
+  required_credentials:
+    - PERPLEXITY_API_KEY
+    - OPENROUTER_API_KEY
+    - CLIENT_ID
+    - MONTHLY_BUDGET_PER_CLIENT
+    - WEEKLY_BUDGET_TARGET
+    - SITE_URL
+    - SITE_OUTPUT_DIR
+    - SITE_BUILD_TIMEOUT_MS
+    - SITE_BUILD_IGNORE_SCRIPTS
+    - ASTRO_TELEMETRY_DISABLED
+    - CLIENT_GITHUB_REPO
+    - CLIENT_GITHUB_REPO_ID
+    - CLIENT_SOURCE_BRANCH
+    - GITHUB_SITE_TOKEN
+    - CLIENT_VERCEL_PROJECT_ID
+    - CLIENT_VERCEL_DEPLOY_HOOK
+    - VERCEL_TOKEN
+    - VERCEL_TEAM_ID
+    - VERCEL_TARGET
+    - WEBSITE_BOT_ALLOW_PRODUCTION
+    - VERCEL_POLL_INTERVAL_MS
+    - VERCEL_MAX_POLLS
+    - VERCEL_ORG_ID
+    - VERCEL_PROJECT_ID
+    - PUBLIC_POSTHOG_KEY
+    - POSTHOG_HOST
+    - POSTHOG_PROJECT_ID
+    - POSTHOG_PERSONAL_API_KEY
+    - DATAFORSEO_LOGIN
+    - DATAFORSEO_PASSWORD
+    - SEO_BOT_URL
+    - SEO_BOT_API_KEY
+    - PROJECT_LICENSE
+    - LICENSE_CHOICE_REQUIRED
+    - SUPPORT_CONTACT_EMAIL
+    - SUPPORT_CONTACT_URL
+    - SECURITY_CONTACT_EMAIL
+    - SECURITY_DISCLOSURE_URL
+    - PUBLIC_SITE_URL
+    - PRODUCTION_DOMAIN
+    - DOMAIN_VERIFICATION_REQUIRED
+    - FORM_PROVIDER
+    - FORM_ENDPOINT_URL
+    - FORM_WEBHOOK_SECRET
+    - LEAD_NOTIFICATION_EMAIL
+    - ANALYTICS_PROVIDER
+    - ANALYTICS_MEASUREMENT_ID
+    - ANALYTICS_CONVERSION_EVENT
+    - ANALYTICS_THANK_YOU_EVENT
+    - LEGAL_DISCLAIMER_APPROVED
+    - LEGAL_DISCLAIMER_VERSION
+    - LEGAL_REVIEW_OWNER
+    - LICENSE_DISPLAY_REQUIRED
+    - PROFESSIONAL_LICENSE_NUMBER
+    - PROFESSIONAL_LICENSE_STATE
+    - PROFESSIONAL_LICENSE_TYPE
+    - CRM_PROVIDER
+    - CRM_API_BASE_URL
+    - CRM_CLIENT_ID
+    - CRM_CLIENT_SECRET
+    - CRM_API_TOKEN
+    - CRM_TEST_MODE
+    - GITHUB_PROVISION_TOKEN
+    - SEO_BOT_SITE_GITHUB_TOKEN
+    - SEO_BOT_SITE_VERCEL_DEPLOY_HOOK
+  evidence_root: build/evidence
+authority_sources: []
+discovery_inventory:
+  preflight_checks: []
+  e2e_suites: []
+  required_e2e_tests: []
+  dynamic_inventory_items: []
+  authoritative_skips: []
+  inventory_sources: []
+  inventory_status: Unknown
+preflight_summary:
+  discovered: 0
+  executable: 0
+  executed: 0
+  passed: 0
+  failed: 0
+  errors: 0
+  timeouts: 0
+  blocked: 0
+  authoritatively_skipped: 0
+  not_executed: 0
+  unknown: 0
+  blocking_total: 0
+  blocking_passed: 0
+  gate_status: Unknown
+preflight_results: []
+preflight_gate:
+  status: Unknown
+  blocking_failures: []
+  blocking_unknowns: []
+  e2e_authorized: false
+  decision_evidence: []
+e2e_summary:
+  discovered_suites: 0
+  discovered_required_tests: 0
+  executed_unique_tests: 0
+  execution_attempts: 0
+  passed: 0
+  failed: 0
+  errors: 0
+  timeouts: 0
+  blocked_by_preflight_gate: 0
+  blocked_by_authoritative_fail_fast: 0
+  blocked: 0
+  not_executed: 0
+  authoritatively_skipped: 0
+  unknown: 0
+  runner_crashes: 0
+  gate_status: Unknown
+e2e_results: []
+coverage_reconciliation:
+  preflight_discovered_total: 0
+  preflight_accounted_total: 0
+  preflight_reconciled: false
+  e2e_required_discovered_total: 0
+  e2e_required_accounted_total: 0
+  e2e_reconciled: false
+  dynamic_inventory_reconciliation: Unknown
+  retry_accounting: Unknown
+  unaccounted_items: []
+  status: Unknown
+root_cause_groups: []
+defects: []
+regressions: []
+unknowns:
+  - unknown_id: 3b3d9192-3437-4c77-b79c-969bcf81517c
+    item: execution_context_resolution_failed
+    reason: "Validation execution halted: execution_context_resolution_failed"
+    execution_impact: Prevents completion of validation execution
+    affected_results: []
+    minimum_resolution_evidence: Resolve execution context and retry validation
+evidence_manifest: []
+validation_gates:
+  execution_context_resolved:
+    status: Failed
+    evidence_references:
+      - execution_context_validation_e7becf2f-31e7-4a72-a7d1-ee4cfc4d683d
+final_verdict:
+  status: INCOMPLETE
+  preflight_status: Unknown
+  e2e_status: Unknown
+  coverage_status: Unknown
+  evidence_status: Unknown
+  required_failure_count: 0
+  blocking_defect_ids: []
+  unknown_count: 1
+  verdict_reason: "Execution incomplete: execution_context_resolution_failed"
+minimum_safe_next_action:
+  action: ResolveExecutionContext
+  blocker_or_failure: execution_context_resolution_failed
+  expected_evidence: Complete execution context resolution and dependency validation

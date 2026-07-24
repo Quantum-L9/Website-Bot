@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantum-l9.com/execution-trace.schema.json",
+  "title": "Execution Trace",
+  "description": "Detailed trace of command execution with environment context",
+  "type": "object",
+  "required": [
+    "command",
+    "working_directory",
+    "exit_code",
+    "stdout",
+    "stderr", 
+    "duration_ms",
+    "started_at",
+    "ended_at"
+  ],
+  "properties": {
+    "command": {
+      "type": "string",
+      "description": "The exact command that was executed"
+    },
+    "working_directory": {
+      "type": "string",
+      "description": "Working directory where the command was executed"
+    },
+    "exit_code": {
+      "type": "integer",
+      "description": "Exit code returned by the command"
+    },
+    "stdout": {
+      "type": "string",
+      "description": "Standard output from the command (may be truncated)"
+    },
+    "stderr": {
+      "type": "string", 
+      "description": "Standard error output from the command (may be truncated)"
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Command execution duration in milliseconds"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when command execution started"
+    },
+    "ended_at": {
+      "type": "string", 
+      "format": "date-time",
+      "description": "ISO timestamp when command execution ended"
+    },
+    "environment_variables": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Relevant environment variables (sensitive values redacted)"
+    },
+    "process_id": {
+      "type": "integer",
+      "description": "Process ID of the executor process"
+    },
+    "node_version": {
+      "type": "string",
+      "description": "Version of Node.js used for execution"
+    },
+    "termination_signal": {
+      "type": ["string", "null"],
+      "description": "Signal used to terminate the process, if any"
+    },
+    "timeout_occurred": {
+      "type": "boolean",
+      "description": "Whether the command was terminated due to timeout"
+    },
+    "resource_usage": {
+      "type": "object",
+      "properties": {
+        "max_memory_mb": { "type": "number", "minimum": 0 },
+        "cpu_time_ms": { "type": "number", "minimum": 0 }
+      },
+      "description": "Resource usage metrics if available"
+    }
+  }
+}

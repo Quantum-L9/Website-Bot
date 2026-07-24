@@ -6,7 +6,7 @@ import {
   TaskType,
   type LLMResponse,
   type TaskDescriptor,
-} from '@quantum-l9/llm-router';
+} from './llm-stub.js';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 

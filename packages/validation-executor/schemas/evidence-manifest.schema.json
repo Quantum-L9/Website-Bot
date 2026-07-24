@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantum-l9.com/evidence-manifest.schema.json",
+  "title": "Evidence Manifest",
+  "description": "Manifest of all evidence artifacts collected during validation execution",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "evidence_id",
+      "evidence_type", 
+      "path_or_reference",
+      "checksum",
+      "redaction_status",
+      "availability_status"
+    ],
+    "properties": {
+      "evidence_id": {
+        "type": "string",
+        "description": "Unique identifier for this evidence artifact"
+      },
+      "evidence_type": {
+        "type": "string",
+        "enum": [
+          "execution_trace",
+          "command_output_stdout",
+          "command_output_stderr", 
+          "preflight_evidence",
+          "e2e_test_evidence",
+          "command_execution",
+          "test_result",
+          "preflight_check",
+          "general_evidence"
+        ],
+        "description": "Classification of the evidence type"
+      },
+      "path_or_reference": {
+        "type": "string",
+        "description": "File path or reference to the evidence artifact"
+      },
+      "checksum": {
+        "type": ["string", "null"],
+        "pattern": "^[a-fA-F0-9]{64}$",
+        "description": "SHA-256 checksum of the evidence content, null if unavailable"
+      },
+      "redaction_status": {
+        "type": "string", 
+        "enum": ["original", "redacted", "unknown"],
+        "description": "Whether sensitive data has been redacted from this evidence"
+      },
+      "availability_status": {
+        "type": "string",
+        "enum": ["available", "missing", "inaccessible", "unknown"],
+        "description": "Current availability status of the evidence artifact"
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When this evidence was created"
+      },
+      "size_bytes": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Size of the evidence artifact in bytes"
+      },
+      "mime_type": {
+        "type": "string",
+        "description": "MIME type of the evidence artifact"
+      }
+    }
+  }
+}

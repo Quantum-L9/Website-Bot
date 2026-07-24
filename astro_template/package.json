@@ -4,7 +4,22 @@
   "version": "1.0.0",
   "type": "module",
   "engines": { "node": ">=20.3.0" },
-  "scripts": { "check": "astro check", "build": "astro build" },
+  "scripts": { 
+    "check": "astro check", 
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "verify:preflight": "node scripts/preflight.mjs",
+    "verify:source": "node scripts/verify-source.mjs", 
+    "verify:build": "node scripts/verify-build.mjs",
+    "verify:smoke": "node scripts/verify-smoke.mjs",
+    "verify:form": "node scripts/verify-form.mjs",
+    "verify:analytics": "node scripts/verify-analytics.mjs",
+    "verify:crm": "node scripts/verify-crm.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
+    "verify:rollback": "node scripts/verify-rollback.mjs",
+    "verify:all": "node scripts/verify-all.mjs"
+  },
   "dependencies": {
     "@astrojs/check": "0.9.4",
     "@astrojs/sitemap": "3.7.3",

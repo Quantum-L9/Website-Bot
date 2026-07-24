@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantum-l9.com/validation-execution-report.schema.json",
+  "title": "Validation Execution Report",
+  "description": "Evidence-driven validation execution report with complete audit trail",
+  "type": "object",
+  "required": [
+    "run_metadata",
+    "execution_context",
+    "authority_sources",
+    "discovery_inventory",
+    "preflight_summary",
+    "preflight_results",
+    "preflight_gate",
+    "e2e_summary",
+    "e2e_results",
+    "coverage_reconciliation",
+    "root_cause_groups",
+    "defects",
+    "regressions",
+    "unknowns",
+    "evidence_manifest",
+    "validation_gates",
+    "final_verdict",
+    "minimum_safe_next_action"
+  ],
+  "properties": {
+    "run_metadata": {
+      "type": "object",
+      "required": ["run_id", "report_schema_version", "started_at", "ended_at", "duration", "last_completed_stage"],
+      "properties": {
+        "run_id": { "type": "string", "format": "uuid" },
+        "report_schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number", "minimum": 0 },
+        "last_completed_stage": { "type": "string" }
+      }
+    },
+    "execution_context": {
+      "type": "object",
+      "required": [
+        "target_roots", "source_revision", "running_revision", "target_environment",
+        "environment_type", "active_identity", "preflight_commands", "e2e_commands",
+        "test_runner", "test_runner_version", "configuration_sources", "required_services",
+        "target_endpoints", "required_dependencies", "required_credentials", "evidence_root"
+      ],
+      "properties": {
+        "target_roots": { "type": "array", "items": { "type": "string" } },
+        "source_revision": { "type": "string" },
+        "running_revision": { "type": ["string", "null"] },
+        "target_environment": { "type": "string" },
+        "environment_type": { 
+          "type": "string", 
+          "enum": ["local", "isolated_test", "shared_test", "staging", "production-like", "production", "ephemeral"]
+        },
+        "active_identity": { "type": "string" },
+        "preflight_commands": { "type": "array", "items": { "type": "string" } },
+        "e2e_commands": { "type": "array", "items": { "type": "string" } },
+        "test_runner": { "type": "string" },
+        "test_runner_version": { "type": "string" },
+        "configuration_sources": { "type": "array", "items": { "type": "string" } },
+        "required_services": { "type": "array", "items": { "type": "string" } },
+        "target_endpoints": { "type": "array", "items": { "type": "string" } },
+        "required_dependencies": { "type": "array", "items": { "type": "string" } },
+        "required_credentials": { "type": "array", "items": { "type": "string" } },
+        "evidence_root": { "type": "string" }
+      }
+    },
+    "authority_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "revision_or_version", "applicable_scope", "precedence", "verification_status"],
+        "properties": {
+          "source": { "type": "string" },
+          "revision_or_version": { "type": "string" },
+          "applicable_scope": { "type": "string" },
+          "precedence": { "type": "integer", "minimum": 1 },
+          "verification_status": { "type": "string", "enum": ["verified", "unverified", "unknown"] }
+        }
+      }
+    },
+    "preflight_summary": {
+      "type": "object",
+      "required": [
+        "discovered", "executable", "executed", "passed", "failed", "errors", "timeouts",
+        "blocked", "authoritatively_skipped", "not_executed", "unknown", "blocking_total",
+        "blocking_passed", "gate_status"
+      ],
+      "properties": {
+        "discovered": { "type": "integer", "minimum": 0 },
+        "executable": { "type": "integer", "minimum": 0 },
+        "executed": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "errors": { "type": "integer", "minimum": 0 },
+        "timeouts": { "type": "integer", "minimum": 0 },
+        "blocked": { "type": "integer", "minimum": 0 },
+        "authoritatively_skipped": { "type": "integer", "minimum": 0 },
+        "not_executed": { "type": "integer", "minimum": 0 },
+        "unknown": { "type": "integer", "minimum": 0 },
+        "blocking_total": { "type": "integer", "minimum": 0 },
+        "blocking_passed": { "type": "integer", "minimum": 0 },
+        "gate_status": { "type": "string", "enum": ["Passed", "Failed", "Unknown"] }
+      }
+    },
+    "preflight_results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/preflight_check" }
+    },
+    "preflight_gate": {
+      "type": "object",
+      "required": ["status", "blocking_failures", "blocking_unknowns", "e2e_authorized", "decision_evidence"],
+      "properties": {
+        "status": { "type": "string", "enum": ["Passed", "Failed", "Unknown"] },
+        "blocking_failures": { "type": "array", "items": { "type": "string" } },
+        "blocking_unknowns": { "type": "array", "items": { "type": "string" } },
+        "e2e_authorized": { "type": "boolean" },
+        "decision_evidence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "e2e_summary": {
+      "type": "object",
+      "required": [
+        "discovered_suites", "discovered_required_tests", "executed_unique_tests", 
+        "execution_attempts", "passed", "failed", "errors", "timeouts",
+        "blocked_by_preflight_gate", "blocked_by_authoritative_fail_fast", 
+        "blocked", "not_executed", "authoritatively_skipped", "unknown",
+        "runner_crashes", "gate_status"
+      ]
+    },
+    "e2e_results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/e2e_test_result" }
+    },
+    "final_verdict": {
+      "type": "object",
+      "required": [
+        "status", "preflight_status", "e2e_status", "coverage_status", 
+        "evidence_status", "required_failure_count", "blocking_defect_ids", 
+        "unknown_count", "verdict_reason"
+      ],
+      "properties": {
+        "status": { "type": "string", "enum": ["PASS", "FAIL", "INCOMPLETE"] },
+        "preflight_status": { "type": "string" },
+        "e2e_status": { "type": "string" },
+        "coverage_status": { "type": "string" },
+        "evidence_status": { "type": "string" },
+        "required_failure_count": { "type": "integer", "minimum": 0 },
+        "blocking_defect_ids": { "type": "array", "items": { "type": "string" } },
+        "unknown_count": { "type": "integer", "minimum": 0 },
+        "verdict_reason": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "preflight_check": {
+      "type": "object",
+      "required": [
+        "check_id", "check_name", "blocking", "command", "working_directory",
+        "status", "exit_code", "termination_signal", "started_at", "ended_at",
+        "duration", "primary_failure_classification", "contributing_causes",
+        "root_cause_group", "evidence_references"
+      ],
+      "properties": {
+        "check_id": { "type": "string" },
+        "check_name": { "type": "string" },
+        "blocking": { "type": "boolean" },
+        "command": { "type": "string" },
+        "working_directory": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["Passed", "Failed", "Error", "Timeout", "Blocked", "AuthoritativelySkipped", "NotExecuted", "Unknown"]
+        },
+        "exit_code": { "type": ["integer", "null"] },
+        "termination_signal": { "type": ["string", "null"] },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number", "minimum": 0 },
+        "primary_failure_classification": {
+          "type": ["string", "null"],
+          "enum": [
+            null, "PreflightFailure", "AssertionFailure", "ApplicationRuntimeFailure",
+            "RunnerFailure", "DependencyFailure", "CredentialFailure", "ConfigurationDefect",
+            "EnvironmentFailure", "AccessFailure", "Timeout", "Regression", "Blocked",
+            "AuthoritativelySkipped", "Unknown"
+          ]
+        },
+        "contributing_causes": { "type": "array", "items": { "type": "string" } },
+        "root_cause_group": { "type": ["string", "null"] },
+        "evidence_references": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "e2e_test_result": {
+      "type": "object",
+      "required": [
+        "suite_id", "suite_name", "test_id", "test_name", "attempt",
+        "command_or_invocation", "status", "started_at", "ended_at", "duration",
+        "assertion_or_error", "exit_code_or_runner_result", "primary_failure_classification",
+        "contributing_causes", "root_cause_group", "evidence_references"
+      ],
+      "properties": {
+        "suite_id": { "type": "string" },
+        "suite_name": { "type": "string" },
+        "test_id": { "type": "string" },
+        "test_name": { "type": "string" },
+        "attempt": { "type": "integer", "minimum": 1 },
+        "command_or_invocation": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Passed", "Failed", "Error", "Timeout", "BlockedByPreflightGate",
+            "BlockedByAuthoritativeFailFast", "Blocked", "AuthoritativelySkipped",
+            "NotExecuted", "Unknown"
+          ]
+        },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number", "minimum": 0 },
+        "assertion_or_error": { "type": ["string", "null"] },
+        "exit_code_or_runner_result": { "type": ["integer", "string", "null"] },
+        "primary_failure_classification": {
+          "type": ["string", "null"],
+          "enum": [
+            null, "PreflightFailure", "AssertionFailure", "ApplicationRuntimeFailure",
+            "RunnerFailure", "DependencyFailure", "CredentialFailure", "ConfigurationDefect",
+            "EnvironmentFailure", "AccessFailure", "Timeout", "Regression", "Blocked",
+            "AuthoritativelySkipped", "Unknown"
+          ]
+        },
+        "contributing_causes": { "type": "array", "items": { "type": "string" } },
+        "root_cause_group": { "type": ["string", "null"] },
+        "evidence_references": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
