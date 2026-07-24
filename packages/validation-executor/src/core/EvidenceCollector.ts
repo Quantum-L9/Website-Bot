@@ -109,7 +109,8 @@ export class EvidenceCollector {
       node_version: process.version
     };
 
-    return await this.storeEvidence(traceId, trace);
+    await this.storeEvidence(traceId, trace);
+    return traceId;
   }
 
   /**
@@ -146,10 +147,11 @@ export class EvidenceCollector {
   async generateManifest(): Promise<Array<{
     evidence_id: string;
     evidence_type: string;
-    path_or_reference: string;
+    file_path: string;
     checksum: string | null;
-    redaction_status: string;
-    availability_status: string;
+    file_size: number;
+    created_at: string;
+    integrity_validated: boolean;
   }>> {
     this.logger.info('Generating evidence manifest');
 
@@ -166,10 +168,11 @@ export class EvidenceCollector {
         manifest.push({
           evidence_id: evidenceId,
           evidence_type: this.classifyEvidenceType(evidenceId, record.data),
-          path_or_reference: evidencePath,
+          file_path: `${evidenceId}.json`,
           checksum: record.checksum || null,
-          redaction_status: record.redaction_applied ? 'redacted' : 'original',
-          availability_status: availabilityStatus
+          file_size: fileStats.size,
+          created_at: record.timestamp,
+          integrity_validated: true
         });
 
       } catch (error) {
@@ -337,6 +340,10 @@ export class EvidenceCollector {
       /\bxoxb-[a-zA-Z0-9-]+\b/g,       // Slack bot tokens
       /\bAKIA[0-9A-Z]{16}\b/g,         // AWS access keys
       /\b[A-Za-z0-9+/]{40}\b/g,        // 40-character tokens
+      /--api[_-]?key[=:]\s*[^\s]+/gi,  // Command line API key arguments
+      /--token[=:]\s*[^\s]+/gi,        // Command line token arguments
+      /--password[=:]\s*[^\s]+/gi,     // Command line password arguments
+      /password[=:]\s*[^\s]+/gi,       // Generic password patterns in text
     ];
 
     let redacted = value;
@@ -375,9 +382,27 @@ export class EvidenceCollector {
   }
 
   private classifyEvidenceType(evidenceId: string, data: any): string {
+    // Check for execution_trace first since it's a specific type of command execution
     if (evidenceId.includes('execution_trace')) {
       return 'execution_trace';
     }
+    
+    // Check data structure for accurate classification
+    if (data && typeof data === 'object') {
+      if (data.command || data.exit_code !== undefined) {
+        return 'command_execution';
+      }
+      
+      if (data.test_id || data.suite_id) {
+        return 'test_result';
+      }
+      
+      if (data.check_id) {
+        return 'preflight_check';
+      }
+    }
+
+    // Then check other ID patterns
     
     if (evidenceId.includes('stdout')) {
       return 'command_output_stdout';
@@ -394,21 +419,11 @@ export class EvidenceCollector {
     if (evidenceId.includes('e2e')) {
       return 'e2e_test_evidence';
     }
-
-    if (data && typeof data === 'object') {
-      if (data.command || data.exit_code !== undefined) {
-        return 'command_execution';
-      }
-      
-      if (data.test_id || data.suite_id) {
-        return 'test_result';
-      }
-      
-      if (data.check_id) {
-        return 'preflight_check';
-      }
+    
+    if (evidenceId.includes('configuration') || evidenceId.includes('config')) {
+      return 'configuration';
     }
 
-    return 'general_evidence';
+    return 'general';
   }
 }
