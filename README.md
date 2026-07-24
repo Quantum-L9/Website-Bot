@@ -32,7 +32,17 @@ for the type. Required shape:
 - `geography: { states: string[]; primary_state: string }`
 - `routes: Array<{ slug: string; title: string; components: string[] }>`
 - `design: { status: 'resolved' | 'pending'; palette?: Record<string,string>; fonts?: Record<string,string> }`
-- optional: `seo_contract`, `wom_flags`
+- `seo_contract` — validated when present, and **required** when any route renders a
+  `contact_form` component:
+  - `site_url: string` — must normalize to an absolute `https://` URL (bare domains are
+    normalized; `http://` and non-URL values are rejected at spec load)
+  - `phone?: string` — dialable number with 7–15 digits (E.164 or national formats accepted);
+    flows into `siteConfig.phone` and the `LocalBusiness.telephone` schema
+  - `lead_form_action: string` — absolute `https://` form endpoint; **required whenever any
+    route uses `contact_form`** so a missing endpoint fails at spec load (stage 1), never at
+    site build. Test/demo endpoint IDs are additionally rejected by the placeholder scan gate.
+  - `target_keywords?: string[]` — non-empty strings when present
+- optional: `wom_flags`
 
 Run with an explicit spec: `npm run pipeline -- --spec=<path>`, pointing at the client's
 normalized spec (for the reference client, `examples/supplemental-insurance-pros/domain_spec.normalized.yaml`).
@@ -48,6 +58,18 @@ fails with an actionable message.
 
 CI guards drift: `npm run normalize-spec:check` (run in `build-and-validate.yml`) fails if the
 committed flat spec doesn't equal `normalize(<source spec>)` or isn't a valid `DomainSpec`.
+
+### Generated-output quality gate (placeholder scan)
+
+Every build runs a mandatory `placeholder-scan` stage between generation
+(`content-generation`, `schema-generator`) and assembly (`site-assembler`). It scans all
+LLM-generated copy and JSON-LD schemas against a typed pattern catalog
+(`src/validation/placeholderPatterns.ts`): bracketed fill-ins like `[phone number]`,
+unrendered template variables, lorem ipsum, TODO/TBD markers, RFC 2606 example domains,
+test form endpoints, and empty structured-data values. Error-severity findings fail the
+build with `PLACEHOLDER_CONTENT_DETECTED` and a full finding list (source, pattern,
+excerpt); warning-severity findings (reserved 555-01xx numbers, "coming soon" stubs) are
+logged without blocking.
 
 ## Quick Start
 
@@ -145,7 +167,9 @@ Do not call the site launch-ready until all are true:
 - `src/`: Astro source files.
 - `public/`: static public assets and runtime SEO files.
 - `scripts/`: verification and deployment automation.
-- `validation/`: validation reports and machine evidence.
+- `validation/`: generated launch-env reports (per-run artifacts, gitignored). Historical
+  per-client validation reports live with their client under
+  `examples/<client>/validation/`.
 - `docs/`: secondary operational documentation when present.
 - `Makefile`: canonical CI/operator command surface.
 - `justfile`: developer ergonomic wrappers.

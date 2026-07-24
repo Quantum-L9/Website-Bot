@@ -1,5 +1,7 @@
 // L9_META: layer=pipeline, role=state_store, status=active, version=4.0.0
 import Database from 'better-sqlite3';
+import fs from 'node:fs';
+import nodePath from 'node:path';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
@@ -65,7 +67,10 @@ export const evidenceChainStatus = sqliteTable('evidence_chain_status', {
 export const buildSchema = { builds, stageRuns, llmUsage, evidenceArtifacts, evidenceChainStatus };
 
 export function getBuildDb(path?: string) {
-  const dbPath = path ?? process.env.BUILD_DB_PATH ?? './website-bot.db';
+  // Default to a dedicated data directory so run-state never lands in the repo root
+  // (an in-tree website-bot.db was a recurring source of accidental commits).
+  const dbPath = path ?? process.env.BUILD_DB_PATH ?? '.l9/data/website-bot.db';
+  if (dbPath !== ':memory:') fs.mkdirSync(nodePath.dirname(nodePath.resolve(dbPath)), { recursive: true });
   const sqlite = new Database(dbPath);
   sqlite.pragma('journal_mode = WAL');
   sqlite.pragma('foreign_keys = ON');

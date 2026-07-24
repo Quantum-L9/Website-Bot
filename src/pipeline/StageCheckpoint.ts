@@ -24,6 +24,15 @@ export interface StageCheckpoint {
 
 const SHA256 = /^[a-f0-9]{64}$/;
 
+/**
+ * Digest of a checkpoint's evidence references, order-independent (sorted by kind).
+ * Stages that declare no evidence kinds legitimately produce the digest of an empty
+ * list — a deterministic constant. That is by design: the checkpoint still binds
+ * buildId/clientId/stage/attempt, and resume validity is enforced by
+ * `checkpointIsValid`, which re-verifies every referenced artifact on disk. Stages
+ * whose outputs matter for resume MUST declare them via `Stage.evidence` so their
+ * digests are content-addressed rather than empty.
+ */
 export function checkpointDigest(references: EvidenceReference[]): string {
   return evidenceDigest([...references].sort((left, right) => left.kind.localeCompare(right.kind)));
 }
