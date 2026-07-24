@@ -49,7 +49,7 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@quantum-l9'
       - name: Install Website-Bot dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Validate and stage DomainSpec path
