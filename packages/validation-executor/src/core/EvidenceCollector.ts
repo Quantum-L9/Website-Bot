@@ -5,6 +5,13 @@ import { randomUUID } from 'node:crypto';
 import { createLogger } from '../utils/logger.js';
 import type { RepositoryAdapter } from '../types/index.js';
 
+export class EvidenceCollectorError extends Error {
+  constructor(message: string, public readonly evidenceId?: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'EvidenceCollectorError';
+  }
+}
+
 /**
  * EvidenceCollector implements evidence collection with integrity validation
  * according to the specification's evidence policy.
@@ -69,7 +76,7 @@ export class EvidenceCollector {
 
     } catch (error) {
       this.logger.error({ error, evidenceId }, 'Failed to store evidence');
-      throw new Error(`Evidence storage failed for ${evidenceId}: ${error}`);
+      throw new EvidenceCollectorError(`Evidence storage failed for ${evidenceId}`, evidenceId, error);
     }
   }
 
@@ -266,7 +273,8 @@ export class EvidenceCollector {
     try {
       await mkdir(this.evidenceRoot, { recursive: true });
     } catch (error) {
-      throw new Error(`Failed to create evidence directory ${this.evidenceRoot}: ${error}`);
+      this.logger.error({ error, path: this.evidenceRoot }, 'Failed to create evidence directory');
+      throw new EvidenceCollectorError(`Failed to create evidence directory ${this.evidenceRoot}`, undefined, error);
     }
   }
 

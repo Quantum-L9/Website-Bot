@@ -1,49 +1,41 @@
-import { exists, listFiles, readText, result, writeJsonl, statusFromRows } from './lib.mjs';
+import { createValidator } from './validation-framework.mjs';
+import { exists, listFiles, readText } from './lib.mjs';
 
-const checks = [];
+const validator = createValidator('source');
 
 // Check Astro pages exist
-const pages = listFiles('src/pages', (file) => file.endsWith('.astro') || file.endsWith('.md'));
-checks.push(result(
+await validator.addDirectoryContentCheck(
   'pages-exist',
-  'file_structure',
-  'src/pages/',
+  'src/pages',
+  (file) => file.endsWith('.astro') || file.endsWith('.md'),
   'At least one page file exists',
-  pages.length > 0 ? `${pages.length} pages found` : 'No pages found',
-  pages.length > 0 ? 'PASS' : 'FAIL',
   'high',
-  'Create at least one page in src/pages/'
-));
+  1
+);
 
 // Check layouts directory
-const layouts = listFiles('src/layouts', (file) => file.endsWith('.astro'));
-checks.push(result(
+await validator.addDirectoryContentCheck(
   'layouts-exist',
-  'file_structure', 
-  'src/layouts/',
+  'src/layouts',
+  (file) => file.endsWith('.astro'),
   'Layout files exist',
-  layouts.length > 0 ? `${layouts.length} layouts found` : 'No layouts found',
-  layouts.length > 0 ? 'PASS' : 'UNKNOWN',
   'medium',
-  'Consider creating layout files in src/layouts/'
-));
+  0 // Optional
+);
 
-// Check components directory
-const components = listFiles('src/components', (file) => file.endsWith('.astro') || file.endsWith('.tsx') || file.endsWith('.jsx'));
-checks.push(result(
+// Check components directory  
+await validator.addDirectoryContentCheck(
   'components-exist',
-  'file_structure',
-  'src/components/', 
+  'src/components',
+  (file) => file.endsWith('.astro') || file.endsWith('.tsx') || file.endsWith('.jsx'),
   'Component files exist',
-  components.length > 0 ? `${components.length} components found` : 'No components found',
-  components.length > 0 ? 'PASS' : 'UNKNOWN',
   'medium',
-  'Consider creating reusable components in src/components/'
-));
+  0 // Optional
+);
 
 // Check for main page
 const indexExists = exists('src/pages/index.astro') || exists('src/pages/index.md');
-checks.push(result(
+validator.addCheck(
   'index-page-exists',
   'file_existence',
   'src/pages/index.*', 
@@ -52,14 +44,14 @@ checks.push(result(
   indexExists ? 'PASS' : 'FAIL',
   'high',
   'Create src/pages/index.astro or src/pages/index.md'
-));
+);
 
 // Validate Astro config if it exists
 if (exists('astro.config.mjs')) {
   try {
     const configText = readText('astro.config.mjs');
     const hasDefineConfig = configText.includes('defineConfig');
-    checks.push(result(
+    validator.addCheck(
       'astro-config-valid',
       'config_validation',
       'astro.config.mjs',
@@ -68,9 +60,9 @@ if (exists('astro.config.mjs')) {
       hasDefineConfig ? 'PASS' : 'FAIL',
       'medium',
       'Use defineConfig in astro.config.mjs'
-    ));
+    );
   } catch (error) {
-    checks.push(result(
+    validator.addCheck(
       'astro-config-readable',
       'file_validation',
       'astro.config.mjs',
@@ -79,13 +71,8 @@ if (exists('astro.config.mjs')) {
       'FAIL',
       'medium',
       'Fix astro.config.mjs syntax errors'
-    ));
+    );
   }
 }
 
-writeJsonl('validation/source_checks.jsonl', checks);
-
-const status = statusFromRows(checks);
-console.log(JSON.stringify({ status, checks: checks.length }, null, 2));
-
-if (status === 'FAIL') process.exit(1);
+await validator.run();

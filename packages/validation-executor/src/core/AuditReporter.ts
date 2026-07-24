@@ -1,6 +1,14 @@
+import { writeFile } from 'node:fs/promises';
 import { stringify as yamlStringify } from 'yaml';
 import { createLogger } from '../utils/logger.js';
 import type { ValidationExecutionReport, ValidationGateStatus } from '../types/index.js';
+
+export class AuditReporterError extends Error {
+  constructor(message: string, public readonly reportPath?: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'AuditReporterError';
+  }
+}
 
 /**
  * AuditReporter implements Step 9 of the validation specification:
@@ -114,7 +122,7 @@ export class AuditReporter {
 
     } catch (error) {
       this.logger.error({ error }, 'Failed to convert report to YAML');
-      throw new Error(`YAML serialization failed: ${error}`);
+      throw new AuditReporterError(`YAML serialization failed`, undefined, error);
     }
   }
 
@@ -123,7 +131,7 @@ export class AuditReporter {
    */
   async writeReport(report: ValidationExecutionReport, filePath: string): Promise<void> {
     try {
-      const { writeFile, mkdir } = await import('node:fs/promises');
+      const { mkdir } = await import('node:fs/promises');
       const { dirname } = await import('node:path');
 
       // Ensure directory exists
@@ -137,7 +145,7 @@ export class AuditReporter {
 
     } catch (error) {
       this.logger.error({ error, filePath }, 'Failed to write report file');
-      throw new Error(`Report write failed: ${error}`);
+      throw new AuditReporterError(`Report write failed`, filePath, error);
     }
   }
 
