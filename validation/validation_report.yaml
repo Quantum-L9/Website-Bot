@@ -1,14 +1,14 @@
 run_metadata:
-  run_id: 4831efe5-4e4c-4a9b-8d42-5b3aaaaf7113
+  run_id: 3cd122f6-449a-485d-a9ad-2f97926adf3b
   report_schema_version: 1.0.0
-  started_at: 2026-07-24T16:54:44.395Z
-  ended_at: 2026-07-24T16:54:50.394Z
-  duration: 5999
+  started_at: 2026-07-24T16:58:32.304Z
+  ended_at: 2026-07-24T16:58:38.062Z
+  duration: 5758
   last_completed_stage: failure_analysis
 execution_context:
   target_roots:
     - /workspace
-  source_revision: 6b3560d28bef6331e8f219ca8d8829231922bb49
+  source_revision: ab7e99f65da282cb947ab2d95b34258da49c648c
   running_revision: null
   target_environment: local
   environment_type: local
@@ -115,12 +115,12 @@ execution_context:
   evidence_root: build/evidence
 authority_sources:
   - source: package.json
-    revision_or_version: current
+    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
     applicable_scope: execution_configuration
     precedence: 1
     verification_status: verified
   - source: tsconfig.json
-    revision_or_version: current
+    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
     applicable_scope: execution_configuration
     precedence: 2
     verification_status: verified
@@ -130,17 +130,17 @@ authority_sources:
     precedence: 3
     verification_status: verified
   - source: config/launch-env.required.yaml
-    revision_or_version: current
+    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
     applicable_scope: execution_configuration
     precedence: 4
     verification_status: verified
   - source: .github/workflows/ci.yml
-    revision_or_version: current
+    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
     applicable_scope: execution_configuration
     precedence: 5
     verification_status: verified
   - source: Makefile
-    revision_or_version: current
+    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
     applicable_scope: execution_configuration
     precedence: 6
     verification_status: verified
@@ -159,9 +159,9 @@ discovery_inventory:
       status: Passed
       exit_code: 0
       termination_signal: null
-      started_at: 2026-07-24T16:54:44.438Z
-      ended_at: 2026-07-24T16:54:44.816Z
-      duration: 378
+      started_at: 2026-07-24T16:58:32.320Z
+      ended_at: 2026-07-24T16:58:32.682Z
+      duration: 362
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
@@ -177,9 +177,9 @@ discovery_inventory:
       status: Passed
       exit_code: 0
       termination_signal: null
-      started_at: 2026-07-24T16:54:44.821Z
-      ended_at: 2026-07-24T16:54:45.304Z
-      duration: 483
+      started_at: 2026-07-24T16:58:32.685Z
+      ended_at: 2026-07-24T16:58:33.147Z
+      duration: 462
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
@@ -195,9 +195,9 @@ discovery_inventory:
       status: Passed
       exit_code: 0
       termination_signal: null
-      started_at: 2026-07-24T16:54:45.306Z
-      ended_at: 2026-07-24T16:54:45.421Z
-      duration: 115
+      started_at: 2026-07-24T16:58:33.148Z
+      ended_at: 2026-07-24T16:58:33.248Z
+      duration: 100
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
@@ -213,9 +213,9 @@ discovery_inventory:
       status: Failed
       exit_code: 1
       termination_signal: null
-      started_at: 2026-07-24T16:54:45.422Z
-      ended_at: 2026-07-24T16:54:45.535Z
-      duration: 113
+      started_at: 2026-07-24T16:58:33.249Z
+      ended_at: 2026-07-24T16:58:33.353Z
+      duration: 104
       primary_failure_classification: PreflightFailure
       contributing_causes:
         - "Non-zero exit code: 1"
@@ -236,9 +236,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: npm run site:validate
       status: Passed
-      started_at: 2026-07-24T16:54:45.537Z
-      ended_at: 2026-07-24T16:54:46.051Z
-      duration: 514
+      started_at: 2026-07-24T16:58:33.355Z
+      ended_at: 2026-07-24T16:58:33.851Z
+      duration: 496
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -255,9 +255,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: npm run evidence:test
       status: Passed
-      started_at: 2026-07-24T16:54:46.055Z
-      ended_at: 2026-07-24T16:54:46.944Z
-      duration: 889
+      started_at: 2026-07-24T16:58:33.852Z
+      ended_at: 2026-07-24T16:58:34.733Z
+      duration: 881
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -274,9 +274,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: npm run site:test:local
       status: Passed
-      started_at: 2026-07-24T16:54:46.946Z
-      ended_at: 2026-07-24T16:54:49.302Z
-      duration: 2356
+      started_at: 2026-07-24T16:58:34.734Z
+      ended_at: 2026-07-24T16:58:37.045Z
+      duration: 2311
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -294,9 +294,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: npm run pipeline:plan
       status: Failed
-      started_at: 2026-07-24T16:54:49.303Z
-      ended_at: 2026-07-24T16:54:50.157Z
-      duration: 854
+      started_at: 2026-07-24T16:58:37.046Z
+      ended_at: 2026-07-24T16:58:37.842Z
+      duration: 796
       assertion_or_error: "Non-zero exit code: 1"
       exit_code_or_runner_result: 1
       primary_failure_classification: Unknown
@@ -314,9 +314,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/preflight.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.159Z
-      ended_at: 2026-07-24T16:54:50.191Z
-      duration: 32
+      started_at: 2026-07-24T16:58:37.842Z
+      ended_at: 2026-07-24T16:58:37.869Z
+      duration: 27
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -333,9 +333,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-source.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.192Z
-      ended_at: 2026-07-24T16:54:50.226Z
-      duration: 34
+      started_at: 2026-07-24T16:58:37.870Z
+      ended_at: 2026-07-24T16:58:37.901Z
+      duration: 31
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -352,9 +352,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-build.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.227Z
-      ended_at: 2026-07-24T16:54:50.255Z
-      duration: 28
+      started_at: 2026-07-24T16:58:37.902Z
+      ended_at: 2026-07-24T16:58:37.927Z
+      duration: 25
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -371,9 +371,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-smoke.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.256Z
-      ended_at: 2026-07-24T16:54:50.283Z
-      duration: 27
+      started_at: 2026-07-24T16:58:37.928Z
+      ended_at: 2026-07-24T16:58:37.953Z
+      duration: 25
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -390,9 +390,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-form.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.283Z
-      ended_at: 2026-07-24T16:54:50.310Z
-      duration: 27
+      started_at: 2026-07-24T16:58:37.954Z
+      ended_at: 2026-07-24T16:58:37.979Z
+      duration: 25
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -409,8 +409,8 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-analytics.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.310Z
-      ended_at: 2026-07-24T16:54:50.337Z
+      started_at: 2026-07-24T16:58:37.980Z
+      ended_at: 2026-07-24T16:58:38.007Z
       duration: 27
       assertion_or_error: null
       exit_code_or_runner_result: 0
@@ -428,9 +428,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-crm.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.338Z
-      ended_at: 2026-07-24T16:54:50.363Z
-      duration: 25
+      started_at: 2026-07-24T16:58:38.007Z
+      ended_at: 2026-07-24T16:58:38.033Z
+      duration: 26
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -447,9 +447,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-seo.mjs
       status: Passed
-      started_at: 2026-07-24T16:54:50.363Z
-      ended_at: 2026-07-24T16:54:50.390Z
-      duration: 27
+      started_at: 2026-07-24T16:58:38.034Z
+      ended_at: 2026-07-24T16:58:38.059Z
+      duration: 25
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -459,7 +459,74 @@ discovery_inventory:
         - e2e_site-verify-seo_stdout
         - e2e_site-verify-seo_stderr
         - e2e_site-verify-seo_execution_trace
-  dynamic_inventory_items: []
+  dynamic_inventory_items:
+    - service-dependency:postgresql
+    - service-dependency:sqlite
+    - credential-dependent:PERPLEXITY_API_KEY
+    - credential-dependent:OPENROUTER_API_KEY
+    - credential-dependent:CLIENT_ID
+    - credential-dependent:MONTHLY_BUDGET_PER_CLIENT
+    - credential-dependent:WEEKLY_BUDGET_TARGET
+    - credential-dependent:SITE_URL
+    - credential-dependent:SITE_OUTPUT_DIR
+    - credential-dependent:SITE_BUILD_TIMEOUT_MS
+    - credential-dependent:SITE_BUILD_IGNORE_SCRIPTS
+    - credential-dependent:ASTRO_TELEMETRY_DISABLED
+    - credential-dependent:CLIENT_GITHUB_REPO
+    - credential-dependent:CLIENT_GITHUB_REPO_ID
+    - credential-dependent:CLIENT_SOURCE_BRANCH
+    - credential-dependent:GITHUB_SITE_TOKEN
+    - credential-dependent:CLIENT_VERCEL_PROJECT_ID
+    - credential-dependent:CLIENT_VERCEL_DEPLOY_HOOK
+    - credential-dependent:VERCEL_TOKEN
+    - credential-dependent:VERCEL_TEAM_ID
+    - credential-dependent:VERCEL_TARGET
+    - credential-dependent:WEBSITE_BOT_ALLOW_PRODUCTION
+    - credential-dependent:VERCEL_POLL_INTERVAL_MS
+    - credential-dependent:VERCEL_MAX_POLLS
+    - credential-dependent:VERCEL_ORG_ID
+    - credential-dependent:VERCEL_PROJECT_ID
+    - credential-dependent:PUBLIC_POSTHOG_KEY
+    - credential-dependent:POSTHOG_HOST
+    - credential-dependent:POSTHOG_PROJECT_ID
+    - credential-dependent:POSTHOG_PERSONAL_API_KEY
+    - credential-dependent:DATAFORSEO_LOGIN
+    - credential-dependent:DATAFORSEO_PASSWORD
+    - credential-dependent:SEO_BOT_URL
+    - credential-dependent:SEO_BOT_API_KEY
+    - credential-dependent:PROJECT_LICENSE
+    - credential-dependent:LICENSE_CHOICE_REQUIRED
+    - credential-dependent:SUPPORT_CONTACT_EMAIL
+    - credential-dependent:SUPPORT_CONTACT_URL
+    - credential-dependent:SECURITY_CONTACT_EMAIL
+    - credential-dependent:SECURITY_DISCLOSURE_URL
+    - credential-dependent:PUBLIC_SITE_URL
+    - credential-dependent:PRODUCTION_DOMAIN
+    - credential-dependent:DOMAIN_VERIFICATION_REQUIRED
+    - credential-dependent:FORM_PROVIDER
+    - credential-dependent:FORM_ENDPOINT_URL
+    - credential-dependent:FORM_WEBHOOK_SECRET
+    - credential-dependent:LEAD_NOTIFICATION_EMAIL
+    - credential-dependent:ANALYTICS_PROVIDER
+    - credential-dependent:ANALYTICS_MEASUREMENT_ID
+    - credential-dependent:ANALYTICS_CONVERSION_EVENT
+    - credential-dependent:ANALYTICS_THANK_YOU_EVENT
+    - credential-dependent:LEGAL_DISCLAIMER_APPROVED
+    - credential-dependent:LEGAL_DISCLAIMER_VERSION
+    - credential-dependent:LEGAL_REVIEW_OWNER
+    - credential-dependent:LICENSE_DISPLAY_REQUIRED
+    - credential-dependent:PROFESSIONAL_LICENSE_NUMBER
+    - credential-dependent:PROFESSIONAL_LICENSE_STATE
+    - credential-dependent:PROFESSIONAL_LICENSE_TYPE
+    - credential-dependent:CRM_PROVIDER
+    - credential-dependent:CRM_API_BASE_URL
+    - credential-dependent:CRM_CLIENT_ID
+    - credential-dependent:CRM_CLIENT_SECRET
+    - credential-dependent:CRM_API_TOKEN
+    - credential-dependent:CRM_TEST_MODE
+    - credential-dependent:GITHUB_PROVISION_TOKEN
+    - credential-dependent:SEO_BOT_SITE_GITHUB_TOKEN
+    - credential-dependent:SEO_BOT_SITE_VERCEL_DEPLOY_HOOK
   authoritative_skips: []
   inventory_sources: *a1
   inventory_status: complete
@@ -526,119 +593,119 @@ evidence_manifest:
   - evidence_id: preflight_typecheck
     evidence_type: preflight_evidence
     path_or_reference: build/evidence/preflight_typecheck.json
-    checksum: 1306d82816a21e88ccfbcfbacfdc2cecd2fa1cf392797595f727436a0cd6902d
+    checksum: 344bbe2f0704ae5044d03b7bb5bce823806311e7eb03a0e64a120329da1ecd9c
     redaction_status: original
     availability_status: available
   - evidence_id: preflight_normalize-spec-check
     evidence_type: preflight_evidence
     path_or_reference: build/evidence/preflight_normalize-spec-check.json
-    checksum: 89cf2e5c37988dfcebb0ecb07c84f7b13235f456fac9691009f1f517436f8ced
+    checksum: 6629ec6ac8b27abc999cf4e907caa923284bec53f0f1f18df5839cf3b1a60018
     redaction_status: original
     availability_status: available
   - evidence_id: preflight_evidence-schemas
     evidence_type: preflight_evidence
     path_or_reference: build/evidence/preflight_evidence-schemas.json
-    checksum: 21e2960400f825488cf14ffef4270258280aedbecbcc30a9bb7d0c1f046164f9
+    checksum: 46bd9b88f8b9395b1f2b9b8e4ec18c6907dbf2108884a8da2389b218ddd8e95f
     redaction_status: original
     availability_status: available
   - evidence_id: preflight_launch-env-validation
     evidence_type: preflight_evidence
     path_or_reference: build/evidence/preflight_launch-env-validation.json
-    checksum: 36c5282854032fd5f82300db16ae54d1ca8aa8a2dc21ccad1980eaafb5e51309
+    checksum: 3cbaedec01a24563508e1c1715781691814335f5fa9b7dd310cb21955a6111b4
     redaction_status: original
     availability_status: available
   - evidence_id: e2e_site-validate_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-validate_attempt_1.json
-    checksum: 11e1c00e0894bcc14ec2042715d7a3f840ecadd7bbb3c59e4beb38d3b623c549
+    checksum: 1cbaabb1d8fc5471a0a262464dd446dae218cdd739e3a93d6ad43c059c0b534b
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_evidence-test_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_evidence-test_attempt_1.json
-    checksum: 3be7297d238ee6b74d6906e1248e5dccdf1b7e98273242bc29340597a5942dd2
+    checksum: b21b1f1036e59fa29ed17215158e2ce2c2eeed74738387ec54fac95fb0d4a2ab
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-test-local_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-test-local_attempt_1.json
-    checksum: aa2c09f9fe3d34891ec4e01b8caad03bbad23b21fd8475319b407a836f3d0bd6
+    checksum: 5c2f430e0c251e0a713cf8846949c2664e0c6f3bb4b2ad40015e3eced0ac9647
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_pipeline-plan_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_pipeline-plan_attempt_1.json
-    checksum: 3301210f1c3c2f4e8edd17a8429c397546d21df006d4438a04a66b9ca0329721
+    checksum: ef9e004936cfe8408e45f1b2fba834e400723c211abef81763be2b1050b76c48
     redaction_status: original
     availability_status: available
   - evidence_id: e2e_site-preflight_attempt_1
     evidence_type: preflight_evidence
     path_or_reference: build/evidence/e2e_site-preflight_attempt_1.json
-    checksum: 8b04ee85961bf2e24df175b6fa17d1233ebb35c0f8374157aa368818ee8ce942
+    checksum: ea60396d504cd038839587ad4e3a0c5cbe1412ede18ad9cad00755c54832febc
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-source_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-source_attempt_1.json
-    checksum: 61a3d4ddd84d618df6e7488cb4d7fd8f6a0f5108d3ff7663d4bdcd9b8c8efaf4
+    checksum: 9529a5eff89862da1b8be84de264e9a956d91cab94f53f4a15253b6b0dd6e3f2
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-build_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-build_attempt_1.json
-    checksum: 3c171592c86242cb3e178e2f44ab96b34e2cfd3a8baa874b19bcbb9685437b82
+    checksum: 9a2f855bf9f028655f7f7445d154277291da6c880a93a606c1b31e2f727d3b27
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-smoke_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-smoke_attempt_1.json
-    checksum: 4032ecabdfa94980f8fe347fa28a4b6cc0ad5c163a3e69e800d22ded739cef05
+    checksum: e125b76631d9c140f78bdf6fe167959844ee5bfcfad7f3d007c682c9d6b5e7a9
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-form_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-form_attempt_1.json
-    checksum: 648f157e260f0d7529751675354623148115faf3705bfdc64170f38cc73bd4b4
+    checksum: 11d85ba56716b60755ee1c45ce7805724f412c3a94d0f0466ba883153b5fa860
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-analytics_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-analytics_attempt_1.json
-    checksum: 7f8c2b3ca19b4669cacfab7f247880ed0e352301a0b5ac34a0f5618885a3a8af
+    checksum: 9199503a9857e65814289d5024212198b11bec1a48d3edf9637a98d2803fceb1
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-crm_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-crm_attempt_1.json
-    checksum: 3c1c2736ac680aeccf83a0dd1318d2c12ba7dbd1b99655e4fcc756f9e75dea37
+    checksum: ed820810df21029fb3fc08febdb2879d406d9057b32ba6f393daed65eb9b5e2f
     redaction_status: redacted
     availability_status: available
   - evidence_id: e2e_site-verify-seo_attempt_1
     evidence_type: e2e_test_evidence
     path_or_reference: build/evidence/e2e_site-verify-seo_attempt_1.json
-    checksum: 6e0b77b92991ef4f1653fd3b527767e4222355bdc68687dc829959b2c818dfba
+    checksum: 7878673594a690967e07141fbc3784b923987f54ac2715a6c3eab63f04cb3498
     redaction_status: redacted
     availability_status: available
 validation_gates:
   execution_context_resolved:
     status: Passed
     evidence_references:
-      - execution_context_validation_4831efe5-4e4c-4a9b-8d42-5b3aaaaf7113
+      - execution_context_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
   authoritative_inventory_resolved:
     status: Passed
     evidence_references:
-      - inventory_validation_4831efe5-4e4c-4a9b-8d42-5b3aaaaf7113
+      - inventory_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
   preparation_passed:
     status: Passed
     evidence_references:
-      - preparation_validation_4831efe5-4e4c-4a9b-8d42-5b3aaaaf7113
+      - preparation_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
   preflight_inventory_complete:
     status: Passed
     evidence_references: []
   preflight_passed:
     status: Passed
     evidence_references:
-      - preflight_gate_evaluation_aad5cd80-2a53-4b1b-a783-3c94c672d5c2
+      - preflight_gate_evaluation_fcd272b6-6098-46ef-b42d-881bc824e402
       - preflight_typecheck_result
       - preflight_normalize-spec-check_result
       - preflight_evidence-schemas_result
@@ -652,7 +719,7 @@ validation_gates:
   e2e_tests_passed:
     status: Failed
     evidence_references:
-      - e2e_gate_evaluation_e0fab3ce-db7f-4568-aa99-9942aa720fe4
+      - e2e_gate_evaluation_6eb44310-49ff-423b-bcfd-f9ac0d7c1864
       - e2e_site-validate_result
       - e2e_evidence-test_result
       - e2e_site-test-local_result
@@ -674,7 +741,7 @@ validation_gates:
   evidence_complete:
     status: Passed
     evidence_references:
-      - evidence_integrity_4831efe5-4e4c-4a9b-8d42-5b3aaaaf7113
+      - evidence_integrity_3cd122f6-449a-485d-a9ad-2f97926adf3b
   failure_classification_complete:
     status: Passed
     evidence_references: []
