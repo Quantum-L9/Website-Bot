@@ -48,21 +48,12 @@ class DefaultRepositoryAdapter implements RepositoryAdapter {
   }
 
   async executeCommand(command: string, workingDir: string) {
-    const { spawnSync } = await import('node:child_process');
-    const startTime = Date.now();
+    const { executeCommandSecurely } = await import('./utils/secureExecution.js');
     
-    const result = spawnSync('sh', ['-c', command], {
+    return executeCommandSecurely(command, {
       cwd: workingDir,
-      encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'pipe']
+      encoding: 'utf8'
     });
-
-    return {
-      exitCode: result.status || 0,
-      stdout: result.stdout || '',
-      stderr: result.stderr || '',
-      duration: Date.now() - startTime
-    };
   }
 
   async storeEvidence(evidenceId: string, data: any) {

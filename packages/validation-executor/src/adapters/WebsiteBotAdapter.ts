@@ -143,31 +143,26 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   }> {
     this.logger.debug({ command, workingDir }, 'Executing command');
     
-    const startTime = Date.now();
-    
-    const result = spawnSync('sh', ['-c', command], {
+    const { executeCommandSecurely } = await import('../utils/secureExecution.js');
+    const result = executeCommandSecurely(command, {
       cwd: workingDir,
       encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'pipe'],
       timeout: 300000 // 5 minute timeout
     });
 
-    const duration = Date.now() - startTime;
-    const exitCode = result.status || 0;
-
     this.logger.debug({ 
       command, 
-      exitCode, 
-      duration, 
-      stdoutLength: result.stdout?.length || 0,
-      stderrLength: result.stderr?.length || 0
+      exitCode: result.exitCode, 
+      duration: result.duration, 
+      stdoutLength: result.stdout.length,
+      stderrLength: result.stderr.length
     }, 'Command execution completed');
 
     return {
-      exitCode,
-      stdout: result.stdout || '',
-      stderr: result.stderr || '',
-      duration
+      exitCode: result.exitCode,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      duration: result.duration
     };
   }
 

@@ -181,10 +181,11 @@ export class EvidenceCollector {
         manifest.push({
           evidence_id: evidenceId,
           evidence_type: 'unknown',
-          path_or_reference: join(this.evidenceRoot, `${evidenceId}.json`),
+          file_path: `${evidenceId}.json`,
           checksum: null,
-          redaction_status: 'unknown',
-          availability_status: 'missing'
+          file_size: 0,
+          created_at: new Date().toISOString(),
+          integrity_validated: false
         });
       }
     }
