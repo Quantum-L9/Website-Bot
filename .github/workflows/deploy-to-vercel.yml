@@ -1,7 +1,11 @@
 name: Deploy to Vercel
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment'
 
 permissions:
   contents: read
