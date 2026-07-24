@@ -1,60 +1,136 @@
-# Website-Bot v2.0 — Pack Manifest
+<!-- L9_META: layer=documentation, role=tracked_file, status=active, version=1.0.0 -->
+# Website-Bot Overlay Manifest
 
-## Pack: website-bot-phase2
+Files: 119
 
-Version: 2.0.0 (L9 Recursive Optimization — Cycle 1)
+## Core groups
 
-## File Tree (28 files)
+- Pipeline contracts, evidence store, BuildDB index, checkpoints, runner, and error taxonomy.
+- Provisioning, generation, build, publication, deployment, receipt, QA, and handoff stages.
+- Canonical handoff v3 producer and acknowledgement contracts.
+- Operator scripts, CI workflows, schemas, fixtures, and tests.
+- Release Evidence Spine build specification under `docs/`.
 
+## Files
+
+```text
+.env.example
+.github/workflows/build-and-validate.yml
+.github/workflows/provision-and-build-client.yml
+.github/workflows/site-factory-disposable-e2e.yml
+.github/workflows/site-factory-local-proof.yml
+.gitignore
+CHANGE_SUMMARY.md
+MANIFEST.md
+RUNBOOK.md
+VALIDATION.md
+contracts/CONTRACT_LOCK.json
+contracts/website-factory-handoff.v3.example.json
+contracts/website-factory-handoff.v3.schema.json
+docs/release-evidence-spine-build-spec.md
+examples/provisioning/domain-spec.provisioning.example.yaml
+fixtures/ci-test-spec.yaml
+package.json
+schemas/assembly-manifest.schema.json
+schemas/build-proof.schema.json
+schemas/deployment-evidence.schema.json
+schemas/evidence-index.schema.json
+schemas/provisioning-receipt.schema.json
+schemas/publication-evidence.schema.json
+schemas/release-receipt.schema.json
+schemas/seo-bot-registration-ack.schema.json
+schemas/stage-checkpoint.schema.json
+schemas/stage-failure-evidence.schema.json
+scripts/evidence.ts
+scripts/provision-client.ts
+scripts/run-disposable-site-factory-e2e.ts
+scripts/run-pipeline.ts
+scripts/run-site-factory-tests.mjs
+scripts/validate-contract-lock.mjs
+scripts/validate-evidence-schemas.mjs
+scripts/validate-site-factory.ts
+src/contracts/SeoBotRegistrationAck.ts
+src/contracts/WebsiteFactoryHandoffV3.ts
+src/core/logger.ts
+src/inngest/website-pipeline.ts
+src/lib/budget-guard.ts
+src/lib/compensation.ts
+src/pipeline/BuildContext.ts
+src/pipeline/BuildDB.ts
+src/pipeline/BuildError.ts
+src/pipeline/PipelineRunner.ts
+src/pipeline/StageCheckpoint.ts
+src/pipeline/evidence/AssemblyManifest.ts
+src/pipeline/evidence/BuildProof.ts
+src/pipeline/evidence/DeploymentEvidence.ts
+src/pipeline/evidence/EvidenceCanonicalizer.ts
+src/pipeline/evidence/EvidenceChainValidator.ts
+src/pipeline/evidence/EvidenceIndex.ts
+src/pipeline/evidence/EvidenceReference.ts
+src/pipeline/evidence/EvidenceStore.ts
+src/pipeline/evidence/FileEvidenceStore.ts
+src/pipeline/evidence/MemoryEvidenceStore.ts
+src/pipeline/evidence/PublicationEvidence.ts
+src/pipeline/evidence/ReleaseReceipt.ts
+src/pipeline/evidence/StageFailureEvidence.ts
+src/pipeline/evidence/ValidatedReleaseBundle.ts
+src/pipeline/validateDomainSpec.ts
+src/provisioning/GitHubProvisioner.ts
+src/provisioning/ProvisioningCoordinator.ts
+src/provisioning/SpecDeploymentWriter.ts
+src/provisioning/VercelProvisioner.ts
+src/provisioning/http.ts
+src/provisioning/request.ts
+src/provisioning/secret-ref.ts
+src/provisioning/types.ts
+src/services/hashing.ts
+src/services/llm.ts
+src/stages/ClientSourcePublishStage.ts
+src/stages/ContentGenerationStage.ts
+src/stages/DesignIntelligenceStage.ts
+src/stages/DomainSpecLoaderStage.ts
+src/stages/HandoffEmitterStage.ts
+src/stages/PostHogSnippetStage.ts
+src/stages/ProvisionClientStage.ts
+src/stages/ReleaseReceiptFinalizerStage.ts
+src/stages/ReleaseReceiptStage.ts
+src/stages/SEOBaselineStage.ts
+src/stages/SchemaGeneratorStage.ts
+src/stages/SiteAssemblerStage.ts
+src/stages/SiteBuildStage.ts
+src/stages/UnknownResolverStage.ts
+src/stages/VercelDeployStage.ts
+src/stages/VisualQAStage.ts
+src/validation/validate-assembly-manifest.ts
+src/validation/validate-build-proof.ts
+src/validation/validate-deployment-evidence.ts
+src/validation/validate-evidence-chain.ts
+src/validation/validate-generated-site.ts
+src/validation/validate-publication-evidence.ts
+src/validation/validate-release-receipt.ts
+tests/helpers/siteFactoryFixture.ts
+tests/integration/github/disposable-publication.test.ts
+tests/integration/local/evidence-process-boundary.test.ts
+tests/integration/local/site-factory-local-proof.test.ts
+tests/integration/vercel/disposable-deployment.test.ts
+tests/unit/client-source-publish.test.ts
+tests/unit/design-intelligence.test.ts
+tests/unit/evidence-chain.test.ts
+tests/unit/evidence-store.test.ts
+tests/unit/failure-evidence.test.ts
+tests/unit/generated-site-validation.test.ts
+tests/unit/github-provisioner.test.ts
+tests/unit/handoff-emitter-v3.test.ts
+tests/unit/posthog-snippet.test.ts
+tests/unit/provisioning-request.test.ts
+tests/unit/provisioning-transaction.test.ts
+tests/unit/release-receipt-stage.test.ts
+tests/unit/release-receipt.test.ts
+tests/unit/site-assembler.test.ts
+tests/unit/site-build.test.ts
+tests/unit/stage-checkpoint.test.ts
+tests/unit/vercel-deploy.test.ts
+tests/unit/vercel-provisioner.test.ts
+tsconfig.json
+tsconfig.provisioning.json
 ```
-website-bot-phase2/
-├── package.json                                    # npm manifest + scripts
-├── tsconfig.json                                   # TypeScript NodeNext config
-├── .github/workflows/
-│   ├── build-and-validate.yml                      # PR type-check + dry-run
-│   ├── deploy-to-vercel.yml                        # Production deploy + artifact upload
-│   └── emit-handoff.yml                            # SEO-Bot registration (post-deploy)
-├── contracts/
-│   └── website_factory_integration.yaml            # Handoff contract template v2.0
-├── scripts/
-│   └── run-pipeline.ts                             # CLI entry — all stages registered
-├── src/
-│   ├── core/
-│   │   └── logger.ts                              # Pino logger factory
-│   ├── services/
-│   │   └── llm.ts                                 # OpenRouter adapter (generateContent, designReasoning, generateSchema)
-│   ├── pipeline/
-│   │   ├── BuildContext.ts                        # Context carrier interface
-│   │   ├── BuildDB.ts                             # Drizzle + SQLite schema + factory
-│   │   ├── BuildError.ts                          # Typed error taxonomy (16 codes)
-│   │   └── PipelineRunner.ts                      # Stage orchestrator + LLM usage flush
-│   └── stages/
-│       ├── DomainSpecLoaderStage.ts               # Stage 1: spec load + validation
-│       ├── UnknownResolverStage.ts                # Stage 2: WOM flag resolution
-│       ├── DesignIntelligenceStage.ts             # Stage 3: LLM brand token generation
-│       ├── ContentGenerationStage.ts              # Stage 4: page copy + quality gates
-│       ├── SchemaGeneratorStage.ts                # Stage 5: JSON-LD (5 schema types)
-│       ├── PostHogSnippetStage.ts                 # Stage 6: analytics injection
-│       ├── VercelDeployStage.ts                   # Stage 7: programmatic deploy + poll
-│       ├── SEOBaselineStage.ts                    # Stage 8: Day-0 rank capture
-│       ├── VisualQAStage.ts                       # Stage 9: visual QA subprocess
-│       └── HandoffEmitterStage.ts                 # Stage 10: contract emit + SEO-Bot reg
-├── MANIFEST.md                                     # This file
-├── RUNBOOK.md                                      # Operator guide
-├── VALIDATION.md                                   # Validation evidence
-└── CHANGE_SUMMARY.md                               # Delta from Phase 1 → Phase 2 v2.0
-```
-
-## Violation Fixes Applied (L9 Recursive Optimization)
-
-| ID | Severity | Fixed |
-|----|----------|-------|
-| V-01 | HIGH | package.json added |
-| V-02 | CRITICAL | src/services/llm.ts added |
-| V-03 | HIGH | emit-handoff.yml: DEPLOYMENT_URL injected from artifact |
-| V-04 | MEDIUM | PipelineRunner: LLM usage flushed to llm_usage table |
-| V-05 | LOW | File count corrected to 28 |
-| V-06 | HIGH | designReasoning() declared in WebsiteFactoryLLM interface |
-| V-07 | MEDIUM | ServiceArea schema added to SchemaGeneratorStage |
-| V-08 | MEDIUM | Word count gate + banned-claim gate added to ContentGenerationStage |
-| V-09 | LOW | tsconfig.json included; RUNBOOK.md documents it |

@@ -1,0 +1,10 @@
+<!-- L9_META: layer=template, role=service_area_section, status=active, version=1.0.0 -->
+---
+interface Props { name?: string; content: string; }
+const { name = 'service_area', content } = Astro.props;
+const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+---
+<section class="service-area" data-section={name}>
+  <h2>Service area</h2>
+  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+</section>

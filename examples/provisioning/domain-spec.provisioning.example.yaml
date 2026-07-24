@@ -1,0 +1,45 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+client_id: acme-roofing-charlotte
+business_name: Acme Roofing Charlotte
+vertical: roofing
+geography:
+  states: [NC]
+  primary_state: NC
+design:
+  status: resolved
+  palette:
+    primary: "#17324d"
+    secondary: "#2f6f8f"
+  fonts:
+    heading: Inter
+    body: Inter
+routes:
+  - slug: /
+    title: Home
+    components: [hero, trust-bar, process, cta]
+  - slug: /contact
+    title: Contact
+    components: [contact-form]
+seo_contract:
+  site_url: https://acme-roofing-charlotte.example
+  target_keywords:
+    - roof repair Charlotte NC
+provision:
+  enabled: true
+  github:
+    owner: Quantum-L9
+    repository: acme-roofing-charlotte-site
+    visibility: private
+    source_branch: main
+    publish_credential_ref: env://GITHUB_SITE_TOKEN
+  vercel:
+    project: acme-roofing-charlotte-site
+    environment:
+      - key: PUBLIC_SITE_URL
+        value_ref: env://CLIENT_PUBLIC_SITE_URL
+        type: encrypted
+        targets: [production, preview]
+  maintenance:
+    github_credential_ref: env://SEO_BOT_SITE_GITHUB_TOKEN
+  persist_deploy_block: true
+  rollback_created_resources: true

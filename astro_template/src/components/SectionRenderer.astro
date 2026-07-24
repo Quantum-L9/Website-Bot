@@ -1,0 +1,24 @@
+<!-- L9_META: layer=template, role=section_renderer, status=active, version=1.0.0 -->
+---
+import Hero from './sections/Hero.astro';
+import TrustBar from './sections/TrustBar.astro';
+import Process from './sections/Process.astro';
+import AudiencePaths from './sections/AudiencePaths.astro';
+import ServiceArea from './sections/ServiceArea.astro';
+import CtaBanner from './sections/CtaBanner.astro';
+import ComplianceNote from './sections/ComplianceNote.astro';
+import Faq from './sections/Faq.astro';
+import Confirmation from './sections/Confirmation.astro';
+import ProseSection from './sections/ProseSection.astro';
+import LeadForm from './LeadForm.astro';
+interface Props { name: string; content: string; }
+const { name, content } = Astro.props;
+const registry: Record<string, any> = {
+  hero: Hero, trust_bar: TrustBar, process: Process, audience_paths: AudiencePaths,
+  service_area: ServiceArea, cta: CtaBanner, final_cta: CtaBanner,
+  compliance_note: ComplianceNote, disclaimer: ComplianceNote, faq: Faq,
+  confirmation: Confirmation, contact_form: LeadForm,
+};
+const Component = registry[name] ?? ProseSection;
+---
+<Component name={name} content={content} />

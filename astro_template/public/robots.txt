@@ -1,0 +1,4 @@
+# L9_META: layer=artifact, role=tracked_file, status=active, version=1.0.0
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/sitemap-index.xml

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:seo-bot-registration-ack:v1",
+  "title": "SEO-Bot Website Factory Registration Acknowledgement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "registered",
+    "maintenance_ready",
+    "client_id",
+    "contract_id",
+    "contract_digest",
+    "release_receipt_id",
+    "verified_repository",
+    "verified_branch",
+    "verified_commit_sha",
+    "probes",
+    "acknowledged_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "seo-bot.website-factory-registration-ack/v1"
+    },
+    "registered": {
+      "const": true
+    },
+    "maintenance_ready": {
+      "const": true
+    },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contract_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contract_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "release_receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verified_repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "verified_branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verified_commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "probes": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/probe"
+      }
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "ok"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ok": {
+          "const": true
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "x_l9_meta": {
+    "layer": "contract",
+    "role": "persisted_schema",
+    "status": "active",
+    "version": "2.0.0"
+  }
+}

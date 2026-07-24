@@ -1,145 +1,156 @@
-// L9_META: layer=stage, role=handoff_emitter, stage_index=10, status=active, version=2.0.0
-// Assembles and writes website_factory_integration.yaml v2.0.
-// Optionally POSTs to SEO-Bot /api/clients/register + calls llm.initClient.
-import { writeFileSync } from 'fs';
+// L9_META: layer=stage, role=handoff_emitter, stage_index=16, status=active, version=4.0.0
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { stringify } from 'yaml';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
+import type { StageCheckpoint } from '../pipeline/StageCheckpoint.js';
+import { validateSeoBotRegistrationAck, type SeoBotRegistrationAck } from '../contracts/SeoBotRegistrationAck.js';
+import {
+  buildWebsiteFactoryHandoffV3,
+  type WebsiteFactoryHandoffV3,
+} from '../contracts/WebsiteFactoryHandoffV3.js';
 
 const logger = createModuleLogger('stage:handoff-emitter');
-const OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
+const CONVENIENCE_OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
+const CONVENIENCE_ACK_PATH = 'contracts/website_factory_registration_ack.json';
 
-type KeywordPriority = 'critical' | 'high' | 'medium' | 'low';
-
-/** Hostname of a URL, used as the SEO-Bot client `domain` (it normalizes further). */
-function hostnameOf(url: string): string {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-  }
-}
-
-/**
- * Typed targetKeywords for the SEO-Bot v2 contract. Prefers
- * `seo_contract.target_keywords` (string or {keyword, priority}); otherwise
- * derives from routes + primary state, mirroring SEOBaselineStage. Always >= 1
- * because the domain spec requires at least one route.
- */
-function buildTargetKeywords(ctx: BuildContext): Array<{ keyword: string; priority: KeywordPriority }> {
-  const raw = (ctx.domainSpec.seo_contract as { target_keywords?: unknown } | undefined)?.target_keywords;
-  if (Array.isArray(raw)) {
-    const typed = raw
-      .map((k): { keyword: string; priority: KeywordPriority } =>
-        typeof k === 'string'
-          ? { keyword: k, priority: 'medium' }
-          : { keyword: String((k as { keyword?: unknown }).keyword ?? ''), priority: ((k as { priority?: KeywordPriority }).priority ?? 'medium') })
-      .filter(k => k.keyword.length > 0);
-    if (typed.length > 0) return typed;
-  }
-  const ps = ctx.domainSpec.geography.primary_state;
-  return ctx.domainSpec.routes.map(r => ({ keyword: `${r.title} ${ps}`.trim(), priority: 'medium' as KeywordPriority }));
-}
-
-function buildCompetitorUrls(ctx: BuildContext): string[] {
-  const urls = (ctx.domainSpec.seo_contract as { competitor_urls?: unknown } | undefined)?.competitor_urls;
-  return Array.isArray(urls) ? urls.map(String) : [];
+function assertAcknowledgement(ack: SeoBotRegistrationAck, expected: WebsiteFactoryHandoffV3): void {
+  validateSeoBotRegistrationAck(ack);
+  if (ack.client_id !== expected.client.id) throw new Error('SEO-Bot acknowledged a different client');
+  if (ack.contract_id !== expected.contract_id) throw new Error('SEO-Bot acknowledged a different contract_id');
+  if (ack.contract_digest !== expected.integrity.payload_digest) throw new Error('SEO-Bot acknowledged a different contract digest');
+  if (ack.release_receipt_id !== expected.proof.receipt_id) throw new Error('SEO-Bot acknowledged a different release receipt');
+  if (ack.verified_repository !== expected.site.repository.full_name) throw new Error('SEO-Bot verified a different repository');
+  if (ack.verified_branch !== expected.site.repository.branch) throw new Error('SEO-Bot verified a different branch');
+  if (ack.verified_commit_sha !== expected.site.repository.commit_sha) throw new Error('SEO-Bot verified a different commit');
 }
 
 export class HandoffEmitterStage implements Stage {
   name = 'handoff-emitter';
+  version = '4.0.0';
+  evidence = {
+    inputs: (_ctx: BuildContext) => [
+      'assembly' as const,
+      'build' as const,
+      'publication' as const,
+      'deployment' as const,
+      'release' as const,
+    ],
+    outputs: (ctx: BuildContext) => ctx.autoRegisterSeoBot
+      ? ['handoff' as const, 'registration_ack' as const]
+      : ['handoff' as const],
+    resumable: true,
+    externalMutation: true,
+  };
+
+  constructor(
+    private readonly fetchImpl: typeof fetch = fetch,
+    private readonly outputPath = CONVENIENCE_OUTPUT_PATH,
+    private readonly ackPath = CONVENIENCE_ACK_PATH,
+  ) {}
+
+  async canResume(ctx: BuildContext, _checkpoint: StageCheckpoint): Promise<boolean> {
+    const handoff = await ctx.evidenceStore.readHandoff();
+    if (!handoff) return false;
+    const bundle = await ctx.evidenceStore.loadValidatedReleaseBundle({ requireStatus: 'succeeded', requireMode: 'end-to-end' });
+    if (handoff.proof.receipt_id !== bundle.releaseReceipt.receipt_id
+        || handoff.site.repository.commit_sha !== bundle.publicationEvidence?.commitSha) return false;
+    if (!ctx.autoRegisterSeoBot) return true;
+    const acknowledgement = await ctx.evidenceStore.readRegistrationAck();
+    if (!acknowledgement) return false;
+    try { assertAcknowledgement(acknowledgement, handoff); return true; } catch { return false; }
+  }
 
   async run(ctx: BuildContext): Promise<void> {
-    const deployUrl = ctx.deploymentUrl ?? process.env.DEPLOYMENT_URL;
-    if (!deployUrl && !ctx.dryRun) {
-      throw new BuildError('HANDOFF_EMIT_FAILED', 'ctx.deploymentUrl is undefined — VercelDeployStage must run before HandoffEmitterStage');
+    if (ctx.dryRun) {
+      logger.info({ path: this.outputPath }, '[dry-run] Would emit a canonical v3 handoff from persisted release evidence');
+      return;
+    }
+    if (ctx.mode !== 'end-to-end' || !ctx.deployTarget) {
+      throw new BuildError('HANDOFF_EMIT_FAILED', 'Canonical v3 handoff requires end-to-end mode and a deploy target');
     }
 
-    const contract = {
-      schema_version: '2.0.0',
-      emitted_at: new Date().toISOString(),
-      build_id: ctx.buildId,
-      client: {
-        id: ctx.clientId,
-        business_name: ctx.domainSpec.business_name,
-        vertical: ctx.domainSpec.vertical,
-        geography: ctx.domainSpec.geography,
-      },
-      deployment: {
-        vercel_url: deployUrl ?? 'dry-run',
-        visual_qa_passed: ctx.visualQaPassed,
-      },
-      seo: {
-        baseline_ranks: ctx.baselineRanks ?? {},
-        schemas_generated: [...ctx.generatedSchemas.keys()],
-        pages_with_content: ctx.domainSpec.routes.map(r => r.slug),
-      },
-      analytics: {
-        posthog_key: process.env.POSTHOG_KEY ?? null,
-        events_instrumented: ['cta_click', 'form_submit'],
-      },
-      stage_results: Object.fromEntries(ctx.stageResults),
-    };
-
-    if (!ctx.dryRun) {
-      writeFileSync(OUTPUT_PATH, stringify(contract), 'utf-8');
-      logger.info({ path: OUTPUT_PATH }, 'Handoff contract written');
-    } else {
-      logger.info({ path: OUTPUT_PATH }, '[dry-run] Would write handoff contract');
+    let bundle;
+    try {
+      bundle = await ctx.evidenceStore.loadValidatedReleaseBundle({ requireStatus: 'succeeded', requireMode: 'end-to-end' });
+    } catch (error) {
+      throw new BuildError('EVIDENCE_CHAIN_INVALID', `Handoff release bundle validation failed: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    // ── SEO-Bot registration ────────────────────────────────────────────
-    if (ctx.autoRegisterSeoBot && !ctx.dryRun) {
-      const seoBotUrl = process.env.SEO_BOT_URL;
-      const seoBotKey = process.env.SEO_BOT_API_KEY;
-      if (!seoBotUrl || !seoBotKey) {
-        logger.warn('SEO_BOT_URL or SEO_BOT_API_KEY not set — skipping SEO-Bot registration');
-        return;
-      }
-
-      const normalizedUrl = seoBotUrl.replace(/\/+$/, '');
-      const vercelUrl = deployUrl as string; // guaranteed non-null here (checked above, !dryRun)
-      const primaryState = ctx.domainSpec.geography.primary_state;
-
-      // WebsiteFactoryContractV2 — the shape SEO-Bot's POST /api/clients/register
-      // validates with Zod. Keep keys aligned with that schema.
-      const registration = {
-        schema_version: '2.0',
-        client_id: ctx.clientId,
-        domain: hostnameOf(vercelUrl),
-        name: ctx.domainSpec.business_name,
-        industry: ctx.domainSpec.vertical,
-        ...(primaryState.length === 2 ? { state: primaryState } : {}),
-        ...(process.env.POSTHOG_PROJECT_ID ? { posthog_project_id: process.env.POSTHOG_PROJECT_ID } : {}),
-        ...(process.env.POSTHOG_KEY ? { posthog_api_key: process.env.POSTHOG_KEY } : {}),
-        targetKeywords: buildTargetKeywords(ctx),
-        competitorUrls: buildCompetitorUrls(ctx),
-        vercelUrl,
-        seo_contract: contract,
-      };
-
-      try {
-        const res = await fetch(`${normalizedUrl}/api/clients/register`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${seoBotKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(registration),
-        });
-
-        if (!res.ok) {
-          const err = await res.text();
-          logger.error({ status: res.status, body: err }, 'SEO-Bot registration failed (non-blocking)');
-          return;
-        }
-
-        logger.info({ clientId: ctx.clientId, seoBotUrl }, 'SEO-Bot registration successful');
-      } catch (e) {
-        logger.error({ error: String(e) }, 'SEO-Bot registration network error (non-blocking)');
-      }
+    let contract: WebsiteFactoryHandoffV3;
+    try {
+      contract = buildWebsiteFactoryHandoffV3({
+        domainSpec: ctx.domainSpec,
+        clientId: ctx.clientId,
+        buildId: ctx.buildId,
+        releaseBundle: bundle,
+        deployTarget: ctx.deployTarget,
+        qualitySummary: {
+          seoBaseline: bundle.releaseReceipt.qa.seo_baseline,
+          visualQa: bundle.releaseReceipt.qa.visual_qa,
+        },
+      });
+    } catch (error) {
+      throw new BuildError('HANDOFF_EMIT_FAILED', `Canonical v3 handoff could not be built: ${error instanceof Error ? error.message : String(error)}`);
     }
+
+    const handoffRecord = await ctx.evidenceStore.writeHandoff(contract);
+    mkdirSync(dirname(this.outputPath), { recursive: true });
+    const header = `# Convenience copy only. Authoritative evidence: ${ctx.evidenceStore.rootDir}/${handoffRecord.relativePath}\n`;
+    writeFileSync(this.outputPath, `${header}${stringify(contract)}`, 'utf-8');
+    logger.info({ contractId: contract.contract_id, evidencePath: handoffRecord.relativePath }, 'Canonical v3 handoff persisted');
+
+    if (!ctx.autoRegisterSeoBot) {
+      logger.info('SEO-Bot auto-registration disabled; handoff evidence emitted without activation');
+      return;
+    }
+
+    const seoBotUrl = process.env.SEO_BOT_URL?.replace(/\/+$/, '');
+    const seoBotKey = process.env.SEO_BOT_API_KEY;
+    if (!seoBotUrl || !seoBotKey) {
+      throw new BuildError('HANDOFF_EMIT_FAILED', 'SEO_BOT_URL and SEO_BOT_API_KEY are required when auto-registration is enabled');
+    }
+
+    let response: Response;
+    try {
+      response = await this.fetchImpl(`${seoBotUrl}/api/clients/register`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${seoBotKey}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': contract.contract_id,
+        },
+        body: JSON.stringify(contract),
+        signal: AbortSignal.timeout(20_000),
+      });
+    } catch (error) {
+      throw new BuildError('HANDOFF_EMIT_FAILED', `SEO-Bot registration request failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    const raw = await response.text();
+    if (!response.ok) throw new BuildError('HANDOFF_EMIT_FAILED', `SEO-Bot rejected canonical handoff (${response.status}): ${raw.slice(0, 2_000)}`);
+
+    let acknowledgement: SeoBotRegistrationAck;
+    try {
+      acknowledgement = JSON.parse(raw) as SeoBotRegistrationAck;
+      assertAcknowledgement(acknowledgement, contract);
+    } catch (error) {
+      throw new BuildError('HANDOFF_ACK_MISMATCH', `SEO-Bot acknowledgement validation failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    const ackRecord = await ctx.evidenceStore.writeRegistrationAck(acknowledgement);
+    mkdirSync(dirname(this.ackPath), { recursive: true });
+    writeFileSync(this.ackPath, `${JSON.stringify({
+      authoritative_evidence: `${ctx.evidenceStore.rootDir}/${ackRecord.relativePath}`,
+      ...acknowledgement,
+    }, null, 2)}\n`, 'utf-8');
+    logger.info({
+      clientId: acknowledgement.client_id,
+      contractId: acknowledgement.contract_id,
+      commitSha: acknowledgement.verified_commit_sha,
+    }, 'SEO-Bot maintenance readiness confirmed');
   }
 }

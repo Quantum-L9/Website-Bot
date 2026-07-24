@@ -1,0 +1,92 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+name: Site Factory Disposable E2E Proof
+on:
+  workflow_dispatch:
+    inputs:
+      github_repo:
+        description: Disposable/test client repository in owner/repo form
+        required: true
+        type: string
+      github_repo_id:
+        description: Numeric GitHub repository ID used by Vercel
+        required: true
+        type: string
+      github_branch:
+        description: Disposable proof branch
+        required: true
+        default: website-bot-e2e
+        type: string
+      vercel_project_id:
+        description: Disposable/test Vercel project ID or name
+        required: true
+        type: string
+      spec_path:
+        description: Flat DomainSpec fixture
+        required: true
+        default: fixtures/ci-test-spec.yaml
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: site-factory-disposable-e2e-${{ inputs.github_repo }}-${{ inputs.github_branch }}
+  cancel-in-progress: false
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - name: Install Website-Bot dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate and stage DomainSpec path
+        env:
+          SPEC_PATH_INPUT: ${{ inputs.spec_path }}
+        run: |
+          node scripts/validate-spec-path.mjs --input="$SPEC_PATH_INPUT" --copy-to=build/safe-input/domain-spec.yaml
+          echo "SPEC_PATH=build/safe-input/domain-spec.yaml" >> "$GITHUB_ENV"
+      - name: Validate disposable target names
+        shell: bash
+        env:
+          TARGET_GITHUB_REPO: ${{ inputs.github_repo }}
+          TARGET_VERCEL_PROJECT: ${{ inputs.vercel_project_id }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$TARGET_GITHUB_REPO" | grep -Eiq 'disposable|throwaway|test'
+          printf '%s\n' "$TARGET_VERCEL_PROJECT" | grep -Eiq 'disposable|throwaway|test'
+      - name: Execute source-to-Vercel proof
+        shell: bash
+        run: npm run site:disposable-e2e -- --spec="$SPEC_PATH"
+        env:
+          SPEC_PATH: build/safe-input/domain-spec.yaml
+          GITHUB_SITE_TOKEN: ${{ secrets.GITHUB_SITE_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          VERCEL_TARGET: preview
+          WEBSITE_BOT_TEST_GITHUB_REPO: ${{ inputs.github_repo }}
+          WEBSITE_BOT_TEST_GITHUB_REPO_ID: ${{ inputs.github_repo_id }}
+          WEBSITE_BOT_TEST_GITHUB_BRANCH: ${{ inputs.github_branch }}
+          WEBSITE_BOT_TEST_VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
+      - name: Upload evidence bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: website-bot-site-factory-proof
+          path: |
+            build/evidence/**
+            build/provisioning/*.json
+            build/disposable-e2e/**/.l9/
+          if-no-files-found: error
+          retention-days: 14

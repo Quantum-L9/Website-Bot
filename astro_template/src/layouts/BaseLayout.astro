@@ -1,0 +1,25 @@
+<!-- L9_META: layer=template, role=base_layout, status=active, version=1.0.0 -->
+---
+import { siteConfig } from '../lib/siteConfig';
+import '../styles/global.css';
+interface Props { title: string; description: string; noindex?: boolean; routeSchemas?: readonly object[]; }
+const { title, description, noindex = false, routeSchemas = [] } = Astro.props;
+const schemas = [...siteConfig.schemas.siteWide, ...routeSchemas];
+const jsonLd = schemas.map(schema => JSON.stringify(schema).replace(/</g, '\u003c'));
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {jsonLd.map(value => <script is:inline type="application/ld+json" set:html={value} />)}
+  </head>
+  <body>
+    <header><nav aria-label="Primary">{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav></header>
+    <main><slot /></main>
+    <footer><p>© {new Date().getFullYear()} {siteConfig.businessName}</p></footer>
+  </body>
+</html>

@@ -1,35 +1,22 @@
-# Website-Bot v2.0 — Validation Evidence
+<!-- L9_META: layer=documentation, role=tracked_file, status=active, version=1.0.0 -->
+# Website-Bot Validation
 
-## Preflight
+## Executed in the consolidated build environment
 
-- [x] Artifact group provided: 28 production files
-- [x] Mode: OPTIMIZE (align → improve → converge)
-- [x] Persist: apply
+- Strict TypeScript: passed.
+- Evidence schema structure: 9 required schemas passed; provisioning schema retained.
+- Handoff v3 contract lock: passed.
+- Evidence-focused tests: 16 passed, 0 failed.
+- Full local deterministic site-factory tests: 50 passed, 0 failed.
+- Provisioning tests: 14 passed, 0 failed.
+- Process-boundary release-bundle rehydration: passed.
+- Tampered evidence, stale receipt references, commit mismatch, and checkpoint invalidation tests: passed.
 
-## Generic Passes (G1–G8)
+## Not executed
 
-| Pass | Gate | Result |
-|------|------|--------|
-| G1 | Coverage: all 28 files present | PASS |
-| G2 | Contract: intent preserved, no scope drift | PASS |
-| G3 | Contradiction: none found | PASS |
-| G4 | No-stub: SAFE_DEFAULTS are runtime tokens, not placeholders | PASS |
-| G5 | Provenance: all 10 stages registered in run-pipeline.ts | PASS |
-| G6 | Validation: files non-empty, manifest matches actual tree | PASS |
-| G7 | Compression: no duplicate logic detected | PASS |
-| G8 | Usability: npm ci → npx tsx scripts/run-pipeline.ts works | PASS |
+- Live GitHub provisioning/publication.
+- Live Vercel provisioning/deployment.
+- Live SEO-Bot DB registration and maintenance edit.
+- Production rollout.
 
-## Improvement Gates
-
-- [x] All 10 improvement passes addressed
-- [x] Source intent preserved (10-stage pipeline, SEO-Bot parity)
-- [x] No unsupported scope added
-- [x] Constraints strengthened (word count gate, banned claims gate, ServiceArea schema, LLM usage audit)
-- [x] Complete revised pack returned (28 files)
-- [x] Cross-file references valid (all imports resolve under NodeNext module resolution)
-
-## Convergence Gates
-
-- [x] Convergence block present
-- [x] convergence_status: converged
-- [x] minimum_safe_next_action: one concrete step
+Those gates require operator credentials and disposable provider targets and are not represented as passed.

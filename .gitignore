@@ -1,7 +1,10 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 node_modules/
 dist/
 .astro/
 *.log
-
 build/
 website_pack/generated/
+website-bot.db
+website-bot.db-shm
+website-bot.db-wal

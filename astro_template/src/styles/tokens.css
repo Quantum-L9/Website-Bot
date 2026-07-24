@@ -1,0 +1,10 @@
+/* L9_META: layer=template, role=design_tokens, status=generated, version=1.0.0 */
+:root {
+  --color-primary: #17324d;
+  --color-secondary: #eef4f8;
+  --color-accent: #1677ff;
+  --color-background: #ffffff;
+  --color-text: #17212b;
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}

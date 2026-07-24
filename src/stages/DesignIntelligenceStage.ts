@@ -1,7 +1,4 @@
-// L9_META: layer=stage, role=design_intelligence, stage_index=3, status=active, version=2.0.0
-// Uses LLM to resolve brand tokens from spec into CSS custom properties.
-// Skips when design.status === 'resolved'.
-import { writeFileSync, mkdirSync } from 'fs';
+// L9_META: layer=stage, role=design_intelligence, stage_index=3, status=active, version=3.0.0
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
@@ -9,83 +6,87 @@ import type { Stage } from '../pipeline/PipelineRunner.js';
 
 const logger = createModuleLogger('stage:design-intelligence');
 
+const COLOR_KEYS = ['primary', 'secondary', 'accent', 'background', 'text'] as const;
+const FONT_KEYS = ['font_heading', 'font_body'] as const;
+
+function isColor(value: unknown): value is string {
+  return typeof value === 'string' && (
+    /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value) ||
+    /^rgba?\([\d.,\s%/]+\)$/i.test(value) ||
+    /^hsla?\([\d.,\s%/]+\)$/i.test(value) ||
+    /^[a-zA-Z]+$/.test(value)
+  );
+}
+
+function isFont(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9]+(?:[ ._-][A-Za-z0-9]+)*$/.test(value);
+}
+
+export function normalizeDesignTokens(
+  palette: Record<string, string> = {},
+  fonts: Record<string, string> = {},
+): Record<string, string> {
+  const tokens: Record<string, string> = {
+    ...palette,
+    ...fonts,
+  };
+  tokens.font_heading ??= fonts.heading ?? fonts.fontHeading;
+  tokens.font_body ??= fonts.body ?? fonts.fontBody;
+  tokens.accent ??= palette.primary;
+
+  for (const key of ['primary', 'secondary', 'accent'] as const) {
+    if (!isColor(tokens[key])) throw new BuildError('VALIDATION_FAILED', `Design token '${key}' must be a valid CSS color`);
+  }
+  for (const key of ['background', 'text'] as const) {
+    if (tokens[key] !== undefined && !isColor(tokens[key])) {
+      throw new BuildError('VALIDATION_FAILED', `Design token '${key}' must be a valid CSS color`);
+    }
+  }
+  for (const key of FONT_KEYS) {
+    if (!isFont(tokens[key])) throw new BuildError('VALIDATION_FAILED', `Design token '${key}' must be a valid font name`);
+  }
+  for (const key of COLOR_KEYS) if (tokens[key] !== undefined) tokens[key] = tokens[key].trim();
+  for (const key of FONT_KEYS) tokens[key] = tokens[key].trim();
+  return tokens;
+}
+
 export class DesignIntelligenceStage implements Stage {
   name = 'design-intelligence';
 
   async run(ctx: BuildContext): Promise<void> {
     if (ctx.domainSpec.design?.status === 'resolved') {
-      logger.info('Design already resolved — skipping LLM call');
+      ctx.designTokens = normalizeDesignTokens(
+        ctx.domainSpec.design.palette ?? {},
+        ctx.domainSpec.design.fonts ?? {},
+      );
+      logger.info({ tokens: Object.keys(ctx.designTokens) }, 'Resolved design tokens loaded from DomainSpec');
       return;
     }
 
     if (ctx.dryRun) {
-      logger.info('[dry-run] Would generate design tokens via LLM');
+      logger.info('[dry-run] Would generate and validate design tokens via LLM');
       return;
     }
 
     const { vertical, business_name, geography } = ctx.domainSpec;
-    const prompt = `
-Generate CSS brand tokens for a ${vertical} business named "${business_name}" operating in ${geography.primary_state}.
-Return ONLY a JSON object with these keys: primary, secondary, accent, background, text, font_heading, font_body.
-Values must be valid CSS color hex codes or Google Font names.
-Example: { "primary": "#1A3A5C", "secondary": "#E8F4FD", "accent": "#2196F3", "background": "#FFFFFF", "text": "#1A1A1A", "font_heading": "Inter", "font_body": "Source Sans 3" }
-    `.trim();
+    const prompt = [
+      `Generate CSS brand tokens for a ${vertical} business named "${business_name}" operating in ${geography.primary_state}.`,
+      'Return ONLY a JSON object with primary, secondary, accent, background, text, font_heading, and font_body.',
+      'Colors must be CSS hex/rgb/hsl/named values. Fonts must be plain font-family names.',
+    ].join(' ');
 
     let raw: string;
     try { raw = await ctx.llm.designReasoning(prompt); }
-    catch (e) { throw new BuildError('DESIGN_REASONING_FAILED', `LLM design call failed: ${e}`, true); }
+    catch (error) { throw new BuildError('DESIGN_REASONING_FAILED', `LLM design call failed: ${String(error)}`, true); }
 
-    let tokens: Record<string, string>;
-    try { tokens = JSON.parse(raw); }
-    catch (e) { throw new BuildError('DESIGN_REASONING_FAILED', `LLM returned invalid JSON for design tokens: ${raw}`, true); }
-
-    const required = ['primary', 'secondary', 'accent', 'font_heading', 'font_body'];
-    for (const key of required) {
-      if (!tokens[key]) throw new BuildError('VALIDATION_FAILED', `Design token '${key}' missing from LLM response`);
+    let parsed: unknown;
+    try { parsed = JSON.parse(raw); }
+    catch { throw new BuildError('DESIGN_REASONING_FAILED', 'LLM returned invalid JSON for design tokens', true); }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new BuildError('DESIGN_REASONING_FAILED', 'LLM design response must be a JSON object', true);
     }
 
-    // The token values come straight from the LLM and are interpolated into
-    // tokens.css. Enforce that each is a STRING of a strict shape so a malformed
-    // or non-string value (e.g. "#fff; } body { display:none", or a number)
-    // cannot inject arbitrary CSS.
-    const isColor = (v: unknown): v is string =>
-      typeof v === 'string' && (
-        /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ||   // hex
-        /^rgba?\([\d.,\s%]+\)$/i.test(v) ||                 // rgb()/rgba()
-        /^hsla?\([\d.,\s%]+\)$/i.test(v) ||                 // hsl()/hsla()
-        /^[a-zA-Z]+$/.test(v)                               // named keyword
-      );
-    // Font names: word tokens separated by single spaces or hyphens, no leading/
-    // trailing/double whitespace (so "Inter " is rejected).
-    const isFont = (v: unknown): v is string =>
-      typeof v === 'string' && /^[A-Za-z0-9]+(?:[ -][A-Za-z0-9]+)*$/.test(v);
-    const checkColor = (key: string, v: unknown) => {
-      if (v !== undefined && !isColor(v)) {
-        throw new BuildError('VALIDATION_FAILED', `Design token '${key}' is not a valid CSS color (hex, rgb()/hsl(), or a named color): ${JSON.stringify(v)}`);
-      }
-    };
-    for (const key of ['primary', 'secondary', 'accent'] as const) checkColor(key, tokens[key]);
-    checkColor('background', tokens.background);
-    checkColor('text', tokens.text);
-    for (const key of ['font_heading', 'font_body'] as const) {
-      if (!isFont(tokens[key])) {
-        throw new BuildError('VALIDATION_FAILED', `Design token '${key}' is not a valid font name: ${JSON.stringify(tokens[key])}`);
-      }
-    }
-
-    const css = `/* Auto-generated by DesignIntelligenceStage — do not edit manually */
-:root {
-  --color-primary:    ${tokens.primary};
-  --color-secondary:  ${tokens.secondary};
-  --color-accent:     ${tokens.accent};
-  --color-background: ${tokens.background ?? '#FFFFFF'};
-  --color-text:       ${tokens.text ?? '#1A1A1A'};
-  --font-heading:     '${tokens.font_heading}', sans-serif;
-  --font-body:        '${tokens.font_body}', sans-serif;
-}`;
-
-    mkdirSync('src/styles', { recursive: true });
-    writeFileSync('src/styles/tokens.css', css, 'utf-8');
-    logger.info({ tokens: Object.keys(tokens) }, 'Design tokens written to src/styles/tokens.css');
+    ctx.designTokens = normalizeDesignTokens(parsed as Record<string, string>);
+    logger.info({ tokens: Object.keys(ctx.designTokens) }, 'Design tokens retained in BuildContext');
   }
 }

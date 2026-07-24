@@ -1,0 +1,14 @@
+{
+  "name": "website-factory-template",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": { "node": ">=20.3.0" },
+  "scripts": { "check": "astro check", "build": "astro build" },
+  "dependencies": {
+    "@astrojs/check": "0.9.4",
+    "@astrojs/sitemap": "3.7.3",
+    "astro": "5.16.9",
+    "typescript": "5.8.3"
+  }
+}

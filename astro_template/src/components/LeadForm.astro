@@ -1,0 +1,16 @@
+<!-- L9_META: layer=template, role=lead_form, status=active, version=1.0.0 -->
+---
+import { siteConfig } from '../lib/siteConfig';
+interface Props { content?: string; }
+const { content = '' } = Astro.props;
+if (!siteConfig.leadFormAction) throw new Error('Lead form action is not configured');
+---
+<section data-section="contact_form">
+  {content && <p>{content}</p>}
+  <form method="post" action={siteConfig.leadFormAction} data-lead-form>
+    <label>Name <input name="name" autocomplete="name" required /></label>
+    <label>Email <input type="email" name="email" autocomplete="email" required /></label>
+    <label>Message <textarea name="message" rows="5" required></textarea></label>
+    <button class="btn" type="submit" data-cta>Submit</button>
+  </form>
+</section>
