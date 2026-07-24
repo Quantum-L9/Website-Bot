@@ -41,7 +41,7 @@
   "dependencies": {
     "@quantum-l9/llm-router": "^1.0.0",
     "better-sqlite3": "^9.4.3",
-    "drizzle-orm": "^0.30.10",
+    "drizzle-orm": "^0.45.2",
     "inngest": "^4.13.0",
     "pg": "^8.22.0",
     "pino": "^10.3.1",
