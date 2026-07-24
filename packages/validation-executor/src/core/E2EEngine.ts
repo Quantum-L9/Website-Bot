@@ -342,7 +342,7 @@ export class E2EEngine {
     this.logger.info('Evaluating E2E test results');
 
     const failedTests = e2eResults.filter(test => 
-      ['Failed', 'Error', 'Timeout'].includes(test.status)
+      ['Failed', 'Error', 'Timeout', 'BlockedByPreflightGate'].includes(test.status)
     ).length;
 
     const unknownTests = e2eResults.filter(test => 
@@ -379,10 +379,16 @@ export class E2EEngine {
     const uniqueTests = new Set(e2eResults.map(r => r.test_id)).size;
     const suites = new Set(e2eResults.map(r => r.suite_id));
 
+    // Count unique tests that were actually executed (not blocked)
+    const executedTests = new Set(e2eResults
+      .filter(r => !['BlockedByPreflightGate', 'BlockedByAuthoritativeFailFast', 'Blocked', 'NotExecuted'].includes(r.status))
+      .map(r => r.test_id)
+    ).size;
+
     const summary = {
       discovered_suites: suites.size,
       discovered_required_tests: uniqueTests,
-      executed_unique_tests: uniqueTests, // All discovered tests are executed
+      executed_unique_tests: executedTests, // Only actually executed tests
       execution_attempts: e2eResults.length, // Includes retries
       passed: e2eResults.filter(r => r.status === 'Passed').length,
       failed: e2eResults.filter(r => r.status === 'Failed').length,

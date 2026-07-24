@@ -354,7 +354,7 @@ describe('E2EEngine', () => {
 
       strictEqual(summary.discovered_suites, 2, 'Should count unique suites');
       strictEqual(summary.discovered_required_tests, 3, 'Should count unique tests');
-      strictEqual(summary.executed_unique_tests, 3, 'Should count executed tests');
+      strictEqual(summary.executed_unique_tests, 2, 'Should count only actually executed tests (not blocked)');
       strictEqual(summary.execution_attempts, 3, 'Should count execution attempts');
       strictEqual(summary.passed, 1, 'Should count passed tests');
       strictEqual(summary.failed, 1, 'Should count failed tests');

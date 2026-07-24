@@ -245,10 +245,16 @@ export class AuditReporter {
     const uniqueTests = new Set(e2eResults.map(r => r.test_id)).size;
     const suites = new Set(e2eResults.map(r => r.suite_id));
 
+    // Count unique tests that were actually executed (not blocked)
+    const executedTests = new Set(e2eResults
+      .filter(r => !['BlockedByPreflightGate', 'BlockedByAuthoritativeFailFast', 'Blocked', 'NotExecuted'].includes(r.status))
+      .map(r => r.test_id)
+    ).size;
+
     return {
       discovered_suites: suites.size,
       discovered_required_tests: uniqueTests,
-      executed_unique_tests: uniqueTests,
+      executed_unique_tests: executedTests,
       execution_attempts: e2eResults.length,
       passed: e2eResults.filter(r => r.status === 'Passed').length,
       failed: e2eResults.filter(r => r.status === 'Failed').length,

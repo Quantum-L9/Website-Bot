@@ -153,7 +153,7 @@ describe('ValidationExecutor', () => {
       duration: 500
     });
     
-    adapter.setCommandResult('npm run test:api', '/test/root', {
+    adapter.setCommandResult('npm run test:api', process.cwd(), {
       exitCode: 1,
       stdout: '',
       stderr: 'API test failed: Connection refused',
@@ -225,7 +225,7 @@ describe('ValidationExecutor', () => {
       });
 
       if (testCase.preflightPass) {
-        adapter.setCommandResult('npm run test:api', '/test/root', {
+        adapter.setCommandResult('npm run test:api', process.cwd(), {
           exitCode: testCase.e2ePass ? 0 : 1,
           stdout: testCase.e2ePass ? 'Success' : '',
           stderr: testCase.e2ePass ? '' : 'E2E failed',

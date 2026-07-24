@@ -5,16 +5,61 @@ import { writeFile } from 'node:fs/promises';
 import { ValidationExecutor } from './core/ValidationExecutor.js';
 import { AuditReporter } from './core/AuditReporter.js';
 
-async function loadRepositoryAdapter(): Promise<RepositoryAdapter> {
+async function loadRepositoryAdapter(repositoryType: string = 'auto'): Promise<RepositoryAdapter> {
   const fs = await import('node:fs');
   
-  // Detect project type based on file patterns
+  // Handle explicit repository type override
+  if (repositoryType !== 'auto') {
+    switch (repositoryType.toLowerCase()) {
+      case 'website-bot':
+        try {
+          const { WebsiteBotAdapter } = await import('./adapters/WebsiteBotAdapter.js');
+          return new WebsiteBotAdapter();
+        } catch (error) {
+          console.warn('WebsiteBotAdapter not available, falling back to default adapter');
+          break;
+        }
+      case 'seo-bot':
+        try {
+          const { SeoBotAdapter } = await import('./adapters/SeoBotAdapter.js');
+          return new SeoBotAdapter();
+        } catch (error) {
+          console.warn('SeoBotAdapter not available, falling back to default adapter');
+          break;
+        }
+      case 'default':
+        return new DefaultRepositoryAdapter();
+      default:
+        console.warn(`Unknown repository type '${repositoryType}', using auto-detection`);
+    }
+  }
+  
+  // Auto-detect project type based on file patterns
   if (fs.existsSync('package.json')) {
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
     
-    // Check for specific project patterns
-    if (packageJson.name?.includes('website-bot') || fs.existsSync('astro_template')) {
-      // Try to load WebsiteBotAdapter if available
+    // Check for SEO-Bot patterns
+    if (packageJson.name?.includes('seo-bot') || 
+        packageJson.name?.includes('SEO-Bot') ||
+        packageJson.keywords?.includes('seo') ||
+        packageJson.scripts?.['test:seo'] ||
+        packageJson.scripts?.['test:crawl'] ||
+        fs.existsSync('seo.config.js') ||
+        fs.existsSync('seo.config.json')) {
+      try {
+        const { SeoBotAdapter } = await import('./adapters/SeoBotAdapter.js');
+        return new SeoBotAdapter();
+      } catch (error) {
+        console.warn('SeoBotAdapter not available, using default adapter');
+      }
+    }
+    
+    // Check for Website-Bot patterns
+    if (packageJson.name?.includes('website-bot') || 
+        packageJson.name?.includes('Website-Bot') ||
+        fs.existsSync('astro_template') ||
+        packageJson.dependencies?.['astro'] ||
+        packageJson.devDependencies?.['astro']) {
       try {
         const { WebsiteBotAdapter } = await import('./adapters/WebsiteBotAdapter.js');
         return new WebsiteBotAdapter();
@@ -103,6 +148,11 @@ async function main() {
           type: 'boolean',
           short: 'h',
           default: false
+        },
+        'repository-type': {
+          type: 'string',
+          default: 'auto',
+          description: 'Repository type (auto, website-bot, seo-bot, default)'
         }
       }
     });
@@ -139,7 +189,95 @@ async function main() {
   }
 }
 
+async function validateConfiguration(options: any): Promise<void> {
+  const errors: string[] = [];
+
+  // Validate timeout range (min: 1000ms, max: 1800000ms = 30 minutes)
+  const timeout = parseInt(options.timeout, 10);
+  if (isNaN(timeout)) {
+    errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
+  } else if (timeout < 1000) {
+    errors.push(`Timeout ${timeout}ms is too low: minimum is 1000ms (1 second)`);
+  } else if (timeout > 1800000) {
+    errors.push(`Timeout ${timeout}ms is too high: maximum is 1800000ms (30 minutes)`);
+  }
+
+  // Validate profile name against whitelist
+  const validProfiles = ['default', 'ci', 'development', 'staging', 'production', 'test'];
+  if (options.profile && !validProfiles.includes(options.profile)) {
+    errors.push(`Unknown profile '${options.profile}': valid profiles are ${validProfiles.join(', ')}`);
+  }
+
+  // Validate environment type constraints
+  const validEnvironments = ['development', 'staging', 'production', 'test', 'ci'];
+  if (options.environment && !validEnvironments.includes(options.environment)) {
+    errors.push(`Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(', ')}`);
+  }
+
+  // Validate repository type
+  const validRepositoryTypes = ['auto', 'website-bot', 'seo-bot', 'default'];
+  if (options['repository-type'] && !validRepositoryTypes.includes(options['repository-type'])) {
+    errors.push(`Unknown repository type '${options['repository-type']}': valid types are ${validRepositoryTypes.join(', ')}`);
+  }
+
+  // Validate evidence root path writeability
+  if (options['evidence-root']) {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      
+      const evidencePath = path.resolve(options['evidence-root']);
+      
+      // Try to create the directory if it doesn't exist
+      await fs.mkdir(evidencePath, { recursive: true });
+      
+      // Test writeability by creating a temporary file
+      const testFile = path.join(evidencePath, '.write-test');
+      await fs.writeFile(testFile, 'test', 'utf8');
+      await fs.unlink(testFile);
+      
+    } catch (error) {
+      errors.push(`Evidence root '${options['evidence-root']}' is not writable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  // Validate output file path writeability
+  if (options.output) {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      
+      const outputPath = path.resolve(options.output);
+      const outputDir = path.dirname(outputPath);
+      
+      // Try to create the output directory if it doesn't exist
+      await fs.mkdir(outputDir, { recursive: true });
+      
+      // Test writeability by creating a temporary file
+      const testFile = path.join(outputDir, '.write-test');
+      await fs.writeFile(testFile, 'test', 'utf8');
+      await fs.unlink(testFile);
+      
+    } catch (error) {
+      errors.push(`Output path '${options.output}' directory is not writable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  // If there are validation errors, report them and exit
+  if (errors.length > 0) {
+    console.error('\nConfiguration Validation Errors:');
+    for (const error of errors) {
+      console.error(`  ✗ ${error}`);
+    }
+    console.error('\nRun with --help to see valid options.\n');
+    process.exit(1);
+  }
+}
+
 async function runValidation(options: any) {
+  // Validate CLI configuration parameters
+  await validateConfiguration(options);
+
   const config: ValidationConfig = {
     environment: options.environment,
     profile: options.profile,
@@ -149,7 +287,7 @@ async function runValidation(options: any) {
   };
 
   // Load repository-specific adapter based on detected project type
-  const adapter = await loadRepositoryAdapter();
+  const adapter = await loadRepositoryAdapter(options['repository-type'] as string);
   
   const executor = new ValidationExecutor(adapter, config);
   const report = await executor.execute();
@@ -202,6 +340,7 @@ OPTIONS:
   -o, --output <file>          Report output file (default: validation_report.yaml)
   --timeout <ms>               Command timeout in milliseconds (default: 300000)
   --fail-fast                  Stop on first failure
+  --repository-type <type>     Repository type (auto, website-bot, seo-bot, default)
   -v, --verbose                Enable verbose logging
   -h, --help                   Show this help
 
