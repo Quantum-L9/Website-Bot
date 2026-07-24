@@ -10,7 +10,11 @@ import type {
   ValidationExecutionReport, 
   RepositoryAdapter, 
   FinalVerdict,
-  ValidationGateStatus 
+  ValidationGateStatus,
+  PreflightCheckDefinition,
+  PreflightCheck,
+  E2ETestDefinition,
+  E2ETestResult
 } from '../types/index.js';
 
 /**
@@ -62,8 +66,13 @@ export class ValidationExecutor {
       const evidenceCollector = new EvidenceCollector(this.adapter, executionContext.evidence_root);
       
       this.logger.info('Step 2: Starting inventory discovery');
-      const preflightChecks = await this.adapter.discoverPreflightChecks();
-      const e2eTests = await this.adapter.discoverE2ETests();
+      const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks();
+      const e2eTestDefinitions = await this.adapter.discoverE2ETests();
+      
+      // Convert definitions to full objects with execution state
+      const preflightChecks = this.createPreflightChecks(preflightCheckDefinitions);
+      const e2eTests = this.createE2ETests(e2eTestDefinitions);
+      
       this.logger.info({ 
         preflightCount: preflightChecks.length, 
         e2eCount: e2eTests.length 
@@ -197,12 +206,67 @@ export class ValidationExecutor {
     }
   }
 
+  private createPreflightChecks(definitions: PreflightCheckDefinition[]): PreflightCheck[] {
+    return definitions.map(def => ({
+      ...def,
+      status: 'NotExecuted' as const,
+      exit_code: null,
+      termination_signal: null,
+      started_at: '',
+      ended_at: '',
+      duration: 0,
+      primary_failure_classification: null,
+      contributing_causes: [],
+      root_cause_group: null,
+      evidence_references: []
+    }));
+  }
+
+  private createE2ETests(definitions: E2ETestDefinition[]): E2ETestResult[] {
+    return definitions.map(def => ({
+      ...def,
+      status: 'NotExecuted' as const,
+      started_at: '',
+      ended_at: '',
+      duration: 0,
+      assertion_or_error: null,
+      exit_code_or_runner_result: null,
+      primary_failure_classification: null,
+      contributing_causes: [],
+      root_cause_group: null,
+      evidence_references: []
+    }));
+  }
+
   private validateExecutionContext(context: any): { status: ValidationGateStatus; evidence_references: string[] } {
-    const required = ['target_roots', 'source_revision', 'target_environment', 'preflight_commands', 'e2e_commands'];
-    const missing = required.filter(field => !context[field] || (Array.isArray(context[field]) && context[field].length === 0));
+    const errors = [];
+
+    // Validate required non-array fields
+    const requiredFields = ['target_roots', 'source_revision', 'target_environment'];
+    for (const field of requiredFields) {
+      if (!context[field] || (Array.isArray(context[field]) && context[field].length === 0)) {
+        errors.push(`Missing required field: ${field}`);
+      }
+    }
+
+    // Validate command arrays - at least one type of command must be present
+    const hasPreflightCommands = context.preflight_commands && context.preflight_commands.length > 0;
+    const hasE2ECommands = context.e2e_commands && context.e2e_commands.length > 0;
+    
+    if (!hasPreflightCommands && !hasE2ECommands) {
+      errors.push('At least preflight_commands or e2e_commands must be configured');
+    }
+
+    // Validate command arrays exist (but can be empty for specific profiles)
+    if (!context.preflight_commands || !Array.isArray(context.preflight_commands)) {
+      errors.push('preflight_commands must be an array');
+    }
+    if (!context.e2e_commands || !Array.isArray(context.e2e_commands)) {
+      errors.push('e2e_commands must be an array');
+    }
     
     return {
-      status: missing.length === 0 ? 'Passed' : 'Failed',
+      status: errors.length === 0 ? 'Passed' : 'Failed',
       evidence_references: [`execution_context_validation_${this.runId}`]
     };
   }

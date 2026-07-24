@@ -6,8 +6,8 @@ import type {
   RepositoryAdapter, 
   ValidationConfig, 
   ExecutionContext, 
-  PreflightCheck, 
-  E2ETestResult 
+  PreflightCheckDefinition, 
+  E2ETestDefinition 
 } from '../types/index.js';
 
 /**
@@ -47,8 +47,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     };
   }
 
-  async discoverPreflightChecks(): Promise<PreflightCheck[]> {
-    const checks: PreflightCheck[] = [];
+  async discoverPreflightChecks(): Promise<PreflightCheckDefinition[]> {
+    const checks: PreflightCheckDefinition[] = [];
 
     // Standard Website-Bot preflight checks
     checks.push({
@@ -56,17 +56,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       check_name: 'TypeScript Type Check', 
       blocking: true,
       command: 'npm run typecheck',
-      working_directory: process.cwd(),
-      status: 'NotExecuted',
-      exit_code: null,
-      termination_signal: null,
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      working_directory: process.cwd()
     });
 
     checks.push({
@@ -74,17 +64,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       check_name: 'Domain Spec Normalization Check',
       blocking: true,
       command: 'npm run normalize-spec:check',
-      working_directory: process.cwd(),
-      status: 'NotExecuted',
-      exit_code: null,
-      termination_signal: null,
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      working_directory: process.cwd()
     });
 
     checks.push({
@@ -92,17 +72,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       check_name: 'Evidence Schema Validation',
       blocking: true,
       command: 'npm run evidence:schemas',
-      working_directory: process.cwd(),
-      status: 'NotExecuted',
-      exit_code: null,
-      termination_signal: null,
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      working_directory: process.cwd()
     });
 
     checks.push({
@@ -110,24 +80,14 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       check_name: 'Launch Environment Validation',
       blocking: false, // Non-blocking to allow testing in different environments
       command: 'npm run validate',
-      working_directory: process.cwd(),
-      status: 'NotExecuted',
-      exit_code: null,
-      termination_signal: null,
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      working_directory: process.cwd()
     });
 
     return checks;
   }
 
-  async discoverE2ETests(): Promise<E2ETestResult[]> {
-    const tests: E2ETestResult[] = [];
+  async discoverE2ETests(): Promise<E2ETestDefinition[]> {
+    const tests: E2ETestDefinition[] = [];
 
     // Factory validation tests
     tests.push({
@@ -136,17 +96,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       test_id: 'site-validate',
       test_name: 'Site Factory Validation',
       attempt: 1,
-      command_or_invocation: 'npm run site:validate',
-      status: 'NotExecuted',
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      assertion_or_error: null,
-      exit_code_or_runner_result: null,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      command_or_invocation: 'npm run site:validate'
     });
 
     tests.push({
@@ -155,17 +105,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       test_id: 'evidence-test',
       test_name: 'Evidence System Tests',
       attempt: 1,
-      command_or_invocation: 'npm run evidence:test',
-      status: 'NotExecuted',
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      assertion_or_error: null,
-      exit_code_or_runner_result: null,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      command_or_invocation: 'npm run evidence:test'
     });
 
     tests.push({
@@ -174,17 +114,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       test_id: 'site-test-local',
       test_name: 'Local Site Factory Tests',
       attempt: 1,
-      command_or_invocation: 'npm run site:test:local',
-      status: 'NotExecuted',
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      assertion_or_error: null,
-      exit_code_or_runner_result: null,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      command_or_invocation: 'npm run site:test:local'
     });
 
     tests.push({
@@ -193,17 +123,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
       test_id: 'pipeline-plan',
       test_name: 'Pipeline Planning Test',
       attempt: 1,
-      command_or_invocation: 'npm run pipeline:plan',
-      status: 'NotExecuted',
-      started_at: '',
-      ended_at: '',
-      duration: 0,
-      assertion_or_error: null,
-      exit_code_or_runner_result: null,
-      primary_failure_classification: null,
-      contributing_causes: [],
-      root_cause_group: null,
-      evidence_references: []
+      command_or_invocation: 'npm run pipeline:plan'
     });
 
     // Site-level validation tests (if example exists)
@@ -424,8 +344,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     return 'validation';
   }
 
-  private async discoverSiteValidationTests(): Promise<E2ETestResult[]> {
-    const tests: E2ETestResult[] = [];
+  private async discoverSiteValidationTests(): Promise<E2ETestDefinition[]> {
+    const tests: E2ETestDefinition[] = [];
     const siteDir = 'examples/supplemental-insurance-pros/astro_site';
 
     // Site-specific validation commands based on verify-all.mjs pattern
@@ -448,17 +368,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
           test_id: siteCmd.id,
           test_name: siteCmd.name,
           attempt: 1,
-          command_or_invocation: `cd ${siteDir} && ${siteCmd.cmd}`,
-          status: 'NotExecuted',
-          started_at: '',
-          ended_at: '',
-          duration: 0,
-          assertion_or_error: null,
-          exit_code_or_runner_result: null,
-          primary_failure_classification: null,
-          contributing_causes: [],
-          root_cause_group: null,
-          evidence_references: []
+          command_or_invocation: `cd ${siteDir} && ${siteCmd.cmd}`
         });
       }
     }

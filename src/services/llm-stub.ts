@@ -14,14 +14,13 @@ export class L9LLMRouter {
     // Stub implementation
   }
   
-  async execute(task: TaskDescriptor): Promise<LLMResponse> {
+  async execute(task: TaskDescriptor, systemPrompt?: string, userPrompt?: string): Promise<LLMResponse> {
     return {
       content: 'Stub response - LLM Router not available',
       model: 'stub',
-      usage: {
-        inputTokens: 0,
-        outputTokens: 0
-      }
+      inputTokens: 10,
+      outputTokens: 20,
+      cost: 0.001
     };
   }
 }
@@ -41,10 +40,9 @@ export enum TaskType {
 export interface LLMResponse {
   content: string;
   model: string;
-  usage: {
-    inputTokens: number;
-    outputTokens: number;
-  };
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
 }
 
 export interface TaskDescriptor {
@@ -52,4 +50,6 @@ export interface TaskDescriptor {
   type: TaskType;
   complexity: TaskComplexity;
   description: string;
+  expectedOutputTokens?: number;
+  requiresReasoning?: boolean;
 }

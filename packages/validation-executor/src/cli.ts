@@ -4,6 +4,29 @@ import { parseArgs } from 'node:util';
 import { writeFile } from 'node:fs/promises';
 import { ValidationExecutor } from './core/ValidationExecutor.js';
 import { AuditReporter } from './core/AuditReporter.js';
+
+async function loadRepositoryAdapter(): Promise<RepositoryAdapter> {
+  const fs = await import('node:fs');
+  
+  // Detect project type based on file patterns
+  if (fs.existsSync('package.json')) {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    
+    // Check for specific project patterns
+    if (packageJson.name?.includes('website-bot') || fs.existsSync('astro_template')) {
+      // Try to load WebsiteBotAdapter if available
+      try {
+        const { WebsiteBotAdapter } = await import('./adapters/WebsiteBotAdapter.js');
+        return new WebsiteBotAdapter();
+      } catch (error) {
+        console.warn('WebsiteBotAdapter not available, using default adapter');
+      }
+    }
+  }
+  
+  // Fallback to default adapter
+  return new DefaultRepositoryAdapter();
+}
 import { createLogger } from './utils/logger.js';
 import type { ValidationConfig, RepositoryAdapter, ExecutionContext } from './types/index.js';
 
@@ -134,8 +157,8 @@ async function runValidation(options: any) {
     fail_fast: options['fail-fast']
   };
 
-  // TODO: Load repository-specific adapter based on detected project type
-  const adapter = new DefaultRepositoryAdapter();
+  // Load repository-specific adapter based on detected project type
+  const adapter = await loadRepositoryAdapter();
   
   const executor = new ValidationExecutor(adapter, config);
   const report = await executor.execute();

@@ -61,18 +61,13 @@ export class ContextResolver {
   private async resolveTargetRoots(config: ValidationConfig): Promise<string[]> {
     const cwd = process.cwd();
     
-    // Check if we're in a monorepo or single-root workspace
-    if (existsSync('packages') || existsSync('apps')) {
-      // Monorepo: find all package roots
-      const roots = [cwd];
-      if (existsSync('packages')) {
-        // Add package directories that contain package.json
-        const packageDirs = await this.findPackageDirectories('packages');
-        roots.push(...packageDirs);
-      }
-      return roots;
+    // For validation executor, use explicit target roots if specified
+    if (config.target_roots && config.target_roots.length > 0) {
+      return config.target_roots;
     }
     
+    // Otherwise use repository root only - avoid including packages in general validation
+    // (packages should be validated separately if needed)
     return [cwd];
   }
 

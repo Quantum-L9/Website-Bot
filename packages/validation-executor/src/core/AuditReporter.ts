@@ -52,7 +52,7 @@ export class AuditReporter {
         preflight_checks: data.preflightResults,
         e2e_suites: this.extractSuiteNames(data.e2eResults),
         required_e2e_tests: data.e2eResults,
-        dynamic_inventory_items: [], // TODO: Implement dynamic inventory detection
+        dynamic_inventory_items: this.detectDynamicInventoryItems(data.executionContext, data.preflightResults, data.e2eResults),
         authoritative_skips: this.extractAuthoritativeSkips(data.preflightResults, data.e2eResults),
         inventory_sources: data.executionContext.configuration_sources || [],
         inventory_status: 'complete'
@@ -162,7 +162,7 @@ export class AuditReporter {
       executionContext.configuration_sources.forEach((source: string, index: number) => {
         sources.push({
           source,
-          revision_or_version: 'current', // TODO: Get actual revision for each config file
+          revision_or_version: this.getConfigFileRevision(source, executionContext.source_revision),
           applicable_scope: 'execution_configuration',
           precedence: index + 1,
           verification_status: 'verified'
@@ -348,5 +348,39 @@ export class AuditReporter {
       blocker_or_failure: finalVerdict.verdict_reason || 'Unknown execution issue',
       expected_evidence: 'Complete execution context and evidence validation'
     };
+  }
+
+  private detectDynamicInventoryItems(executionContext: any, preflightResults: any[], e2eResults: any[]): string[] {
+    const dynamicItems = [];
+
+    // Detect environment-specific configurations
+    if (executionContext.target_environment !== 'local') {
+      dynamicItems.push(`environment-specific-config:${executionContext.target_environment}`);
+    }
+
+    // Detect service dependencies that might vary
+    if (executionContext.required_services?.length > 0) {
+      dynamicItems.push(...executionContext.required_services.map((service: string) => `service-dependency:${service}`));
+    }
+
+    // Detect runtime credentials that affect test availability
+    if (executionContext.required_credentials?.length > 0) {
+      dynamicItems.push(...executionContext.required_credentials.map((cred: string) => `credential-dependent:${cred}`));
+    }
+
+    return dynamicItems;
+  }
+
+  private getConfigFileRevision(configFile: string, sourceRevision: string): string {
+    try {
+      // For files in the current repository, use the source revision
+      if (configFile.includes('.json') || configFile.includes('.yaml') || configFile.includes('.yml') || configFile.includes('Makefile')) {
+        return sourceRevision;
+      }
+      // For system/external configs, return version info if available
+      return 'current';
+    } catch (error) {
+      return 'unknown';
+    }
   }
 }

@@ -64,12 +64,15 @@ export interface ExecutionContext {
   evidence_root: string;
 }
 
-export interface PreflightCheck {
+export interface PreflightCheckDefinition {
   check_id: string;
   check_name: string;
   blocking: boolean;
   command: string;
   working_directory: string;
+}
+
+export interface PreflightCheck extends PreflightCheckDefinition {
   status: PreflightStatus;
   exit_code: number | null;
   termination_signal: string | null;
@@ -82,13 +85,16 @@ export interface PreflightCheck {
   evidence_references: string[];
 }
 
-export interface E2ETestResult {
+export interface E2ETestDefinition {
   suite_id: string;
   suite_name: string;
   test_id: string;
   test_name: string;
   attempt: number;
   command_or_invocation: string;
+}
+
+export interface E2ETestResult extends E2ETestDefinition {
   status: E2EStatus;
   started_at: string;
   ended_at: string;
@@ -289,6 +295,7 @@ export interface ValidationExecutionReport {
 
 export interface ValidationConfig {
   target?: string;
+  target_roots?: string[];
   environment?: string;
   profile?: string;
   preflight_commands?: string[];
@@ -301,8 +308,8 @@ export interface ValidationConfig {
 
 export interface RepositoryAdapter {
   resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext>;
-  discoverPreflightChecks(): Promise<PreflightCheck[]>;
-  discoverE2ETests(): Promise<E2ETestResult[]>;
+  discoverPreflightChecks(): Promise<PreflightCheckDefinition[]>;
+  discoverE2ETests(): Promise<E2ETestDefinition[]>;
   executeCommand(command: string, workingDir: string): Promise<{
     exitCode: number;
     stdout: string;

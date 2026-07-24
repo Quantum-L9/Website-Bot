@@ -1,9 +1,9 @@
 {
   "validation_scope": "launch_env_contract",
-  "mode": "ci",
-  "timestamp_utc": "2026-07-19T02:36:31.569Z",
-  "required_checked": 11,
-  "secrets_checked": 6,
+  "mode": "production",
+  "timestamp_utc": "2026-07-24T16:54:45.524Z",
+  "required_checked": 13,
+  "secrets_checked": 4,
   "optional_until_claimed_checked": 9,
   "missing_required": [
     "PROJECT_LICENSE",
@@ -16,12 +16,12 @@
     "LEAD_NOTIFICATION_EMAIL",
     "LEGAL_DISCLAIMER_APPROVED",
     "LEGAL_DISCLAIMER_VERSION",
-    "LEGAL_REVIEW_OWNER"
+    "LEGAL_REVIEW_OWNER",
+    "VERCEL_ORG_ID",
+    "VERCEL_PROJECT_ID"
   ],
   "missing_secrets": [
     "VERCEL_TOKEN",
-    "VERCEL_ORG_ID",
-    "VERCEL_PROJECT_ID",
     "FORM_WEBHOOK_SECRET",
     "CRM_API_TOKEN",
     "CRM_CLIENT_SECRET"
@@ -30,11 +30,7 @@
     "LEGAL_DISCLAIMER_APPROVED must be true for launch.",
     "DOMAIN_VERIFICATION_REQUIRED must be false only after domain verification passes."
   ],
-  "warnings": [
-    "Missing secrets (CI warning): VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, FORM_WEBHOOK_SECRET, CRM_API_TOKEN, CRM_CLIENT_SECRET",
-    "Missing config (CI warning): PROJECT_LICENSE, SUPPORT_CONTACT_EMAIL, SECURITY_CONTACT_EMAIL, PUBLIC_SITE_URL, PRODUCTION_DOMAIN, FORM_PROVIDER, FORM_ENDPOINT_URL, LEAD_NOTIFICATION_EMAIL, LEGAL_DISCLAIMER_APPROVED, LEGAL_DISCLAIMER_VERSION, LEGAL_REVIEW_OWNER",
-    "Gate checks (CI warning): LEGAL_DISCLAIMER_APPROVED must be true for launch.; DOMAIN_VERIFICATION_REQUIRED must be false only after domain verification passes."
-  ],
-  "status": "WARN",
+  "warnings": [],
+  "status": "FAIL_CLOSED",
   "note": "This validates env presence and launch gates only. It does not verify external credentials."
 }
