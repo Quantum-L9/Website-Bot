@@ -55,6 +55,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: ${{ env.PACKAGE_MANAGER }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
 
       - name: Install dependencies
         run: |
@@ -65,6 +67,8 @@ jobs:
             yarn) corepack enable && (if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else yarn install; fi) ;;
             *) echo "::error::unknown PACKAGE_MANAGER ${PACKAGE_MANAGER}" && exit 1 ;;
           esac
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: eslint
         run: |
@@ -111,6 +115,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: ${{ env.PACKAGE_MANAGER }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
 
       - name: Install dependencies
         run: |
@@ -121,6 +127,8 @@ jobs:
             yarn) corepack enable && (if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else yarn install; fi) ;;
             *) echo "::error::unknown PACKAGE_MANAGER ${PACKAGE_MANAGER}" && exit 1 ;;
           esac
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run test suite
         env:
