@@ -66,8 +66,8 @@ export class ValidationExecutor {
       const evidenceCollector = new EvidenceCollector(this.adapter, executionContext.evidence_root);
       
       this.logger.info('Step 2: Starting inventory discovery');
-      const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks();
-      const e2eTestDefinitions = await this.adapter.discoverE2ETests();
+      const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks(this.config.profile);
+      const e2eTestDefinitions = await this.adapter.discoverE2ETests(this.config.profile);
       
       // Convert definitions to full objects with execution state
       const preflightChecks = this.createPreflightChecks(preflightCheckDefinitions);

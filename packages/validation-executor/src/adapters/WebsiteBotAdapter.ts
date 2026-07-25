@@ -47,67 +47,111 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     };
   }
 
-  async discoverPreflightChecks(): Promise<PreflightCheckDefinition[]> {
+  /**
+   * Profile tiers control how much of the merge-gate suite is discovered:
+   *   - 'development' → FAST subset: quick static checks only (typecheck, spec
+   *     normalization, evidence schemas, launch-env), skipping the heavier
+   *     build/pipeline gates for a fast local smoke check.
+   *   - 'default' | 'ci' | 'staging' | 'production' | 'test' → FULL set: every
+   *     preflight check, including the four blocking gates that mirror
+   *     build-and-validate.yml, so the verdict tracks mergeability.
+   */
+  private isFastProfile(profile?: string): boolean {
+    return profile === 'development';
+  }
+
+  async discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]> {
     const checks: PreflightCheckDefinition[] = [];
     const packageJson = this.getPackageJson();
+    const cwd = process.cwd();
+    const fast = this.isFastProfile(profile);
+    const hasScript = (name: string): boolean => Boolean(packageJson.scripts?.[name]);
 
     // Core TypeScript compilation check (always required for Website-Bot)
     checks.push({
       check_id: 'typecheck',
-      check_name: 'TypeScript Type Check', 
+      check_name: 'TypeScript Type Check',
       blocking: true,
       command: 'npm run typecheck',
-      working_directory: process.cwd()
+      working_directory: cwd
     });
 
-    // Only add other checks if they exist in package.json scripts
-    if (packageJson.scripts?.['normalize-spec:check']) {
+    // Fast static checks — run in every profile (only if the script exists)
+    if (hasScript('normalize-spec:check')) {
       checks.push({
         check_id: 'normalize-spec-check',
         check_name: 'Domain Spec Normalization Check',
         blocking: true,
         command: 'npm run normalize-spec:check',
-        working_directory: process.cwd()
+        working_directory: cwd
       });
     }
 
-    if (packageJson.scripts?.['evidence:schemas']) {
+    if (hasScript('evidence:schemas')) {
       checks.push({
         check_id: 'evidence-schemas',
         check_name: 'Evidence Schema Validation',
         blocking: true,
         command: 'npm run evidence:schemas',
-        working_directory: process.cwd()
+        working_directory: cwd
       });
     }
 
+    // Heavier blocking gates mirroring .github/workflows/build-and-validate.yml.
+    // These gate merge, so they are blocking; skipped only in the fast profile.
+    if (!fast) {
+      const buildGates: Array<{ script: string; check_id: string; check_name: string }> = [
+        { script: 'evidence:contract-parity', check_id: 'evidence-contract-parity', check_name: 'Cross-Repository Contract Lock' },
+        { script: 'site:test:local', check_id: 'site-test-local', check_name: 'Site-Factory Deterministic Local Tests' },
+        { script: 'provision:test', check_id: 'provision-test', check_name: 'Provisioning Transaction Tests' },
+        { script: 'pipeline:plan', check_id: 'pipeline-plan', check_name: 'Plan-Mode Pipeline Proof' }
+      ];
+      for (const gate of buildGates) {
+        if (hasScript(gate.script)) {
+          checks.push({
+            check_id: gate.check_id,
+            check_name: gate.check_name,
+            blocking: true,
+            command: `npm run ${gate.script}`,
+            working_directory: cwd
+          });
+        }
+      }
+    }
+
     // Validation check is non-blocking and only added if script exists
-    if (packageJson.scripts?.validate) {
+    if (hasScript('validate')) {
       checks.push({
         check_id: 'launch-env-validation',
         check_name: 'Launch Environment Validation',
         blocking: false,
         command: 'npm run validate',
-        working_directory: process.cwd()
+        working_directory: cwd
       });
     }
 
     return checks;
   }
 
-  async discoverE2ETests(): Promise<E2ETestDefinition[]> {
+  async discoverE2ETests(profile?: string): Promise<E2ETestDefinition[]> {
     const tests: E2ETestDefinition[] = [];
     const packageJson = this.getPackageJson();
+    const fast = this.isFastProfile(profile);
 
-    // Core E2E tests - only add if scripts actually exist
+    // Core E2E tests - only add if scripts actually exist.
+    // The fast (development) profile keeps only the essential site smoke test;
+    // full profiles run the entire E2E suite.
     const coreTests = [
-      { script: 'site:validate', id: 'site-validate', name: 'Site Factory Validation', suite: 'factory-validation' },
-      { script: 'evidence:test', id: 'evidence-test', name: 'Evidence System Tests', suite: 'factory-validation' },
-      { script: 'test:integration', id: 'integration-test', name: 'Integration Tests', suite: 'integration' },
-      { script: 'test', id: 'unit-test', name: 'Unit Tests', suite: 'unit' }
+      { script: 'site:validate', id: 'site-validate', name: 'Site Factory Validation', suite: 'factory-validation', fast: true },
+      { script: 'evidence:test', id: 'evidence-test', name: 'Evidence System Tests', suite: 'factory-validation', fast: false },
+      { script: 'test:integration', id: 'integration-test', name: 'Integration Tests', suite: 'integration', fast: false },
+      { script: 'test', id: 'unit-test', name: 'Unit Tests', suite: 'unit', fast: false }
     ];
 
     for (const testConfig of coreTests) {
+      if (fast && !testConfig.fast) {
+        continue;
+      }
       if (packageJson.scripts?.[testConfig.script]) {
         tests.push({
           suite_id: testConfig.suite,
