@@ -270,8 +270,7 @@ export class E2EEngine {
     // Look for common assertion error patterns
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].toLowerCase();
-      const originalLine = lines[i];
-      
+
       if (line.includes('assertionerror') || line.includes('assertion error')) {
         return lines.slice(i, Math.min(i + 3, lines.length)).join('\n');
       }

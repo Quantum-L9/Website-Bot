@@ -62,8 +62,8 @@ describe('Secure Execution', () => {
 
     for (const command of legitimateCommands) {
       const result = executeCommandSecurely(command);
-      // Should not throw and should execute
-      ok(result !== undefined, `Should allow legitimate command: ${command}`);
+      // Should not throw and should execute, returning a well-formed result
+      strictEqual(typeof result.exitCode, 'number', `Should allow legitimate command: ${command}`);
     }
   });
 
@@ -92,7 +92,7 @@ describe('Secure Execution', () => {
   test('respects timeout option', async () => {
     // Test with a very short timeout
     const start = Date.now();
-    const result = executeCommandSecurely('sleep 0.1', { timeout: 50 });
+    executeCommandSecurely('sleep 0.1', { timeout: 50 });
     const elapsed = Date.now() - start;
     
     // Command should be killed due to timeout

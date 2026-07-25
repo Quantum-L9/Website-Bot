@@ -5,7 +5,7 @@
 
 import { test, describe } from 'node:test';
 import { strictEqual, ok } from 'node:assert';
-import { readFile, mkdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as yamlParse } from 'yaml';
 import { AuditReporter } from '../../src/core/AuditReporter.js';

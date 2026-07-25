@@ -146,7 +146,7 @@ describe('EvidenceCollector', () => {
     const testData = { validation: 'test data' };
 
     try {
-      const evidencePath = await collector.storeEvidence('validation-test', testData);
+      await collector.storeEvidence('validation-test', testData);
       
       // Generate manifest to trigger integrity validation
       const manifest = await collector.generateManifest();
