@@ -1,0 +1,17 @@
+# Keep this list aligned with the `ignores` block in eslint.config.js: a file Prettier
+# rewrites but ESLint never sees (or the reverse) is how formatting fights start.
+#
+# The `format` scripts target src and scripts only — the same surface ESLint lints —
+# so docs and workflow YAML are out of scope by argument, not by this file. Widening
+# to `.` also means Prettier parses .github/workflows/, where agent-pipeline.yml
+# currently has an unquoted multi-line `run:` that is not valid YAML.
+node_modules/
+dist/
+build/
+coverage/
+.astro/
+astro_template/
+examples/
+website_pack/generated/
+package-lock.json
+*.db
