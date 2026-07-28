@@ -13,3 +13,8 @@ website-bot.db-wal
 
 # Generated launch-env reports (per-run artifacts, not source)
 validation/launch_env_report.json
+
+# Evidence-driven validation executor run artifacts (per-run, not source)
+/validation/
+/validation_report.yaml
+/packages/validation-executor/validation/

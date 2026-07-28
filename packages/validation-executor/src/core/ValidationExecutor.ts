@@ -326,11 +326,22 @@ export class ValidationExecutor {
                              gates.coverage_reconciled.status === 'Passed' &&
                              gates.evidence_complete.status === 'Passed';
 
-    const failedCount = [...preflightResults, ...e2eResults].filter(r => 
+    // Only blocking preflight checks and all E2E results count toward the
+    // final failure tally. Preflight checks explicitly marked non-blocking
+    // (e.g. environment-dependent gates the adapter intentionally scopes as
+    // informational) are surfaced in the report but must not flip the
+    // aggregate verdict to FAIL, since the preflight gate itself already
+    // evaluates blocking status correctly (see PreflightEngine.evaluateGate).
+    const blockingPreflightResults = preflightResults.filter(r => r.blocking);
+    const nonBlockingFailedPreflightResults = preflightResults.filter(r =>
+      !r.blocking && ['Failed', 'Error', 'Timeout'].includes(r.status)
+    );
+
+    const failedCount = [...blockingPreflightResults, ...e2eResults].filter(r => 
       ['Failed', 'Error', 'Timeout'].includes(r.status)
     ).length;
 
-    const unknownCount = [...preflightResults, ...e2eResults].filter(r => 
+    const unknownCount = [...blockingPreflightResults, ...e2eResults].filter(r => 
       r.status === 'Unknown'
     ).length;
 
@@ -357,7 +368,9 @@ export class ValidationExecutor {
       required_failure_count: failedCount,
       blocking_defect_ids: [],
       unknown_count: unknownCount,
-      verdict_reason: reason
+      verdict_reason: nonBlockingFailedPreflightResults.length > 0
+        ? `${reason} (${nonBlockingFailedPreflightResults.length} non-blocking preflight check(s) also failed: ${nonBlockingFailedPreflightResults.map(r => r.check_id).join(', ')})`
+        : reason
     };
   }
 
