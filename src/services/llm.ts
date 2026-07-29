@@ -1,12 +1,16 @@
-// L9_META: layer=service, role=llm_adapter, status=active, version=3.0.0
+// L9_META: layer=service, role=llm_adapter, status=active, version=4.0.0
 import {
   BudgetExhaustedError,
+  CircuitOpenError,
   L9LLMRouter,
+  ProviderRequestError,
+  RouterConfigValidationError,
   TaskComplexity,
   TaskType,
   type LLMResponse,
+  type RouterConfig,
   type TaskDescriptor,
-} from './llm-stub.js';
+} from '@quantum-l9/llm-router';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 
@@ -30,20 +34,65 @@ export interface WebsiteFactoryLLM {
   flushUsage(): UsageRecord[];
 }
 
-export function createWebsiteFactoryLLM(clientId: string): WebsiteFactoryLLM {
-  let router: L9LLMRouter | null = null;
-  function getRouter(): L9LLMRouter {
+/** Minimal router surface the adapter depends on — the injectable test seam. */
+type RouterPort = Pick<L9LLMRouter, 'initClient' | 'execute'>;
+
+export interface WebsiteFactoryLLMOptions {
+  /** Environment source (defaults to process.env). */
+  env?: NodeJS.ProcessEnv;
+  /** Router constructor seam for deterministic unit tests. Defaults to the real router. */
+  routerFactory?: (config: RouterConfig) => RouterPort;
+}
+
+export function createWebsiteFactoryLLM(
+  clientId: string,
+  options: WebsiteFactoryLLMOptions = {},
+): WebsiteFactoryLLM {
+  const env = options.env ?? process.env;
+  const routerFactory = options.routerFactory ?? ((config: RouterConfig) => new L9LLMRouter(config));
+
+  function required(name: string): string {
+    const value = env[name]?.trim();
+    if (!value) throw new BuildError('LLM_CALL_FAILED', `Missing required LLM configuration: ${name}`);
+    return value;
+  }
+  function positiveNumber(name: string, fallback: number): number {
+    const raw = env[name];
+    if (raw === undefined || raw.trim() === '') return fallback;
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value <= 0) throw new BuildError('LLM_CALL_FAILED', `${name} must be a positive number`);
+    return value;
+  }
+
+  // Lazy construction: plan/dry-run never calls the LLM, so credential-free plan mode must
+  // not fail here. The router is built (and credentials required) only on the first real call.
+  let router: RouterPort | undefined;
+  function getRouter(): RouterPort {
     if (router) return router;
-    const openrouterApiKey = process.env.OPENROUTER_API_KEY;
-    if (!openrouterApiKey) throw new BuildError('LLM_CALL_FAILED', 'OPENROUTER_API_KEY not set');
-    router = new L9LLMRouter({
-      openrouterApiKey,
-      perplexityApiKey: process.env.PERPLEXITY_API_KEY ?? '',
+    const config: RouterConfig = {
+      openrouterApiKey: required('OPENROUTER_API_KEY'),
+      perplexityApiKey: required('PERPLEXITY_API_KEY'),
       appName: 'L9-Website-Bot',
-    });
-    router.initClient(clientId);
-    logger.info({ clientId }, 'LLM service initialized with @quantum-l9/llm-router');
-    return router;
+      providerTimeoutMs: positiveNumber('LLM_PROVIDER_TIMEOUT_MS', 60_000),
+      providerMaxRetries: 0,
+      budget: {
+        monthlyBudgetPerClient: positiveNumber('MONTHLY_BUDGET_PER_CLIENT', 200),
+        weeklyTarget: positiveNumber('WEEKLY_BUDGET_TARGET', 50),
+        weeklyHardCeiling: positiveNumber('WEEKLY_BUDGET_HARD_CEILING', 100),
+      },
+    };
+    try {
+      router = routerFactory(config);
+      router.initClient(clientId);
+      logger.info({ clientId }, 'LLM service initialized with @quantum-l9/llm-router');
+      return router;
+    } catch (error) {
+      if (error instanceof BuildError) throw error;
+      if (error instanceof RouterConfigValidationError) {
+        throw new BuildError('LLM_CALL_FAILED', `Invalid LLM router configuration: ${error.message}`);
+      }
+      throw new BuildError('LLM_CALL_FAILED', `Unable to initialize LLM router: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   const usageBuffer: UsageRecord[] = [];
@@ -58,14 +107,36 @@ export function createWebsiteFactoryLLM(clientId: string): WebsiteFactoryLLM {
     stage: string,
     usageTaskType: string,
   ): Promise<LLMResponse> {
+    let response: LLMResponse;
     try {
-      const response = await getRouter().execute(task, systemPrompt, userPrompt);
-      record(stage, usageTaskType, response.inputTokens, response.outputTokens, response.cost, response.model);
-      return response;
+      response = await getRouter().execute(task, systemPrompt, userPrompt);
     } catch (error) {
-      if (error instanceof BudgetExhaustedError) throw new BuildError('LLM_CALL_FAILED', `Budget exhausted for ${stage}: ${error.message}`);
-      throw new BuildError('LLM_CALL_FAILED', `Router execute failed for ${stage}: ${error instanceof Error ? error.message : String(error)}`);
+      if (error instanceof BuildError) throw error;
+      if (error instanceof BudgetExhaustedError) {
+        throw new BuildError('LLM_CALL_FAILED', `Budget exhausted for ${stage}: ${error.message}`);
+      }
+      if (error instanceof ProviderRequestError || error instanceof CircuitOpenError) {
+        throw new BuildError('LLM_CALL_FAILED', `LLM provider unavailable for ${stage}: ${error.message}`);
+      }
+      throw new BuildError('LLM_CALL_FAILED', `Router execution failed for ${stage}: ${error instanceof Error ? error.message : String(error)}`);
     }
+    record(stage, usageTaskType, response.inputTokens, response.outputTokens, response.cost, response.model);
+    // Operational metadata only — never prompts, generated content, keys, or full bodies.
+    logger.info(
+      {
+        clientId,
+        stage,
+        provider: response.provider,
+        model: response.model,
+        inputTokens: response.inputTokens,
+        outputTokens: response.outputTokens,
+        costUsd: response.cost,
+        latencyMs: response.latencyMs,
+        requestId: response.requestId,
+      },
+      'LLM task completed',
+    );
+    return response;
   }
 
   return {
