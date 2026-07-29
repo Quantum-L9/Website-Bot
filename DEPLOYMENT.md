@@ -57,7 +57,7 @@ Before any preview deployment:
 
 ```bash
 npm ci
-npm run build
+npm run pipeline:local-proof -- --spec=<domain-spec>
 npm run verify:all
 ```
 
@@ -65,11 +65,12 @@ If external checks are blocked because credentials are missing, the report must 
 
 ## Preview Deployment Flow
 
+A preview deploy is the Vercel stage of a full end-to-end run (`VERCEL_TARGET=preview`, the default):
+
 ```bash
 npm ci
-npm run build
 npm run verify:all
-npm run deploy:preview
+VERCEL_TARGET=preview npm run pipeline:end-to-end -- --spec=<domain-spec>
 ```
 
 After Vercel returns a preview URL:
@@ -96,7 +97,7 @@ Only after preview verification passes and the operator explicitly authorizes pr
 
 ```bash
 npm run verify:launch-env
-npm run deploy:production
+WEBSITE_BOT_ALLOW_PRODUCTION=true VERCEL_TARGET=production npm run pipeline:end-to-end -- --spec=<domain-spec>
 ```
 
 After production deploy:

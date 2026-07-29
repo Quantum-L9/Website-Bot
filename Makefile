@@ -1,45 +1,76 @@
 SHELL := /bin/sh
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev build preview verify verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback verify-launch-env verify-visual-qa generate-domain-spec generate-content deploy-preview deploy-production clean
+.PHONY: help install \
+        pipeline-plan pipeline-local-proof pipeline-publish-proof pipeline-end-to-end \
+        normalize-spec provision-plan provision-client \
+        verify verify-all verify-preflight verify-source verify-build verify-smoke \
+        verify-form verify-analytics verify-crm verify-seo verify-rollback \
+        verify-launch-env verify-visual-qa \
+        site-test site-test-local evidence-validate evidence-show clean
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Setup ──'
-	@printf '%-28s %s\n' 'make install' 'Install all workspace dependencies (root + packages)'
+	@printf '%-30s %s\n' 'make install' 'Install dependencies (npm ci)'
 	@printf '%s\n' ''
-	@printf '%s\n' '── Development ──'
-	@printf '%-28s %s\n' 'make dev' 'Run Astro dev server'
-	@printf '%-28s %s\n' 'make build' 'Build static site into dist/'
-	@printf '%-28s %s\n' 'make preview' 'Serve built site locally'
+	@printf '%s\n' '── Pipeline (DomainSpec → site) ──'
+	@printf '%-30s %s\n' 'make pipeline-plan' 'Dry-run: converge all stages, no files/mutations (no keys)'
+	@printf '%-30s %s\n' 'make pipeline-local-proof' 'Materialize + Astro build a site locally (needs provider keys)'
+	@printf '%-30s %s\n' 'make pipeline-publish-proof' 'Local proof + publish source to the client GitHub repo'
+	@printf '%-30s %s\n' 'make pipeline-end-to-end' 'Full run: build, publish, Vercel deploy, SEO handoff'
+	@printf '%s\n' '  (pass a spec: make pipeline-local-proof ARGS="--spec=<path> --build-id=<id>")'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Spec & provisioning ──'
+	@printf '%-30s %s\n' 'make normalize-spec' 'Normalize a rich source spec into the flat DomainSpec'
+	@printf '%-30s %s\n' 'make provision-plan' 'Plan client repo/Vercel provisioning (no mutation)'
+	@printf '%-30s %s\n' 'make provision-client' 'Provision the client GitHub repo and Vercel project'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Verification ──'
-	@printf '%-28s %s\n' 'make verify' 'Run full local verification suite'
-	@printf '%-28s %s\n' 'make verify-launch-env' 'Validate all launch environment variables (fail-closed)'
-	@printf '%-28s %s\n' 'make verify-visual-qa' 'Run visual layout QA via LLM vision (requires OPENROUTER_API_KEY)'
+	@printf '%-30s %s\n' 'make verify-all' 'Full offline gate (typecheck, tests, plan, boundaries)'
+	@printf '%-30s %s\n' 'make verify' 'verify-all plus every launch validation profile'
+	@printf '%-30s %s\n' 'make verify-launch-env' 'Validate launch environment variables (fail-closed)'
+	@printf '%-30s %s\n' 'make verify-visual-qa' 'Run visual layout QA via LLM vision (requires OPENROUTER_API_KEY)'
+	@printf '%-30s %s\n' 'make site-test' 'Run the full site-factory test suite'
 	@printf '%s\n' ''
-	@printf '%s\n' '── Generation ──'
-	@printf '%-28s %s\n' 'make generate-domain-spec' 'Generate domain spec from operator inputs via LLM'
-	@printf '%-28s %s\n' 'make generate-content' 'Generate page content via LLM router'
+	@printf '%s\n' '── Evidence ──'
+	@printf '%-30s %s\n' 'make evidence-validate' 'Validate a persisted evidence chain (ARGS=--client-id=.. --build-id=.. --mode=..)'
+	@printf '%-30s %s\n' 'make evidence-show' 'Show persisted evidence for a build (ARGS as above)'
 	@printf '%s\n' ''
-	@printf '%s\n' '── Deployment ──'
-	@printf '%-28s %s\n' 'make deploy-preview' 'Run Vercel preview deployment wrapper'
-	@printf '%-28s %s\n' 'make deploy-production' 'Run Vercel production deployment (requires preview pass + operator auth)'
+	@printf '%s\n' '── Housekeeping ──'
+	@printf '%-30s %s\n' 'make clean' 'Remove local build/generated-site/evidence artifacts'
 
 install:
 	npm ci
 
-dev:
-	npm run dev
+# ── Pipeline ── ARGS forwards flags, e.g. ARGS="--spec=<path> --build-id=<id>"
+pipeline-plan:
+	npm run pipeline:plan -- $(ARGS)
 
-build:
-	npm run build
+pipeline-local-proof:
+	npm run pipeline:local-proof -- $(ARGS)
 
-preview:
-	npm run preview
+pipeline-publish-proof:
+	npm run pipeline:publish-proof -- $(ARGS)
 
-verify: verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback verify-launch-env
+pipeline-end-to-end:
+	npm run pipeline:end-to-end -- $(ARGS)
+
+# ── Spec & provisioning ──
+normalize-spec:
+	npm run normalize-spec -- $(ARGS)
+
+provision-plan:
+	npm run provision:plan -- $(ARGS)
+
+provision-client:
+	npm run provision:client -- $(ARGS)
+
+# ── Verification ──
+verify: verify-all verify-preflight verify-source verify-build verify-smoke verify-form verify-analytics verify-crm verify-seo verify-rollback verify-launch-env
+
+verify-all:
 	npm run verify:all
 
 verify-preflight:
@@ -75,17 +106,18 @@ verify-launch-env:
 verify-visual-qa:
 	npm run verify:visual-qa
 
-generate-domain-spec:
-	npm run generate:domain-spec
+# ── Tests & evidence ──
+site-test:
+	npm run site:test
 
-generate-content:
-	npm run generate:content
+site-test-local:
+	npm run site:test:local
 
-deploy-preview:
-	npm run deploy:preview
+evidence-validate:
+	npm run evidence:validate -- $(ARGS)
 
-deploy-production:
-	npm run deploy:production
+evidence-show:
+	npm run evidence:show -- $(ARGS)
 
 clean:
-	rm -rf dist .astro
+	rm -rf dist .astro build/sites build/evidence

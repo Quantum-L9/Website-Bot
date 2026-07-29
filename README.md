@@ -73,28 +73,30 @@ logged without blocking.
 
 ## Quick Start
 
+The factory itself is not an Astro app — it *generates* Astro sites into
+`build/sites/<client>/` via the pipeline. There is no root `build`/`dev`/`preview`.
+
 ```bash
-npm ci                    # Install dependencies (incl. @quantum-l9/llm-router from GitHub Packages)
-npm run build             # Build the Astro site into dist/
-npm run preview           # Serve built site locally
+npm ci                                                # Install dependencies (incl. @quantum-l9/llm-router from GitHub Packages)
+npm run pipeline:plan                                 # Dry-run every stage — no keys, no files, no mutations
+npm run pipeline:local-proof -- --spec=<domain-spec>  # Materialize + Astro-build a site into build/sites/<client>
 ```
 
-Canonical operator commands are available through `make`:
+Canonical operator commands are available through `make` (run `make help` for the full list):
 
 ```bash
-make help                 # Show all available commands
-make install              # Install dependencies
-make build                # Build site
-make verify               # Run full verification suite
-make verify-visual-qa     # Run LLM vision-based layout QA
-make generate-domain-spec # Generate domain spec via LLM
-make generate-content     # Generate page content via LLM
+make help                    # Show all available commands
+make install                 # Install dependencies
+make pipeline-plan           # Dry-run the factory pipeline
+make pipeline-local-proof    # Materialize + build a site locally
+make verify-all              # Run the full verification suite
+make verify-visual-qa        # Run LLM vision-based layout QA
 ```
 
 Developer shortcuts are available through `just` when installed:
 
 ```bash
-just build
+just pipeline-plan
 just verify
 ```
 
@@ -134,26 +136,24 @@ Validation must produce evidence. A script existing is not proof. A successful l
 
 ## Deployment
 
-Deployment is Vercel preview-first:
+Deployment runs through the pipeline and is Vercel preview-first. A preview deploy is the
+Vercel stage of a full end-to-end run (`VERCEL_TARGET=preview`, the default):
 
 ```bash
-npm run deploy:preview
+npm run pipeline:end-to-end -- --spec=<domain-spec>
 ```
 
-Production deployment requires explicit operator authorization:
+Production deployment requires explicit operator authorization
+(`WEBSITE_BOT_ALLOW_PRODUCTION=true`, `VERCEL_TARGET=production`).
 
-```bash
-npm run deploy:production
-```
-
-See `DEPLOYMENT.md` for gates and `RUNBOOK.md` for operational procedures.
+See `DEPLOYMENT.md` for gates and `RUNBOOK.md` for the full pipeline-mode procedures.
 
 ## Launch Gate
 
 Do not call the site launch-ready until all are true:
 
 1. `npm ci` passes.
-2. `npm run build` passes.
+2. `npm run pipeline:local-proof` produces a passing build proof for the client site.
 3. `npm run verify:all` passes or labels external checks as blocked with evidence.
 4. Vercel preview URL is created and verified.
 5. Form endpoint receives a synthetic lead.
