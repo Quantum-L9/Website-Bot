@@ -101,6 +101,8 @@ export interface BuildContext {
   generatedSchemas: Map<string, object>;
   baselineRanks?: Record<string, number | null>;
   visualQaPassed: boolean;
+  /** Set by UnknownResolverStage when error-severity WOM flags are allowed through in advisory mode. Presence means the build is not publish-safe. */
+  unresolvedErrorFlags?: string[];
   stageResults: Map<string, { ok: boolean; skipped?: boolean; error?: string }>;
   startedAt: Date;
 }
