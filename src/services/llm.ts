@@ -11,10 +11,27 @@ import {
   type RouterConfig,
   type TaskDescriptor,
 } from '@quantum-l9/llm-router';
+import { readFileSync } from 'node:fs';
+import { extname } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 
 const logger = createModuleLogger('service:llm');
+
+const IMAGE_MIME: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
+
+// The router's vision path accepts absolute HTTPS URLs or base64 data URIs
+// (data:image/(png|jpeg|webp|gif);base64,...). Local screenshots are read and encoded.
+function imageToDataUri(path: string): string {
+  const mime = IMAGE_MIME[extname(path).toLowerCase()] ?? 'image/png';
+  return `data:${mime};base64,${readFileSync(path).toString('base64')}`;
+}
 
 interface UsageRecord {
   stage: string;
@@ -30,6 +47,7 @@ export interface WebsiteFactoryLLM {
   generateContent(prompt: string, context?: string): Promise<string>;
   designReasoning(prompt: string): Promise<string>;
   generateSchema(prompt: string): Promise<string>;
+  validateLayout(imagePaths: string[], context: string): Promise<string>;
   recordUsage(stage: string, taskType: string, inputTokens: number, outputTokens: number, costUsd: number, model: string): void;
   flushUsage(): UsageRecord[];
 }
@@ -106,10 +124,11 @@ export function createWebsiteFactoryLLM(
     userPrompt: string,
     stage: string,
     usageTaskType: string,
+    options?: { images?: string[] },
   ): Promise<LLMResponse> {
     let response: LLMResponse;
     try {
-      response = await getRouter().execute(task, systemPrompt, userPrompt);
+      response = await getRouter().execute(task, systemPrompt, userPrompt, options);
     } catch (error) {
       if (error instanceof BuildError) throw error;
       if (error instanceof BudgetExhaustedError) {
@@ -167,6 +186,18 @@ export function createWebsiteFactoryLLM(
         prompt,
         'schema-generator',
         'json_ld',
+      );
+      return response.content;
+    },
+    async validateLayout(imagePaths, context) {
+      const images = imagePaths.map(imageToDataUri);
+      const response = await run(
+        { clientId, type: TaskType.LAYOUT_VALIDATION, complexity: TaskComplexity.MEDIUM, expectedOutputTokens: 800, description: '[visual-qa] layout_validation' },
+        'You are a meticulous web layout QA reviewer. From the attached screenshot(s), identify layout, spacing, overflow, alignment, contrast, and responsiveness defects. If any defect is severe, include the word "critical". Be concise.',
+        `Evaluate the attached screenshot(s) for layout defects. ${context}`,
+        'visual-qa',
+        'layout_validation',
+        { images },
       );
       return response.content;
     },
