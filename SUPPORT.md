@@ -14,7 +14,7 @@ Run:
 
 ```bash
 npm ci
-npm run build
+npm run pipeline:plan
 npm run verify:all
 ```
 

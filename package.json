@@ -11,7 +11,7 @@
     "pipeline:publish-proof": "npx tsx scripts/run-pipeline.ts --mode=publish-proof",
     "pipeline:end-to-end": "npx tsx scripts/run-pipeline.ts --mode=end-to-end",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'Linting passed - ESLint configuration is minimal for governance setup'",
+    "lint": "echo 'lint: no standalone ESLint configured; type safety is enforced by tsc --noEmit (npm run typecheck)'",
     "normalize-spec": "npx tsx scripts/normalize-spec.ts",
     "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
     "validate": "node scripts/verify-launch-env.mjs",
@@ -47,11 +47,7 @@
     "verify:seo": "npx tsx scripts/validation-executor.ts run --profile seo",
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
     "verify:launch-env": "npm run validate",
-    "verify:visual-qa": "echo 'Visual QA verification requires implementation'",
-    "generate:domain-spec": "echo 'Domain spec generation requires implementation'",
-    "generate:content": "echo 'Content generation requires implementation'",
-    "deploy:preview": "echo 'Preview deployment requires implementation'",
-    "deploy:production": "echo 'Production deployment requires implementation'"
+    "verify:visual-qa": "echo 'Visual QA verification requires implementation'"
   },
   "dependencies": {
     "better-sqlite3": "^9.4.3",
