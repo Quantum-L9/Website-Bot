@@ -1,4 +1,4 @@
-// L9_META: layer=stage, role=handoff_emitter, stage_index=16, status=active, version=4.0.0
+// L9_META: layer=stage, role=handoff_emitter, stage_index=16, status=active, version=5.0.0
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { stringify } from 'yaml';
@@ -8,10 +8,8 @@ import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import type { StageCheckpoint } from '../pipeline/StageCheckpoint.js';
 import { validateSeoBotRegistrationAck, type SeoBotRegistrationAck } from '../contracts/SeoBotRegistrationAck.js';
-import {
-  buildWebsiteFactoryHandoffV3,
-  type WebsiteFactoryHandoffV3,
-} from '../contracts/WebsiteFactoryHandoffV3.js';
+import { buildWebsiteFactoryHandoffV3, type WebsiteFactoryHandoffV3 } from '../contracts/WebsiteFactoryHandoffV3.js';
+import { recordWebsiteRelease } from '../services/memory.js';
 
 const logger = createModuleLogger('stage:handoff-emitter');
 const CONVENIENCE_OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
@@ -30,18 +28,10 @@ function assertAcknowledgement(ack: SeoBotRegistrationAck, expected: WebsiteFact
 
 export class HandoffEmitterStage implements Stage {
   name = 'handoff-emitter';
-  version = '4.0.0';
+  version = '5.0.0';
   evidence = {
-    inputs: (_ctx: BuildContext) => [
-      'assembly' as const,
-      'build' as const,
-      'publication' as const,
-      'deployment' as const,
-      'release' as const,
-    ],
-    outputs: (ctx: BuildContext) => ctx.autoRegisterSeoBot
-      ? ['handoff' as const, 'registration_ack' as const]
-      : ['handoff' as const],
+    inputs: (_ctx: BuildContext) => ['assembly' as const, 'build' as const, 'publication' as const, 'deployment' as const, 'release' as const],
+    outputs: (ctx: BuildContext) => ctx.autoRegisterSeoBot ? ['handoff' as const, 'registration_ack' as const] : ['handoff' as const],
     resumable: true,
     externalMutation: true,
   };
@@ -56,8 +46,7 @@ export class HandoffEmitterStage implements Stage {
     const handoff = await ctx.evidenceStore.readHandoff();
     if (!handoff) return false;
     const bundle = await ctx.evidenceStore.loadValidatedReleaseBundle({ requireStatus: 'succeeded', requireMode: 'end-to-end' });
-    if (handoff.proof.receipt_id !== bundle.releaseReceipt.receipt_id
-        || handoff.site.repository.commit_sha !== bundle.publicationEvidence?.commitSha) return false;
+    if (handoff.proof.receipt_id !== bundle.releaseReceipt.receipt_id || handoff.site.repository.commit_sha !== bundle.publicationEvidence?.commitSha) return false;
     if (!ctx.autoRegisterSeoBot) return true;
     const acknowledgement = await ctx.evidenceStore.readRegistrationAck();
     if (!acknowledgement) return false;
@@ -88,10 +77,7 @@ export class HandoffEmitterStage implements Stage {
         buildId: ctx.buildId,
         releaseBundle: bundle,
         deployTarget: ctx.deployTarget,
-        qualitySummary: {
-          seoBaseline: bundle.releaseReceipt.qa.seo_baseline,
-          visualQa: bundle.releaseReceipt.qa.visual_qa,
-        },
+        qualitySummary: { seoBaseline: bundle.releaseReceipt.qa.seo_baseline, visualQa: bundle.releaseReceipt.qa.visual_qa },
       });
     } catch (error) {
       throw new BuildError('HANDOFF_EMIT_FAILED', `Canonical v3 handoff could not be built: ${error instanceof Error ? error.message : String(error)}`);
@@ -102,6 +88,11 @@ export class HandoffEmitterStage implements Stage {
     const header = `# Convenience copy only. Authoritative evidence: ${ctx.evidenceStore.rootDir}/${handoffRecord.relativePath}\n`;
     writeFileSync(this.outputPath, `${header}${stringify(contract)}`, 'utf-8');
     logger.info({ contractId: contract.contract_id, evidencePath: handoffRecord.relativePath }, 'Canonical v3 handoff persisted');
+
+    await recordWebsiteRelease(
+      contract,
+      ctx.domainSpec.routes.map(route => ({ path: route.path, title: route.title })),
+    );
 
     if (!ctx.autoRegisterSeoBot) {
       logger.info('SEO-Bot auto-registration disabled; handoff evidence emitted without activation');
@@ -118,11 +109,7 @@ export class HandoffEmitterStage implements Stage {
     try {
       response = await this.fetchImpl(`${seoBotUrl}/api/clients/register`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${seoBotKey}`,
-          'Content-Type': 'application/json',
-          'Idempotency-Key': contract.contract_id,
-        },
+        headers: { Authorization: `Bearer ${seoBotKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': contract.contract_id },
         body: JSON.stringify(contract),
         signal: AbortSignal.timeout(20_000),
       });
@@ -143,14 +130,7 @@ export class HandoffEmitterStage implements Stage {
 
     const ackRecord = await ctx.evidenceStore.writeRegistrationAck(acknowledgement);
     mkdirSync(dirname(this.ackPath), { recursive: true });
-    writeFileSync(this.ackPath, `${JSON.stringify({
-      authoritative_evidence: `${ctx.evidenceStore.rootDir}/${ackRecord.relativePath}`,
-      ...acknowledgement,
-    }, null, 2)}\n`, 'utf-8');
-    logger.info({
-      clientId: acknowledgement.client_id,
-      contractId: acknowledgement.contract_id,
-      commitSha: acknowledgement.verified_commit_sha,
-    }, 'SEO-Bot maintenance readiness confirmed');
+    writeFileSync(this.ackPath, `${JSON.stringify({ authoritative_evidence: `${ctx.evidenceStore.rootDir}/${ackRecord.relativePath}`, ...acknowledgement }, null, 2)}\n`, 'utf-8');
+    logger.info({ clientId: acknowledgement.client_id, contractId: acknowledgement.contract_id, commitSha: acknowledgement.verified_commit_sha }, 'SEO-Bot maintenance readiness confirmed');
   }
 }

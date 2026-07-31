@@ -1,4 +1,4 @@
-// L9_META: layer=service, role=llm_adapter, status=active, version=4.0.0
+// L9_META: layer=service, role=llm_adapter, status=active, version=4.1.0
 import {
   BudgetExhaustedError,
   CircuitOpenError,
@@ -15,6 +15,7 @@ import { readFileSync } from 'node:fs';
 import { extname } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
+import { hydrateWebsiteContext } from './memory.js';
 
 const logger = createModuleLogger('service:llm');
 
@@ -128,7 +129,18 @@ export function createWebsiteFactoryLLM(
   ): Promise<LLMResponse> {
     let response: LLMResponse;
     try {
-      response = await getRouter().execute(task, systemPrompt, userPrompt, options);
+      const memoryContext = await hydrateWebsiteContext(
+        clientId,
+        task.type,
+        task.description ?? usageTaskType,
+        [stage, usageTaskType],
+      );
+      response = await getRouter().execute(
+        task,
+        `${systemPrompt}${memoryContext}`,
+        userPrompt,
+        options,
+      );
     } catch (error) {
       if (error instanceof BuildError) throw error;
       if (error instanceof BudgetExhaustedError) {
