@@ -1,0 +1,284 @@
+run_metadata:
+  run_id: ca1ade10-7be9-4743-b0c2-778685688a67
+  report_schema_version: 1.0.0
+  started_at: 2026-07-24T19:14:42.404Z
+  ended_at: 2026-07-24T19:14:47.766Z
+  duration: 5362
+  last_completed_stage: failure_analysis
+execution_context:
+  target_roots:
+    - /workspace/packages/validation-executor
+  source_revision: 6aa5ff7c580f9974405e95b7baacd33b7d37ad9b
+  running_revision: null
+  target_environment: local
+  environment_type: local
+  active_identity: cursoragent@cursor.com
+  preflight_commands:
+    - npm run typecheck || tsc --noEmit
+    - npm run lint || echo "No lint script found"
+  e2e_commands:
+    - npm test
+    - npm run test:integration
+  test_runner: node:test
+  test_runner_version: v22.14.0
+  configuration_sources: &a1
+    - package.json
+    - tsconfig.json
+  required_services:
+    - sqlite
+  target_endpoints:
+    - http://localhost:4321
+    - http://localhost:3000
+  required_dependencies:
+    - better-sqlite3
+    - pino
+    - pino-pretty
+    - yaml
+    - "@types/better-sqlite3"
+    - "@types/node"
+    - c8
+    - tsx
+    - typescript
+  required_credentials: []
+  evidence_root: /tmp/simplified-test
+authority_sources:
+  - source: package.json
+    revision_or_version: 6aa5ff7c580f9974405e95b7baacd33b7d37ad9b
+    applicable_scope: execution_configuration
+    precedence: 1
+    verification_status: verified
+  - source: tsconfig.json
+    revision_or_version: 6aa5ff7c580f9974405e95b7baacd33b7d37ad9b
+    applicable_scope: execution_configuration
+    precedence: 2
+    verification_status: verified
+discovery_inventory:
+  preflight_checks: &a2
+    - check_id: typecheck
+      check_name: TypeScript Type Check
+      blocking: true
+      command: npm run typecheck
+      working_directory: /workspace/packages/validation-executor
+      status: Passed
+      exit_code: 0
+      termination_signal: null
+      started_at: 2026-07-24T19:14:42.423Z
+      ended_at: 2026-07-24T19:14:42.712Z
+      duration: 278
+      primary_failure_classification: null
+      contributing_causes: []
+      root_cause_group: null
+      evidence_references:
+        - preflight_typecheck_stdout
+        - preflight_typecheck_stderr
+        - preflight_typecheck_execution_trace
+  e2e_suites:
+    - Integration Test Suite
+    - Unit Test Suite
+  required_e2e_tests: &a3
+    - suite_id: integration
+      suite_name: Integration Test Suite
+      test_id: integration-test
+      test_name: Integration Tests
+      attempt: 1
+      command_or_invocation: npm run test:integration
+      status: Failed
+      started_at: 2026-07-24T19:14:42.716Z
+      ended_at: 2026-07-24T19:14:43.727Z
+      duration: 1011
+      assertion_or_error: |2-
+              name: 'AssertionError'
+              expected: 'PASS'
+              actual: 'FAIL'
+      exit_code_or_runner_result: 1
+      primary_failure_classification: AssertionFailure
+      contributing_causes:
+        - "Non-zero exit code: 1"
+        - Warnings detected in output
+      root_cause_group: null
+      evidence_references:
+        - e2e_integration-test_stdout
+        - e2e_integration-test_stderr
+        - e2e_integration-test_execution_trace
+    - suite_id: unit
+      suite_name: Unit Test Suite
+      test_id: unit-test
+      test_name: Unit Tests
+      attempt: 1
+      command_or_invocation: npm run test
+      status: Failed
+      started_at: 2026-07-24T19:14:43.729Z
+      ended_at: 2026-07-24T19:14:47.761Z
+      duration: 4032
+      assertion_or_error: |2-
+              name: 'AssertionError'
+              expected: 'PASS'
+              actual: 'FAIL'
+      exit_code_or_runner_result: 1
+      primary_failure_classification: AssertionFailure
+      contributing_causes:
+        - "Non-zero exit code: 1"
+        - Warnings detected in output
+      root_cause_group: null
+      evidence_references:
+        - e2e_unit-test_stdout
+        - e2e_unit-test_stderr
+        - e2e_unit-test_execution_trace
+  dynamic_inventory_items:
+    - service-dependency:sqlite
+  authoritative_skips: []
+  inventory_sources: *a1
+  inventory_status: complete
+preflight_summary:
+  discovered: 1
+  executable: 1
+  executed: 1
+  passed: 1
+  failed: 0
+  errors: 0
+  timeouts: 0
+  blocked: 0
+  authoritatively_skipped: 0
+  not_executed: 0
+  unknown: 0
+  blocking_total: 1
+  blocking_passed: 1
+  gate_status: Passed
+preflight_results: *a2
+preflight_gate:
+  status: Passed
+  blocking_failures: []
+  blocking_unknowns: []
+  e2e_authorized: true
+  decision_evidence:
+    - preflight_typecheck_result
+e2e_summary:
+  discovered_suites: 2
+  discovered_required_tests: 2
+  executed_unique_tests: 2
+  execution_attempts: 2
+  passed: 0
+  failed: 2
+  errors: 0
+  timeouts: 0
+  blocked_by_preflight_gate: 0
+  blocked_by_authoritative_fail_fast: 0
+  blocked: 0
+  not_executed: 0
+  authoritatively_skipped: 0
+  unknown: 0
+  runner_crashes: 0
+  gate_status: Failed
+e2e_results: *a3
+coverage_reconciliation:
+  preflight_discovered_total: 1
+  preflight_accounted_total: 1
+  preflight_reconciled: true
+  e2e_required_discovered_total: 2
+  e2e_required_accounted_total: 2
+  e2e_reconciled: true
+  dynamic_inventory_reconciliation: complete
+  retry_accounting: complete
+  unaccounted_items: []
+  status: complete
+root_cause_groups: []
+defects: []
+regressions: []
+unknowns: []
+evidence_manifest:
+  - evidence_id: preflight_typecheck
+    evidence_type: command_execution
+    file_path: preflight_typecheck.json
+    checksum: 94e3a175be22eafaf1005834ecbab78269b35eafbfbe535dd7ffce6daa2d5d86
+    file_size: 517
+    created_at: 2026-07-24T19:14:42.714Z
+    integrity_validated: true
+  - evidence_id: e2e_integration-test_attempt_1
+    evidence_type: command_execution
+    file_path: e2e_integration-test_attempt_1.json
+    checksum: a395685dc9cd75a15bc5159648f504d88d0a58f0728ea9bfafed571280b53ad8
+    file_size: 641
+    created_at: 2026-07-24T19:14:43.729Z
+    integrity_validated: true
+  - evidence_id: e2e_unit-test_attempt_1
+    evidence_type: command_execution
+    file_path: e2e_unit-test_attempt_1.json
+    checksum: 4ad788e7c7769cc78ac557045a0d372db338ebdc076d4e4a5efd2af7c1735e84
+    file_size: 608
+    created_at: 2026-07-24T19:14:47.763Z
+    integrity_validated: true
+validation_gates:
+  execution_context_resolved:
+    status: Passed
+    evidence_references:
+      - execution_context_validation_ca1ade10-7be9-4743-b0c2-778685688a67
+  authoritative_inventory_resolved:
+    status: Passed
+    evidence_references:
+      - inventory_validation_ca1ade10-7be9-4743-b0c2-778685688a67
+  preparation_passed:
+    status: Passed
+    evidence_references:
+      - preparation_validation_ca1ade10-7be9-4743-b0c2-778685688a67
+  preflight_inventory_complete:
+    status: Passed
+    evidence_references: []
+  preflight_passed:
+    status: Passed
+    evidence_references:
+      - preflight_gate_evaluation_d4f15a5b-ad4d-4a51-8179-7359b42db32f
+      - preflight_typecheck_result
+  e2e_gate_enforced:
+    status: Passed
+    evidence_references: []
+  e2e_inventory_complete:
+    status: Passed
+    evidence_references: []
+  e2e_tests_passed:
+    status: Failed
+    evidence_references:
+      - e2e_gate_evaluation_ca49e14c-9ac9-4120-aa53-23aa38e0ad4e
+      - e2e_integration-test_result
+      - e2e_unit-test_result
+  no_unauthorized_skips:
+    status: Passed
+    evidence_references: []
+  no_result_replacement:
+    status: Passed
+    evidence_references: []
+  evidence_complete:
+    status: Passed
+    evidence_references:
+      - evidence_integrity_ca1ade10-7be9-4743-b0c2-778685688a67
+  failure_classification_complete:
+    status: Passed
+    evidence_references: []
+  regression_evidence_valid:
+    status: Passed
+    evidence_references: []
+  coverage_reconciled:
+    status: Passed
+    evidence_references: []
+  target_unchanged:
+    status: Passed
+    evidence_references: []
+  report_schema_valid:
+    status: Passed
+    evidence_references: []
+  overall_validation_run:
+    status: Passed
+    evidence_references: []
+final_verdict:
+  status: FAIL
+  preflight_status: Passed
+  e2e_status: Failed
+  coverage_status: Passed
+  evidence_status: Passed
+  required_failure_count: 2
+  blocking_defect_ids: []
+  unknown_count: 0
+  verdict_reason: 2 test failure(s) detected
+minimum_safe_next_action:
+  action: FixTestFailure
+  blocker_or_failure: "E2E test integration-test: AssertionFailure"
+  expected_evidence: Test passes with expected assertions

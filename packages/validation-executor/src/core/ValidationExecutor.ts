@@ -66,8 +66,8 @@ export class ValidationExecutor {
       const evidenceCollector = new EvidenceCollector(this.adapter, executionContext.evidence_root);
       
       this.logger.info('Step 2: Starting inventory discovery');
-      const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks();
-      const e2eTestDefinitions = await this.adapter.discoverE2ETests();
+      const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks(this.config.profile);
+      const e2eTestDefinitions = await this.adapter.discoverE2ETests(this.config.profile);
       
       // Convert definitions to full objects with execution state
       const preflightChecks = this.createPreflightChecks(preflightCheckDefinitions);
@@ -133,8 +133,16 @@ export class ValidationExecutor {
           status: 'BlockedByPreflightGate' as const,
           started_at: new Date().toISOString(),
           ended_at: new Date().toISOString(),
-          duration: 0
+          duration: 0,
+          assertion_or_error: 'Test blocked by failed preflight gate',
+          exit_code_or_runner_result: null,
+          primary_failure_classification: 'Blocked' as any,
+          contributing_causes: ['Preflight gate did not pass'],
+          root_cause_group: 'preflight_gate_failure',
+          evidence_references: [`e2e_blocked_${test.test_id}`]
         }));
+        // Evaluate the E2E gate with blocked results - should result in 'Failed' status
+        e2eGate = e2eEngine.evaluateResults(e2eResults);
         this.logger.info('Step 5: E2E execution blocked by preflight gate');
       }
 

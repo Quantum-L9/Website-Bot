@@ -308,8 +308,8 @@ export interface ValidationConfig {
 
 export interface RepositoryAdapter {
   resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext>;
-  discoverPreflightChecks(): Promise<PreflightCheckDefinition[]>;
-  discoverE2ETests(): Promise<E2ETestDefinition[]>;
+  discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]>;
+  discoverE2ETests(profile?: string): Promise<E2ETestDefinition[]>;
   executeCommand(command: string, workingDir: string): Promise<{
     exitCode: number;
     stdout: string;

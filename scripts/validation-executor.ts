@@ -97,7 +97,67 @@ async function main() {
   }
 }
 
+async function validateWebsiteBotConfiguration(options: any): Promise<void> {
+  const errors: string[] = [];
+
+  // Validate timeout range (min: 1000ms, max: 1800000ms = 30 minutes)
+  const timeout = parseInt(options.timeout, 10);
+  if (isNaN(timeout)) {
+    errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
+  } else if (timeout < 1000) {
+    errors.push(`Timeout ${timeout}ms is too low: minimum is 1000ms (1 second)`);
+  } else if (timeout > 1800000) {
+    errors.push(`Timeout ${timeout}ms is too high: maximum is 1800000ms (30 minutes)`);
+  }
+
+  // Website-Bot specific profile validation
+  const validProfiles = ['default', 'ci', 'development', 'staging', 'production', 'test', 'factory', 'site'];
+  if (options.profile && !validProfiles.includes(options.profile)) {
+    errors.push(`Unknown Website-Bot profile '${options.profile}': valid profiles are ${validProfiles.join(', ')}`);
+  }
+
+  // Validate environment type constraints
+  const validEnvironments = ['development', 'staging', 'production', 'test', 'ci'];
+  if (options.environment && !validEnvironments.includes(options.environment)) {
+    errors.push(`Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(', ')}`);
+  }
+
+  // Validate evidence root path writeability
+  if (options['evidence-root']) {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      
+      const evidencePath = path.resolve(options['evidence-root']);
+      
+      // Try to create the directory if it doesn't exist
+      await fs.mkdir(evidencePath, { recursive: true });
+      
+      // Test writeability by creating a temporary file
+      const testFile = path.join(evidencePath, '.write-test');
+      await fs.writeFile(testFile, 'test', 'utf8');
+      await fs.unlink(testFile);
+      
+    } catch (error) {
+      errors.push(`Evidence root '${options['evidence-root']}' is not writable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  // If there are validation errors, report them and exit
+  if (errors.length > 0) {
+    console.error('\nWebsite-Bot Configuration Validation Errors:');
+    for (const error of errors) {
+      console.error(`  ✗ ${error}`);
+    }
+    console.error('\nRun with --help to see valid options.\n');
+    process.exit(1);
+  }
+}
+
 async function runValidation(options: any) {
+  // Validate CLI configuration parameters
+  await validateWebsiteBotConfiguration(options);
+
   const config: ValidationConfig = {
     environment: options.environment,
     profile: options.profile,

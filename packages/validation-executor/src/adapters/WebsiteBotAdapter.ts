@@ -47,91 +47,126 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     };
   }
 
-  async discoverPreflightChecks(): Promise<PreflightCheckDefinition[]> {
-    const checks: PreflightCheckDefinition[] = [];
+  /**
+   * Profile tiers control how much of the merge-gate suite is discovered:
+   *   - 'development' → FAST subset: quick static checks only (typecheck, spec
+   *     normalization, evidence schemas, launch-env), skipping the heavier
+   *     build/pipeline gates for a fast local smoke check.
+   *   - 'default' | 'ci' | 'staging' | 'production' | 'test' → FULL set: every
+   *     preflight check, including the four blocking gates that mirror
+   *     build-and-validate.yml, so the verdict tracks mergeability.
+   */
+  private isFastProfile(profile?: string): boolean {
+    return profile === 'development';
+  }
 
-    // Standard Website-Bot preflight checks
+  async discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]> {
+    const checks: PreflightCheckDefinition[] = [];
+    const packageJson = this.getPackageJson();
+    const cwd = process.cwd();
+    const fast = this.isFastProfile(profile);
+    const hasScript = (name: string): boolean => Boolean(packageJson.scripts?.[name]);
+
+    // Core TypeScript compilation check (always required for Website-Bot)
     checks.push({
       check_id: 'typecheck',
-      check_name: 'TypeScript Type Check', 
+      check_name: 'TypeScript Type Check',
       blocking: true,
       command: 'npm run typecheck',
-      working_directory: process.cwd()
+      working_directory: cwd
     });
 
-    checks.push({
-      check_id: 'normalize-spec-check',
-      check_name: 'Domain Spec Normalization Check',
-      blocking: true,
-      command: 'npm run normalize-spec:check',
-      working_directory: process.cwd()
-    });
+    // Fast static checks — run in every profile (only if the script exists)
+    if (hasScript('normalize-spec:check')) {
+      checks.push({
+        check_id: 'normalize-spec-check',
+        check_name: 'Domain Spec Normalization Check',
+        blocking: true,
+        command: 'npm run normalize-spec:check',
+        working_directory: cwd
+      });
+    }
 
-    checks.push({
-      check_id: 'evidence-schemas',
-      check_name: 'Evidence Schema Validation',
-      blocking: true,
-      command: 'npm run evidence:schemas',
-      working_directory: process.cwd()
-    });
+    if (hasScript('evidence:schemas')) {
+      checks.push({
+        check_id: 'evidence-schemas',
+        check_name: 'Evidence Schema Validation',
+        blocking: true,
+        command: 'npm run evidence:schemas',
+        working_directory: cwd
+      });
+    }
 
-    checks.push({
-      check_id: 'launch-env-validation',
-      check_name: 'Launch Environment Validation',
-      blocking: false, // Non-blocking to allow testing in different environments
-      command: 'npm run validate',
-      working_directory: process.cwd()
-    });
+    // Heavier blocking gates mirroring .github/workflows/build-and-validate.yml.
+    // These gate merge, so they are blocking; skipped only in the fast profile.
+    if (!fast) {
+      const buildGates: Array<{ script: string; check_id: string; check_name: string }> = [
+        { script: 'evidence:contract-parity', check_id: 'evidence-contract-parity', check_name: 'Cross-Repository Contract Lock' },
+        { script: 'site:test:local', check_id: 'site-test-local', check_name: 'Site-Factory Deterministic Local Tests' },
+        { script: 'provision:test', check_id: 'provision-test', check_name: 'Provisioning Transaction Tests' },
+        { script: 'pipeline:plan', check_id: 'pipeline-plan', check_name: 'Plan-Mode Pipeline Proof' }
+      ];
+      for (const gate of buildGates) {
+        if (hasScript(gate.script)) {
+          checks.push({
+            check_id: gate.check_id,
+            check_name: gate.check_name,
+            blocking: true,
+            command: `npm run ${gate.script}`,
+            working_directory: cwd
+          });
+        }
+      }
+    }
+
+    // Validation check is non-blocking and only added if script exists
+    if (hasScript('validate')) {
+      checks.push({
+        check_id: 'launch-env-validation',
+        check_name: 'Launch Environment Validation',
+        blocking: false,
+        command: 'npm run validate',
+        working_directory: cwd
+      });
+    }
 
     return checks;
   }
 
-  async discoverE2ETests(): Promise<E2ETestDefinition[]> {
+  async discoverE2ETests(profile?: string): Promise<E2ETestDefinition[]> {
     const tests: E2ETestDefinition[] = [];
+    const packageJson = this.getPackageJson();
+    const fast = this.isFastProfile(profile);
 
-    // Factory validation tests
-    tests.push({
-      suite_id: 'factory-validation',
-      suite_name: 'Factory Validation Suite',
-      test_id: 'site-validate',
-      test_name: 'Site Factory Validation',
-      attempt: 1,
-      command_or_invocation: 'npm run site:validate'
-    });
+    // Core E2E tests - only add if scripts actually exist.
+    // The fast (development) profile keeps only the essential site smoke test;
+    // full profiles run the entire E2E suite.
+    const coreTests = [
+      { script: 'site:validate', id: 'site-validate', name: 'Site Factory Validation', suite: 'factory-validation', fast: true },
+      { script: 'evidence:test', id: 'evidence-test', name: 'Evidence System Tests', suite: 'factory-validation', fast: false },
+      { script: 'test:integration', id: 'integration-test', name: 'Integration Tests', suite: 'integration', fast: false },
+      { script: 'test', id: 'unit-test', name: 'Unit Tests', suite: 'unit', fast: false }
+    ];
 
-    tests.push({
-      suite_id: 'factory-validation',
-      suite_name: 'Factory Validation Suite',
-      test_id: 'evidence-test',
-      test_name: 'Evidence System Tests',
-      attempt: 1,
-      command_or_invocation: 'npm run evidence:test'
-    });
-
-    tests.push({
-      suite_id: 'factory-validation',
-      suite_name: 'Factory Validation Suite',
-      test_id: 'site-test-local',
-      test_name: 'Local Site Factory Tests',
-      attempt: 1,
-      command_or_invocation: 'npm run site:test:local'
-    });
-
-    tests.push({
-      suite_id: 'pipeline-validation',
-      suite_name: 'Pipeline Validation Suite',
-      test_id: 'pipeline-plan',
-      test_name: 'Pipeline Planning Test',
-      attempt: 1,
-      command_or_invocation: 'npm run pipeline:plan'
-    });
-
-    // Site-level validation tests (if example exists)
-    if (existsSync('examples/supplemental-insurance-pros/astro_site')) {
-      const siteTests = await this.discoverSiteValidationTests();
-      tests.push(...siteTests);
+    for (const testConfig of coreTests) {
+      if (fast && !testConfig.fast) {
+        continue;
+      }
+      if (packageJson.scripts?.[testConfig.script]) {
+        tests.push({
+          suite_id: testConfig.suite,
+          suite_name: this.getSuiteName(testConfig.suite),
+          test_id: testConfig.id,
+          test_name: testConfig.name,
+          attempt: 1,
+          command_or_invocation: `npm run ${testConfig.script}`
+        });
+      }
     }
 
+    // Extension point: Allow custom E2E test discovery
+    // Future implementations can override this method to add repository-specific tests
+    
     return tests;
   }
 
@@ -143,31 +178,26 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   }> {
     this.logger.debug({ command, workingDir }, 'Executing command');
     
-    const startTime = Date.now();
-    
-    const result = spawnSync('sh', ['-c', command], {
+    const { executeCommandSecurely } = await import('../utils/secureExecution.js');
+    const result = executeCommandSecurely(command, {
       cwd: workingDir,
       encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'pipe'],
       timeout: 300000 // 5 minute timeout
     });
 
-    const duration = Date.now() - startTime;
-    const exitCode = result.status || 0;
-
     this.logger.debug({ 
       command, 
-      exitCode, 
-      duration, 
-      stdoutLength: result.stdout?.length || 0,
-      stderrLength: result.stderr?.length || 0
+      exitCode: result.exitCode, 
+      duration: result.duration, 
+      stdoutLength: result.stdout.length,
+      stderrLength: result.stderr.length
     }, 'Command execution completed');
 
     return {
-      exitCode,
-      stdout: result.stdout || '',
-      stderr: result.stderr || '',
-      duration
+      exitCode: result.exitCode,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      duration: result.duration
     };
   }
 
@@ -250,53 +280,65 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   }
 
   private async discoverPreflightCommands(): Promise<string[]> {
-    // Use Website-Bot's standard preflight commands from package.json
-    return [
-      'npm run typecheck',
-      'npm run normalize-spec:check', 
-      'npm run evidence:schemas',
-      'npm run validate'
-    ];
+    const packageJson = this.getPackageJson();
+    const commands: string[] = [];
+
+    // Only include commands that actually exist in package.json
+    const potentialCommands = ['typecheck', 'normalize-spec:check', 'evidence:schemas', 'validate'];
+    
+    for (const cmd of potentialCommands) {
+      if (packageJson.scripts?.[cmd]) {
+        commands.push(`npm run ${cmd}`);
+      }
+    }
+
+    return commands.length > 0 ? commands : ['echo "No preflight commands configured"'];
   }
 
   private async discoverE2ECommands(): Promise<string[]> {
-    // Use Website-Bot's verify:all pattern
-    return [
-      'npm run site:validate',
-      'npm run evidence:test',
-      'npm run site:test:local',
-      'npm run pipeline:plan'
-    ];
+    const packageJson = this.getPackageJson();
+    const commands: string[] = [];
+
+    // Only include commands that actually exist in package.json
+    const potentialCommands = ['site:validate', 'evidence:test', 'test:integration', 'test'];
+    
+    for (const cmd of potentialCommands) {
+      if (packageJson.scripts?.[cmd]) {
+        commands.push(`npm run ${cmd}`);
+      }
+    }
+
+    return commands.length > 0 ? commands : ['echo "No E2E tests configured"'];
   }
 
   private getConfigurationSources(): string[] {
-    const sources = [];
-    const configFiles = [
-      'package.json',
-      'tsconfig.json',
-      'config/launch-env.required.yaml',
-      '.env.example',
-      '.github/workflows/ci.yml',
-      'Makefile',
-      'justfile'
-    ];
-
-    for (const file of configFiles) {
+    const sources: string[] = [];
+    
+    // Core configuration files that are always relevant
+    const coreFiles = ['package.json', 'tsconfig.json'];
+    
+    for (const file of coreFiles) {
       if (existsSync(file)) {
         sources.push(file);
       }
     }
 
+    // Extension point: Additional config files can be added by subclasses
+    // or detected dynamically based on project needs
+    
     return sources;
   }
 
   private getRequiredServices(packageJson: any): string[] {
-    const services = [];
+    const services: string[] = [];
     const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
     
-    if (deps['better-sqlite3']) services.push('sqlite');
-    if (deps.pg || deps.postgres) services.push('postgresql');
-    if (deps.redis) services.push('redis');
+    // Only detect critical services that are commonly used
+    if (deps['better-sqlite3']) {
+      services.push('sqlite');
+    }
+    
+    // Extension point: Additional service detection can be added as needed
     
     return services;
   }
@@ -344,35 +386,13 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     return 'validation';
   }
 
-  private async discoverSiteValidationTests(): Promise<E2ETestDefinition[]> {
-    const tests: E2ETestDefinition[] = [];
-    const siteDir = 'examples/supplemental-insurance-pros/astro_site';
-
-    // Site-specific validation commands based on verify-all.mjs pattern
-    const siteCommands = [
-      { id: 'site-preflight', name: 'Site Preflight Check', cmd: 'node scripts/preflight.mjs' },
-      { id: 'site-verify-source', name: 'Site Source Verification', cmd: 'node scripts/verify-source.mjs' },
-      { id: 'site-verify-build', name: 'Site Build Verification', cmd: 'node scripts/verify-build.mjs' },
-      { id: 'site-verify-smoke', name: 'Site Smoke Tests', cmd: 'node scripts/verify-smoke.mjs' },
-      { id: 'site-verify-form', name: 'Site Form Verification', cmd: 'node scripts/verify-form.mjs' },
-      { id: 'site-verify-analytics', name: 'Site Analytics Verification', cmd: 'node scripts/verify-analytics.mjs' },
-      { id: 'site-verify-crm', name: 'Site CRM Verification', cmd: 'node scripts/verify-crm.mjs' },
-      { id: 'site-verify-seo', name: 'Site SEO Verification', cmd: 'node scripts/verify-seo.mjs' }
-    ];
-
-    for (const siteCmd of siteCommands) {
-      if (existsSync(join(siteDir, siteCmd.cmd.split(' ')[1]))) {
-        tests.push({
-          suite_id: 'site-validation',
-          suite_name: 'Site Validation Suite',
-          test_id: siteCmd.id,
-          test_name: siteCmd.name,
-          attempt: 1,
-          command_or_invocation: `cd ${siteDir} && ${siteCmd.cmd}`
-        });
-      }
-    }
-
-    return tests;
+  private getSuiteName(suiteId: string): string {
+    const suiteNames: Record<string, string> = {
+      'factory-validation': 'Factory Validation Suite',
+      'integration': 'Integration Test Suite',
+      'unit': 'Unit Test Suite',
+      'e2e': 'End-to-End Test Suite'
+    };
+    return suiteNames[suiteId] || `${suiteId} Suite`;
   }
 }

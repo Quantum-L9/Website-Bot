@@ -96,7 +96,7 @@ export class PreflightEngine {
       const result = await this.adapter.executeCommand(check.command, check.working_directory);
       
       const endedAt = new Date().toISOString();
-      const duration = Date.now() - startTime;
+      const duration = result.duration;
 
       // Determine status and classification based on exit code and output
       const { status, classification } = this.classifyResult(result.exitCode, result.stdout, result.stderr);
@@ -164,6 +164,11 @@ export class PreflightEngine {
     // Analyze output for specific failure types
     const combinedOutput = (stdout + '\n' + stderr).toLowerCase();
 
+    // Check for timeout first (exit code 124 is standard timeout exit code)
+    if (exitCode === 124 || combinedOutput.includes('timed out') || combinedOutput.includes('timeout')) {
+      return { status: 'Timeout', classification: 'Timeout' };
+    }
+
     // Dependency failures
     if (combinedOutput.includes('module not found') || 
         combinedOutput.includes('cannot resolve') ||
@@ -191,7 +196,6 @@ export class PreflightEngine {
     // Environment failures
     if (combinedOutput.includes('connection refused') ||
         combinedOutput.includes('network') ||
-        combinedOutput.includes('timeout') ||
         combinedOutput.includes('host not found')) {
       return { status: 'Failed', classification: 'EnvironmentFailure' };
     }

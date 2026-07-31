@@ -104,7 +104,7 @@ export class E2EEngine {
       const result = await this.adapter.executeCommand(test.command_or_invocation, process.cwd());
       
       const endedAt = new Date().toISOString();
-      const duration = Date.now() - startTime;
+      const duration = result.duration;
 
       // Determine status and classification based on exit code and output
       const { status, classification, assertionError } = this.classifyTestResult(
@@ -142,7 +142,7 @@ export class E2EEngine {
 
     } catch (error) {
       const endedAt = new Date().toISOString();
-      const duration = Date.now() - startTime;
+      const duration = Date.now() - startTime; // Use actual time for errors since adapter wasn't called
 
       this.logger.error({ error, testId: test.test_id }, 'E2E test execution failed');
 
@@ -270,7 +270,11 @@ export class E2EEngine {
     // Look for common assertion error patterns
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].toLowerCase();
-      if (line.includes('expected') && line.includes('received')) {
+
+      if (line.includes('assertionerror') || line.includes('assertion error')) {
+        return lines.slice(i, Math.min(i + 3, lines.length)).join('\n');
+      }
+      if (line.includes('expected') && (line.includes('received') || line.includes('got'))) {
         return lines.slice(i, Math.min(i + 3, lines.length)).join('\n');
       }
       if (line.includes('assertion failed')) {
@@ -337,7 +341,7 @@ export class E2EEngine {
     this.logger.info('Evaluating E2E test results');
 
     const failedTests = e2eResults.filter(test => 
-      ['Failed', 'Error', 'Timeout'].includes(test.status)
+      ['Failed', 'Error', 'Timeout', 'BlockedByPreflightGate'].includes(test.status)
     ).length;
 
     const unknownTests = e2eResults.filter(test => 
@@ -374,10 +378,16 @@ export class E2EEngine {
     const uniqueTests = new Set(e2eResults.map(r => r.test_id)).size;
     const suites = new Set(e2eResults.map(r => r.suite_id));
 
+    // Count unique tests that were actually executed (not blocked)
+    const executedTests = new Set(e2eResults
+      .filter(r => !['BlockedByPreflightGate', 'BlockedByAuthoritativeFailFast', 'Blocked', 'NotExecuted'].includes(r.status))
+      .map(r => r.test_id)
+    ).size;
+
     const summary = {
       discovered_suites: suites.size,
       discovered_required_tests: uniqueTests,
-      executed_unique_tests: uniqueTests, // All discovered tests are executed
+      executed_unique_tests: executedTests, // Only actually executed tests
       execution_attempts: e2eResults.length, // Includes retries
       passed: e2eResults.filter(r => r.status === 'Passed').length,
       failed: e2eResults.filter(r => r.status === 'Failed').length,
