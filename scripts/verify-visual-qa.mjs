@@ -57,6 +57,24 @@ async function resolvePages() {
   return ['/'];
 }
 
+// Client id for budget tracking in @quantum-l9/llm-router. Precedence: CLIENT_ID env →
+// the DomainSpec's client_id → a stable fallback. Must be non-empty (the router rejects
+// an empty client id at initClient).
+async function resolveClientId() {
+  if (process.env.CLIENT_ID) return process.env.CLIENT_ID;
+  const specPath = process.env.SPEC_PATH || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml';
+  try {
+    const { parse } = await import('yaml');
+    const spec = parse(readFileSync(specPath, 'utf-8'));
+    const root = spec?.domain_spec ?? spec;
+    const id = root?.client_id ?? root?.metadata?.spec_id;
+    if (id) return String(id);
+  } catch {
+    // fall through to the safe default
+  }
+  return 'visual-qa';
+}
+
 const PAGES = await resolvePages();
 
 async function main() {
@@ -70,7 +88,11 @@ async function main() {
     console.log('   Screenshots will still be captured for manual review');
   }
 
-  const siteUrl = process.env.SITE_URL || 'http://localhost:4321';
+  // The visual-qa pipeline stage invokes this script as `--url <deployUrl>`; honor that
+  // first, then SITE_URL, then a local dev-server default.
+  const urlFlagIndex = process.argv.indexOf('--url');
+  const urlArg = urlFlagIndex !== -1 ? process.argv[urlFlagIndex + 1] : undefined;
+  const siteUrl = urlArg || process.env.SITE_URL || 'http://localhost:4321';
   console.log(`\n📸 Target: ${siteUrl}`);
   console.log(`📐 Viewports: ${VIEWPORTS.length}`);
   console.log(`📄 Pages: ${PAGES.length}`);
@@ -127,7 +149,7 @@ async function main() {
     console.log('\n🤖 Running vision analysis...\n');
     // Dynamic import of the LLM service
     const { createWebsiteFactoryLLM } = await import('../dist/services/llm.js');
-    const llm = createWebsiteFactoryLLM();
+    const llm = createWebsiteFactoryLLM(await resolveClientId());
 
     const issues = [];
     for (const screenshot of screenshots) {
@@ -142,8 +164,9 @@ async function main() {
       });
     }
 
+    const hasCritical = issues.some(i => /critical/i.test(i.analysis));
     const report = {
-      status: issues.some(i => i.analysis.includes('critical')) ? 'FAIL' : 'PASS',
+      status: hasCritical ? 'FAIL' : 'PASS',
       timestamp: new Date().toISOString(),
       siteUrl,
       totalScreenshots: screenshots.length,
@@ -152,6 +175,9 @@ async function main() {
 
     writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
     console.log(`\n📋 Report written to: ${REPORT_PATH}`);
+    // Emit a CRITICAL marker on stdout so the visual-qa pipeline stage (which scans this
+    // script's output for "CRITICAL") can fail the gate on severe defects.
+    if (hasCritical) console.log('CRITICAL: visual QA detected critical layout issues');
     console.log(`STATUS: ${report.status}`);
   } else {
     console.log('📋 Screenshots captured. Run with OPENROUTER_API_KEY for AI analysis.');

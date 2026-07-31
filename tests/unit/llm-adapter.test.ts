@@ -1,6 +1,9 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { writeFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   CircuitOpenError,
   BudgetExhaustedError,
@@ -32,7 +35,7 @@ function fakeResponse(over: Partial<LLMResponse> = {}): LLMResponse {
   };
 }
 
-interface Recorded { task: TaskDescriptor; systemPrompt: string; userPrompt: string; }
+interface Recorded { task: TaskDescriptor; systemPrompt: string; userPrompt: string; options?: { images?: string[] }; }
 
 function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } = {}) {
   const initCalls: string[] = [];
@@ -42,8 +45,8 @@ function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } 
     factoryCalls += 1;
     return {
       initClient(clientId: string) { initCalls.push(clientId); },
-      async execute(task: TaskDescriptor, systemPrompt: string, userPrompt: string): Promise<LLMResponse> {
-        execCalls.push({ task, systemPrompt, userPrompt });
+      async execute(task: TaskDescriptor, systemPrompt: string, userPrompt: string, options?: { images?: string[] }): Promise<LLMResponse> {
+        execCalls.push({ task, systemPrompt, userPrompt, options });
         if (opts.throwOnExecute) throw opts.throwOnExecute;
         return opts.response ?? fakeResponse();
       },
@@ -86,6 +89,22 @@ void test('generateSchema maps to CODE_GENERATION/LOW', async () => {
   const { task } = h.execCalls[0];
   assert.equal(task.type, TaskType.CODE_GENERATION);
   assert.equal(task.complexity, TaskComplexity.LOW);
+});
+
+void test('validateLayout maps to LAYOUT_VALIDATION and passes screenshots as base64 data URIs', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'vqa-'));
+  const shot = join(dir, 'home_desktop.png');
+  writeFileSync(shot, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]));
+  const h = makeHarness();
+  const llm = createWebsiteFactoryLLM('c', { env: BOTH_KEYS, routerFactory: h.routerFactory });
+  const out = await llm.validateLayout([shot], 'Page: /, Viewport: desktop (1440x900)');
+  assert.equal(out, 'ok');
+  const { task, options, userPrompt } = h.execCalls[0];
+  assert.equal(task.type, TaskType.LAYOUT_VALIDATION);
+  assert.equal(task.complexity, TaskComplexity.MEDIUM);
+  assert.equal(options?.images?.length, 1);
+  assert.ok(options?.images?.[0].startsWith('data:image/png;base64,'));
+  assert.match(userPrompt, /Page: \/, Viewport: desktop/);
 });
 
 void test('construction is lazy: no router built, keys unread, flushUsage works pre-init', () => {
