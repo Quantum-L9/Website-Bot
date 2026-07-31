@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createLogger } from '../utils/logger.js';
+import { resolveTrustedExecutable } from '../utils/secureExecution.js';
 import type { 
   RepositoryAdapter, 
   ValidationConfig, 
@@ -202,7 +203,7 @@ export class SeoBotAdapter implements RepositoryAdapter {
 
   private async getGitRevision(): Promise<string | null> {
     try {
-      const result = spawnSync('git', ['rev-parse', 'HEAD'], {
+      const result = spawnSync(resolveTrustedExecutable('git'), ['rev-parse', 'HEAD'], {
         cwd: process.cwd(),
         encoding: 'utf8',
         timeout: 5000
@@ -231,7 +232,7 @@ export class SeoBotAdapter implements RepositoryAdapter {
 
   private getActiveIdentity(): string {
     try {
-      const result = spawnSync('git', ['config', 'user.email'], {
+      const result = spawnSync(resolveTrustedExecutable('git'), ['config', 'user.email'], {
         cwd: process.cwd(),
         encoding: 'utf8',
         timeout: 5000

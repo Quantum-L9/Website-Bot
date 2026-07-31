@@ -4,8 +4,17 @@
 
 import { randomUUID } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ValidationConfig, ExecutionContext, PreflightCheckDefinition, E2ETestDefinition } from '../src/types/index.js';
+
+/**
+ * Unique, unpredictable default evidence root for mock config/context factories.
+ * Avoids a fixed, shared path under a publicly writable directory (CWE-379).
+ */
+function defaultMockEvidenceRoot(): string {
+  return join(tmpdir(), `test-evidence-${randomUUID()}`);
+}
 
 export interface TestEnvironment {
   tempDir: string;
@@ -46,7 +55,7 @@ export function createMockConfig(overrides: Partial<ValidationConfig> = {}): Val
     profile: 'test',
     preflight_commands: ['echo "preflight test"'],
     e2e_commands: ['echo "e2e test"'],
-    evidence_root: '/tmp/test-evidence',
+    evidence_root: defaultMockEvidenceRoot(),
     timeout: 5000,
     fail_fast: false,
     skip_patterns: [],
@@ -74,7 +83,7 @@ export function createMockExecutionContext(overrides: Partial<ExecutionContext> 
     target_endpoints: ['http://localhost:3000'],
     required_dependencies: ['typescript', 'node'],
     required_credentials: [],
-    evidence_root: '/tmp/test-evidence',
+    evidence_root: defaultMockEvidenceRoot(),
     ...overrides
   };
 }

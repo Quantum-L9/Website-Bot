@@ -4,6 +4,31 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+/**
+ * Fixed, non-writable system directories trusted to resolve executables from.
+ * Spawning by bare name (e.g. 'git', 'sh') lets the OS search the ambient PATH,
+ * which may include attacker-writable directories (CWE-426/427). Resolving
+ * against this fixed allowlist first avoids relying on that ambient PATH.
+ */
+const TRUSTED_BIN_DIRS = ['/usr/bin', '/bin', '/usr/local/bin', '/usr/sbin', '/sbin', '/opt/homebrew/bin'];
+
+/**
+ * Resolve an executable to an absolute path within a trusted, unwriteable
+ * system directory. Falls back to the bare name (previous behavior) only
+ * when the executable cannot be found in any trusted directory.
+ */
+export function resolveTrustedExecutable(name: string): string {
+  for (const dir of TRUSTED_BIN_DIRS) {
+    const candidate = join(dir, name);
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return name;
+}
 
 export interface CommandResult {
   exitCode: number;
@@ -150,7 +175,7 @@ function executeWithShell(
   options: ExecutionOptions,
   startTime: number
 ): CommandResult {
-  const result = spawnSync('sh', ['-c', command], {
+  const result = spawnSync(resolveTrustedExecutable('sh'), ['-c', command], {
     cwd: options.cwd,
     encoding: options.encoding || 'utf8',
     stdio: ['inherit', 'pipe', 'pipe'],
