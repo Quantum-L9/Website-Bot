@@ -54,7 +54,7 @@
     "deploy:production": "echo 'Production deployment requires implementation'"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.1",
+    "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.13.0",
     "pg": "^8.22.0",
@@ -70,6 +70,6 @@
     "typescript": "^7.0.2"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.0.0"
   }
 }
