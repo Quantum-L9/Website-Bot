@@ -1,6 +1,6 @@
 {
   "name": "website-bot",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "L9 Website Factory: DomainSpec to proven Astro source, client GitHub commit, Vercel deployment, and release receipt",
   "type": "module",
   "scripts": {
@@ -10,6 +10,9 @@
     "pipeline:local-proof": "npx tsx scripts/run-pipeline.ts --mode=local-proof",
     "pipeline:publish-proof": "npx tsx scripts/run-pipeline.ts --mode=publish-proof",
     "pipeline:end-to-end": "npx tsx scripts/run-pipeline.ts --mode=end-to-end",
+    "interop:build": "npm --prefix packages/bot-interop run build",
+    "interop:test": "npm --prefix packages/bot-interop run verify:all",
+    "pretypecheck": "npm run interop:build",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: no standalone ESLint configured; type safety is enforced by tsc --noEmit (npm run typecheck)'",
     "normalize-spec": "npx tsx scripts/normalize-spec.ts",
@@ -22,7 +25,7 @@
     "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
     "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
-    "verify:all": "npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries",
+    "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",
     "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning",
@@ -50,6 +53,8 @@
     "verify:visual-qa": "echo 'Visual QA verification requires implementation'"
   },
   "dependencies": {
+    "@quantum-l9/bot-interop": "file:packages/bot-interop",
+    "@quantum-l9/graphiti-memory-client": "^2.0.0",
     "@quantum-l9/llm-router": "1.0.1",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
