@@ -10,6 +10,7 @@ import type { StageCheckpoint } from '../pipeline/StageCheckpoint.js';
 import { validateSeoBotRegistrationAck, type SeoBotRegistrationAck } from '../contracts/SeoBotRegistrationAck.js';
 import { buildWebsiteFactoryHandoffV3, type WebsiteFactoryHandoffV3 } from '../contracts/WebsiteFactoryHandoffV3.js';
 import { recordWebsiteRelease } from '../services/memory.js';
+import { normalizeRouteSlug } from '../validation/validate-generated-site.js';
 
 const logger = createModuleLogger('stage:handoff-emitter');
 const CONVENIENCE_OUTPUT_PATH = 'contracts/website_factory_integration.yaml';
@@ -91,7 +92,7 @@ export class HandoffEmitterStage implements Stage {
 
     await recordWebsiteRelease(
       contract,
-      ctx.domainSpec.routes.map(route => ({ path: route.path, title: route.title })),
+      ctx.domainSpec.routes.map(route => ({ path: normalizeRouteSlug(route.slug), title: route.title })),
     );
 
     if (!ctx.autoRegisterSeoBot) {
