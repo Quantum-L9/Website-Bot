@@ -1,4 +1,4 @@
-// L9_META: layer=validation, role=boundary_validator, status=active, version=1.1.0
+// L9_META: layer=validation, role=boundary_validator, status=active, version=1.2.0
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -68,9 +68,30 @@ function walk(dir) {
       if (/SEO_BOT_URL|\/api\/clients\/register/.test(text) && inProducerSource && !allowedPlatformApiPaths.has(rel)) {
         violations.push(`${rel}: unauthorized direct platform API egress`);
       }
+      if (inProducerSource && /llm-stub/.test(text)) {
+        violations.push(`${rel}: forbidden llm-stub reference (production LLM must use @quantum-l9/llm-router)`);
+      }
     }
   }
 }
 for (const root of roots) walk(root);
+
+// LLM router restoration guards: the production generation path must consume the real
+// @quantum-l9/llm-router package and never fall back to a local stub.
+const producerRoot = contextRoot === packRoot ? resolve(packRoot, 'Website-Bot') : repoRoot;
+if (existsSync(producerRoot)) {
+  if (existsSync(resolve(producerRoot, 'src/services/llm-stub.ts'))) {
+    violations.push('src/services/llm-stub.ts: production LLM stub must not exist');
+  }
+  const llmServicePath = resolve(producerRoot, 'src/services/llm.ts');
+  if (existsSync(llmServicePath) && !/@quantum-l9\/llm-router/.test(readFileSync(llmServicePath, 'utf8'))) {
+    violations.push('src/services/llm.ts: must import @quantum-l9/llm-router');
+  }
+  const pkgPath = resolve(producerRoot, 'package.json');
+  if (existsSync(pkgPath) && !JSON.parse(readFileSync(pkgPath, 'utf8')).dependencies?.['@quantum-l9/llm-router']) {
+    violations.push('package.json: missing @quantum-l9/llm-router dependency');
+  }
+}
+
 if (violations.length) throw new Error(`forbidden boundary references:\n${violations.join('\n')}`);
 console.log(JSON.stringify({ ok: true, classification: 'platform_application', protocol: boundary.protocol, layout: contextRoot === packRoot ? 'pack' : 'repository', packet_envelope_findings: 0, direct_peer_bypass_findings: 0 }, null, 2));

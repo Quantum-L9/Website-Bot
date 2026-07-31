@@ -50,6 +50,7 @@
     "verify:visual-qa": "echo 'Visual QA verification requires implementation'"
   },
   "dependencies": {
+    "@quantum-l9/llm-router": "1.0.1",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.13.0",
@@ -66,6 +67,6 @@
     "typescript": "^7.0.2"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.19.0"
   }
 }

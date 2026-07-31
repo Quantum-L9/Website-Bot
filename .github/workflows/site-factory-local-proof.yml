@@ -60,6 +60,8 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           NODE_ENV: production
+      - name: Assert real LLM output (no stub sentinel; Astro build materialized)
+        run: node scripts/assert-llm-live.mjs --root=build/sites
       - name: Validate persisted chain after process boundary
         run: npm run evidence:validate -- --client-id="$CLIENT_ID" --build-id="$BUILD_ID" --mode=local-proof
         env:

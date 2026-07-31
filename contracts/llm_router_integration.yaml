@@ -7,9 +7,9 @@
 
 contract:
   name: llm_router_integration
-  version: "1.0.0"
+  version: "1.0.1"
   owner: l9-website-factory
-  dependency: "@quantum-l9/llm-router@^1.0.0"
+  dependency: "@quantum-l9/llm-router@1.0.1"
   location: "GitHub Packages (installed into node_modules; consumed via src/services/llm.ts)"
 
 # ─────────────────────────────────────────────────────────────
@@ -36,6 +36,13 @@ task_mapping:
       - typography reasoning
       - brand voice calibration
     default_complexity: HIGH
+    provider: openrouter
+
+  schema_generation:
+    router_task_type: CODE_GENERATION
+    used_by:
+      - JSON-LD structured data generation
+    default_complexity: LOW
     provider: openrouter
 
   competitor_research:
@@ -134,3 +141,8 @@ env_vars:
     - CLIENT_ID
     - MONTHLY_BUDGET_PER_CLIENT
     - WEEKLY_BUDGET_TARGET
+    - WEEKLY_BUDGET_HARD_CEILING
+    - LLM_PROVIDER_TIMEOUT_MS
+  install_only:
+    # GitHub Packages read credential used by .npmrc during npm ci/install — NOT a runtime secret.
+    - NODE_AUTH_TOKEN
