@@ -56,7 +56,7 @@ jobs:
             echo "verify-launch-env.mjs not present; skipping"
           fi
       - name: Evidence-driven validation executor (aggregate profile)
-        run: npx tsx packages/validation-executor/src/cli.ts run --profile ci --evidence-root validation --output validation_report.yaml
+        run: node --import tsx packages/validation-executor/src/cli.ts run --profile ci --evidence-root validation --output validation_report.yaml
       - name: Upload validation executor report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
