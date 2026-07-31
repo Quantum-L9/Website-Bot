@@ -18,3 +18,9 @@ validation/launch_env_report.json
 coverage/
 **/coverage/
 .nyc_output/
+
+# Local environment files — never commit real credentials (.env.example is the
+# tracked template)
+.env
+.env.local
+.env.*.local

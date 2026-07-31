@@ -4,8 +4,7 @@ import fs from 'node:fs';
 const isCI = process.argv.includes('--ci') || process.env.CI === 'true';
 
 // Secrets/tokens — warn in CI, block only in production. Only real secrets/tokens
-// belong here (VERCEL_ORG_ID/PROJECT_ID are identifiers, not secrets → below).
-// CRM secrets are provider-agnostic (CRM_PROVIDER selects the vendor).
+// belong here. CRM secrets are provider-agnostic (CRM_PROVIDER selects the vendor).
 const secretsForLaunch = [
   'VERCEL_TOKEN',
   'FORM_WEBHOOK_SECRET', 'CRM_API_TOKEN', 'CRM_CLIENT_SECRET',
@@ -14,12 +13,21 @@ const secretsForLaunch = [
 // Config values — required for production launch. A professional license is
 // vertical-specific, so it is NOT unconditionally required here — it is enforced
 // only via the conditional gate below when LICENSE_DISPLAY_REQUIRED is set.
+//
+// Vercel identity is deliberately split to match the deploy runtime
+// (src/stages/VercelDeployStage.ts + SiteAssemblerStage.ts):
+//   - VERCEL_TEAM_ID is the only GLOBAL Vercel identifier required here.
+//   - Project identity is PER-CLIENT (DomainSpec.deploy.vercel_project_id, env
+//     fallback CLIENT_VERCEL_PROJECT_ID) and enforced at deploy time, so a
+//     single shared project can never overwrite another client's site.
+// The legacy shared VERCEL_ORG_ID / VERCEL_PROJECT_ID are intentionally not
+// validated: they are unused by the site-factory spine.
 const requiredForLaunch = [
   'PROJECT_LICENSE', 'SUPPORT_CONTACT_EMAIL', 'SECURITY_CONTACT_EMAIL',
   'PUBLIC_SITE_URL', 'PRODUCTION_DOMAIN', 'FORM_PROVIDER', 'FORM_ENDPOINT_URL',
   'LEAD_NOTIFICATION_EMAIL',
   'LEGAL_DISCLAIMER_APPROVED', 'LEGAL_DISCLAIMER_VERSION', 'LEGAL_REVIEW_OWNER',
-  'VERCEL_ORG_ID', 'VERCEL_PROJECT_ID',
+  'VERCEL_TEAM_ID',
 ];
 
 const optionalUntilClaimed = [
