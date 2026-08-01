@@ -115,6 +115,49 @@ npm run verify:launch-env
 
 The command writes `validation/launch_env_report.json` and exits nonzero while required vars are missing or approval gates remain unresolved. Secrets must be set in Vercel or a secure local secret store. Do not commit `.env.local`.
 
+## Triggered-Deploy Credential Preflight
+
+`verify:launch-env` covers the launch/legal contract. The build+deploy pipeline additionally
+reads execution credentials at runtime; a triggered deploy must have these present or it will
+fail. The deploy workflows (`build-site.yml`, `deploy-to-vercel.yml`) run this preflight before
+the pipeline so a missing credential fails fast with a readable message:
+
+```bash
+npm run verify:deploy-secrets       # production mode: FAIL_CLOSED on missing required creds
+npm run verify:deploy-secrets --ci  # CI mode: warnings only, exit 0
+```
+
+It writes `validation/deploy_secrets_report.json`.
+
+### Required in GitHub for a triggered deploy
+
+Set these under the repo (or org, scoped to this repo) → **Settings → Secrets and variables → Actions**.
+
+**Secrets** (tab: *Secrets*)
+
+| Secret | Consumed by | Purpose |
+|---|---|---|
+| `OPENROUTER_API_KEY` | `src/services/llm.ts` | content/design/schema generation (required) |
+| `VERCEL_TOKEN` | `src/stages/VercelDeployStage.ts` | Vercel deploy + correlation (required) |
+| `GITHUB_SITE_TOKEN` | `src/stages/ClientSourcePublishStage.ts` (`env://GITHUB_SITE_TOKEN`) | push generated source to the client repo (required) |
+| `CLIENT_VERCEL_DEPLOY_HOOK` | `SiteAssemblerStage` | deploy-hook trigger (or use API mode via project id) |
+| `PERPLEXITY_API_KEY` | llm-router | competitor research (optional) |
+| `POSTHOG_KEY` / `PUBLIC_POSTHOG_KEY` | `PostHogSnippetStage` | analytics snippet (optional; `PUBLIC_POSTHOG_KEY` preferred) |
+| `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` | SEO baseline | keyword data (optional) |
+| `SEO_BOT_URL` / `SEO_BOT_API_KEY` | SEO handoff | `--auto-register-seo-bot` (optional) |
+
+**Variables** (tab: *Variables* — identifiers, not secrets)
+
+| Variable | Purpose |
+|---|---|
+| `VERCEL_TEAM_ID` | team-scoped Vercel deploys (required) |
+| `CLIENT_VERCEL_PROJECT_ID` | per-client project identity (or embed `deploy.vercel_project_id` in the DomainSpec) |
+
+`GITHUB_REPO_ID` is supplied automatically by the workflow (`github.event.repository.id`).
+
+> Org secrets are only visible to a triggered run when the org secret's **Repository access**
+> policy includes this repository. Confirm under Org → Settings → Secrets and variables → Actions.
+
 ## Rollback
 
 Rollback depends on Vercel deployment history. At minimum, record:
