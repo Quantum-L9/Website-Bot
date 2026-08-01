@@ -6,7 +6,7 @@ import {
   TaskType,
   type LLMResponse,
   type TaskDescriptor,
-} from './llm-stub.js';
+} from '@quantum-l9/llm-router';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 
@@ -31,19 +31,24 @@ export interface WebsiteFactoryLLM {
 }
 
 export function createWebsiteFactoryLLM(clientId: string): WebsiteFactoryLLM {
-  let router: L9LLMRouter | null = null;
-  function getRouter(): L9LLMRouter {
-    if (router) return router;
-    const openrouterApiKey = process.env.OPENROUTER_API_KEY;
-    if (!openrouterApiKey) throw new BuildError('LLM_CALL_FAILED', 'OPENROUTER_API_KEY not set');
-    router = new L9LLMRouter({
-      openrouterApiKey,
-      perplexityApiKey: process.env.PERPLEXITY_API_KEY ?? '',
-      appName: 'L9-Website-Bot',
-    });
-    router.initClient(clientId);
-    logger.info({ clientId }, 'LLM service initialized with @quantum-l9/llm-router');
-    return router;
+  // Cache the initialization promise so initClient (async in @quantum-l9/llm-router)
+  // is awaited exactly once even if stages request the router concurrently.
+  let routerPromise: Promise<L9LLMRouter> | null = null;
+  function getRouter(): Promise<L9LLMRouter> {
+    if (routerPromise) return routerPromise;
+    routerPromise = (async () => {
+      const openrouterApiKey = process.env.OPENROUTER_API_KEY;
+      if (!openrouterApiKey) throw new BuildError('LLM_CALL_FAILED', 'OPENROUTER_API_KEY not set');
+      const instance = new L9LLMRouter({
+        openrouterApiKey,
+        perplexityApiKey: process.env.PERPLEXITY_API_KEY ?? '',
+        appName: 'L9-Website-Bot',
+      });
+      await instance.initClient(clientId);
+      logger.info({ clientId }, 'LLM service initialized with @quantum-l9/llm-router');
+      return instance;
+    })();
+    return routerPromise;
   }
 
   const usageBuffer: UsageRecord[] = [];
@@ -59,7 +64,8 @@ export function createWebsiteFactoryLLM(clientId: string): WebsiteFactoryLLM {
     usageTaskType: string,
   ): Promise<LLMResponse> {
     try {
-      const response = await getRouter().execute(task, systemPrompt, userPrompt);
+      const router = await getRouter();
+      const response = await router.execute(task, systemPrompt, userPrompt);
       record(stage, usageTaskType, response.inputTokens, response.outputTokens, response.cost, response.model);
       return response;
     } catch (error) {
