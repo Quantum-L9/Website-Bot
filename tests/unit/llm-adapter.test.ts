@@ -44,7 +44,7 @@ function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } 
   const routerFactory = (_config: RouterConfig) => {
     factoryCalls += 1;
     return {
-      initClient(clientId: string) { initCalls.push(clientId); },
+      async initClient(clientId: string) { initCalls.push(clientId); },
       async execute(task: TaskDescriptor, systemPrompt: string, userPrompt: string, options?: { images?: string[] }): Promise<LLMResponse> {
         execCalls.push({ task, systemPrompt, userPrompt, options });
         if (opts.throwOnExecute) throw opts.throwOnExecute;
