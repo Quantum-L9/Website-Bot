@@ -14,6 +14,7 @@ import {
   type LLMResponse,
   type RouterConfig,
   type TaskDescriptor,
+  type BudgetConfig,
 } from '@quantum-l9/llm-router';
 import { createWebsiteFactoryLLM } from '../../src/services/llm.js';
 import { BuildError } from '../../src/pipeline/BuildError.js';
@@ -44,8 +45,16 @@ function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } 
   const routerFactory = (_config: RouterConfig) => {
     factoryCalls += 1;
     return {
-      async initClient(clientId: string) { initCalls.push(clientId); },
-      async execute(task: TaskDescriptor, systemPrompt: string, userPrompt: string, options?: { images?: string[] }): Promise<LLMResponse> {
+      // 1.1.1 RouterPort requires Promise<void> (initClient is async on L9LLMRouter).
+      async initClient(clientId: string, _overrides?: Partial<BudgetConfig>): Promise<void> {
+        initCalls.push(clientId);
+      },
+      async execute(
+        task: TaskDescriptor,
+        systemPrompt: string,
+        userPrompt: string,
+        options?: { images?: string[]; assistantContext?: string; consensus?: boolean; signal?: AbortSignal },
+      ): Promise<LLMResponse> {
         execCalls.push({ task, systemPrompt, userPrompt, options });
         if (opts.throwOnExecute) throw opts.throwOnExecute;
         return opts.response ?? fakeResponse();
