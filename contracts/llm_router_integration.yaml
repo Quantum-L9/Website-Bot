@@ -7,9 +7,9 @@
 
 contract:
   name: llm_router_integration
-  version: "1.0.1"
+  version: "1.1.1"
   owner: l9-website-factory
-  dependency: "@quantum-l9/llm-router@1.0.1"
+  dependency: "@quantum-l9/llm-router@1.1.1"
   location: "GitHub Packages (installed into node_modules; consumed via src/services/llm.ts)"
 
 # ─────────────────────────────────────────────────────────────
