@@ -86,7 +86,7 @@ export function createWebsiteFactoryLLM(
   // Lazy construction: plan/dry-run never calls the LLM, so credential-free plan mode must
   // not fail here. The router is built (and credentials required) only on the first real call.
   let router: RouterPort | undefined;
-  function getRouter(): RouterPort {
+  async function getRouter(): Promise<RouterPort> {
     if (router) return router;
     const config: RouterConfig = {
       openrouterApiKey: required('OPENROUTER_API_KEY'),
@@ -102,7 +102,7 @@ export function createWebsiteFactoryLLM(
     };
     try {
       router = routerFactory(config);
-      router.initClient(clientId);
+      await router.initClient(clientId);
       logger.info({ clientId }, 'LLM service initialized with @quantum-l9/llm-router');
       return router;
     } catch (error) {
@@ -135,7 +135,7 @@ export function createWebsiteFactoryLLM(
         task.description ?? usageTaskType,
         [stage, usageTaskType],
       );
-      response = await getRouter().execute(
+      response = await (await getRouter()).execute(
         task,
         `${systemPrompt}${memoryContext}`,
         userPrompt,

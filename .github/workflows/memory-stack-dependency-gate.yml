@@ -37,7 +37,7 @@ jobs:
         run: npm view @quantum-l9/graphiti-memory-client@2.0.0 version
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Require @quantum-l9/llm-router@1.0.1 on the registry
-        run: npm view @quantum-l9/llm-router@1.0.1 version
+      - name: Require @quantum-l9/llm-router@1.1.1 on the registry
+        run: npm view @quantum-l9/llm-router@1.1.1 version
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
