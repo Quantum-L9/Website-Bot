@@ -48,6 +48,8 @@ jobs:
         run: npm run pipeline:plan
         env:
           NODE_ENV: test
+      - name: LLM wiring guard (no stub in content path)
+        run: npm run llm:wiring
       - name: Run launch env verification (optional)
         run: |
           if [ -f scripts/verify-launch-env.mjs ]; then
