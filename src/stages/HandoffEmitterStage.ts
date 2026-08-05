@@ -131,7 +131,8 @@ export class HandoffEmitterStage implements Stage {
 
     const ackRecord = await ctx.evidenceStore.writeRegistrationAck(acknowledgement);
     mkdirSync(dirname(this.ackPath), { recursive: true });
-    writeFileSync(this.ackPath, `${JSON.stringify({ authoritative_evidence: `${ctx.evidenceStore.rootDir}/${ackRecord.relativePath}`, ...acknowledgement }, null, 2)}\n`, 'utf-8');
+    const authoritativeEvidence = `${ctx.evidenceStore.rootDir}/${ackRecord.relativePath}`;
+    writeFileSync(this.ackPath, `${JSON.stringify({ authoritative_evidence: authoritativeEvidence, ...acknowledgement }, null, 2)}\n`, 'utf-8');
     logger.info({ clientId: acknowledgement.client_id, contractId: acknowledgement.contract_id, commitSha: acknowledgement.verified_commit_sha }, 'SEO-Bot maintenance readiness confirmed');
   }
 }

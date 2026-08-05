@@ -1,7 +1,7 @@
 // L9_META: layer=service, role=deterministic_hashing, status=active, version=1.0.0
-import { createHash } from 'crypto';
-import { lstatSync, readFileSync, readdirSync } from 'fs';
-import { relative, resolve, sep } from 'path';
+import { createHash } from 'node:crypto';
+import { lstatSync, readFileSync, readdirSync } from 'node:fs';
+import { relative, resolve, sep } from 'node:path';
 import { BuildError } from '../pipeline/BuildError.js';
 
 export interface HashedFile {

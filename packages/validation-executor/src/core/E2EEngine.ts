@@ -188,7 +188,7 @@ export class E2EEngine {
     ];
 
     for (const pattern of assertionPatterns) {
-      const match = (stdout + '\n' + stderr).match(pattern);
+      const match = pattern.exec(stdout + '\n' + stderr);
       if (match) {
         return { 
           status: 'Failed', 

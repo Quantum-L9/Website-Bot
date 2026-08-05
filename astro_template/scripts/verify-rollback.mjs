@@ -10,12 +10,13 @@ const deploymentEnvVars = Object.keys(envVars).filter(key =>
   key.toLowerCase().includes('github')
 );
 
+const deploymentSuffix = deploymentEnvVars.length > 3 ? '...' : '';
 checks.push(result(
   'deployment-config-present',
   'deployment_config',
   '.env.example',
   'Deployment configuration variables defined',
-  deploymentEnvVars.length > 0 ? `Found: ${deploymentEnvVars.slice(0, 3).join(', ')}${deploymentEnvVars.length > 3 ? '...' : ''}` : 'No deployment variables found',
+  deploymentEnvVars.length > 0 ? `Found: ${deploymentEnvVars.slice(0, 3).join(', ')}${deploymentSuffix}` : 'No deployment variables found',
   deploymentEnvVars.length > 0 ? 'PASS' : 'UNKNOWN',
   'medium',
   'Define deployment configuration for rollback capability'
@@ -109,12 +110,13 @@ const testModeVars = Object.keys(envVars).filter(key =>
   key.toLowerCase().includes('development')
 );
 
+const testModeSuffix = testModeVars.length > 2 ? '...' : '';
 checks.push(result(
   'test-mode-config',
   'rollback_safety',
   'Test mode configuration',
   'Test/staging environment variables defined',
-  testModeVars.length > 0 ? `Test vars: ${testModeVars.slice(0, 2).join(', ')}${testModeVars.length > 2 ? '...' : ''}` : 'No test mode configuration found',
+  testModeVars.length > 0 ? `Test vars: ${testModeVars.slice(0, 2).join(', ')}${testModeSuffix}` : 'No test mode configuration found',
   testModeVars.length > 0 ? 'PASS' : 'UNKNOWN',
   'medium',
   'Define test/staging environment configuration for safe rollback testing'

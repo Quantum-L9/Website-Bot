@@ -36,7 +36,7 @@ jobs:
           scope: '@quantum-l9'
 
       - name: Resolve dependencies into the lockfile
-        run: npm install --package-lock-only --no-audit --no-fund
+        run: npm install --package-lock-only --no-audit --no-fund --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

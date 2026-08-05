@@ -14,6 +14,7 @@ const allowed=['fixtures/','examples/','inputs/','domain_spec/'];
 if(!allowed.some(prefix=>rel.startsWith(prefix)))throw new Error(`spec_path must be under ${allowed.join(', ')}`);
 if(!['.yaml','.yml','.json'].includes(extname(real).toLowerCase()))throw new Error('spec_path extension must be yaml, yml, or json');
 if(lstatSync(candidate).isSymbolicLink())throw new Error('spec_path cannot be a symlink');
-const size=statSync(real).size;if(size<2||size>1024*1024)throw new Error('spec_path size is outside the allowed range');
+const size=statSync(real).size;
+if(size<2||size>1024*1024){throw new Error('spec_path size is outside the allowed range');}
 const copyTo=args['copy-to'];if(copyTo){const out=resolve(root,copyTo);if(out!==root&&!out.startsWith(`${root}${sep}`))throw new Error('copy destination escapes repository root');mkdirSync(dirname(out),{recursive:true});copyFileSync(real,out);}
 console.log(JSON.stringify({ok:true,source:rel,safe_copy:copyTo??null,size_bytes:size}));

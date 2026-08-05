@@ -70,9 +70,14 @@ if (isCI) {
   if (gateFailures.length) warnings.push(`Gate checks (CI warning): ${gateFailures.join('; ')}`);
 }
 
-const status = isCI
-  ? (warnings.length ? 'WARN' : 'PASS')
-  : (missingRequired.length === 0 && missingSecrets.length === 0 && gateFailures.length === 0 ? 'PASS' : 'FAIL_CLOSED');
+let status;
+if (isCI) {
+  status = warnings.length ? 'WARN' : 'PASS';
+} else if (missingRequired.length === 0 && missingSecrets.length === 0 && gateFailures.length === 0) {
+  status = 'PASS';
+} else {
+  status = 'FAIL_CLOSED';
+}
 
 const report = {
   validation_scope: 'launch_env_contract',

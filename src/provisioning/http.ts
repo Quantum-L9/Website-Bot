@@ -30,11 +30,14 @@ export async function requestJson<T>(
   const response = await fetchImpl(url, init);
   const body = await responseBody(response);
   if (!expected.includes(response.status)) {
-    const detail = typeof body === 'object' && body !== null && 'message' in body
-      ? String((body as { message?: unknown }).message)
-      : typeof body === 'object' && body !== null && 'error' in body
-        ? JSON.stringify((body as { error?: unknown }).error)
-        : String(body ?? `HTTP ${response.status}`);
+    let detail: string;
+    if (typeof body === 'object' && body !== null && 'message' in body) {
+      detail = String((body as { message?: unknown }).message);
+    } else if (typeof body === 'object' && body !== null && 'error' in body) {
+      detail = JSON.stringify((body as { error?: unknown }).error);
+    } else {
+      detail = typeof body === 'string' ? body : JSON.stringify(body ?? `HTTP ${response.status}`);
+    }
     throw new ProvisioningHttpError(provider, response.status, `${provider} request failed (${response.status}): ${detail}`, body);
   }
   return { status: response.status, body: body as T };

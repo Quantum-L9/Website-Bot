@@ -1,6 +1,6 @@
 // L9_META: layer=script, role=disposable_end_to_end_proof, status=active, version=1.0.0
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { makeBuildId, type BuildContext } from '../src/pipeline/BuildContext.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
@@ -84,7 +84,7 @@ await new ReleaseReceiptStage().run(ctx);
 await new VisualQAStage().run(ctx);
 await new ReleaseReceiptFinalizerStage().run(ctx);
 
-if (!ctx.releaseReceipt || ctx.releaseReceipt.status !== 'succeeded') {
+if (ctx.releaseReceipt?.status !== 'succeeded') {
   throw new Error(`Disposable proof did not converge: ${JSON.stringify(ctx.releaseReceipt)}`);
 }
 console.log(JSON.stringify({

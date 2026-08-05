@@ -10,7 +10,13 @@ for (const field of cfg.form.requiredFields) {
 }
 const hasEndpoint = env.PUBLIC_FORM_ENDPOINT && !env.PUBLIC_FORM_ENDPOINT.includes('UNKNOWN');
 const hasEnvDrivenAction = /PUBLIC_FORM_ENDPOINT|formEndpoint|data-form-endpoint/i.test(form);
-rows.push(result('FORM-DESTINATION', 'form_delivery_validation', cfg.form.component, 'delivery path env-driven or configured', hasEndpoint ? 'endpoint configured' : (hasEnvDrivenAction ? 'env-driven endpoint present' : 'no destination'), hasEndpoint || hasEnvDrivenAction ? (hasEndpoint ? 'PASS' : 'UNKNOWN') : 'FAIL', 'critical', 'Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.'));
+let destinationDetail = 'no destination';
+if (hasEndpoint) destinationDetail = 'endpoint configured';
+else if (hasEnvDrivenAction) destinationDetail = 'env-driven endpoint present';
+let destinationStatus = 'FAIL';
+if (hasEndpoint) destinationStatus = 'PASS';
+else if (hasEnvDrivenAction) destinationStatus = 'UNKNOWN';
+rows.push(result('FORM-DESTINATION', 'form_delivery_validation', cfg.form.component, 'delivery path env-driven or configured', destinationDetail, destinationStatus, 'critical', 'Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.'));
 writeJsonl('validation/form_checks.jsonl', rows);
 console.log(JSON.stringify({ status: statusFromRows(rows), checks: rows.length }, null, 2));
 if (rows.some((r) => r.status === 'FAIL')) process.exit(1);

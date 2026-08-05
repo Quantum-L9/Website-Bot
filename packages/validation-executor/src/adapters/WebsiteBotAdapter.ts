@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createLogger } from '../utils/logger.js';
+import { resolveTrustedExecutable } from '../utils/secureExecution.js';
 import type { 
   RepositoryAdapter, 
   ValidationConfig, 
@@ -218,7 +219,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
 
   private async getGitRevision(): Promise<string> {
     try {
-      const result = spawnSync('git', ['rev-parse', 'HEAD'], { 
+      const result = spawnSync(resolveTrustedExecutable('git'), ['rev-parse', 'HEAD'], { 
         encoding: 'utf8',
         cwd: process.cwd()
       });
@@ -231,7 +232,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
 
   private async getGitUserEmail(): Promise<string> {
     try {
-      const result = spawnSync('git', ['config', 'user.email'], {
+      const result = spawnSync(resolveTrustedExecutable('git'), ['config', 'user.email'], {
         encoding: 'utf8',
         cwd: process.cwd()
       });
@@ -351,8 +352,10 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     }
     
     // Default local development endpoints
-    endpoints.push('http://localhost:4321'); // Astro default
-    endpoints.push('http://localhost:3000'); // Common dev server
+    endpoints.push(
+      'http://localhost:4321', // Astro default
+      'http://localhost:3000', // Common dev server
+    );
     
     return endpoints;
   }

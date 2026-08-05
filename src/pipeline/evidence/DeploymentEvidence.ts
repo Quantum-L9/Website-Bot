@@ -47,7 +47,7 @@ export function validateDeploymentEvidence(value: unknown): asserts value is Dep
   }
   try {
     const url = new URL(String(evidence.deploymentUrl));
-    if (url.protocol !== 'https:') throw new Error();
+    if (url.protocol !== 'https:') throw new Error('deploymentUrl must use HTTPS');
   } catch {
     throw new Error('deploymentUrl must be HTTPS');
   }

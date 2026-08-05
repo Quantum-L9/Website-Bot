@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=vercel_deploy, stage_index=10, status=active, version=3.0.0
-import { mkdirSync, writeFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
@@ -107,9 +107,10 @@ export class VercelDeployStage implements Stage {
     if (!deploymentUrl) throw new BuildError('DEPLOYMENT_CORRELATION_FAILED', 'Vercel deployment did not report a URL');
     const projectId = target.vercelProjectId ?? finalState.projectId;
     if (!projectId) throw new BuildError('DEPLOYMENT_CORRELATION_FAILED', 'Vercel deployment did not report a project ID');
+    const deploymentSeed = `${ctx.buildId}\0${deploymentId}\0${ctx.sourceCommitSha}`;
     const evidence: DeploymentEvidence = {
       schema: 'website-bot.deployment-evidence/v2',
-      deploymentEvidenceId: `dpl_${sha256Text(`${ctx.buildId}\0${deploymentId}\0${ctx.sourceCommitSha}`).slice(0, 32)}`,
+      deploymentEvidenceId: `dpl_${sha256Text(deploymentSeed).slice(0, 32)}`,
       buildId: ctx.buildId,
       clientId: ctx.clientId,
       publicationId: publication.publicationId,

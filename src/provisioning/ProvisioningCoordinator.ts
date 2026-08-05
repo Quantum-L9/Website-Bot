@@ -1,6 +1,6 @@
 // L9_META: layer=provisioning, role=transaction_coordinator, status=active, version=1.0.0
-import { mkdirSync, renameSync, rmSync, writeFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { canonicalJson, comparePaths, sha256Text } from '../services/hashing.js';
 import { GitHubProvisioner, GitHubProvisioningError } from './GitHubProvisioner.js';
 import { VercelProvisioner, VercelProvisioningError } from './VercelProvisioner.js';

@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=site_materializer, stage_index=6, status=active, version=2.0.0
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'fs';
-import { dirname, join, resolve } from 'path';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import { digestDirectory } from '../services/hashing.js';
@@ -98,7 +98,7 @@ export class SiteAssemblerStage implements Stage {
       manifest.generatedAt = new Date().toISOString();
       manifest.outputDir = outputDir;
       ctx.assemblyManifest = manifest;
-      const assemblyRecord = await ctx.evidenceStore.writeAssembly(manifest);
+      await ctx.evidenceStore.writeAssembly(manifest);
       logger.info({ outputDir, routes: routeSlugs.length, sourceDigest: manifest.sourceDigest }, 'Astro site materialized');
     } catch (error) {
       rmSync(temporaryRoot, { recursive: true, force: true });
@@ -201,7 +201,7 @@ export class SiteAssemblerStage implements Stage {
       throw new BuildError('VALIDATION_FAILED', `Invalid GitHub repository name: ${githubRepo}`);
     }
     const sourceBranch = deploy?.source_branch ?? process.env.CLIENT_SOURCE_BRANCH ?? 'main';
-    if (!/^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._\/-]{1,255}$/.test(sourceBranch)) {
+    if (!/^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._/-]{1,255}$/.test(sourceBranch)) {
       throw new BuildError('VALIDATION_FAILED', `Invalid source branch: ${sourceBranch}`);
     }
     return {
@@ -287,7 +287,8 @@ export class SiteAssemblerStage implements Stage {
         return { name, content: content ?? '' };
       });
       const routeSchemas = config.schemas.perRoute[slug] ?? [];
-      write(pagePath, `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n---\n<BaseLayout title={${json(route.title)}} description={${json(`${route.title} | ${ctx.domainSpec.business_name}`)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} />)}\n</BaseLayout>\n`);
+      const routeDescription = `${route.title} | ${ctx.domainSpec.business_name}`;
+      write(pagePath, `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} />)}\n</BaseLayout>\n`);
     }
   }
 }

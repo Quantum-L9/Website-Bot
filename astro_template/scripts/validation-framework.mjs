@@ -18,13 +18,16 @@ export class ValidationRunner {
   async addFileExistenceCheck(id, filePath, description, severity = 'medium', isRequired = false) {
     const { exists } = await import('./lib.mjs');
     const fileExists = exists(filePath);
+    let status = 'UNKNOWN';
+    if (fileExists) status = 'PASS';
+    else if (isRequired) status = 'FAIL';
     return this.addCheck(
       id,
       'file_existence',
       filePath,
       description,
       fileExists ? `${filePath} exists` : `${filePath} missing`,
-      fileExists ? 'PASS' : (isRequired ? 'FAIL' : 'UNKNOWN'),
+      status,
       severity,
       `Create ${filePath}`
     );

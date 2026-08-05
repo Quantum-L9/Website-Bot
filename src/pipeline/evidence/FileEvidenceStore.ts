@@ -25,7 +25,7 @@ import { validateAssemblyManifest, type AssemblyManifest } from './AssemblyManif
 import { validateBuildProof, type BuildProof } from './BuildProof.js';
 import { validateDeploymentEvidence, type DeploymentEvidence } from './DeploymentEvidence.js';
 import { validateReleaseEvidenceChain } from './EvidenceChainValidator.js';
-import { validateEvidenceIndex, type EvidenceChainStatus, type EvidenceIndex } from './EvidenceIndex.js';
+import { validateEvidenceIndex, type EvidenceIndex } from './EvidenceIndex.js';
 import type { EvidenceKind, EvidenceRecord, EvidenceReference } from './EvidenceReference.js';
 import { recordToReference } from './EvidenceReference.js';
 import type { EvidenceStore } from './EvidenceStore.js';
@@ -326,7 +326,7 @@ export class FileEvidenceStore implements EvidenceStore {
   }
   async requireSucceededReleaseReceipt(): Promise<StoredEvidence<ReleaseReceipt>> {
     const stored = await this.readReleaseReceipt();
-    if (!stored || stored.value.status !== 'succeeded') throw new Error('succeeded release receipt evidence is required');
+    if (stored?.value.status !== 'succeeded') throw new Error('succeeded release receipt evidence is required');
     return stored;
   }
 

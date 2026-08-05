@@ -158,9 +158,14 @@ function executeDirectly(
   });
   
   const duration = Date.now() - startTime;
-  
+  let exitCode: number;
+  if (result.status !== null) {
+    exitCode = result.status;
+  } else {
+    exitCode = result.error ? 127 : 0;
+  }
   return {
-    exitCode: result.status !== null ? result.status : (result.error ? 127 : 0),
+    exitCode,
     stdout: result.stdout || '',
     stderr: result.stderr || (result.error ? result.error.message : ''),
     duration
@@ -183,9 +188,14 @@ function executeWithShell(
   });
   
   const duration = Date.now() - startTime;
-  
+  let exitCode: number;
+  if (result.status !== null) {
+    exitCode = result.status;
+  } else {
+    exitCode = result.error ? 127 : 0;
+  }
   return {
-    exitCode: result.status !== null ? result.status : (result.error ? 127 : 0),
+    exitCode,
     stdout: result.stdout || '',
     stderr: result.stderr || (result.error ? result.error.message : ''),
     duration

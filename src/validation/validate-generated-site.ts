@@ -1,6 +1,6 @@
 // L9_META: layer=validation, role=generated_site_validator, status=active, version=1.0.0
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, join, normalize, resolve, sep } from 'path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, normalize, resolve, sep } from 'node:path';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { AssemblyManifest } from '../pipeline/evidence/AssemblyManifest.js';
 import { decodeEvidenceArtifact, encodeEvidenceArtifact } from '../pipeline/evidence/EvidenceCodec.js';

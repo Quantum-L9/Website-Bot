@@ -13,13 +13,12 @@ export class ReleaseReceiptStage implements Stage {
   name = 'release-receipt';
   version = '2.1.0';
   evidence = {
-    inputs: (ctx: BuildContext) => ctx.mode === 'end-to-end'
-      ? ['assembly' as const, 'build' as const, 'publication' as const, 'deployment' as const]
-      : ctx.mode === 'publish-proof'
-        ? ['assembly' as const, 'build' as const, 'publication' as const]
-        : ctx.mode === 'local-proof'
-          ? ['assembly' as const, 'build' as const]
-          : [],
+    inputs: (ctx: BuildContext) => {
+      if (ctx.mode === 'end-to-end') return ['assembly' as const, 'build' as const, 'publication' as const, 'deployment' as const];
+      if (ctx.mode === 'publish-proof') return ['assembly' as const, 'build' as const, 'publication' as const];
+      if (ctx.mode === 'local-proof') return ['assembly' as const, 'build' as const];
+      return [];
+    },
     outputs: (ctx: BuildContext) => ctx.mode === 'plan' ? [] : ['release' as const],
     resumable: true,
     externalMutation: false,
@@ -46,8 +45,7 @@ export class ReleaseReceiptStage implements Stage {
     if (ctx.mode === 'end-to-end') missingGates.push('visual_qa');
 
     const identitiesMatch = Boolean(
-      build
-      && build.value.buildId === assembly.value.buildId
+      build?.value.buildId === assembly.value.buildId
       && build.value.clientId === assembly.value.clientId
       && build.value.sourceDigest === assembly.value.sourceDigest
       && build.value.assemblyManifestSha256 === assembly.record.sha256

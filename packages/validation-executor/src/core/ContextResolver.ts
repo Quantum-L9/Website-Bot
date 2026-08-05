@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { createLogger } from '../utils/logger.js';
+import { resolveTrustedExecutable } from '../utils/secureExecution.js';
 import type { ExecutionContext, ValidationConfig, RepositoryAdapter } from '../types/index.js';
 
 /**
@@ -74,7 +75,7 @@ export class ContextResolver {
   private async resolveSourceRevision(): Promise<string> {
     try {
       // Get current Git revision
-      const result = spawnSync('git', ['rev-parse', 'HEAD'], { 
+      const result = spawnSync(resolveTrustedExecutable('git'), ['rev-parse', 'HEAD'], { 
         encoding: 'utf8',
         cwd: process.cwd()
       });
@@ -151,7 +152,7 @@ export class ContextResolver {
   private async resolveActiveIdentity(): Promise<string> {
     try {
       // Try to get Git user identity
-      const result = spawnSync('git', ['config', 'user.email'], {
+      const result = spawnSync(resolveTrustedExecutable('git'), ['config', 'user.email'], {
         encoding: 'utf8',
         cwd: process.cwd()
       });
@@ -163,6 +164,7 @@ export class ContextResolver {
       // Fall back to system user
       return process.env.USER || process.env.USERNAME || 'Unknown';
     } catch (error) {
+      this.logger.warn({ error }, 'Could not resolve active identity');
       return 'Unknown';
     }
   }
@@ -200,8 +202,7 @@ export class ContextResolver {
     
     // Standard preflight checks based on project type
     if (existsSync('package.json')) {
-      commands.push('npm run typecheck || tsc --noEmit');
-      commands.push('npm run lint || echo "No lint script found"');
+      commands.push('npm run typecheck || tsc --noEmit', 'npm run lint || echo "No lint script found"');
     }
 
     // Check for specific validation commands
@@ -282,7 +283,7 @@ export class ContextResolver {
         if (deps['better-sqlite3'] || deps.sqlite3) services.push('sqlite');
         if (deps.redis) services.push('redis');
       } catch (error) {
-        // Ignore parsing errors
+        this.logger.warn({ error }, 'Could not parse package.json for service detection');
       }
     }
 
@@ -302,8 +303,10 @@ export class ContextResolver {
     }
 
     // Default local endpoints for development
-    endpoints.push('http://localhost:4321'); // Astro default
-    endpoints.push('http://localhost:3000'); // Common dev server
+    endpoints.push(
+      'http://localhost:4321', // Astro default
+      'http://localhost:3000', // Common dev server
+    );
 
     return endpoints;
   }

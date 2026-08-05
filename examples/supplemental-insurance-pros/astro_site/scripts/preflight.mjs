@@ -10,13 +10,16 @@ for (const key of cfg.requiredPublicEnv) {
   const value = env[key];
   const isPresent = typeof value === 'string' && value.length > 0;
   const isUnknown = isPresent && value.includes('UNKNOWN');
+  const presenceLabel = isUnknown ? 'UNKNOWN_DECLARED' : 'DECLARED';
+  let envStatus = 'FAIL';
+  if (isPresent) envStatus = isUnknown ? 'UNKNOWN' : 'PASS';
   rows.push(result(
     `ENV-${key}`,
     'operator_configuration',
     '.env.example',
     `${key} declared and not hardcoded as a secret`,
-    isPresent ? `${key}=${isUnknown ? 'UNKNOWN_DECLARED' : 'DECLARED'}` : 'MISSING',
-    isPresent ? (isUnknown ? 'UNKNOWN' : 'PASS') : 'FAIL',
+    isPresent ? `${key}=${presenceLabel}` : 'MISSING',
+    envStatus,
     isUnknown ? 'high' : 'critical',
     `Set ${key} before production launch.`
   ));

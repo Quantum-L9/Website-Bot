@@ -28,12 +28,13 @@ const formFiles = listFiles('src', (file) =>
   file.toLowerCase().includes('lead')
 );
 
+const formSuffix = formFiles.length > 3 ? '...' : '';
 checks.push(result(
   'form-files-exist',
   'file_structure',
   'src/ form files',
   'Form-related files exist',
-  formFiles.length > 0 ? `Found: ${formFiles.slice(0, 3).join(', ')}${formFiles.length > 3 ? '...' : ''}` : 'No form files found',
+  formFiles.length > 0 ? `Found: ${formFiles.slice(0, 3).join(', ')}${formSuffix}` : 'No form files found',
   formFiles.length > 0 ? 'PASS' : 'UNKNOWN', 
   'medium',
   'Create form components or contact pages'

@@ -1,7 +1,6 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, writeFile, readFile, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
-import { randomUUID } from 'node:crypto';
 import { createLogger } from '../utils/logger.js';
 import type { RepositoryAdapter } from '../types/index.js';
 
@@ -163,7 +162,6 @@ export class EvidenceCollector {
         
         // Verify file exists and is accessible
         const fileStats = await stat(evidencePath);
-        const availabilityStatus = fileStats.isFile() ? 'available' : 'missing';
 
         manifest.push({
           evidence_id: evidenceId,
@@ -206,7 +204,7 @@ export class EvidenceCollector {
     const issues: string[] = [];
     let validEvidence = 0;
 
-    for (const [evidenceId, record] of this.evidenceStore.entries()) {
+    for (const [evidenceId] of this.evidenceStore.entries()) {
       try {
         const evidencePath = join(this.evidenceRoot, `${evidenceId}.json`);
         
@@ -251,7 +249,7 @@ export class EvidenceCollector {
   /**
    * Retrieve stored evidence
    */
-  async getEvidence(evidenceId: string): Promise<any | null> {
+  async getEvidence(evidenceId: string): Promise<any> {
     const record = this.evidenceStore.get(evidenceId);
     if (record) {
       return record.data;
@@ -335,8 +333,8 @@ export class EvidenceCollector {
     const patterns = [
       /\b[A-Za-z0-9+/]{20,}={0,2}\b/g, // Base64-like strings
       /\b[A-Fa-f0-9]{32,}\b/g,         // Hex strings (API keys, hashes)
-      /\bsk_[a-zA-Z0-9_]{20,}\b/g,     // Stripe-like secret keys
-      /\bpk_[a-zA-Z0-9_]{20,}\b/g,     // Public keys
+      /\bsk_\w{20,}\b/g,     // Stripe-like secret keys
+      /\bpk_\w{20,}\b/g,     // Public keys
       /\bghp_[a-zA-Z0-9]{36}\b/g,      // GitHub personal access tokens
       /\bxoxb-[a-zA-Z0-9-]+\b/g,       // Slack bot tokens
       /\bAKIA[0-9A-Z]{16}\b/g,         // AWS access keys

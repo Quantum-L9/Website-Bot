@@ -1,9 +1,9 @@
 // L9_META: layer=script, role=site_factory_structural_validator, status=active, version=1.0.0
-import { readFileSync, rmSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync, rmSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { SiteAssemblerStage } from '../src/stages/SiteAssemblerStage.js';
-import type { BuildContext, DomainSpec } from '../src/pipeline/BuildContext.js';
+import type { BuildContext } from '../src/pipeline/BuildContext.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { validateGeneratedSite } from '../src/validation/validate-generated-site.js';
 import { FileEvidenceStore } from '../src/pipeline/evidence/FileEvidenceStore.js';

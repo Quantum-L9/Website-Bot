@@ -1,5 +1,5 @@
 // L9_META: layer=cli, role=client_provisioning_entrypoint, status=active, version=1.0.0
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { parse } from 'yaml';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { ProvisioningCoordinator } from '../src/provisioning/ProvisioningCoordinator.js';

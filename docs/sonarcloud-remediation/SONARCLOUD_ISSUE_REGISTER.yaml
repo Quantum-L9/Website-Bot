@@ -1,0 +1,2494 @@
+# SONARCLOUD_ISSUE_REGISTER — Quantum-L9_Website-Bot
+# Generated from SonarCloud /api/issues/search (analysisDate 2026-08-02). Secret-free.
+# total_issues: 249
+issues:
+  - issue_key: AZ_EW4XAETN2Y3sJojh2
+    rule_key: S7773
+    path: scripts/fire-inngest-event.mjs
+    line: 22
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4rX1l8KTPdVSkEHOO
+    rule_key: S6505
+    path: .github/workflows/site-factory-disposable-e2e.yml
+    line: 52
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4rXy28KTPdVSkEHON
+    rule_key: S6505
+    path: .github/workflows/site-factory-local-proof.yml
+    line: 39
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8IPm9ZcNHRHTmG4
+    rule_key: S3776
+    path: packages/bot-interop/src/handoff.ts
+    line: 108
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-4p8R2m9ZcNHRHTmG6
+    rule_key: S1121
+    path: src/services/memory.ts
+    line: 24
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C23-assign-subexpr
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8R2m9ZcNHRHTmG7
+    rule_key: S1121
+    path: src/services/memory.ts
+    line: 30
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C23-assign-subexpr
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-1_e4HPjA6nTB95wsh
+    rule_key: S2486
+    path: packages/validation-executor/src/adapters/SeoBotAdapter.ts
+    line: 215
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-1_e4HPjA6nTB95wsi
+    rule_key: S2486
+    path: packages/validation-executor/src/adapters/SeoBotAdapter.ts
+    line: 244
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-1_e21PjA6nTB95wse
+    rule_key: S8786
+    path: packages/validation-executor/src/utils/secureExecution.ts
+    line: 110
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-1_e21PjA6nTB95wsf
+    rule_key: S8786
+    path: packages/validation-executor/src/utils/secureExecution.ts
+    line: 113
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-1_e21PjA6nTB95wsg
+    rule_key: S3358
+    path: packages/validation-executor/src/utils/secureExecution.ts
+    line: 188
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-1_ezkPjA6nTB95wsd
+    rule_key: S2933
+    path: packages/validation-executor/test/setup.ts
+    line: 140
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C28-readonly
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8SFm9ZcNHRHTmG8
+    rule_key: S7763
+    path: src/contracts/WebsiteFactoryHandoffV3.ts
+    line: 23
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C13-reexport
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8SFm9ZcNHRHTmG9
+    rule_key: S7763
+    path: src/contracts/WebsiteFactoryHandoffV3.ts
+    line: 24
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C13-reexport
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8SFm9ZcNHRHTmG-
+    rule_key: S7763
+    path: src/contracts/WebsiteFactoryHandoffV3.ts
+    line: 25
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C13-reexport
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-4p8M2m9ZcNHRHTmG5
+    rule_key: S4624
+    path: src/stages/HandoffEmitterStage.ts
+    line: 134
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-2BcOfJ13m9rvSuT_7
+    rule_key: S3776
+    path: scripts/validate-l9-boundaries.mjs
+    line: 57
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VjqzFnYiN_t-pafkM
+    rule_key: S3776
+    path: packages/validation-executor/src/cli.ts
+    line: 8
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VjqzFnYiN_t-pafkN
+    rule_key: S2486
+    path: packages/validation-executor/src/cli.ts
+    line: 18
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjqzFnYiN_t-pafkO
+    rule_key: S2486
+    path: packages/validation-executor/src/cli.ts
+    line: 26
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjqzFnYiN_t-pafkP
+    rule_key: S2486
+    path: packages/validation-executor/src/cli.ts
+    line: 52
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjqzFnYiN_t-pafkQ
+    rule_key: S3776
+    path: packages/validation-executor/src/cli.ts
+    line: 192
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VjqzFnYiN_t-pafkR
+    rule_key: S7773
+    path: packages/validation-executor/src/cli.ts
+    line: 196
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjqzFnYiN_t-pafkS
+    rule_key: S7773
+    path: packages/validation-executor/src/cli.ts
+    line: 197
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjqtZnYiN_t-pafkH
+    rule_key: S1854
+    path: packages/validation-executor/src/core/ValidationExecutor.ts
+    line: 120
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: FALSE_POSITIVE_CANDIDATE
+    root_cause_cluster: C06-unused-assignment
+    disposition: FALSE_POSITIVE_NO_CHANGE
+    validation: n/a
+  - issue_key: AZ-VjrHgnYiN_t-pafqP
+    rule_key: S3776
+    path: scripts/validation-executor.ts
+    line: 100
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VjrHgnYiN_t-pafqQ
+    rule_key: S7773
+    path: scripts/validation-executor.ts
+    line: 104
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VjrHgnYiN_t-pafqR
+    rule_key: S7773
+    path: scripts/validation-executor.ts
+    line: 105
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VL1CYnYiN_t-pXiel
+    rule_key: S3358
+    path: packages/validation-executor/src/utils/secureExecution.ts
+    line: 163
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VK6RWRVSYGxsIyvdx
+    rule_key: S1854
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 166
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C06-unused-assignment
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VK6P4RVSYGxsIyvdu
+    rule_key: S2699
+    path: packages/validation-executor/test/unit/E2EEngine.test.ts
+    line: 174
+    severity: BLOCKER
+    type: CODE_SMELL
+    validity: FALSE_POSITIVE_CANDIDATE
+    root_cause_cluster: C27-test-assertion
+    disposition: FALSE_POSITIVE_NO_CHANGE
+    validation: n/a
+  - issue_key: AZ-VK6P4RVSYGxsIyvdv
+    rule_key: S2699
+    path: packages/validation-executor/test/unit/E2EEngine.test.ts
+    line: 230
+    severity: BLOCKER
+    type: CODE_SMELL
+    validity: FALSE_POSITIVE_CANDIDATE
+    root_cause_cluster: C27-test-assertion
+    disposition: FALSE_POSITIVE_NO_CHANGE
+    validation: n/a
+  - issue_key: AZ-VEiyv7dtt045f7B0I
+    rule_key: S1128
+    path: astro_template/scripts/verify-source.mjs
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VEitv7dtt045f7B0F
+    rule_key: S2486
+    path: packages/validation-executor/src/cli.ts
+    line: 66
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-VEioq7dtt045f7B0E
+    rule_key: S2486
+    path: packages/validation-executor/src/core/AuditReporter.ts
+    line: 396
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VEiyY7dtt045f7B0G
+    rule_key: S107
+    path: astro_template/scripts/validation-framework.mjs
+    line: 13
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C26-too-many-params
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-VEiyY7dtt045f7B0H
+    rule_key: S3358
+    path: astro_template/scripts/validation-framework.mjs
+    line: 27
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-_NTAUVQ8sY8GvG
+    rule_key: S2871
+    path: astro_template/scripts/lib.mjs
+    line: 34
+    severity: CRITICAL
+    type: BUG
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C16-sort-compare
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-_NTAUVQ8sY8GvH
+    rule_key: S107
+    path: astro_template/scripts/lib.mjs
+    line: 49
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C26-too-many-params
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_AnTAUVQ8sY8GvP
+    rule_key: S7778
+    path: astro_template/scripts/preflight.mjs
+    line: 17
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_AnTAUVQ8sY8GvQ
+    rule_key: S7778
+    path: astro_template/scripts/preflight.mjs
+    line: 28
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk--0TAUVQ8sY8GvF
+    rule_key: S3358
+    path: astro_template/scripts/verify-all.mjs
+    line: 42
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk_ARTAUVQ8sY8GvN
+    rule_key: S4036
+    path: astro_template/scripts/verify-build.mjs
+    line: 7
+    severity: MINOR
+    type: VULNERABILITY
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C24-path-resolution
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_ARTAUVQ8sY8GvO
+    rule_key: S7778
+    path: astro_template/scripts/verify-build.mjs
+    line: 37
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-_kTAUVQ8sY8GvI
+    rule_key: S3358
+    path: astro_template/scripts/verify-form.mjs
+    line: 36
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-_kTAUVQ8sY8GvJ
+    rule_key: S2486
+    path: astro_template/scripts/verify-form.mjs
+    line: 48
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-_6TAUVQ8sY8GvK
+    rule_key: S3358
+    path: astro_template/scripts/verify-rollback.mjs
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-_6TAUVQ8sY8GvL
+    rule_key: S2486
+    path: astro_template/scripts/verify-rollback.mjs
+    line: 89
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-_6TAUVQ8sY8GvM
+    rule_key: S3358
+    path: astro_template/scripts/verify-rollback.mjs
+    line: 117
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk_A5TAUVQ8sY8GvR
+    rule_key: S7778
+    path: astro_template/scripts/verify-seo.mjs
+    line: 54
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_A6TAUVQ8sY8GvS
+    rule_key: S7778
+    path: astro_template/scripts/verify-seo.mjs
+    line: 65
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_A6TAUVQ8sY8GvT
+    rule_key: S7778
+    path: astro_template/scripts/verify-seo.mjs
+    line: 76
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk_BMTAUVQ8sY8GvU
+    rule_key: S4036
+    path: astro_template/scripts/verify-smoke.mjs
+    line: 9
+    severity: MINOR
+    type: VULNERABILITY
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C24-path-resolution
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-1BTAUVQ8sY8GvB
+    rule_key: S4036
+    path: packages/validation-executor/src/adapters/WebsiteBotAdapter.ts
+    line: 221
+    severity: MINOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C24-path-resolution
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-1BTAUVQ8sY8GvC
+    rule_key: S4036
+    path: packages/validation-executor/src/adapters/WebsiteBotAdapter.ts
+    line: 234
+    severity: MINOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C24-path-resolution
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-1BTAUVQ8sY8GvD
+    rule_key: S7778
+    path: packages/validation-executor/src/adapters/WebsiteBotAdapter.ts
+    line: 355
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C09-consecutive-push
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0cTAUVQ8sY8Gu2
+    rule_key: S1128
+    path: packages/validation-executor/src/cli.ts
+    line: 4
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0cTAUVQ8sY8Gu3
+    rule_key: S7773
+    path: packages/validation-executor/src/cli.ts
+    line: 285
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0cTAUVQ8sY8Gu5
+    rule_key: S7785
+    path: packages/validation-executor/src/cli.ts
+    line: 355
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C31-top-level-await
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Guj
+    rule_key: S4036
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 77
+    severity: MINOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C24-path-resolution
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Guk
+    rule_key: S4036
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 154
+    severity: MINOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C24-path-resolution
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Gul
+    rule_key: S2486
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 165
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Gum
+    rule_key: S7778
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 204
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C09-consecutive-push
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Gun
+    rule_key: S2486
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 284
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C04-ignored-exceptions
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-sRTAUVQ8sY8Guo
+    rule_key: S7778
+    path: packages/validation-executor/src/core/ContextResolver.ts
+    line: 306
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C09-consecutive-push
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-zGTAUVQ8sY8Gur
+    rule_key: S8786
+    path: packages/validation-executor/src/core/E2EEngine.ts
+    line: 186
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-zGTAUVQ8sY8Gus
+    rule_key: S6594
+    path: packages/validation-executor/src/core/E2EEngine.ts
+    line: 191
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C19-regexp-exec
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Guu
+    rule_key: S3863
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 1
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C14-duplicate-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Guv
+    rule_key: S3863
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 4
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C14-duplicate-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Guw
+    rule_key: S7059
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 31
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C30-async-ctor
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Gux
+    rule_key: S107
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 86
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C26-too-many-params
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Guy
+    rule_key: S1854
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 209
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C06-unused-assignment
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Guz
+    rule_key: S6571
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 254
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C29-union-any
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Gu0
+    rule_key: S6353
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 338
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-concise
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-0BTAUVQ8sY8Gu1
+    rule_key: S6353
+    path: packages/validation-executor/src/core/EvidenceCollector.ts
+    line: 339
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-concise
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk-zlTAUVQ8sY8Gut
+    rule_key: S1128
+    path: packages/validation-executor/src/core/PreflightEngine.ts
+    line: 1
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk_CWTAUVQ8sY8GvV
+    rule_key: S7773
+    path: scripts/validation-executor.ts
+    line: 165
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C08-number-static
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-Uk_CWTAUVQ8sY8GvW
+    rule_key: S7785
+    path: scripts/validation-executor.ts
+    line: 322
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C31-top-level-await
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-UWuM3PCyclghWYfSl
+    rule_key: S8233
+    path: .github/workflows/l9-analysis.yml
+    line: 26
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-locked
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuM3PCyclghWYfSj
+    rule_key: S8541
+    path: .github/workflows/l9-analysis.yml
+    line: 82
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-locked
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuM3PCyclghWYfSk
+    rule_key: S8544
+    path: .github/workflows/l9-analysis.yml
+    line: 82
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-locked
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSm
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 66
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSn
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 66
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSo
+    rule_key: S8543
+    path: .github/workflows/l9-lint-test.yml
+    line: 66
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSp
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 67
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSq
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 67
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSr
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 68
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSs
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 68
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSt
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 80
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSu
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 88
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSv
+    rule_key: S8543
+    path: .github/workflows/l9-lint-test.yml
+    line: 88
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSw
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 127
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSx
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 127
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSy
+    rule_key: S8543
+    path: .github/workflows/l9-lint-test.yml
+    line: 127
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfS0
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 128
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfSz
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 128
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfS1
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 129
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-UWuOwPCyclghWYfS2
+    rule_key: S6505
+    path: .github/workflows/l9-lint-test.yml
+    line: 129
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: GENERATED_OR_VENDOR_SCOPE_ERROR
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: REMAINS_UPSTREAM_OWNER
+    validation: n/a
+  - issue_key: AZ-SH6t0aG0jWV9GondT
+    rule_key: S3776
+    path: src/services/extractJson.ts
+    line: 37
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SH6hfaG0jWV9GondN
+    rule_key: S2699
+    path: tests/unit/placeholder-scan.test.ts
+    line: 87
+    severity: BLOCKER
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C27-test-assertion
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SH6hfaG0jWV9GondO
+    rule_key: S2699
+    path: tests/unit/placeholder-scan.test.ts
+    line: 112
+    severity: BLOCKER
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C27-test-assertion
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SH6hfaG0jWV9GondP
+    rule_key: S2699
+    path: tests/unit/placeholder-scan.test.ts
+    line: 118
+    severity: BLOCKER
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C27-test-assertion
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SH6rQaG0jWV9GondR
+    rule_key: S6353
+    path: src/pipeline/validateDomainSpec.ts
+    line: 28
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-concise
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SH6rQaG0jWV9GondS
+    rule_key: S3776
+    path: src/pipeline/validateDomainSpec.ts
+    line: 75
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SH6luaG0jWV9GondQ
+    rule_key: S3358
+    path: src/stages/SchemaGeneratorStage.ts
+    line: 16
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCegknU9eNQbsGbq
+    rule_key: S7772
+    path: scripts/provision-client.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCeOknU9eNQbsGbn
+    rule_key: S7772
+    path: scripts/run-disposable-site-factory-e2e.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCeOknU9eNQbsGbo
+    rule_key: S7772
+    path: scripts/run-disposable-site-factory-e2e.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCeOknU9eNQbsGbp
+    rule_key: S6582
+    path: scripts/run-disposable-site-factory-e2e.ts
+    line: 87
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbc
+    rule_key: S7772
+    path: scripts/run-site-factory-tests.mjs
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbd
+    rule_key: S7772
+    path: scripts/run-site-factory-tests.mjs
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbe
+    rule_key: S7772
+    path: scripts/run-site-factory-tests.mjs
+    line: 4
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbf
+    rule_key: S3358
+    path: scripts/run-site-factory-tests.mjs
+    line: 10
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbg
+    rule_key: S3358
+    path: scripts/run-site-factory-tests.mjs
+    line: 12
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbh
+    rule_key: S3358
+    path: scripts/run-site-factory-tests.mjs
+    line: 14
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbi
+    rule_key: S3358
+    path: scripts/run-site-factory-tests.mjs
+    line: 16
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdqknU9eNQbsGbj
+    rule_key: S3358
+    path: scripts/run-site-factory-tests.mjs
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbr
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbs
+    rule_key: S3776
+    path: scripts/validate-evidence-schemas.mjs
+    line: 20
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCe1knU9eNQbsGbt
+    rule_key: S3776
+    path: scripts/validate-evidence-schemas.mjs
+    line: 48
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCe1knU9eNQbsGbu
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 50
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbv
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 51
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbw
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 53
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbx
+    rule_key: S7780
+    path: scripts/validate-evidence-schemas.mjs
+    line: 57
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C21-string-raw
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGby
+    rule_key: S6535
+    path: scripts/validate-evidence-schemas.mjs
+    line: 62
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGbz
+    rule_key: S6535
+    path: scripts/validate-evidence-schemas.mjs
+    line: 64
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGb0
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 75
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGb1
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 75
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGb2
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 75
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCe1knU9eNQbsGb3
+    rule_key: S2681
+    path: scripts/validate-evidence-schemas.mjs
+    line: 75
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCd_knU9eNQbsGbk
+    rule_key: S7772
+    path: scripts/validate-site-factory.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCd_knU9eNQbsGbl
+    rule_key: S7772
+    path: scripts/validate-site-factory.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCd_knU9eNQbsGbm
+    rule_key: S1128
+    path: scripts/validate-site-factory.ts
+    line: 6
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCfMknU9eNQbsGb4
+    rule_key: S2681
+    path: scripts/validate-spec-path.mjs
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdOknU9eNQbsGba
+    rule_key: S2681
+    path: src/lib/budget-guard.ts
+    line: 14
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCdOknU9eNQbsGbb
+    rule_key: S2681
+    path: src/lib/budget-guard.ts
+    line: 16
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C22-block-braces
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCWyknU9eNQbsGaa
+    rule_key: S3776
+    path: src/pipeline/evidence/AssemblyManifest.ts
+    line: 35
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCXSknU9eNQbsGae
+    rule_key: S7722
+    path: src/pipeline/evidence/DeploymentEvidence.ts
+    line: 50
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C32-error-message
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCToknU9eNQbsGaM
+    rule_key: S5869
+    path: src/pipeline/evidence/EvidenceCanonicalizer.ts
+    line: 21
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCToknU9eNQbsGaN
+    rule_key: S5869
+    path: src/pipeline/evidence/EvidenceCanonicalizer.ts
+    line: 21
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCToknU9eNQbsGaO
+    rule_key: S5869
+    path: src/pipeline/evidence/EvidenceCanonicalizer.ts
+    line: 21
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCToknU9eNQbsGaP
+    rule_key: S6535
+    path: src/pipeline/evidence/EvidenceCanonicalizer.ts
+    line: 21
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCVeknU9eNQbsGaQ
+    rule_key: S3776
+    path: src/pipeline/evidence/EvidenceChainValidator.ts
+    line: 29
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCXBknU9eNQbsGab
+    rule_key: S7776
+    path: src/pipeline/evidence/EvidenceIndex.ts
+    line: 23
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C12-array-to-set
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCXBknU9eNQbsGac
+    rule_key: S7776
+    path: src/pipeline/evidence/EvidenceIndex.ts
+    line: 24
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C12-array-to-set
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCXBknU9eNQbsGad
+    rule_key: S3776
+    path: src/pipeline/evidence/EvidenceIndex.ts
+    line: 32
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCWSknU9eNQbsGaV
+    rule_key: S7765
+    path: src/pipeline/evidence/EvidenceReference.ts
+    line: 37
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C18-includes
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCV6knU9eNQbsGaR
+    rule_key: S1128
+    path: src/pipeline/evidence/FileEvidenceStore.ts
+    line: 28
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCV6knU9eNQbsGaS
+    rule_key: S6582
+    path: src/pipeline/evidence/FileEvidenceStore.ts
+    line: 329
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCV6knU9eNQbsGaT
+    rule_key: S6551
+    path: src/pipeline/evidence/FileEvidenceStore.ts
+    line: 436
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C15-stringification
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCV6knU9eNQbsGaU
+    rule_key: S6551
+    path: src/pipeline/evidence/FileEvidenceStore.ts
+    line: 447
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C15-stringification
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCWjknU9eNQbsGaW
+    rule_key: S7776
+    path: src/pipeline/evidence/ReleaseReceipt.ts
+    line: 42
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C12-array-to-set
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCWjknU9eNQbsGaX
+    rule_key: S7776
+    path: src/pipeline/evidence/ReleaseReceipt.ts
+    line: 43
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C12-array-to-set
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCWjknU9eNQbsGaY
+    rule_key: S7776
+    path: src/pipeline/evidence/ReleaseReceipt.ts
+    line: 44
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C12-array-to-set
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCWjknU9eNQbsGaZ
+    rule_key: S3776
+    path: src/pipeline/evidence/ReleaseReceipt.ts
+    line: 46
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCXlknU9eNQbsGaf
+    rule_key: S3776
+    path: src/pipeline/validateDomainSpec.ts
+    line: 153
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCXlknU9eNQbsGag
+    rule_key: S6551
+    path: src/pipeline/validateDomainSpec.ts
+    line: 268
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C15-stringification
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCYuknU9eNQbsGam
+    rule_key: S1854
+    path: src/provisioning/GitHubProvisioner.ts
+    line: 154
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C06-unused-assignment
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCYKknU9eNQbsGah
+    rule_key: S7772
+    path: src/provisioning/ProvisioningCoordinator.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCYKknU9eNQbsGai
+    rule_key: S7772
+    path: src/provisioning/ProvisioningCoordinator.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCYKknU9eNQbsGaj
+    rule_key: S3776
+    path: src/provisioning/ProvisioningCoordinator.ts
+    line: 50
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCZLknU9eNQbsGap
+    rule_key: S7772
+    path: src/provisioning/SpecDeploymentWriter.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZLknU9eNQbsGaq
+    rule_key: S7772
+    path: src/provisioning/SpecDeploymentWriter.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZWknU9eNQbsGar
+    rule_key: S6582
+    path: src/provisioning/VercelProvisioner.ts
+    line: 121
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZWknU9eNQbsGas
+    rule_key: S3358
+    path: src/provisioning/VercelProvisioner.ts
+    line: 125
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCYfknU9eNQbsGak
+    rule_key: S3358
+    path: src/provisioning/http.ts
+    line: 35
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCYfknU9eNQbsGal
+    rule_key: S6551
+    path: src/provisioning/http.ts
+    line: 37
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C15-stringification
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCY8knU9eNQbsGan
+    rule_key: S6535
+    path: src/provisioning/request.ts
+    line: 13
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCY8knU9eNQbsGao
+    rule_key: S8786
+    path: src/provisioning/request.ts
+    line: 17
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCc7knU9eNQbsGbW
+    rule_key: S7772
+    path: src/services/hashing.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCc7knU9eNQbsGbX
+    rule_key: S7772
+    path: src/services/hashing.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCc7knU9eNQbsGbY
+    rule_key: S7772
+    path: src/services/hashing.ts
+    line: 4
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCc7knU9eNQbsGbZ
+    rule_key: S3776
+    path: src/services/hashing.ts
+    line: 112
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCb3knU9eNQbsGbF
+    rule_key: S7772
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCb3knU9eNQbsGbG
+    rule_key: S7772
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCb3knU9eNQbsGbH
+    rule_key: S3776
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 65
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCb3knU9eNQbsGbI
+    rule_key: S6582
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 72
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCb3knU9eNQbsGbJ
+    rule_key: S4624
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 174
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCb3knU9eNQbsGbK
+    rule_key: S4624
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 237
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCb3knU9eNQbsGbL
+    rule_key: S6535
+    path: src/stages/ClientSourcePublishStage.ts
+    line: 259
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCalknU9eNQbsGa1
+    rule_key: S8786
+    path: src/stages/HandoffEmitterStage.ts
+    line: 103
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCa0knU9eNQbsGa2
+    rule_key: S7772
+    path: src/stages/PostHogSnippetStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCa0knU9eNQbsGa3
+    rule_key: S7772
+    path: src/stages/PostHogSnippetStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbBknU9eNQbsGa4
+    rule_key: S3358
+    path: src/stages/ReleaseReceiptStage.ts
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbBknU9eNQbsGa5
+    rule_key: S3358
+    path: src/stages/ReleaseReceiptStage.ts
+    line: 20
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbBknU9eNQbsGa6
+    rule_key: S6582
+    path: src/stages/ReleaseReceiptStage.ts
+    line: 49
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbBknU9eNQbsGa7
+    rule_key: S6582
+    path: src/stages/ReleaseReceiptStage.ts
+    line: 60
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C10-optional-chain
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCaPknU9eNQbsGa0
+    rule_key: S3358
+    path: src/stages/SEOBaselineStage.ts
+    line: 62
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbQknU9eNQbsGa8
+    rule_key: S7772
+    path: src/stages/SiteAssemblerStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbQknU9eNQbsGa9
+    rule_key: S7772
+    path: src/stages/SiteAssemblerStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbQknU9eNQbsGa-
+    rule_key: S1854
+    path: src/stages/SiteAssemblerStage.ts
+    line: 101
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C06-unused-assignment
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbQknU9eNQbsGa_
+    rule_key: S3776
+    path: src/stages/SiteAssemblerStage.ts
+    line: 128
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCbQknU9eNQbsGbA
+    rule_key: S6535
+    path: src/stages/SiteAssemblerStage.ts
+    line: 204
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbQknU9eNQbsGbB
+    rule_key: S4624
+    path: src/stages/SiteAssemblerStage.ts
+    line: 290
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZ5knU9eNQbsGau
+    rule_key: S7772
+    path: src/stages/SiteBuildStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZ5knU9eNQbsGav
+    rule_key: S7772
+    path: src/stages/SiteBuildStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZ5knU9eNQbsGaw
+    rule_key: S7772
+    path: src/stages/SiteBuildStage.ts
+    line: 4
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZ5knU9eNQbsGax
+    rule_key: S4624
+    path: src/stages/SiteBuildStage.ts
+    line: 124
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCZ5knU9eNQbsGay
+    rule_key: S1854
+    path: src/stages/SiteBuildStage.ts
+    line: 154
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C06-unused-assignment
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbgknU9eNQbsGbC
+    rule_key: S7772
+    path: src/stages/VercelDeployStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbgknU9eNQbsGbD
+    rule_key: S7772
+    path: src/stages/VercelDeployStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCbgknU9eNQbsGbE
+    rule_key: S4624
+    path: src/stages/VercelDeployStage.ts
+    line: 112
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C11-nested-template
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcMknU9eNQbsGbM
+    rule_key: S7772
+    path: src/validation/validate-generated-site.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcMknU9eNQbsGbN
+    rule_key: S1128
+    path: src/validation/validate-generated-site.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C05-unused-import
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcMknU9eNQbsGbO
+    rule_key: S7772
+    path: src/validation/validate-generated-site.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcMknU9eNQbsGbP
+    rule_key: S8786
+    path: src/validation/validate-generated-site.ts
+    line: 57
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C07-regex-redos
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCcbknU9eNQbsGbQ
+    rule_key: S5869
+    path: src/validation/validate-release-receipt.ts
+    line: 5
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcbknU9eNQbsGbR
+    rule_key: S5869
+    path: src/validation/validate-release-receipt.ts
+    line: 5
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcbknU9eNQbsGbS
+    rule_key: S5869
+    path: src/validation/validate-release-receipt.ts
+    line: 5
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-dupclass
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCcbknU9eNQbsGbT
+    rule_key: S6535
+    path: src/validation/validate-release-receipt.ts
+    line: 5
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCieknU9eNQbsGcB
+    rule_key: S6505
+    path: .github/workflows/deploy-to-vercel.yml
+    line: 40
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCieknU9eNQbsGcC
+    rule_key: S8543
+    path: .github/workflows/deploy-to-vercel.yml
+    line: 40
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCfzknU9eNQbsGb5
+    rule_key: S6505
+    path: .github/workflows/build-site.yml
+    line: 87
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCfzknU9eNQbsGb6
+    rule_key: S6505
+    path: .github/workflows/build-site.yml
+    line: 92
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCfzknU9eNQbsGb7
+    rule_key: S8543
+    path: .github/workflows/build-site.yml
+    line: 92
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ935ScR_XOdrlpTNa5S
+    rule_key: S7772
+    path: scripts/normalize-spec.ts
+    line: 14
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ935ScR_XOdrlpTNa5T
+    rule_key: S7772
+    path: scripts/normalize-spec.ts
+    line: 15
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ935ScR_XOdrlpTNa5U
+    rule_key: S6653
+    path: scripts/normalize-spec.ts
+    line: 47
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C17-object-hasown
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj-7_e3XSiHU_WKL
+    rule_key: S3776
+    path: src/pipeline/validateDomainSpec.ts
+    line: 119
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ-SCCipknU9eNQbsGcD
+    rule_key: S6505
+    path: .github/workflows/build-and-validate.yml
+    line: 28
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCCieknU9eNQbsGcA
+    rule_key: S6505
+    path: .github/workflows/deploy-to-vercel.yml
+    line: 33
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCChlknU9eNQbsGb9
+    rule_key: S6505
+    path: .github/workflows/emit-handoff.yml
+    line: 28
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCChbknU9eNQbsGb8
+    rule_key: S6505
+    path: .github/workflows/regen-lockfile.yml
+    line: 39
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj6k_e3XSiHU_WJ3
+    rule_key: S7637
+    path: .github/workflows/emit-handoff.yml
+    line: 33
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj9X_e3XSiHU_WJ9
+    rule_key: S3776
+    path: src/stages/HandoffEmitterStage.ts
+    line: 57
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fykAJ_e3XSiHU_WKV
+    rule_key: S3358
+    path: scripts/verify-launch-env.mjs
+    line: 74
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fykAJ_e3XSiHU_WKW
+    rule_key: S3358
+    path: scripts/verify-launch-env.mjs
+    line: 75
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj-1_e3XSiHU_WKK
+    rule_key: S3776
+    path: src/pipeline/PipelineRunner.ts
+    line: 44
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj-g_e3XSiHU_WKC
+    rule_key: S7772
+    path: src/stages/VisualQAStage.ts
+    line: 2
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCChlknU9eNQbsGb-
+    rule_key: S6505
+    path: .github/workflows/emit-handoff.yml
+    line: 47
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ-SCChlknU9eNQbsGb_
+    rule_key: S8543
+    path: .github/workflows/emit-handoff.yml
+    line: 47
+    severity: MAJOR
+    type: VULNERABILITY
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C02-workflow-install-scripts
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj9Q_e3XSiHU_WJ5
+    rule_key: S3776
+    path: src/stages/ContentGenerationStage.ts
+    line: 18
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj-g_e3XSiHU_WKD
+    rule_key: S7772
+    path: src/stages/VisualQAStage.ts
+    line: 3
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C01-node-protocol
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fykAC_e3XSiHU_WKT
+    rule_key: S7781
+    path: scripts/verify-visual-qa.mjs
+    line: 209
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C20-replaceall
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fykAC_e3XSiHU_WKU
+    rule_key: S7785
+    path: scripts/verify-visual-qa.mjs
+    line: 229
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C31-top-level-await
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj6J_e3XSiHU_WJr
+    rule_key: S4036
+    path: examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs
+    line: 9
+    severity: MINOR
+    type: VULNERABILITY
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C24-path-resolution
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj6J_e3XSiHU_WJs
+    rule_key: S4036
+    path: examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs
+    line: 15
+    severity: MINOR
+    type: VULNERABILITY
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C24-path-resolution
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj50_e3XSiHU_WJm
+    rule_key: S2871
+    path: examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs
+    line: 34
+    severity: CRITICAL
+    type: BUG
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C16-sort-compare
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj50_e3XSiHU_WJn
+    rule_key: S107
+    path: examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs
+    line: 49
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C26-too-many-params
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj5s_e3XSiHU_WJk
+    rule_key: S3358
+    path: examples/supplemental-insurance-pros/astro_site/scripts/preflight.mjs
+    line: 18
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj5s_e3XSiHU_WJl
+    rule_key: S3358
+    path: examples/supplemental-insurance-pros/astro_site/scripts/preflight.mjs
+    line: 19
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj33_e3XSiHU_WJi
+    rule_key: S4036
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-build.mjs
+    line: 9
+    severity: MINOR
+    type: VULNERABILITY
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C24-path-resolution
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj33_e3XSiHU_WJj
+    rule_key: S7778
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-build.mjs
+    line: 13
+    severity: MINOR
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C09-consecutive-push
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj56_e3XSiHU_WJo
+    rule_key: S7778
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-crm.mjs
+    line: 8
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C09-consecutive-push
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj56_e3XSiHU_WJp
+    rule_key: S7778
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-crm.mjs
+    line: 9
+    severity: MINOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C09-consecutive-push
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj6P_e3XSiHU_WJt
+    rule_key: S3358
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-form.mjs
+    line: 13
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj6P_e3XSiHU_WJu
+    rule_key: S3358
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-form.mjs
+    line: 13
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C03-nested-ternary
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS
+  - issue_key: AZ8fyj6C_e3XSiHU_WJq
+    rule_key: S3776
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-smoke.mjs
+    line: 19
+    severity: CRITICAL
+    type: CODE_SMELL
+    validity: VALID_BUT_NON_BLOCKING
+    root_cause_cluster: C25-cognitive-complexity
+    disposition: REMAINS_DEFERRED
+    validation: n/a
+  - issue_key: AZ8fyj6W_e3XSiHU_WJv
+    rule_key: S6535
+    path: examples/supplemental-insurance-pros/astro_site/scripts/verify-source.mjs
+    line: 15
+    severity: MAJOR
+    type: CODE_SMELL
+    validity: CONFIRMED_DEFECT
+    root_cause_cluster: C07-regex-escape
+    disposition: FIXED_PENDING_REMOTE_ANALYSIS
+    validation: typecheck+node-check PASS

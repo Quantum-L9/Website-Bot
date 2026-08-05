@@ -11,11 +11,14 @@ const logger = createModuleLogger('stage:schema-generator');
 type FaqEntry = { question: string; answer: string };
 
 function coerceFaqs(parsed: unknown): FaqEntry[] {
-  const values = Array.isArray(parsed)
-    ? parsed
-    : parsed && typeof parsed === 'object' && Array.isArray((parsed as { faqs?: unknown }).faqs)
-      ? (parsed as { faqs: unknown[] }).faqs
-      : [];
+  let values: unknown[];
+  if (Array.isArray(parsed)) {
+    values = parsed;
+  } else if (parsed && typeof parsed === 'object' && Array.isArray((parsed as { faqs?: unknown }).faqs)) {
+    values = (parsed as { faqs: unknown[] }).faqs;
+  } else {
+    values = [];
+  }
   return values.filter((item): item is FaqEntry =>
     Boolean(item) && typeof item === 'object'
     && typeof (item as { question?: unknown }).question === 'string'

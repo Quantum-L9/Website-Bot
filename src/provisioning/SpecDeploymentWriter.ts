@@ -1,6 +1,6 @@
 // L9_META: layer=provisioning, role=domain_spec_deploy_writer, status=active, version=1.0.0
-import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'fs';
-import { resolve } from 'path';
+import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { parseDocument } from 'yaml';
 import type { GitHubProvisioningResult, ProvisioningRequest, VercelProvisioningResult } from './types.js';
 
