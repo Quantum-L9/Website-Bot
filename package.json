@@ -50,6 +50,7 @@
     "verify:seo": "npx tsx scripts/validation-executor.ts run --profile seo",
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
     "verify:launch-env": "npm run validate",
+    "verify:deploy-secrets": "node scripts/verify-deploy-secrets.mjs",
     "verify:visual-qa": "echo 'Visual QA verification requires implementation'"
   },
   "dependencies": {
