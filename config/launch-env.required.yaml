@@ -63,10 +63,12 @@ launch_env_contract:
     vercel:
       required_for_deployment: true
       variables:
-        VERCEL_ORG_ID: "Vercel org id from project settings."
-        VERCEL_PROJECT_ID: "Vercel project id from project settings."
         VERCEL_TOKEN: "Secret deployment token."
+        VERCEL_TEAM_ID: "Vercel team id for team-scoped deploys (global identifier)."
+        CLIENT_VERCEL_PROJECT_ID: "Per-client Vercel project id (or embed deploy.vercel_project_id in the DomainSpec)."
+        CLIENT_VERCEL_DEPLOY_HOOK: "Optional per-client deploy hook; alternative to API token + project id."
         VERCEL_PRODUCTION_DEPLOYMENT: "Must be true only when production deploy is explicitly authorized."
+        # Retired (unused by VercelDeployStage / SiteAssemblerStage): VERCEL_ORG_ID, VERCEL_PROJECT_ID.
     legal:
       required_for_launch: true
       variables:

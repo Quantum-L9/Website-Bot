@@ -37,7 +37,8 @@ jobs:
       - name: Run full pipeline
         id: pipeline
         run: |
-          npx --no-install tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
+          node scripts/verify-deploy-secrets.mjs
+          ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
         env:
           CLIENT_ID: ${{ vars.CLIENT_ID }}
@@ -45,8 +46,10 @@ jobs:
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          CLIENT_VERCEL_PROJECT_ID: ${{ vars.CLIENT_VERCEL_PROJECT_ID }}
+          CLIENT_VERCEL_DEPLOY_HOOK: ${{ secrets.CLIENT_VERCEL_DEPLOY_HOOK }}
+          GITHUB_SITE_TOKEN: ${{ secrets.GITHUB_SITE_TOKEN }}
           GITHUB_REPO_ID: ${{ github.event.repository.id }}
           GITHUB_REF: ${{ github.ref_name }}
           DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
