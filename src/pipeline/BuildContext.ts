@@ -8,6 +8,9 @@ import type { EvidenceGateStatus, ReleaseReceipt } from './evidence/ReleaseRecei
 import type { ProvisioningReceipt, ProvisioningSpec } from '../provisioning/types.js';
 import type { EvidenceStore } from './evidence/EvidenceStore.js';
 import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
+import type { SourceSiteManifest } from './evidence/SourceSiteManifest.js';
+import type { ImageAssetPlan } from './evidence/ImageAssetPlan.js';
+import type { ImageAssetManifest, ResolvedImageAsset } from './evidence/ImageAssetManifest.js';
 
 export type ExecutionMode = 'plan' | 'local-proof' | 'publish-proof' | 'end-to-end';
 
@@ -27,6 +30,60 @@ export interface SeoContract {
   phone?: string;
   lead_form_action?: string;
   target_keywords?: string[];
+}
+
+/** Source website to crawl for reusable assets. Off unless explicitly enabled. */
+export interface SourceSiteSpec {
+  url: string;
+  enabled?: boolean;
+  maxPages?: number;
+  maxDepth?: number;
+  allowSubdomains?: boolean;
+  captureScreenshots?: boolean;
+  downloadImages?: boolean;
+}
+
+/** An operator-supplied image, resolved before any crawl or generation. */
+export interface ProvidedImageSpec {
+  id: string;
+  path: string;
+  altText?: string;
+  intendedPlacement?: string;
+}
+
+/** A desired image position on the generated site, and how to fill it. */
+export interface ImageSlotSpec {
+  id: string;
+  placement: string;
+  required: boolean;
+  preferredSources?: Array<'provided' | 'source-site' | 'generated'>;
+  altText?: string;
+  aspectRatio?: string;
+  imageSize?: '1K' | '2K' | '4K';
+  generation?: {
+    intent: string;
+    subject?: string;
+    composition?: string;
+    style?: string;
+    exclusions?: string[];
+  };
+}
+
+/**
+ * Asset inputs and desired image slots. Kept deliberately separate from routes
+ * and SEO: source inputs (what exists) never conflate with image slots (what the
+ * generated site needs). Absent for text-only builds, which must be unaffected.
+ */
+export interface AssetSpec {
+  sourceSite?: SourceSiteSpec;
+  providedImages?: ProvidedImageSpec[];
+  imageSlots?: ImageSlotSpec[];
+  generation?: {
+    enabled: boolean;
+    model?: string;
+    budgetUsd?: number;
+    promptCompiler?: 'default' | 'igor-motif';
+  };
 }
 
 export interface DomainSpec {
@@ -49,6 +106,16 @@ export interface DomainSpec {
     seo_bot_vercel_deploy_hook_ref?: string;
   };
   provision?: ProvisioningSpec;
+  assets?: AssetSpec;
+}
+
+/** A resolved image as exposed to the generated Astro site's siteConfig. */
+export interface SiteImageEntry {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  source: 'provided' | 'source-site' | 'generated';
 }
 
 export interface SiteConfig {
@@ -63,6 +130,8 @@ export interface SiteConfig {
   designTokens: Record<string, string>;
   leadFormAction?: string;
   phone?: string;
+  /** Resolved images keyed by placement (e.g. "global:logo", "/:hero"). */
+  images?: Record<string, SiteImageEntry>;
 }
 
 export interface QualityEvidence {
@@ -99,6 +168,17 @@ export interface BuildContext {
   sourceCommitSha?: string;
   generatedContent: Map<string, string>;
   generatedSchemas: Map<string, object>;
+  /**
+   * Image pipeline state. All optional and lazily initialized so text-only
+   * builds — which never touch the image stages — carry none of it. The
+   * EvidenceStore remains authoritative for release evidence; these are the
+   * image-pipeline equivalents of the other in-memory evidence caches.
+   */
+  sourceSiteManifest?: SourceSiteManifest;
+  imageAssetPlan?: ImageAssetPlan;
+  imageAssetManifest?: ImageAssetManifest;
+  /** Resolved images keyed by placement, ready for the assembler to copy. */
+  resolvedImages?: Map<string, ResolvedImageAsset>;
   baselineRanks?: Record<string, number | null>;
   visualQaPassed: boolean;
   /** Set by UnknownResolverStage when error-severity WOM flags are allowed through in advisory mode. Presence means the build is not publish-safe. */

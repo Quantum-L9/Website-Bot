@@ -8,6 +8,7 @@ import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
 import { DesignIntelligenceStage } from '../stages/DesignIntelligenceStage.js';
 import { ContentGenerationStage } from '../stages/ContentGenerationStage.js';
 import { SchemaGeneratorStage } from '../stages/SchemaGeneratorStage.js';
+import { ImageAssetPlanningStage } from '../stages/ImageAssetPlanningStage.js';
 import { PlaceholderScanStage } from '../stages/PlaceholderScanStage.js';
 import { SiteAssemblerStage } from '../stages/SiteAssemblerStage.js';
 import { PostHogSnippetStage } from '../stages/PostHogSnippetStage.js';
@@ -81,7 +82,7 @@ export function buildFactoryExecutionPlan(options: FactoryExecutionPlanOptions):
   if (illegal.length) throw new BuildError('VALIDATION_FAILED', `Cannot skip mandatory ${options.mode} stages: ${illegal.join(', ')}`);
   const stages: Stage[]=[new DomainSpecLoaderStage(options.specPath)];
   if (options.provision) stages.push(new ProvisionClientStage(options.specPath,{persistDeployBlock:options.persistDeployBlock ?? true,rollbackCreatedResources:options.rollbackCreatedResources ?? true}));
-  stages.push(new UnknownResolverStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new PlaceholderScanStage(),new SiteAssemblerStage(),new PostHogSnippetStage());
+  stages.push(new UnknownResolverStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new ImageAssetPlanningStage(),new PlaceholderScanStage(),new SiteAssemblerStage(),new PostHogSnippetStage());
   if (options.mode !== 'plan') stages.push(new SiteBuildStage());
   if (options.mode === 'publish-proof' || options.mode === 'end-to-end') stages.push(new ClientSourcePublishStage());
   if (options.mode === 'end-to-end') stages.push(new VercelDeployStage());
