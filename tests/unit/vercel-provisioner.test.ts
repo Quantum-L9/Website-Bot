@@ -9,6 +9,11 @@ function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 }
 
+function headerOf(init: RequestInit | undefined, name: string): string | undefined {
+  const headers = (init?.headers ?? {}) as Record<string, string>;
+  return headers[name];
+}
+
 const repository: GitHubProvisioningResult = {
   provider: 'github', created: true, repositoryId: '42', fullName: 'Quantum-L9/acme-site',
   sourceBranch: 'main', htmlUrl: 'https://github.com/Quantum-L9/acme-site',
@@ -51,6 +56,45 @@ void test('creates and links an Astro project, then upserts declared environment
     const envCall = calls.find(call => call.url.includes('/env?upsert=true'));
     assert.equal(JSON.parse(envCall?.body ?? '[]')[0].value, 'https://acme.example');
     assert.equal(JSON.stringify(result).includes('https://acme.example'), false);
+  } finally {
+    delete process.env.ACME_SITE_URL;
+  }
+});
+
+void test('authenticates and pins the Astro build contract on project creation and env upsert', async () => {
+  process.env.ACME_SITE_URL = 'https://acme.example';
+  let createInit: RequestInit | undefined;
+  let envInit: RequestInit | undefined;
+  const fetchImpl: FetchLike = async (input, init) => {
+    const url = String(input); const method = init?.method ?? 'GET';
+    if (url.includes('/v9/projects/acme-site') && method === 'GET') return json(404, { error: { message: 'not found' } });
+    if (url.endsWith('/v11/projects') && method === 'POST') {
+      createInit = init;
+      return json(201, { id: 'prj_1', name: 'acme-site', link: { type: 'github', org: 'Quantum-L9', repo: 'acme-site', repoId: 42, productionBranch: 'main' } });
+    }
+    if (url.includes('/v10/projects/prj_1/env?upsert=true') && method === 'POST') { envInit = init; return json(201, { created: [], failed: [] }); }
+    return json(500, { error: { message: `unexpected ${method} ${url}` } });
+  };
+  try {
+    await new VercelProvisioner(fetchImpl).provision(request(), repository, 'vercel-token');
+
+    // Transport auth on both mutating calls.
+    assert.equal(headerOf(createInit, 'Authorization'), 'Bearer vercel-token');
+    assert.equal(headerOf(createInit, 'Content-Type'), 'application/json');
+    assert.equal(headerOf(envInit, 'Authorization'), 'Bearer vercel-token');
+
+    // Build contract — framework and the exact install/build/output commands.
+    const createBody = JSON.parse(String(createInit?.body)) as Record<string, unknown>;
+    assert.equal(createBody.framework, 'astro');
+    assert.equal(createBody.installCommand, 'npm ci');
+    assert.equal(createBody.buildCommand, 'npm run build');
+    assert.equal(createBody.outputDirectory, 'dist');
+
+    // Environment entries carry the authored type and targets.
+    const envBody = JSON.parse(String(envInit?.body)) as Array<{ key: string; type: string; target: string[] }>;
+    assert.equal(envBody[0].key, 'PUBLIC_SITE_URL');
+    assert.equal(envBody[0].type, 'encrypted');
+    assert.deepEqual(envBody[0].target, ['production']);
   } finally {
     delete process.env.ACME_SITE_URL;
   }

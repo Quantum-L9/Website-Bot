@@ -24,10 +24,13 @@ export interface CommandRunner {
 }
 
 export class SpawnCommandRunner implements CommandRunner {
+  // Injectable seam over `spawn` so timeout, kill escalation, and timer cleanup are deterministically testable.
+  constructor(private readonly spawnImpl: typeof spawn = spawn) {}
+
   async run(command: string, args: string[], options: { cwd: string; timeoutMs: number; env: NodeJS.ProcessEnv }): Promise<CommandResult> {
     return await new Promise((resolvePromise, reject) => {
       const started = Date.now();
-      const child = spawn(command, args, {
+      const child = this.spawnImpl(command, args, {
         cwd: options.cwd,
         env: options.env,
         shell: false,

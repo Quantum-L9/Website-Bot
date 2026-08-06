@@ -41,9 +41,11 @@ interface Recorded { task: TaskDescriptor; systemPrompt: string; userPrompt: str
 function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } = {}) {
   const initCalls: string[] = [];
   const execCalls: Recorded[] = [];
+  const configs: RouterConfig[] = [];
   let factoryCalls = 0;
-  const routerFactory = (_config: RouterConfig) => {
+  const routerFactory = (config: RouterConfig) => {
     factoryCalls += 1;
+    configs.push(config);
     return {
       // 1.1.1 RouterPort requires Promise<void> (initClient is async on L9LLMRouter).
       async initClient(clientId: string, _overrides?: Partial<BudgetConfig>): Promise<void> {
@@ -61,7 +63,7 @@ function makeHarness(opts: { response?: LLMResponse; throwOnExecute?: unknown } 
       },
     };
   };
-  return { routerFactory, initCalls, execCalls, getFactoryCalls: () => factoryCalls };
+  return { routerFactory, initCalls, execCalls, configs, getFactoryCalls: () => factoryCalls };
 }
 
 const isLlmFailure = (message: RegExp) => (error: unknown): boolean =>
@@ -114,6 +116,57 @@ void test('validateLayout maps to LAYOUT_VALIDATION and passes screenshots as ba
   assert.equal(options?.images?.length, 1);
   assert.ok(options?.images?.[0].startsWith('data:image/png;base64,'));
   assert.match(userPrompt, /Page: \/, Viewport: desktop/);
+});
+
+void test('router is constructed with the default reliability and budget policy', async () => {
+  const h = makeHarness();
+  const llm = createWebsiteFactoryLLM('client-x', { env: BOTH_KEYS, routerFactory: h.routerFactory });
+  await llm.generateContent('x');
+  assert.equal(h.configs.length, 1);
+  const config = h.configs[0];
+  assert.equal(config.openrouterApiKey, 'or-key');
+  assert.equal(config.perplexityApiKey, 'px-key');
+  assert.equal(config.appName, 'L9-Website-Bot');
+  assert.equal(config.providerTimeoutMs, 60_000);
+  assert.equal(config.providerMaxRetries, 0);
+  assert.equal(config.budget?.monthlyBudgetPerClient, 200);
+  assert.equal(config.budget?.weeklyTarget, 50);
+  assert.equal(config.budget?.weeklyHardCeiling, 100);
+});
+
+void test('router timeout and budget honor environment overrides', async () => {
+  const h = makeHarness();
+  const env = {
+    ...BOTH_KEYS,
+    LLM_PROVIDER_TIMEOUT_MS: '30000',
+    MONTHLY_BUDGET_PER_CLIENT: '500',
+    WEEKLY_BUDGET_TARGET: '120',
+    WEEKLY_BUDGET_HARD_CEILING: '250',
+  } as NodeJS.ProcessEnv;
+  const llm = createWebsiteFactoryLLM('c', { env, routerFactory: h.routerFactory });
+  await llm.generateContent('x');
+  const config = h.configs[0];
+  assert.equal(config.providerTimeoutMs, 30_000);
+  assert.equal(config.providerMaxRetries, 0); // retries stay pinned at 0 regardless of environment
+  assert.equal(config.budget?.monthlyBudgetPerClient, 500);
+  assert.equal(config.budget?.weeklyTarget, 120);
+  assert.equal(config.budget?.weeklyHardCeiling, 250);
+});
+
+void test('a non-positive provider timeout override fails closed before any router construction', async () => {
+  const h = makeHarness();
+  const env = { ...BOTH_KEYS, LLM_PROVIDER_TIMEOUT_MS: '0' } as NodeJS.ProcessEnv;
+  const llm = createWebsiteFactoryLLM('c', { env, routerFactory: h.routerFactory });
+  await assert.rejects(() => llm.generateContent('x'), isLlmFailure(/must be a positive number/));
+  assert.equal(h.getFactoryCalls(), 0);
+});
+
+void test('a non-numeric budget override fails closed before any router construction', async () => {
+  const h = makeHarness();
+  const env = { ...BOTH_KEYS, MONTHLY_BUDGET_PER_CLIENT: 'abc' } as NodeJS.ProcessEnv;
+  const llm = createWebsiteFactoryLLM('c', { env, routerFactory: h.routerFactory });
+  await assert.rejects(() => llm.generateContent('x'), isLlmFailure(/must be a positive number/));
+  assert.equal(h.getFactoryCalls(), 0);
 });
 
 void test('construction is lazy: no router built, keys unread, flushUsage works pre-init', () => {

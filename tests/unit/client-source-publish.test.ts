@@ -71,6 +71,39 @@ void test('publishes one fast-forward commit and persists authoritative publicat
   }
 });
 
+void test('updates the branch ref non-forcibly to the new commit (force: false)', async () => {
+  const ctx = await prepareContext();
+  try {
+    let patchBody: { sha?: string; force?: unknown } | undefined;
+    const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
+      const url = String(input);
+      const method = init.method ?? 'GET';
+      if (url.includes('/git/refs/heads/') && method === 'PATCH') {
+        patchBody = JSON.parse(String(init.body)) as { sha?: string; force?: unknown };
+        return Response.json({ object: { sha: gitSha('e') } });
+      }
+      if (url.includes('/git/ref/heads/')) return Response.json({ object: { sha: gitSha('a') } });
+      if (url.includes(`/git/commits/${gitSha('a')}`)) return Response.json({ tree: { sha: gitSha('b') } });
+      if (url.includes(`/git/trees/${gitSha('b')}?recursive=1`)) return Response.json({ sha: gitSha('b'), truncated: false, tree: [] });
+      if (url.includes('/contents/.l9/generated-manifest.json')) return new Response('', { status: 404 });
+      if (url.endsWith('/git/blobs')) return Response.json({ sha: gitSha('c') });
+      if (url.endsWith('/git/trees')) return Response.json({ sha: gitSha('d') });
+      if (url.endsWith('/git/commits')) return Response.json({ sha: gitSha('e') });
+      throw new Error(`Unexpected GitHub request ${method} ${url}`);
+    };
+
+    await withEnv({ GITHUB_SITE_TOKEN: 'test-token' }, async () => {
+      await new ClientSourcePublishStage(fakeFetch, () => new Date('2026-07-20T00:00:02.000Z'), async () => {}).run(ctx);
+    });
+
+    assert.ok(patchBody, 'branch ref PATCH must be issued');
+    assert.equal(patchBody?.sha, gitSha('e'));
+    assert.equal(patchBody?.force, false);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test('refuses publication when source changed after persisted build proof', async () => {
   const ctx = await prepareContext();
   try {

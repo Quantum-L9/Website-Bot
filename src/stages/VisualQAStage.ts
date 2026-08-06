@@ -8,17 +8,30 @@ import type { Stage } from '../pipeline/PipelineRunner.js';
 
 const logger = createModuleLogger('stage:visual-qa');
 const QA_SCRIPT = 'scripts/verify-visual-qa.mjs';
+const QA_TIMEOUT_MS = 120_000;
+
+/** Injectable seam over `execFileSync` for the QA verifier subprocess (deterministic unit tests). */
+export type VisualQaExec = (
+  command: string,
+  args: string[],
+  options: { encoding: 'utf-8'; timeout: number; stdio: 'pipe' },
+) => string;
 
 export class VisualQAStage implements Stage {
   name = 'visual-qa';
   version = '3.1.0';
   evidence = { inputs: (_ctx: BuildContext) => ['deployment' as const], outputs: (_ctx: BuildContext) => [], resumable: false, externalMutation: true };
 
+  constructor(
+    private readonly exec: VisualQaExec = (command, args, options) => execFileSync(command, args, options),
+    private readonly scriptPath: string = QA_SCRIPT,
+  ) {}
+
   async run(ctx: BuildContext): Promise<void> {
     ctx.visualQaPassed = false;
-    if (!existsSync(QA_SCRIPT)) {
+    if (!existsSync(this.scriptPath)) {
       ctx.qualityEvidence.visualQa = 'skipped';
-      logger.warn({ script: QA_SCRIPT }, 'Visual QA script not found; gate marked skipped');
+      logger.warn({ script: this.scriptPath }, 'Visual QA script not found; gate marked skipped');
       return;
     }
     if (ctx.dryRun) {
@@ -35,9 +48,9 @@ export class VisualQAStage implements Stage {
     }
 
     try {
-      const output = execFileSync(process.execPath, [QA_SCRIPT, '--url', deployUrl], {
+      const output = this.exec(process.execPath, [this.scriptPath, '--url', deployUrl], {
         encoding: 'utf-8',
-        timeout: 120_000,
+        timeout: QA_TIMEOUT_MS,
         stdio: 'pipe',
       });
       if (output.includes('CRITICAL')) throw new BuildError('VISUAL_QA_FAILED', `Visual QA found CRITICAL issues: ${output.slice(0, 500)}`);
