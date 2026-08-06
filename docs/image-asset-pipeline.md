@@ -43,7 +43,7 @@ assets, and the generated `siteConfig.images`:
 |-------|------|--------|
 | `source-site-ingestion` | crawl + extract + download + provenance → `SourceSiteManifest` | **active** |
 | `image-asset-planning` | deterministic slot → source resolution; stage provided/source assets; emit `ImageAssetPlan` + `ImageAssetManifest` | **active** |
-| `image-generation` | fill only `generated` plan entries via the `ImageGenerator` interface; cache by fingerprint; enforce budget | planned (PR4) |
+| `image-generation` | fill only `generated` plan entries via the `ImageGenerator` interface; cache by fingerprint; enforce budget | **active** |
 | `image-validation` | broken-reference + provenance checks | planned (PR5, may fold into visual QA) |
 
 `SiteAssemblerStage` copies every client-owned resolved image into the Astro
@@ -77,7 +77,7 @@ each request and after every redirect.
    Playwright screenshots behind an interface).
 3. **PR3 (done)** — route-aware source-site candidate scoring; the planner and
    `ImageAssetPlanningStage` now resolve crawled images into the build with provenance.
-4. **PR4** — Gemini adapter behind `ImageGenerator`, prompt compiler, cache, budget;
-   generate only unresolved slots.
+4. **PR4 (done)** — Gemini adapter behind `ImageGenerator`, prompt compiler, fingerprint
+   cache, budget enforcement; generate only `generated` slots (fake provider in CI).
 5. **PR5** — expanded Astro placements, dimensions/responsive rendering, image QA,
    provenance warnings in release evidence.
