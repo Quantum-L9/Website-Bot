@@ -179,6 +179,8 @@ export interface BuildContext {
   imageAssetManifest?: ImageAssetManifest;
   /** Resolved images keyed by placement, ready for the assembler to copy. */
   resolvedImages?: Map<string, ResolvedImageAsset>;
+  /** Provenance warnings surfaced by image validation for release evidence. */
+  imageProvenanceWarnings?: string[];
   baselineRanks?: Record<string, number | null>;
   visualQaPassed: boolean;
   /** Set by UnknownResolverStage when error-severity WOM flags are allowed through in advisory mode. Presence means the build is not publish-safe. */
