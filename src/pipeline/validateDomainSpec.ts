@@ -2,6 +2,7 @@
 import { BuildError } from './BuildError.js';
 import type { DomainSpec } from './BuildContext.js';
 import { normalizeComponentName, normalizeRouteSlug } from '../validation/validate-generated-site.js';
+import { isForbiddenAddress, isForbiddenHostname } from '../ingestion/UrlPolicy.js';
 
 const NESTED_MARKERS = ['identity', 'market', 'audience', 'offer', 'compliance', 'conversion'];
 
@@ -116,6 +117,118 @@ function validateSeoContract(root: Record<string, unknown>, errors: string[], ch
   }
 }
 
+const ASPECT_RATIO = /^\d+(?:\.\d+)?\s*[:x/]\s*\d+(?:\.\d+)?$/;
+const IMAGE_SIZES = new Set(['1K', '2K', '4K']);
+const IMAGE_SOURCES = new Set(['provided', 'source-site', 'generated']);
+
+function validatePositiveInt(value: unknown): boolean {
+  return value === undefined || (typeof value === 'number' && Number.isInteger(value) && value > 0);
+}
+
+/**
+ * Validate the optional `assets` block. Absent for text-only builds. Source-site
+ * URLs are checked against the SSRF policy at spec load so a build never even
+ * queues a fetch to a forbidden host.
+ */
+function validateAssets(root: Record<string, unknown>, errors: string[], check: (condition: boolean, message: string) => void): void {
+  const assets = root.assets;
+  if (assets === undefined) return;
+  if (!isObject(assets)) { errors.push('assets, when present, must be an object'); return; }
+
+  const sourceSite = assets.sourceSite;
+  if (sourceSite !== undefined) {
+    if (!isObject(sourceSite)) {
+      errors.push('assets.sourceSite must be an object');
+    } else {
+      if (typeof sourceSite.url !== 'string' || sourceSite.url.trim().length === 0) {
+        errors.push('assets.sourceSite.url must be a non-empty string');
+      } else {
+        let parsed: URL | undefined;
+        try { parsed = new URL(sourceSite.url); } catch { parsed = undefined; }
+        if (!parsed || (parsed.protocol !== 'https:' && parsed.protocol !== 'http:')) {
+          errors.push('assets.sourceSite.url must be an absolute http(s) URL');
+        } else if (isForbiddenHostname(parsed.hostname) || isForbiddenAddress(parsed.hostname)) {
+          errors.push('assets.sourceSite.url resolves to a forbidden (local/private/metadata) host');
+        }
+      }
+      check(sourceSite.enabled === undefined || typeof sourceSite.enabled === 'boolean', 'assets.sourceSite.enabled must be boolean');
+      check(validatePositiveInt(sourceSite.maxPages), 'assets.sourceSite.maxPages must be a positive integer');
+      check(validatePositiveInt(sourceSite.maxDepth), 'assets.sourceSite.maxDepth must be a positive integer');
+      check(sourceSite.allowSubdomains === undefined || typeof sourceSite.allowSubdomains === 'boolean', 'assets.sourceSite.allowSubdomains must be boolean');
+      check(sourceSite.captureScreenshots === undefined || typeof sourceSite.captureScreenshots === 'boolean', 'assets.sourceSite.captureScreenshots must be boolean');
+      check(sourceSite.downloadImages === undefined || typeof sourceSite.downloadImages === 'boolean', 'assets.sourceSite.downloadImages must be boolean');
+    }
+  }
+
+  const providedImages = assets.providedImages;
+  if (providedImages !== undefined) {
+    if (!Array.isArray(providedImages)) {
+      errors.push('assets.providedImages must be an array');
+    } else {
+      const seen = new Set<string>();
+      providedImages.forEach((image, index) => {
+        if (!isObject(image)) { errors.push(`assets.providedImages[${index}] must be an object`); return; }
+        check(typeof image.id === 'string' && image.id.trim().length > 0, `assets.providedImages[${index}].id must be a non-empty string`);
+        check(typeof image.path === 'string' && image.path.trim().length > 0, `assets.providedImages[${index}].path must be a non-empty string`);
+        check(image.altText === undefined || (typeof image.altText === 'string' && image.altText.trim().length > 0), `assets.providedImages[${index}].altText, when present, must be a non-empty string`);
+        check(image.intendedPlacement === undefined || (typeof image.intendedPlacement === 'string' && image.intendedPlacement.trim().length > 0), `assets.providedImages[${index}].intendedPlacement, when present, must be a non-empty string`);
+        if (typeof image.id === 'string') {
+          if (seen.has(image.id)) errors.push(`assets.providedImages contains duplicate id ${image.id}`);
+          seen.add(image.id);
+        }
+      });
+    }
+  }
+
+  const imageSlots = assets.imageSlots;
+  if (imageSlots !== undefined) {
+    if (!Array.isArray(imageSlots)) {
+      errors.push('assets.imageSlots must be an array');
+    } else {
+      const seenIds = new Set<string>();
+      const seenPlacements = new Set<string>();
+      imageSlots.forEach((slot, index) => {
+        if (!isObject(slot)) { errors.push(`assets.imageSlots[${index}] must be an object`); return; }
+        check(typeof slot.id === 'string' && slot.id.trim().length > 0, `assets.imageSlots[${index}].id must be a non-empty string`);
+        check(typeof slot.placement === 'string' && slot.placement.trim().length > 0, `assets.imageSlots[${index}].placement must be a non-empty string`);
+        check(typeof slot.required === 'boolean', `assets.imageSlots[${index}].required must be a boolean`);
+        check(
+          slot.preferredSources === undefined
+            || (Array.isArray(slot.preferredSources) && slot.preferredSources.length > 0 && slot.preferredSources.every(source => IMAGE_SOURCES.has(String(source)))),
+          `assets.imageSlots[${index}].preferredSources must contain only provided|source-site|generated`,
+        );
+        check(slot.altText === undefined || (typeof slot.altText === 'string' && slot.altText.trim().length > 0), `assets.imageSlots[${index}].altText, when present, must be a non-empty string`);
+        check(slot.aspectRatio === undefined || (typeof slot.aspectRatio === 'string' && ASPECT_RATIO.test(slot.aspectRatio)), `assets.imageSlots[${index}].aspectRatio must look like "16:9"`);
+        check(slot.imageSize === undefined || IMAGE_SIZES.has(String(slot.imageSize)), `assets.imageSlots[${index}].imageSize must be 1K|2K|4K`);
+        if (slot.generation !== undefined) {
+          if (!isObject(slot.generation)) errors.push(`assets.imageSlots[${index}].generation must be an object`);
+          else check(typeof slot.generation.intent === 'string' && slot.generation.intent.trim().length > 0, `assets.imageSlots[${index}].generation.intent must be a non-empty string`);
+        }
+        if (typeof slot.id === 'string') {
+          if (seenIds.has(slot.id)) errors.push(`assets.imageSlots contains duplicate id ${slot.id}`);
+          seenIds.add(slot.id);
+        }
+        if (typeof slot.placement === 'string') {
+          if (seenPlacements.has(slot.placement)) errors.push(`assets.imageSlots contains duplicate placement ${slot.placement}`);
+          seenPlacements.add(slot.placement);
+        }
+      });
+    }
+  }
+
+  const generation = assets.generation;
+  if (generation !== undefined) {
+    if (!isObject(generation)) {
+      errors.push('assets.generation must be an object');
+    } else {
+      check(typeof generation.enabled === 'boolean', 'assets.generation.enabled must be a boolean');
+      check(generation.model === undefined || (typeof generation.model === 'string' && generation.model.trim().length > 0), 'assets.generation.model, when present, must be a non-empty string');
+      check(generation.budgetUsd === undefined || (typeof generation.budgetUsd === 'number' && generation.budgetUsd >= 0), 'assets.generation.budgetUsd, when present, must be a non-negative number');
+      check(generation.promptCompiler === undefined || generation.promptCompiler === 'default' || generation.promptCompiler === 'igor-motif', 'assets.generation.promptCompiler must be default|igor-motif');
+    }
+  }
+}
+
 export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpec {
   const root = isObject(parsed) && 'domain_spec' in parsed ? parsed.domain_spec : parsed;
   if (!isObject(root)) fail(`Spec at ${specPath} is not a YAML mapping. Expected the flat DomainSpec (see fixtures/ci-test-spec.yaml).`);
@@ -185,6 +298,7 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
   }
 
   validateSeoContract(root, errors, check);
+  validateAssets(root, errors, check);
   const deploy = root.deploy;
   if (deploy !== undefined) {
     if (!isObject(deploy)) {

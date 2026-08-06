@@ -1,10 +1,10 @@
 // L9_META: layer=stage, role=site_materializer, stage_index=6, status=active, version=2.0.0
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import { digestDirectory } from '../services/hashing.js';
-import type { BuildContext, DeployTarget, SiteConfig } from '../pipeline/BuildContext.js';
+import type { BuildContext, DeployTarget, SiteConfig, SiteImageEntry } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import {
   buildAssemblyManifest,
@@ -186,7 +186,42 @@ export class SiteAssemblerStage implements Stage {
       designTokens: ctx.designTokens ?? {},
       leadFormAction: this.leadFormAction(ctx),
       phone: ctx.domainSpec.seo_contract?.phone?.trim() || undefined,
+      images: this.buildImageRegistry(ctx),
     };
+  }
+
+  /**
+   * Public image registry keyed by placement. Only client-owned assets are
+   * republished; reference-only or unknown-rights assets are intentionally
+   * excluded so they never reach the generated site.
+   */
+  private buildImageRegistry(ctx: BuildContext): Record<string, SiteImageEntry> {
+    const registry: Record<string, SiteImageEntry> = {};
+    for (const asset of ctx.resolvedImages?.values() ?? []) {
+      if (asset.disposition !== 'approved-client-owned') continue;
+      registry[asset.placement] = {
+        src: `/images/${asset.outputFileName}`,
+        alt: asset.altText,
+        width: asset.width,
+        height: asset.height,
+        source: asset.source,
+      };
+    }
+    return registry;
+  }
+
+  /** Copy every registered image into the project's public/images/ directory. */
+  private copyResolvedImages(root: string, ctx: BuildContext): void {
+    if (!ctx.resolvedImages?.size) return;
+    for (const asset of ctx.resolvedImages.values()) {
+      if (asset.disposition !== 'approved-client-owned') continue;
+      if (!existsSync(asset.absolutePath)) {
+        throw new BuildError('SITE_ASSEMBLY_FAILED', `Resolved image missing on disk: ${asset.absolutePath}`);
+      }
+      const target = safeChild(root, `public/images/${asset.outputFileName}`);
+      mkdirSync(dirname(target), { recursive: true });
+      copyFileSync(asset.absolutePath, target);
+    }
   }
 
   private leadFormAction(ctx: BuildContext): string | undefined {
@@ -245,6 +280,7 @@ export class SiteAssemblerStage implements Stage {
 
   private writeProject(root: string, ctx: BuildContext, config: SiteConfig, templateRoot: string): void {
     cpSync(templateRoot, root, { recursive: true, errorOnExist: false, force: true });
+    this.copyResolvedImages(root, ctx);
     const write = (path: string, content: string): void => {
       const target = safeChild(root, path);
       mkdirSync(dirname(target), { recursive: true });

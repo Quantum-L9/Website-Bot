@@ -144,7 +144,11 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
       : []),
   ];
 
-  return {
+  // assets: carried through verbatim when authored. The flat `assets` block is
+  // already in pipeline shape (sourceSite/providedImages/imageSlots), so there is
+  // nothing to derive — losing it here would silently drop the image pipeline
+  // inputs from the normalized spec the pipeline actually consumes.
+  const flat: DomainSpec = {
     client_id: ds.metadata.spec_id,
     business_name: ds.identity.business_name,
     vertical: ds.market.niche,
@@ -154,6 +158,14 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     seo_contract: seoContract,
     wom_flags: womFlags,
   };
+  // Only a STRUCTURED asset block (sourceSite / providedImages / imageSlots /
+  // generation) is carried. The legacy authoring format also uses `assets` for a
+  // freeform {logo, photos, icons} note; that shape is not the pipeline contract
+  // and is intentionally ignored so it never reaches the normalized spec.
+  if (isObject(ds.assets) && ['sourceSite', 'providedImages', 'imageSlots', 'generation'].some((key) => key in (ds.assets as object))) {
+    flat.assets = ds.assets as DomainSpec['assets'];
+  }
+  return flat;
 }
 
 function main() {

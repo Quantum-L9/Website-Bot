@@ -9,4 +9,5 @@ export const siteConfig = {
   nav: [],
   schemas: { siteWide: [], perRoute: {} },
   designTokens: {},
+  images: {} as Record<string, { src: string; alt: string; width: number; height: number; source: string }>,
 } as const;
