@@ -12,7 +12,10 @@ Deployment target is Vercel. Deployment must be preview-first. Production deploy
 
 ## Required Environment Variables
 
-See `.env.example` for the canonical variable list. See `config/launch-env.required.yaml` for the fail-closed launch contract.
+See `.env.example` for the canonical variable list. See `config/launch-env.required.yaml`
+for the fail-closed launch contract (Vercel: `VERCEL_TOKEN` + `VERCEL_TEAM_ID` globally;
+per-client `CLIENT_VERCEL_PROJECT_ID` / deploy hook — not legacy `VERCEL_ORG_ID` /
+`VERCEL_PROJECT_ID`).
 
 ### LLM Intelligence (required for generation and visual QA)
 
@@ -27,11 +30,17 @@ See `.env.example` for the canonical variable list. See `config/launch-env.requi
 
 ### Vercel Deployment (required for deploy)
 
-| Variable | Purpose |
-|----------|---------|
-| `VERCEL_ORG_ID` | Vercel org id from project settings |
-| `VERCEL_PROJECT_ID` | Vercel project id from project settings |
-| `VERCEL_TOKEN` | Secret deployment token |
+Single per-client identity model. The deploy runtime
+(`src/stages/VercelDeployStage.ts`, `SiteAssemblerStage.ts`) reads only the global
+`VERCEL_TOKEN` + `VERCEL_TEAM_ID`; project identity is per-client. The legacy shared
+`VERCEL_ORG_ID`/`VERCEL_PROJECT_ID` are not consumed and have been retired.
+
+| Variable | Scope | Purpose |
+|----------|-------|---------|
+| `VERCEL_TOKEN` | global (secret) | Vercel deployment token |
+| `VERCEL_TEAM_ID` | global (identifier) | team-scoped deploys |
+| `CLIENT_VERCEL_PROJECT_ID` | per-client | project identity (or embed `deploy.vercel_project_id` in the DomainSpec) |
+| `CLIENT_VERCEL_DEPLOY_HOOK` | per-client (secret) | deploy-hook trigger (optional; API mode uses token + project id) |
 
 ### Site Runtime (required for launch)
 
@@ -115,6 +124,49 @@ npm run verify:launch-env
 ```
 
 The command writes `validation/launch_env_report.json` and exits nonzero while required vars are missing or approval gates remain unresolved. Secrets must be set in Vercel or a secure local secret store. Do not commit `.env.local`.
+
+## Triggered-Deploy Credential Preflight
+
+`verify:launch-env` covers the launch/legal contract. The build+deploy pipeline additionally
+reads execution credentials at runtime; a triggered deploy must have these present or it fails.
+The deploy workflows (`build-site.yml`, `deploy-to-vercel.yml`) run this preflight before the
+pipeline so a missing credential fails fast with a readable message:
+
+```bash
+npm run verify:deploy-secrets       # production: FAIL_CLOSED on missing required creds
+npm run verify:deploy-secrets --ci  # CI: warnings only, exit 0
+```
+
+It writes `validation/deploy_secrets_report.json`.
+
+### Required in GitHub for a triggered deploy
+
+Repo (or org, scoped to this repo) → **Settings → Secrets and variables → Actions**.
+
+**Secrets**
+
+| Secret | Consumed by | Purpose |
+|---|---|---|
+| `OPENROUTER_API_KEY` | `src/services/llm.ts` | content/design/schema/vision generation (required) |
+| `PERPLEXITY_API_KEY` | `src/services/llm.ts` | required by the router adapter (required) |
+| `VERCEL_TOKEN` | `VercelDeployStage` | Vercel deploy + correlation (required) |
+| `GITHUB_SITE_TOKEN` | `ClientSourcePublishStage` (`env://GITHUB_SITE_TOKEN`) | push generated source to the client repo (required) |
+| `CLIENT_VERCEL_DEPLOY_HOOK` | `SiteAssemblerStage` | deploy-hook trigger (or use API mode via project id) |
+| `POSTHOG_KEY` / `PUBLIC_POSTHOG_KEY` | `PostHogSnippetStage` | analytics snippet (optional; `PUBLIC_POSTHOG_KEY` preferred) |
+| `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` | SEO baseline | keyword data (optional) |
+| `SEO_BOT_URL` / `SEO_BOT_API_KEY` | SEO handoff | `--auto-register-seo-bot` (optional) |
+
+**Variables** (identifiers, not secrets)
+
+| Variable | Purpose |
+|---|---|
+| `VERCEL_TEAM_ID` | team-scoped Vercel deploys (required) |
+| `CLIENT_VERCEL_PROJECT_ID` | per-client project identity (or embed `deploy.vercel_project_id` in the DomainSpec) |
+
+`GITHUB_REPO_ID` is supplied automatically by the workflow (`github.event.repository.id`).
+
+> Org secrets are only visible to a triggered run when the org secret's **Repository access**
+> policy includes this repository. Confirm under Org → Settings → Secrets and variables → Actions.
 
 ## Rollback
 
