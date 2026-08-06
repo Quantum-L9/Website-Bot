@@ -38,7 +38,7 @@ jobs:
         id: pipeline
         run: |
           node scripts/verify-deploy-secrets.mjs
-          npx tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
+          ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
         env:
           CLIENT_ID: ${{ vars.CLIENT_ID }}

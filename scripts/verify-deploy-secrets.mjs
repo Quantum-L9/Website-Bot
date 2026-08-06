@@ -15,7 +15,10 @@
 //                                              CLIENT_VERCEL_DEPLOY_HOOK (or DomainSpec.deploy.*)
 import fs from 'node:fs';
 
-const isCI = process.argv.includes('--ci') || process.env.CI === 'true';
+// Warn-only only when callers pass `--ci`. Do NOT treat `process.env.CI` as
+// warn-only: GitHub Actions always sets CI=true, and deploy workflows invoke
+// this script without `--ci` so missing credentials must fail closed.
+const isCI = process.argv.includes('--ci');
 
 // llm.ts requires BOTH keys via required(); treat both as blocking secrets.
 const requiredSecrets = ['OPENROUTER_API_KEY', 'PERPLEXITY_API_KEY', 'VERCEL_TOKEN', 'GITHUB_SITE_TOKEN'];
@@ -49,9 +52,14 @@ if (isCI) {
   if (missingProjectIdentity.length) warnings.push(`Missing project identity (CI warning): ${missingProjectIdentity.join(', ')}`);
 }
 
-const status = isCI
-  ? (warnings.length ? 'WARN' : 'PASS')
-  : (blocking.length === 0 ? 'PASS' : 'FAIL_CLOSED');
+let status;
+if (isCI) {
+  status = warnings.length ? 'WARN' : 'PASS';
+} else if (blocking.length === 0) {
+  status = 'PASS';
+} else {
+  status = 'FAIL_CLOSED';
+}
 
 const report = {
   validation_scope: 'deploy_execution_secrets',

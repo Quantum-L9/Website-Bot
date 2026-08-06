@@ -12,7 +12,10 @@ Deployment target is Vercel. Deployment must be preview-first. Production deploy
 
 ## Required Environment Variables
 
-See `.env.example` for the canonical variable list. See `config/launch-env.required.yaml` for the fail-closed launch contract.
+See `.env.example` for the canonical variable list. See `config/launch-env.required.yaml`
+for the fail-closed launch contract (Vercel: `VERCEL_TOKEN` + `VERCEL_TEAM_ID` globally;
+per-client `CLIENT_VERCEL_PROJECT_ID` / deploy hook — not legacy `VERCEL_ORG_ID` /
+`VERCEL_PROJECT_ID`).
 
 ### LLM Intelligence (required for generation and visual QA)
 

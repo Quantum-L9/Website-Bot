@@ -91,7 +91,7 @@ jobs:
       - name: Build + deploy + register (full pipeline)
         run: |
           node scripts/verify-deploy-secrets.mjs
-          npx tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
+          ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
