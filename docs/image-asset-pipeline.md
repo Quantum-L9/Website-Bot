@@ -75,7 +75,8 @@ each request and after every redirect.
 2. **PR2 (done)** — SSRF-guarded source-site crawler behind `UrlPolicy` → `SourceSiteManifest`
    (HTML/metadata/image extraction, policy-filtered downloads, provenance, optional
    Playwright screenshots behind an interface).
-3. **PR3** — source-site candidate scoring in the planner (foundation already present).
+3. **PR3 (done)** — route-aware source-site candidate scoring; the planner and
+   `ImageAssetPlanningStage` now resolve crawled images into the build with provenance.
 4. **PR4** — Gemini adapter behind `ImageGenerator`, prompt compiler, cache, budget;
    generate only unresolved slots.
 5. **PR5** — expanded Astro placements, dimensions/responsive rendering, image QA,
