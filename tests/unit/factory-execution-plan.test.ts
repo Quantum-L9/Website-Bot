@@ -7,8 +7,8 @@ test('end-to-end plan owns the complete proof-gated topology', () => {
   const plan = buildFactoryExecutionPlan({ mode: 'end-to-end', specPath: 'fixtures/ci-test-spec.yaml' });
   const names = plan.stages.map(stage => stage.name);
   assert.deepEqual(names, [
-    'domain-spec-loader', 'unknown-resolver', 'design-intelligence', 'content-generation',
-    'schema-generator', 'image-asset-planning', 'placeholder-scan', 'site-assembler', 'posthog-snippet', 'site-build',
+    'domain-spec-loader', 'unknown-resolver', 'source-site-ingestion', 'design-intelligence', 'content-generation',
+    'schema-generator', 'image-asset-planning', 'image-generation', 'placeholder-scan', 'site-assembler', 'posthog-snippet', 'site-build',
     'client-source-publish', 'vercel-deploy', 'release-receipt', 'seo-baseline',
     'visual-qa', 'release-receipt-finalizer', 'handoff-emitter', 'terminal-convergence',
   ]);

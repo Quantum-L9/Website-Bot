@@ -69,9 +69,33 @@ export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate)
   return score;
 }
 
+/** The route slug a placement targets ("/:hero" → "/", "/services:hero" →
+ *  "/services"); undefined for global placements ("global:logo"). */
+export function routeSlugFromPlacement(placement: string): string | undefined {
+  if (placement.startsWith('global:')) return undefined;
+  const separator = placement.lastIndexOf(':');
+  const route = separator > 0 ? placement.slice(0, separator) : placement;
+  return route || '/';
+}
+
+function candidatePagePath(candidate: IngestedImage): string | undefined {
+  try {
+    const path = new URL(candidate.referringPageUrl).pathname.replace(/\/$/, '');
+    return path || '/';
+  } catch {
+    return undefined;
+  }
+}
+
 export function scoreSourceCandidate(slot: ImageSlotSpec, candidate: IngestedImage): number {
   let score = 0;
   if (aspectMatches(slot, candidate.width, candidate.height)) score += 20;
+  // Prefer a candidate discovered on the same route the slot renders on; for a
+  // global placement, prefer an image found on the home page.
+  const routeSlug = routeSlugFromPlacement(slot.placement);
+  const pagePath = candidatePagePath(candidate);
+  if (routeSlug && pagePath === routeSlug) score += 20;
+  else if (!routeSlug && pagePath === '/') score += 8;
   const heroLike = /hero|banner|header/i.test(slot.placement) || /hero|banner|header/i.test(slot.id);
   if (heroLike && candidate.domContext?.isAboveFold) score += 15;
   const logoLike = /logo/i.test(slot.placement) || /logo/i.test(slot.id);
