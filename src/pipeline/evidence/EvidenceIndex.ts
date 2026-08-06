@@ -20,8 +20,8 @@ export interface EvidenceIndex {
   updated_at: string;
 }
 
-const VALID_MODES: ExecutionMode[] = ['plan','local-proof','publish-proof','end-to-end'];
-const VALID_STATUSES: EvidenceChainStatus[] = ['empty','assembling','built','published','deployed','released','handed_off','failed'];
+const VALID_MODES = new Set<ExecutionMode>(['plan','local-proof','publish-proof','end-to-end']);
+const VALID_STATUSES = new Set<EvidenceChainStatus>(['empty','assembling','built','published','deployed','released','handed_off','failed']);
 const SHA256=/^[a-f0-9]{64}$/;
 function validateRecord(record: EvidenceRecord, expectedKind?: string): void {
   if (expectedKind && record.kind !== expectedKind) throw new Error(`evidence index record kind mismatch for ${expectedKind}`);
@@ -33,9 +33,9 @@ export function validateEvidenceIndex(value: unknown): asserts value is Evidence
   if (!value || typeof value !== 'object') throw new Error('evidence index must be an object');
   const index=value as Partial<EvidenceIndex>;
   if (index.schema !== 'website-bot.evidence-index/v2') throw new Error('unsupported evidence index schema');
-  if (!index.build_id || !index.client_id || !VALID_MODES.includes(index.mode as ExecutionMode)) throw new Error('evidence index identity is incomplete');
+  if (!index.build_id || !index.client_id || !VALID_MODES.has(index.mode as ExecutionMode)) throw new Error('evidence index identity is incomplete');
   if (!Number.isInteger(index.revision) || Number(index.revision)<1) throw new Error('evidence index revision is invalid');
-  if (!VALID_STATUSES.includes(index.chain_status as EvidenceChainStatus)) throw new Error('evidence index chain status is invalid');
+  if (!VALID_STATUSES.has(index.chain_status as EvidenceChainStatus)) throw new Error('evidence index chain status is invalid');
   if (!index.artifacts || typeof index.artifacts !== 'object' || Array.isArray(index.artifacts)) throw new Error('evidence index artifacts are missing');
   for (const [kind,record] of Object.entries(index.artifacts)) if (record) validateRecord(record,kind);
   if (!Array.isArray(index.failure_history)) throw new Error('evidence index failure_history must be an array');

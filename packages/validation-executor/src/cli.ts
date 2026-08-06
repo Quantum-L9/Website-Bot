@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { parseArgs } from 'node:util';
-import { writeFile } from 'node:fs/promises';
 import { ValidationExecutor } from './core/ValidationExecutor.js';
 import { AuditReporter } from './core/AuditReporter.js';
 
@@ -16,7 +15,7 @@ async function loadRepositoryAdapter(repositoryType: string = 'auto'): Promise<R
           const { WebsiteBotAdapter } = await import('./adapters/WebsiteBotAdapter.js');
           return new WebsiteBotAdapter();
         } catch (error) {
-          console.warn('WebsiteBotAdapter not available, falling back to default adapter');
+          console.warn('WebsiteBotAdapter not available, falling back to default adapter', error);
           break;
         }
       case 'seo-bot':
@@ -24,7 +23,7 @@ async function loadRepositoryAdapter(repositoryType: string = 'auto'): Promise<R
           const { SeoBotAdapter } = await import('./adapters/SeoBotAdapter.js');
           return new SeoBotAdapter();
         } catch (error) {
-          console.warn('SeoBotAdapter not available, falling back to default adapter');
+          console.warn('SeoBotAdapter not available, falling back to default adapter', error);
           break;
         }
       case 'default':
@@ -50,7 +49,7 @@ async function loadRepositoryAdapter(repositoryType: string = 'auto'): Promise<R
         const { SeoBotAdapter } = await import('./adapters/SeoBotAdapter.js');
         return new SeoBotAdapter();
       } catch (error) {
-        console.warn('SeoBotAdapter not available, using default adapter');
+        console.warn('SeoBotAdapter not available, using default adapter', error);
       }
     }
     
@@ -64,7 +63,7 @@ async function loadRepositoryAdapter(repositoryType: string = 'auto'): Promise<R
         const { WebsiteBotAdapter } = await import('./adapters/WebsiteBotAdapter.js');
         return new WebsiteBotAdapter();
       } catch (error) {
-        console.warn('WebsiteBotAdapter not available, using default adapter');
+        console.warn('WebsiteBotAdapter not available, using default adapter', error);
       }
     }
   }
@@ -193,8 +192,8 @@ async function validateConfiguration(options: any): Promise<void> {
   const errors: string[] = [];
 
   // Validate timeout range (min: 1000ms, max: 1800000ms = 30 minutes)
-  const timeout = parseInt(options.timeout, 10);
-  if (isNaN(timeout)) {
+  const timeout = Number.parseInt(options.timeout, 10);
+  if (Number.isNaN(timeout)) {
     errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
   } else if (timeout < 1000) {
     errors.push(`Timeout ${timeout}ms is too low: minimum is 1000ms (1 second)`);
@@ -282,7 +281,7 @@ async function runValidation(options: any) {
     environment: options.environment,
     profile: options.profile,
     evidence_root: options['evidence-root'],
-    timeout: parseInt(options.timeout, 10),
+    timeout: Number.parseInt(options.timeout, 10),
     fail_fast: options['fail-fast']
   };
 
@@ -352,7 +351,7 @@ EXAMPLES:
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  await main();
 }
 
 export { main as cli };

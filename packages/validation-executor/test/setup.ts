@@ -138,9 +138,9 @@ export function createMockE2ETests(): E2ETestDefinition[] {
  * Mock repository adapter for testing
  */
 export class MockRepositoryAdapter {
-  private mockPreflightChecks: PreflightCheckDefinition[];
-  private mockE2ETests: E2ETestDefinition[];
-  private mockExecutionResults: Map<string, { exitCode: number; stdout: string; stderr: string; duration: number }>;
+  private readonly mockPreflightChecks: PreflightCheckDefinition[];
+  private readonly mockE2ETests: E2ETestDefinition[];
+  private readonly mockExecutionResults: Map<string, { exitCode: number; stdout: string; stderr: string; duration: number }>;
 
   constructor(
     preflightChecks = createMockPreflightChecks(),

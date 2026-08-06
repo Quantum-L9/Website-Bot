@@ -213,7 +213,7 @@ export class SeoBotAdapter implements RepositoryAdapter {
         return result.stdout.trim();
       }
     } catch (error) {
-      this.logger.debug('Git revision not available');
+      this.logger.debug({ error }, 'Git revision not available');
     }
     
     return null;
@@ -242,7 +242,7 @@ export class SeoBotAdapter implements RepositoryAdapter {
         return result.stdout.trim();
       }
     } catch (error) {
-      this.logger.debug('Git user.email not available');
+      this.logger.debug({ error }, 'Git user.email not available');
     }
     
     return 'unknown@seobot.com';

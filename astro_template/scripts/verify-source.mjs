@@ -1,5 +1,5 @@
 import { createValidator } from './validation-framework.mjs';
-import { exists, listFiles, readText } from './lib.mjs';
+import { exists, readText } from './lib.mjs';
 
 const validator = createValidator('source');
 

@@ -59,7 +59,11 @@ export class SEOBaselineStage implements Stage {
       }
       const data = await response.json() as { tasks?: Array<{ result?: Array<{ items?: Array<{ type: string; rank_absolute: number; domain?: string }> }> }> };
       const rawSiteUrl = String(ctx.domainSpec.seo_contract?.site_url ?? '');
-      const siteHost = rawSiteUrl ? new URL(/^[A-Za-z][A-Za-z0-9+.-]*:/.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`).hostname : '';
+      let siteHost = '';
+      if (rawSiteUrl) {
+        const normalizedSiteUrl = /^[A-Za-z][A-Za-z0-9+.-]*:/.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`;
+        siteHost = new URL(normalizedSiteUrl).hostname;
+      }
       for (let index = 0; index < targetKeywords.length; index++) {
         const keyword = targetKeywords[index];
         const item = data.tasks?.[index]?.result?.[0]?.items?.find(result => result.type === 'organic' && Boolean(siteHost) && result.domain?.includes(siteHost));

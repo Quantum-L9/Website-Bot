@@ -1,23 +1,20 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
-import { existsSync, readdirSync } from 'fs';
-import { join, resolve } from 'path';
-import { spawnSync } from 'child_process';
+import { existsSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const scopeArg = process.argv.find(argument => argument.startsWith('--scope='));
 const scope = scopeArg?.slice('--scope='.length) ?? 'all';
-const roots = scope === 'evidence'
-  ? ['tests/unit', 'tests/integration/local']
-  : scope === 'provisioning'
-  ? ['tests/unit']
-  : scope === 'local'
-    ? ['tests/unit', 'tests/integration/local']
-  : scope === 'github'
-    ? ['tests/integration/github']
-    : scope === 'vercel'
-      ? ['tests/integration/vercel']
-      : scope === 'e2e'
-        ? ['tests/integration/github', 'tests/integration/vercel']
-        : ['tests/unit', 'tests/integration/local', 'tests/integration/github', 'tests/integration/vercel'];
+const ROOTS_BY_SCOPE = {
+  evidence: ['tests/unit', 'tests/integration/local'],
+  provisioning: ['tests/unit'],
+  local: ['tests/unit', 'tests/integration/local'],
+  github: ['tests/integration/github'],
+  vercel: ['tests/integration/vercel'],
+  e2e: ['tests/integration/github', 'tests/integration/vercel'],
+  all: ['tests/unit', 'tests/integration/local', 'tests/integration/github', 'tests/integration/vercel'],
+};
+const roots = ROOTS_BY_SCOPE[scope] ?? ROOTS_BY_SCOPE.all;
 
 const files = [];
 for (const root of roots) {

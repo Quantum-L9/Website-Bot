@@ -118,12 +118,13 @@ export class VercelProvisioner {
   private assertProjectIdentity(project: VercelProject, request: ProvisioningRequest, repository: GitHubProvisioningResult): void {
     if (!project.id || !project.name) throw new Error('Vercel project response is missing id or name');
     if (project.name !== request.vercel.project) throw new Error(`Vercel project collision: expected ${request.vercel.project}, observed ${project.name}`);
-    if (!project.link || project.link.type !== 'github') {
+    if (project.link?.type !== 'github') {
       throw new Error(`Vercel project ${project.name} is not linked to a GitHub repository`);
     }
-    const observedRepo = project.link.repo
-      ? (project.link.repo.includes('/') ? project.link.repo : `${project.link.org ?? request.github.owner}/${project.link.repo}`)
-      : undefined;
+    let observedRepo: string | undefined;
+    if (project.link.repo) {
+      observedRepo = project.link.repo.includes('/') ? project.link.repo : `${project.link.org ?? request.github.owner}/${project.link.repo}`;
+    }
     if (!observedRepo) {
       throw new Error(`Vercel project ${project.name} did not report its linked GitHub repository`);
     }

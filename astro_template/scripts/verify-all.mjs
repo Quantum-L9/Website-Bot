@@ -38,8 +38,10 @@ for (const [cmd, args] of commands) {
 fs.writeFileSync('validation/execution_trace.jsonl', summary.map((row) => JSON.stringify(row)).join('\n') + '\n');
 
 // Determine final status
-const status = hardFail ? 'FAIL' : 
-  summary.some(s => s.exit_code !== 0) ? 'PASS_WITH_BLOCKED_RUNTIME_CHECKS' : 'PASS';
+let status;
+if (hardFail) status = 'FAIL';
+else if (summary.some(s => s.exit_code !== 0)) status = 'PASS_WITH_BLOCKED_RUNTIME_CHECKS';
+else status = 'PASS';
 
 console.log(JSON.stringify({ 
   status, 

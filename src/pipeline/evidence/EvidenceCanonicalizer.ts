@@ -18,7 +18,7 @@ export function sha256Text(value: string): string { return createHash('sha256').
 export function sha256File(path: string): string { return createHash('sha256').update(readFileSync(path)).digest('hex'); }
 export function evidenceDigest(value: unknown): string { return sha256Text(canonicalJson(value)); }
 
-const SECRET_VALUE = /(?:gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{16,}|Bearer\s+[A-Za-z0-9._~+\/-]+=*|https:\/\/[^\s/]+@)/gi;
+const SECRET_VALUE = /(?:gh[pousr]_[a-z0-9]{20,}|sk-[a-z0-9_-]{16,}|Bearer\s+[a-z0-9._~+/-]+=*|https:\/\/[^\s/]+@)/gi;
 const SENSITIVE_KEY = /(?:token|secret|password|authorization|cookie|api[_-]?key|deploy[_-]?hook)/i;
 
 export function sanitizeEvidenceText(value: string): string {

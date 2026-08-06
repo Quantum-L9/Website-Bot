@@ -12,7 +12,7 @@ for (const file of ['src/layouts/BaseLayout.astro','src/components/LeadForm.astr
 const files = listFiles('.', (rel) => !rel.includes('node_modules') && !rel.includes('.git') && !rel.startsWith('validation/') && rel !== 'scripts/verify-source.mjs');
 for (const rel of files) {
   const text = readText(rel);
-  const bad = /FIXME|stub-only|pass-only|throw new Error\(['\"]not implemented/i.test(text);
+  const bad = /FIXME|stub-only|pass-only|throw new Error\(['"]not implemented/i.test(text);
   rows.push(result(`NOSTUB-${rel}`, 'no_stub_validation', rel, 'no empty implementation or not-implemented markers', bad ? 'disallowed implementation marker found' : 'clean', bad ? 'FAIL' : 'PASS', bad ? 'high' : 'low', 'Replace disallowed marker with complete implementation or documented Unknown.'));
 }
 writeJsonl('validation/source_checks.jsonl', rows);

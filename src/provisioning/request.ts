@@ -10,7 +10,7 @@ import { assertEnvRef } from './secret-ref.js';
 
 const OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]{1,100}$/;
-const BRANCH = /^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._\/-]{1,255}$/;
+const BRANCH = /^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._/-]{1,255}$/;
 const ENV_KEY = /^[A-Z][A-Z0-9_]*$/;
 
 export function slugifyProvisioningName(value: string): string {

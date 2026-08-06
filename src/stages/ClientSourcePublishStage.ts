@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=client_source_publisher, stage_index=9, status=active, version=2.0.0
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, relative, resolve } from 'path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
@@ -69,7 +69,7 @@ export class ClientSourcePublishStage implements Stage {
       return;
     }
     const storedBuild = await ctx.evidenceStore.readBuild();
-    if (!storedBuild || storedBuild.value.status !== 'passed') throw new BuildError('SOURCE_PUBLISH_NO_PROOF', 'Persisted local build proof is required before source publication');
+    if (storedBuild?.value.status !== 'passed') throw new BuildError('SOURCE_PUBLISH_NO_PROOF', 'Persisted local build proof is required before source publication');
     ctx.buildProof = storedBuild.value;
     const currentSource = digestDirectory(ctx.outputDir, { exclude: isSourceDigestExcluded });
     if (currentSource.digest !== ctx.buildProof.sourceDigest) {
@@ -169,9 +169,10 @@ export class ClientSourcePublishStage implements Stage {
       .sort(comparePaths);
 
     if (changedPaths.length === 0 && deletedPaths.length === 0) {
+      const publicationSeed = `${ctx.buildId}\0${previousHeadSha}\0${currentSource.digest}`;
       const evidence: PublicationEvidence = {
         schema: 'website-bot.publication-evidence/v2',
-        publicationId: `pub_${sha256Text(`${ctx.buildId}\0${previousHeadSha}\0${currentSource.digest}`).slice(0, 32)}`,
+        publicationId: `pub_${sha256Text(publicationSeed).slice(0, 32)}`,
         buildId: ctx.buildId, clientId: ctx.clientId, buildProofId: storedBuild.value.proofId, buildProofSha256: storedBuild.record.sha256,
         repository: githubRepo, repositoryId: ctx.deployTarget.githubRepoId,
         branch: sourceBranch,
@@ -232,9 +233,10 @@ export class ClientSourcePublishStage implements Stage {
       'Branch update failed',
     );
 
+    const publicationSeed = `${ctx.buildId}\0${commitSha}\0${currentSource.digest}`;
     const evidence: PublicationEvidence = {
       schema: 'website-bot.publication-evidence/v2',
-      publicationId: `pub_${sha256Text(`${ctx.buildId}\0${commitSha}\0${currentSource.digest}`).slice(0, 32)}`,
+      publicationId: `pub_${sha256Text(publicationSeed).slice(0, 32)}`,
       buildId: ctx.buildId, clientId: ctx.clientId, buildProofId: storedBuild.value.proofId, buildProofSha256: storedBuild.record.sha256,
       repository: githubRepo, repositoryId: ctx.deployTarget.githubRepoId,
       branch: sourceBranch,
@@ -256,7 +258,7 @@ export class ClientSourcePublishStage implements Stage {
 
   private validateTarget(repository: string, branch: string): void {
     if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) throw new BuildError('SOURCE_PUBLISH_FAILED', `Invalid GitHub repository: ${repository}`);
-    if (!/^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._\/-]{1,255}$/.test(branch)) throw new BuildError('SOURCE_PUBLISH_FAILED', `Invalid GitHub branch: ${branch}`);
+    if (!/^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._/-]{1,255}$/.test(branch)) throw new BuildError('SOURCE_PUBLISH_FAILED', `Invalid GitHub branch: ${branch}`);
   }
 
   async canResume(ctx: BuildContext): Promise<boolean> {

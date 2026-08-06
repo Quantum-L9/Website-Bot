@@ -206,7 +206,7 @@ async function captureScreenshots(siteUrl) {
 
     for (const pagePath of PAGES) {
       const url = `${siteUrl}${pagePath}`;
-      const filename = `${pagePath.replace(/\//g, '_') || '_index'}_${viewport.name}.png`;
+      const filename = `${pagePath.replaceAll('/', '_') || '_index'}_${viewport.name}.png`;
       const filepath = join(SCREENSHOTS_DIR, filename);
 
       try {
@@ -226,4 +226,4 @@ async function captureScreenshots(siteUrl) {
   return screenshots;
 }
 
-main().catch(console.error);
+await main().catch(console.error);

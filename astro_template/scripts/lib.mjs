@@ -31,7 +31,11 @@ export function listFiles(dir, matcher = () => true) {
     }
   };
   walk(base);
-  return out.sort();
+  return out.sort((a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  });
 }
 
 export function parseEnvExample() {

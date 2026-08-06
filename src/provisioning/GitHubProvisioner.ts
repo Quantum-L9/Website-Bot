@@ -151,7 +151,7 @@ export class GitHubProvisioner {
       if (!(error instanceof ProvisioningHttpError) || (error.status !== 404 && error.status !== 409)) throw error;
     }
 
-    if (!baseSha) baseSha = await this.seedEmptyRepository(repository.full_name, branch, headers);
+    if (!baseSha) await this.seedEmptyRepository(repository.full_name, branch, headers);
     else {
       await requestJson<GitObject>(this.fetchImpl, 'github', `${API}/repos/${repository.full_name}/git/refs`, {
         method: 'POST', headers, body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }),

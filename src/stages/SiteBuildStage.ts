@@ -1,7 +1,7 @@
 // L9_META: layer=stage, role=local_site_build_gate, stage_index=8, status=active, version=2.0.0
-import { spawn } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
@@ -119,9 +119,10 @@ export class SiteBuildStage implements Stage {
     }
     const dist = digestDirectory(distDir);
     const versionResult = await this.runner.run('npm', ['--version'], { cwd: ctx.outputDir, timeoutMs: 30_000, env: environment });
+    const proofSeed = `${ctx.buildId}\0${source.digest}\0${dist.digest}`;
     const proof: BuildProof = {
       schema: 'website-bot.build-proof/v2',
-      proofId: `build_${sha256Text(`${ctx.buildId}\0${source.digest}\0${dist.digest}`).slice(0, 32)}`,
+      proofId: `build_${sha256Text(proofSeed).slice(0, 32)}`,
       buildId: ctx.buildId,
       clientId: ctx.clientId,
       assemblyManifestSha256: assemblyRecord.sha256,
@@ -151,7 +152,7 @@ export class SiteBuildStage implements Stage {
     writeFileSync(proofPath, `${JSON.stringify(proof, null, 2)}\n`, 'utf-8');
     ctx.distDir = distDir;
     ctx.buildProof = proof;
-    const buildRecord = await ctx.evidenceStore.writeBuild(proof);
+    await ctx.evidenceStore.writeBuild(proof);
     logger.info({ distDir, sourceDigest: source.digest, distDigest: dist.digest, routes: builtRoutes.length }, 'Astro local proof passed');
   }
 }

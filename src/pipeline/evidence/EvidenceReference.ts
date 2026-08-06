@@ -34,7 +34,7 @@ export function validateEvidenceReference(value: unknown): asserts value is Evid
   if (!reference.kind || !reference.schema || !reference.logical_id || !reference.relative_path) {
     throw new Error('evidence reference identity is incomplete');
   }
-  if (reference.relative_path.startsWith('/') || reference.relative_path.split('/').some(part => part === '..')) {
+  if (reference.relative_path.startsWith('/') || reference.relative_path.split('/').includes('..')) {
     throw new Error('evidence reference path is unsafe');
   }
   if (!SHA256.test(String(reference.sha256))) throw new Error('evidence reference digest is invalid');

@@ -19,7 +19,7 @@ try {
     name: 'website/pipeline.requested',
     data: {
       specPath: process.env.SPEC_PATH,
-      costCapUsd: parseFloat(process.env.COST_CAP_USD),
+      costCapUsd: Number.parseFloat(process.env.COST_CAP_USD),
       dryRun: process.env.DRY_RUN === 'true',
       runId: process.env.GH_RUN_ID,
       triggeredBy: process.env.GH_ACTOR,

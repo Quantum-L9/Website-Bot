@@ -21,13 +21,17 @@ function mode(): MemoryMode {
 
 function getClient(): GraphitiMemoryClient | null {
   if (client !== undefined) return client;
-  if (mode() === 'disabled') return (client = null);
+  if (mode() === 'disabled') {
+    client = null;
+    return client;
+  }
   const baseUrl = process.env.L9_MEMORY_URL;
   const bearerToken = process.env.L9_MEMORY_TOKEN;
   if (!baseUrl || !bearerToken) {
     if (mode() === 'required') throw new Error('L9_MEMORY_URL and L9_MEMORY_TOKEN are required');
     logger.warn('Governed memory is not configured; continuing without hydration or promotion');
-    return (client = null);
+    client = null;
+    return client;
   }
   client = new GraphitiMemoryClient({ baseUrl, bearerToken });
   return client;

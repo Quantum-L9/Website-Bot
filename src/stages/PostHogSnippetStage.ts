@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=posthog_injection, stage_index=7, status=active, version=3.0.0
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';

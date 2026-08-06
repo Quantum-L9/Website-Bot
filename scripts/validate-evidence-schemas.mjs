@@ -15,7 +15,10 @@ const required={
  'provisioning-receipt.schema.json':'website-bot.provisioning-receipt/v1',
 };
 const snake=/^[a-z][a-z0-9_]*$/;
-function resolveRef(root,ref){if(!ref.startsWith('#/'))throw new Error(`external $ref not allowed: ${ref}`);return ref.slice(2).split('/').reduce((v,k)=>v?.[k.replaceAll('~1','/').replaceAll('~0','~')],root);}
+function resolveRef(root,ref){
+ if(!ref.startsWith('#/')){throw new Error(`external $ref not allowed: ${ref}`);}
+ return ref.slice(2).split('/').reduce((v,k)=>v?.[k.replaceAll('~1','/').replaceAll('~0','~')],root);
+}
 function compile(root){
  const validate=(schema,value,path='$')=>{
   if(schema.$ref)return validate(resolveRef(root,schema.$ref),value,path);
@@ -47,21 +50,23 @@ function compile(root){
 }
 function sample(root,schema=root){
  if(schema.$ref)return sample(root,resolveRef(root,schema.$ref));
- if('const'in schema)return schema.const;if(schema.enum)return schema.enum[0];
- if(schema.type==='object'){const out={};for(const key of schema.required??[])out[key]=sample(root,schema.properties?.[key]??{});return out;}
+ if('const'in schema){return schema.const;}
+ if(schema.enum){return schema.enum[0];}
+ if(schema.type==='object'){const out={};for(const key of schema.required??[]){out[key]=sample(root,schema.properties?.[key]??{});}return out;}
  if(schema.type==='array')return Array.from({length:schema.minItems??0},()=>sample(root,schema.items??{}));
- if(schema.type==='boolean')return true;if(schema.type==='integer'||schema.type==='number')return schema.minimum??1;
+ if(schema.type==='boolean'){return true;}
+ if(schema.type==='integer'||schema.type==='number'){return schema.minimum??1;}
  if(schema.type==='string'){
   if(schema.format==='date-time')return '2026-07-21T00:00:00.000Z';
   const p=schema.pattern??'';
-  if(p.includes('\\d+\\.\\d+\\.\\d+'))return '1.0.0';
+  if(p.includes(String.raw`\d+\.\d+\.\d+`))return '1.0.0';
   if(p.includes('{64}'))return 'a'.repeat(64);
   if(p.includes('{40}'))return 'a'.repeat(40);
   if(p.includes('env://'))return 'env://TEST_SECRET';
   if(p.includes('https'))return 'https://example.test';
-  if(p.includes('\/'))return 'owner/repository';
+  if(p.includes('/'))return 'owner/repository';
   if(p.includes('^/'))return '/';
-  if(p.includes('A-Za-z0-9._\/-'))return 'main';
+  if(p.includes('A-Za-z0-9._/-'))return 'main';
   return 'x'.repeat(Math.max(1,schema.minLength??1));
  }
  return {};
@@ -72,7 +77,14 @@ for(const [file,schemaConst] of Object.entries(required)){
  if(doc.$schema!=='https://json-schema.org/draft/2020-12/schema')throw new Error(`${file}: wrong meta-schema`);
  if(doc.type!=='object'||doc.additionalProperties!==false)throw new Error(`${file}: object must fail closed`);
  if(doc.properties?.schema?.const!==schemaConst)throw new Error(`${file}: schema const drift`);
- const camel=[];const scan=node=>{if(!node||typeof node!=='object')return;if(node.properties)for(const key of Object.keys(node.properties)){if(!snake.test(key))camel.push(key);scan(node.properties[key]);}if(node.$defs)for(const child of Object.values(node.$defs))scan(child);if(node.items)scan(node.items);};scan(doc);
+ const camel=[];
+ const scan=node=>{
+  if(!node||typeof node!=='object'){return;}
+  if(node.properties){for(const key of Object.keys(node.properties)){if(!snake.test(key)){camel.push(key);}scan(node.properties[key]);}}
+  if(node.$defs){for(const child of Object.values(node.$defs)){scan(child);}}
+  if(node.items){scan(node.items);}
+ };
+ scan(doc);
  if(camel.length)throw new Error(`${file}: non-snake_case persisted fields: ${[...new Set(camel)].join(', ')}`);
  const validator=compile(doc);const positive=sample(doc);const pass=validator(positive);if(!pass.valid)throw new Error(`${file}: generated positive fixture failed: ${pass.error}`);
  const negative={...positive};delete negative.schema;const fail=validator(negative);if(fail.valid)throw new Error(`${file}: negative fixture unexpectedly passed`);

@@ -6,9 +6,6 @@ import {
   DEFAULT_REQUIRED_PATHS,
   WEBSITE_FACTORY_HANDOFF_PROTOCOL,
   WEBSITE_FACTORY_HANDOFF_VERSION,
-  assertWebsiteFactoryHandoffV3,
-  canonicalJson,
-  digestHandoffPayload,
   sealWebsiteFactoryHandoff,
   type KeywordPriority,
   type WebsiteFactoryHandoffPayload,
@@ -20,12 +17,14 @@ export {
   DEFAULT_REQUIRED_PATHS,
   WEBSITE_FACTORY_HANDOFF_PROTOCOL,
   WEBSITE_FACTORY_HANDOFF_VERSION,
-  assertWebsiteFactoryHandoffV3,
-  canonicalJson,
-  digestHandoffPayload,
   type KeywordPriority,
   type WebsiteFactoryHandoffV3,
 };
+export {
+  assertWebsiteFactoryHandoffV3,
+  canonicalJson,
+  digestHandoffPayload,
+} from '@quantum-l9/bot-interop';
 
 export interface WebsiteFactoryHandoffBuildInput {
   domainSpec: DomainSpec;

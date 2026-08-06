@@ -101,8 +101,8 @@ async function validateWebsiteBotConfiguration(options: any): Promise<void> {
   const errors: string[] = [];
 
   // Validate timeout range (min: 1000ms, max: 1800000ms = 30 minutes)
-  const timeout = parseInt(options.timeout, 10);
-  if (isNaN(timeout)) {
+  const timeout = Number.parseInt(options.timeout, 10);
+  if (Number.isNaN(timeout)) {
     errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
   } else if (timeout < 1000) {
     errors.push(`Timeout ${timeout}ms is too low: minimum is 1000ms (1 second)`);
@@ -162,7 +162,7 @@ async function runValidation(options: any) {
     environment: options.environment,
     profile: options.profile,
     evidence_root: options['evidence-root'],
-    timeout: parseInt(options.timeout, 10),
+    timeout: Number.parseInt(options.timeout, 10),
     fail_fast: options['fail-fast'],
     // Profile-specific configuration
     preflight_commands: getProfilePreflightCommands(options.profile),
@@ -319,5 +319,5 @@ EXAMPLES:
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  await main();
 }

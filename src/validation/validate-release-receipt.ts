@@ -2,7 +2,7 @@
 import { validateReleaseReceipt as validateContract, type ReleaseReceipt } from '../pipeline/evidence/ReleaseReceipt.js';
 
 const SENSITIVE_KEY = /(?:token|secret|password|authorization|cookie|api[_-]?key|deploy[_-]?hook)/i;
-const SECRET_VALUE = /(?:gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{16,}|Bearer\s+[A-Za-z0-9._~+\/-]+=*)/i;
+const SECRET_VALUE = /(?:gh[pousr]_[a-z0-9]{20,}|sk-[a-z0-9_-]{16,}|Bearer\s+[a-z0-9._~+/-]+=*)/i;
 
 function assertNoSecrets(value: unknown, path = '$'): void {
   if (Array.isArray(value)) {

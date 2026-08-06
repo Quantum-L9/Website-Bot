@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=visual_qa, stage_index=13, status=active, version=3.0.0
-import { execFileSync } from 'child_process';
-import { existsSync } from 'fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';

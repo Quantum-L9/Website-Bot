@@ -88,7 +88,7 @@ test('stage: passes with clean content and schemas', async () => {
   const ctx = makeCtx();
   ctx.generatedContent.set('/:hero', CLEAN_COPY);
   ctx.generatedSchemas.set('LocalBusiness', { '@type': 'LocalBusiness', telephone: '(704) 812-3300' });
-  await new PlaceholderScanStage().run(ctx);
+  await assert.doesNotReject(() => new PlaceholderScanStage().run(ctx));
 });
 
 test('stage: fails closed with PLACEHOLDER_CONTENT_DETECTED and full finding context', async () => {
@@ -112,11 +112,11 @@ test('stage: fails closed with PLACEHOLDER_CONTENT_DETECTED and full finding con
 test('stage: warnings alone never fail the build', async () => {
   const ctx = makeCtx();
   ctx.generatedContent.set('/:hero', 'Call (704) 555-0142 — more locations coming soon.');
-  await new PlaceholderScanStage().run(ctx);
+  await assert.doesNotReject(() => new PlaceholderScanStage().run(ctx));
 });
 
 test('stage: dry-run skips scanning entirely', async () => {
   const ctx = makeCtx({ dryRun: true });
   ctx.generatedContent.set('/:hero', 'TODO: this would fail if scanned');
-  await new PlaceholderScanStage().run(ctx);
+  await assert.doesNotReject(() => new PlaceholderScanStage().run(ctx));
 });

@@ -11,8 +11,8 @@
 //   tsx scripts/normalize-spec.ts                 # write the reference client's flat spec (examples/…)
 //   tsx scripts/normalize-spec.ts --check         # verify the committed flat file matches (CI guard)
 //   tsx scripts/normalize-spec.ts --in <p> --out <p>
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { dirname } from 'path';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { parse, stringify } from 'yaml';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import type { DomainSpec } from '../src/pipeline/BuildContext.js';
@@ -44,7 +44,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
     const kb = Object.keys(b as object);
     if (ka.length !== kb.length) return false;
     return ka.every(
-      (k) => Object.prototype.hasOwnProperty.call(b, k) && deepEqual((a as any)[k], (b as any)[k]),
+      (k) => Object.hasOwn(b as object, k) && deepEqual((a as any)[k], (b as any)[k]),
     );
   }
   return false;

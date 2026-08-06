@@ -17,7 +17,7 @@ name: Build Site (on-demand)
 #
 # NOTE (Infisical rollout, Pillar 4/5): once @quantum-l9 Infisical is stood up,
 # the per-secret env block below collapses to the 3 INFISICAL_* bootstrap vars
-# and the run line is wrapped as `infisical run -- npx tsx scripts/run-pipeline.ts ...`.
+# and the run line is wrapped as `infisical run -- npx --no-install tsx scripts/run-pipeline.ts ...`.
 on:
   repository_dispatch:
     types: [build-site]
@@ -84,7 +84,7 @@ jobs:
           cache: 'npm'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@quantum-l9'
-      - run: npm ci --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund --ignore-scripts && npm rebuild better-sqlite3
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

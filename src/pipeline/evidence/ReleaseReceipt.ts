@@ -39,9 +39,9 @@ export interface ReleaseReceipt {
 
 const SHA1 = /^[a-f0-9]{40}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
-const MODES: ExecutionMode[] = ['plan', 'local-proof', 'publish-proof', 'end-to-end'];
-const STATUSES: ReleaseReceiptStatus[] = ['planned', 'partial', 'succeeded', 'failed'];
-const GATES: ReleaseGate[] = ['assembly', 'local_build', 'github_publication', 'vercel_deployment', 'visual_qa'];
+const MODES = new Set<ExecutionMode>(['plan', 'local-proof', 'publish-proof', 'end-to-end']);
+const STATUSES = new Set<ReleaseReceiptStatus>(['planned', 'partial', 'succeeded', 'failed']);
+const GATES = new Set<ReleaseGate>(['assembly', 'local_build', 'github_publication', 'vercel_deployment', 'visual_qa']);
 
 export function validateReleaseReceipt(value: unknown): asserts value is ReleaseReceipt {
   if (!value || typeof value !== 'object') throw new Error('release receipt must be an object');
@@ -49,10 +49,10 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
   if (receipt.schema !== 'website-bot.release-receipt/v2' || !receipt.receipt_id || !receipt.build_id || !receipt.client_id) {
     throw new Error('release receipt identity is invalid');
   }
-  if (!MODES.includes(receipt.mode as ExecutionMode) || !STATUSES.includes(receipt.status as ReleaseReceiptStatus)) {
+  if (!MODES.has(receipt.mode as ExecutionMode) || !STATUSES.has(receipt.status as ReleaseReceiptStatus)) {
     throw new Error('release receipt mode or status is invalid');
   }
-  if (!Array.isArray(receipt.missing_gates) || receipt.missing_gates.some(gate => !GATES.includes(gate))) {
+  if (!Array.isArray(receipt.missing_gates) || receipt.missing_gates.some(gate => !GATES.has(gate))) {
     throw new Error('release receipt missing_gates is invalid');
   }
   if (!receipt.evidence?.assembly) throw new Error('release receipt assembly reference is missing');
