@@ -41,3 +41,19 @@ export interface ImageAssetPlan {
 export function unresolvedRequiredSlots(plan: ImageAssetPlan): PlannedImageAsset[] {
   return plan.assets.filter(asset => asset.required && asset.resolution.source === 'unresolved');
 }
+
+const RESOLUTION_SOURCES = new Set(['provided', 'source-site', 'generated', 'unresolved']);
+
+/** Assert an object is a structurally valid image asset plan (persisted evidence). */
+export function validateImageAssetPlan(value: unknown): asserts value is ImageAssetPlan {
+  if (!value || typeof value !== 'object') throw new Error('image asset plan must be an object');
+  const plan = value as Partial<ImageAssetPlan>;
+  if (plan.schema !== 'website-bot.image-asset-plan/v1' || !plan.version) throw new Error('image asset plan identity is invalid');
+  if (!Array.isArray(plan.assets)) throw new Error('image asset plan assets must be an array');
+  for (const asset of plan.assets) {
+    if (!asset.slotId || !asset.placement) throw new Error('image asset plan entry identity is invalid');
+    if (!asset.resolution || !RESOLUTION_SOURCES.has(asset.resolution.source)) {
+      throw new Error(`invalid resolution source for ${asset.slotId}`);
+    }
+  }
+}

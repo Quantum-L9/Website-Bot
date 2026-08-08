@@ -5,6 +5,7 @@ import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import { digestDirectory } from '../services/hashing.js';
 import type { BuildContext, DeployTarget, SiteConfig, SiteImageEntry } from '../pipeline/BuildContext.js';
+import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import {
   buildAssemblyManifest,
@@ -51,7 +52,15 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
 export class SiteAssemblerStage implements Stage {
   name = 'site-assembler';
   version = '3.0.0';
-  evidence = { inputs: (_ctx: BuildContext) => [], outputs: (_ctx: BuildContext) => ['assembly' as const], resumable: true, externalMutation: false };
+  evidence = {
+    // A site with image slots consumes the delivered image_assets evidence
+    // (written by planning/generation) before it materializes public/images.
+    inputs: (ctx: BuildContext): EvidenceKind[] =>
+      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0 ? [] : ['image_assets'],
+    outputs: (_ctx: BuildContext) => ['assembly' as const],
+    resumable: true,
+    externalMutation: false,
+  };
 
   async run(ctx: BuildContext): Promise<void> {
     this.validateInputs(ctx);

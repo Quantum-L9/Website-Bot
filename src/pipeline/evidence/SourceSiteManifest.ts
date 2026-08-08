@@ -78,3 +78,22 @@ export function emptySourceSiteManifest(sourceUrl: string, crawlerVersion: strin
     warnings: [],
   };
 }
+
+const SHA256 = /^[a-f0-9]{64}$/;
+
+/** Assert an object is a structurally valid source-site manifest (persisted evidence). */
+export function validateSourceSiteManifest(value: unknown): asserts value is SourceSiteManifest {
+  if (!value || typeof value !== 'object') throw new Error('source site manifest must be an object');
+  const manifest = value as Partial<SourceSiteManifest>;
+  if (manifest.schema !== 'website-bot.source-site-manifest/v1' || !manifest.sourceUrl || !manifest.crawledAt || !manifest.crawlerVersion) {
+    throw new Error('source site manifest identity is invalid');
+  }
+  if (!Array.isArray(manifest.pages) || !Array.isArray(manifest.images) || !Array.isArray(manifest.rejected) || !Array.isArray(manifest.warnings)) {
+    throw new Error('source site manifest collections must be arrays');
+  }
+  for (const image of manifest.images) {
+    if (image.provenance !== 'source-site') throw new Error('source-site image provenance must be source-site');
+    if (!SHA256.test(String(image.sha256))) throw new Error(`invalid sha256 for source-site image ${image.id}`);
+    if (!Number.isInteger(image.byteLength) || image.byteLength < 0) throw new Error(`invalid byteLength for source-site image ${image.id}`);
+  }
+}
