@@ -6,7 +6,7 @@
 // unauthorized republication and evidence/site drift. No network or provider calls.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { SiteConfig } from '../../src/pipeline/BuildContext.js';
 import type { SourceSiteManifest } from '../../src/pipeline/evidence/SourceSiteManifest.js';
