@@ -58,7 +58,7 @@ void test('fails closed on a broken image reference', async () => {
   try {
     // Remove the copied file to simulate a broken reference in the built site.
     rmSync(join(ctx.outputDir, 'public/images/home-hero.png'), { force: true });
-    await assert.rejects(() => new ImageValidationStage().run(ctx), /Broken image references/);
+    await assert.rejects(() => new ImageValidationStage().run(ctx), /broken image reference/i);
   } finally {
     cleanupContext(ctx);
     rmSync(dir, { recursive: true, force: true });

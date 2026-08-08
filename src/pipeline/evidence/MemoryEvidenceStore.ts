@@ -6,6 +6,9 @@ import type { SeoBotRegistrationAck } from '../../contracts/SeoBotRegistrationAc
 import type { AssemblyManifest } from './AssemblyManifest.js';
 import type { BuildProof } from './BuildProof.js';
 import type { DeploymentEvidence } from './DeploymentEvidence.js';
+import type { SourceSiteManifest } from './SourceSiteManifest.js';
+import type { ImageAssetPlan } from './ImageAssetPlan.js';
+import type { ImageAssetManifest } from './ImageAssetManifest.js';
 import type { EvidenceIndex } from './EvidenceIndex.js';
 import type { EvidenceKind, EvidenceRecord, EvidenceReference } from './EvidenceReference.js';
 import type { EvidenceStore } from './EvidenceStore.js';
@@ -64,6 +67,12 @@ export class MemoryEvidenceStore implements EvidenceStore {
   async readHandoff(): Promise<WebsiteFactoryHandoffV3 | undefined> { return undefined; }
   async writeRegistrationAck(_value: SeoBotRegistrationAck): Promise<EvidenceRecord> { return this.forbidden(); }
   async readRegistrationAck(): Promise<SeoBotRegistrationAck | undefined> { return undefined; }
+  async writeSourceSite(_value: SourceSiteManifest): Promise<EvidenceRecord> { return this.forbidden(); }
+  async readSourceSite(): Promise<StoredEvidence<SourceSiteManifest> | undefined> { return undefined; }
+  async writeImagePlan(_value: ImageAssetPlan): Promise<EvidenceRecord> { return this.forbidden(); }
+  async readImagePlan(): Promise<StoredEvidence<ImageAssetPlan> | undefined> { return undefined; }
+  async writeImageAssets(_value: ImageAssetManifest): Promise<EvidenceRecord> { return this.forbidden(); }
+  async readImageAssets(): Promise<StoredEvidence<ImageAssetManifest> | undefined> { return undefined; }
   async writeFailure(_value: StageFailureEvidence): Promise<EvidenceRecord> { return this.forbidden(); }
   async readFailure(): Promise<StoredEvidence<StageFailureEvidence> | undefined> { return undefined; }
   async requireBuildProof(): Promise<StoredEvidence<BuildProof>> { return this.forbidden(); }

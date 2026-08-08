@@ -13,6 +13,9 @@ const required={
  'stage-failure-evidence.schema.json':'website-bot.stage-failure/v2',
  'seo-bot-registration-ack.schema.json':'seo-bot.website-factory-registration-ack/v1',
  'provisioning-receipt.schema.json':'website-bot.provisioning-receipt/v1',
+ 'source-site-manifest.schema.json':'website-bot.source-site-manifest/v1',
+ 'image-asset-plan.schema.json':'website-bot.image-asset-plan/v1',
+ 'image-asset-manifest.schema.json':'website-bot.image-asset-manifest/v1',
 };
 const snake=/^[a-z][a-z0-9_]*$/;
 function resolveRef(root,ref){

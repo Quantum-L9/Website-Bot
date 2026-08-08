@@ -31,6 +31,9 @@ import { recordToReference } from './EvidenceReference.js';
 import type { EvidenceStore } from './EvidenceStore.js';
 import { validatePublicationEvidence, type PublicationEvidence } from './PublicationEvidence.js';
 import { validateReleaseReceipt, type ReleaseReceipt } from './ReleaseReceipt.js';
+import { validateSourceSiteManifest, type SourceSiteManifest } from './SourceSiteManifest.js';
+import { validateImageAssetPlan, type ImageAssetPlan } from './ImageAssetPlan.js';
+import { validateImageAssetManifest, type ImageAssetManifest } from './ImageAssetManifest.js';
 import { validateStageFailureEvidence, type StageFailureEvidence } from './StageFailureEvidence.js';
 import type {
   EvidenceChainValidation,
@@ -56,6 +59,9 @@ const FILES: Record<Exclude<EvidenceKind, 'failure'>, string> = {
   release: 'release-receipt.json',
   handoff: 'handoff-v3.json',
   registration_ack: 'seo-bot-registration-ack.json',
+  source_site: 'source-site-manifest.json',
+  image_plan: 'image-asset-plan.json',
+  image_assets: 'image-asset-manifest.json',
 };
 
 const SCHEMAS: Record<EvidenceKind, string> = {
@@ -66,6 +72,9 @@ const SCHEMAS: Record<EvidenceKind, string> = {
   release: 'website-bot.release-receipt/v2',
   handoff: 'l9.website-factory.handoff/3.0',
   registration_ack: 'seo-bot.website-factory-registration-ack/v1',
+  source_site: 'website-bot.source-site-manifest/v1',
+  image_plan: 'website-bot.image-asset-plan/v1',
+  image_assets: 'website-bot.image-asset-manifest/v1',
   failure: 'website-bot.stage-failure/v2',
 };
 
@@ -289,6 +298,27 @@ export class FileEvidenceStore implements EvidenceStore {
     validateSeoBotRegistrationAck(stored.value);
     return stored.value;
   }
+  async writeSourceSite(value: SourceSiteManifest): Promise<EvidenceRecord> {
+    validateSourceSiteManifest(value);
+    return this.write('source_site', value);
+  }
+  async readSourceSite(): Promise<StoredEvidence<SourceSiteManifest> | undefined> {
+    return this.read('source_site', validateSourceSiteManifest);
+  }
+  async writeImagePlan(value: ImageAssetPlan): Promise<EvidenceRecord> {
+    validateImageAssetPlan(value);
+    return this.write('image_plan', value);
+  }
+  async readImagePlan(): Promise<StoredEvidence<ImageAssetPlan> | undefined> {
+    return this.read('image_plan', validateImageAssetPlan);
+  }
+  async writeImageAssets(value: ImageAssetManifest): Promise<EvidenceRecord> {
+    validateImageAssetManifest(value);
+    return this.write('image_assets', value);
+  }
+  async readImageAssets(): Promise<StoredEvidence<ImageAssetManifest> | undefined> {
+    return this.read('image_assets', validateImageAssetManifest);
+  }
   async writeFailure(value: StageFailureEvidence): Promise<EvidenceRecord> {
     validateStageFailureEvidence(value);
     await this.initialize();
@@ -463,6 +493,9 @@ export class FileEvidenceStore implements EvidenceStore {
       case 'release': validateReleaseReceipt(value); break;
       case 'handoff': assertWebsiteFactoryHandoffV3(value as WebsiteFactoryHandoffV3); break;
       case 'registration_ack': validateSeoBotRegistrationAck(value); break;
+      case 'source_site': validateSourceSiteManifest(value); break;
+      case 'image_plan': validateImageAssetPlan(value); break;
+      case 'image_assets': validateImageAssetManifest(value); break;
       case 'failure': validateStageFailureEvidence(value); break;
     }
   }

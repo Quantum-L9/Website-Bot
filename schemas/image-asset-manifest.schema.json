@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:image-asset-manifest:v1",
+  "title": "Website-Bot Image Asset Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "build_id", "client_id", "generated_at", "assets", "digest"],
+  "properties": {
+    "schema": { "const": "website-bot.image-asset-manifest/v1" },
+    "build_id": { "type": "string", "minLength": 1 },
+    "client_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_id", "placement", "source", "output_path", "mime_type", "width", "height", "byte_length", "sha256", "disposition", "provenance_warnings"],
+      "properties": {
+        "slot_id": { "type": "string", "minLength": 1 },
+        "placement": { "type": "string", "minLength": 1 },
+        "source": { "enum": ["provided", "source-site", "generated"] },
+        "source_url": { "type": "string" },
+        "original_path": { "type": "string" },
+        "output_path": { "type": "string", "minLength": 1 },
+        "mime_type": { "type": "string", "minLength": 1 },
+        "width": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "height": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "byte_length": { "type": "integer", "minimum": 0, "maximum": 104857600 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "prompt_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "model": { "type": "string" },
+        "estimated_cost_usd": { "type": "number", "minimum": 0 },
+        "disposition": { "enum": ["approved-client-owned", "reference-only", "unknown-rights", "rejected"] },
+        "provenance_warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -5,7 +5,25 @@ import type { StageCheckpoint } from '../StageCheckpoint.js';
 
 type JsonObject = Record<string, unknown>;
 
-const ARTIFACT_KEYS: Record<Exclude<EvidenceKind, 'release' | 'handoff' | 'registration_ack'>, Record<string, string>> = {
+// Kinds whose persisted JSON is derived by a deterministic deep camelCase↔snake_case
+// transform rather than an explicit key map. Their in-memory manifests are deeply
+// nested (pages, images, resolutions, briefs) with clean single-hump camelCase
+// field names, for which the transform is an exact bijection.
+type DeepSnakeKind = 'source_site' | 'image_plan' | 'image_assets';
+const isDeepSnakeKind = (kind: EvidenceKind): kind is DeepSnakeKind =>
+  kind === 'source_site' || kind === 'image_plan' || kind === 'image_assets';
+const camelToSnake = (key: string): string => key.replace(/[A-Z]/g, match => `_${match.toLowerCase()}`);
+const snakeToCamel = (key: string): string => key.replace(/_([a-z0-9])/g, (_match, char: string) => char.toUpperCase());
+
+function deepConvertKeys(value: unknown, convert: (key: string) => string): unknown {
+  if (Array.isArray(value)) return value.map(item => deepConvertKeys(item, convert));
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value as JsonObject).map(([key, child]) => [convert(key), deepConvertKeys(child, convert)]),
+  );
+}
+
+const ARTIFACT_KEYS: Record<Exclude<EvidenceKind, 'release' | 'handoff' | 'registration_ack' | 'source_site' | 'image_plan' | 'image_assets'>, Record<string, string>> = {
   assembly: {
     buildId: 'build_id', clientId: 'client_id', generatorVersion: 'generator_version',
     templateVersion: 'template_version', templateDigest: 'template_digest', sourceDigest: 'source_digest', generatedAt: 'generated_at', outputDir: 'output_dir',
@@ -60,6 +78,7 @@ function remap(value: unknown, map: Record<string, string>, reverse = false): un
 
 export function encodeEvidenceArtifact(kind: EvidenceKind, value: object): object {
   if (kind === 'release' || kind === 'handoff' || kind === 'registration_ack') return value;
+  if (isDeepSnakeKind(kind)) return deepConvertKeys(value, camelToSnake) as object;
   const encoded = remap(value, ARTIFACT_KEYS[kind]) as JsonObject;
   if (kind === 'build' && Array.isArray(encoded.checks)) {
     encoded.checks = encoded.checks.map(check => remap(check, { durationMs: 'duration_ms' }));
@@ -69,6 +88,7 @@ export function encodeEvidenceArtifact(kind: EvidenceKind, value: object): objec
 
 export function decodeEvidenceArtifact<T>(kind: EvidenceKind, value: unknown): T {
   if (kind === 'release' || kind === 'handoff' || kind === 'registration_ack') return value as T;
+  if (isDeepSnakeKind(kind)) return deepConvertKeys(value, snakeToCamel) as T;
   const decoded = remap(value, ARTIFACT_KEYS[kind], true) as JsonObject;
   if (kind === 'build' && Array.isArray(decoded.checks)) {
     decoded.checks = decoded.checks.map(check => remap(check, { durationMs: 'duration_ms' }, true));

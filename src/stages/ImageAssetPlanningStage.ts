@@ -11,6 +11,7 @@ import { basename, isAbsolute, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { AssetSpec, BuildContext, ImageSlotSpec, ProvidedImageSpec } from '../pipeline/BuildContext.js';
+import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { EXTENSION_BY_MIME, inspectImage, type InspectedImage } from '../services/images/ImageInspector.js';
 import {
@@ -46,8 +47,18 @@ function dispositionForSource(source: ResolvedImageAsset['source']): ReuseDispos
 
 export class ImageAssetPlanningStage implements Stage {
   name = 'image-asset-planning';
-  version = '1.0.0';
-  evidence = { inputs: (_ctx: BuildContext) => [], outputs: (_ctx: BuildContext) => [], resumable: false, externalMutation: false };
+  version = '2.0.0';
+  evidence = {
+    inputs: (_ctx: BuildContext) => [],
+    // Persist the plan and the (provided + source-site) delivered manifest whenever
+    // slots are authored. Image generation later overwrites image_assets with the
+    // complete set; writing it here guarantees the evidence exists even for a
+    // build with no generated slots. Text-only builds declare no output.
+    outputs: (ctx: BuildContext): EvidenceKind[] =>
+      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0 ? [] : ['image_plan', 'image_assets'],
+    resumable: false,
+    externalMutation: false,
+  };
 
   async run(ctx: BuildContext): Promise<void> {
     const assets = ctx.domainSpec.assets;
@@ -118,6 +129,8 @@ export class ImageAssetPlanningStage implements Stage {
       const manifestDir = resolve(stagingRoot, 'manifests');
       mkdirSync(manifestDir, { recursive: true });
       writeFileSync(resolve(manifestDir, 'image-asset-manifest.json'), `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`, 'utf-8');
+      await ctx.evidenceStore.writeImagePlan(plan);
+      await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);
     }
 
     logger.info(
