@@ -69,6 +69,16 @@ class TerminalConvergenceStage implements Stage {
     for (const kind of this.requiredEvidence) {
       if (!await ctx.evidenceStore.referenceFor(kind as never)) throw new BuildError('EVIDENCE_REFERENCE_MISSING', `Terminal convergence requires ${kind} evidence`);
     }
+    // Conditional visual-asset evidence, additive to the base gates: a site with
+    // image slots must have persisted its delivered manifest, and an enabled source
+    // site must have persisted its crawl evidence.
+    const assets = ctx.domainSpec.assets;
+    if ((assets?.imageSlots ?? []).length > 0 && !await ctx.evidenceStore.referenceFor('image_assets')) {
+      throw new BuildError('EVIDENCE_REFERENCE_MISSING', 'Terminal convergence requires image_assets evidence for a site with image slots');
+    }
+    if (assets?.sourceSite?.enabled === true && !await ctx.evidenceStore.referenceFor('source_site')) {
+      throw new BuildError('EVIDENCE_REFERENCE_MISSING', 'Terminal convergence requires source_site evidence when source-site ingestion is enabled');
+    }
     if (this.mode === 'end-to-end') {
       await ctx.evidenceStore.loadValidatedReleaseBundle({requireStatus:'succeeded',requireMode:'end-to-end'});
       if (!await ctx.evidenceStore.readHandoff()) throw new BuildError('RELEASE_EVIDENCE_INCOMPLETE','End-to-end convergence requires persisted handoff evidence');

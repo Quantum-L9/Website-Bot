@@ -7,6 +7,9 @@ export type EvidenceKind =
   | 'release'
   | 'handoff'
   | 'registration_ack'
+  | 'source_site'
+  | 'image_plan'
+  | 'image_assets'
   | 'failure';
 
 export interface EvidenceRecord {

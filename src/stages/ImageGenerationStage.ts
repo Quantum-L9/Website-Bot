@@ -13,6 +13,7 @@ import { resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { AssetSpec, BuildContext, ImageSlotSpec } from '../pipeline/BuildContext.js';
+import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { EXTENSION_BY_MIME, inspectImage } from '../services/images/ImageInspector.js';
 import type { ImageGenerator } from '../services/images/ImageGenerator.js';
@@ -45,8 +46,19 @@ function canonicalJson(value: unknown): string {
 
 export class ImageGenerationStage implements Stage {
   name = 'image-generation';
-  version = '1.0.0';
-  evidence = { inputs: (_ctx: BuildContext) => [], outputs: (_ctx: BuildContext) => [], resumable: false, externalMutation: false };
+  version = '2.0.0';
+  evidence = {
+    inputs: (_ctx: BuildContext) => [],
+    // Overwrite image_assets with the complete (provided + source-site + generated)
+    // manifest only when there are generated slots to fill. With none, the stage
+    // no-ops and planning's image_assets evidence stands.
+    outputs: (ctx: BuildContext): EvidenceKind[] => {
+      const generated = ctx.imageAssetPlan?.assets.some(asset => asset.resolution.source === 'generated');
+      return ctx.dryRun || !generated ? [] : ['image_assets'];
+    },
+    resumable: false,
+    externalMutation: false,
+  };
 
   constructor(private readonly generatorOverride?: ImageGenerator) {}
 
@@ -100,6 +112,7 @@ export class ImageGenerationStage implements Stage {
     const manifestDir = resolve('build', 'assets', ctx.clientId, 'manifests');
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(resolve(manifestDir, 'image-asset-manifest.json'), `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`, 'utf-8');
+    await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);
 
     logger.info({ generated: generatedSlots.length, spentUsd: Number(budget.spent.toFixed(4)) }, 'Image generation complete');
   }

@@ -6,6 +6,9 @@ import type { StageCheckpoint } from '../StageCheckpoint.js';
 import type { AssemblyManifest } from './AssemblyManifest.js';
 import type { BuildProof } from './BuildProof.js';
 import type { DeploymentEvidence } from './DeploymentEvidence.js';
+import type { SourceSiteManifest } from './SourceSiteManifest.js';
+import type { ImageAssetPlan } from './ImageAssetPlan.js';
+import type { ImageAssetManifest } from './ImageAssetManifest.js';
 import type { EvidenceIndex } from './EvidenceIndex.js';
 import type { EvidenceKind, EvidenceRecord, EvidenceReference } from './EvidenceReference.js';
 import type { PublicationEvidence } from './PublicationEvidence.js';
@@ -47,6 +50,12 @@ export interface EvidenceStore {
   readHandoff(): Promise<WebsiteFactoryHandoffV3 | undefined>;
   writeRegistrationAck(value: SeoBotRegistrationAck): Promise<EvidenceRecord>;
   readRegistrationAck(): Promise<SeoBotRegistrationAck | undefined>;
+  writeSourceSite(value: SourceSiteManifest): Promise<EvidenceRecord>;
+  readSourceSite(): Promise<StoredEvidence<SourceSiteManifest> | undefined>;
+  writeImagePlan(value: ImageAssetPlan): Promise<EvidenceRecord>;
+  readImagePlan(): Promise<StoredEvidence<ImageAssetPlan> | undefined>;
+  writeImageAssets(value: ImageAssetManifest): Promise<EvidenceRecord>;
+  readImageAssets(): Promise<StoredEvidence<ImageAssetManifest> | undefined>;
   writeFailure(value: StageFailureEvidence): Promise<EvidenceRecord>;
   readFailure(): Promise<StoredEvidence<StageFailureEvidence> | undefined>;
 

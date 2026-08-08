@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:image-asset-plan:v1",
+  "title": "Website-Bot Image Asset Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "assets"],
+  "properties": {
+    "schema": { "const": "website-bot.image-asset-plan/v1" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } }
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_id", "placement", "required", "resolution"],
+      "properties": {
+        "slot_id": { "type": "string", "minLength": 1 },
+        "placement": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "resolution": { "$ref": "#/$defs/resolution" }
+      }
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source"],
+      "properties": {
+        "source": { "enum": ["provided", "source-site", "generated", "unresolved"] },
+        "candidate_id": { "type": "string" },
+        "score": { "type": "number" },
+        "reason": { "type": "string" },
+        "compiled_brief": { "$ref": "#/$defs/brief" }
+      }
+    },
+    "brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_id", "intent"],
+      "properties": {
+        "slot_id": { "type": "string", "minLength": 1 },
+        "intent": { "type": "string", "minLength": 1 },
+        "subject": { "type": "string" },
+        "composition": { "type": "string" },
+        "style": { "type": "string" },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "aspect_ratio": { "type": "string" },
+        "image_size": { "enum": ["1K", "2K", "4K"] }
+      }
+    }
+  }
+}
