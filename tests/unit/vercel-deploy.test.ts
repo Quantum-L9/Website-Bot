@@ -66,6 +66,76 @@ void test('correlates READY Vercel deployment to persisted publication evidence'
   }
 });
 
+void test('sends the full deployment identity and auth for a preview deployment', async () => {
+  const ctx = await prepareContext();
+  try {
+    let deployInit: RequestInit | undefined;
+    const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
+      const url = String(input);
+      if (url.endsWith('/v13/deployments')) {
+        deployInit = init;
+        return Response.json({ id: 'dep_123', url: 'preview.example.vercel.app' });
+      }
+      if (url.includes('/v13/deployments/dep_123')) return Response.json({
+        id: 'dep_123', readyState: 'READY', url: 'preview.example.vercel.app', aliases: ['preview.example.com'],
+        projectId: 'prj_123', meta: { githubCommitSha: commit }, createdAt: 1_721_436_000_000, ready: 1_721_436_001_000,
+      });
+      throw new Error(`Unexpected Vercel request ${url}`);
+    };
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview' }, async () => {
+      await new VercelDeployStage(fakeFetch, async () => {}, () => new Date('2026-07-20T00:00:02.000Z'), 0, 2).run(ctx);
+    });
+
+    const headers = (deployInit?.headers ?? {}) as Record<string, string>;
+    assert.equal(headers.Authorization, 'Bearer test-token');
+    assert.equal(headers['Content-Type'], 'application/json');
+
+    const body = JSON.parse(String(deployInit?.body)) as {
+      name?: string; project?: string; target?: unknown;
+      gitSource?: { type?: string; repoId?: string; ref?: string; sha?: string };
+      meta?: { websiteBotBuildId?: string; githubCommitSha?: string };
+    };
+    assert.equal(body.name, 'prj_123');
+    assert.equal(body.project, 'prj_123');
+    assert.equal(body.gitSource?.type, 'github');
+    assert.equal(body.gitSource?.repoId, '123');
+    assert.equal(body.gitSource?.ref, 'main');
+    assert.equal(body.gitSource?.sha, commit);
+    assert.equal(body.meta?.websiteBotBuildId, ctx.buildId);
+    assert.equal(body.meta?.githubCommitSha, commit);
+    // A preview deployment must not request the production target.
+    assert.equal(body.target, undefined);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test('requests the production target only under explicit production authorization', async () => {
+  const ctx = await prepareContext();
+  try {
+    let deployInit: RequestInit | undefined;
+    const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
+      const url = String(input);
+      if (url.endsWith('/v13/deployments')) {
+        deployInit = init;
+        return Response.json({ id: 'dep_prod', url: 'prod.example.vercel.app' });
+      }
+      if (url.includes('/v13/deployments/dep_prod')) return Response.json({
+        id: 'dep_prod', readyState: 'READY', url: 'prod.example.vercel.app', aliases: ['acme.example.com'],
+        projectId: 'prj_123', meta: { githubCommitSha: commit }, createdAt: 1_721_436_000_000, ready: 1_721_436_001_000,
+      });
+      throw new Error(`Unexpected Vercel request ${url}`);
+    };
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'production', WEBSITE_BOT_ALLOW_PRODUCTION: 'true' }, async () => {
+      await new VercelDeployStage(fakeFetch, async () => {}, () => new Date('2026-07-20T00:00:02.000Z'), 0, 2).run(ctx);
+    });
+    const body = JSON.parse(String(deployInit?.body)) as { target?: unknown };
+    assert.equal(body.target, 'production');
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test('fails closed and writes no deployment evidence when Vercel reports another commit', async () => {
   const ctx = await prepareContext();
   try {

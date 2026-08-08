@@ -53,6 +53,9 @@ export class SiteAssemblerStage implements Stage {
   version = '3.0.0';
   evidence = { inputs: (_ctx: BuildContext) => [], outputs: (_ctx: BuildContext) => ['assembly' as const], resumable: true, externalMutation: false };
 
+  // Injectable seam over `renameSync` so the atomic swap/rollback path is deterministically testable.
+  constructor(private readonly rename: (from: string, to: string) => void = renameSync) {}
+
   async run(ctx: BuildContext): Promise<void> {
     this.validateInputs(ctx);
     const routeSlugs = validateRouteContracts(ctx.domainSpec.routes);
@@ -87,11 +90,11 @@ export class SiteAssemblerStage implements Stage {
       writeAssemblyManifest(temporaryRoot, manifest);
 
       mkdirSync(dirname(outputDir), { recursive: true });
-      if (existsSync(outputDir)) renameSync(outputDir, backupRoot);
+      if (existsSync(outputDir)) this.rename(outputDir, backupRoot);
       try {
-        renameSync(temporaryRoot, outputDir);
+        this.rename(temporaryRoot, outputDir);
       } catch (error) {
-        if (existsSync(backupRoot) && !existsSync(outputDir)) renameSync(backupRoot, outputDir);
+        if (existsSync(backupRoot) && !existsSync(outputDir)) this.rename(backupRoot, outputDir);
         throw error;
       }
       rmSync(backupRoot, { recursive: true, force: true });
