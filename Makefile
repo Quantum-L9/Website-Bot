@@ -3,7 +3,7 @@ SHELL := /bin/sh
 
 .PHONY: help install \
         pipeline-plan pipeline-local-proof pipeline-publish-proof pipeline-end-to-end \
-        normalize-spec provision-plan provision-client \
+        generate-spec normalize-spec provision-plan provision-client \
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
@@ -23,6 +23,7 @@ help:
 	@printf '%s\n' '  (pass a spec: make pipeline-local-proof ARGS="--spec=<path> --build-id=<id>")'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Spec & provisioning ──'
+	@printf '%-30s %s\n' 'make generate-spec' 'Generate a flat DomainSpec from a target URL (crawl + LLM)'
 	@printf '%-30s %s\n' 'make normalize-spec' 'Normalize a rich source spec into the flat DomainSpec'
 	@printf '%-30s %s\n' 'make provision-plan' 'Plan client repo/Vercel provisioning (no mutation)'
 	@printf '%-30s %s\n' 'make provision-client' 'Provision the client GitHub repo and Vercel project'
@@ -58,6 +59,9 @@ pipeline-end-to-end:
 	npm run pipeline:end-to-end -- $(ARGS)
 
 # ── Spec & provisioning ──
+generate-spec:
+	npm run generate-spec -- $(ARGS)
+
 normalize-spec:
 	npm run normalize-spec -- $(ARGS)
 
