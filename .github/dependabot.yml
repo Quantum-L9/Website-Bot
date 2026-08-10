@@ -8,7 +8,9 @@ updates:
       day: monday
       time: '06:00'
     open-pull-requests-limit: 5
-    labels: ['dependencies', 'type:dependency']
+    # Namespaced CI-routing labels (l9-ci-core taxonomy). Dependabot PRs are
+    # advisory by governance policy; deprecated plain `dependencies` label dropped.
+    labels: ['automation:dependabot', 'type:deps', 'risk:advisory']
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
@@ -20,4 +22,4 @@ updates:
       interval: weekly
       day: monday
       time: '07:00'
-    labels: ['dependencies', 'type:dependency']
+    labels: ['automation:dependabot', 'automation:github-actions', 'type:deps', 'risk:advisory']
