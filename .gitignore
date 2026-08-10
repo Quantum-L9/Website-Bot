@@ -19,3 +19,6 @@ validation/deploy_secrets_report.json
 coverage/
 **/coverage/
 .nyc_output/
+
+# L9 governance runtime state (memory receipts/locks) — not source
+.l9/
