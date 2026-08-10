@@ -15,6 +15,7 @@
     "pretypecheck": "npm run interop:build",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: no standalone ESLint configured; type safety is enforced by tsc --noEmit (npm run typecheck)'",
+    "generate-spec": "npx tsx scripts/generate-spec.ts",
     "normalize-spec": "npx tsx scripts/normalize-spec.ts",
     "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
     "validate": "node scripts/verify-launch-env.mjs",
