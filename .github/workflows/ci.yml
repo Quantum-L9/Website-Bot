@@ -11,6 +11,6 @@ on:
 
 jobs:
   ci:
-    uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@102c9a5960c53c607216d320339e0457046948cb
+    uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@373bb6d26084e67ef76aaab95021364182a34ee7
     secrets:
       SDK_TOKEN: ${{ secrets.SDK_TOKEN }}
