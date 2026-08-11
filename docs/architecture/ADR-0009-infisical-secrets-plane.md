@@ -15,8 +15,13 @@ human paste, and left PostHog / deploy credentials outside a shared vault.
 2. Bootstrap uses a **machine identity** via Universal Auth:
    `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_PROJECT_ID`
    (optional `INFISICAL_ENV=prod`).
-3. Entrypoints call `await loadSecrets()` from `@quantum-l9/infisical-config`
-   before reading config. Secret **names in Infisical must match app env var names**.
+3. Entrypoints hydrate via the shared helper `scripts/lib/hydrate-secrets.mjs`
+   (`hydrateSecretsIfConfigured` → `@quantum-l9/infisical-config` `loadSecrets`)
+   before reading config. Current consumers:
+   - `scripts/run-pipeline.ts`
+   - `scripts/verify-launch-env.mjs`
+   - `scripts/verify-deploy-secrets.mjs`
+   Secret **names in Infisical must match app env var names**.
 4. Loaders are **fail-soft** unless `INFISICAL_REQUIRED=true`. Local `.env` remains
    an emergency override and never overwrites already-set vars.
 5. **No committed secret values.** `.env` / `.env.local` stay gitignored.
@@ -32,6 +37,9 @@ human paste, and left PostHog / deploy credentials outside a shared vault.
 - Agents resolve Infisical bootstrap via `l9-aws-secrets` then export `INFISICAL_*`
   before running the pipeline — they must not ask humans for PostHog values when
   Infisical/AWS resolution works.
+- Launch/deploy verifiers use the same hydration contract as the pipeline; Infisical
+  access alone is not a launch/deploy PASS (existing FAIL_CLOSED checks still apply).
+  Reports may include only `source_mode` and `bootstrap_present` provenance fields.
 - Full collapse of every GitHub Actions secret into Infisical is incremental;
   PostHog keys are the first migrated set.
 - SEO-Bot should consume the same package contract; do not fork a second loader.
