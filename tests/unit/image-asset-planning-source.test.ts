@@ -76,6 +76,6 @@ void test('stage resolves a crawled source-site image into the build with proven
   } finally {
     cleanupContext(ctx);
     rmSync(dir, { recursive: true, force: true });
-    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });

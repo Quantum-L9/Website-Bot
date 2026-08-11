@@ -119,6 +119,6 @@ void test('provided images resolve, copy into public/images, and register in sit
   } finally {
     cleanupContext(ctx);
     rmSync(source, { recursive: true, force: true });
-    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });

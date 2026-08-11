@@ -8,6 +8,7 @@ import { computeAssemblySourceDigest, type AssemblyManifest } from '../../src/pi
 import type { BuildProof } from '../../src/pipeline/evidence/BuildProof.js';
 import type { PublicationEvidence } from '../../src/pipeline/evidence/PublicationEvidence.js';
 import type { DeploymentEvidence } from '../../src/pipeline/evidence/DeploymentEvidence.js';
+import { makeBuildId } from '../../src/pipeline/BuildContext.js';
 
 export function fixtureSpec(overrides: Partial<DomainSpec> = {}): DomainSpec {
   return {
@@ -33,7 +34,8 @@ export function fixtureSpec(overrides: Partial<DomainSpec> = {}): DomainSpec {
 export function fixtureContext(overrides: Partial<DomainSpec> = {}): BuildContext {
   const spec = fixtureSpec(overrides);
   const outputDir = mkdtempSync(join(tmpdir(), 'website-bot-site-'));
-  const buildId = `${spec.client_id}-fixture-build`;
+  // Unique per fixture so parallel node:test workers do not share on-disk asset staging.
+  const buildId = makeBuildId(spec.client_id);
   const evidenceStore = new FileEvidenceStore({
     rootDir: `${outputDir}.evidence`,
     clientId: spec.client_id,

@@ -47,7 +47,7 @@ void test('passes when every referenced image exists on disk', async () => {
   } finally {
     cleanupContext(ctx);
     rmSync(dir, { recursive: true, force: true });
-    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });
 
@@ -62,7 +62,7 @@ void test('fails closed on a broken image reference', async () => {
   } finally {
     cleanupContext(ctx);
     rmSync(dir, { recursive: true, force: true });
-    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });
 
@@ -100,6 +100,6 @@ void test('surfaces source-site provenance warnings for release evidence', async
   } finally {
     cleanupContext(ctx);
     rmSync(dir, { recursive: true, force: true });
-    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });

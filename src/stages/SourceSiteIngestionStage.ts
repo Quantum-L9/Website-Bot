@@ -17,7 +17,7 @@ import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import { sha256File } from '../pipeline/evidence/EvidenceCanonicalizer.js';
 import type { SourceSiteManifest } from '../pipeline/evidence/SourceSiteManifest.js';
-import type { BuildContext } from '../pipeline/BuildContext.js';
+import { clientAssetRoot, type BuildContext } from '../pipeline/BuildContext.js';
 import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { assertUrlAllowed, UrlPolicyError } from '../ingestion/UrlPolicy.js';
@@ -65,7 +65,7 @@ export class SourceSiteIngestionStage implements Stage {
       return;
     }
 
-    const outputDir = resolve('build', 'assets', ctx.clientId, 'source-site');
+    const outputDir = resolve(clientAssetRoot(ctx), 'source-site');
     const crawler = new SourceCrawler({
       seedUrl: sourceSite.url,
       maxPages: sourceSite.maxPages,
@@ -107,7 +107,7 @@ export class SourceSiteIngestionStage implements Stage {
   }
 
   private persistManifestFile(ctx: BuildContext, manifest: SourceSiteManifest): void {
-    const manifestDir = resolve('build', 'assets', ctx.clientId, 'manifests');
+    const manifestDir = resolve(clientAssetRoot(ctx), 'manifests');
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(resolve(manifestDir, 'source-site-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
   }

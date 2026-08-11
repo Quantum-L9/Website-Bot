@@ -1,4 +1,5 @@
 // L9_META: layer=pipeline, role=context_carrier, status=active, version=3.0.0
+import { resolve } from 'node:path';
 import type { WebsiteFactoryLLM } from '../services/llm.js';
 import type { AssemblyManifest } from './evidence/AssemblyManifest.js';
 import type { BuildProof } from './evidence/BuildProof.js';
@@ -191,4 +192,9 @@ export interface BuildContext {
 
 export function makeBuildId(clientId: string): string {
   return `${clientId}-${Date.now()}`;
+}
+
+/** Per-build on-disk root for staged images/manifests. Scoped by buildId so concurrent builds (and parallel tests) cannot clobber each other. */
+export function clientAssetRoot(ctx: Pick<BuildContext, 'clientId' | 'buildId'>): string {
+  return resolve('build', 'assets', ctx.clientId, ctx.buildId);
 }
