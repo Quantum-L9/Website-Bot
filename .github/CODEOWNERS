@@ -1,0 +1,15 @@
+# Seeded from Quantum-L9/.github templates/CODEOWNERS.repo.
+# CODEOWNERS is not inheritable, so this file is physically copied per repo.
+#
+# Team slugs verified against the live org (only `platform` exists). An
+# unresolvable owner makes the whole rule silently inert, so do not add
+# placeholder team slugs. If new teams are created, add rules and re-seed.
+
+* @Quantum-L9/platform
+
+# Blast-radius paths require cryptoxdog as an additional reviewer.
+/.github/                 @Quantum-L9/platform @cryptoxdog
+/.github/workflows/       @Quantum-L9/platform @cryptoxdog
+/.github/governance/      @Quantum-L9/platform @cryptoxdog
+SECURITY.md               @Quantum-L9/platform @cryptoxdog
+CODEOWNERS                @Quantum-L9/platform @cryptoxdog
