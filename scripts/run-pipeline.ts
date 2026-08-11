@@ -8,6 +8,11 @@ import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { FileEvidenceStore } from '../src/pipeline/evidence/FileEvidenceStore.js';
 import { MemoryEvidenceStore } from '../src/pipeline/evidence/MemoryEvidenceStore.js';
 import { createWebsiteFactoryLLM } from '../src/services/llm.js';
+import { loadSecrets } from '@quantum-l9/infisical-config';
+
+// Hydrate process.env from Infisical when INFISICAL_* bootstrap is present.
+// Fail-soft locally; CI supplies INFISICAL_CLIENT_ID/_SECRET/_PROJECT_ID.
+await loadSecrets();
 
 const arguments_ = process.argv.slice(2);
 const valueOf = (name: string): string | undefined => arguments_.find(argument => argument.startsWith(`--${name}=`))?.slice(name.length + 3);
