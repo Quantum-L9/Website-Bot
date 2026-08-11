@@ -168,7 +168,8 @@ export class SeoBotAdapter implements RepositoryAdapter {
     const result = executeCommandSecurely(command, {
       cwd: workingDir,
       encoding: 'utf8',
-      timeout: 300000 // 5 minute timeout
+      timeout: 300000, // 5 minute timeout
+      allowShell: true, // validation specs may use || / pipes; gated by allowlist
     });
     this.logger.debug({
       command,

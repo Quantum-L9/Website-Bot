@@ -1,11 +1,17 @@
 /**
  * Secure command execution utilities
- * Replaces shell execution with direct process spawning to prevent injection attacks
+ * Prefer direct process spawning; shell only with explicit opt-in + allowlist.
+ *
+ * Website-Bot#53: Sonar flags `sh -c` as a security hotspot. We keep a narrow
+ * shell path for validation specs that need pipes/redirects/chaining, but:
+ * - callers must set `allowShell: true`
+ * - every shell segment's executable must be allowlisted
+ * - dangerous denylist patterns still throw
  */
 
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 /**
  * Fixed, non-writable system directories trusted to resolve executables from.
@@ -14,6 +20,22 @@ import { join } from 'node:path';
  * against this fixed allowlist first avoids relying on that ambient PATH.
  */
 const TRUSTED_BIN_DIRS = ['/usr/bin', '/bin', '/usr/local/bin', '/usr/sbin', '/sbin', '/opt/homebrew/bin'];
+
+/** Executables permitted when `allowShell: true` (Website-Bot#53). */
+const SHELL_ALLOWED_EXECUTABLES = new Set([
+  'echo', 'printf', 'ls', 'cat', 'grep', 'egrep', 'fgrep', 'wc', 'pwd',
+  'test', '[', 'true', 'false', 'sleep', 'mkdir', 'cp', 'mv', 'find',
+  'head', 'tail', 'sort', 'uniq', 'basename', 'dirname', 'xargs', 'tr',
+  'cut', 'awk', 'sed', 'tee', 'diff', 'which', 'env', 'cd',
+  'npm', 'npx', 'node', 'pnpm', 'yarn', 'git', 'tsc', 'vitest',
+  'python', 'python3', 'pip', 'pip3',
+]);
+
+/** Shell keywords / builtins that are not filesystem executables. */
+const SHELL_KEYWORDS = new Set([
+  'if', 'then', 'else', 'elif', 'fi', 'for', 'while', 'until', 'do', 'done',
+  'case', 'esac', 'in', '!', '{', '}',
+]);
 
 /**
  * Resolve an executable to an absolute path within a trusted, unwriteable
@@ -41,27 +63,34 @@ export interface ExecutionOptions {
   cwd?: string;
   timeout?: number;
   encoding?: BufferEncoding;
+  /**
+   * Explicit opt-in for shell features (pipes, redirects, chaining).
+   * Default false: shell-feature commands throw instead of spawning `sh -c`.
+   */
+  allowShell?: boolean;
 }
 
 /**
- * Safely execute a command with direct process spawning
- * Falls back to shell execution only for commands that require shell features
+ * Safely execute a command with direct process spawning.
+ * Shell path requires `allowShell: true` + allowlisted executables.
  */
 export function executeCommandSecurely(
-  command: string, 
+  command: string,
   options: ExecutionOptions = {}
 ): CommandResult {
   const startTime = Date.now();
-  
-  // Check if command requires shell features
+
   if (requiresShellExecution(command)) {
-    // Use shell execution for commands that need shell features
-    // but sanitize the command first
+    if (!options.allowShell) {
+      throw new Error(
+        `Command requires shell features but allowShell was not set: ${command}`
+      );
+    }
     const sanitizedCommand = sanitizeShellCommand(command);
+    assertShellAllowlist(sanitizedCommand);
     return executeWithShell(sanitizedCommand, options, startTime);
   }
-  
-  // Parse command for direct execution
+
   const { executable, args } = parseCommand(command);
   return executeDirectly(executable, args, options, startTime);
 }
@@ -82,11 +111,11 @@ function requiresShellExecution(command: string): boolean {
     '$(',    // Command substitution
     '*',     // Globbing
     '?',     // Globbing
-    '[',     // Globbing
+    '[',     // Globbing / test — also matches `[ -d` test form
     '~',     // Home directory expansion
-    '$'      // Environment variable expansion (if not at start of word)
+    '$'      // Environment variable expansion
   ];
-  
+
   return shellFeatures.some(feature => command.includes(feature));
 }
 
@@ -94,50 +123,67 @@ function requiresShellExecution(command: string): boolean {
  * Sanitize shell command to prevent injection while preserving functionality
  */
 function sanitizeShellCommand(command: string): string {
-  // Remove dangerous patterns while preserving legitimate shell features
   let sanitized = command;
-  
-  // Remove command injection attempts
+
   const dangerousPatterns = [
-    /[;&|]{1,2}\s*rm\s/gi,          // rm commands after separators (;, &, &&, |, ||)
-    /[;&|]{1,2}\s*dd\s/gi,          // dd commands after separators
-    /[;&|]{1,2}\s*curl\s/gi,        // curl commands after separators
-    /[;&|]{1,2}\s*wget\s/gi,        // wget commands after separators
-    /[;&|]{1,2}\s*nc\s/gi,          // netcat commands after separators
-    /[;&|]{1,2}\s*bash\s/gi,        // bash execution after separators
-    /[;&|]{1,2}\s*sh\s/gi,          // sh execution after separators
-    /\$\([^)]*rm[^)]*\)/gi,         // rm in command substitution
-    /\$\([^)]*dd[^)]*\)/gi,         // dd in command substitution
-    /\$\([^)]*curl[^)]*\)/gi,       // curl in command substitution
-    /`[^`]*rm[^`]*`/gi,             // rm in backtick substitution
-    /`[^`]*dd[^`]*`/gi,             // dd in backtick substitution
-    /`[^`]*curl[^`]*`/gi,           // curl in backtick substitution
+    /[;&|]{1,2}\s*rm\s/gi,
+    /[;&|]{1,2}\s*dd\s/gi,
+    /[;&|]{1,2}\s*curl\s/gi,
+    /[;&|]{1,2}\s*wget\s/gi,
+    /[;&|]{1,2}\s*nc\s/gi,
+    /[;&|]{1,2}\s*bash\s/gi,
+    /[;&|]{1,2}\s*sh\s/gi,
+    /\$\([^)]*rm[^)]*\)/gi,
+    /\$\([^)]*dd[^)]*\)/gi,
+    /\$\([^)]*curl[^)]*\)/gi,
+    /`[^`]*rm[^`]*`/gi,
+    /`[^`]*dd[^`]*`/gi,
+    /`[^`]*curl[^`]*`/gi,
   ];
-  
+
   for (const pattern of dangerousPatterns) {
     if (pattern.test(sanitized)) {
       throw new Error(`Potentially dangerous command pattern detected: ${command}`);
     }
   }
-  
+
   return sanitized;
+}
+
+/**
+ * Fail closed unless every shell segment starts with an allowlisted executable.
+ */
+export function assertShellAllowlist(command: string): void {
+  const segments = command.split(/(?:&&|\|\||[;|])/);
+  for (const segment of segments) {
+    let trimmed = segment.trim();
+    if (!trimmed) continue;
+    // Strip leading redirects / env assignments for first-token detection
+    trimmed = trimmed.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)+/, '');
+    trimmed = trimmed.replace(/^[<>]+\s*\S+\s*/, '');
+    const rawFirst = trimmed.split(/\s+/)[0] ?? '';
+    const first = rawFirst.replace(/^[()]+/, '');
+    if (!first || SHELL_KEYWORDS.has(first)) continue;
+    const base = basename(first);
+    if (!SHELL_ALLOWED_EXECUTABLES.has(base)) {
+      throw new Error(`Shell executable not allowlisted: ${base}`);
+    }
+  }
 }
 
 /**
  * Parse a simple command into executable and arguments
  */
 function parseCommand(command: string): { executable: string; args: string[] } {
-  // Simple command parsing - split on whitespace
-  // This handles basic cases but doesn't parse complex quoting
   const parts = command.trim().split(/\s+/);
-  
+
   if (parts.length === 0) {
     throw new Error('Empty command');
   }
-  
+
   const executable = parts[0];
   const args = parts.slice(1);
-  
+
   return { executable, args };
 }
 
@@ -145,18 +191,19 @@ function parseCommand(command: string): { executable: string; args: string[] } {
  * Execute command directly without shell
  */
 function executeDirectly(
-  executable: string, 
-  args: string[], 
+  executable: string,
+  args: string[],
   options: ExecutionOptions,
   startTime: number
 ): CommandResult {
-  const result = spawnSync(executable, args, {
+  const resolved = resolveTrustedExecutable(executable);
+  const result = spawnSync(resolved, args, {
     cwd: options.cwd,
     encoding: options.encoding || 'utf8',
     stdio: ['inherit', 'pipe', 'pipe'],
     timeout: options.timeout
   });
-  
+
   const duration = Date.now() - startTime;
   let exitCode: number;
   if (result.status !== null) {
@@ -173,20 +220,21 @@ function executeDirectly(
 }
 
 /**
- * Execute command with shell (for commands that require shell features)
+ * Execute command with shell (opt-in only; allowlisted executables).
  */
 function executeWithShell(
   command: string,
   options: ExecutionOptions,
   startTime: number
 ): CommandResult {
+  // Trusted absolute sh path; command already sanitized + allowlisted.
   const result = spawnSync(resolveTrustedExecutable('sh'), ['-c', command], {
     cwd: options.cwd,
     encoding: options.encoding || 'utf8',
     stdio: ['inherit', 'pipe', 'pipe'],
     timeout: options.timeout
   });
-  
+
   const duration = Date.now() - startTime;
   let exitCode: number;
   if (result.status !== null) {
