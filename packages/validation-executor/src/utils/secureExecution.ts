@@ -242,19 +242,37 @@ function executeWithShell(
   );
 }
 
+type AdapterDebugLogger = {
+  debug: (obj: Record<string, unknown>, msg: string) => void;
+};
+
 /**
  * Adapter-facing shell-capable execution (opt-in allowShell + allowlist).
- * Shared by WebsiteBot / SeoBot adapters to avoid call-site duplication.
+ * Shared by WebsiteBot / SeoBot / CLI adapters to avoid call-site duplication.
  */
 export function executeAdapterCommand(
   command: string,
   workingDir: string,
-  timeoutMs = 300_000
+  timeoutMs = 300_000,
+  logger?: AdapterDebugLogger,
+  label = 'adapter'
 ): CommandResult {
-  return executeCommandSecurely(command, {
+  logger?.debug({ command, workingDir }, `Executing ${label} command`);
+  const result = executeCommandSecurely(command, {
     cwd: workingDir,
     encoding: 'utf8',
     timeout: timeoutMs,
     allowShell: true,
   });
+  logger?.debug(
+    {
+      command,
+      exitCode: result.exitCode,
+      duration: result.duration,
+      stdoutLength: result.stdout.length,
+      stderrLength: result.stderr.length,
+    },
+    `${label} command execution completed`
+  );
+  return result;
 }

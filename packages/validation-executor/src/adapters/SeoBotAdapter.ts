@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createLogger } from '../utils/logger.js';
-import { resolveTrustedExecutable } from '../utils/secureExecution.js';
+import { executeAdapterCommand, resolveTrustedExecutable } from '../utils/secureExecution.js';
 import type { 
   RepositoryAdapter, 
   ValidationConfig, 
@@ -157,23 +157,10 @@ export class SeoBotAdapter implements RepositoryAdapter {
     return tests;
   }
 
-  async executeCommand(command: string, workingDir: string): Promise<{
-    exitCode: number;
-    stdout: string;
-    stderr: string;
-    duration: number;
-  }> {
-    this.logger.debug({ command, workingDir }, 'Executing SEO-Bot command');
-    const { executeAdapterCommand } = await import('../utils/secureExecution.js');
-    const result = executeAdapterCommand(command, workingDir);
-    this.logger.debug({
-      command,
-      exitCode: result.exitCode,
-      duration: result.duration,
-      stdoutLength: result.stdout.length,
-      stderrLength: result.stderr.length
-    }, 'SEO-Bot command execution completed');
-    return result;
+  executeCommand(command: string, workingDir: string) {
+    return Promise.resolve(
+      executeAdapterCommand(command, workingDir, 300_000, this.logger, 'SEO-Bot')
+    );
   }
 
   async storeEvidence(evidenceId: string, data: any): Promise<string> {
