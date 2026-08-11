@@ -58,6 +58,7 @@
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",
     "@quantum-l9/graphiti-memory-client": "^2.0.0",
+    "@quantum-l9/infisical-config": "^1.1.0",
     "@quantum-l9/llm-router": "1.1.1",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
