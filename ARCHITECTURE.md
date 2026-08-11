@@ -49,7 +49,8 @@ Website-Bot hydrates secrets from **Infisical** at process start via
 `@quantum-l9/infisical-config` (`await loadSecrets()` in `scripts/run-pipeline.ts`).
 Bootstrap env: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_PROJECT_ID`.
 Secret names in Infisical match application env var names (e.g. `PUBLIC_POSTHOG_KEY`).
-CI may wrap pipeline commands with `infisical run` once the Infisical CLI is available;
-GitHub Actions still injects bootstrap + not-yet-migrated deploy secrets.
+GitHub Actions injects Infisical bootstrap (`INFISICAL_*`) plus not-yet-migrated
+deploy secrets; Node `loadSecrets()` performs vault hydration. CLI `infisical run`
+wrap is deferred (no curl|bash installer in CI).
 See `docs/architecture/ADR-0009-infisical-secrets-plane.md`.
 

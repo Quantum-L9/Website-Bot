@@ -65,22 +65,15 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
           CLIENT_PUBLIC_SITE_URL: ${{ vars.CLIENT_PUBLIC_SITE_URL }}
-      - name: Install Infisical CLI
-        if: inputs.action == 'provision-and-build'
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install -y infisical
 
       - name: Provision, build, publish, deploy, and register
         if: inputs.action == 'provision-and-build'
-        run: infisical run --env=prod --projectId="$INFISICAL_PROJECT_ID" -- npm run pipeline:end-to-end -- --spec="${SPEC_PATH}" --provision --auto-register-seo-bot
+        run: npm run pipeline:end-to-end -- --spec="${SPEC_PATH}" --provision --auto-register-seo-bot
         env:
           INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
           INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
           INFISICAL_ENV: prod
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           SPEC_PATH: build/safe-input/domain-spec.yaml
           GITHUB_PROVISION_TOKEN: ${{ secrets.GITHUB_PROVISION_TOKEN }}
           GITHUB_SITE_TOKEN: ${{ secrets.GITHUB_SITE_TOKEN }}

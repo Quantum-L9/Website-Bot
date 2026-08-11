@@ -23,8 +23,10 @@ human paste, and left PostHog / deploy credentials outside a shared vault.
 6. **AWS Secrets Manager** (`openclaw-igorbot/infisical-website-bot`,
    `openclaw-igorbot/posthog`, etc.) is the **agent bootstrap / registry mirror**
    owned by Cursor-Governance — not a second app secrets plane.
-7. CI supplies Infisical bootstrap secrets; remaining non-migrated deploy secrets
-   may still arrive via GitHub Actions until they are upserted into Infisical.
+7. CI supplies Infisical bootstrap secrets (`INFISICAL_*`); Node `loadSecrets()`
+   hydrates the vault. Remaining non-migrated deploy secrets may still arrive via
+   GitHub Actions until upserted into Infisical. Wrapping jobs with the Infisical
+   CLI (`infisical run`) is deferred — do not install via curl|bash in CI.
 
 ## Consequences
 - Agents resolve Infisical bootstrap via `l9-aws-secrets` then export `INFISICAL_*`
