@@ -92,12 +92,8 @@ class DefaultRepositoryAdapter implements RepositoryAdapter {
   }
 
   async executeCommand(command: string, workingDir: string) {
-    const { executeCommandSecurely } = await import('./utils/secureExecution.js');
-    
-    return executeCommandSecurely(command, {
-      cwd: workingDir,
-      encoding: 'utf8'
-    });
+    const { executeAdapterCommand } = await import('./utils/secureExecution.js');
+    return executeAdapterCommand(command, workingDir);
   }
 
   async storeEvidence(evidenceId: string, data: any) {

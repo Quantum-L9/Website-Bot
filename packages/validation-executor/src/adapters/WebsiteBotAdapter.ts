@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createLogger } from '../utils/logger.js';
-import { resolveTrustedExecutable } from '../utils/secureExecution.js';
+import { executeAdapterCommand, resolveTrustedExecutable } from '../utils/secureExecution.js';
 import type { 
   RepositoryAdapter, 
   ValidationConfig, 
@@ -171,35 +171,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     return tests;
   }
 
-  async executeCommand(command: string, workingDir: string): Promise<{
-    exitCode: number;
-    stdout: string;
-    stderr: string;
-    duration: number;
-  }> {
-    this.logger.debug({ command, workingDir }, 'Executing command');
-    
-    const { executeCommandSecurely } = await import('../utils/secureExecution.js');
-    const result = executeCommandSecurely(command, {
-      cwd: workingDir,
-      encoding: 'utf8',
-      timeout: 300000 // 5 minute timeout
-    });
-
-    this.logger.debug({ 
-      command, 
-      exitCode: result.exitCode, 
-      duration: result.duration, 
-      stdoutLength: result.stdout.length,
-      stderrLength: result.stderr.length
-    }, 'Command execution completed');
-
-    return {
-      exitCode: result.exitCode,
-      stdout: result.stdout,
-      stderr: result.stderr,
-      duration: result.duration
-    };
+  async executeCommand(command: string, workingDir: string) {
+    return executeAdapterCommand(command, workingDir, 300_000, this.logger, 'Website-Bot');
   }
 
   async storeEvidence(evidenceId: string, data: any): Promise<string> {
