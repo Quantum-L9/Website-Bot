@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
-import type { AssetSpec, BuildContext, ImageSlotSpec } from '../pipeline/BuildContext.js';
+import { clientAssetRoot, type AssetSpec, type BuildContext, type ImageSlotSpec } from '../pipeline/BuildContext.js';
 import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { EXTENSION_BY_MIME, inspectImage } from '../services/images/ImageInspector.js';
@@ -83,7 +83,7 @@ export class ImageGenerationStage implements Stage {
     const budget = new ImageBudget(assets.generation?.budgetUsd);
     const compiler = assets.generation?.promptCompiler ?? 'default';
     const model = assets.generation?.model ?? 'gemini-2.5-flash-image';
-    const cacheRoot = resolve('build', 'assets', ctx.clientId, 'generated');
+    const cacheRoot = resolve(clientAssetRoot(ctx), 'generated');
     mkdirSync(cacheRoot, { recursive: true });
 
     for (const planned of generatedSlots) {
@@ -109,7 +109,7 @@ export class ImageGenerationStage implements Stage {
 
     // Rebuild the manifest so it covers provided + source-site + generated assets.
     ctx.imageAssetManifest = buildImageAssetManifest(ctx.buildId, ctx.clientId, ctx.startedAt.toISOString(), [...ctx.resolvedImages.values()]);
-    const manifestDir = resolve('build', 'assets', ctx.clientId, 'manifests');
+    const manifestDir = resolve(clientAssetRoot(ctx), 'manifests');
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(resolve(manifestDir, 'image-asset-manifest.json'), `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`, 'utf-8');
     await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);

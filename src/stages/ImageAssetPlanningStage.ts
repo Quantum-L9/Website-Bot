@@ -10,6 +10,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { basename, isAbsolute, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
+import { clientAssetRoot } from '../pipeline/BuildContext.js';
 import type { AssetSpec, BuildContext, ImageSlotSpec, ProvidedImageSpec } from '../pipeline/BuildContext.js';
 import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
@@ -89,7 +90,7 @@ export class ImageAssetPlanningStage implements Stage {
       );
     }
 
-    const stagingRoot = resolve('build', 'assets', ctx.clientId);
+    const stagingRoot = clientAssetRoot(ctx);
     const resolved: ResolvedImageAsset[] = [];
     for (const planned of plan.assets) {
       const slot = slots.find(candidate => candidate.id === planned.slotId);

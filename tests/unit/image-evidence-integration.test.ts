@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import type { SiteConfig } from '../../src/pipeline/BuildContext.js';
+import { clientAssetRoot, type SiteConfig } from '../../src/pipeline/BuildContext.js';
 import type { SourceSiteManifest } from '../../src/pipeline/evidence/SourceSiteManifest.js';
 import type { ImageAssetPlan } from '../../src/pipeline/evidence/ImageAssetPlan.js';
 import { buildImageAssetManifest, type ResolvedImageAsset } from '../../src/pipeline/evidence/ImageAssetManifest.js';
@@ -100,11 +100,11 @@ void test('image evidence round-trips as snake_case on disk and camelCase in mem
 
 void test('ingestion reuses verified source_site evidence without crawling', async () => {
   const clientId = 'ingest-reuse';
-  const downloadDir = resolve('build', 'assets', clientId, 'source-site', 'downloads');
   const ctx = fixtureContext({
     client_id: clientId,
     assets: { sourceSite: { url: 'https://acme.example/', enabled: true } },
   });
+  const downloadDir = resolve(clientAssetRoot(ctx), 'source-site', 'downloads');
   try {
     mkdirSync(downloadDir, { recursive: true });
     const localPath = join(downloadDir, 'a.png');
@@ -132,7 +132,7 @@ void test('ingestion reuses verified source_site evidence without crawling', asy
     assert.equal(ctx.sourceSiteManifest?.images[0].sha256, manifest.images[0].sha256);
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', clientId, ctx.buildId), { recursive: true, force: true });
   }
 });
 
@@ -150,7 +150,7 @@ async function runQa(clientId: string, assets: ResolvedImageAsset[], siteImages:
     await new ImageValidationStage().run(ctx);
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', clientId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', clientId, ctx.buildId), { recursive: true, force: true });
   }
 }
 
