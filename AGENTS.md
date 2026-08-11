@@ -68,3 +68,14 @@ When producing handoff artifacts, include a manifest, validation summary, change
 ## Launch Unknown Resolution Rule
 
 Agents must not invent external values. Convert missing operator-owned values into env vars and enforce fail-closed validation. Canonical launch contract: `.env.example` and `config/launch-env.required.yaml`. Executable gate: `npm run verify:launch-env`.
+
+## Secrets / Infisical
+
+- Secrets plane: Infisical (see `docs/architecture/ADR-0009-infisical-secrets-plane.md`).
+- Required bootstrap for vault hydration: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_PROJECT_ID`.
+- Pipeline entry calls `await loadSecrets()` from `@quantum-l9/infisical-config` before config use.
+- Agents: resolve bootstrap from AWS via Cursor-Governance `l9-aws-secrets`
+  (`openclaw-igorbot/infisical-website-bot#…`, `openclaw-igorbot/posthog#…`), export
+  `INFISICAL_*`, then run. Do **not** ask the human for PostHog values when resolve works.
+- Never commit `.env` / `.env.local` values. Prefer Infisical over inventing credentials.
+

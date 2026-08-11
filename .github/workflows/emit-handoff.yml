@@ -29,6 +29,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install -y infisical
+
       - name: Download handoff contract from deploy run
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
@@ -44,8 +49,14 @@ jobs:
           echo "DEPLOYMENT_URL=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Capture SEO baseline + register with SEO-Bot
-        run: npx --no-install tsx scripts/run-pipeline.ts --skip=domain-spec-loader,unknown-resolver,design-intelligence,content-generation,schema-generator,posthog-snippet,vercel-deploy,visual-qa --auto-register-seo-bot
+        run: infisical run --env=prod --projectId="$INFISICAL_PROJECT_ID" -- npx --no-install tsx scripts/run-pipeline.ts --skip=domain-spec-loader,unknown-resolver,design-intelligence,content-generation,schema-generator,posthog-snippet,vercel-deploy,visual-qa --auto-register-seo-bot
         env:
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+          INFISICAL_ENV: prod
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           CLIENT_ID: ${{ vars.CLIENT_ID }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}

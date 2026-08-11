@@ -42,3 +42,14 @@ The static site must not contain private CRM credentials, Vercel tokens, analyti
 - No custom backend is included unless added later.
 - No production deployment is claimed without Vercel URL evidence.
 - No legal/compliance claim is finalized until approved text and license details are supplied.
+
+## Secrets hydration
+
+Website-Bot hydrates secrets from **Infisical** at process start via
+`@quantum-l9/infisical-config` (`await loadSecrets()` in `scripts/run-pipeline.ts`).
+Bootstrap env: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_PROJECT_ID`.
+Secret names in Infisical match application env var names (e.g. `PUBLIC_POSTHOG_KEY`).
+CI may wrap pipeline commands with `infisical run` once the Infisical CLI is available;
+GitHub Actions still injects bootstrap + not-yet-migrated deploy secrets.
+See `docs/architecture/ADR-0009-infisical-secrets-plane.md`.
+

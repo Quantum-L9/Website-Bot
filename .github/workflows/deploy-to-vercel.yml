@@ -34,13 +34,24 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install -y infisical
+
       - name: Run full pipeline
         id: pipeline
         run: |
           node scripts/verify-deploy-secrets.mjs
-          ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
+          infisical run --env=prod --projectId="$INFISICAL_PROJECT_ID" -- ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec=examples/supplemental-insurance-pros/domain_spec.normalized.yaml
           echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
         env:
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+          INFISICAL_ENV: prod
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           CLIENT_ID: ${{ vars.CLIENT_ID }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}

@@ -16,8 +16,9 @@ name: Build Site (on-demand)
 # VercelDeployStage feeds the deployment URL to HandoffEmitterStage in-process).
 #
 # NOTE (Infisical rollout, Pillar 4/5): once @quantum-l9 Infisical is stood up,
-# the per-secret env block below collapses to the 3 INFISICAL_* bootstrap vars
-# and the run line is wrapped as `infisical run -- npx --no-install tsx scripts/run-pipeline.ts ...`.
+# CI supplies INFISICAL_* bootstrap + `infisical run`. Non-migrated deploy secrets
+# remain as GitHub Actions secrets until upserted into Infisical. Node also calls
+# `loadSecrets()` from `@quantum-l9/infisical-config` (ADR-0009).
 on:
   repository_dispatch:
     types: [build-site]
@@ -88,11 +89,22 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install -y infisical
+
       - name: Build + deploy + register (full pipeline)
         run: |
           node scripts/verify-deploy-secrets.mjs
-          ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
+          infisical run --env=prod --projectId="$INFISICAL_PROJECT_ID" -- ./node_modules/.bin/tsx scripts/run-pipeline.ts --spec="$SPEC_PATH" --auto-register-seo-bot
         env:
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+          INFISICAL_ENV: prod
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
