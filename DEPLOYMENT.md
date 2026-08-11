@@ -123,7 +123,12 @@ Production deployment must not proceed until:
 npm run verify:launch-env
 ```
 
-The command writes `validation/launch_env_report.json` and exits nonzero while required vars are missing or approval gates remain unresolved. Secrets must be set in Vercel or a secure local secret store. Do not commit `.env.local`.
+The command hydrates via `scripts/lib/hydrate-secrets.mjs` when Infisical bootstrap
+(`INFISICAL_*`) is present (same contract as `scripts/run-pipeline.ts`), then applies the
+existing fail-closed launch/legal checks. It writes `validation/launch_env_report.json`
+(including `source_mode` / `bootstrap_present` only — never secret values) and exits
+nonzero while required vars are missing or approval gates remain unresolved. Secrets must
+be set in Vercel, Infisical, or a secure local secret store. Do not commit `.env.local`.
 
 ## Triggered-Deploy Credential Preflight
 
@@ -137,7 +142,9 @@ npm run verify:deploy-secrets       # production: FAIL_CLOSED on missing require
 npm run verify:deploy-secrets --ci  # CI: warnings only, exit 0
 ```
 
-It writes `validation/deploy_secrets_report.json`.
+It hydrates through the same shared helper when Infisical bootstrap is present, then applies
+existing presence checks. It writes `validation/deploy_secrets_report.json` (with the same
+minimal `source_mode` / `bootstrap_present` fields). Infisical connectivity alone is not a PASS.
 
 ### Required in GitHub for a triggered deploy
 

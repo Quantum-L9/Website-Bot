@@ -2,19 +2,59 @@
 
 /**
  * Website-Bot Validation Executor
- * 
+ *
  * Evidence-driven validation execution using the @quantum-l9/validation-executor package
  * with Website-Bot specific adapter
  */
 
 import { parseArgs } from 'node:util';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ValidationExecutor } from '../packages/validation-executor/src/core/ValidationExecutor.js';
 import { AuditReporter } from '../packages/validation-executor/src/core/AuditReporter.js';
 import { WebsiteBotAdapter } from '../packages/validation-executor/src/adapters/WebsiteBotAdapter.js';
 import { createLogger } from '../packages/validation-executor/src/utils/logger.js';
 import type { ValidationConfig } from '../packages/validation-executor/src/types/index.js';
+import {
+  WEBSITE_BOT_VALIDATION_PROFILES,
+  collectWebsiteBotConfigErrors,
+  resolveProfileRun,
+} from './lib/validation-profiles.mjs';
 
 const logger = createLogger('WebsiteBotValidation');
+
+async function assertEvidenceRootWritable(evidenceRoot: string): Promise<string | null> {
+  try {
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const evidencePath = path.resolve(evidenceRoot);
+    await fs.mkdir(evidencePath, { recursive: true });
+    const testFile = path.join(evidencePath, '.write-test');
+    await fs.writeFile(testFile, 'test', 'utf8');
+    await fs.unlink(testFile);
+    return null;
+  } catch (error) {
+    return `Evidence root '${evidenceRoot}' is not writable: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function validateWebsiteBotConfiguration(options: any): Promise<void> {
+  const errors = collectWebsiteBotConfigErrors(options);
+
+  if (options['evidence-root']) {
+    const writeError = await assertEvidenceRootWritable(options['evidence-root']);
+    if (writeError) errors.push(writeError);
+  }
+
+  if (errors.length > 0) {
+    console.error('\nWebsite-Bot Configuration Validation Errors:');
+    for (const error of errors) {
+      console.error(`  ✗ ${error}`);
+    }
+    console.error('\nRun with --help to see valid options.\n');
+    process.exit(1);
+  }
+}
 
 async function main() {
   try {
@@ -25,40 +65,40 @@ async function main() {
         profile: {
           type: 'string',
           short: 'p',
-          default: 'default'
+          default: 'default',
         },
         environment: {
           type: 'string',
-          short: 'e'
+          short: 'e',
         },
         'evidence-root': {
           type: 'string',
-          default: 'build/evidence'
+          default: 'build/evidence',
         },
         output: {
           type: 'string',
           short: 'o',
-          default: 'validation/validation_report.yaml'
+          default: 'validation/validation_report.yaml',
         },
         timeout: {
           type: 'string',
-          default: '300000' // 5 minutes
+          default: '300000', // 5 minutes
         },
         'fail-fast': {
           type: 'boolean',
-          default: false
+          default: false,
         },
         verbose: {
           type: 'boolean',
           short: 'v',
-          default: false
+          default: false,
         },
         help: {
           type: 'boolean',
           short: 'h',
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     });
 
     if (values.help) {
@@ -72,10 +112,10 @@ async function main() {
       process.env.LOG_LEVEL = 'debug';
     }
 
-    logger.info({ 
-      command, 
+    logger.info({
+      command,
       profile: values.profile,
-      environment: values.environment 
+      environment: values.environment,
     }, 'Starting Website-Bot validation execution');
 
     switch (command) {
@@ -90,73 +130,30 @@ async function main() {
         printHelp();
         process.exit(1);
     }
-
   } catch (error) {
     logger.error({ error }, 'Validation execution failed');
     process.exit(1);
   }
 }
 
-async function validateWebsiteBotConfiguration(options: any): Promise<void> {
-  const errors: string[] = [];
-
-  // Validate timeout range (min: 1000ms, max: 1800000ms = 30 minutes)
-  const timeout = Number.parseInt(options.timeout, 10);
-  if (Number.isNaN(timeout)) {
-    errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
-  } else if (timeout < 1000) {
-    errors.push(`Timeout ${timeout}ms is too low: minimum is 1000ms (1 second)`);
-  } else if (timeout > 1800000) {
-    errors.push(`Timeout ${timeout}ms is too high: maximum is 1800000ms (30 minutes)`);
-  }
-
-  // Website-Bot specific profile validation
-  const validProfiles = ['default', 'ci', 'development', 'staging', 'production', 'test', 'factory', 'site'];
-  if (options.profile && !validProfiles.includes(options.profile)) {
-    errors.push(`Unknown Website-Bot profile '${options.profile}': valid profiles are ${validProfiles.join(', ')}`);
-  }
-
-  // Validate environment type constraints
-  const validEnvironments = ['development', 'staging', 'production', 'test', 'ci'];
-  if (options.environment && !validEnvironments.includes(options.environment)) {
-    errors.push(`Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(', ')}`);
-  }
-
-  // Validate evidence root path writeability
-  if (options['evidence-root']) {
-    try {
-      const fs = await import('node:fs/promises');
-      const path = await import('node:path');
-      
-      const evidencePath = path.resolve(options['evidence-root']);
-      
-      // Try to create the directory if it doesn't exist
-      await fs.mkdir(evidencePath, { recursive: true });
-      
-      // Test writeability by creating a temporary file
-      const testFile = path.join(evidencePath, '.write-test');
-      await fs.writeFile(testFile, 'test', 'utf8');
-      await fs.unlink(testFile);
-      
-    } catch (error) {
-      errors.push(`Evidence root '${options['evidence-root']}' is not writable: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
-  // If there are validation errors, report them and exit
-  if (errors.length > 0) {
-    console.error('\nWebsite-Bot Configuration Validation Errors:');
-    for (const error of errors) {
-      console.error(`  ✗ ${error}`);
-    }
-    console.error('\nRun with --help to see valid options.\n');
-    process.exit(1);
-  }
-}
-
 async function runValidation(options: any) {
-  // Validate CLI configuration parameters
   await validateWebsiteBotConfiguration(options);
+
+  const profileDecision = resolveProfileRun(options.profile);
+  if (profileDecision.status === 'INVALID_PROFILE' || profileDecision.status === 'INCOMPLETE') {
+    const payload = {
+      status: profileDecision.status,
+      non_evidence: profileDecision.nonEvidence,
+      reason: profileDecision.reason,
+      profile: options.profile,
+    };
+    console.log(JSON.stringify(payload, null, 2));
+    console.log(`\n=== VALIDATION SUMMARY ===`);
+    console.log(`Verdict: ${profileDecision.status}`);
+    console.log(`non_evidence: ${profileDecision.nonEvidence}`);
+    console.log(`Reason: ${profileDecision.reason}`);
+    process.exit(profileDecision.exitCode);
+  }
 
   const config: ValidationConfig = {
     environment: options.environment,
@@ -164,31 +161,28 @@ async function runValidation(options: any) {
     evidence_root: options['evidence-root'],
     timeout: Number.parseInt(options.timeout, 10),
     fail_fast: options['fail-fast'],
-    // Profile-specific configuration
     preflight_commands: getProfilePreflightCommands(options.profile),
-    e2e_commands: getProfileE2ECommands(options.profile)
+    e2e_commands: getProfileE2ECommands(options.profile),
   };
 
   const adapter = new WebsiteBotAdapter();
   const executor = new ValidationExecutor(adapter, config);
-  
+
   logger.info({ profile: options.profile }, 'Executing validation with Website-Bot adapter');
-  
+
   const report = await executor.execute();
 
-  // Write YAML report
   const reporter = new AuditReporter();
   await reporter.writeReport(report, options.output as string);
 
-  logger.info({ 
+  logger.info({
     verdict: report.final_verdict.status,
     output: options.output,
     duration: report.run_metadata.duration,
     preflightChecks: report.preflight_results.length,
-    e2eTests: report.e2e_results.length
+    e2eTests: report.e2e_results.length,
   }, 'Website-Bot validation completed');
 
-  // Print summary
   console.log('\n=== VALIDATION SUMMARY ===');
   console.log(`Verdict: ${report.final_verdict.status}`);
   console.log(`Preflight: ${report.preflight_summary.passed}/${report.preflight_summary.discovered} passed`);
@@ -201,7 +195,6 @@ async function runValidation(options: any) {
     console.log(`Reason: ${report.minimum_safe_next_action.blocker_or_failure}`);
   }
 
-  // Exit with appropriate code
   if (report.final_verdict.status === 'FAIL') {
     process.exit(1);
   } else if (report.final_verdict.status === 'INCOMPLETE') {
@@ -212,26 +205,20 @@ async function runValidation(options: any) {
 function getProfilePreflightCommands(profile: string): string[] {
   const baseCommands = [
     'npm run typecheck',
-    'npm run normalize-spec:check'
+    'npm run normalize-spec:check',
   ];
 
   switch (profile) {
     case 'preflight':
-      return baseCommands;
     case 'source':
-    case 'build': 
+    case 'build':
     case 'smoke':
-    case 'form':
-    case 'analytics':
-    case 'crm':
-    case 'seo':
-    case 'rollback':
       return baseCommands;
     default:
       return [
         ...baseCommands,
         'npm run evidence:schemas',
-        'npm run validate'
+        'npm run validate',
       ];
   }
 }
@@ -239,36 +226,28 @@ function getProfilePreflightCommands(profile: string): string[] {
 function getProfileE2ECommands(profile: string): string[] {
   switch (profile) {
     case 'preflight':
-      return []; // Preflight only, no E2E
+      return [];
     case 'source':
       return ['npm run site:validate'];
     case 'build':
       return ['npm run site:validate', 'npm run evidence:test'];
     case 'smoke':
       return ['npm run site:test:local'];
-    case 'form':
-    case 'analytics': 
-    case 'crm':
-    case 'seo':
-    case 'rollback':
-      // These would be implemented as site-level validations
-      return [`echo 'Profile ${profile} validation requires site-level implementation'`];
     default:
-      // Full validation suite
       return [
         'npm run site:validate',
-        'npm run evidence:test', 
+        'npm run evidence:test',
         'npm run site:test:local',
         'npm run provision:test',
         'npm run pipeline:plan',
-        'npm run alignment:boundaries'
+        'npm run alignment:boundaries',
       ];
   }
 }
 
 async function cleanEvidence(options: any) {
   const evidenceDir = options['evidence-root'];
-  
+
   try {
     const { rm } = await import('node:fs/promises');
     await rm(evidenceDir, { recursive: true, force: true });
@@ -290,8 +269,8 @@ COMMANDS:
   clean   Clean evidence directory
 
 OPTIONS:
-  -p, --profile <profile>      Validation profile (default|preflight|source|build|smoke|form|analytics|crm|seo|rollback)
-  -e, --environment <env>      Target environment  
+  -p, --profile <profile>      Validation profile (${WEBSITE_BOT_VALIDATION_PROFILES.join('|')})
+  -e, --environment <env>      Target environment (development|staging|production|test|ci)
   --evidence-root <path>       Evidence storage directory (default: build/evidence)
   -o, --output <file>          Report output file (default: validation/validation_report.yaml)
   --timeout <ms>               Command timeout in milliseconds (default: 300000)
@@ -303,13 +282,13 @@ PROFILES:
   default     Full validation suite (preflight + E2E)
   preflight   Only preflight checks
   source      Source validation
-  build       Build validation  
+  build       Build validation
   smoke       Smoke tests
-  form        Form validation
-  analytics   Analytics validation
-  crm         CRM validation
-  seo         SEO validation
-  rollback    Rollback validation
+  form        Form validation (INCOMPLETE — site-level not implemented)
+  analytics   Analytics validation (INCOMPLETE — site-level not implemented)
+  crm         CRM validation (INCOMPLETE — site-level not implemented)
+  seo         SEO validation (INCOMPLETE — site-level not implemented)
+  rollback    Rollback validation (INCOMPLETE — site-level not implemented)
 
 EXAMPLES:
   tsx scripts/validation-executor.ts run --profile preflight
@@ -318,6 +297,7 @@ EXAMPLES:
 `);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isDirectRun = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectRun) {
   await main();
 }

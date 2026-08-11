@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { hydrateSecretsIfConfigured } from './lib/hydrate-secrets.mjs';
 
 const isCI = process.argv.includes('--ci') || process.env.CI === 'true';
+
+const hydrateMeta = await hydrateSecretsIfConfigured();
 
 // Secrets/tokens — warn in CI, block only in production. Only real secrets/tokens
 // belong here. CRM secrets are provider-agnostic (CRM_PROVIDER selects the vendor).
@@ -97,6 +100,8 @@ const report = {
   gate_failures: gateFailures,
   warnings,
   status,
+  bootstrap_present: hydrateMeta.bootstrap_present,
+  source_mode: hydrateMeta.source_mode,
   note: 'This validates env presence and launch gates only. It does not verify external credentials.',
 };
 
