@@ -9,7 +9,7 @@
  * - dangerous denylist patterns still throw
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
@@ -187,6 +187,30 @@ function parseCommand(command: string): { executable: string; args: string[] } {
   return { executable, args };
 }
 
+function spawnSyncOptions(options: ExecutionOptions) {
+  return {
+    cwd: options.cwd,
+    encoding: (options.encoding || 'utf8') as BufferEncoding,
+    stdio: ['inherit', 'pipe', 'pipe'] as Array<'inherit' | 'pipe'>,
+    timeout: options.timeout,
+  };
+}
+
+function toCommandResult(
+  result: SpawnSyncReturns<string>,
+  startTime: number
+): CommandResult {
+  const duration = Date.now() - startTime;
+  const exitCode =
+    result.status !== null ? result.status : result.error ? 127 : 0;
+  return {
+    exitCode,
+    stdout: result.stdout || '',
+    stderr: result.stderr || (result.error ? result.error.message : ''),
+    duration,
+  };
+}
+
 /**
  * Execute command directly without shell
  */
@@ -197,26 +221,10 @@ function executeDirectly(
   startTime: number
 ): CommandResult {
   const resolved = resolveTrustedExecutable(executable);
-  const result = spawnSync(resolved, args, {
-    cwd: options.cwd,
-    encoding: options.encoding || 'utf8',
-    stdio: ['inherit', 'pipe', 'pipe'],
-    timeout: options.timeout
-  });
-
-  const duration = Date.now() - startTime;
-  let exitCode: number;
-  if (result.status !== null) {
-    exitCode = result.status;
-  } else {
-    exitCode = result.error ? 127 : 0;
-  }
-  return {
-    exitCode,
-    stdout: result.stdout || '',
-    stderr: result.stderr || (result.error ? result.error.message : ''),
-    duration
-  };
+  return toCommandResult(
+    spawnSync(resolved, args, spawnSyncOptions(options)),
+    startTime
+  );
 }
 
 /**
@@ -228,24 +236,25 @@ function executeWithShell(
   startTime: number
 ): CommandResult {
   // Trusted absolute sh path; command already sanitized + allowlisted.
-  const result = spawnSync(resolveTrustedExecutable('sh'), ['-c', command], {
-    cwd: options.cwd,
-    encoding: options.encoding || 'utf8',
-    stdio: ['inherit', 'pipe', 'pipe'],
-    timeout: options.timeout
-  });
+  return toCommandResult(
+    spawnSync(resolveTrustedExecutable('sh'), ['-c', command], spawnSyncOptions(options)),
+    startTime
+  );
+}
 
-  const duration = Date.now() - startTime;
-  let exitCode: number;
-  if (result.status !== null) {
-    exitCode = result.status;
-  } else {
-    exitCode = result.error ? 127 : 0;
-  }
-  return {
-    exitCode,
-    stdout: result.stdout || '',
-    stderr: result.stderr || (result.error ? result.error.message : ''),
-    duration
-  };
+/**
+ * Adapter-facing shell-capable execution (opt-in allowShell + allowlist).
+ * Shared by WebsiteBot / SeoBot adapters to avoid call-site duplication.
+ */
+export function executeAdapterCommand(
+  command: string,
+  workingDir: string,
+  timeoutMs = 300_000
+): CommandResult {
+  return executeCommandSecurely(command, {
+    cwd: workingDir,
+    encoding: 'utf8',
+    timeout: timeoutMs,
+    allowShell: true,
+  });
 }

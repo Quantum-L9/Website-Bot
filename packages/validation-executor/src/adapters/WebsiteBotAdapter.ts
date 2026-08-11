@@ -177,30 +177,17 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     stderr: string;
     duration: number;
   }> {
-    this.logger.debug({ command, workingDir }, 'Executing command');
-    
-    const { executeCommandSecurely } = await import('../utils/secureExecution.js');
-    const result = executeCommandSecurely(command, {
-      cwd: workingDir,
-      encoding: 'utf8',
-      timeout: 300000, // 5 minute timeout
-      allowShell: true, // validation specs may use || / pipes; gated by allowlist
-    });
-
-    this.logger.debug({ 
-      command, 
-      exitCode: result.exitCode, 
-      duration: result.duration, 
+    this.logger.debug({ command, workingDir }, 'Executing Website-Bot command');
+    const { executeAdapterCommand } = await import('../utils/secureExecution.js');
+    const result = executeAdapterCommand(command, workingDir);
+    this.logger.debug({
+      command,
+      exitCode: result.exitCode,
+      duration: result.duration,
       stdoutLength: result.stdout.length,
       stderrLength: result.stderr.length
-    }, 'Command execution completed');
-
-    return {
-      exitCode: result.exitCode,
-      stdout: result.stdout,
-      stderr: result.stderr,
-      duration: result.duration
-    };
+    }, 'Website-Bot command execution completed');
+    return result;
   }
 
   async storeEvidence(evidenceId: string, data: any): Promise<string> {
