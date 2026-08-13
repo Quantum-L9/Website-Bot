@@ -53,7 +53,7 @@
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
     "verify:launch-env": "npm run validate",
     "verify:deploy-secrets": "node scripts/verify-deploy-secrets.mjs",
-    "verify:visual-qa": "echo 'Visual QA verification requires implementation'"
+    "verify:visual-qa": "node scripts/verify-visual-qa.mjs"
   },
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",

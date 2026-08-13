@@ -7,6 +7,10 @@ import type { BuildContext } from '../../src/pipeline/BuildContext.js';
 
 const words = (n: number): string => Array.from({ length: n }, () => 'word').join(' ');
 
+function section(headline: string, n: number, extra = ''): string {
+  return `${headline}\n\n${words(n)}${extra}`;
+}
+
 function makeCtx(opts: { dryRun?: boolean; responses: string[]; components?: string[] }) {
   const responses = [...opts.responses];
   const prompts: string[] = [];
@@ -33,48 +37,64 @@ function makeCtx(opts: { dryRun?: boolean; responses: string[]; components?: str
 const stage = new ContentGenerationStage();
 
 void test('an 80-word response is accepted in a single call', async () => {
-  const { ctx, prompts, generatedContent } = makeCtx({ responses: [words(80)] });
+  const body = section('Home hero headline', 80);
+  const { ctx, prompts, generatedContent } = makeCtx({ responses: [body] });
   await stage.run(ctx);
   assert.equal(prompts.length, 1);
-  assert.equal(generatedContent.get('/:hero'), words(80));
+  assert.equal(generatedContent.get('/:hero'), body);
 });
 
 void test('a short first response then a valid one succeeds after two calls', async () => {
-  const { ctx, prompts, generatedContent } = makeCtx({ responses: [words(12), words(80)] });
+  const valid = section('Home hero headline', 80);
+  const { ctx, prompts, generatedContent } = makeCtx({
+    responses: [section('Home hero headline', 12), valid],
+  });
   await stage.run(ctx);
   assert.equal(prompts.length, 2);
-  assert.equal(generatedContent.get('/:hero'), words(80));
+  assert.equal(generatedContent.get('/:hero'), valid);
 });
 
 void test('the correction prompt reports the actual first-attempt word count', async () => {
-  const { ctx, prompts } = makeCtx({ responses: [words(12), words(80)] });
+  const { ctx, prompts } = makeCtx({
+    responses: [section('Home hero headline', 12), section('Home hero headline', 80)],
+  });
   await stage.run(ctx);
   assert.match(prompts[1], /failed validation/i);
   assert.match(prompts[1], /It contained 12 words; provide at least 80\./);
   assert.match(prompts[1], /Rewrite the complete section from scratch\./);
 });
 
-void test('two short responses fail with CONTENT_VALIDATION_FAILED and commit nothing', async () => {
-  const { ctx, generatedContent } = makeCtx({ responses: [words(10), words(20)] });
+void test('short bodies fail with CONTENT_VALIDATION_FAILED and commit nothing', async () => {
+  const { ctx, generatedContent } = makeCtx({
+    responses: [
+      section('Home hero headline', 10),
+      section('Home hero headline', 20),
+      section('Home hero headline', 30),
+    ],
+  });
   await assert.rejects(
     () => stage.run(ctx),
     (error: unknown) => error instanceof BuildError
       && error.code === 'CONTENT_VALIDATION_FAILED'
-      && /has 20 words, minimum 80/.test(error.message),
+      && /has 30 words, minimum 80/.test(error.message),
   );
   assert.equal(generatedContent.size, 0);
 });
 
 void test('a prohibited claim triggers a corrective retry naming the claim', async () => {
-  const { ctx, prompts, generatedContent } = makeCtx({ responses: [`${words(90)} guaranteed`, words(90)] });
+  const valid = section('Trusted local coverage', 90);
+  const { ctx, prompts, generatedContent } = makeCtx({
+    responses: [section('Trusted local coverage', 90, ' guaranteed'), valid],
+  });
   await stage.run(ctx);
   assert.equal(prompts.length, 2);
   assert.match(prompts[1], /prohibited claim "guaranteed"/);
-  assert.equal(generatedContent.get('/:hero'), words(90));
+  assert.equal(generatedContent.get('/:hero'), valid);
 });
 
 void test('a prohibited claim that persists after retry fails', async () => {
-  const { ctx } = makeCtx({ responses: [`${words(90)} guaranteed`, `${words(90)} guaranteed`] });
+  const banned = section('Trusted local coverage', 90, ' guaranteed');
+  const { ctx } = makeCtx({ responses: [banned, banned, banned] });
   await assert.rejects(
     () => stage.run(ctx),
     (error: unknown) => error instanceof BuildError
@@ -84,8 +104,77 @@ void test('a prohibited claim that persists after retry fails', async () => {
 });
 
 void test('dry-run invokes the LLM zero times', async () => {
-  const { ctx, prompts, generatedContent } = makeCtx({ dryRun: true, responses: [words(80)] });
+  const { ctx, prompts, generatedContent } = makeCtx({
+    dryRun: true,
+    responses: [section('Home hero headline', 80)],
+  });
   await stage.run(ctx);
   assert.equal(prompts.length, 0);
   assert.equal(generatedContent.size, 0);
+});
+
+void test('H1 longer than 12 words fails after retries', async () => {
+  const longH1 = Array.from({ length: 13 }, () => 'word').join(' ');
+  const tooLong = section(longH1, 80);
+  const { ctx, generatedContent } = makeCtx({ responses: [tooLong, tooLong, tooLong] });
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /H1 has 13 words, maximum 12/.test(error.message),
+  );
+  assert.equal(generatedContent.size, 0);
+});
+
+void test('two slots with identical H1 fail with CONTENT_VALIDATION_FAILED', async () => {
+  const { ctx, generatedContent } = makeCtx({
+    components: ['hero', 'faq'],
+    responses: [
+      section('Same headline here', 80),
+      section('Same headline here', 80, ' unique-a'),
+      section('Same headline here', 80, ' unique-b'),
+      section('Same headline here', 80, ' unique-c'),
+    ],
+  });
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /duplicate H1/.test(error.message),
+  );
+  assert.equal(generatedContent.size, 1);
+});
+
+void test('two slots with identical bodies fail with CONTENT_VALIDATION_FAILED', async () => {
+  const { ctx, generatedContent } = makeCtx({
+    components: ['hero', 'faq'],
+    responses: [
+      section('First unique headline', 80),
+      section('Second unique headline', 80),
+      section('Third unique headline', 80),
+      section('Fourth unique headline', 80),
+    ],
+  });
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /duplicate body/.test(error.message),
+  );
+  assert.equal(generatedContent.size, 1);
+});
+
+void test('valid unique H1s and 80-word bodies succeed and the prompt requires a 12-word headline', async () => {
+  const hero = section('Protect your roof this season', 80);
+  const faq = section('Answers for insurance claims', 80, ' extra');
+  const { ctx, prompts, generatedContent } = makeCtx({
+    components: ['hero', 'faq'],
+    responses: [hero, faq],
+  });
+  await stage.run(ctx);
+  assert.equal(prompts.length, 2);
+  assert.match(prompts[0], /headline/i);
+  assert.match(prompts[0], /12 words/);
+  assert.equal(generatedContent.get('/:hero'), hero);
+  assert.equal(generatedContent.get('/:faq'), faq);
 });

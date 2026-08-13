@@ -3,7 +3,10 @@
 import { siteConfig } from '../../lib/siteConfig';
 interface Props { name?: string; content: string; }
 const { name = 'hero', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+const firstNewline = content.indexOf('\n');
+const headline = (firstNewline === -1 ? content : content.slice(0, firstNewline)).trim() || 'Welcome';
+const rest = firstNewline === -1 ? '' : content.slice(firstNewline + 1);
+const paragraphs = rest.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
 const images: Record<string, { src: string; alt: string; width: number; height: number }> = siteConfig.images ?? {};
 // Placement key convention: "<routeSlug>:hero" (home is "/"). Match the current
 // page's route so the same Hero component resolves the right image per route.
@@ -12,7 +15,7 @@ const heroImage = images[`${path}:hero`];
 ---
 <section class="hero" data-section={name}>
   <div class="hero__content">
-    <h1>{paragraphs[0] ?? 'Welcome'}</h1>
+    <h1>{headline}</h1>
     {paragraphs.map(paragraph => <p>{paragraph}</p>)}
   </div>
   {heroImage && (
