@@ -8,6 +8,11 @@ const images: Record<string, { src: string; alt: string; width: number; height: 
 const logo = images['global:logo'];
 const ogImage = images['global:og-image'];
 const ogImageUrl = ogImage ? new URL(ogImage.src, siteConfig.siteUrl).toString() : undefined;
+const siteUrl = String(siteConfig.siteUrl ?? '').replace(/\/$/, '');
+const pathname = Astro.url.pathname
+  ? (Astro.url.pathname.startsWith('/') ? Astro.url.pathname : `/${Astro.url.pathname}`)
+  : '/';
+const canonicalUrl = `${siteUrl}${pathname}`;
 const schemas = [...siteConfig.schemas.siteWide, ...routeSchemas];
 const jsonLd = schemas.map(schema => JSON.stringify(schema).replace(/</g, '\u003c'));
 ---
@@ -19,6 +24,10 @@ const jsonLd = schemas.map(schema => JSON.stringify(schema).replace(/</g, '\u003
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
     {ogImageUrl && <meta name="twitter:card" content="summary_large_image" />}
     {jsonLd.map(value => <script is:inline type="application/ld+json" set:html={value} />)}

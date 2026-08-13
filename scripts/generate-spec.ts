@@ -10,6 +10,7 @@
 //   npx tsx scripts/generate-spec.ts <url> --out=<path>
 //   npx tsx scripts/generate-spec.ts <url> --client-id=<id>
 //   npx tsx scripts/generate-spec.ts <url> --with-assets   # include image slots + sourceSite block
+//   npx tsx scripts/generate-spec.ts <url> --write-invalid # write raw YAML on validation failure (still exits 1)
 //
 // Output: a flat DomainSpec YAML written to --out (default: build/specs/<client_id>.yaml)
 // The output is validated through validateDomainSpec before writing.
@@ -30,7 +31,7 @@ const args = process.argv.slice(2);
 const positional = args.filter(a => !a.startsWith('--'));
 const targetUrl = positional[0];
 if (!targetUrl) {
-  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets]');
+  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--write-invalid]');
   process.exit(1);
 }
 
@@ -41,6 +42,7 @@ function valueOf(name: string): string | undefined {
 }
 
 const withAssets = args.includes('--with-assets');
+const writeInvalid = args.includes('--write-invalid');
 const explicitClientId = valueOf('client-id');
 const explicitOut = valueOf('out');
 
@@ -114,7 +116,7 @@ The DomainSpec MUST have this exact shape:
   "geography": { "states": ["XX"], "primary_state": "XX" },
   "design": { "status": "pending" },
   "routes": [{ "slug": "/", "title": "Home", "components": ["hero", "trust-signals", "services-overview", "faq", "contact-form"] }, ...],
-  "seo_contract": { "site_url": "<url>", "target_keywords": [...] }
+  "seo_contract": { "site_url": "<url>", "target_keywords": [...], "lead_form_action": "<https-url>" }
 }
 
 Rules:
@@ -125,6 +127,7 @@ Rules:
 - components: use these registered names: hero, trust-signals, trust_bar, services-overview, service-detail, service-list, process, audience_paths, service_area, cta, final_cta, compliance_note, disclaimer, faq, confirmation, contact-form, contact_form.
 - seo_contract.site_url: the canonical URL of the site.
 - seo_contract.target_keywords: 3-8 SEO keywords inferred from the content.
+- seo_contract.lead_form_action: absolute HTTPS URL for the contact form POST. Required when any route uses contact_form.
 - Do NOT invent phone numbers, emails, addresses, or license numbers.
 - Output ONLY the JSON object. No markdown fences, no prose.`;
 
@@ -205,21 +208,31 @@ if (withAssets) {
   };
 }
 
-// Validate through the pipeline's own validator
+function writeSpec(spec: unknown): void {
+  mkdirSync(dirname(outPath), { recursive: true });
+  const header = `# L9_META: layer=configuration, role=generated_spec, status=generated, version=1.0.0\n# Generated from ${targetUrl} on ${new Date().toISOString()}\n# Review and correct before feeding to the pipeline.\n`;
+  writeFileSync(outPath, header + stringify(spec), 'utf-8');
+}
+
+// Validate through the pipeline's own validator — fail-closed (do not write --out).
 let validated: DomainSpec;
 try {
   validated = validateDomainSpec(parsed, 'generate-spec output');
 } catch (error) {
-  console.error(`[generate-spec] WARNING: Generated spec failed validation: ${error instanceof Error ? error.message : String(error)}`);
-  console.error('[generate-spec] Writing raw output anyway for manual correction.');
-  validated = parsed as DomainSpec;
+  console.error(`[generate-spec] ERROR: Generated spec failed validation: ${error instanceof Error ? error.message : String(error)}`);
+  if (writeInvalid) {
+    console.error('[generate-spec] --write-invalid set: writing raw output for manual correction.');
+    writeSpec(parsed);
+    console.error(`[generate-spec] Wrote invalid spec to ${outPath}`);
+  } else {
+    console.error('[generate-spec] Refusing to write invalid spec. Pass --write-invalid to dump raw YAML for manual correction.');
+  }
+  process.exit(1);
 }
 
 // ── Write output ──
 
-mkdirSync(dirname(outPath), { recursive: true });
-const header = `# L9_META: layer=configuration, role=generated_spec, status=generated, version=1.0.0\n# Generated from ${targetUrl} on ${new Date().toISOString()}\n# Review and correct before feeding to the pipeline.\n`;
-writeFileSync(outPath, header + stringify(validated), 'utf-8');
+writeSpec(validated);
 
 console.log(`[generate-spec] Wrote ${outPath}`);
 console.log(`[generate-spec] Next: review the spec, then run:`);

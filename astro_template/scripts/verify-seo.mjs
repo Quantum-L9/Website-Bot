@@ -1,12 +1,21 @@
-import { exists, readText, result, writeJsonl, statusFromRows } from './lib.mjs';
+import { exists, listFiles, readText, result, writeJsonl, statusFromRows } from './lib.mjs';
 
 const checks = [];
+
+function hasRelCanonical(html) {
+  return /rel\s*=\s*(?:"canonical"|'canonical'|canonical\b)/i.test(html);
+}
+
+function hasProperty(html, property) {
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`property\\s*=\\s*(?:"${escaped}"|'${escaped}')`, 'i').test(html);
+}
 
 // Check for robots.txt
 checks.push(result(
   'robots-txt-exists',
   'seo_files',
-  'public/robots.txt', 
+  'public/robots.txt',
   'robots.txt file exists',
   exists('public/robots.txt') ? 'robots.txt found' : 'robots.txt missing',
   exists('public/robots.txt') ? 'PASS' : 'FAIL',
@@ -24,97 +33,137 @@ if (exists('dist')) {
     'Sitemap generated in build output',
     hasSitemap ? 'Sitemap found' : 'Sitemap missing',
     hasSitemap ? 'PASS' : 'FAIL',
-    'high', 
+    'high',
     'Configure sitemap generation in astro.config.mjs'
   ));
 }
 
+function checkHtmlFile(file) {
+  const html = readText(file);
+
+  const hasTitle = html.includes('<title>') && !html.includes('<title></title>');
+  const hasDescription = html.includes('name="description"');
+  const hasViewport = html.includes('name="viewport"');
+  const hasCharset = html.includes('charset=');
+  const hasOgTitle = hasProperty(html, 'og:title');
+  const hasOgDescription = hasProperty(html, 'og:description');
+  const hasOgUrl = hasProperty(html, 'og:url');
+  const hasCanonical = hasRelCanonical(html);
+
+  checks.push(result(
+    `html-title-present:${file}`,
+    'seo_meta',
+    `${file} <title>`,
+    'Page title is present and not empty',
+    hasTitle ? 'Title found' : 'Title missing or empty',
+    hasTitle ? 'PASS' : 'FAIL',
+    'high',
+    'Add meaningful <title> tag to pages'
+  ));
+
+  checks.push(result(
+    `meta-description-present:${file}`,
+    'seo_meta',
+    `${file} meta[name="description"]`,
+    'Meta description present',
+    hasDescription ? 'Description meta tag found' : 'Description meta tag missing',
+    hasDescription ? 'PASS' : 'FAIL',
+    'high',
+    'Add meta description to pages'
+  ));
+
+  checks.push(result(
+    `viewport-meta-present:${file}`,
+    'seo_meta',
+    `${file} meta[name="viewport"]`,
+    'Viewport meta tag present',
+    hasViewport ? 'Viewport meta tag found' : 'Viewport meta tag missing',
+    hasViewport ? 'PASS' : 'FAIL',
+    'medium',
+    'Add viewport meta tag for mobile responsiveness'
+  ));
+
+  checks.push(result(
+    `charset-declared:${file}`,
+    'seo_meta',
+    `${file} charset`,
+    'Character encoding declared',
+    hasCharset ? 'Charset declaration found' : 'Charset declaration missing',
+    hasCharset ? 'PASS' : 'FAIL',
+    'medium',
+    'Add charset declaration to HTML'
+  ));
+
+  checks.push(result(
+    `open-graph-tags:${file}`,
+    'seo_social',
+    `${file} Open Graph`,
+    'Open Graph meta tags present',
+    (hasOgTitle && hasOgDescription) ? 'OG tags found' : 'OG tags incomplete',
+    (hasOgTitle && hasOgDescription) ? 'PASS' : 'FAIL',
+    'high',
+    'Add Open Graph meta tags for social media sharing'
+  ));
+
+  checks.push(result(
+    `canonical-link:${file}`,
+    'seo_canonical',
+    `${file} link[rel=canonical]`,
+    'Canonical link present',
+    hasCanonical ? 'Canonical link found' : 'Canonical link missing',
+    hasCanonical ? 'PASS' : 'FAIL',
+    'high',
+    'Add <link rel="canonical"> to pages'
+  ));
+
+  checks.push(result(
+    `og-url:${file}`,
+    'seo_social',
+    `${file} meta[property="og:url"]`,
+    'Open Graph URL present',
+    hasOgUrl ? 'og:url found' : 'og:url missing',
+    hasOgUrl ? 'PASS' : 'FAIL',
+    'high',
+    'Add meta property="og:url" to pages'
+  ));
+}
+
 // Check HTML meta tags in built output
-if (exists('dist/index.html')) {
-  try {
-    const indexHtml = readText('dist/index.html');
-    
-    // Check for essential meta tags
-    const hasTitle = indexHtml.includes('<title>') && !indexHtml.includes('<title></title>');
-    const hasDescription = indexHtml.includes('name="description"');
-    const hasViewport = indexHtml.includes('name="viewport"');
-    const hasCharset = indexHtml.includes('charset=');
-    
+if (exists('dist')) {
+  const htmlFiles = listFiles('dist', (file) => file.endsWith('.html'));
+  if (htmlFiles.length === 0) {
     checks.push(result(
-      'html-title-present',
-      'seo_meta',
-      'dist/index.html <title>',
-      'Page title is present and not empty',
-      hasTitle ? 'Title found' : 'Title missing or empty',
-      hasTitle ? 'PASS' : 'FAIL',
-      'high',
-      'Add meaningful <title> tag to pages'
-    ));
-
-    checks.push(result(
-      'meta-description-present',
-      'seo_meta',
-      'dist/index.html meta[name="description"]',
-      'Meta description present',
-      hasDescription ? 'Description meta tag found' : 'Description meta tag missing',
-      hasDescription ? 'PASS' : 'FAIL', 
-      'high',
-      'Add meta description to pages'
-    ));
-
-    checks.push(result(
-      'viewport-meta-present',
-      'seo_meta',
-      'dist/index.html meta[name="viewport"]',
-      'Viewport meta tag present',
-      hasViewport ? 'Viewport meta tag found' : 'Viewport meta tag missing',
-      hasViewport ? 'PASS' : 'FAIL',
+      'build-required-for-seo',
+      'prerequisite',
+      'dist/',
+      'Build output contains HTML for SEO checking',
+      'No HTML files in dist/',
+      'FAIL',
       'medium',
-      'Add viewport meta tag for mobile responsiveness'
+      'Run npm run build first'
     ));
-
-    checks.push(result(
-      'charset-declared',
-      'seo_meta',
-      'dist/index.html charset',
-      'Character encoding declared',
-      hasCharset ? 'Charset declaration found' : 'Charset declaration missing',
-      hasCharset ? 'PASS' : 'FAIL',
-      'medium',
-      'Add charset declaration to HTML'
-    ));
-
-    // Check for Open Graph tags
-    const hasOgTitle = indexHtml.includes('property="og:title"');
-    const hasOgDescription = indexHtml.includes('property="og:description"');
-    
-    checks.push(result(
-      'open-graph-tags',
-      'seo_social',
-      'dist/index.html Open Graph',
-      'Open Graph meta tags present',
-      (hasOgTitle && hasOgDescription) ? 'OG tags found' : 'OG tags incomplete',
-      (hasOgTitle && hasOgDescription) ? 'PASS' : 'UNKNOWN',
-      'low',
-      'Add Open Graph meta tags for social media sharing'
-    ));
-
-  } catch (error) {
-    checks.push(result(
-      'seo-meta-check-failed',
-      'file_access',
-      'dist/index.html',
-      'SEO meta tag check completed',
-      `Error reading file: ${error.message}`,
-      'UNKNOWN',
-      'low',
-      'Ensure build output is readable'
-    ));
+  } else {
+    for (const file of htmlFiles) {
+      try {
+        checkHtmlFile(file);
+      } catch (error) {
+        checks.push(result(
+          `seo-meta-check-failed:${file}`,
+          'file_access',
+          file,
+          'SEO meta tag check completed',
+          `Error reading file: ${error.message}`,
+          'UNKNOWN',
+          'low',
+          'Ensure build output is readable'
+        ));
+      }
+    }
   }
 } else {
   checks.push(result(
     'build-required-for-seo',
-    'prerequisite', 
+    'prerequisite',
     'dist/',
     'Build output exists for SEO checking',
     'Build output missing',
