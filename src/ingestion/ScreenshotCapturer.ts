@@ -46,13 +46,13 @@ export class PlaywrightScreenshotCapturer implements ScreenshotCapturer {
         screenshot(options: { path: string; fullPage?: boolean }): Promise<unknown>;
         close(): Promise<void>;
       };
-      await page.goto(request.url, { waitUntil: 'networkidle', timeout: 20_000 });
+      await page.goto(request.url, { waitUntil: 'domcontentloaded', timeout: 20_000 });
       await page.screenshot({ path: request.outputPath, fullPage: false });
       await page.close();
       return request.outputPath;
     } catch {
       // A missing browser or navigation error must never fail the crawl.
-      this.available = false;
+      // Keep the capturer available so a later page can still succeed.
       return undefined;
     }
   }

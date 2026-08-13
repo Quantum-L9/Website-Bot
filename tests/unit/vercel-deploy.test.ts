@@ -39,7 +39,7 @@ void test('correlates READY Vercel deployment to persisted publication evidence'
   try {
     const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
       const url = String(input);
-      if (url.endsWith('/v13/deployments')) {
+      if (url.split('?')[0].endsWith('/v13/deployments')) {
         assert.equal(init.method, 'POST');
         const body = JSON.parse(String(init.body)) as { gitSource?: { sha?: string } };
         assert.equal(body.gitSource?.sha, commit);
@@ -51,7 +51,7 @@ void test('correlates READY Vercel deployment to persisted publication evidence'
       });
       throw new Error(`Unexpected Vercel request ${url}`);
     };
-    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview' }, async () => {
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview', VERCEL_TEAM_ID: undefined }, async () => {
       await new VercelDeployStage(fakeFetch, async () => {}, () => new Date('2026-07-20T00:00:02.000Z'), 0, 2).run(ctx);
     });
     const stored = await ctx.evidenceStore.readDeployment();
@@ -72,7 +72,7 @@ void test('sends the full deployment identity and auth for a preview deployment'
     let deployInit: RequestInit | undefined;
     const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
       const url = String(input);
-      if (url.endsWith('/v13/deployments')) {
+      if (url.split('?')[0].endsWith('/v13/deployments')) {
         deployInit = init;
         return Response.json({ id: 'dep_123', url: 'preview.example.vercel.app' });
       }
@@ -82,7 +82,7 @@ void test('sends the full deployment identity and auth for a preview deployment'
       });
       throw new Error(`Unexpected Vercel request ${url}`);
     };
-    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview' }, async () => {
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview', VERCEL_TEAM_ID: undefined }, async () => {
       await new VercelDeployStage(fakeFetch, async () => {}, () => new Date('2026-07-20T00:00:02.000Z'), 0, 2).run(ctx);
     });
 
@@ -116,7 +116,7 @@ void test('requests the production target only under explicit production authori
     let deployInit: RequestInit | undefined;
     const fakeFetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
       const url = String(input);
-      if (url.endsWith('/v13/deployments')) {
+      if (url.split('?')[0].endsWith('/v13/deployments')) {
         deployInit = init;
         return Response.json({ id: 'dep_prod', url: 'prod.example.vercel.app' });
       }
@@ -126,7 +126,7 @@ void test('requests the production target only under explicit production authori
       });
       throw new Error(`Unexpected Vercel request ${url}`);
     };
-    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'production', WEBSITE_BOT_ALLOW_PRODUCTION: 'true' }, async () => {
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'production', WEBSITE_BOT_ALLOW_PRODUCTION: 'true', VERCEL_TEAM_ID: undefined }, async () => {
       await new VercelDeployStage(fakeFetch, async () => {}, () => new Date('2026-07-20T00:00:02.000Z'), 0, 2).run(ctx);
     });
     const body = JSON.parse(String(deployInit?.body)) as { target?: unknown };
@@ -139,10 +139,10 @@ void test('requests the production target only under explicit production authori
 void test('fails closed and writes no deployment evidence when Vercel reports another commit', async () => {
   const ctx = await prepareContext();
   try {
-    const fakeFetch = async (input: string | URL | Request): Promise<Response> => String(input).endsWith('/v13/deployments')
+    const fakeFetch = async (input: string | URL | Request): Promise<Response> => String(input).split('?')[0].endsWith('/v13/deployments')
       ? Response.json({ id: 'dep_bad', url: 'bad.vercel.app' })
       : Response.json({ id: 'dep_bad', readyState: 'READY', url: 'bad.vercel.app', projectId: 'prj_123', meta: { githubCommitSha: 'f'.repeat(40) } });
-    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview' }, async () => {
+    await withEnv({ VERCEL_TOKEN: 'test-token', VERCEL_TARGET: 'preview', VERCEL_TEAM_ID: undefined }, async () => {
       await assert.rejects(() => new VercelDeployStage(fakeFetch, async () => {}, () => new Date(), 0, 1).run(ctx), /different commit/);
     });
     assert.equal(await ctx.evidenceStore.readDeployment(), undefined);

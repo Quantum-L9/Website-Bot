@@ -1,10 +1,13 @@
 // L9_META: layer=pipeline, role=orchestration_engine, status=active, version=4.1.0
+import { existsSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from './BuildError.js';
 import type Database from 'better-sqlite3';
 import { getBuildDb, llmUsage, syncEvidenceIndexToDb } from './BuildDB.js';
 import { checkpointDigest, checkpointIsValid, type StageCheckpoint } from './StageCheckpoint.js';
-import type { BuildContext } from './BuildContext.js';
+import { clientAssetRoot, clientPersistentAssetRoot, type BuildContext } from './BuildContext.js';
+import type { ResolvedImageAsset } from './evidence/ImageAssetManifest.js';
 import { sanitizeEvidenceDetails, sanitizeEvidenceText } from './evidence/EvidenceCanonicalizer.js';
 import type { EvidenceKind, EvidenceReference } from './evidence/EvidenceReference.js';
 import type { StageFailureEvidence } from './evidence/StageFailureEvidence.js';
@@ -66,6 +69,7 @@ export class PipelineRunner {
         const inputEvidence = await this.requireEvidence(ctx, stage.evidence?.inputs(ctx) ?? [], stage.name, 'input');
         const checkpoint = await ctx.evidenceStore.readCheckpoint(stage.name);
         if (await this.resumeStage(ctx, stage, checkpoint)) {
+          await this.hydrateSkippedStage(ctx, stage);
           await this.recordSkip(ctx, sqlite, stage.name, 'validated evidence checkpoint');
           continue;
         }
@@ -167,6 +171,60 @@ export class PipelineRunner {
       }
     }
     return true;
+  }
+
+  private async hydrateSkippedStage(ctx: BuildContext, stage: Stage): Promise<void> {
+    if (stage.name === 'source-site-ingestion') {
+      const stored = await ctx.evidenceStore.readSourceSite();
+      if (stored) ctx.sourceSiteManifest = stored.value;
+      return;
+    }
+    if (stage.name === 'image-asset-planning') {
+      const stored = await ctx.evidenceStore.readImagePlan();
+      if (stored) ctx.imageAssetPlan = stored.value;
+      return;
+    }
+    if (stage.name === 'image-generation') {
+      const stored = await ctx.evidenceStore.readImageAssets();
+      if (!stored) return;
+      ctx.imageAssetManifest = stored.value;
+      ctx.resolvedImages ??= new Map();
+      const generatedRoot = resolve(clientPersistentAssetRoot(ctx), 'generated');
+      const buildGeneratedRoot = resolve(clientAssetRoot(ctx), 'generated');
+      for (const asset of stored.value.assets) {
+        const outputFileName = basename(asset.outputPath);
+        const hashedPersistent = asset.promptHash ? resolve(generatedRoot, `${asset.promptHash}.png`) : undefined;
+        const hashedBuild = asset.promptHash ? resolve(buildGeneratedRoot, `${asset.promptHash}.png`) : undefined;
+        const hashed = (hashedPersistent && existsSync(hashedPersistent))
+          ? hashedPersistent
+          : (hashedBuild && existsSync(hashedBuild) ? hashedBuild : hashedPersistent);
+        const original = asset.originalPath;
+        const absolutePath = (hashed && existsSync(hashed))
+          ? hashed
+          : (original && existsSync(original) ? original : hashed ?? original ?? '');
+        const resolved: ResolvedImageAsset = {
+          slotId: asset.slotId,
+          placement: asset.placement,
+          source: asset.source,
+          absolutePath,
+          outputFileName,
+          altText: ctx.domainSpec.assets?.imageSlots?.find(slot => slot.id === asset.slotId)?.altText ?? asset.slotId,
+          mimeType: asset.mimeType,
+          width: asset.width,
+          height: asset.height,
+          byteLength: asset.byteLength,
+          sha256: asset.sha256,
+          sourceUrl: asset.sourceUrl,
+          originalPath: asset.originalPath,
+          promptHash: asset.promptHash,
+          model: asset.model,
+          estimatedCostUsd: asset.estimatedCostUsd,
+          disposition: asset.disposition,
+          provenanceWarnings: asset.provenanceWarnings,
+        };
+        ctx.resolvedImages.set(asset.placement, resolved);
+      }
+    }
   }
 
   private async ensureCheckpoint(

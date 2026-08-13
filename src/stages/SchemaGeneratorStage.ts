@@ -4,6 +4,7 @@ import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { extractJson } from '../services/extractJson.js';
+import { faqsFromManifest } from '../services/content/sourceCopy.js';
 import { normalizeSiteUrl } from '../validation/validate-generated-site.js';
 
 const logger = createModuleLogger('stage:schema-generator');
@@ -27,10 +28,12 @@ function coerceFaqs(parsed: unknown): FaqEntry[] {
 
 export class SchemaGeneratorStage implements Stage {
   name = 'schema-generator';
-  version = '2.1.0';
+  version = '2.2.0';
 
   async run(ctx: BuildContext): Promise<void> {
     if (ctx.dryRun) { logger.info('[dry-run] Would generate JSON-LD schemas'); return; }
+    const reconstructing = Boolean(ctx.sourceSiteManifest?.pages.length)
+      || ctx.domainSpec.assets?.sourceSite?.enabled === true;
     const { business_name, vertical, geography } = ctx.domainSpec;
     const seo = ctx.domainSpec.seo_contract ?? {};
     const siteUrl = typeof seo.site_url === 'string' && seo.site_url.trim().length > 0 ? normalizeSiteUrl(seo.site_url) : '';
@@ -50,11 +53,15 @@ export class SchemaGeneratorStage implements Stage {
       provider: { '@type': 'Organization', name: business_name }, serviceType: vertical,
       areaServed: geography.states.map(state => ({ '@type': 'AdministrativeArea', name: state })),
     });
-    const faqs = await this.generateFaqs(ctx, vertical, geography.states);
-    ctx.generatedSchemas.set('FAQPage', {
-      '@context': 'https://schema.org', '@type': 'FAQPage',
-      mainEntity: faqs.map(faq => ({ '@type': 'Question', name: faq.question, acceptedAnswer: { '@type': 'Answer', text: faq.answer } })),
-    });
+    const faqs = reconstructing
+      ? faqsFromManifest(ctx.sourceSiteManifest)
+      : await this.generateFaqs(ctx, vertical, geography.states);
+    if (faqs.length > 0) {
+      ctx.generatedSchemas.set('FAQPage', {
+        '@context': 'https://schema.org', '@type': 'FAQPage',
+        mainEntity: faqs.map(faq => ({ '@type': 'Question', name: faq.question, acceptedAnswer: { '@type': 'Answer', text: faq.answer } })),
+      });
+    }
     ctx.generatedSchemas.set('BreadcrumbList', {
       '@context': 'https://schema.org', '@type': 'BreadcrumbList',
       itemListElement: ctx.domainSpec.routes.map((route, index) => ({ '@type': 'ListItem', position: index + 1, name: route.title, item: `${siteUrl}${route.slug}` })),

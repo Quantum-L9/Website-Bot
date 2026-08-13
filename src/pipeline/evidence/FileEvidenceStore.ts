@@ -473,6 +473,24 @@ export class FileEvidenceStore implements EvidenceStore {
 
   private logicalId(kind: EvidenceKind, value: object): string {
     const record = value as Record<string, unknown>;
+    // Kind-specific IDs first. DeploymentEvidence also carries publicationId; using
+    // the generic fallback order made deployment share publication's logical_id and
+    // tripped UNIQUE(evidence_artifacts.logical_id).
+    if (kind === 'deployment' && typeof record.deploymentEvidenceId === 'string' && record.deploymentEvidenceId) {
+      return record.deploymentEvidenceId;
+    }
+    if (kind === 'publication' && typeof record.publicationId === 'string' && record.publicationId) {
+      return record.publicationId;
+    }
+    if (kind === 'build' && typeof record.proofId === 'string' && record.proofId) {
+      return record.proofId;
+    }
+    if (kind === 'release' && typeof record.receipt_id === 'string' && record.receipt_id) {
+      return record.receipt_id;
+    }
+    if (kind === 'handoff' && typeof record.contract_id === 'string' && record.contract_id) {
+      return record.contract_id;
+    }
     return String(
       record.proofId
       ?? record.publicationId

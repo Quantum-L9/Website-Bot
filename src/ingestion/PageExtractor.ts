@@ -18,17 +18,27 @@ export interface RawImageCandidate {
   isAboveFold: boolean;
 }
 
+export interface ExtractedNavItem {
+  href: string;
+  label: string;
+}
+
 export interface ExtractedPage {
   title?: string;
   description?: string;
   canonicalUrl?: string;
   headings: string[];
   textExcerpt?: string;
+  bodyText?: string;
+  phones: string[];
+  nav: ExtractedNavItem[];
   links: string[];
   images: RawImageCandidate[];
+  stylesheets: string[];
 }
 
-const ABOVE_FOLD_BYTES = 2000;
+const ABOVE_FOLD_BYTES = 24_000;
+const BODY_TEXT_CHARS = 8_000;
 
 function decodeEntities(value: string): string {
   return value
@@ -72,6 +82,55 @@ function parseSrcset(srcset: string, baseUrl: string): string[] {
     .map(part => part.trim().split(/\s+/)[0])
     .map(url => absolute(url, baseUrl))
     .filter((url): url is string => Boolean(url));
+}
+
+/** Format a tel: href into a display number. NANP becomes (704) 648-7252. */
+export function formatObservedPhone(href: string): string | undefined {
+  const digits = href.replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('1')) {
+    const national = digits.slice(1);
+    return `(${national.slice(0, 3)}) ${national.slice(3, 6)}-${national.slice(6)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  if (digits.length >= 7 && digits.length <= 15) return `+${digits}`;
+  return undefined;
+}
+
+function extractPhones(html: string): string[] {
+  const seen = new Set<string>();
+  const phones: string[] = [];
+  for (const match of html.matchAll(/href\s*=\s*["']tel:([^"']+)["']/gi)) {
+    const formatted = formatObservedPhone(match[1]);
+    if (!formatted || seen.has(formatted)) continue;
+    seen.add(formatted);
+    phones.push(formatted);
+  }
+  return phones;
+}
+
+function extractNav(html: string, baseUrl: string): ExtractedNavItem[] {
+  const header = /<header\b[^>]*>([\s\S]*?)<\/header>/i.exec(html)?.[1]
+    ?? /<nav\b[^>]*>([\s\S]*?)<\/nav>/i.exec(html)?.[1]
+    ?? '';
+  if (!header) return [];
+  const items: ExtractedNavItem[] = [];
+  const seen = new Set<string>();
+  for (const match of header.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
+    const href = attr(match[1], 'href');
+    if (!href || href.startsWith('#') || href.startsWith('tel:') || href.startsWith('mailto:')) continue;
+    const abs = absolute(href, baseUrl);
+    if (!abs) continue;
+    let path: string;
+    try { path = new URL(abs).pathname.replace(/\/$/, '') || '/'; } catch { continue; }
+    if (path === '/' || seen.has(path)) continue;
+    const label = stripTags(match[2]).replace(/\s+/g, ' ').trim();
+    if (!label || label.length > 40) continue;
+    seen.add(path);
+    items.push({ href: path, label });
+  }
+  return items;
 }
 
 function headingBefore(headingPositions: Array<{ index: number; text: string }>, index: number): string | undefined {
@@ -125,8 +184,14 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
   }
 
   let canonicalUrl: string | undefined;
+  const stylesheets: string[] = [];
   for (const tag of [...html.matchAll(/<link\b[^>]*>/gi)].map(match => match[0])) {
-    if (attr(tag, 'rel')?.toLowerCase() === 'canonical') { canonicalUrl = absolute(attr(tag, 'href'), baseUrl); break; }
+    const rel = attr(tag, 'rel')?.toLowerCase() ?? '';
+    if (rel === 'canonical') canonicalUrl = absolute(attr(tag, 'href'), baseUrl);
+    if (/\bstylesheet\b/.test(rel)) {
+      const href = absolute(attr(tag, 'href'), baseUrl);
+      if (href) stylesheets.push(href);
+    }
   }
 
   const headingPositions: Array<{ index: number; text: string }> = [];
@@ -136,8 +201,16 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
   }
   const headings = headingPositions.map(heading => heading.text);
 
-  const bodyText = stripTags(html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' '));
-  const textExcerpt = bodyText ? bodyText.slice(0, 300) : undefined;
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<header[\s\S]*?<\/header>/gi, ' ')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, ' ');
+  const bodyText = stripTags(stripped).slice(0, BODY_TEXT_CHARS) || undefined;
+  const textExcerpt = bodyText ? bodyText.slice(0, 500) : undefined;
+  const phones = extractPhones(html);
+  const nav = extractNav(html, baseUrl);
 
   const links: string[] = [];
   for (const match of html.matchAll(/<a\b[^>]*>/gi)) {
@@ -180,5 +253,5 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
   if (ogImage) push(absolute(ogImage, baseUrl), 'og', { isAboveFold: true });
   for (const url of collectStructuredDataImages(html, baseUrl)) push(url, 'structured-data');
 
-  return { title, description, canonicalUrl, headings, textExcerpt, links, images };
+  return { title, description, canonicalUrl, headings, textExcerpt, bodyText, phones, nav, links, images, stylesheets };
 }

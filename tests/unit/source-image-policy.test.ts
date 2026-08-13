@@ -19,6 +19,13 @@ void test('rejects unsupported mime, oversize, tiny, and extreme-aspect images',
   assert.equal(evaluateSourceImage(inspected({ width: 2000, height: 100 })).accepted, false);
 });
 
+void test('accepts a compact logo that would fail the photo minimum', () => {
+  assert.equal(
+    evaluateSourceImage(inspected({ width: 298, height: 144 }), undefined, { sourceUrl: 'https://x.test/images/logo.webp' }).accepted,
+    true,
+  );
+});
+
 void test('accepts SVG without intrinsic dimensions', () => {
   assert.equal(evaluateSourceImage(inspected({ mimeType: 'image/svg+xml', width: 0, height: 0 })).accepted, true);
 });

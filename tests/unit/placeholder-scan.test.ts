@@ -46,6 +46,7 @@ const ERROR_CASES: Array<[string, string]> = [
   ['template-variable', 'Call ${phone} now.'],
   ['template-variable', 'Reach us at <PHONE> today.'],
   ['lorem-ipsum', 'Lorem ipsum dolor sit amet, consectetur.'],
+  ['markdown-emphasis', '**Protect Your Home with Trusted Roofing Experts** in North Carolina.'],
   ['todo-marker', 'TODO: replace this section with real testimonials.'],
   ['placeholder-word', 'This is placeholder text for the hero.'],
   ['example-domain', 'Book online at https://booking.example.com/schedule now.'],

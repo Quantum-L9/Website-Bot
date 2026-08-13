@@ -15,6 +15,8 @@ import { createModuleLogger } from '../core/logger.js';
 import { assertUrlAllowed, isForbiddenAddress, isUrlAllowed } from './UrlPolicy.js';
 import { HttpPageFetcher } from './PageFetcher.js';
 import { extractPage } from './PageExtractor.js';
+import { crawlPagePriority } from './CrawlPriority.js';
+import { extractHexColors, inferPalette } from './SourcePalette.js';
 import { EXTENSION_BY_MIME, inspectImage } from '../services/images/ImageInspector.js';
 import {
   DEFAULT_SOURCE_IMAGE_POLICY,
@@ -27,7 +29,7 @@ import { NoopScreenshotCapturer, type ScreenshotCapturer } from './ScreenshotCap
 import type { IngestedImage, IngestedPage, RejectedImage, SourceSiteManifest } from '../pipeline/evidence/SourceSiteManifest.js';
 
 const logger = createModuleLogger('ingestion:crawler');
-export const CRAWLER_VERSION = '1.0.0';
+export const CRAWLER_VERSION = '1.1.0';
 
 export interface CrawlOptions {
   seedUrl: string;
@@ -50,7 +52,7 @@ export interface CrawlOptions {
   now?: () => Date;
 }
 
-const DEFAULTS = { maxPages: 15, maxDepth: 2, navigationTimeoutMs: 20_000, totalTimeoutMs: 120_000 };
+const DEFAULTS = { maxPages: 40, maxDepth: 2, navigationTimeoutMs: 20_000, totalTimeoutMs: 180_000 };
 
 function isHtml(contentType: string | undefined): boolean {
   return !contentType || /text\/html|application\/xhtml\+xml/i.test(contentType);
@@ -118,10 +120,13 @@ export class SourceCrawler {
     const visited = new Set<string>();
     const imageHashes = new Set<string>();
     const imageUrlsSeen = new Set<string>();
+    const cssUrlsSeen = new Set<string>();
+    const cssChunks: string[] = [];
     const queue: Array<{ url: string; depth: number }> = [{ url: normalizeUrl(this.opts.seedUrl), depth: 0 }];
 
     while (queue.length > 0 && pages.length < maxPages) {
       if (Date.now() > deadline) { warnings.push('crawl stopped: total time budget exceeded'); break; }
+      queue.sort((a, b) => crawlPagePriority(a.url) - crawlPagePriority(b.url) || a.depth - b.depth);
       const { url, depth } = queue.shift()!;
       if (visited.has(url)) continue;
       visited.add(url);
@@ -146,6 +151,9 @@ export class SourceCrawler {
         description: extracted.description,
         headings: extracted.headings,
         textExcerpt: extracted.textExcerpt,
+        bodyText: extracted.bodyText,
+        phones: extracted.phones,
+        nav: extracted.nav,
         depth,
       };
       if (this.opts.captureScreenshots) {
@@ -154,6 +162,10 @@ export class SourceCrawler {
         page.screenshotPath = await this.screenshots.capture({ url: fetched.finalUrl, outputPath: shotPath });
       }
       pages.push(page);
+
+      if (depth === 0) {
+        await this.collectStylesheets(extracted.stylesheets, imageFetcher, cssUrlsSeen, cssChunks, warnings);
+      }
 
       if (depth < maxDepth) {
         for (const link of extracted.links) {
@@ -171,7 +183,10 @@ export class SourceCrawler {
           const download = await imageFetcher.fetch(candidate.url);
           if (download.status >= 400) { rejected.push({ sourceUrl: candidate.url, referringPageUrl: fetched.finalUrl, reason: `status ${download.status}` }); continue; }
           const inspected = inspectImage(download.body);
-          const decision = evaluateSourceImage(inspected, this.policy);
+          const decision = evaluateSourceImage(inspected, this.policy, {
+            sourceUrl: candidate.url,
+            altText: candidate.altText,
+          });
           if (!decision.accepted) { rejected.push({ sourceUrl: candidate.url, referringPageUrl: fetched.finalUrl, reason: decision.reason ?? 'rejected' }); continue; }
           if (imageHashes.has(inspected.sha256)) { rejected.push({ sourceUrl: candidate.url, referringPageUrl: fetched.finalUrl, reason: 'duplicate content hash' }); continue; }
           imageHashes.add(inspected.sha256);
@@ -209,7 +224,9 @@ export class SourceCrawler {
     }
 
     await this.screenshots.close();
-    logger.info({ pages: pages.length, images: images.length, rejected: rejected.length }, 'Source crawl complete');
+    const palette = inferPalette(extractHexColors(cssChunks.join('\n')));
+    if (!palette) warnings.push('source palette could not be inferred from crawled CSS');
+    logger.info({ pages: pages.length, images: images.length, rejected: rejected.length, palette: Boolean(palette) }, 'Source crawl complete');
     return {
       schema: 'website-bot.source-site-manifest/v1',
       sourceUrl: this.opts.seedUrl,
@@ -219,7 +236,30 @@ export class SourceCrawler {
       images,
       rejected,
       warnings,
+      ...(palette ? { palette } : {}),
     };
+  }
+
+  private async collectStylesheets(
+    hrefs: readonly string[],
+    fetcher: HttpPageFetcher,
+    seen: Set<string>,
+    chunks: string[],
+    warnings: string[],
+  ): Promise<void> {
+    for (const href of hrefs.slice(0, 4)) {
+      if (seen.has(href)) continue;
+      seen.add(href);
+      try {
+        const fetched = await fetcher.fetch(href);
+        if (fetched.status >= 400) continue;
+        const type = fetched.contentType ?? '';
+        if (type && !/css|text\/plain/i.test(type)) continue;
+        chunks.push(fetched.body.toString('utf8'));
+      } catch (error) {
+        warnings.push(`stylesheet fetch failed ${href}: ${String(error)}`);
+      }
+    }
   }
 }
 

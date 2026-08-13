@@ -35,6 +35,35 @@ void test('routeSlugFromPlacement maps placements to routes', () => {
   assert.equal(routeSlugFromPlacement('global:logo'), undefined);
 });
 
+void test('planner assigns the real wordmark to the logo slot, not the OG card', () => {
+  const og = sourceImage('og-card', '/', 1200, 630);
+  og.sourceUrl = 'https://acme.example/og.png';
+  og.domContext = { tagName: 'img', cssClasses: [], isAboveFold: true, renderedWidth: 1200, renderedHeight: 630 };
+  const wordmark = sourceImage('wordmark', '/', 298, 144);
+  wordmark.sourceUrl = 'https://acme.example/images/logo.webp';
+  wordmark.byteLength = 7342;
+  const photoA = sourceImage('roof-a', '/services/roof-replacement/', 1600, 1000);
+  photoA.sourceUrl = 'https://acme.example/images/services/roof-replacement.jpg';
+  const photoB = sourceImage('roof-b', '/services/roof-repair/', 1600, 1000);
+  photoB.sourceUrl = 'https://acme.example/images/services/roof-repair.jpg';
+  const slots: ImageSlotSpec[] = [
+    { id: 'logo', placement: 'global:logo', required: true, preferredSources: ['source-site'] },
+    { id: 'home-hero', placement: '/:hero', required: true, aspectRatio: '16:9', preferredSources: ['source-site'] },
+    { id: 'svc-hero', placement: '/services/roof-replacement:hero', required: true, aspectRatio: '16:9', preferredSources: ['source-site'] },
+  ];
+  const plan = planImageAssets({
+    slots,
+    provided: [],
+    sourceCandidates: [og, wordmark, photoA, photoB],
+    generationEnabled: false,
+  });
+  const ids = plan.assets.map(asset => asset.resolution.source === 'source-site' ? asset.resolution.candidateId : undefined);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.equal(plan.assets[0].resolution.source === 'source-site' && plan.assets[0].resolution.candidateId, 'wordmark');
+  assert.notEqual(plan.assets[1].resolution.source === 'source-site' && plan.assets[1].resolution.candidateId, 'og-card');
+  assert.notEqual(plan.assets[1].resolution.source === 'source-site' && plan.assets[1].resolution.candidateId, 'wordmark');
+});
+
 void test('planner prefers a source candidate found on the slot’s own route', () => {
   const slot: ImageSlotSpec = { id: 'svc-hero', placement: '/services:hero', required: true, aspectRatio: '16:9', preferredSources: ['source-site'] };
   const homeHero = sourceImage('home-hero', '/', 1920, 1080);
