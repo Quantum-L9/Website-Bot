@@ -150,23 +150,17 @@ void test('two slots with identical H1 fail with CONTENT_VALIDATION_FAILED', asy
   assert.equal(generatedContent.size, 1);
 });
 
-void test('two slots with identical bodies fail with CONTENT_VALIDATION_FAILED', async () => {
+void test('two slots with identical bodies and unique H1s succeed', async () => {
+  const hero = section('First unique headline', 80);
+  const faq = section('Second unique headline', 80);
   const { ctx, generatedContent } = makeCtx({
     components: ['hero', 'faq'],
-    responses: [
-      section('First unique headline', 80),
-      section('Second unique headline', 80),
-      section('Third unique headline', 80),
-      section('Fourth unique headline', 80),
-    ],
+    responses: [hero, faq],
   });
-  await assert.rejects(
-    () => stage.run(ctx),
-    (error: unknown) => error instanceof BuildError
-      && error.code === 'CONTENT_VALIDATION_FAILED'
-      && /duplicate body/.test(error.message),
-  );
-  assert.equal(generatedContent.size, 1);
+  await stage.run(ctx);
+  assert.equal(generatedContent.size, 2);
+  assert.equal(generatedContent.get('/:hero'), hero);
+  assert.equal(generatedContent.get('/:faq'), faq);
 });
 
 void test('valid unique H1s and 80-word bodies succeed and the prompt requires a 12-word headline', async () => {

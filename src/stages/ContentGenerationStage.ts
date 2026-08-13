@@ -12,10 +12,18 @@ const MAX_RETRIES = 2;
 const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 const bannedClaim = (value: string) => BANNED_CLAIMS.find(claim => value.toLowerCase().includes(claim));
 
+function stripHeadlineMarkup(headline: string): string {
+  return headline
+    .replace(/^\*\*(.*)\*\*$/s, '$1')
+    .replace(/^__(.*)__$/s, '$1')
+    .replace(/^\*+|\*+$/g, '')
+    .trim();
+}
+
 function parseHeadlineAndBody(content: string): { headline: string; body: string } {
   const normalized = content.replace(/\r\n/g, '\n');
   const lines = normalized.split('\n');
-  const headline = (lines[0] ?? '').trim();
+  const headline = stripHeadlineMarkup((lines[0] ?? '').trim());
   let blankIndex = -1;
   for (let i = 1; i < lines.length; i += 1) {
     if (lines[i].trim() === '') {
@@ -39,13 +47,6 @@ function takenHeadlineBlock(headlines: readonly string[]): string {
   );
 }
 
-function takenBodyBlock(bodies: readonly string[]): string {
-  return formatTakenList(
-    'Already used body copy (do not repeat):',
-    bodies,
-  );
-}
-
 type SlotIssue = {
   message: string;
   correction: string;
@@ -55,9 +56,7 @@ function validateSlot(
   key: string,
   content: string,
   seenH1s: Set<string>,
-  seenBodies: Set<string>,
   takenHeadlines: readonly string[],
-  takenBodies: readonly string[],
 ): SlotIssue | undefined {
   const { headline, body } = parseHeadlineAndBody(content);
   const h1Words = countWords(headline);
@@ -104,16 +103,6 @@ function validateSlot(
       ].filter(Boolean).join('\n'),
     };
   }
-  const bodyKey = body.toLowerCase();
-  if (seenBodies.has(bodyKey)) {
-    return {
-      message: `${key}: duplicate body`,
-      correction: [
-        `The body collided with another section; write unique body copy.`,
-        takenBodyBlock(takenBodies),
-      ].filter(Boolean).join('\n'),
-    };
-  }
   return undefined;
 }
 
@@ -125,9 +114,7 @@ export class ContentGenerationStage implements Stage {
     if (ctx.dryRun) { logger.info({ routes: ctx.domainSpec.routes.length }, '[dry-run] Would generate route content'); return; }
     const { vertical, business_name, geography, routes } = ctx.domainSpec;
     const seenH1s = new Set<string>();
-    const seenBodies = new Set<string>();
     const takenHeadlines: string[] = [];
-    const takenBodies: string[] = [];
     for (const route of routes) {
       for (const component of route.components) {
         const key = `${route.slug}:${component}`;
@@ -140,16 +127,15 @@ export class ContentGenerationStage implements Stage {
             `Write the ${component} section for the "${route.title}" page of a ${vertical} business.`,
             `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
             `Business: ${business_name}. States served: ${geography.states.join(', ')}.`,
-            `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across sections).`,
+            `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across pages).`,
             `Then a blank line.`,
-            `Then the body: minimum ${MIN_WORDS} words, unique across sections.`,
+            `Then the body: minimum ${MIN_WORDS} words. Similar roofing copy across pages is acceptable.`,
             `Do not include guaranteed outcomes, win rates, or legal advice.`,
-            `Use active voice and second person. Output plain text only.`,
+            `Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.`,
             takenHeadlineBlock(takenHeadlines),
-            takenBodyBlock(takenBodies),
             correction,
           ].filter(Boolean).join('\n'));
-          const issue = validateSlot(key, content, seenH1s, seenBodies, takenHeadlines, takenBodies);
+          const issue = validateSlot(key, content, seenH1s, takenHeadlines);
           if (!issue) break;
           if (attempt === MAX_RETRIES) {
             throw new BuildError('CONTENT_VALIDATION_FAILED', issue.message);
@@ -161,11 +147,12 @@ export class ContentGenerationStage implements Stage {
           ].filter(Boolean).join('\n');
         }
         const { headline, body } = parseHeadlineAndBody(content);
+        if (seenH1s.has(headline.toLowerCase())) {
+          throw new BuildError('CONTENT_VALIDATION_FAILED', `${key}: duplicate H1 "${headline}"`);
+        }
         seenH1s.add(headline.toLowerCase());
-        seenBodies.add(body.toLowerCase());
         takenHeadlines.push(headline);
-        takenBodies.push(body);
-        ctx.generatedContent.set(key, content);
+        ctx.generatedContent.set(key, `${headline}\n\n${body}`);
       }
     }
     logger.info({ sections: ctx.generatedContent.size }, 'Content generation complete');
