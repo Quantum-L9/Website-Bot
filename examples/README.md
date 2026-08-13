@@ -29,7 +29,6 @@ No factory code changes are required to add a client — only a new instance fol
 
 ## Known follow-up (feature work, not client de-hardcoding)
 
-`astro_site/` is a hand-authored client site; the pipeline does **not** yet
-materialize an Astro project from generated content. Turning it into a generic
-`astro_template/` that the pipeline populates and writes to a per-`client_id`
-output directory is tracked in the repo `TODO.md`.
+`astro_site/` is a hand-authored reference snapshot; the factory path is
+`generate-spec` (or normalize a source spec) then the pipeline, which materializes
+an Astro project from `astro_template/` into a per-`client_id` output directory.

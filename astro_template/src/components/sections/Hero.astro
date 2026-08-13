@@ -3,19 +3,21 @@
 import { siteConfig } from '../../lib/siteConfig';
 interface Props { name?: string; content: string; }
 const { name = 'hero', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+const firstNewline = content.indexOf('\n');
+const headline = (firstNewline === -1 ? content : content.slice(0, firstNewline)).trim() || 'Welcome';
+const rest = firstNewline === -1 ? '' : content.slice(firstNewline + 1);
+const paragraphs = rest.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
 const images: Record<string, { src: string; alt: string; width: number; height: number }> = siteConfig.images ?? {};
 const path = Astro.url.pathname !== '/' ? Astro.url.pathname.replace(/\/$/, '') : '/';
 const logo = images['global:logo'];
 const rawHero = images[`${path}:hero`];
 const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawHero;
-const heading = (paragraphs[0] ?? 'Welcome').replace(/\*\*/g, '');
 ---
 <section class="hero" data-section={name}>
   <div class="hero__content">
     <p class="eyebrow">{siteConfig.businessName}</p>
-    <h1>{heading}</h1>
-    {paragraphs.slice(1).map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
+    <h1>{headline.replace(/\*\*/g, '')}</h1>
+    {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
   </div>
   {heroImage && (
     <img

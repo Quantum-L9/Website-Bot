@@ -10,6 +10,7 @@
 //   npx tsx scripts/generate-spec.ts <url> --client-id=<id>
 //   npx tsx scripts/generate-spec.ts <url> --with-assets
 //   npx tsx scripts/generate-spec.ts <url> --site-url=<showable-url>
+//   npx tsx scripts/generate-spec.ts <url> --write-invalid
 //
 // Output: a flat DomainSpec YAML written to --out (default: build/specs/<client_id>.yaml)
 // The output is validated through validateDomainSpec before writing.
@@ -30,7 +31,7 @@ const args = process.argv.slice(2);
 const positional = args.filter(a => !a.startsWith('--'));
 const targetUrl = positional[0];
 if (!targetUrl) {
-  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--site-url=<url>]');
+  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--site-url=<url>] [--write-invalid]');
   process.exit(1);
 }
 
@@ -41,6 +42,7 @@ function valueOf(name: string): string | undefined {
 }
 
 const withAssets = args.includes('--with-assets');
+const writeInvalid = args.includes('--write-invalid');
 const explicitClientId = valueOf('client-id');
 const explicitOut = valueOf('out');
 const explicitSiteUrl = valueOf('site-url');
@@ -189,23 +191,33 @@ if (withAssets) {
   overlayCrawlIdentity(parsed, identity);
 }
 
+function writeSpec(spec: unknown): void {
+  mkdirSync(dirname(outPath), { recursive: true });
+  const header = `# L9_META: layer=configuration, role=generated_spec, status=generated, version=1.0.0\n# Generated from ${targetUrl} on ${new Date().toISOString()}\n# Review and correct before feeding to the pipeline.\n`;
+  writeFileSync(outPath, header + stringify(spec), 'utf-8');
+}
+
 overlayCrawlIdentity(parsed, identity);
 
-// Validate through the pipeline's own validator
+// Validate through the pipeline's own validator — fail-closed (do not write --out).
 let validated: DomainSpec;
 try {
   validated = validateDomainSpec(parsed, 'generate-spec output');
 } catch (error) {
-  console.error(`[generate-spec] WARNING: Generated spec failed validation: ${error instanceof Error ? error.message : String(error)}`);
-  console.error('[generate-spec] Writing raw output anyway for manual correction.');
-  validated = parsed as unknown as DomainSpec;
+  console.error(`[generate-spec] ERROR: Generated spec failed validation: ${error instanceof Error ? error.message : String(error)}`);
+  if (writeInvalid) {
+    console.error('[generate-spec] --write-invalid set: writing raw output for manual correction.');
+    writeSpec(parsed);
+    console.error(`[generate-spec] Wrote invalid spec to ${outPath}`);
+  } else {
+    console.error('[generate-spec] Refusing to write invalid spec. Pass --write-invalid to dump raw YAML for manual correction.');
+  }
+  process.exit(1);
 }
 
 // ── Write output ──
 
-mkdirSync(dirname(outPath), { recursive: true });
-const header = `# L9_META: layer=configuration, role=generated_spec, status=generated, version=1.0.0\n# Generated from ${targetUrl} on ${new Date().toISOString()}\n# Review and correct before feeding to the pipeline.\n`;
-writeFileSync(outPath, header + stringify(validated), 'utf-8');
+writeSpec(validated);
 
 console.log(`[generate-spec] Wrote ${outPath}`);
 console.log(`[generate-spec] Next: review the spec, then run:`);
