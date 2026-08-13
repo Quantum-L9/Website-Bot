@@ -1,4 +1,4 @@
-<!-- L9_META: layer=template, role=hero_section, status=active, version=1.1.0 -->
+<!-- L9_META: layer=template, role=hero_section, status=active, version=1.2.0 -->
 ---
 import { siteConfig } from '../../lib/siteConfig';
 interface Props { name?: string; content: string; }
@@ -8,15 +8,16 @@ const headline = (firstNewline === -1 ? content : content.slice(0, firstNewline)
 const rest = firstNewline === -1 ? '' : content.slice(firstNewline + 1);
 const paragraphs = rest.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
 const images: Record<string, { src: string; alt: string; width: number; height: number }> = siteConfig.images ?? {};
-// Placement key convention: "<routeSlug>:hero" (home is "/"). Match the current
-// page's route so the same Hero component resolves the right image per route.
 const path = Astro.url.pathname !== '/' ? Astro.url.pathname.replace(/\/$/, '') : '/';
-const heroImage = images[`${path}:hero`];
+const logo = images['global:logo'];
+const rawHero = images[`${path}:hero`];
+const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawHero;
 ---
 <section class="hero" data-section={name}>
   <div class="hero__content">
-    <h1>{headline}</h1>
-    {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+    <p class="eyebrow">{siteConfig.businessName}</p>
+    <h1>{headline.replace(/\*\*/g, '')}</h1>
+    {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
   </div>
   {heroImage && (
     <img

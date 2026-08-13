@@ -1,16 +1,22 @@
-// L9_META: layer=stage, role=content_generation, stage_index=4, status=active, version=2.1.0
+// L9_META: layer=stage, role=content_generation, stage_index=4, status=active, version=2.3.0
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import type { BuildContext } from '../pipeline/BuildContext.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
+import { stripMarkdownDecorators } from '../services/content/plainText.js';
+import { assembleSourceSection, matchSourcePage } from '../services/content/sourceCopy.js';
 
 const logger = createModuleLogger('stage:content-generation');
 const MIN_WORDS = 80;
+const SHORT_SECTION_MIN_WORDS = 8;
+const SHORT_SECTIONS = /^(gallery|cta|final_cta|contact_form|trust_bar|trust_signals)$/;
 const MAX_H1_WORDS = 12;
 const BANNED_CLAIMS = ['guaranteed', 'we guarantee', '100% success', 'always win'];
 const MAX_RETRIES = 2;
 const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 const bannedClaim = (value: string) => BANNED_CLAIMS.find(claim => value.toLowerCase().includes(claim));
+const sectionKey = (component: string) => component.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+const minWordsFor = (component: string) => SHORT_SECTIONS.test(sectionKey(component)) ? SHORT_SECTION_MIN_WORDS : MIN_WORDS;
 
 function stripHeadlineMarkup(headline: string): string {
   return headline
@@ -57,6 +63,7 @@ function validateSlot(
   content: string,
   seenH1s: Set<string>,
   takenHeadlines: readonly string[],
+  minWords: number,
 ): SlotIssue | undefined {
   const { headline, body } = parseHeadlineAndBody(content);
   const h1Words = countWords(headline);
@@ -78,13 +85,13 @@ function validateSlot(
   if (!body) {
     return {
       message: `${key}: missing body after headline`,
-      correction: `The body after the headline was missing; add a blank line, then at least ${MIN_WORDS} words.`,
+      correction: `The body after the headline was missing; add a blank line, then at least ${minWords} words.`,
     };
   }
-  if (bodyWords < MIN_WORDS) {
+  if (bodyWords < minWords) {
     return {
-      message: `${key}: generated content has ${bodyWords} words, minimum ${MIN_WORDS}`,
-      correction: `It contained ${bodyWords} words; provide at least ${MIN_WORDS}.`,
+      message: `${key}: generated content has ${bodyWords} words, minimum ${minWords}`,
+      correction: `It contained ${bodyWords} words; provide at least ${minWords}.`,
     };
   }
   if (banned) {
@@ -108,34 +115,66 @@ function validateSlot(
 
 export class ContentGenerationStage implements Stage {
   name = 'content-generation';
-  version = '2.1.0';
+  version = '2.3.0';
 
   async run(ctx: BuildContext): Promise<void> {
     if (ctx.dryRun) { logger.info({ routes: ctx.domainSpec.routes.length }, '[dry-run] Would generate route content'); return; }
+    const sourceEnabled = ctx.domainSpec.assets?.sourceSite?.enabled === true;
+    const hasPages = Boolean(ctx.sourceSiteManifest?.pages.length);
+    if (sourceEnabled && !hasPages) {
+      throw new BuildError(
+        'CONTENT_VALIDATION_FAILED',
+        'Source-site reconstruction requires crawled pages. Refusing to invent copy.',
+      );
+    }
+    const reconstructing = hasPages;
     const { vertical, business_name, geography, routes } = ctx.domainSpec;
+    const phone = ctx.domainSpec.seo_contract?.phone?.trim();
     const seenH1s = new Set<string>();
     const takenHeadlines: string[] = [];
     for (const route of routes) {
       for (const component of route.components) {
         const key = `${route.slug}:${component}`;
+        if (reconstructing) {
+          const page = matchSourcePage(ctx.sourceSiteManifest, route.slug);
+          if (!page) {
+            throw new BuildError(
+              'CONTENT_VALIDATION_FAILED',
+              `${key}: source-site reconstruction is on but no crawled page matched ${route.slug}`,
+            );
+          }
+          ctx.generatedContent.set(key, assembleSourceSection(page, component));
+          continue;
+        }
         let content = '';
-        // On retry, feed back the concrete validation failure so a real model gets
-        // corrective signal instead of receiving the identical prompt twice.
+        const minWords = minWordsFor(component);
+        const keyName = sectionKey(component);
+        const ctaHint = /^(contact_form|cta|final_cta)$/.test(keyName)
+          ? 'First line must be a concrete offer headline. For roofing and home services use exactly: Free Roof Inspection Within 24 Hours. Never write "Tell us about the job", "Take the next step", or similar uninviting filler.'
+          : '';
         let correction = '';
         for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
           content = await ctx.llm.generateContent([
             `Write the ${component} section for the "${route.title}" page of a ${vertical} business.`,
             `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
             `Business: ${business_name}. States served: ${geography.states.join(', ')}.`,
+            phone
+              ? `Known phone: ${phone}. Use this number when a phone is needed. Never invent a number and never write bracketed placeholders such as [phone number].`
+              : 'No phone is on file. Omit phone numbers. Never write bracketed placeholders such as [phone number].',
             `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across pages).`,
             `Then a blank line.`,
-            `Then the body: minimum ${MIN_WORDS} words. Similar roofing copy across pages is acceptable.`,
+            `Then the body: minimum ${minWords} words. Similar roofing copy across pages is acceptable.`,
             `Do not include guaranteed outcomes, win rates, or legal advice.`,
-            `Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.`,
+            'Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.',
+            ctaHint,
             takenHeadlineBlock(takenHeadlines),
             correction,
           ].filter(Boolean).join('\n'));
-          const issue = validateSlot(key, content, seenH1s, takenHeadlines);
+          if (phone) {
+            content = content.replace(/\[(?:your |insert |add |enter )?phone(?: number)?\]/gi, phone);
+          }
+          content = stripMarkdownDecorators(content);
+          const issue = validateSlot(key, content, seenH1s, takenHeadlines, minWords);
           if (!issue) break;
           if (attempt === MAX_RETRIES) {
             throw new BuildError('CONTENT_VALIDATION_FAILED', issue.message);

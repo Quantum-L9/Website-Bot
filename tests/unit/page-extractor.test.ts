@@ -7,10 +7,18 @@ const HTML = `<!doctype html><html><head>
   <title>Acme Roofing — Home</title>
   <meta name="description" content="Trusted local roofers">
   <link rel="canonical" href="https://acme.example/">
+  <link rel="stylesheet" href="/_astro/Base.css">
   <meta property="og:image" content="/social/card.jpg">
   <script type="application/ld+json">{"@type":"Organization","image":"https://acme.example/logo.png"}</script>
 </head><body>
   <h1>Roofing done right</h1>
+  <header>
+    <a href="/services">Services</a>
+    <a href="/gallery">Gallery</a>
+    <a href="/about">About</a>
+    <a href="/services/roof-repair">Roof Repair</a>
+    <a href="tel:+17046487252">(704) 648-7252</a>
+  </header>
   <picture><source srcset="/img/hero-800.webp 800w, /img/hero-1600.webp 1600w"></picture>
   <img src="/img/hero.jpg" srcset="/img/hero-2x.jpg 2x" alt="Roof crew" class="hero above">
   <div style="background-image: url('/img/bg.png')"></div>
@@ -26,6 +34,7 @@ void test('extracts page metadata and headings', () => {
   assert.equal(page.title, 'Acme Roofing — Home');
   assert.equal(page.description, 'Trusted local roofers');
   assert.equal(page.canonicalUrl, 'https://acme.example/');
+  assert.ok(page.stylesheets.includes('https://acme.example/_astro/Base.css'));
   assert.deepEqual(page.headings, ['Roofing done right', 'Services']);
 });
 
@@ -51,4 +60,12 @@ void test('captures placement context and resolves only same-doc links', () => {
   assert.ok(page.links.includes('https://acme.example/services'));
   assert.ok(page.links.includes('https://external.test/x'));
   assert.ok(!page.links.some(link => link.includes('#top')));
+});
+
+void test('extracts display phones and compact header nav from the live HTML', () => {
+  const page = extractPage(HTML, 'https://acme.example/');
+  assert.deepEqual(page.phones, ['(704) 648-7252']);
+  assert.ok(page.nav.some(item => item.href === '/gallery' && item.label === 'Gallery'));
+  assert.ok(page.nav.some(item => item.href === '/services/roof-repair'));
+  assert.ok((page.bodyText?.length ?? 0) > 20);
 });

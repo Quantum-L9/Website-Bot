@@ -1,10 +1,15 @@
-<!-- L9_META: layer=template, role=cta_section, status=active, version=1.0.0 -->
+<!-- L9_META: layer=template, role=cta_section, status=active, version=1.2.0 -->
 ---
+import { siteConfig } from '../../lib/siteConfig';
 interface Props { name?: string; content: string; }
 const { name = 'cta', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
+const heading = paragraphs[0] || 'Request Your Free Inspection';
+const phone = siteConfig.phone;
+const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
 ---
 <section class="cta-banner" data-section={name}>
-  <h2>Take the next step</h2>
-  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+  <h2>{heading}</h2>
+  {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+  {telHref && <a class="btn" href={telHref}>{phone}</a>}
 </section>

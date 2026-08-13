@@ -26,6 +26,14 @@ npm run evidence:repair-index -- --client-id=<client> --build-id=<build> --mode=
 npm run evidence:resume -- --client-id=<client> --build-id=<build> --mode=<mode> --from=auto --spec=<spec>
 ```
 
+## Spec from a live site
+
+```bash
+npx tsx scripts/generate-spec.ts <url> --with-assets --out=<spec.yaml> --site-url=<showable-url>
+```
+
+When the crawl returns pages, routes, phone, palette, and `seo_contract.site_url` come from the crawl (or `--site-url`). LLM may fill only vertical, geography, and keywords.
+
 ## Canonical root
 
 `build/evidence/<clientId>/<buildId>/`

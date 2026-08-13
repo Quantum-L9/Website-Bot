@@ -54,6 +54,44 @@ export class DesignIntelligenceStage implements Stage {
   name = 'design-intelligence';
 
   async run(ctx: BuildContext): Promise<void> {
+    const sourcePalette = ctx.sourceSiteManifest?.palette;
+    if (sourcePalette?.primary && sourcePalette?.background) {
+      const fonts = ctx.domainSpec.design?.fonts ?? {};
+      ctx.designTokens = normalizeDesignTokens(
+        {
+          primary: sourcePalette.primary,
+          secondary: sourcePalette.secondary,
+          accent: sourcePalette.accent ?? sourcePalette.primary,
+          background: sourcePalette.background,
+          text: sourcePalette.text,
+        },
+        { heading: fonts.heading ?? fonts.font_heading ?? 'Inter', body: fonts.body ?? fonts.font_body ?? 'Inter' },
+      );
+      ctx.domainSpec.design = {
+        status: 'resolved',
+        palette: {
+          primary: ctx.designTokens.primary,
+          secondary: ctx.designTokens.secondary,
+          accent: ctx.designTokens.accent,
+          background: ctx.designTokens.background,
+          text: ctx.designTokens.text,
+        },
+        fonts: {
+          font_heading: ctx.designTokens.font_heading,
+          font_body: ctx.designTokens.font_body,
+        },
+      };
+      logger.info({ tokens: Object.keys(ctx.designTokens), source: 'source-site-css' }, 'Design tokens preserved from source-site palette');
+      return;
+    }
+
+    if (ctx.domainSpec.assets?.sourceSite?.enabled === true) {
+      throw new BuildError(
+        'DESIGN_REASONING_FAILED',
+        'Source-site reconstruction requires a crawled CSS palette. Refusing to invent brand colors.',
+      );
+    }
+
     if (ctx.domainSpec.design?.status === 'resolved') {
       ctx.designTokens = normalizeDesignTokens(
         ctx.domainSpec.design.palette ?? {},
@@ -73,6 +111,8 @@ export class DesignIntelligenceStage implements Stage {
       `Generate CSS brand tokens for a ${vertical} business named "${business_name}" operating in ${geography.primary_state}.`,
       'Return ONLY a JSON object with primary, secondary, accent, background, text, font_heading, and font_body.',
       'Colors must be CSS hex/rgb/hsl/named values. Fonts must be plain font-family names.',
+      'If reconstructing an existing website, preserve its palette. Do not invent sage, beige, forest-green, or grey marketing palettes.',
+      'Dark sites stay dark (near-black background, light text). Blue accents stay blue.',
     ].join(' ');
 
     let raw: string;
@@ -87,6 +127,20 @@ export class DesignIntelligenceStage implements Stage {
     }
 
     ctx.designTokens = normalizeDesignTokens(parsed as Record<string, string>);
+    ctx.domainSpec.design = {
+      status: 'resolved',
+      palette: {
+        ...(ctx.designTokens.primary ? { primary: ctx.designTokens.primary } : {}),
+        ...(ctx.designTokens.secondary ? { secondary: ctx.designTokens.secondary } : {}),
+        ...(ctx.designTokens.accent ? { accent: ctx.designTokens.accent } : {}),
+        ...(ctx.designTokens.background ? { background: ctx.designTokens.background } : {}),
+        ...(ctx.designTokens.text ? { text: ctx.designTokens.text } : {}),
+      },
+      fonts: {
+        font_heading: ctx.designTokens.font_heading,
+        font_body: ctx.designTokens.font_body,
+      },
+    };
     logger.info({ tokens: Object.keys(ctx.designTokens) }, 'Design tokens retained in BuildContext');
   }
 }

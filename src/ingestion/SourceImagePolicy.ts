@@ -32,8 +32,18 @@ export interface PolicyDecision {
   reason?: string;
 }
 
+export function looksLikeLogoAsset(sourceUrl?: string, altText?: string): boolean {
+  return /logo|favicon|apple-touch|icon/i.test(`${sourceUrl ?? ''} ${altText ?? ''}`);
+}
+
+const LOGO_MIN_EDGE = 48;
+
 /** Apply the accept/reject policy to an inspected image. */
-export function evaluateSourceImage(inspected: InspectedImage, policy: SourceImagePolicy = DEFAULT_SOURCE_IMAGE_POLICY): PolicyDecision {
+export function evaluateSourceImage(
+  inspected: InspectedImage,
+  policy: SourceImagePolicy = DEFAULT_SOURCE_IMAGE_POLICY,
+  context: { sourceUrl?: string; altText?: string } = {},
+): PolicyDecision {
   if (!policy.acceptedMimeTypes.includes(inspected.mimeType)) {
     return { accepted: false, reason: `unsupported mime type ${inspected.mimeType}` };
   }
@@ -42,7 +52,10 @@ export function evaluateSourceImage(inspected: InspectedImage, policy: SourceIma
   }
   // Scalable vectors carry no intrinsic pixel size (width/height 0) — accepted.
   if (inspected.mimeType !== 'image/svg+xml') {
-    if (inspected.width < policy.minWidth || inspected.height < policy.minHeight) {
+    const logoLike = looksLikeLogoAsset(context.sourceUrl, context.altText);
+    const minWidth = logoLike ? LOGO_MIN_EDGE : policy.minWidth;
+    const minHeight = logoLike ? LOGO_MIN_EDGE : policy.minHeight;
+    if (inspected.width < minWidth || inspected.height < minHeight) {
       return { accepted: false, reason: `below minimum dimensions (${inspected.width}x${inspected.height})` };
     }
     if (inspected.width > 0 && inspected.height > 0) {

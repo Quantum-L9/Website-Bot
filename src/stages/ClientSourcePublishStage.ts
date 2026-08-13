@@ -24,7 +24,7 @@ const logger = createModuleLogger('stage:client-source-publish');
 const API = 'https://api.github.com';
 const MANIFEST_PATH = '.l9/generated-manifest.json';
 const MAX_FILES = 5_000;
-const MAX_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;

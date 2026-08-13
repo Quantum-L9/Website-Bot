@@ -133,6 +133,8 @@ export interface SiteConfig {
   phone?: string;
   /** Resolved images keyed by placement (e.g. "global:logo", "/:hero"). */
   images?: Record<string, SiteImageEntry>;
+  /** Extra source-site photos (gallery/work) not assigned to a slot. */
+  galleryImages?: SiteImageEntry[];
 }
 
 export interface QualityEvidence {
@@ -197,4 +199,11 @@ export function makeBuildId(clientId: string): string {
 /** Per-build on-disk root for staged images/manifests. Scoped by buildId so concurrent builds (and parallel tests) cannot clobber each other. */
 export function clientAssetRoot(ctx: Pick<BuildContext, 'clientId' | 'buildId'>): string {
   return resolve('build', 'assets', ctx.clientId, ctx.buildId);
+}
+
+/** Client-scoped cache that survives new buildIds. Generated images and crawled
+ *  source-site downloads live here so a 10-run test loop reuses media instead of
+ *  regenerating. Concurrent builds of the same client share this directory. */
+export function clientPersistentAssetRoot(ctx: Pick<BuildContext, 'clientId'>): string {
+  return resolve('build', 'assets', ctx.clientId, '_cache');
 }

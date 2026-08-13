@@ -10,6 +10,7 @@ import ComplianceNote from './sections/ComplianceNote.astro';
 import Faq from './sections/Faq.astro';
 import Confirmation from './sections/Confirmation.astro';
 import ProseSection from './sections/ProseSection.astro';
+import Gallery from './sections/Gallery.astro';
 import LeadForm from './LeadForm.astro';
 interface Props { name: string; content: string; }
 const { name, content } = Astro.props;
@@ -17,7 +18,7 @@ const registry: Record<string, any> = {
   hero: Hero, trust_bar: TrustBar, process: Process, audience_paths: AudiencePaths,
   service_area: ServiceArea, cta: CtaBanner, final_cta: CtaBanner,
   compliance_note: ComplianceNote, disclaimer: ComplianceNote, faq: Faq,
-  confirmation: Confirmation, contact_form: LeadForm,
+  confirmation: Confirmation, contact_form: LeadForm, gallery: Gallery,
 };
 const Component = registry[name] ?? ProseSection;
 ---

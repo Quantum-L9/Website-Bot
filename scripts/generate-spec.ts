@@ -1,16 +1,16 @@
-// L9_META: layer=cli, role=spec_generator, status=active, version=1.0.0
+// L9_META: layer=cli, role=spec_generator, status=active, version=1.1.0
 //
-// Pre-pipeline tool: given a target URL, crawl the site, extract structure and
-// content, then use the LLM Router (STRATEGIC_REASONING) to synthesize a flat
-// DomainSpec YAML the pipeline can consume directly. This closes the gap between
-// "I have a URL" and "I have a spec to feed the factory."
+// Pre-pipeline tool: crawl a live site, build DomainSpec identity from the
+// crawl (routes, phone, palette, site_url), then optionally fill vertical /
+// geography / keywords via LLM. Crawled identity always wins.
 //
 // Usage:
 //   npx tsx scripts/generate-spec.ts <url>
 //   npx tsx scripts/generate-spec.ts <url> --out=<path>
 //   npx tsx scripts/generate-spec.ts <url> --client-id=<id>
-//   npx tsx scripts/generate-spec.ts <url> --with-assets   # include image slots + sourceSite block
-//   npx tsx scripts/generate-spec.ts <url> --write-invalid # write raw YAML on validation failure (still exits 1)
+//   npx tsx scripts/generate-spec.ts <url> --with-assets
+//   npx tsx scripts/generate-spec.ts <url> --site-url=<showable-url>
+//   npx tsx scripts/generate-spec.ts <url> --write-invalid
 //
 // Output: a flat DomainSpec YAML written to --out (default: build/specs/<client_id>.yaml)
 // The output is validated through validateDomainSpec before writing.
@@ -23,7 +23,7 @@ import { createWebsiteFactoryLLM } from '../src/services/llm.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { extractJson } from '../src/services/extractJson.js';
 import type { DomainSpec } from '../src/pipeline/BuildContext.js';
-import type { IngestedPage } from '../src/pipeline/evidence/SourceSiteManifest.js';
+import { buildCrawlIdentity, overlayCrawlIdentity } from '../src/services/spec/crawlIdentity.js';
 
 // ── CLI argument parsing ──
 
@@ -31,7 +31,7 @@ const args = process.argv.slice(2);
 const positional = args.filter(a => !a.startsWith('--'));
 const targetUrl = positional[0];
 if (!targetUrl) {
-  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--write-invalid]');
+  console.error('Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--site-url=<url>] [--write-invalid]');
   process.exit(1);
 }
 
@@ -45,6 +45,7 @@ const withAssets = args.includes('--with-assets');
 const writeInvalid = args.includes('--write-invalid');
 const explicitClientId = valueOf('client-id');
 const explicitOut = valueOf('out');
+const explicitSiteUrl = valueOf('site-url');
 
 // ── Derive client_id from URL if not provided ──
 
@@ -71,7 +72,7 @@ console.log(`[generate-spec] Crawling ${targetUrl} ...`);
 
 const crawlOptions: CrawlOptions = {
   seedUrl: targetUrl,
-  maxPages: 10,
+  maxPages: 40,
   maxDepth: 2,
   downloadImages: false,
   captureScreenshots: false,
@@ -87,84 +88,55 @@ if (manifest.pages.length === 0) {
 
 console.log(`[generate-spec] Crawled ${manifest.pages.length} pages, ${manifest.images.length} image candidates`);
 
-// ── Compile crawl context for LLM ──
+const identity = buildCrawlIdentity(manifest, {
+  clientId,
+  targetUrl,
+  siteUrl: explicitSiteUrl,
+});
+console.log(`[generate-spec] CODE identity: ${identity.routes.length} crawled routes, phone=${identity.seo_contract.phone ?? 'none'}, palette=${identity.design.status}`);
 
-function summarizePage(page: IngestedPage): string {
-  const parts = [`URL: ${page.url}`];
-  if (page.title) parts.push(`Title: ${page.title}`);
-  if (page.description) parts.push(`Description: ${page.description}`);
-  if (page.headings.length) parts.push(`Headings: ${page.headings.slice(0, 8).join(' | ')}`);
-  if (page.textExcerpt) parts.push(`Excerpt: ${page.textExcerpt.slice(0, 300)}`);
-  return parts.join('\n');
-}
-
-const siteContext = manifest.pages.map(summarizePage).join('\n---\n');
-
-// ── LLM call: synthesize DomainSpec ──
-
-console.log(`[generate-spec] Synthesizing DomainSpec via LLM ...`);
+console.log(`[generate-spec] Filling vertical/keywords via LLM (identity stays CODE) ...`);
 
 const llm = createWebsiteFactoryLLM(clientId);
+const fillPrompt = `Given crawled headings from an existing website, return ONLY JSON:
+{"vertical":"lowercase_snake_industry","geography":{"states":["XX"],"primary_state":"XX"},"target_keywords":["k1","k2"]}
+Use 2-letter US state codes. Do not invent phone, palette, routes, or site_url.
+Headings: ${manifest.pages.flatMap(page => page.headings.slice(0, 3)).slice(0, 24).join(' | ')}`;
 
-const systemPrompt = `You are an expert website analyst and L9 DomainSpec author. Given crawled page data from an existing website, produce a valid flat DomainSpec as a JSON object.
-
-The DomainSpec MUST have this exact shape:
-{
-  "client_id": "<slug>",
-  "business_name": "<name>",
-  "vertical": "<industry_slug>",
-  "geography": { "states": ["XX"], "primary_state": "XX" },
-  "design": { "status": "pending" },
-  "routes": [{ "slug": "/", "title": "Home", "components": ["hero", "trust-signals", "services-overview", "faq", "contact-form"] }, ...],
-  "seo_contract": { "site_url": "<url>", "target_keywords": [...], "lead_form_action": "<https-url>" }
-}
-
-Rules:
-- client_id must be a lowercase slug (letters, numbers, underscores only).
-- vertical must be a lowercase_snake_case industry descriptor.
-- geography.states: use 2-letter US state codes. Infer from content.
-- routes: derive from the crawled pages. Every route needs a slug, title, and components array.
-- components: use these registered names: hero, trust-signals, trust_bar, services-overview, service-detail, service-list, process, audience_paths, service_area, cta, final_cta, compliance_note, disclaimer, faq, confirmation, contact-form, contact_form.
-- seo_contract.site_url: the canonical URL of the site.
-- seo_contract.target_keywords: 3-8 SEO keywords inferred from the content.
-- seo_contract.lead_form_action: absolute HTTPS URL for the contact form POST. Required when any route uses contact_form.
-- Do NOT invent phone numbers, emails, addresses, or license numbers.
-- Output ONLY the JSON object. No markdown fences, no prose.`;
-
-const userPrompt = `Analyze this crawled site data and produce the flat DomainSpec JSON.
-
-Target URL: ${targetUrl}
-Client ID: ${clientId}
-
-Crawled pages:
-${siteContext}`;
-
-const rawResponse = await llm.designReasoning(
-  `${systemPrompt}\n\n${userPrompt}`,
-);
-
-// ── Parse and validate ──
-
-let parsed: unknown;
+let fill: { vertical: string; geography: { states: string[]; primary_state: string }; target_keywords?: string[] } = {
+  vertical: 'local_services',
+  geography: { states: ['US'], primary_state: 'US' },
+};
 try {
-  parsed = extractJson(rawResponse);
-} catch {
+  const rawResponse = await llm.designReasoning(fillPrompt);
+  let parsedFill: unknown;
   try {
-    parsed = JSON.parse(rawResponse);
+    parsedFill = extractJson(rawResponse);
   } catch {
-    console.error('[generate-spec] FATAL: LLM returned unparseable response');
-    console.error(rawResponse.slice(0, 500));
-    process.exit(1);
+    parsedFill = JSON.parse(rawResponse);
   }
+  if (parsedFill && typeof parsedFill === 'object' && !Array.isArray(parsedFill)) {
+    const row = parsedFill as Record<string, unknown>;
+    if (typeof row.vertical === 'string' && row.vertical.trim()) fill.vertical = row.vertical.trim();
+    if (row.geography && typeof row.geography === 'object' && !Array.isArray(row.geography)) {
+      const geo = row.geography as Record<string, unknown>;
+      if (Array.isArray(geo.states) && geo.states.every(state => typeof state === 'string') && typeof geo.primary_state === 'string') {
+        fill.geography = { states: geo.states as string[], primary_state: geo.primary_state };
+      }
+    }
+    if (Array.isArray(row.target_keywords) && row.target_keywords.every(keyword => typeof keyword === 'string' && keyword.trim())) {
+      fill.target_keywords = row.target_keywords as string[];
+    }
+  }
+} catch (error) {
+  console.warn(`[generate-spec] LLM fill skipped (${error instanceof Error ? error.message : String(error)}); using CODE defaults`);
 }
 
-if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-  console.error('[generate-spec] FATAL: LLM response is not a JSON object');
-  process.exit(1);
-}
-
-// Ensure client_id matches
-(parsed as Record<string, unknown>).client_id = clientId;
+const parsed: Record<string, unknown> = overlayCrawlIdentity({
+  vertical: fill.vertical,
+  geography: fill.geography,
+  seo_contract: fill.target_keywords ? { target_keywords: fill.target_keywords } : {},
+}, identity);
 
 // Inject assets block when requested
 if (withAssets) {
@@ -193,7 +165,7 @@ if (withAssets) {
     sourceSite: {
       url: targetUrl,
       enabled: true,
-      maxPages: 15,
+      maxPages: 40,
       maxDepth: 2,
       downloadImages: true,
       captureScreenshots: false,
@@ -206,6 +178,17 @@ if (withAssets) {
       promptCompiler: 'default',
     },
   };
+
+  const routes = parsed.routes as Array<{ slug: string; components?: string[] }> | undefined;
+  const home = routes?.find(route => route.slug === '/');
+  if (home) {
+    home.components ??= [];
+    if (!home.components.some(name => name.replace(/-/g, '_') === 'gallery')) {
+      const heroIndex = home.components.findIndex(name => name.replace(/-/g, '_') === 'hero');
+      home.components.splice(heroIndex >= 0 ? heroIndex + 1 : 0, 0, 'gallery');
+    }
+  }
+  overlayCrawlIdentity(parsed, identity);
 }
 
 function writeSpec(spec: unknown): void {
@@ -213,6 +196,8 @@ function writeSpec(spec: unknown): void {
   const header = `# L9_META: layer=configuration, role=generated_spec, status=generated, version=1.0.0\n# Generated from ${targetUrl} on ${new Date().toISOString()}\n# Review and correct before feeding to the pipeline.\n`;
   writeFileSync(outPath, header + stringify(spec), 'utf-8');
 }
+
+overlayCrawlIdentity(parsed, identity);
 
 // Validate through the pipeline's own validator — fail-closed (do not write --out).
 let validated: DomainSpec;

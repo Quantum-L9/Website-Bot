@@ -78,6 +78,19 @@ const ctx: BuildContext = {
   startedAt: new Date(),
 };
 
+if (bootstrapSpec.deploy?.github_repo) {
+  ctx.deployTarget = {
+    githubRepo: bootstrapSpec.deploy.github_repo,
+    githubRepoId: bootstrapSpec.deploy.github_repo_id,
+    sourceBranch: bootstrapSpec.deploy.source_branch ?? 'main',
+    publishCredentialRef: bootstrapSpec.deploy.publish_credential_ref ?? 'env://GITHUB_SITE_TOKEN',
+    vercelProjectId: bootstrapSpec.deploy.vercel_project_id,
+    vercelDeployHook: bootstrapSpec.deploy.vercel_deploy_hook,
+    seoBotGithubCredentialRef: bootstrapSpec.deploy.seo_bot_github_credential_ref ?? 'env://SEO_BOT_SITE_GITHUB_TOKEN',
+    seoBotVercelDeployHookRef: bootstrapSpec.deploy.seo_bot_vercel_deploy_hook_ref,
+  };
+}
+
 const shouldProvision = provisionRequested || (
   (mode === 'publish-proof' || mode === 'end-to-end')
   && !bootstrapSpec.deploy

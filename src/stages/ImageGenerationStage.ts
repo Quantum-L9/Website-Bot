@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
-import { clientAssetRoot, type AssetSpec, type BuildContext, type ImageSlotSpec } from '../pipeline/BuildContext.js';
+import { clientAssetRoot, clientPersistentAssetRoot, type AssetSpec, type BuildContext, type ImageSlotSpec } from '../pipeline/BuildContext.js';
 import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
 import type { Stage } from '../pipeline/PipelineRunner.js';
 import { EXTENSION_BY_MIME, inspectImage } from '../services/images/ImageInspector.js';
@@ -83,7 +83,7 @@ export class ImageGenerationStage implements Stage {
     const budget = new ImageBudget(assets.generation?.budgetUsd);
     const compiler = assets.generation?.promptCompiler ?? 'default';
     const model = assets.generation?.model ?? 'gemini-2.5-flash-image';
-    const cacheRoot = resolve(clientAssetRoot(ctx), 'generated');
+    const cacheRoot = resolve(clientPersistentAssetRoot(ctx), 'generated');
     mkdirSync(cacheRoot, { recursive: true });
 
     for (const planned of generatedSlots) {

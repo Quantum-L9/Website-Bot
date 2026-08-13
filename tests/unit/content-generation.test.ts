@@ -108,6 +108,14 @@ void test('a prohibited claim that persists after retry fails', async () => {
   );
 });
 
+void test('an 80-word markdown-wrapped response is stored as plain text', async () => {
+  const wrapped = `**Home hero headline**\n\n**${words(80)}**`;
+  const { ctx, generatedContent } = makeCtx({ responses: [wrapped] });
+  await stage.run(ctx);
+  assert.equal(generatedContent.get('/:hero'), section('Home hero headline', 80));
+  assert.equal(generatedContent.get('/:hero')?.includes('**'), false);
+});
+
 void test('dry-run invokes the LLM zero times', async () => {
   const { ctx, prompts, generatedContent } = makeCtx({
     dryRun: true,
@@ -116,6 +124,82 @@ void test('dry-run invokes the LLM zero times', async () => {
   await stage.run(ctx);
   assert.equal(prompts.length, 0);
   assert.equal(generatedContent.size, 0);
+});
+
+void test('crawled source copy is ported and the LLM is not called', async () => {
+  const { ctx, prompts, generatedContent } = makeCtx({ responses: [words(80)] });
+  ctx.sourceSiteManifest = {
+    schema: 'website-bot.source-site-manifest/v1',
+    sourceUrl: 'https://www.safehavenrr.com/',
+    crawledAt: '2026-08-13T00:00:00.000Z',
+    crawlerVersion: '1.1.0',
+    pages: [{
+      url: 'https://www.safehavenrr.com/',
+      headings: ['Safe Haven Roofing & Renovations'],
+      description: 'Charlotte roofing specialists.',
+      bodyText: 'We handle storm damage, insurance claims, and full replacements across the metro.',
+      depth: 0,
+    }],
+    images: [],
+    rejected: [],
+    warnings: [],
+  };
+  await stage.run(ctx);
+  assert.equal(prompts.length, 0);
+  assert.match(generatedContent.get('/:hero') ?? '', /Safe Haven Roofing & Renovations/);
+});
+
+void test('sourceSite.enabled with an empty crawl fails closed and does not call the LLM', async () => {
+  const { ctx, prompts } = makeCtx({ responses: [words(80)] });
+  ctx.domainSpec.assets = { sourceSite: { url: 'https://www.safehavenrr.com/', enabled: true } };
+  ctx.sourceSiteManifest = {
+    schema: 'website-bot.source-site-manifest/v1',
+    sourceUrl: 'https://www.safehavenrr.com/',
+    crawledAt: '2026-08-13T00:00:00.000Z',
+    crawlerVersion: '1.1.0',
+    pages: [],
+    images: [],
+    rejected: [],
+    warnings: [],
+  };
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /Refusing to invent copy/.test(error.message),
+  );
+  assert.equal(prompts.length, 0);
+});
+
+void test('unmatched reconstructing slug does not receive home bodyText', async () => {
+  const { ctx, prompts } = makeCtx({ responses: [words(80)] });
+  ctx.domainSpec.routes = [
+    { slug: '/', title: 'Home', components: ['hero'] },
+    { slug: '/services/invented', title: 'Invented', components: ['hero'] },
+  ];
+  ctx.sourceSiteManifest = {
+    schema: 'website-bot.source-site-manifest/v1',
+    sourceUrl: 'https://www.safehavenrr.com/',
+    crawledAt: '2026-08-13T00:00:00.000Z',
+    crawlerVersion: '1.1.0',
+    pages: [{
+      url: 'https://www.safehavenrr.com/',
+      headings: ['Safe Haven Roofing & Renovations'],
+      description: 'Charlotte roofing specialists.',
+      bodyText: 'Home-only body that must not paint invented service routes.',
+      depth: 0,
+    }],
+    images: [],
+    rejected: [],
+    warnings: [],
+  };
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /no crawled page matched \/services\/invented/.test(error.message),
+  );
+  assert.equal(prompts.length, 0);
 });
 
 void test('H1 longer than 12 words fails after retries', async () => {

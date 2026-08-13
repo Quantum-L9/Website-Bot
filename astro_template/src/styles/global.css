@@ -1,18 +1,91 @@
-/* L9_META: layer=template, role=global_styles, status=active, version=1.0.0 */
+/* L9_META: layer=template, role=global_styles, status=active, version=1.3.0 */
 @import './tokens.css';
 * { box-sizing: border-box; }
-html { color-scheme: light; }
+html { color-scheme: inherit; }
 body { margin: 0; font-family: var(--font-body); color: var(--color-text); background: var(--color-background); line-height: 1.6; }
-a { color: var(--color-primary); }
+a { color: inherit; }
 header, footer, main { width: min(1100px, calc(100% - 2rem)); margin-inline: auto; }
-nav { display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem 0; }
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  margin-inline: 0;
+  background: color-mix(in srgb, var(--color-background) 88%, black);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
+  backdrop-filter: blur(12px);
+}
+.site-header__inner {
+  width: min(1100px, calc(100% - 2rem));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+}
+.site-logo img { height: 2.5rem; width: auto; max-width: 10rem; object-fit: contain; }
+.site-wordmark { font-family: var(--font-heading); font-weight: 700; text-decoration: none; }
+.site-nav { display: flex; flex-wrap: wrap; gap: 0.85rem 1.1rem; align-items: center; }
+.site-nav a { color: var(--color-text); text-decoration: none; font-size: 0.92rem; font-weight: 500; }
+.site-nav a:hover { color: var(--color-primary); }
+.btn-phone {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
 section { padding: 3rem 0; }
 h1, h2, h3 { font-family: var(--font-heading); line-height: 1.2; }
-.btn { display: inline-block; padding: .8rem 1.1rem; background: var(--color-primary); color: white; border: 0; border-radius: .4rem; cursor: pointer; }
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 0.82rem;
+  margin: 0 0 0.5rem;
+}
+.btn { display: inline-block; padding: .8rem 1.1rem; background: var(--color-primary); color: #fff; border: 0; border-radius: .4rem; cursor: pointer; font-weight: 600; text-decoration: none; }
 .grid { display: grid; gap: 1.5rem; }
 .grid.two { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
-.card { border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent); border-radius: .6rem; padding: 1.25rem; }
-.notice { border-left: .3rem solid var(--color-accent); padding: 1rem; background: var(--color-secondary); }
+.card {
+  border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
+  border-radius: .75rem;
+  padding: 1.25rem;
+  background: color-mix(in srgb, var(--color-text) 5%, var(--color-background));
+  overflow: hidden;
+}
+.card img { width: 100%; height: 10rem; object-fit: cover; border-radius: .4rem; margin-bottom: 0.75rem; }
+.notice { border-left: .3rem solid var(--color-accent); padding: 1rem; background: color-mix(in srgb, var(--color-primary) 12%, var(--color-background)); }
 form { display: grid; gap: 1rem; max-width: 32rem; }
 label { display: grid; gap: .35rem; }
-input, textarea { padding: .75rem; font: inherit; }
+input, textarea {
+  padding: .75rem;
+  font: inherit;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 8%, var(--color-background));
+  border: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent);
+  border-radius: .4rem;
+}
+.hero { display: grid; gap: 1.5rem; }
+@media (min-width: 800px) {
+  .hero { grid-template-columns: 1.1fr 0.9fr; align-items: center; }
+}
+.hero__image { width: 100%; height: auto; max-height: 28rem; object-fit: cover; border-radius: .6rem; }
+.cta-banner {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: .75rem;
+  padding: 2.5rem 1.5rem;
+}
+.cta-banner h2 { color: inherit; margin: 0 0 .5rem; font-size: clamp(1.6rem, 3vw, 2.4rem); }
+.cta-banner p { margin: 0 0 1rem; max-width: 40rem; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+.gallery-grid img { width: 100%; height: 12rem; object-fit: cover; border-radius: .5rem; }
+.lead-form__phone { font-size: 1.05rem; }
+footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); }
+.footer-phone { color: var(--color-primary); font-weight: 700; text-decoration: none; }

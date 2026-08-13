@@ -70,6 +70,12 @@ export const PLACEHOLDER_PATTERNS: readonly PlaceholderPattern[] = [
     regex: /\bplace\s?holder\b/i,
   },
   {
+    id: 'markdown-emphasis',
+    description: 'Markdown **bold** or # heading leaked into shipped copy',
+    severity: 'error',
+    regex: /\*\*[^*\n]{1,80}\*\*|^\s{0,3}#{1,6}\s+\S/m,
+  },
+  {
     id: 'coming-soon-stub',
     description: 'Stub copy such as "coming soon" or "under construction"',
     severity: 'warning',

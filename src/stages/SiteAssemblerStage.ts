@@ -1,6 +1,6 @@
 // L9_META: layer=stage, role=site_materializer, stage_index=6, status=active, version=2.0.0
 import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, extname, join, resolve } from 'node:path';
 import { createModuleLogger } from '../core/logger.js';
 import { BuildError } from '../pipeline/BuildError.js';
 import { digestDirectory } from '../services/hashing.js';
@@ -18,6 +18,20 @@ import {
   validateRouteContracts,
   writeAssemblyManifest,
 } from '../validation/validate-generated-site.js';
+import { isBrandMarkCandidate } from '../services/images/ImageAssetPlanner.js';
+import { firstSourcePhone, isTopNavHref, topNavFromSource } from '../services/content/sourceCopy.js';
+
+function colorSchemeFromBackground(background: string | undefined): 'dark' | 'light' {
+  const raw = (background ?? '#ffffff').trim();
+  const hex = raw.startsWith('#') ? raw.slice(1) : '';
+  if (hex.length < 6) return 'light';
+  const r = Number.parseInt(hex.slice(0, 2), 16);
+  const g = Number.parseInt(hex.slice(2, 4), 16);
+  const b = Number.parseInt(hex.slice(4, 6), 16);
+  if ([r, g, b].some(channel => Number.isNaN(channel))) return 'light';
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance < 0.45 ? 'dark' : 'light';
+}
 
 const logger = createModuleLogger('stage:site-assembler');
 const json = (value: unknown) => JSON.stringify(value, null, 2);
@@ -153,6 +167,7 @@ export class SiteAssemblerStage implements Stage {
         for (const component of route.components) {
           const normalized = normalizeComponentName(component);
           if (normalized === 'contact_form' && this.leadFormAction(ctx)) continue;
+          if (normalized === 'gallery') continue;
           if (this.lookupContent(ctx, route.slug, component) === undefined) {
             throw new BuildError('SITE_ASSEMBLY_FAILED', `Missing generated content for ${normalizeRouteSlug(route.slug)}:${component}`);
           }
@@ -191,14 +206,19 @@ export class SiteAssemblerStage implements Stage {
         primaryState: ctx.domainSpec.geography.primary_state,
         states: [...ctx.domainSpec.geography.states],
       },
-      nav: ctx.domainSpec.routes
-        .filter(route => !route.noindex)
-        .map(route => ({ href: normalizeRouteSlug(route.slug), label: route.title })),
+      nav: (() => {
+        const fromSource = topNavFromSource(ctx.sourceSiteManifest);
+        if (fromSource.length) return fromSource;
+        return ctx.domainSpec.routes
+          .filter(route => !route.noindex && isTopNavHref(route.slug))
+          .map(route => ({ href: normalizeRouteSlug(route.slug), label: route.title }));
+      })(),
       schemas: { siteWide, perRoute },
       designTokens: ctx.designTokens ?? {},
       leadFormAction: this.leadFormAction(ctx),
-      phone: ctx.domainSpec.seo_contract?.phone?.trim() || undefined,
+      phone: ctx.domainSpec.seo_contract?.phone?.trim() || firstSourcePhone(ctx.sourceSiteManifest),
       images: this.buildImageRegistry(ctx),
+      galleryImages: this.buildGalleryRegistry(ctx),
     };
   }
 
@@ -222,6 +242,25 @@ export class SiteAssemblerStage implements Stage {
     return registry;
   }
 
+  private galleryExtras(ctx: BuildContext) {
+    const used = new Set([...ctx.resolvedImages?.values() ?? []].map(asset => asset.sha256));
+    return (ctx.sourceSiteManifest?.images ?? []).filter(image => {
+      if (used.has(image.sha256)) return false;
+      if (isBrandMarkCandidate(image)) return false;
+      return existsSync(image.localPath);
+    });
+  }
+
+  private buildGalleryRegistry(ctx: BuildContext): SiteImageEntry[] {
+    return this.galleryExtras(ctx).map(image => ({
+      src: `/images/gallery/${image.id}${extname(image.localPath) || '.jpg'}`,
+      alt: image.altText || image.surroundingText || 'Project photo',
+      width: image.width,
+      height: image.height,
+      source: 'source-site' as const,
+    }));
+  }
+
   /** Copy every registered image into the project's public/images/ directory. */
   private copyResolvedImages(root: string, ctx: BuildContext): void {
     if (!ctx.resolvedImages?.size) return;
@@ -233,6 +272,16 @@ export class SiteAssemblerStage implements Stage {
       const target = safeChild(root, `public/images/${asset.outputFileName}`);
       mkdirSync(dirname(target), { recursive: true });
       copyFileSync(asset.absolutePath, target);
+    }
+    this.copyGalleryImages(root, ctx);
+  }
+
+  private copyGalleryImages(root: string, ctx: BuildContext): void {
+    for (const image of this.galleryExtras(ctx)) {
+      const fileName = `${image.id}${extname(image.localPath) || '.jpg'}`;
+      const target = safeChild(root, `public/images/gallery/${fileName}`);
+      mkdirSync(dirname(target), { recursive: true });
+      copyFileSync(image.localPath, target);
     }
   }
 
@@ -318,7 +367,8 @@ export class SiteAssemblerStage implements Stage {
 
     const tokens = config.designTokens;
     const cleanFont = (value: string | undefined, fallback: string) => `'${(value ?? fallback).replace(/["'\\;]/g, '')}', sans-serif`;
-    write('src/styles/tokens.css', `/* L9_META: layer=generated_site, role=design_tokens, status=generated, version=1.0.0 */\n:root {\n  --color-primary: ${tokens.primary ?? '#17324d'};\n  --color-secondary: ${tokens.secondary ?? '#eef4f8'};\n  --color-accent: ${tokens.accent ?? '#1677ff'};\n  --color-background: ${tokens.background ?? '#ffffff'};\n  --color-text: ${tokens.text ?? '#17212b'};\n  --font-heading: ${cleanFont(tokens.font_heading, 'Inter')};\n  --font-body: ${cleanFont(tokens.font_body, 'Inter')};\n}\n`);
+    const scheme = colorSchemeFromBackground(tokens.background);
+    write('src/styles/tokens.css', `/* L9_META: layer=generated_site, role=design_tokens, status=generated, version=1.0.0 */\n:root {\n  color-scheme: ${scheme};\n  --color-primary: ${tokens.primary ?? '#17324d'};\n  --color-secondary: ${tokens.secondary ?? '#eef4f8'};\n  --color-accent: ${tokens.accent ?? '#1677ff'};\n  --color-background: ${tokens.background ?? '#ffffff'};\n  --color-text: ${tokens.text ?? '#17212b'};\n  --font-heading: ${cleanFont(tokens.font_heading, 'Inter')};\n  --font-body: ${cleanFont(tokens.font_body, 'Inter')};\n}\n`);
     write('public/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap-index.xml\n`);
 
     for (const route of ctx.domainSpec.routes) {
@@ -329,7 +379,7 @@ export class SiteAssemblerStage implements Stage {
       const sections = route.components.map(component => {
         const name = normalizeComponentName(component);
         const content = this.lookupContent(ctx, route.slug, component);
-        if (content === undefined && !(name === 'contact_form' && config.leadFormAction)) {
+        if (content === undefined && !(name === 'contact_form' && config.leadFormAction) && name !== 'gallery') {
           throw new BuildError('SITE_ASSEMBLY_FAILED', `Missing generated content for ${slug}:${component}`);
         }
         return { name, content: content ?? '' };

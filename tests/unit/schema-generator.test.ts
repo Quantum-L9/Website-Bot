@@ -69,3 +69,52 @@ void test('site URL is normalized to https and phone flows into schemas', async 
   const crumbs = ctx.generatedSchemas.get('BreadcrumbList') as { itemListElement: Array<{ item: string }> };
   assert.equal(crumbs.itemListElement[0].item, 'https://safehavenrr.com/');
 });
+
+void test('reconstructing skips generateSchema and ports crawled FAQ pairs', async () => {
+  const { ctx, prompts } = stubContext(['should-not-run']);
+  ctx.sourceSiteManifest = {
+    schema: 'website-bot.source-site-manifest/v1',
+    sourceUrl: 'https://www.safehavenrr.com/',
+    crawledAt: '2026-08-13T00:00:00.000Z',
+    crawlerVersion: '1.1.0',
+    pages: [{
+      url: 'https://www.safehavenrr.com/faq',
+      title: 'FAQ',
+      headings: ['How long does a roof last?', 'Do you offer inspections?'],
+      bodyText: 'Most roofs last 20-30 years with maintenance. Yes, inspections are free.',
+      depth: 1,
+    }],
+    images: [],
+    rejected: [],
+    warnings: [],
+  };
+  await new SchemaGeneratorStage().run(ctx);
+  assert.equal(prompts.length, 0);
+  const faq = ctx.generatedSchemas.get('FAQPage') as { mainEntity: Array<{ name: string }> };
+  assert.equal(faq.mainEntity.length, 2);
+  assert.match(faq.mainEntity[0].name, /roof last/);
+  assert.ok(ctx.generatedSchemas.get('Organization'));
+  assert.ok(ctx.generatedSchemas.get('LocalBusiness'));
+});
+
+void test('reconstructing with no FAQ page omits FAQPage and does not call generateSchema', async () => {
+  const { ctx, prompts } = stubContext(['should-not-run']);
+  ctx.sourceSiteManifest = {
+    schema: 'website-bot.source-site-manifest/v1',
+    sourceUrl: 'https://www.safehavenrr.com/',
+    crawledAt: '2026-08-13T00:00:00.000Z',
+    crawlerVersion: '1.1.0',
+    pages: [{
+      url: 'https://www.safehavenrr.com/',
+      headings: ['Safe Haven Roofing'],
+      bodyText: 'Charlotte roofing specialists.',
+      depth: 0,
+    }],
+    images: [],
+    rejected: [],
+    warnings: [],
+  };
+  await new SchemaGeneratorStage().run(ctx);
+  assert.equal(prompts.length, 0);
+  assert.equal(ctx.generatedSchemas.get('FAQPage'), undefined);
+});

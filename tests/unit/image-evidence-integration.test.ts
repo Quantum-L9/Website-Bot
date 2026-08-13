@@ -114,7 +114,14 @@ void test('ingestion reuses verified source_site evidence without crawling', asy
       sourceUrl: 'https://acme.example/',
       crawledAt: '2026-07-20T00:00:00.000Z',
       crawlerVersion: '1.0.0',
-      pages: [],
+      pages: [{
+        url: 'https://acme.example/gallery',
+        headings: ['Our Work'],
+        bodyText: 'Completed roofing projects across the metro with before and after photos from recent jobs.',
+        phones: ['(704) 555-0100'],
+        nav: [{ href: '/gallery', label: 'Gallery' }, { href: '/services', label: 'Services' }],
+        depth: 0,
+      }],
       images: [{
         id: 'src-1', sourceUrl: 'https://acme.example/a.png', referringPageUrl: 'https://acme.example/',
         localPath, mimeType: 'image/png', width: 1, height: 1, byteLength: PNG_1x1.length,

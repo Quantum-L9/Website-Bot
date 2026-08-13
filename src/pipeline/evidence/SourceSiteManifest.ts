@@ -13,6 +13,9 @@ export interface IngestedPage {
   description?: string;
   headings: string[];
   textExcerpt?: string;
+  bodyText?: string;
+  phones?: string[];
+  nav?: Array<{ href: string; label: string }>;
   screenshotPath?: string;
   depth: number;
 }
@@ -64,6 +67,14 @@ export interface SourceSiteManifest {
   images: IngestedImage[];
   rejected: RejectedImage[];
   warnings: string[];
+  /** Observed brand colors from crawled CSS. Design stage reuses these as-is. */
+  palette?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    text: string;
+  };
 }
 
 export function emptySourceSiteManifest(sourceUrl: string, crawlerVersion: string, crawledAt: string): SourceSiteManifest {

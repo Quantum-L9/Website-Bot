@@ -117,6 +117,11 @@ export function syncEvidenceIndexToDb(sqlite: Database.Database, index: Evidence
     `);
     for (const record of Object.values(index.artifacts)) {
       if (!record) continue;
+      sqlite.prepare(`DELETE FROM evidence_artifacts WHERE (build_id = ? AND kind = ?) OR logical_id = ?`).run(
+        index.build_id,
+        record.kind,
+        record.logicalId,
+      );
       upsertArtifact.run({
         build_id: index.build_id,
         client_id: index.client_id,

@@ -84,7 +84,26 @@ void test('generates only planned gaps, records evidence, and reuses cache on re
     assert.equal(generator.calls, 1, 'second run must reuse the cached image');
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
+  }
+});
+
+void test('reuses the client-level image cache across different buildIds', async () => {
+  const first = genContext('gen-cache-client-persist');
+  const generator = new CountingGenerator(0);
+  try {
+    await new ImageAssetPlanningStage().run(first);
+    await new ImageGenerationStage(generator).run(first);
+    assert.equal(generator.calls, 1);
+
+    const second = genContext('gen-cache-client-persist');
+    await new ImageAssetPlanningStage().run(second);
+    await new ImageGenerationStage(generator).run(second);
+    assert.equal(generator.calls, 1, 'a new buildId must still hit the client cache');
+    cleanupContext(second);
+  } finally {
+    cleanupContext(first);
+    rmSync(resolve('build', 'assets', first.clientId), { recursive: true, force: true });
   }
 });
 
@@ -101,7 +120,7 @@ void test('generation fails closed when the budget is exhausted', async () => {
     );
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
   }
 });
 
@@ -118,6 +137,6 @@ void test('generation errors when a gap exists but no provider is configured', a
     if (savedGemini !== undefined) process.env.GEMINI_API_KEY = savedGemini;
     if (savedGoogle !== undefined) process.env.GOOGLE_API_KEY = savedGoogle;
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', ctx.clientId, ctx.buildId), { recursive: true, force: true });
+    rmSync(resolve('build', 'assets', ctx.clientId), { recursive: true, force: true });
   }
 });

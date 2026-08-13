@@ -31,6 +31,18 @@ export class DomainSpecLoaderStage implements Stage {
     }
     ctx.domainSpec = spec;
     ctx.clientId = spec.client_id;
+    if (spec.deploy?.github_repo) {
+      ctx.deployTarget = {
+        githubRepo: spec.deploy.github_repo,
+        githubRepoId: spec.deploy.github_repo_id,
+        sourceBranch: spec.deploy.source_branch ?? 'main',
+        publishCredentialRef: spec.deploy.publish_credential_ref ?? 'env://GITHUB_SITE_TOKEN',
+        vercelProjectId: spec.deploy.vercel_project_id,
+        vercelDeployHook: spec.deploy.vercel_deploy_hook,
+        seoBotGithubCredentialRef: spec.deploy.seo_bot_github_credential_ref ?? 'env://SEO_BOT_SITE_GITHUB_TOKEN',
+        seoBotVercelDeployHookRef: spec.deploy.seo_bot_vercel_deploy_hook_ref,
+      };
+    }
     logger.info({ clientId: spec.client_id, routes: spec.routes.length, vertical: spec.vertical }, 'Domain spec loaded');
   }
 }
