@@ -27,6 +27,25 @@ function parseHeadlineAndBody(content: string): { headline: string; body: string
   return { headline, body };
 }
 
+function formatTakenList(label: string, values: readonly string[]): string {
+  if (values.length === 0) return '';
+  return [label, ...values.map(value => `- "${value}"`)].join('\n');
+}
+
+function takenHeadlineBlock(headlines: readonly string[]): string {
+  return formatTakenList(
+    'Already used headlines (do not repeat, even paraphrased as the same CTA):',
+    headlines,
+  );
+}
+
+function takenBodyBlock(bodies: readonly string[]): string {
+  return formatTakenList(
+    'Already used body copy (do not repeat):',
+    bodies,
+  );
+}
+
 type SlotIssue = {
   message: string;
   correction: string;
@@ -37,6 +56,8 @@ function validateSlot(
   content: string,
   seenH1s: Set<string>,
   seenBodies: Set<string>,
+  takenHeadlines: readonly string[],
+  takenBodies: readonly string[],
 ): SlotIssue | undefined {
   const { headline, body } = parseHeadlineAndBody(content);
   const h1Words = countWords(headline);
@@ -77,14 +98,20 @@ function validateSlot(
   if (seenH1s.has(h1Key)) {
     return {
       message: `${key}: duplicate H1 "${headline}"`,
-      correction: `The headline collided with another section ("${headline}"); write a unique headline.`,
+      correction: [
+        `The headline collided with another section ("${headline}"); write a unique headline.`,
+        takenHeadlineBlock(takenHeadlines),
+      ].filter(Boolean).join('\n'),
     };
   }
   const bodyKey = body.toLowerCase();
   if (seenBodies.has(bodyKey)) {
     return {
       message: `${key}: duplicate body`,
-      correction: `The body collided with another section; write unique body copy.`,
+      correction: [
+        `The body collided with another section; write unique body copy.`,
+        takenBodyBlock(takenBodies),
+      ].filter(Boolean).join('\n'),
     };
   }
   return undefined;
@@ -99,6 +126,8 @@ export class ContentGenerationStage implements Stage {
     const { vertical, business_name, geography, routes } = ctx.domainSpec;
     const seenH1s = new Set<string>();
     const seenBodies = new Set<string>();
+    const takenHeadlines: string[] = [];
+    const takenBodies: string[] = [];
     for (const route of routes) {
       for (const component of route.components) {
         const key = `${route.slug}:${component}`;
@@ -109,15 +138,18 @@ export class ContentGenerationStage implements Stage {
         for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
           content = await ctx.llm.generateContent([
             `Write the ${component} section for the "${route.title}" page of a ${vertical} business.`,
+            `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
             `Business: ${business_name}. States served: ${geography.states.join(', ')}.`,
             `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across sections).`,
             `Then a blank line.`,
             `Then the body: minimum ${MIN_WORDS} words, unique across sections.`,
             `Do not include guaranteed outcomes, win rates, or legal advice.`,
             `Use active voice and second person. Output plain text only.`,
+            takenHeadlineBlock(takenHeadlines),
+            takenBodyBlock(takenBodies),
             correction,
           ].filter(Boolean).join('\n'));
-          const issue = validateSlot(key, content, seenH1s, seenBodies);
+          const issue = validateSlot(key, content, seenH1s, seenBodies, takenHeadlines, takenBodies);
           if (!issue) break;
           if (attempt === MAX_RETRIES) {
             throw new BuildError('CONTENT_VALIDATION_FAILED', issue.message);
@@ -126,11 +158,13 @@ export class ContentGenerationStage implements Stage {
             'Your previous answer failed validation.',
             issue.correction,
             'Rewrite the complete section from scratch.',
-          ].filter(Boolean).join(' ');
+          ].filter(Boolean).join('\n');
         }
         const { headline, body } = parseHeadlineAndBody(content);
         seenH1s.add(headline.toLowerCase());
         seenBodies.add(body.toLowerCase());
+        takenHeadlines.push(headline);
+        takenBodies.push(body);
         ctx.generatedContent.set(key, content);
       }
     }

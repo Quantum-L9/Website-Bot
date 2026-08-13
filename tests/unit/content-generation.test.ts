@@ -11,7 +11,12 @@ function section(headline: string, n: number, extra = ''): string {
   return `${headline}\n\n${words(n)}${extra}`;
 }
 
-function makeCtx(opts: { dryRun?: boolean; responses: string[]; components?: string[] }) {
+function makeCtx(opts: {
+  dryRun?: boolean;
+  responses: string[];
+  components?: string[];
+  routes?: Array<{ slug: string; title: string; components: string[] }>;
+}) {
   const responses = [...opts.responses];
   const prompts: string[] = [];
   const generatedContent = new Map<string, string>();
@@ -21,7 +26,7 @@ function makeCtx(opts: { dryRun?: boolean; responses: string[]; components?: str
       vertical: 'insurance_supplementing',
       business_name: 'Test Biz',
       geography: { primary_state: 'TN', states: ['TN', 'KY'] },
-      routes: [{ slug: '/', title: 'Home', components: opts.components ?? ['hero'] }],
+      routes: opts.routes ?? [{ slug: '/', title: 'Home', components: opts.components ?? ['hero'] }],
     },
     generatedContent,
     llm: {
@@ -175,6 +180,54 @@ void test('valid unique H1s and 80-word bodies succeed and the prompt requires a
   assert.equal(prompts.length, 2);
   assert.match(prompts[0], /headline/i);
   assert.match(prompts[0], /12 words/);
+  assert.match(prompts[0], /route slug "\/"/);
+  assert.match(prompts[0], /titled "Home"/);
   assert.equal(generatedContent.get('/:hero'), hero);
   assert.equal(generatedContent.get('/:faq'), faq);
+});
+
+void test('the next slot first prompt lists already-used headlines', async () => {
+  const homeHero = section('Protect your roof this season', 80);
+  const contactHero = section('Request a roofing quote today', 80, ' extra');
+  const { ctx, prompts, generatedContent } = makeCtx({
+    routes: [
+      { slug: '/', title: 'Home', components: ['hero'] },
+      { slug: '/contact', title: 'Contact', components: ['hero'] },
+    ],
+    responses: [homeHero, contactHero],
+  });
+  await stage.run(ctx);
+  assert.equal(prompts.length, 2);
+  assert.doesNotMatch(prompts[0], /Already used headlines/);
+  assert.match(
+    prompts[1],
+    /Already used headlines \(do not repeat, even paraphrased as the same CTA\):/,
+  );
+  assert.match(prompts[1], /- "Protect your roof this season"/);
+  assert.match(prompts[1], /route slug "\/contact"/);
+  assert.match(prompts[1], /titled "Contact"/);
+  assert.equal(generatedContent.get('/:hero'), homeHero);
+  assert.equal(generatedContent.get('/contact:hero'), contactHero);
+});
+
+void test('duplicate H1 correction lists all taken headlines then still fails after retries', async () => {
+  const { ctx, prompts, generatedContent } = makeCtx({
+    components: ['hero', 'faq'],
+    responses: [
+      section('Same headline here', 80),
+      section('Same headline here', 80, ' unique-a'),
+      section('Same headline here', 80, ' unique-b'),
+      section('Same headline here', 80, ' unique-c'),
+    ],
+  });
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) => error instanceof BuildError
+      && error.code === 'CONTENT_VALIDATION_FAILED'
+      && /duplicate H1/.test(error.message),
+  );
+  assert.equal(generatedContent.size, 1);
+  assert.match(prompts[1], /Already used headlines \(do not repeat, even paraphrased as the same CTA\):/);
+  assert.match(prompts[1], /- "Same headline here"/);
+  assert.match(prompts[2], /- "Same headline here"/);
 });
