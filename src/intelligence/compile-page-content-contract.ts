@@ -108,7 +108,8 @@ function sectionsForRequirement(
     return [];
   }
   if (requirement.placement === 'FIRST_MATCH') {
-    return [matches[0]];
+    // slice avoids an index access that static analysis reads as possibly-undefined
+    return matches.slice(0, 1);
   }
   return matches;
 }
