@@ -197,7 +197,13 @@ export function compilePageContentContract(
         continue;
       }
       for (const destination of destinations) {
-        requirementPlacement.get(destination.section_id)!.push(requirement);
+        // destination is one of websiteRoute.sections, every section_id of which
+        // was pre-seeded above, so the bucket is always present. The explicit
+        // guard keeps the access provably safe instead of asserting non-null.
+        const bucket = requirementPlacement.get(destination.section_id);
+        if (bucket) {
+          bucket.push(requirement);
+        }
       }
     }
 

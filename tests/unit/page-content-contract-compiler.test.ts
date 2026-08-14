@@ -185,14 +185,14 @@ test('compiler places a required SEO requirement onto a compatible website slot'
 
   assert.equal(contract.schema, WEBSITE_INTELLIGENCE_SCHEMAS.pageContentContract);
   const home = contract.routes.find(r => r.route_id === 'home');
-  assert.ok(home);
+  if (!home) throw new Error('expected a compiled home route');
   const services = home.sections.find(s => s.section_id === 'services');
-  assert.ok(services);
+  if (!services) throw new Error('expected a services section');
   assert.deepEqual(services.content_requirements.requirement_ids, ['req-1']);
   assert.ok(services.content_requirements.topics.includes('ferrous'));
   // The phone fact is slot-scoped to `conversion`; only the hero should allow it.
   const hero = home.sections.find(s => s.section_id === 'hero');
-  assert.ok(hero);
+  if (!hero) throw new Error('expected a hero section');
   assert.ok(hero.allowed_fact_ids.includes('f-phone'));
   assert.ok(!services.allowed_fact_ids.includes('f-phone'));
 });
@@ -261,7 +261,9 @@ test('an optional requirement with no compatible slot is recorded as a warning, 
     compilerVersion: '1.0.0',
   });
   assert.equal(contract.compiler.warnings.length, 1);
-  assert.match(contract.compiler.warnings[0], /req-1/);
+  const [warning] = contract.compiler.warnings;
+  if (!warning) throw new Error('expected a compiler warning');
+  assert.match(warning, /req-1/);
 });
 
 test('blueprints from different CompetitiveLandscape artifacts fail closed', () => {
