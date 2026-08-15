@@ -7,7 +7,8 @@ SHELL := /bin/sh
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean
+        site-test site-test-local evidence-validate evidence-show clean \
+        pr push
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -125,3 +126,19 @@ evidence-show:
 
 clean:
 	rm -rf dist .astro build/sites build/evidence
+
+# ── Publish ── checkers run before push; one PR against main
+PR_TITLE ?= [campaign-6] Deploy bounded Recursive Engineering Run v1
+PR_BODY ?= .l9/pr-body.md
+PR_BASE ?= main
+
+pr: verify-all
+	git push -u origin HEAD
+	@if gh pr view --json url > /dev/null 2>&1; then \
+		echo "PR already open:"; gh pr view --json url --jq .url; \
+	else \
+		gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"; \
+	fi
+
+push: verify-all
+	git push origin HEAD
