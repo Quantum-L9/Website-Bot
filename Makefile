@@ -7,7 +7,7 @@ SHELL := /bin/sh
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean pr
+        site-test site-test-local evidence-validate evidence-show clean pr push
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -41,6 +41,7 @@ help:
 	@printf '%s\n' ''
 	@printf '%s\n' '── Publish ──'
 	@printf '%-30s %s\n' 'make pr' 'verify-all, push the current branch, open one PR against main'
+	@printf '%-30s %s\n' 'make push' 'verify-all, push the current branch (same-PR remediation)'
 	@printf '%s\n' '  (override: PR_TITLE=.. PR_BODY=.. PR_BASE=..)'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Housekeeping ──'
@@ -138,3 +139,6 @@ PR_BASE ?= main
 pr: verify-all
 	git push -u origin HEAD
 	gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"
+
+push: verify-all
+	git push origin HEAD
