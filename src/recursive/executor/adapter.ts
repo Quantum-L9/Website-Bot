@@ -78,7 +78,7 @@ export class BoundedCodingExecutor {
       outcome: {
         beforeFullSha,
         patchedFullSha,
-        changedFiles: [...input.instruction.changedFiles].toSorted((left, right) => left.localeCompare(right)),
+        changedFiles: [...input.instruction.changedFiles].sort((left, right) => left.localeCompare(right)),
         diffDigest,
       },
     };

@@ -100,7 +100,7 @@ async function commandStatus(args: string[]): Promise<void> {
     console.error('no recursive runs recorded yet');
     process.exit(1);
   }
-  const entries = runId ? [runId] : readdirSync(root).toSorted((left, right) => left.localeCompare(right));
+  const entries = runId ? [runId] : [...readdirSync(root)].sort((left, right) => left.localeCompare(right));
   for (const entry of entries) {
     const manifestPath = resolve(STATE_ROOT, entry, 'campaign-manifest.json');
     const receiptPath = resolve(STATE_ROOT, entry, 'run-receipt.json');

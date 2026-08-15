@@ -32,6 +32,5 @@ export function execTrusted(
     encoding: options.encoding ?? 'utf-8',
     env: trustedEnv(options.env as NodeJS.ProcessEnv | undefined),
   });
-  if (result == null) return '';
-  return typeof result === 'string' ? result : Buffer.isBuffer(result) ? result.toString('utf-8') : String(result);
+  return result ?? '';
 }
