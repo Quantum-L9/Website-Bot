@@ -134,6 +134,29 @@ npm run verify:rollback
 
 Validation must produce evidence. A script existing is not proof. A successful launch claim requires logs, URLs, receipts, or blocked checks labeled with exact missing values.
 
+## Improvement Campaigns (learning plane)
+
+A campaign — not a build — is the unit of work. Four everyday commands:
+
+```bash
+# Start a new campaign (or resume by id) and run until REVIEWABLE
+npm run campaign -- --source=https://www.safehavenrr.com --until=reviewable
+npm run campaign -- --campaign=<id> --until=reviewable
+
+# Inspect a campaign's persisted state
+npm run campaign:status -- --campaign=<id>
+
+# Capture the operator decision once a campaign is REVIEWABLE
+npm run campaign:review -- --campaign=<id> --decision=APPROVED
+```
+
+Optional flags: `--max-candidates=<n>`, `--max-no-progress=<n>`, `--watch` (progress
+events only; never changes runtime semantics), `--campaign-root=<dir>` (defaults to
+`.l9/campaigns`, gitignored). The runner maintains an immutable baseline, champion,
+and challenger per campaign; only candidates that pass the deterministic REVIEWABLE
+gate reach the operator. Terminal states: `REVIEWABLE`, `EXHAUSTED`, `BLOCKED`,
+`NO_PROGRESS`, `FATAL`. Design contract: `docs/architecture/learning-plane.v1.design.md`.
+
 ## Deployment
 
 Deployment runs through the pipeline and is Vercel preview-first. A preview deploy is the
