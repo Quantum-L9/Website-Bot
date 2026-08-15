@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.engineering-signal.v1",
+  "title": "EngineeringSignal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "signalId", "recursiveRunId", "wave", "sourceCode", "origin",
+    "classification", "severity", "reach", "confidence", "observation",
+    "causalTrace", "primaryDiagnosis", "recurrence", "engineeringImplication",
+    "regressionCaseCandidate", "leverage"
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refKind", "refId", "digest"],
+      "properties": {
+        "refKind": { "type": "string", "minLength": 1 },
+        "refId": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "properties": {
+    "schema": { "const": "l9.engineering-signal/v1" },
+    "signalId": { "type": "string", "minLength": 1 },
+    "recursiveRunId": { "type": "string", "minLength": 1 },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "sourceCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "fullCommitSha"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "fullCommitSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["e2eReceiptRef", "qualityResultRefs", "evidenceRefs"],
+      "properties": {
+        "e2eReceiptRef": { "$ref": "#/$defs/artifactRef" },
+        "candidateRef": { "$ref": "#/$defs/artifactRef" },
+        "qualityResultRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "evidenceRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } }
+      }
+    },
+    "classification": {
+      "enum": [
+        "CORRECTNESS_DEFECT", "QUALITY_MODEL_DEFECT", "GENERATION_CAPABILITY_DEFECT",
+        "ATTRIBUTION_DEFECT", "EFFICIENCY_DEFECT", "CONTROL_PLANE_CHANGE_REQUIRED"
+      ]
+    },
+    "severity": { "enum": ["BLOCKING", "HIGH", "MEDIUM", "LOW"] },
+    "reach": { "enum": ["SITE", "VERTICAL", "CROSS_VERTICAL", "GLOBAL"] },
+    "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+    "failureFingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["qualityDimensions"],
+      "properties": {
+        "qualityDimensions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "pageArchetypes": { "type": "array", "items": { "type": "string" } },
+        "components": { "type": "array", "items": { "type": "string" } },
+        "viewports": { "type": "array", "items": { "type": "string" } },
+        "invariantViolations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "observation": { "type": "string", "minLength": 1 },
+    "causalTrace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["upstreamArtifactsInspected", "unchangedControls", "suspectedOwner"],
+      "properties": {
+        "earliestObservedBadArtifact": { "$ref": "#/$defs/artifactRef" },
+        "upstreamArtifactsInspected": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "unchangedControls": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "suspectedOwner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "subsystem"],
+          "properties": {
+            "repository": { "type": "string", "minLength": 1 },
+            "subsystem": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "primaryDiagnosis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "confidence"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] }
+      }
+    },
+    "strongestAlternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "confidence", "disconfirmingTest"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "disconfirmingTest": { "type": "string", "minLength": 1 },
+        "result": { "enum": ["CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+      }
+    },
+    "recurrence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentRunOccurrences", "historicalSignalRefs"],
+      "properties": {
+        "currentRunOccurrences": { "type": "integer", "minimum": 1 },
+        "historicalSignalRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } }
+      }
+    },
+    "engineeringImplication": { "type": "string", "minLength": 1 },
+    "regressionCaseCandidate": { "type": "boolean" },
+    "leverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["humanReviewImpact", "downstreamCostImpact", "recurrence", "implementationRisk"],
+      "properties": {
+        "humanReviewImpact": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "downstreamCostImpact": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "recurrence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "implementationRisk": { "enum": ["HIGH", "MEDIUM", "LOW"] }
+      }
+    }
+  }
+}

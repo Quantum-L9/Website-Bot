@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.recursive-engineering-wave.v1",
+  "title": "WaveReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "recursiveRunId", "wave", "inputCode", "e2e",
+    "engineeringHarvest", "reviewability", "status", "next"
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refKind", "refId", "digest"],
+      "properties": {
+        "refKind": { "type": "string", "minLength": 1 },
+        "refId": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "properties": {
+    "schema": { "const": "l9.recursive-engineering-wave/v1" },
+    "recursiveRunId": { "type": "string", "minLength": 1 },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "inputCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "fullSha", "deploymentReceiptRef"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "fullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "deploymentReceiptRef": { "$ref": "#/$defs/artifactRef" }
+      }
+    },
+    "e2e": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receiptRef", "artifactManifestRef", "sourceUrl", "candidateReviewable", "qualitySummaryRef"],
+      "properties": {
+        "receiptRef": { "$ref": "#/$defs/artifactRef" },
+        "artifactManifestRef": { "$ref": "#/$defs/artifactRef" },
+        "sourceUrl": { "type": "string", "minLength": 1 },
+        "candidateReviewable": { "type": "boolean" },
+        "qualitySummaryRef": { "$ref": "#/$defs/artifactRef" }
+      }
+    },
+    "engineeringHarvest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["harvestRef", "signalRefs", "materialActionableSignal"],
+      "properties": {
+        "harvestRef": { "$ref": "#/$defs/artifactRef" },
+        "signalRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "selectedSignalCluster": { "type": "string" },
+        "materialActionableSignal": { "type": "boolean" }
+      }
+    },
+    "pePack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "digest"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/artifactRef" },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "codeChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcomeRef", "beforeSha", "afterSha", "causalVerdict"],
+      "properties": {
+        "outcomeRef": { "$ref": "#/$defs/artifactRef" },
+        "beforeSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "afterSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "causalVerdict": { "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+      }
+    },
+    "promotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mergeReceiptRef", "deploymentReceiptRef", "deployedFullSha"],
+      "properties": {
+        "mergeReceiptRef": { "$ref": "#/$defs/artifactRef" },
+        "deploymentReceiptRef": { "$ref": "#/$defs/artifactRef" },
+        "deployedFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+      }
+    },
+    "reviewability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beforePatch"],
+      "properties": {
+        "beforePatch": { "type": "boolean" }
+      }
+    },
+    "status": {
+      "enum": [
+        "WAVE_COMPLETE", "NO_ACTIONABLE_SIGNAL", "PATCH_VALIDATION_FAILED",
+        "DEPLOYMENT_FAILED", "CONTROL_PLANE_CHANGE_REQUIRED"
+      ]
+    },
+    "next": { "enum": ["NEXT_WAVE", "STOP"] }
+  }
+}

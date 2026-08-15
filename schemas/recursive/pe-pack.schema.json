@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.pe-pack.v1",
+  "title": "PEPack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "packId", "recursiveRunId", "wave", "source", "selectedRootCause",
+    "hypothesis", "mutationEnvelope", "immutableAuthorities", "regressionSets",
+    "expectedProperties", "validation", "budgets", "mergePolicy", "deploymentPolicy",
+    "nextTransition"
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refKind", "refId", "digest"],
+      "properties": {
+        "refKind": { "type": "string", "minLength": 1 },
+        "refId": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "regressionCaseRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "ref"],
+      "properties": {
+        "caseId": { "type": "string", "minLength": 1 },
+        "originRunId": { "type": "string" },
+        "ref": { "$ref": "#/$defs/artifactRef" }
+      }
+    },
+    "propertyExpectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property", "expected"],
+      "properties": {
+        "property": { "type": "string", "minLength": 1 },
+        "expected": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "properties": {
+    "schema": { "const": "l9.pe-pack/v1" },
+    "packId": { "type": "string", "minLength": 1 },
+    "recursiveRunId": { "type": "string", "minLength": 1 },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["e2eReceiptRef", "engineeringHarvestRef", "engineeringSignalRefs", "sourceCodeFullSha", "artifactManifestDigest"],
+      "properties": {
+        "e2eReceiptRef": { "$ref": "#/$defs/artifactRef" },
+        "engineeringHarvestRef": { "$ref": "#/$defs/artifactRef" },
+        "engineeringSignalRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "sourceCodeFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "artifactManifestDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "selectedRootCause": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signalClass", "clusterId", "repository", "subsystem", "diagnosis", "confidence"],
+      "properties": {
+        "signalClass": {
+          "enum": [
+            "CORRECTNESS_DEFECT", "QUALITY_MODEL_DEFECT", "GENERATION_CAPABILITY_DEFECT",
+            "ATTRIBUTION_DEFECT", "EFFICIENCY_DEFECT", "CONTROL_PLANE_CHANGE_REQUIRED"
+          ]
+        },
+        "clusterId": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string", "minLength": 1 },
+        "subsystem": { "type": "string", "minLength": 1 },
+        "diagnosis": { "type": "string", "minLength": 1 },
+        "confidence": { "enum": ["HIGH", "MEDIUM"] }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposedSystemChange", "expectedSystemEffect", "expectedE2EEffect"],
+      "properties": {
+        "proposedSystemChange": { "type": "string", "minLength": 1 },
+        "expectedSystemEffect": { "type": "string", "minLength": 1 },
+        "expectedE2EEffect": { "type": "string", "minLength": 1 }
+      }
+    },
+    "mutationEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "allowedPaths", "forbiddenPaths", "forbiddenSubsystems", "architectureExpansionAllowed", "maxChangedFiles", "maxDiffLines"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "allowedPaths": { "type": "array", "items": { "type": "string" } },
+        "allowedSymbols": { "type": "array", "items": { "type": "string" } },
+        "forbiddenPaths": { "type": "array", "items": { "type": "string" } },
+        "forbiddenSubsystems": { "type": "array", "items": { "type": "string" } },
+        "architectureExpansionAllowed": { "const": false },
+        "maxChangedFiles": { "type": "integer", "minimum": 1 },
+        "maxDiffLines": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "immutableAuthorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["controlPlaneCommit", "planDigest", "peSchemaDigest", "testContractDigest", "holdoutManifestDigest"],
+      "properties": {
+        "controlPlaneCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "planDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "peSchemaDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "testContractDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "holdoutManifestDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "regressionSets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originating", "controls", "disconfirm", "protectedHoldout"],
+      "properties": {
+        "originating": { "type": "array", "items": { "$ref": "#/$defs/regressionCaseRef" } },
+        "controls": { "type": "array", "items": { "$ref": "#/$defs/regressionCaseRef" } },
+        "disconfirm": { "type": "array", "items": { "$ref": "#/$defs/regressionCaseRef" } },
+        "protectedHoldout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["selectorVersion", "manifestDigest", "casesHiddenFromCodingAgent"],
+          "properties": {
+            "selectorVersion": { "type": "string", "minLength": 1 },
+            "manifestDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "casesHiddenFromCodingAgent": { "const": true }
+          }
+        }
+      }
+    },
+    "expectedProperties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "guardrails", "forbiddenChanges"],
+      "properties": {
+        "target": { "type": "array", "items": { "$ref": "#/$defs/propertyExpectation" } },
+        "guardrails": { "type": "array", "items": { "$ref": "#/$defs/propertyExpectation" } },
+        "forbiddenChanges": { "type": "array", "items": { "$ref": "#/$defs/propertyExpectation" } }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetedReplayRequired", "differentialReplayRequired", "controlsRequired",
+        "disconfirmRequired", "protectedHoldoutRequired", "semanticArtifactDiffRequired", "repositoryChecks"
+      ],
+      "properties": {
+        "targetedReplayRequired": { "const": true },
+        "differentialReplayRequired": { "const": true },
+        "controlsRequired": { "const": true },
+        "disconfirmRequired": { "const": true },
+        "protectedHoldoutRequired": { "const": true },
+        "semanticArtifactDiffRequired": { "const": true },
+        "repositoryChecks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxPatchAttempts", "maxValidationRepairAttempts", "maxDeploymentAttempts"],
+      "properties": {
+        "maxPatchAttempts": { "const": 1 },
+        "maxValidationRepairAttempts": { "const": 1 },
+        "maxDeploymentAttempts": { "type": "integer", "minimum": 1 },
+        "maxWallClockSeconds": { "type": "integer", "minimum": 1 },
+        "maxLLMTokens": { "type": "integer", "minimum": 1 },
+        "maxLLMCost": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "mergePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["autonomousMergeAllowed", "requiredVerifier", "verifiedPatchShaMustEqualMergedSha"],
+      "properties": {
+        "autonomousMergeAllowed": { "type": "boolean" },
+        "requiredVerifier": { "type": "string", "minLength": 1 },
+        "verifiedPatchShaMustEqualMergedSha": { "const": true }
+      }
+    },
+    "deploymentPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["autonomousDeployAllowed", "environment", "rollbackRequiredOnFailure"],
+      "properties": {
+        "autonomousDeployAllowed": { "type": "boolean" },
+        "environment": { "type": "string", "minLength": 1 },
+        "rollbackRequiredOnFailure": { "const": true }
+      }
+    },
+    "nextTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["success", "validationFailure", "scopeInsufficient"],
+      "properties": {
+        "success": { "const": "DEPLOY_AND_RECONCILE" },
+        "validationFailure": { "const": "PATCH_VALIDATION_FAILED" },
+        "scopeInsufficient": { "const": "PE_PACK_INSUFFICIENT_SCOPE" }
+      }
+    }
+  }
+}

@@ -26,7 +26,7 @@
     "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
     "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
-    "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring",
+    "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring && npm run recursive:schemas && npm run recursive:test",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",
     "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning",
@@ -53,7 +53,13 @@
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
     "verify:launch-env": "npm run validate",
     "verify:deploy-secrets": "node scripts/verify-deploy-secrets.mjs",
-    "verify:visual-qa": "node scripts/verify-visual-qa.mjs"
+    "verify:visual-qa": "node scripts/verify-visual-qa.mjs",
+    "recursive:improve": "npx tsx scripts/recursive/recursive-cli.ts improve",
+    "recursive:status": "npx tsx scripts/recursive/recursive-cli.ts status",
+    "recursive:resume": "npx tsx scripts/recursive/recursive-cli.ts resume",
+    "recursive:simulate": "npx tsx scripts/recursive/recursive-cli.ts simulate",
+    "recursive:schemas": "node scripts/validate-recursive-schemas.mjs",
+    "recursive:test": "node scripts/run-recursive-tests.mjs"
   },
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",
