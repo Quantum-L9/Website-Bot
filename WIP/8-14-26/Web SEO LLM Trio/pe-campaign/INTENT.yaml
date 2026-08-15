@@ -1,0 +1,35 @@
+schema: program-execution.intent.v1
+intent_id: INTENT-website-bot-five-push-v1
+created_at: "2026-08-14T20:58:00Z"
+owner: Igor Beylin
+policy_profile: quantum-l9.safe-autonomy.v1
+objective: >
+  Execute the accepted five-push Website-Bot sequence so a real Website-Bot ↔
+  SEO-Bot redesign transaction is proven from CompetitiveLandscape through a
+  release-ready candidate: transport, donor intelligence, blueprint
+  convergence, assembly/build, then quality-delta + bounded repair + one
+  no-mock golden run.
+targets:
+  - repository_id: Quantum-L9/Website-Bot
+    role: mutating_implementation
+    local_hint: /Users/ib-mac/Website-Bot
+  - repository_id: Quantum-L9/SEO-Bot
+    role: read_only_integration_producer
+    local_hint: /Users/ib-mac/SEO-Bot
+constraints:
+  - SEO-Bot source is read-only in this program.
+  - Do not redesign l9.website-intelligence/v1 or @quantum-l9/bot-interop.
+  - Do not deploy, release, or publish.
+  - Do not treat a successful build as proof the website improved.
+  - Verifier is not the implementer.
+  - Next push starts only after the prior independent validation gate PASSes.
+  - Capture real SHAs at admission; do not fabricate baselines.
+planning_ssot:
+  - WIP/8-14-26/Web SEO LLM Trio/Program1.md
+validation_ssot:
+  - WIP/8-14-26/Web SEO LLM Trio/L9 Website Improvement — Independent Validation Contract Pack.md
+compiled_campaign_source:
+  - WIP/8-14-26/Web SEO LLM Trio/pe-campaign/CAMPAIGN_SOURCE.yaml
+termination:
+  mode: program_handoff
+  controller_may_declare_terminal_verdict: false
