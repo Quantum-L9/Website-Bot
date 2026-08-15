@@ -16,7 +16,7 @@ import {
   loadCampaignManifest,
 } from '../src/campaigns/campaign-manifest.js';
 import { buildQualityDeltaIndex } from '../src/campaigns/quality-delta-index.js';
-import type { CampaignDeps, CandidateMutationPlan, QualityDeltaIndex, QualityDimensionResult } from '../src/campaigns/types.js';
+import type { CampaignDeps, CandidateMutationPlan, QualityDimensionResult } from '../src/campaigns/types.js';
 import { buildCandidateMutationPlan } from '../src/campaigns/mutation-plan.js';
 import { loadLearningEvents, appendLearningEvent } from '../src/campaigns/campaign-files.js';
 import { retrieveRelevantLearnings } from '../src/campaigns/learning-registry.js';

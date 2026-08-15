@@ -4,17 +4,10 @@
  * QualityDeltaReport becomes an aggregate index over these; this module never
  * redefines the truth-plane report itself.
  */
-import type { LearningArtifactRef } from './types.js';
 import { payloadDigestOf } from './semantic-digest.js';
-import type {
-  ConfidenceClass,
-  DimensionStatus,
-  QualityDimension,
-  QualityDimensionResult,
-  QualityVerdict,
-  MutationLayer,
-} from './types.js';
 import { assertQualityDimension, isQualityDimension } from './quality-dimensions.js';
+import { type ConfidenceClass, type DimensionStatus, type LearningArtifactRef, type MutationLayer, type QualityDimensionResult, type QualityVerdict } from './types.js';
+
 
 export interface QualityDimensionResultInput {
   dimension: string;
@@ -66,7 +59,7 @@ export function buildQualityDimensionResult(input: QualityDimensionResultInput):
     confidence: input.confidence ?? 'MEDIUM',
     measurements,
     status,
-    evidence_refs: [...(input.evidence_refs ?? [])].sort(),
+    evidence_refs: [...(input.evidence_refs ?? [])].sort((a, b) => a.localeCompare(b)),
   };
   return result;
 }

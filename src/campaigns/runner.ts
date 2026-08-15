@@ -190,7 +190,7 @@ export async function runCampaign(config: RunnerConfig): Promise<RunnerOutcome> 
           });
           if (promotion.promote) {
             watch(`PROMOTE ${plan.candidate_id}`);
-            manifest = promoteChampion(manifest, plan, challengerIndex);
+            manifest = promoteChampion(manifest, plan);
           } else {
             watch(`REJECT ${plan.candidate_id} (${promotion.reasons.join('; ')})`);
             manifest = recordRejection(manifest);
@@ -205,7 +205,7 @@ export async function runCampaign(config: RunnerConfig): Promise<RunnerOutcome> 
             challengerIndex.aggregate.regressions_vs_baseline.length === 0
           ) {
             watch(`PROMOTE ${plan.candidate_id}`);
-            manifest = promoteChampion(manifest, plan, challengerIndex);
+            manifest = promoteChampion(manifest, plan);
           } else {
             manifest = recordRejection(manifest);
             noProgress = true;
@@ -276,7 +276,6 @@ function recordRejection(manifest: CampaignManifest): CampaignManifest {
 function promoteChampion(
   manifest: CampaignManifest,
   plan: CandidateMutationPlan,
-  index: QualityDeltaIndex,
 ): CampaignManifest {
   const buildRef = {
     artifact_type: 'CandidateBuild',

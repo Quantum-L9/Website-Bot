@@ -11,7 +11,6 @@
  * (the bot-interop stableValue semantics; DEC-002).
  */
 import { createHash } from 'node:crypto';
-import type { ArtifactRef } from '@quantum-l9/bot-interop';
 import type { ArtifactRefLike } from './types.js';
 
 export function canonicalJsonStable(value: unknown): string {
@@ -104,5 +103,5 @@ export function buildExperimentalControl(
   inheritedExact: ArtifactRefLike[],
   changed: string[],
 ): ExperimentalControl {
-  return { inherited_exact: normalizeArtifactRefs(inheritedExact), changed: [...changed].sort() };
+  return { inherited_exact: normalizeArtifactRefs(inheritedExact), changed: [...changed].sort((a, b) => a.localeCompare(b)) };
 }

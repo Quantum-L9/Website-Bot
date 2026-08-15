@@ -9,8 +9,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync, rmSync, existsSync,
 import { dirname, join } from 'node:path';
 import { sha256Hex } from './semantic-digest.js';
 import type { ArtifactRef } from '@quantum-l9/bot-interop';
-import type { CampaignBudget, CampaignManifest, CampaignStatus, ContextSignature } from './types.js';
-import { CAMPAIGN_STATUSES, DEFAULT_CAMPAIGN_BUDGET } from './types.js';
+import { CAMPAIGN_STATUSES, DEFAULT_CAMPAIGN_BUDGET, type CampaignBudget, type CampaignManifest, type CampaignStatus, type ContextSignature } from './types.js';
 
 export interface NewCampaignInput {
   campaign_id: string;

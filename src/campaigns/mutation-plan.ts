@@ -5,11 +5,10 @@
  * causal hypothesis. The envelope assertion rejects any build whose diff touches
  * a forbidden path or a member of unchanged_contract.
  */
-import type { ArtifactRef } from '@quantum-l9/bot-interop';
-import type { ArtifactRefLike, LearningArtifactRef } from './types.js';
 import { payloadDigestOf } from './semantic-digest.js';
-import { MUTATION_LAYERS, type CandidateMutationPlan, type MutationLayer, type MutationSignature } from './types.js';
 import { assertQualityDimension } from './quality-dimensions.js';
+import { MUTATION_LAYERS, type ArtifactRefLike, type CandidateMutationPlan, type LearningArtifactRef, type MutationLayer, type MutationSignature } from './types.js';
+
 
 export interface PlanMutationInput {
   candidate_id: string;

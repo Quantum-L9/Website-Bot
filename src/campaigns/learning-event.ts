@@ -4,20 +4,10 @@
  * Negative learning and anti-patterns are first-class. One run may create a
  * hypothesis; it may not create a high-confidence global learning.
  */
-import type { LearningArtifactRef } from './types.js';
 import { payloadDigestOf } from './semantic-digest.js';
-import type {
-  ConfidenceClass,
-  CounterfactualPair,
-  DimensionStatus,
-  HypothesisOutcome,
-  LearningEvent,
-  MemoryScope,
-  MutationLayer,
-  QualityDimension,
-  QualityVerdict,
-} from './types.js';
 import { assertQualityDimension } from './quality-dimensions.js';
+import { type ConfidenceClass, type CounterfactualPair, type DimensionStatus, type HypothesisOutcome, type LearningArtifactRef, type LearningEvent, type MemoryScope, type MutationLayer, type QualityVerdict } from './types.js';
+
 
 export interface LearningEventInput {
   learning_id: string;
@@ -93,7 +83,7 @@ export function buildLearningEvent(input: LearningEventInput): LearningEvent {
     counterfactual_pair: input.counterfactual_pair ?? null,
     attribution_feedback: input.attribution_feedback ?? null,
     scope_recommendation: input.scope_recommendation ?? 'SITE_CAMPAIGN',
-    evidence_refs: [...(input.evidence_refs ?? [])].sort(),
+    evidence_refs: [...(input.evidence_refs ?? [])].sort((a, b) => a.localeCompare(b)),
     confidence: {
       class: confidenceClassOf({ causal_isolation, confirmations, contradictions }),
       causal_isolation,

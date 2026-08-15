@@ -4,8 +4,7 @@
  * Budget defaults are locked in the execution contract; unbounded iteration
  * is forbidden.
  */
-import type { CampaignManifest } from './types.js';
-import { DEFAULT_CAMPAIGN_BUDGET } from './types.js';
+import { DEFAULT_CAMPAIGN_BUDGET, type CampaignManifest } from './types.js';
 
 export { DEFAULT_CAMPAIGN_BUDGET };
 

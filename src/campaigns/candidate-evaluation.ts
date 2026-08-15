@@ -5,20 +5,11 @@
  * Dual evaluation against baseline and champion is mandatory. The champion is
  * immutable; challenger failure never destroys it.
  */
-import type { LearningArtifactRef } from './types.js';
 import { payloadDigestOf } from './semantic-digest.js';
-import type {
-  CandidateEvaluation,
-  CandidateDisposition,
-  ChampionDelta,
-  FailureFingerprint,
-  QualityDeltaIndex,
-  QualityDimension,
-  QualityDimensionResult,
-  QualityVerdict,
-} from './types.js';
 import { isHardGateDimension } from './quality-dimensions.js';
 import { utilityOf } from './quality-delta-index.js';
+import { type CandidateDisposition, type CandidateEvaluation, type ChampionDelta, type FailureFingerprint, type LearningArtifactRef, type QualityDeltaIndex, type QualityDimension, type QualityDimensionResult, type QualityVerdict } from './types.js';
+
 
 export interface BuildCandidateEvaluationInput {
   campaign_id: string;
