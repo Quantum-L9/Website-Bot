@@ -147,7 +147,6 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
     // A bare repository has no work tree, so the merge is performed the way a
     // hosting service does: prove the verified head is a fast-forward of main
     // and advance the ref. Any other shape is refused.
-    const branch = prId.replace(/^pr:/, '');
     const remotePath = this.remoteUrl.replace(/^file:\/\//, '');
     const verified = this.mergeHeadSha(prId);
     if (!verified) throw new Error('merge refused: branch head missing');

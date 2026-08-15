@@ -8,7 +8,6 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { assertSchemaConformance } from '../../../src/recursive/contracts/validate.js';
 import { refForArtifact } from '../../../src/recursive/contracts/digest.js';
-import { sha256Text } from '../../../src/services/hashing.js';
 import type {
   CodeChangeOutcome,
   EngineeringSignal,

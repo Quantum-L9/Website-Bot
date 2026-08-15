@@ -1,0 +1,104 @@
+{
+  "schema": "website-bot.candidate-mutation-plan/v1",
+  "schema_version": "1.0.0",
+  "artifact_type": "CandidateMutationPlan",
+  "candidate_id": "LH-001",
+  "parent_candidate_id": null,
+  "mutation": {
+    "layer": "DESIGN",
+    "target_paths": ["tokens.cta.primary.background", "tokens.cta.primary.foreground", "components.hero.primary_cta"],
+    "forbidden_paths": [
+      "WebsiteBuildBlueprint.routes",
+      "WebsiteBuildBlueprint.sections",
+      "StructuredContentPackage",
+      "PageContentContract"
+    ],
+    "unchanged_contract": [
+      "WebsiteBuildBlueprint.routes",
+      "PageContentContract",
+      "StructuredContentPackage",
+      "SEOContentBlueprint"
+    ]
+  },
+  "hypothesis": {
+    "primary_dimension": "conversion.primary_cta",
+    "guardrail_dimensions": ["visual.hierarchy", "accessibility.contrast", "responsive.overflow"]
+  },
+  "expected_causal_path": [
+    "stronger CTA distinction",
+    "faster visual prioritization",
+    "improved conversion clarity"
+  ],
+  "expected_effects": {
+    "conversion.primary_cta": "IMPROVED",
+    "visual.hierarchy": "NON_REGRESSED",
+    "accessibility.contrast": "NON_REGRESSED"
+  },
+  "confidence_before": 0.63,
+  "inherited_artifacts": {
+    "competitive_landscape": {
+      "artifact_type": "CompetitiveLandscape",
+      "artifact_id": "CompetitiveLandscape:fixture-cl",
+      "payload_digest": "fixture-cl"
+    },
+    "pattern_portfolio": {
+      "artifact_type": "PatternPortfolio",
+      "artifact_id": "PatternPortfolio:fixture-pp",
+      "payload_digest": "fixture-pp"
+    },
+    "website_blueprint": {
+      "artifact_type": "WebsiteBuildBlueprint",
+      "artifact_id": "WebsiteBuildBlueprint:fixture-wb",
+      "payload_digest": "fixture-wb"
+    },
+    "seo_blueprint": {
+      "artifact_type": "SEOContentBlueprint",
+      "artifact_id": "SEOContentBlueprint:fixture-seo",
+      "payload_digest": "fixture-seo"
+    },
+    "content_contract": {
+      "artifact_type": "PageContentContract",
+      "artifact_id": "PageContentContract:fixture-pcc",
+      "payload_digest": "fixture-pcc"
+    },
+    "structured_content": {
+      "artifact_type": "StructuredContentPackage",
+      "artifact_id": "StructuredContentPackage:fixture-scp",
+      "payload_digest": "fixture-scp"
+    }
+  },
+  "experimental_control": {
+    "inherited_exact": [
+      {
+        "artifact_type": "WebsiteBuildBlueprint",
+        "artifact_id": "WebsiteBuildBlueprint:fixture-wb",
+        "payload_digest": "fixture-wb"
+      },
+      {
+        "artifact_type": "PageContentContract",
+        "artifact_id": "PageContentContract:fixture-pcc",
+        "payload_digest": "fixture-pcc"
+      }
+    ],
+    "changed": ["DesignArtifact"]
+  },
+  "mutation_signature": {
+    "layer": "DESIGN",
+    "archetype": "homepage",
+    "component": "hero",
+    "operation_class": "INCREASE_PRIMARY_ACTION_SALIENCE",
+    "dimensions": {
+      "target": ["conversion.primary_cta"],
+      "guardrails": ["accessibility.contrast", "visual.hierarchy"]
+    },
+    "context": {
+      "vertical": "roofing_and_renovations",
+      "conversion_model": "lead_generation",
+      "mobile_priority": "high"
+    }
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "payload_digest": "fixture-lh-001-digest"
+  }
+}
