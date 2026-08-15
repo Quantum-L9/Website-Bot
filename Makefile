@@ -7,7 +7,7 @@ SHELL := /bin/sh
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean
+        site-test site-test-local evidence-validate evidence-show clean workspace-clean
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -41,6 +41,7 @@ help:
 	@printf '%s\n' ''
 	@printf '%s\n' '── Housekeeping ──'
 	@printf '%-30s %s\n' 'make clean' 'Remove local build/generated-site/evidence artifacts'
+	@printf '%-30s %s\n' 'make workspace-clean' 'Ship leftover work to scoped PRs (delegates to Cursor-Governance make clean)'
 
 install:
 	npm ci
@@ -125,3 +126,8 @@ evidence-show:
 
 clean:
 	rm -rf dist .astro build/sites build/evidence
+
+# Ship leftover work to the owning repo as a scoped PR, then prime main.
+# Artifact wipe stays `make clean`. Orchestrator lives in Cursor-Governance.
+workspace-clean:
+	$(MAKE) -C "$(HOME)/.cursor-governance" clean WS="$(CURDIR)"
