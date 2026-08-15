@@ -1,0 +1,11 @@
+{
+  "schema": "source-integrity-receipt.v1",
+  "source_file": "CAMPAIGN_SOURCE.yaml",
+  "digest_algorithm": "sha256",
+  "canonical_encoding": "utf-8",
+  "canonical_line_endings": "lf",
+  "source_digest": "d86592b07012068ac8c28a4140053507cffc3fd67c994e78a7612c6a7408b23a",
+  "source_bytes": 51614,
+  "generated_at": "2026-08-14T20:58:00Z",
+  "campaign_id": "website-bot-five-push-v1"
+}

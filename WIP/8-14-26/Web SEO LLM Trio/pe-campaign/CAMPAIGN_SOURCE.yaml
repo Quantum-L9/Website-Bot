@@ -1,0 +1,1384 @@
+schema: l9.program-execution.campaign-source.v2
+schema_version: 2.0.0
+
+metadata:
+  campaign_id: website-bot-five-push-v1
+  title: Website-Bot Five-Push Intelligence Transaction
+  version: 1.0.0
+  created_at: "2026-08-14T20:58:00Z"
+  status: operator_intake
+  owner: Igor Beylin
+  intended_host: Quantum-L9/Cursor-Governance
+  intended_drop_path: >-
+    WIP/8-14-26/Web SEO LLM Trio/pe-campaign/CAMPAIGN_SOURCE.yaml
+  runtime_root: "$HOME/.l9/programs/website-bot-five-push-v1"
+  worktree_root: "$HOME/.l9/program-worktrees/website-bot-five-push-v1"
+  source_is_immutable: true
+  remote_mutation_during_admission: false
+  planning_ssot: WIP/8-14-26/Web SEO LLM Trio/Program1.md
+  validation_ssot: >-
+    WIP/8-14-26/Web SEO LLM Trio/L9 Website Improvement — Independent Validation Contract Pack.md
+  intent_ssot: WIP/8-14-26/Web SEO LLM Trio/pe-campaign/INTENT.yaml
+
+integrity:
+  digest_algorithm: sha256
+  canonical_encoding: utf-8
+  canonical_line_endings: lf
+  digest_record_location: controller/admission/source-integrity-receipt.json
+  generated_counts_or_digests_may_be_hand_edited: false
+
+pipeline_contract:
+  pair: program-execution-system.v2
+  blueprint: program-execution-blueprint.v2
+  controller: program-execution-controller.v2
+  source_kind: operator_compiled_five_push_sequence
+  required_host_surfaces:
+    - environment/program-execution/core
+    - environment/program-execution/adapters
+    - environment/program-execution/conformance
+    - environment/program-execution/registry
+    - environment/program-execution/integrations
+  compilation_sequence:
+    - preserve_immutable_campaign_source
+    - instantiate_native_blueprint_and_controller
+    - compile_source_into_complete_native_blueprint
+    - collect_and_bind_current_state_evidence
+    - validate_blueprint_in_template_mode
+    - accept_blueprint_only_after_evidence_and_authority_resolution
+    - validate_blueprint_in_instantiated_mode
+    - bootstrap_controller_and_create_program_lock
+    - reconcile_exact_targets
+    - capture_immutable_baselines_do_not_fabricate_shas
+    - run_independent_seo_bot_producer_gate
+    - admit_and_execute_ready_tasks
+    - independently_verify_each_push_with_validation_pack
+    - evaluate_evidence_backed_gates
+    - export_controller_handoff_receipt
+    - obtain_program_owner_terminal_verdict
+  authority_boundaries:
+    campaign_source_owns: operator_intent_and_campaign_semantics
+    program1_owns: per_push_execution_contracts_todos_envelopes_and_evidence_matrices
+    validation_pack_owns: independent_gate_verdicts
+    blueprint_owns: accepted_program_definition
+    controller_owns: mutable_runtime_state_and_gate_results
+    adapters_own: host_translation_and_execution_receipts
+    activation_prompt_owns: launch_mechanics_only
+    website_bot_owns: experience_structure_design_assembly_quality
+    seo_bot_owns: search_content_semantics_final_prose_competitive_landscape
+
+operator_directive:
+  objective: >
+    Build and prove the accepted five-push Website-Bot sequence through the
+    Program Execution pipeline.
+
+    Push 1 proves transport. Push 2 proves intelligence. Push 3 proves
+    contractual convergence. Push 4 proves construction. Push 5 proves
+    improvement. Each push has its own preflight, mutation envelope, rollback,
+    DAG, adversarial evidence matrix, and independent validation gate.
+
+    Do not redesign the sequence. Compile Program1.md into Blueprint Task Cards
+    and execute them. Use the Independent Validation Contract Pack as the
+    verifier contract after every implementation slice. The verifier is not
+    the implementer.
+  mode: controlled_autonomous_until_material_boundary
+  auto_continue:
+    - read_only_inspection
+    - blueprint_materialization
+    - evidence_collection
+    - evidence_determined_unknown_resolution
+    - reversible_website_bot_repo_local_work
+    - deterministic_local_validation
+    - independent_verification
+    - bounded_retry_of_transient_failures
+    - unrelated_ready_work_when_one_subgraph_is_blocked
+  pause_only_for:
+    - missing_or_conflicting_semantic_authority
+    - shared_contract_collision
+    - material_scope_expansion
+    - stale_or_invalid_program_lock
+    - unresolved_blocking_unknown
+    - failed_blocking_gate
+    - security_or_secret_boundary
+    - seo_bot_source_mutation_requested
+    - exact_remote_mutation_approval
+    - exact_merge_tag_release_publish_deploy_or_migration_approval
+    - exact_destructive_action_approval
+    - representative_source_site_unresolved
+  prohibited_actions:
+    - push
+    - pull_request
+    - merge
+    - publish
+    - release
+    - deploy
+    - migrate_production
+    - destructive_operations
+    - external_messages
+    - modify_seo_bot_source
+    - duplicate_bot_interop_types
+    - website_bot_generic_final_copy_fallback
+    - llm_merge_of_blueprints
+    - treat_build_success_as_improvement
+    - more_than_one_automatic_repair_cycle
+    - fabricate_baseline_shas
+
+program:
+  id: website-bot-five-push-v1
+  name: Website-Bot Five-Push Intelligence Transaction
+  version: 1.0.0
+  owner: Igor Beylin
+  definition_status: draft
+  snapshot_at: "2026-08-14"
+  objective: >
+    Prove a real, cryptographically traceable, fail-closed Website-Bot ↔
+    SEO-Bot redesign transaction from CompetitiveLandscape through a
+    release-ready candidate, without provider leakage, duplicate wire
+    contracts, generic Website-Bot content fallback, or treating a successful
+    build as product success.
+  problem_statement: >
+    Website-Bot and SEO-Bot were specified as independent authorities that
+    must cooperate through l9.website-intelligence/v1. Informal "if it works,
+    continue" execution lets mocked seams, lineage drift, and a successful
+    but worse website pass as done. The accepted five-push sequence plus the
+    independent validation pack exist as prose plans; they are not yet a
+    Program Execution campaign an agent can admit, lock, execute, and verify.
+  target_state: >
+    GATE 0 PASSes on real SEO-Bot producers. Push 1 completes one no-mock
+    CompetitiveLandscape → SEOContentBlueprint → sealed PageContentContract →
+    StructuredContentPackage transaction. Push 2 seals a real
+    WebsiteBuildBlueprint from the exact CompetitiveLandscape donor cohort.
+    Push 3 replaces the seam probe with production authorities. Push 4 builds
+    one real candidate that conforms to those authorities. Push 5 emits a
+    QualityDeltaReport, bounds repair to one cycle, and completes one no-mock
+    golden run whose release-readiness gate returns YES. Controller handoff
+    recommends a terminal verdict; the program owner declares it.
+  scope:
+    include:
+      - Website-Bot SeoBuildIntelligencePort and one canonical HTTP adapter
+      - real SEO-Bot CompetitiveLandscape / SEOContentBlueprint / StructuredContentPackage consumption
+      - integration-only WebsiteBuildBlueprint seam probe (Push 1 only)
+      - bounded CompetitorIngestion, pattern harvest, PatternPortfolio, gap analysis
+      - real WebsiteBuildBlueprint generation and seal
+      - deterministic PageContentContract compiler as sole reconciliation authority
+      - production authority wiring into BuildContext
+      - DesignIntelligence, ImageAssetPlanning, SiteAssembler, deterministic schema.org
+      - one real candidate site build plus screenshots
+      - QualityDeltaReport, one bounded repair cycle, release-readiness gate
+      - one no-mock full-system golden run
+      - independent validation pack Gates 0–6
+    exclude:
+      - SEO-Bot source changes
+      - LLM-Router source changes
+      - shared protocol / @quantum-l9/bot-interop schema redesign
+      - Copy Mode / second competitor authority
+      - deployment, release, publish, production cutover
+      - continuous autonomous repair
+      - more than one automatic repair cycle
+      - post-golden-run optimization and additional niches
+      - Cursor-Governance PE core/adapter/conformance mutation
+  contracts:
+    pair: program-execution-system.v2
+    blueprint: program-execution-blueprint.v2
+    controller_minimum: program-execution-controller.v2
+    domain:
+      - l9.website-intelligence/v1
+      - WEBSITE_INTELLIGENCE_LOCK.json
+      - "@quantum-l9/bot-interop"
+      - canonical.schema.plan_document.v1
+  planning_lineage:
+    push_1: website-bot.push-1.real-seo-transaction.v1
+    push_2: website-bot.push-2.donor-intelligence.v1
+    push_3: website-bot.push-3.blueprint-convergence.v1
+    push_4: website-bot.push-4.assembly-build.v1
+    push_5: website-bot.push-5.quality-delta-golden-proof.v1
+  authority_order:
+    - applicable_safety_legal_security_requirements
+    - cursor_governance_canonical_law
+    - program_execution_v2_interface_contract
+    - latest_explicit_operator_instruction
+    - this_immutable_campaign_source
+    - Program1.md_per_push_execution_contracts
+    - independent_validation_contract_pack
+    - l9.website-intelligence/v1_and_bot_interop
+    - verified_current_state_evidence
+    - approved_task_card
+    - exact_rendered_source_contract
+    - repository_local_governance
+    - implementation
+    - documentation
+    - historical_material
+    - UNKNOWN
+  operating_rules:
+    - one_authority_per_responsibility
+    - controller_may_narrow_never_widen
+    - unknown_blocks_only_named_dependencies
+    - promotion_requires_evidence_backed_gates
+    - no_silent_scope_expansion
+    - worker_claim_is_not_verification
+    - verifier_is_not_the_implementer
+    - next_push_requires_prior_gate_pass
+    - passing_unit_tests_are_not_integration_proof
+    - mocked_artifacts_are_not_cross_repo_proof
+    - http_200_is_not_lineage_proof
+    - successful_build_is_not_improvement_proof
+    - do_not_fabricate_baseline_shas
+    - seo_bot_is_read_only
+    - website_bot_owns_experience_structure
+    - seo_bot_owns_search_content_and_final_prose
+    - deterministic_compiler_is_sole_reconciliation_authority
+    - runtime_state_remains_outside_source_and_target_worktrees
+    - no_irreversible_action_without_exact_authority
+  terminal_verdicts:
+    - CONVERGED
+    - CONVERGED_WITH_NON_BLOCKING_RISKS
+    - NOT_CONVERGED
+    - INCONCLUSIVE
+
+targets:
+  - id: TARGET-001
+    name: Website-Bot
+    kind: git_repository
+    authority_owner: Quantum-L9
+    execution_mode: repo_local
+    repository_id: Quantum-L9/Website-Bot
+    source_of_truth: Quantum-L9/Website-Bot
+    local_hint: /Users/ib-mac/Website-Bot
+    environments: [local, ci]
+    mutability: reversible
+    expected_revision: UNKNOWN
+    adapter: git_repo_adapter
+  - id: TARGET-002
+    name: SEO-Bot
+    kind: git_repository
+    authority_owner: Quantum-L9
+    execution_mode: repo_local_read_only
+    repository_id: Quantum-L9/SEO-Bot
+    source_of_truth: Quantum-L9/SEO-Bot
+    local_hint: /Users/ib-mac/SEO-Bot
+    environments: [local]
+    mutability: read_only
+    expected_revision: UNKNOWN
+    adapter: git_repo_adapter
+  - id: TARGET-003
+    name: Program Execution Control Plane
+    kind: program_control
+    authority_owner: Quantum-L9/Cursor-Governance
+    execution_mode: program_control
+    repository_id: Quantum-L9/Cursor-Governance
+    source_of_truth: environment/program-execution
+    environments: [local]
+    mutability: controlled
+    expected_revision: UNKNOWN
+    adapter: controller
+
+authorities:
+  - id: AUTH-001
+    responsibility: program_ownership_and_terminal_verdict
+    owner: Igor Beylin
+    authority_type: human_owner
+    scope: [whole_program]
+    may_delegate: false
+    required_evidence: [controller_handoff_receipt]
+  - id: AUTH-002
+    responsibility: website_bot_implementation
+    owner: Quantum-L9/Website-Bot maintainers
+    authority_type: repository_or_domain_owner
+    scope: [TARGET-001]
+    may_delegate: true
+    required_evidence: [repository_governance, accepted_architecture]
+  - id: AUTH-003
+    responsibility: seo_bot_producer_contracts
+    owner: Quantum-L9/SEO-Bot maintainers
+    authority_type: repository_or_domain_owner
+    scope: [TARGET-002]
+    may_delegate: false
+    required_evidence: [repository_governance, gate_0_receipt]
+  - id: AUTH-004
+    responsibility: shared_intelligence_contracts
+    owner: l9.website-intelligence/v1 + @quantum-l9/bot-interop
+    authority_type: accepted_architecture
+    scope: [TARGET-001, TARGET-002]
+    may_delegate: false
+    required_evidence: [WEBSITE_INTELLIGENCE_LOCK.json, bot_interop_contract_surface]
+  - id: AUTH-005
+    responsibility: independent_validation
+    owner: Independent Validation Contract Pack
+    authority_type: independent_verification_owner
+    scope: [whole_program]
+    may_delegate: false
+    required_evidence: [gate_receipt_pass_fail_or_blocked_by_environment]
+
+evidence_requirements:
+  - id: EVID-001
+    claim: website_bot_and_seo_bot_revisions_and_worktree_state_are_known
+    source_type: repository_inspection
+    source_location: Quantum-L9/Website-Bot + Quantum-L9/SEO-Bot
+    collection_method: read_only_inspection
+    freshness: collect_at_admission
+    producer: controller
+    supports: [GATE-001, TASK-001]
+    contradicts: []
+  - id: EVID-002
+    claim: shared_protocol_and_bot_interop_are_compatible
+    source_type: repository_inspection
+    source_location: WEBSITE_INTELLIGENCE_LOCK.json + @quantum-l9/bot-interop
+    collection_method: read_only_inspection
+    freshness: collect_at_admission
+    producer: controller
+    supports: [GATE-001, DEC-002]
+    contradicts: []
+  - id: EVID-003
+    claim: seo_bot_genuinely_produces_sealed_landscape_blueprint_and_package
+    source_type: independent_validation
+    source_location: Quantum-L9/SEO-Bot
+    collection_method: validation_pack_GATE_0
+    freshness: collect_at_admission
+    producer: AUTH-005
+    supports: [GATE-001, TASK-002]
+    contradicts: []
+  - id: EVID-004
+    claim: seo_bot_build_intelligence_api_is_reachable_with_existing_injected_credentials
+    source_type: network_observation
+    source_location: SEO-Bot build-intelligence API
+    collection_method: reachability_probe_no_secret_exposure
+    freshness: collect_at_admission
+    producer: controller
+    supports: [GATE-001, TASK-002]
+    contradicts: []
+  - id: EVID-005
+    claim: push_1_no_mock_transaction_and_lineage_are_proven
+    source_type: independent_validation
+    source_location: Website-Bot + SEO-Bot
+    collection_method: validation_pack_GATE_1
+    freshness: collect_after_TASK-002
+    producer: AUTH-005
+    supports: [GATE-002, TASK-003]
+    contradicts: []
+  - id: EVID-006
+    claim: real_website_build_blueprint_is_sealed_from_exact_landscape_donors
+    source_type: independent_validation
+    source_location: Website-Bot
+    collection_method: validation_pack_GATE_2
+    freshness: collect_after_TASK-003
+    producer: AUTH-005
+    supports: [GATE-003, TASK-004]
+    contradicts: []
+  - id: EVID-007
+    claim: production_authorities_converged_without_llm_merge
+    source_type: independent_validation
+    source_location: Website-Bot + SEO-Bot
+    collection_method: validation_pack_GATE_3
+    freshness: collect_after_TASK-004
+    producer: AUTH-005
+    supports: [GATE-004, TASK-005]
+    contradicts: []
+  - id: EVID-008
+    claim: one_real_candidate_conforms_to_production_authorities
+    source_type: independent_validation
+    source_location: Website-Bot
+    collection_method: validation_pack_GATE_4
+    freshness: collect_after_TASK-005
+    producer: AUTH-005
+    supports: [GATE-005, TASK-006]
+    contradicts: []
+  - id: EVID-009
+    claim: candidate_is_materially_improved_and_golden_run_succeeded
+    source_type: independent_validation
+    source_location: Website-Bot + SEO-Bot
+    collection_method: validation_pack_GATE_5_and_GATE_6
+    freshness: collect_after_TASK-006
+    producer: AUTH-005
+    supports: [GATE-006, TASK-007]
+    contradicts: []
+
+decisions:
+  - id: DEC-001
+    question: May this campaign mutate SEO-Bot source to make Website-Bot integrate?
+    authority_id: AUTH-001
+    status: accepted
+    options:
+      - id: A
+        description: SEO-Bot is read-only. Shared-contract collisions stop and require a separate program.
+      - id: B
+        description: Website-Bot workers may patch SEO-Bot to pass gates.
+    recommended_option_id: A
+    selected_option_id: A
+    blocking_task_ids: []
+    required_evidence_ids: []
+  - id: DEC-002
+    question: What WebsiteBuildBlueprint is legal in Push 1?
+    authority_id: AUTH-004
+    status: accepted
+    options:
+      - id: A
+        description: Integration-only seam probe, prohibited from production design/build imports.
+      - id: B
+        description: Invent a production WebsiteBuildBlueprint during Push 1.
+    recommended_option_id: A
+    selected_option_id: A
+    blocking_task_ids: []
+    required_evidence_ids: [EVID-002]
+  - id: DEC-003
+    question: Who may issue push-gate verdicts?
+    authority_id: AUTH-005
+    status: accepted
+    options:
+      - id: A
+        description: Independent verifier using the Validation Contract Pack. Implementer claims are not verdicts.
+      - id: B
+        description: The implementing worker marks its own push PASS.
+    recommended_option_id: A
+    selected_option_id: A
+    blocking_task_ids: []
+    required_evidence_ids: []
+  - id: DEC-004
+    question: Does a successful candidate build prove the website improved?
+    authority_id: AUTH-001
+    status: accepted
+    options:
+      - id: A
+        description: No. Improvement is proven only by QualityDeltaReport + GATE 5/6.
+      - id: B
+        description: Yes. Build success is sufficient.
+    recommended_option_id: A
+    selected_option_id: A
+    blocking_task_ids: []
+    required_evidence_ids: []
+  - id: DEC-005
+    question: How many automatic repair cycles are authorized in Push 5?
+    authority_id: AUTH-001
+    status: accepted
+    options:
+      - id: A
+        description: At most one targeted automatic repair cycle. Persistent second failure is terminal.
+      - id: B
+        description: Continuous autonomous repair until quality passes.
+    recommended_option_id: A
+    selected_option_id: A
+    blocking_task_ids: []
+    required_evidence_ids: []
+
+unknowns:
+  - id: UNK-001
+    statement: Exact Website-Bot full commit SHA, branch, and overlapping dirty paths are not captured.
+    status: open
+    owner: AUTH-002
+    blocking_task_ids: [TASK-001, TASK-002]
+    resolution_method: git rev-parse HEAD, git branch --show-current, git status --short, git diff --stat on the operator-selected clone
+    resolution_evidence_ids: [EVID-001]
+  - id: UNK-002
+    statement: Exact SEO-Bot full commit SHA, branch, and dirty state are not captured.
+    status: open
+    owner: AUTH-003
+    blocking_task_ids: [TASK-001, TASK-002]
+    resolution_method: read-only git inspection of the operator-selected SEO-Bot clone
+    resolution_evidence_ids: [EVID-001]
+  - id: UNK-003
+    statement: GATE 0 producer verification has not been run against the landed SEO-Bot.
+    status: open
+    owner: AUTH-005
+    blocking_task_ids: [TASK-002]
+    resolution_method: Execute Validation Pack GATE 0 read-only against Quantum-L9/SEO-Bot
+    resolution_evidence_ids: [EVID-003]
+  - id: UNK-004
+    statement: SEO-Bot build-intelligence reachability and existing injected credential availability are unverified.
+    status: open
+    owner: AUTH-003
+    blocking_task_ids: [TASK-002]
+    resolution_method: Reachability probe using existing runtime-injected credentials. Do not ask the human for secrets. Do not log secret values.
+    resolution_evidence_ids: [EVID-004]
+  - id: UNK-005
+    statement: Representative real source-site identity for the golden run is not bound.
+    status: open
+    owner: AUTH-001
+    blocking_task_ids: [TASK-006]
+    resolution_method: Discover from Website-Bot fixtures/config if one canonical representative exists; otherwise pause for operator selection. Do not invent a site.
+    resolution_evidence_ids: []
+  - id: UNK-006
+    statement: Installed @quantum-l9/bot-interop digest and WEBSITE_INTELLIGENCE_LOCK.json digest are not captured.
+    status: open
+    owner: AUTH-004
+    blocking_task_ids: [TASK-001]
+    resolution_method: Hash the installed lock and contract surface at admission
+    resolution_evidence_ids: [EVID-002]
+
+risks:
+  - id: RISK-001
+    statement: Shared-contract collision between Website-Bot expectations and landed SEO-Bot outputs.
+    tier: T3
+    likelihood: possible
+    impact: critical
+    owner: AUTH-004
+    mitigations:
+      - stop_do_not_duplicate_types
+      - require_separate_remediation_program
+      - gate_0_before_website_bot_mutation
+  - id: RISK-002
+    statement: Implementer self-verifies and treats mocks or HTTP 200 as lineage proof.
+    tier: T3
+    likelihood: possible
+    impact: critical
+    owner: AUTH-005
+    mitigations:
+      - verifier_is_not_implementer
+      - validation_pack_required_after_each_push
+      - mocked_success_is_a_negative_case
+  - id: RISK-003
+    statement: Push-1 seam probe leaks into production design/build path.
+    tier: T2
+    likelihood: possible
+    impact: material
+    owner: AUTH-002
+    mitigations:
+      - import_audit
+      - production_import_of_probe_fails_gate
+  - id: RISK-004
+    statement: Successful build is treated as website improvement.
+    tier: T3
+    likelihood: possible
+    impact: critical
+    owner: AUTH-005
+    mitigations:
+      - DEC-004
+      - GATE_5_and_GATE_6_required
+  - id: RISK-005
+    statement: External SEO-Bot / DataForSEO / LLM spend is irreversible.
+    tier: T2
+    likelihood: likely
+    impact: material
+    owner: AUTH-001
+    mitigations:
+      - bounded_real_transactions
+      - no_deployment
+      - record_spend_as_non_reversible_side_effect
+  - id: RISK-006
+    statement: LLM is used to merge blueprints or assign organic rank.
+    tier: T3
+    likelihood: possible
+    impact: critical
+    owner: AUTH-004
+    mitigations:
+      - zero_llm_landscape_test
+      - deterministic_compiler_only
+      - unexpected_llm_call_fails_closed
+
+waivers: []
+
+prohibited_paths:
+  - id: DNB-001
+    statement: Do not modify SEO-Bot source, LLM-Router, or published bot-interop schema semantics.
+    rationale: DEC-001. Collisions require a separate program.
+  - id: DNB-002
+    statement: Do not fabricate baseline SHAs or artifact hashes.
+    rationale: Program1 is preflight_blocked until real values are captured.
+  - id: DNB-003
+    statement: Do not treat worker completion, unit tests, mocks, or HTTP 200 as independent verification.
+    rationale: Validation pack doctrine.
+  - id: DNB-004
+    statement: Do not import the Push-1 seam probe into production Website-Bot design/build paths.
+    rationale: Real WebsiteBuildBlueprint is a Push-2 product.
+  - id: DNB-005
+    statement: Do not generate Website-Bot generic final copy as SEO-Bot fallback.
+    rationale: Fail closed. SEO-Bot owns final prose.
+  - id: DNB-006
+    statement: Do not let an LLM merge WebsiteBuildBlueprint and SEOContentBlueprint.
+    rationale: Deterministic compiler is the only reconciliation authority.
+  - id: DNB-007
+    statement: Do not start the next push with a failed or unverified prior gate.
+    rationale: Validation pack promotion law.
+  - id: DNB-008
+    statement: Do not deploy, release, publish, or cut over production.
+    rationale: This program proves a candidate, not a launch.
+  - id: DNB-009
+    statement: Do not run more than one automatic repair cycle.
+    rationale: DEC-005. Persistent second failure is terminal.
+  - id: DNB-010
+    statement: Do not place mutable PE runtime state in Website-Bot, SEO-Bot, or Cursor-Governance worktrees.
+    rationale: Runtime belongs under $HOME/.l9/programs/website-bot-five-push-v1.
+  - id: DNB-011
+    statement: Do not mutate Cursor-Governance Program Execution core/adapters/conformance for this product campaign.
+    rationale: This campaign consumes PE; it does not extend PE.
+  - id: DNB-012
+    statement: Do not expose credentials in receipts, logs, or chat.
+    rationale: Validation pack and secret-boundary pause.
+
+workstreams:
+  - id: WS-01
+    name: authority_and_producer_lock
+    owner: AUTH-001
+    objective: Admit the campaign, capture exact baselines, and pass GATE 0 before any Website-Bot mutation.
+  - id: WS-02
+    name: push_1_transport
+    owner: AUTH-002
+    objective: Prove the real Website-Bot ↔ SEO-Bot intelligence transaction.
+  - id: WS-03
+    name: push_2_intelligence
+    owner: AUTH-002
+    objective: Produce the real WebsiteBuildBlueprint from the proven CompetitiveLandscape.
+  - id: WS-04
+    name: push_3_convergence
+    owner: AUTH-002
+    objective: Converge the two real blueprints into production content authorities.
+  - id: WS-05
+    name: push_4_construction
+    owner: AUTH-002
+    objective: Assemble and build one real blueprint-conforming candidate.
+  - id: WS-06
+    name: push_5_assurance
+    owner: AUTH-002
+    objective: Prove improvement, bound repair, and complete the no-mock golden run.
+  - id: WS-07
+    name: closeout
+    owner: AUTH-001
+    objective: Export Controller handoff for program-owner terminal verdict.
+
+dependency_edges:
+  - from: TASK-001
+    to: TASK-002
+  - from: TASK-002
+    to: TASK-003
+  - from: TASK-003
+    to: TASK-004
+  - from: TASK-004
+    to: TASK-005
+  - from: TASK-005
+    to: TASK-006
+  - from: TASK-006
+    to: TASK-007
+
+waves:
+  - id: W0
+    name: admission_and_gate_0
+    task_ids: [TASK-001]
+    predecessor_wave_ids: []
+    exit_gate_ids: [GATE-001]
+  - id: W1
+    name: push_1_transport
+    task_ids: [TASK-002]
+    predecessor_wave_ids: [W0]
+    exit_gate_ids: [GATE-002]
+  - id: W2
+    name: push_2_intelligence
+    task_ids: [TASK-003]
+    predecessor_wave_ids: [W1]
+    exit_gate_ids: [GATE-003]
+  - id: W3
+    name: push_3_convergence
+    task_ids: [TASK-004]
+    predecessor_wave_ids: [W2]
+    exit_gate_ids: [GATE-004]
+  - id: W4
+    name: push_4_construction
+    task_ids: [TASK-005]
+    predecessor_wave_ids: [W3]
+    exit_gate_ids: [GATE-005]
+  - id: W5
+    name: push_5_assurance
+    task_ids: [TASK-006]
+    predecessor_wave_ids: [W4]
+    exit_gate_ids: [GATE-006]
+  - id: W6
+    name: closeout
+    task_ids: [TASK-007]
+    predecessor_wave_ids: [W5]
+    exit_gate_ids: [GATE-007]
+
+tasks:
+  - id: TASK-001
+    title: Admit campaign, lock baselines, and pass SEO-Bot GATE 0
+    definition_status: ready
+    workstream_id: WS-01
+    wave_id: W0
+    target_id: TARGET-003
+    execution_kind: program_control
+    plan_ref: website-bot.push-1.real-seo-transaction.v1#P1-00
+    validation_ref: GATE_0
+    objective: >
+      Preserve this source, instantiate Blueprint + Controller, capture exact
+      Website-Bot and SEO-Bot revisions without fabricating SHAs, hash shared
+      contracts, prove protocol compatibility, and independently verify that
+      SEO-Bot produces CompetitiveLandscape, SEOContentBlueprint, and
+      StructuredContentPackage.
+    authority_basis_ids: [AUTH-001, AUTH-003, AUTH-004, AUTH-005]
+    required_decision_ids: [DEC-001, DEC-003]
+    blocking_unknown_ids: [UNK-001, UNK-002, UNK-006]
+    input_evidence_ids: [EVID-001, EVID-002, EVID-003, EVID-004]
+    actions:
+      - preserve_immutable_campaign_source
+      - materialize_and_validate_native_blueprint
+      - capture_website_bot_full_sha_branch_dirt
+      - capture_seo_bot_full_sha_branch_dirt_read_only
+      - hash_website_intelligence_lock_and_bot_interop
+      - inspect_seo_bot_next_website_bot_inputs
+      - execute_validation_pack_GATE_0
+      - probe_seo_bot_reachability_without_exposing_secrets
+      - resolve_evidence_determined_unknowns
+      - stop_on_shared_contract_collision
+    outputs:
+      - id: OUT-001
+        type: evidence
+        location: CURRENT_STATE_DELTA.yaml
+        required: true
+      - id: OUT-002
+        type: receipt
+        location: GATE_0.receipt.yaml
+        required: true
+    acceptance:
+      - id: AC-001
+        statement: Exact Website-Bot and SEO-Bot SHAs, lock digest, and bot-interop digest are recorded.
+        required_evidence_types: [inspection, digest]
+      - id: AC-002
+        statement: Validation Pack GATE 0 is PASS or BLOCKED_BY_ENVIRONMENT with structural producer proof. FAIL blocks W1.
+        required_evidence_types: [independent_validation]
+    validation:
+      - id: VAL-001
+        method: inspection
+        command_or_inspection: Validation Pack GATE 0 against Quantum-L9/SEO-Bot. Do not modify Website-Bot.
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - fabricated_sha
+      - seo_bot_mutated
+      - llm_assigns_or_overrides_organic_rank
+      - selected_donors_without_observations
+      - landscape_invokes_llm
+      - unexplained_dirty_overlap
+    rollback:
+      strategy: discard_unaccepted_generated_blueprint_and_preserve_source
+      trigger: admission_or_gate_0_failure
+      validation: No Website-Bot or SEO-Bot source was mutated.
+    risk:
+      tier: T0
+      reversibility: fully_reversible
+      blast_radius: program_definition
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-001]
+
+  - id: TASK-002
+    title: "Push 1 — Real SEO-Bot ↔ Website-Bot intelligence transaction"
+    definition_status: blocked
+    workstream_id: WS-02
+    wave_id: W1
+    target_id: TARGET-001
+    execution_kind: repo_local
+    plan_ref: website-bot.push-1.real-seo-transaction.v1
+    validation_ref: GATE_1
+    todo_ids: [P1-01, P1-02, P1-03, P1-04, P1-05, P1-06, P1-07, P1-08]
+    objective: >
+      Implement SeoBuildIntelligencePort and one canonical HTTP adapter.
+      Obtain and validate a real CompetitiveLandscape and SEOContentBlueprint.
+      Seal an integration-only WebsiteBuildBlueprint seam probe. Deterministically
+      compile PageContentContract with zero LLM calls. Obtain a real
+      StructuredContentPackage. Persist the Push-1 receipt. Independently run GATE 1.
+    authority_basis_ids: [AUTH-002, AUTH-004, AUTH-005]
+    required_decision_ids: [DEC-001, DEC-002, DEC-003]
+    blocking_unknown_ids: [UNK-003, UNK-004]
+    input_evidence_ids: [EVID-001, EVID-002, EVID-003, EVID-004]
+    actions:
+      - execute_Program1_Push_1_todos_P1-01_through_P1-08
+      - keep_seam_probe_out_of_production_imports
+      - run_adversarial_auth_malformed_tamper_lineage_outage_tests
+      - persist_push_1_artifact_chain_receipt
+      - run_canonical_website_bot_validation
+      - spawn_independent_verifier_validation_pack_GATE_1
+    outputs:
+      - id: OUT-003
+        type: receipt
+        location: PUSH_1.validation.receipt.yaml
+        required: true
+    acceptance:
+      - id: AC-003
+        statement: One no-mock transaction completes with exact artifact lineage and zero Website-Bot final-copy fallback.
+        required_evidence_types: [network_observation, independent_validation]
+      - id: AC-004
+        statement: Validation Pack GATE 1 is PASS.
+        required_evidence_types: [independent_validation]
+    validation:
+      - id: VAL-002
+        method: command
+        command_or_inspection: Program1 Push-1 evidence matrix plus Validation Pack GATE 1
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - direct_stage_http_to_seo_bot
+      - mocked_seo_bot_success_claim
+      - generic_final_copy_fallback
+      - provider_model_knob_leak
+      - production_import_of_seam_probe
+      - implementer_self_pass
+    rollback:
+      strategy: restore_only_push_1_touched_website_bot_transport_config_tests
+      trigger: GATE_1_FAIL_or_canonical_validation_regression
+      validation: SEO-Bot unmodified. Unrelated Website-Bot work preserved.
+    risk:
+      tier: T2
+      reversibility: reversible
+      blast_radius: website_bot_transport
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-002]
+
+  - id: TASK-003
+    title: "Push 2 — Donor intelligence and real WebsiteBuildBlueprint"
+    definition_status: blocked
+    workstream_id: WS-03
+    wave_id: W2
+    target_id: TARGET-001
+    execution_kind: repo_local
+    plan_ref: website-bot.push-2.donor-intelligence.v1
+    validation_ref: GATE_2
+    todo_ids: [P2-00, P2-01, P2-02, P2-03, P2-04, P2-05, P2-06, P2-07]
+    objective: >
+      Consume the exact Push-1 CompetitiveLandscape donor cohort. Ingest under
+      strict crawl bounds. Extract evidence-backed transferable patterns.
+      Synthesize PatternPortfolio. Run baseline-vs-market gap analysis. Seal
+      the first real WebsiteBuildBlueprint. Independently run GATE 2.
+    authority_basis_ids: [AUTH-002, AUTH-004, AUTH-005]
+    required_decision_ids: [DEC-003]
+    blocking_unknown_ids: []
+    input_evidence_ids: [EVID-005]
+    actions:
+      - prove_push_1_gate_pass_and_exact_landscape_identity
+      - execute_Program1_Push_2_todos
+      - prohibit_second_competitor_authority
+      - prohibit_copy_mode_and_donor_expression_reuse
+      - persist_push_2_artifact_chain
+      - spawn_independent_verifier_validation_pack_GATE_2
+    outputs:
+      - id: OUT-004
+        type: artifact
+        location: WebsiteBuildBlueprint sealed artifact
+        required: true
+    acceptance:
+      - id: AC-005
+        statement: CompetitiveLandscape is the sole donor authority and a real WebsiteBuildBlueprint is sealed with exact lineage.
+        required_evidence_types: [independent_validation, digest]
+    validation:
+      - id: VAL-003
+        method: command
+        command_or_inspection: Program1 Push-2 matrix plus Validation Pack GATE 2
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - independent_competitor_discovery
+      - crawl_scope_widened_without_approval
+      - copy_mode
+      - pattern_without_evidence
+    rollback:
+      strategy: restore_only_push_2_touched_website_bot_paths
+      trigger: GATE_2_FAIL
+      validation: Push-1 seam tests still pass. SEO-Bot unmodified.
+    risk:
+      tier: T2
+      reversibility: reversible
+      blast_radius: website_bot_intelligence
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-003]
+
+  - id: TASK-004
+    title: "Push 3 — Production blueprint convergence"
+    definition_status: blocked
+    workstream_id: WS-04
+    wave_id: W3
+    target_id: TARGET-001
+    execution_kind: repo_local
+    plan_ref: website-bot.push-3.blueprint-convergence.v1
+    validation_ref: GATE_3
+    todo_ids: [P3-00, P3-01, P3-02, P3-03, P3-04, P3-05, P3-06, P3-07]
+    objective: >
+      Replace the Push-1 seam probe with the real WebsiteBuildBlueprint.
+      Obtain the real SEOContentBlueprint for the identical landscape.
+      Deterministically compile the production PageContentContract. Obtain and
+      validate StructuredContentPackage. Wire both as exclusive downstream
+      authorities without invoking design/assembly. Independently run GATE 3.
+    authority_basis_ids: [AUTH-002, AUTH-004, AUTH-005]
+    required_decision_ids: [DEC-003]
+    blocking_unknown_ids: []
+    input_evidence_ids: [EVID-005, EVID-006]
+    actions:
+      - prove_push_1_and_push_2_gates_pass
+      - execute_Program1_Push_3_todos
+      - prohibit_llm_blueprint_merge
+      - wire_production_authorities_only
+      - spawn_independent_verifier_validation_pack_GATE_3
+    outputs:
+      - id: OUT-005
+        type: artifact
+        location: production PageContentContract + StructuredContentPackage
+        required: true
+    acceptance:
+      - id: AC-006
+        statement: Two independent authorities converge through the deterministic compiler and become the only production downstream inputs.
+        required_evidence_types: [independent_validation]
+    validation:
+      - id: VAL-004
+        method: command
+        command_or_inspection: Program1 Push-3 matrix plus Validation Pack GATE 3
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - llm_merge
+      - lineage_relaxed_to_client_build_match
+      - design_or_assembly_invoked
+    rollback:
+      strategy: restore_push_3_touched_integration_paths_preserve_push_2_blueprint
+      trigger: GATE_3_FAIL
+      validation: Push-2 WebsiteBuildBlueprint intact. Push-1 adapter tests green.
+    risk:
+      tier: T2
+      reversibility: reversible
+      blast_radius: website_bot_convergence
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-004]
+
+  - id: TASK-005
+    title: "Push 4 — Blueprint-constrained assembly and first real redesign"
+    definition_status: blocked
+    workstream_id: WS-05
+    wave_id: W4
+    target_id: TARGET-001
+    execution_kind: repo_local
+    plan_ref: website-bot.push-4.assembly-build.v1
+    validation_ref: GATE_4
+    todo_ids: [P4-00, P4-01, P4-02, P4-03, P4-04, P4-05, P4-06, P4-07]
+    objective: >
+      Translate the production WebsiteBuildBlueprint into design assets,
+      ingest StructuredContentPackage as immutable final prose, constrain
+      SiteAssembler to blueprint routes/section order, serialize schema.org
+      deterministically, build one real candidate, capture screenshots, and
+      emit Blueprint Conformance Report. Independently run GATE 4.
+    authority_basis_ids: [AUTH-002, AUTH-005]
+    required_decision_ids: [DEC-003, DEC-004]
+    blocking_unknown_ids: []
+    input_evidence_ids: [EVID-007]
+    actions:
+      - prove_push_3_gate_pass
+      - execute_Program1_Push_4_todos
+      - keep_design_as_implementation_not_strategy
+      - keep_structured_content_immutable_except_deterministic_render
+      - persist_candidate_and_screenshots
+      - spawn_independent_verifier_validation_pack_GATE_4
+    outputs:
+      - id: OUT-006
+        type: artifact
+        location: candidate website + Blueprint Conformance Report
+        required: true
+    acceptance:
+      - id: AC-007
+        statement: One real candidate builds and conforms. Build success is not treated as improvement.
+        required_evidence_types: [independent_validation, screenshot]
+    validation:
+      - id: VAL-005
+        method: command
+        command_or_inspection: Program1 Push-4 matrix plus Validation Pack GATE 4
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - assembler_invents_page_architecture
+      - content_regenerated
+      - build_success_overrides_conformance_failure
+      - seo_bot_mutated
+    rollback:
+      strategy: restore_only_push_4_touched_paths_discard_candidate_preserve_push_3
+      trigger: GATE_4_FAIL
+      validation: Push-3 artifacts unchanged.
+    risk:
+      tier: T2
+      reversibility: reversible
+      blast_radius: website_bot_assembly
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-005]
+
+  - id: TASK-006
+    title: "Push 5 — Quality delta, bounded repair, golden proof"
+    definition_status: blocked
+    workstream_id: WS-06
+    wave_id: W5
+    target_id: TARGET-001
+    execution_kind: repo_local
+    plan_ref: website-bot.push-5.quality-delta-golden-proof.v1
+    validation_ref: [GATE_5, GATE_6]
+    todo_ids: [P5-00, P5-01, P5-02, P5-03, P5-04, P5-05, P5-06, P5-07]
+    objective: >
+      Compare the exact Push-4 candidate to the exact source-site baseline.
+      Emit QualityDeltaReport. Permit at most one targeted repair cycle.
+      Implement release-readiness. Run one no-mock full-system golden
+      execution. Independently run GATE 5 and GATE 6.
+    authority_basis_ids: [AUTH-002, AUTH-005]
+    required_decision_ids: [DEC-003, DEC-004, DEC-005]
+    blocking_unknown_ids: [UNK-005]
+    input_evidence_ids: [EVID-008]
+    actions:
+      - prove_push_4_gate_pass_and_bind_candidate_identity
+      - bind_representative_source_site_or_pause
+      - execute_Program1_Push_5_todos
+      - bound_automatic_repair_to_one_cycle
+      - treat_persistent_second_failure_as_terminal
+      - run_no_mock_golden_run
+      - audit_artifact_chain_and_forbidden_llm_ops
+      - spawn_independent_verifier_validation_pack_GATE_5_and_GATE_6
+    outputs:
+      - id: OUT-007
+        type: artifact
+        location: QualityDeltaReport + golden-run receipt
+        required: true
+    acceptance:
+      - id: AC-008
+        statement: Blocking quality dimensions are improved or non-regressed, repair is bounded, release-readiness is YES, golden run succeeds with complete artifact chain.
+        required_evidence_types: [independent_validation]
+    validation:
+      - id: VAL-006
+        method: command
+        command_or_inspection: Program1 Push-5 matrix plus Validation Pack GATE 5 and GATE 6
+        environment: local
+        expected_result: PASS
+    negative_cases:
+      - invented_numeric_visual_scores
+      - more_than_one_automatic_repair
+      - mocked_stage_substitution
+      - forbidden_llm_operation
+      - deployment
+    rollback:
+      strategy: restore_push_5_quality_repair_paths_preserve_push_4_candidate
+      trigger: GATE_5_or_GATE_6_FAIL
+      validation: Push-4 candidate remains recoverable.
+    risk:
+      tier: T3
+      reversibility: reversible
+      blast_radius: website_bot_assurance
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-006]
+
+  - id: TASK-007
+    title: Export Controller handoff
+    definition_status: blocked
+    workstream_id: WS-07
+    wave_id: W6
+    target_id: TARGET-003
+    execution_kind: program_control
+    objective: >
+      Reconcile push receipts, validation-pack verdicts, residual Unknowns,
+      irreversible spend, and rollback state into the Controller Handoff
+      Receipt. Recommend a terminal verdict. Do not declare it.
+    authority_basis_ids: [AUTH-001]
+    required_decision_ids: []
+    blocking_unknown_ids: []
+    input_evidence_ids: [EVID-003, EVID-005, EVID-006, EVID-007, EVID-008, EVID-009]
+    actions:
+      - reconcile_task_and_gate_results
+      - record_exact_revisions_and_artifact_digests
+      - record_remaining_unknowns_risks_waivers
+      - record_irreversible_external_spend
+      - export_controller_handoff_receipt
+      - request_program_owner_terminal_verdict
+    outputs:
+      - id: OUT-008
+        type: receipt
+        location: handoff.json
+        required: true
+    acceptance:
+      - id: AC-009
+        statement: Handoff is schema-valid and contains every push receipt, GATE 0–6 verdict, residual risk, and recommended verdict only.
+        required_evidence_types: [receipt, inspection]
+    validation:
+      - id: VAL-007
+        method: inspection
+        command_or_inspection: Validate Controller Handoff Receipt against program-execution-controller.handoff-receipt.v2
+        environment: controller
+        expected_result: PASS
+    negative_cases:
+      - controller_declares_terminal_verdict
+      - missing_failed_or_blocked_gate
+      - unsupported_remote_event_claim
+    rollback:
+      strategy: regenerate_handoff_from_immutable_controller_ledger
+      trigger: handoff_validation_failure
+      validation: Prior evidence unchanged.
+    risk:
+      tier: T0
+      reversibility: fully_reversible
+      blast_radius: closeout_only
+    authorization_ceiling:
+      inspect: true
+      local_write: true
+      commit: false
+      push: false
+      pull_request: false
+      merge: false
+      publish_or_release: false
+      deploy_or_migrate: false
+      destructive_change: false
+      external_message: false
+    completion_gate_ids: [GATE-007]
+
+gates:
+  - id: GATE-001
+    name: admission_and_seo_bot_producer
+    gate_type: entry
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-001]
+    required_evidence_ids: [EVID-001, EVID-002, EVID-003]
+    validation_pack_gate: GATE_0
+    pass_criteria:
+      - Campaign source preserved and digest-bound.
+      - Native Blueprint validates in template mode.
+      - Website-Bot and SEO-Bot full SHAs are real captured values.
+      - Shared lock and bot-interop digests are recorded.
+      - Validation Pack GATE 0 is PASS, or BLOCKED_BY_ENVIRONMENT with structural producer proof and no implementation defect disguised as environment.
+      - SEO-Bot worktree was not mutated.
+    failure_effect: Block Controller task admission for W1+.
+  - id: GATE-002
+    name: push_1_real_transaction
+    gate_type: completion
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-002]
+    required_evidence_ids: [EVID-005]
+    validation_pack_gate: GATE_1
+    pass_criteria:
+      - One canonical SeoBuildIntelligencePort adapter exists.
+      - One no-mock transaction completed with exact lineage.
+      - Zero Website-Bot generic final-copy fallback invocations.
+      - Seam probe is not imported by production paths.
+      - Validation Pack GATE 1 is PASS.
+    failure_effect: Block Push 2.
+  - id: GATE-003
+    name: push_2_donor_intelligence
+    gate_type: completion
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-003]
+    required_evidence_ids: [EVID-006]
+    validation_pack_gate: GATE_2
+    pass_criteria:
+      - CompetitiveLandscape is the sole donor authority.
+      - Real WebsiteBuildBlueprint is sealed with exact landscape lineage.
+      - Validation Pack GATE 2 is PASS.
+    failure_effect: Block Push 3.
+  - id: GATE-004
+    name: push_3_production_convergence
+    gate_type: completion
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-004]
+    required_evidence_ids: [EVID-007]
+    validation_pack_gate: GATE_3
+    pass_criteria:
+      - Real WebsiteBuildBlueprint replaced the seam probe.
+      - Deterministic compiler is the only reconciliation authority.
+      - Production StructuredContentPackage is the exclusive prose authority.
+      - Validation Pack GATE 3 is PASS.
+    failure_effect: Block Push 4.
+  - id: GATE-005
+    name: push_4_assembly_and_build
+    gate_type: completion
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-005]
+    required_evidence_ids: [EVID-008]
+    validation_pack_gate: GATE_4
+    pass_criteria:
+      - One real candidate builds.
+      - Blueprint Conformance Report PASSes.
+      - Representative screenshots exist.
+      - Build success is not recorded as improvement proof.
+      - Validation Pack GATE 4 is PASS.
+    failure_effect: Block Push 5.
+  - id: GATE-006
+    name: push_5_improvement_and_golden_run
+    gate_type: completion
+    blocking: true
+    owner_authority_id: AUTH-005
+    task_ids: [TASK-006]
+    required_evidence_ids: [EVID-009]
+    validation_pack_gate: [GATE_5, GATE_6]
+    pass_criteria:
+      - QualityDeltaReport exists against exact baseline and candidate.
+      - Blocking dimensions are IMPROVED or NON_REGRESSED, or visual non-regressions are evidence-supported.
+      - Automatic repair ran at most once.
+      - Release-readiness is YES.
+      - One no-mock golden run succeeded.
+      - Validation Pack GATE 5 and GATE 6 are PASS.
+    failure_effect: Block handoff as success.
+  - id: GATE-007
+    name: controller_handoff
+    gate_type: convergence
+    blocking: true
+    owner_authority_id: AUTH-001
+    task_ids: [TASK-007]
+    required_evidence_ids: [EVID-009]
+    pass_criteria:
+      - Controller Handoff Receipt is schema-valid.
+      - GATE 0–6 verdicts and residual Unknowns/risks are explicit.
+      - Controller recommends but does not declare a terminal verdict.
+    failure_effect: Terminal verdict remains INCONCLUSIVE.
+
+scheduler:
+  objective_order:
+    - unblock_critical_path
+    - complete_authority_and_producer_lock
+    - execute_ready_reversible_website_bot_work
+    - preserve_independent_verification
+    - never_start_next_push_on_failed_gate
+    - close_out_with_complete_evidence
+  one_writer_per_repository: true
+  non_mutating_cross_repository_tasks_allowed: true
+  mutating_cross_repository_tasks_forbidden: true
+  seo_bot_mutation: forbidden
+  initial_max_workers: 1
+  maximum_workers_without_new_authorization: 2
+  blocked_task_behavior: >
+    Block only the affected task or subgraph, continue unrelated ready work,
+    and include the blocker in the next program digest.
+
+retry_policy:
+  max_attempts: 2
+  retryable:
+    - worker_timeout
+    - worker_crash
+    - temporary_file_lock
+    - transient_test_infrastructure
+    - temporary_adapter_failure
+    - temporary_seo_bot_reachability_failure
+  non_retryable:
+    - deterministic_test_failure
+    - scope_violation
+    - secret_access_attempt
+    - stale_base_revision
+    - semantic_unknown
+    - shared_contract_collision
+    - implementer_self_verification
+    - seo_bot_source_mutation
+    - fabricated_baseline
+    - forbidden_command
+    - more_than_one_automatic_repair
+  preserve_every_attempt: true
+  require_new_source_contract_when:
+    - accepted_objective_changes
+    - materially_authorized_target_set_changes
+    - authorization_ceiling_changes
+    - risk_acceptance_changes
+    - mandatory_convergence_gate_changes
+    - seo_bot_becomes_writable
+
+observability:
+  program_progress_fields:
+    - program
+    - current_wave
+    - current_task
+    - current_push
+    - controller_status
+    - website_bot_revision
+    - seo_bot_revision
+    - last_validation_pack_gate
+    - last_gate_verdict
+    - evidence_added
+    - unknowns_remaining
+    - risks_changed
+    - next_ready_task
+    - approval_required
+  evidence_policy:
+    append_only: true
+    bind_exact_revision: true
+    bind_collection_method: true
+    bind_environment: true
+    bind_producer_and_timestamp: true
+    distinguish_fact_intent_inference_recommendation_unknown: true
+    implementer_receipt_is_not_gate_verdict: true
+
+cutover_and_rollback:
+  cutover_authority: exact_human_approval_required
+  preconditions:
+    - accepted_blueprint
+    - valid_program_lock
+    - exact_candidate_revision
+    - independent_verification
+    - all_predecessor_gates_pass
+    - current_rollback_proof
+  rollback_rules:
+    - restore_only_the_current_push_touched_website_bot_paths
+    - never_modify_seo_bot_during_rollback
+    - preserve_upstream_push_artifacts
+    - preserve_failed_gate_evidence
+    - never_delete_valid_historical_evidence
+    - external_api_and_llm_spend_is_non_reversible
+  remote_transition:
+    authorized: false
+
+closeout:
+  required_handoff_content:
+    - campaign_source_digest
+    - blueprint_digest
+    - program_lock_digest
+    - website_bot_base_and_final_revisions
+    - seo_bot_read_only_revision
+    - gate_0_through_gate_6_verdicts
+    - push_1_through_push_5_receipts
+    - artifact_chain_digests
+    - representative_source_site_identity
+    - irreversible_external_spend_record
+    - remaining_unknowns_risks_and_waivers
+    - rollback_state
+    - recommended_terminal_verdict
+  controller_may_declare_terminal_verdict: false
+  terminal_verdict_authority_id: AUTH-001
