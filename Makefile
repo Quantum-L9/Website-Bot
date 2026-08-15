@@ -138,7 +138,11 @@ PR_BASE ?= main
 
 pr: verify-all
 	git push -u origin HEAD
-	gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"
+	@if gh pr view --json url > /dev/null 2>&1; then \
+		echo "PR already open:"; gh pr view --json url --jq .url; \
+	else \
+		gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"; \
+	fi
 
 push: verify-all
 	git push origin HEAD
