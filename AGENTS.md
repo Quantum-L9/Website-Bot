@@ -8,10 +8,11 @@ Maintain this generated Astro website without drifting from the source domain sp
 
 1. Current explicit operator instruction.
 2. Domain specification and generated contracts.
-3. Existing repository files.
-4. Machine validation evidence.
-5. Root docs in this pack.
-6. General best practices.
+3. Architecture Decision Records in `docs/architecture/`.
+4. Existing repository files.
+5. Machine validation evidence.
+6. Root docs in this pack.
+7. General best practices.
 
 When sources conflict, stop and report the conflict. Do not silently choose the more convenient answer.
 
@@ -79,3 +80,19 @@ Agents must not invent external values. Convert missing operator-owned values in
   `INFISICAL_*`, then run. Do **not** ask the human for PostHog values when resolve works.
 - Never commit `.env` / `.env.local` values. Prefer Infisical over inventing credentials.
 
+<!-- BEGIN L9 FORMATTER OWNERSHIP (generated — do not edit) -->
+
+## Formatter ownership
+
+Workspace class: `eslint_owned` — Workspaces where ESLint/Prettier config in the repo is authoritative for JS/TS. Python is still Ruff-owned.
+
+Exactly one formatter owns each language. Do not reformat a file with a tool other than its owner, and do not add config for a competing formatter: the result is a diff that churns on every save.
+
+| Languages | Owner | Note |
+|---|---|---|
+| `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `json`, `jsonc` | eslint (this repo's own config) | do not add a competing formatter config |
+| `python` | **ruff** | bound by the governed IDE profile |
+
+Generated from `environment/ide/policy.json` in the governance clone by `ops/scripts/adapters/agentdocs.sh`. Edit the policy, not this block.
+
+<!-- END L9 FORMATTER OWNERSHIP -->

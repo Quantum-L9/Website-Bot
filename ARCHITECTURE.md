@@ -54,3 +54,7 @@ deploy secrets; Node `loadSecrets()` performs vault hydration. CLI `infisical ru
 wrap is deferred (no curl|bash installer in CI).
 See `docs/architecture/ADR-0009-infisical-secrets-plane.md`.
 
+## Architecture decisions
+
+Numbered ADRs live in [`docs/architecture/`](docs/architecture/README.md).
+
