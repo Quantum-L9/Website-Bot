@@ -53,7 +53,10 @@
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
     "verify:launch-env": "npm run validate",
     "verify:deploy-secrets": "node scripts/verify-deploy-secrets.mjs",
-    "verify:visual-qa": "node scripts/verify-visual-qa.mjs"
+    "verify:visual-qa": "node scripts/verify-visual-qa.mjs",
+    "campaign": "npx tsx scripts/campaign.ts",
+    "campaign:status": "npx tsx scripts/campaign-status.ts",
+    "campaign:review": "npx tsx scripts/campaign-review.ts"
   },
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",

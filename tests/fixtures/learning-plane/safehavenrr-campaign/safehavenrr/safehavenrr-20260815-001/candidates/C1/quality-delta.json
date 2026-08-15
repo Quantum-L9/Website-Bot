@@ -1,0 +1,98 @@
+{
+  "schema": "website-bot.quality-delta-index/v1",
+  "schema_version": "1.0.0",
+  "campaign_id": "safehavenrr-20260815-001",
+  "candidate_id": "C1",
+  "results": [
+    {
+      "schema": "website-bot.quality-dimension-result/v1",
+      "schema_version": "1.0.0",
+      "dimension": "conversion.primary_cta",
+      "candidate_id": "C1",
+      "campaign_id": "safehavenrr-20260815-001",
+      "evidence": {
+        "baseline": "screenshot:baseline:home:mobile",
+        "champion": "screenshot:C0:home:mobile",
+        "challenger": "screenshot:C1:home:mobile"
+      },
+      "verdict_vs_baseline": "IMPROVED",
+      "verdict_vs_champion": "IMPROVED",
+      "hard_gate": true,
+      "responsible_layer": "DESIGN",
+      "confidence": "HIGH",
+      "measurements": { "cta_count": 1 },
+      "status": "PASS",
+      "evidence_refs": ["screenshot:C1:home:mobile", "dom-probe:C1:primary-cta"]
+    },
+    {
+      "schema": "website-bot.quality-dimension-result/v1",
+      "schema_version": "1.0.0",
+      "dimension": "conversion.mobile_cta",
+      "candidate_id": "C1",
+      "campaign_id": "safehavenrr-20260815-001",
+      "evidence": { "baseline": null, "champion": null, "challenger": null },
+      "verdict_vs_baseline": "IMPROVED",
+      "verdict_vs_champion": "IMPROVED",
+      "hard_gate": true,
+      "responsible_layer": "DESIGN",
+      "confidence": "MEDIUM",
+      "measurements": {},
+      "status": "PASS",
+      "evidence_refs": []
+    },
+    {
+      "schema": "website-bot.quality-dimension-result/v1",
+      "schema_version": "1.0.0",
+      "dimension": "conversion.trust_visibility",
+      "candidate_id": "C1",
+      "campaign_id": "safehavenrr-20260815-001",
+      "evidence": { "baseline": null, "champion": null, "challenger": null },
+      "verdict_vs_baseline": "NON_REGRESSED",
+      "verdict_vs_champion": "NON_REGRESSED",
+      "hard_gate": true,
+      "responsible_layer": "DESIGN",
+      "confidence": "MEDIUM",
+      "measurements": {},
+      "status": "PASS",
+      "evidence_refs": []
+    },
+    {
+      "schema": "website-bot.quality-dimension-result/v1",
+      "schema_version": "1.0.0",
+      "dimension": "visual.hierarchy",
+      "candidate_id": "C1",
+      "campaign_id": "safehavenrr-20260815-001",
+      "evidence": { "baseline": null, "champion": null, "challenger": null },
+      "verdict_vs_baseline": "NON_REGRESSED",
+      "verdict_vs_champion": "NON_REGRESSED",
+      "hard_gate": true,
+      "responsible_layer": "DESIGN",
+      "confidence": "MEDIUM",
+      "measurements": { "heading_count": 2 },
+      "status": "PASS",
+      "evidence_refs": []
+    },
+    {
+      "schema": "website-bot.quality-dimension-result/v1",
+      "schema_version": "1.0.0",
+      "dimension": "accessibility.contrast",
+      "candidate_id": "C1",
+      "campaign_id": "safehavenrr-20260815-001",
+      "evidence": { "baseline": null, "champion": null, "challenger": null },
+      "verdict_vs_baseline": "IMPROVED",
+      "verdict_vs_champion": "IMPROVED",
+      "hard_gate": true,
+      "responsible_layer": "DESIGN",
+      "confidence": "HIGH",
+      "measurements": { "contrast_ratio": 7.4 },
+      "status": "PASS",
+      "evidence_refs": []
+    }
+  ],
+  "aggregate": {
+    "hard_gate_failures": [],
+    "regressions_vs_baseline": [],
+    "regressions_vs_champion": [],
+    "inconclusive": []
+  }
+}
