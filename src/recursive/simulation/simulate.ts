@@ -7,8 +7,8 @@
 // ReleaseReceipt-shaped E2E evidence produced by the repo's own receipt
 // module over fixture data. No real Safe Haven campaign is launched; no
 // GitHub or Vercel operation occurs.
-import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execTrusted } from '../exec.js';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { canonicalJson, sha256Text } from '../../services/hashing.js';
@@ -76,17 +76,17 @@ export async function runSimulatedThreeWaveProof(input: SimulationInput): Promis
   const leases = new LeaseManager(store);
   mkdirSync(repository, { recursive: true });
   try {
-    execFileSync('git', ['init', '--quiet', '-b', 'main', repository]);
+    execTrusted('git', ['init', '--quiet', '-b', 'main', repository]);
     // The baseline repository carries a real contract file so control replay
     // has byte-verifiable ground truth that must stay unchanged across waves.
     writeFileSync(join(repository, 'package.json'), JSON.stringify({ name: 'recursive-simulation-target', version: '0.1.0', scripts: {} }, null, 2) + '\n', 'utf-8');
-    execFileSync('git', ['-C', repository, 'add', '-A'], { encoding: 'utf-8' });
-    execFileSync('git', ['-C', repository, '-c', 'user.email=sim@local', '-c', 'user.name=sim', 'commit', '--quiet', '-m', 'V0 baseline']);
-    const v0 = execFileSync('git', ['-C', repository, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
-    execFileSync('git', ['init', '--quiet', '--bare', '--initial-branch=main', remote]);
-    execFileSync('git', ['-C', remote, 'symbolic-ref', 'HEAD', 'refs/heads/main']);
-    execFileSync('git', ['-C', repository, 'remote', 'add', 'origin', remote]);
-    execFileSync('git', ['-C', repository, 'push', '--quiet', 'origin', 'main']);
+    execTrusted('git', ['-C', repository, 'add', '-A']);
+    execTrusted('git', ['-C', repository, '-c', 'user.email=sim@local', '-c', 'user.name=sim', 'commit', '--quiet', '-m', 'V0 baseline']);
+    const v0 = execTrusted('git', ['-C', repository, 'rev-parse', 'HEAD']).trim();
+    execTrusted('git', ['init', '--quiet', '--bare', '--initial-branch=main', remote]);
+    execTrusted('git', ['-C', remote, 'symbolic-ref', 'HEAD', 'refs/heads/main']);
+    execTrusted('git', ['-C', repository, 'remote', 'add', 'origin', remote]);
+    execTrusted('git', ['-C', repository, 'push', '--quiet', 'origin', 'main']);
 
     const seenShas: string[] = [v0];
     let wave = 0;
@@ -139,7 +139,7 @@ export async function runSimulatedThreeWaveProof(input: SimulationInput): Promis
         writeFileSync(join(workdir, `src/sim-marker-${w}.ts`), `// simulated bounded change for wave ${w}\nexport const marker = ${w};\n`, 'utf-8');
       },
       publish: (workdir: string, branch: string) => {
-        execFileSync('git', ['-C', workdir, 'push', '--quiet', 'origin', `HEAD:refs/heads/${branch}`], { encoding: 'utf-8' });
+        execTrusted('git', ['-C', workdir, 'push', '--quiet', 'origin', `HEAD:refs/heads/${branch}`]);
       },
     });
 

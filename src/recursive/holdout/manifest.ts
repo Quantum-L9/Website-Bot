@@ -21,7 +21,7 @@ export interface HoldoutManifest {
 export const HOLDOUT_MANIFEST_SCHEMA = 'l9.recursive.holdout-manifest/v1';
 
 export function buildHoldoutManifest(cases: HoldoutCase[], selectorVersion = 'v1'): HoldoutManifest {
-  const caseIds = cases.map(holdout => holdout.caseId).sort();
+  const caseIds = cases.map(holdout => holdout.caseId).toSorted((left, right) => left.localeCompare(right));
   const manifestDigest = sha256Text(
     JSON.stringify({ schema: HOLDOUT_MANIFEST_SCHEMA, selectorVersion, caseIds }),
   );

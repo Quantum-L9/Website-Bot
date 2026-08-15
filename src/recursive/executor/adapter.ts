@@ -4,11 +4,11 @@
 // worktree clone. It emits patch provenance (before/after SHAs, changed files,
 // diff digest) and the raw CodeChangeOutcome skeleton — but it never decides
 // that its own work passes: the independent verifier owns every verdict.
-import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sha256File, sha256Text } from '../../services/hashing.js';
-import type { CodeChangeOutcome, PEPack, RecursiveArtifactRef } from '../contracts/types.js';
+import type { CodeChangeOutcome, PEPack } from '../contracts/types.js';
+import { execTrusted } from '../exec.js';
 import { refForArtifact } from '../contracts/digest.js';
 import { evaluateMutationEnvelope } from './envelope.js';
 
@@ -61,8 +61,8 @@ export class BoundedCodingExecutor {
       return { applied: false, violations: ['patch changed no files'] };
     }
     const clone = this.clone(input.remoteUrl ?? input.repositoryRoot, input.workdir);
-    execFileSync('git', ['-C', clone, 'checkout', '--quiet', input.baseSha], { encoding: 'utf-8' });
-    const beforeFullSha = execFileSync('git', ['-C', clone, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
+    execTrusted('git', ['-C', clone, 'checkout', '--quiet', input.baseSha]);
+    const beforeFullSha = execTrusted('git', ['-C', clone, 'rev-parse', 'HEAD']).trim();
     if (beforeFullSha !== input.baseSha) {
       return { applied: false, violations: [`clone base ${beforeFullSha} != bound base ${input.baseSha}`] };
     }
@@ -78,7 +78,7 @@ export class BoundedCodingExecutor {
       outcome: {
         beforeFullSha,
         patchedFullSha,
-        changedFiles: [...input.instruction.changedFiles].sort(),
+        changedFiles: [...input.instruction.changedFiles].toSorted((left, right) => left.localeCompare(right)),
         diffDigest,
       },
     };
@@ -93,14 +93,14 @@ export class BoundedCodingExecutor {
 
   private clone(root: string, workdir: string): string {
     if (existsSync(workdir)) throw new Error(`workdir already exists: ${workdir}`);
-    execFileSync('git', ['clone', '--quiet', '--no-hardlinks', root, workdir], { encoding: 'utf-8' });
+    execTrusted('git', ['clone', '--quiet', '--no-hardlinks', root, workdir]);
     return workdir;
   }
 
   private commitPatch(workdir: string, packId: string): string {
-    execFileSync('git', ['-C', workdir, 'add', '-A'], { encoding: 'utf-8' });
-    execFileSync('git', ['-C', workdir, '-c', 'user.email=recursive@local', '-c', 'user.name=recursive-runner', 'commit', '--quiet', '-m', `bounded patch for ${packId}`], { encoding: 'utf-8' });
-    return execFileSync('git', ['-C', workdir, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
+    execTrusted('git', ['-C', workdir, 'add', '-A']);
+    execTrusted('git', ['-C', workdir, '-c', 'user.email=recursive@local', '-c', 'user.name=recursive-runner', 'commit', '--quiet', '-m', `bounded patch for ${packId}`]);
+    return execTrusted('git', ['-C', workdir, 'rev-parse', 'HEAD']).trim();
   }
 }
 

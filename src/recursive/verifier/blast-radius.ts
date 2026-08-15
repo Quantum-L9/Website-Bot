@@ -38,7 +38,7 @@ export function computeBlastRadius(input: {
     if (!afterByPath.has(path)) changed.push(path);
   }
   const changedSet = new Set(changed);
-  const observedChanged = changed.sort();
+  const observedChanged = changed.toSorted((left, right) => left.localeCompare(right));
   const unexpectedlyChanged = input.expectedUnchangedArtifacts.filter(path => changedSet.has(path));
   const expectedUnchanged = input.expectedUnchangedArtifacts.filter(path => !changedSet.has(path));
   const verdict = unexpectedlyChanged.length === 0 ? 'PASS' : 'FAIL';

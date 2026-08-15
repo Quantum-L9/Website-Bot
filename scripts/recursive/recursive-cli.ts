@@ -10,6 +10,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import process from 'node:process';
+import { TRUSTED_PATH } from '../../src/recursive/exec.js';
 
 const STATE_ROOT = resolve('.l9/recursive');
 
@@ -58,9 +59,9 @@ async function writeSourceSpec(runId: string, sourceUrl: string): Promise<string
 async function runRealE2E(specPath: string, runId: string): Promise<void> {
   console.error(`[recursive] running real E2E with spec ${specPath}`);
   const result = spawnSync(
-    'npx',
-    ['tsx', 'scripts/run-pipeline.ts', '--mode=end-to-end', `--spec=${specPath}`],
-    { stdio: 'inherit', env: process.env },
+    process.execPath,
+    ['--import', 'tsx', 'scripts/run-pipeline.ts', '--mode=end-to-end', `--spec=${specPath}`],
+    { stdio: 'inherit', env: { ...process.env, PATH: TRUSTED_PATH } },
   );
   const report = { command: 'npm run pipeline:end-to-end', exitCode: result.status ?? null, ranAt: new Date().toISOString() };
   writeFileSync(statePath(runId, 'e2e-run-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf-8');
@@ -80,8 +81,12 @@ async function commandImprove(args: string[]): Promise<void> {
     console.error(`wave budget is immutable: --waves must be 3, got ${waves}`);
     process.exit(2);
   }
-  new URL(sourceUrl); // throws on invalid URL before any state is written
-  const runId = await runIdFor(sourceUrl);
+  const parsedSource = new URL(sourceUrl);
+  if (parsedSource.protocol !== 'http:' && parsedSource.protocol !== 'https:') {
+    console.error('--source must be an http(s) URL');
+    process.exit(2);
+  }
+  const runId = await runIdFor(parsedSource.href);
   mkdirSync(statePath(runId, ''), { recursive: true });
   const specPath = await writeSourceSpec(runId, sourceUrl);
   await runRealE2E(specPath, runId);
@@ -95,7 +100,7 @@ async function commandStatus(args: string[]): Promise<void> {
     console.error('no recursive runs recorded yet');
     process.exit(1);
   }
-  const entries = runId ? [runId] : readdirSync(root).sort();
+  const entries = runId ? [runId] : readdirSync(root).toSorted((left, right) => left.localeCompare(right));
   for (const entry of entries) {
     const manifestPath = resolve(STATE_ROOT, entry, 'campaign-manifest.json');
     const receiptPath = resolve(STATE_ROOT, entry, 'run-receipt.json');

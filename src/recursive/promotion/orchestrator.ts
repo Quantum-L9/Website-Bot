@@ -5,7 +5,7 @@
 // SHA. A single merge limit and the exact merge-SHA receipt are enforced.
 // NOTE: this program run never executes these remote operations (DEC-001);
 // the simulation drives the same code against a local bare repository.
-import { execFileSync } from 'node:child_process';
+import { execTrusted } from '../exec.js';
 import { sha256Text } from '../../services/hashing.js';
 import type { PEPack } from '../contracts/types.js';
 import type { VerifierReceipt } from '../verifier/verifier.js';
@@ -106,7 +106,7 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
   constructor(private readonly remoteUrl: string) {}
 
   private run(args: string[]): string {
-    return execFileSync('git', args, { encoding: 'utf-8' }).trim();
+    return execTrusted('git', args).trim();
   }
 
   branchExists(branch: string): boolean {
@@ -153,7 +153,7 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
     const mainHead = this.run(['ls-remote', this.remoteUrl, 'refs/heads/main']).split(/\s+/)[0];
     try {
       // merge-base --is-ancestor exits 0 when mainHead is an ancestor of verified.
-      execFileSync('git', ['-C', remotePath, 'merge-base', '--is-ancestor', mainHead, verified], { stdio: 'ignore' });
+      execTrusted('git', ['-C', remotePath, 'merge-base', '--is-ancestor', mainHead, verified], { encoding: 'utf-8', stdio: 'ignore' });
     } catch {
       throw new Error('merge refused: verified head is not a fast-forward of main');
     }

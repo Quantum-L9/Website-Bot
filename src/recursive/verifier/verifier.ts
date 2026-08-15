@@ -3,9 +3,9 @@
 // NOT decide that its own work passes: every verdict below is produced by this
 // module under a bound verifier identity, and the pack's requiredVerifier must
 // match this identity for any promotion to proceed.
-import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { sha256Text } from '../../services/hashing.js';
+import { execTrusted } from '../exec.js';
 import type {
   CodeChangeOutcome,
   CodeChangeVerdict,
@@ -170,7 +170,7 @@ export class IndependentVerifier {
     if (checkName !== 'typecheck' && checkName !== 'unit') throw new Error(`unknown repository check: ${checkName}`);
     try {
       const argv = argvFromSimpleCommand(command);
-      execFileSync(argv[0], argv.slice(1), { cwd: workdir, stdio: 'ignore' });
+      execTrusted(argv[0], argv.slice(1), { encoding: 'utf-8', cwd: workdir, stdio: 'ignore' });
       return { name: checkName, passed: true };
     } catch {
       return { name: checkName, passed: false };
