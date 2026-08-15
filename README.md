@@ -164,13 +164,16 @@ Do not call the site launch-ready until all are true:
 
 ## File Map
 
-- `src/`: Astro source files.
-- `public/`: static public assets and runtime SEO files.
+- `src/`: factory pipeline (stages, evidence store, intelligence ports). Not the
+  generated Astro site.
+- `astro_template/`: client-neutral Astro scaffold the assembler copies per build.
+- `build/sites/<client>/`: materialized per-client Astro source (gitignored).
 - `scripts/`: verification and deployment automation.
 - `validation/`: generated launch-env reports (per-run artifacts, gitignored). Historical
   per-client validation reports live with their client under
   `examples/<client>/validation/`.
-- `docs/`: secondary operational documentation when present.
+- `docs/architecture/`: living Architecture Decision Records.
+- `docs/archive/`: historical source docs those ADRs were extracted from.
 - `Makefile`: canonical CI/operator command surface.
 - `justfile`: developer ergonomic wrappers.
 - `.env.example`: environment variable contract without secrets.

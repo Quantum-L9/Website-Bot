@@ -1,3 +1,5 @@
+> **Archived 2026-08-14.** Living decision: [`docs/architecture/ADR-0017-generation-claims-require-llm-credentials.md`](../architecture/ADR-0017-generation-claims-require-llm-credentials.md) (model routing remains [ADR-0003](../architecture/ADR-0003-llm-capability-routing.md)). This file is historical source, not the contract.
+
 # Recursive Optimization Report — Website-Bot + LLM Router Integration
 
 ## Mode: optimize (align → improve → converge)

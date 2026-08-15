@@ -9,7 +9,7 @@ Files: 119
 - Provisioning, generation, build, publication, deployment, receipt, QA, and handoff stages.
 - Canonical handoff v3 producer and acknowledgement contracts.
 - Operator scripts, CI workflows, schemas, fixtures, and tests.
-- Release Evidence Spine build specification under `docs/`.
+- Release Evidence Spine decision under `docs/architecture/` (ADR-0016); build spec archived under `docs/archive/`.
 
 ## Files
 
@@ -27,7 +27,8 @@ VALIDATION.md
 contracts/CONTRACT_LOCK.json
 contracts/website-factory-handoff.v3.example.json
 contracts/website-factory-handoff.v3.schema.json
-docs/release-evidence-spine-build-spec.md
+docs/architecture/ADR-0016-release-evidence-spine.md
+docs/archive/release-evidence-spine-build-spec.md
 examples/provisioning/domain-spec.provisioning.example.yaml
 fixtures/ci-test-spec.yaml
 package.json

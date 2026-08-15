@@ -8,10 +8,16 @@ This repository is the **L9 Website Factory** — it designs, builds, and deploy
 
 1. Domain specification: source of truth for business, audience, service area, compliance, and conversion assumptions.
 2. Website object model: generated intermediate contract.
-3. Astro implementation: static site source in `src/` and assets in `public/`.
+3. Astro implementation: client-neutral `astro_template/` materialized into
+   `build/sites/<client>/` (ADR-0007). Root `src/` is the factory, not the site.
 4. LLM intelligence layer: `@quantum-l9/llm-router` installed from GitHub Packages, consumed via `src/services/llm.ts`.
-5. Verification layer: scripts in `scripts/` and evidence in `validation/`.
-6. Deployment layer: Vercel wrapper scripts and environment-driven configuration.
+   Stages declare capabilities; the router selects models (ADR-0003). Redesign
+   page copy is SEO-Bot-owned (ADR-0002).
+5. Verification layer: scripts in `scripts/` and evidence in
+   `build/evidence/<client>/<build>/` (ADR-0016). Launch-env reports stay in
+   `validation/`.
+6. Deployment layer: per-client GitHub repo + Vercel project; local `astro build`
+   is a gate, not the deploy artifact (ADR-0007).
 
 ## LLM Router Integration
 
@@ -57,4 +63,6 @@ See `docs/architecture/ADR-0009-infisical-secrets-plane.md`.
 ## Architecture decisions
 
 Numbered ADRs live in [`docs/architecture/`](docs/architecture/README.md).
+Historical source docs that those ADRs were extracted from live in
+[`docs/archive/`](docs/archive/README.md).
 

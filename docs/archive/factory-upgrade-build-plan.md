@@ -1,3 +1,5 @@
+> **Archived 2026-08-14.** Living decision: [`docs/architecture/ADR-0007-per-client-factory-topology.md`](../architecture/ADR-0007-per-client-factory-topology.md). This file is historical source, not the contract.
+
 # L9 Website Factory — Upgrade Build Plan (design → build → deploy)
 
 ## Context

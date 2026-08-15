@@ -13,12 +13,18 @@ superseded by a numbered ADR.
 | [ADR-0003](ADR-0003-llm-capability-routing.md) | Capability-Based LLM Routing and Provider Isolation | accepted | 2026-08-14 |
 | [ADR-0004](ADR-0004-competitive-pattern-harvest-and-blueprint-gate.md) | Competitive Pattern Harvest and Blueprint Gate | accepted | 2026-08-14 |
 | [ADR-0005](ADR-0005-quality-delta-and-bounded-repair.md) | Quality Delta Gate and Bounded Repair | accepted | 2026-08-14 |
+| [ADR-0006](ADR-0006-inngest-durable-pipeline-wrapper.md) | Inngest Durable Wrapper Around PipelineRunner | accepted | 2026-07-15 |
+| [ADR-0007](ADR-0007-per-client-factory-topology.md) | Per-Client Factory Topology | accepted | 2026-08-14 |
 | [ADR-0008](ADR-0008-platform-application-boundary.md) | Website factory systems are platform applications | accepted | — |
 | [ADR-0009](ADR-0009-infisical-secrets-plane.md) | Infisical is the Website-Bot secrets plane | accepted | — |
+| [ADR-0015](ADR-0015-image-and-source-ingestion.md) | Image and Source-Ingestion Pipeline | accepted | 2026-08-14 |
+| [ADR-0016](ADR-0016-release-evidence-spine.md) | Release Evidence Spine | accepted | 2026-07-20 |
+| [ADR-0017](ADR-0017-generation-claims-require-llm-credentials.md) | LLM Credentials Required for Generation Claims, Not Launch | accepted | 2026-08-14 |
 
-ADR-0001–0005 are the `redesign-improve/v1` pack. ADR-0008–0009 are platform /
-infrastructure decisions. Numbers 0006 and 0007 are unused (the two series were
-previously split across `adr/` and this directory).
+ADR-0001–0005 are the `redesign-improve/v1` pack. ADR-0006–0007 and ADR-0015–0017
+were extracted from archived sources under [`docs/archive/`](../archive/README.md).
+ADR-0008–0009 are platform / infrastructure decisions. Numbers 0010–0014 are the
+SEO-Bot series in that repository.
 
 ## Canonical artifact ownership
 
@@ -51,6 +57,11 @@ No artifact has joint mutable ownership.
 - **Blueprint before generation:** required. **Quality delta before release:** required. **Bounded repair default:** 1.
 - **Runtime class:** Website-Bot and SEO-Bot are platform applications, not L9 runtime nodes (ADR-0008).
 - **Secrets plane:** Infisical (ADR-0009).
+- **Durable wrapper:** one Inngest step around `PipelineRunner`; budget guard; compensation is manual rollback (ADR-0006).
+- **Factory topology:** one client repo is site SoT; deploy materialized source, not `dist/`; dir-per-route pages (ADR-0007).
+- **Images:** optional `DomainSpec.assets`; image evidence outside the mandatory release chain (ADR-0015).
+- **Evidence spine:** `EvidenceStore` is authoritative; emitter does not repair missing proof (ADR-0016).
+- **LLM credentials:** required for generation claims, not for launch (ADR-0017).
 
 ## Cross-repo
 

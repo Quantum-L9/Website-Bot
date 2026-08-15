@@ -1,3 +1,5 @@
+> **Archived 2026-08-14.** Living decision: [`docs/architecture/ADR-0015-image-and-source-ingestion.md`](../architecture/ADR-0015-image-and-source-ingestion.md). This file is historical source, not the contract.
+
 # Image & Source-Ingestion Pipeline
 
 Website-Bot owns the full path from source assets to rendered images:

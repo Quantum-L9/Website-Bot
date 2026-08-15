@@ -1,4 +1,6 @@
-<!-- L9_META: layer=documentation, role=tracked_file, status=active, version=1.0.0 -->
+<!-- L9_META: layer=documentation, role=archived_source, status=archived, version=1.0.0 -->
+> **Archived 2026-08-14.** Living decision: [`docs/architecture/ADR-0016-release-evidence-spine.md`](../architecture/ADR-0016-release-evidence-spine.md). This file is historical source, not the contract.
+
 # Website-Bot Release Evidence Spine
 
 ## Comprehensive Build Specification
