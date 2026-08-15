@@ -7,7 +7,7 @@ SHELL := /bin/sh
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean
+        site-test site-test-local evidence-validate evidence-show clean pr
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -38,6 +38,10 @@ help:
 	@printf '%s\n' '── Evidence ──'
 	@printf '%-30s %s\n' 'make evidence-validate' 'Validate a persisted evidence chain (ARGS=--client-id=.. --build-id=.. --mode=..)'
 	@printf '%-30s %s\n' 'make evidence-show' 'Show persisted evidence for a build (ARGS as above)'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Publish ──'
+	@printf '%-30s %s\n' 'make pr' 'verify-all, push the current branch, open one PR against main'
+	@printf '%s\n' '  (override: PR_TITLE=.. PR_BODY=.. PR_BASE=..)'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Housekeeping ──'
 	@printf '%-30s %s\n' 'make clean' 'Remove local build/generated-site/evidence artifacts'
@@ -125,3 +129,12 @@ evidence-show:
 
 clean:
 	rm -rf dist .astro build/sites build/evidence
+
+# ── Publish ── checkers run before push; one PR against main
+PR_TITLE ?= [campaign] Autonomous multi-candidate improvement and learning loop v1
+PR_BODY ?= .l9/pr-body.md
+PR_BASE ?= main
+
+pr: verify-all
+	git push -u origin HEAD
+	gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"
