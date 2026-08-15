@@ -229,3 +229,11 @@ test('expected-change blast radius passes', () => {
   assert.equal(result.verdict, 'PASS');
   assert.deepEqual(result.unexpectedlyChangedArtifacts, []);
 });
+
+test('repository check refuses shell metacharacters instead of invoking bash -lc', () => {
+  const verifier = new IndependentVerifier('independent-verifier');
+  const injected = verifier.runRepositoryCheck('unit', process.cwd(), 'true; echo injected');
+  assert.equal(injected.passed, false);
+  const ok = verifier.runRepositoryCheck('unit', process.cwd(), 'true');
+  assert.equal(ok.passed, true);
+});

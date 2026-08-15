@@ -57,6 +57,16 @@ export interface VerifierReceipt {
 
 export const VERIFIER_RECEIPT_SCHEMA = 'l9.recursive.verifier-receipt/v1';
 
+/** Reject shell metacharacters so repository checks never go through `bash -lc`. */
+function argvFromSimpleCommand(command: string): [string, ...string[]] {
+  const parts = command.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) throw new Error('empty repository check command');
+  if (parts.some(part => /[;&|`$<>(){}\\*?[~]/.test(part))) {
+    throw new Error('repository check command must be a simple argv');
+  }
+  return parts as [string, ...string[]];
+}
+
 function replaySet(cases: ReplayCaseInput[]): ValidationSetResult {
   const failures = cases.filter(item => {
     const improved = item.expectedDirection === 'IMPROVE' && item.afterResult !== item.beforeResult;
@@ -159,7 +169,8 @@ export class IndependentVerifier {
   runRepositoryCheck(checkName: string, workdir: string, command: string): { name: string; passed: boolean } {
     if (checkName !== 'typecheck' && checkName !== 'unit') throw new Error(`unknown repository check: ${checkName}`);
     try {
-      execFileSync('bash', ['-lc', command], { cwd: workdir, stdio: 'ignore' });
+      const argv = argvFromSimpleCommand(command);
+      execFileSync(argv[0], argv.slice(1), { cwd: workdir, stdio: 'ignore' });
       return { name: checkName, passed: true };
     } catch {
       return { name: checkName, passed: false };
