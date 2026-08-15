@@ -39,35 +39,22 @@ Build it as a **draft** and flip it ready once the above are true.
 
 ## Build the core factory capability — design → build → deploy client sites
 
-> 📋 **Full phased build plan: [`docs/factory-upgrade-build-plan.md`](docs/factory-upgrade-build-plan.md)** —
-> the granular, execution-ready design (phases P-A → P-F: `astro_template/` extraction →
-> `SiteAssemblerStage` → `astro build` gate → per-client deploy → SEO-Bot `site_deployment`
-> handoff → provisioning), with the 12-stage order, `BuildContext` additions, and end-to-end
-> verification. The summary below is the headline; that doc is the plan of record.
+> 📋 **Living decision:** [`docs/architecture/ADR-0007-per-client-factory-topology.md`](docs/architecture/ADR-0007-per-client-factory-topology.md)
+> (source plan archived at [`docs/archive/factory-upgrade-build-plan.md`](docs/archive/factory-upgrade-build-plan.md)).
+> Evidence chain: [`ADR-0016`](docs/architecture/ADR-0016-release-evidence-spine.md).
 
 **This is the repo's purpose, not optional feature work.** `Quantum-L9/Website-Bot`
 is meant to **design, build, and deploy** Astro websites for many clients from a
 DomainSpec (then `Quantum-L9/SEO-Bot` grows each deployed site's SEO + Domain
-Authority). The client-specific *drift* is now removed (reference client under
-`examples/supplemental-insurance-pros/`; `src/`/`scripts/`/`config/`/workflows are
-spec-driven) — but the actual **generate-and-deploy path is incomplete**. Today the
-pipeline generates copy into an in-memory map and never materializes a site, and one
-hand-authored client site is the only thing that deploys. To make it a real factory:
+Authority). The client-agnostic factory spine (template, assembler, local
+`astro build` gate, per-client publish/deploy, evidence chain) is in tree.
+Remaining operator-gated work:
 
-1. **Generic `astro_template/` + populated output.** Extract a client-neutral
-   `website_pack/astro_template/` from `examples/…/astro_site/` (identity via a
-   single `siteConfig`/`import.meta.env`, no hardcoded business strings in the
-   `.astro` files), and have the pipeline scaffold + fill it from the DomainSpec
-   (routes → pages, `ctx.generatedContent` → sections, design tokens, schema).
-2. **Per-client output + deploy for MANY clients.** Namespace build output by
-   `ctx.clientId` (e.g. `build/<client_id>/`, gitignored) instead of writing to
-   the repo root; resolve a **per-client Vercel project / target repo** (the
-   SEO-Bot MT config already resolves a per-client `websiteBotRepo`), so the
-   factory builds and deploys each client rather than the single baked-in one.
-   Fix the stage output paths (`DesignIntelligenceStage` → `src/styles/tokens.css`,
-   `HandoffEmitterStage` → `contracts/…`) and `PostHogSnippetStage`'s layout
-   target (currently `src/layouts/Layout.astro`, which doesn't exist) to point at
-   the scaffolded per-client project.
+1. **Per-client provisioning (P-F).** Automate GitHub repo + Vercel project +
+   secrets for a new client. Build/deploy still assume a pre-provisioned
+   `deployTarget` (ADR-0007).
+2. **Reference-client launch values.** The bundled SIP spec still blocks
+   production deploy on unresolved compliance placeholders (see below).
 
 > Note: `ARCHITECTURE.md` previously described this repo as "a generated site, not
 > the factory" — that was stale; corrected to reflect the factory purpose.

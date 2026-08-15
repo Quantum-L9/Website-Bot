@@ -2,7 +2,7 @@
 
 ## Mission
 
-Maintain this generated Astro website without drifting from the source domain specification, verified stack, or validation evidence. This file is binding guidance for AI coding agents and developer assistants working in this repository.
+Maintain this Website Factory without drifting from the source domain specification, Architecture Decision Records in `docs/architecture/`, verified stack, or validation evidence. This file is binding guidance for AI coding agents and developer assistants working in this repository.
 
 ## Source-of-Truth Order
 
