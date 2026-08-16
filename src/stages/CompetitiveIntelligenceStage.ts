@@ -44,6 +44,18 @@ interface PatternPortfolio {
   patterns: HarvestedPattern[];
 }
 
+const STATE_NAME: Record<string, string> = {
+  AL: 'Alabama,United States', AZ: 'Arizona,United States', CA: 'California,United States',
+  CO: 'Colorado,United States', FL: 'Florida,United States', GA: 'Georgia,United States',
+  NC: 'North Carolina,United States', SC: 'South Carolina,United States',
+  TN: 'Tennessee,United States', TX: 'Texas,United States', VA: 'Virginia,United States',
+};
+
+/** DataForSEO accepts canonical names, not state codes ("NC" yields task errors). */
+function canonicalLocationName(primaryState: string): string {
+  return STATE_NAME[primaryState.trim().toUpperCase()] ?? 'United States';
+}
+
 function digestOf(value: unknown): string {
   return createHash('sha256').update(canonicalJson(value)).digest('hex');
 }
@@ -71,6 +83,32 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
       donor_frequency: Number(entry.donor_frequency ?? 1),
     };
   });
+}
+
+/**
+ * Single bounded repair for JSON-shaped improve ops: parse, and on failure retry
+ * once with the rejection reason. A second failure is terminal.
+ */
+async function strategizeJson(
+  ctx: BuildContext,
+  operation: 'DONOR_NUGGET_EXTRACTION' | 'PATTERN_SYNTHESIS' | 'WEBSITE_BLUEPRINT',
+  description: string,
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<Record<string, unknown>> {
+  const task = websiteImproveTask(operation, ctx.clientId, description);
+  const first = await ctx.llm.strategize(task, systemPrompt, userPrompt);
+  try {
+    const parsed = extractJson(first) as Record<string, unknown>;
+    if (!isRecord(parsed)) throw new Error('expected a JSON object');
+    return parsed;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    logger.warn({ operation, reason }, 'Improve-op JSON invalid; attempting one bounded repair');
+    const repairPrompt = `${userPrompt}\n\n---\nYour previous response was rejected: ${reason}\nRespond again with ONLY a single valid JSON value. No prose, no markdown fences.`;
+    const second = await ctx.llm.strategize(task, systemPrompt, repairPrompt);
+    return extractJson(second) as Record<string, unknown>;
+  }
 }
 
 const CONTENT_SLOTS: readonly string[] = [
@@ -190,9 +228,12 @@ export class CompetitiveIntelligenceStage implements Stage {
       market: {
         niche: ctx.domainSpec.vertical,
         country: 'US',
-        language: 'en',
+        // DataForSEO expects canonical language names ('English'), not ISO codes ('en').
+        language: 'English',
         device: 'desktop' as const,
-        location_name: ctx.domainSpec.geography.primary_state,
+        // DataForSEO requires canonical location names ("North Carolina,United
+        // States"); bare state codes (NC) return task errors, not results.
+        location_name: canonicalLocationName(ctx.domainSpec.geography.primary_state),
       },
       seed_queries: seedQueries,
       desired_donor_count: 10,
@@ -205,45 +246,50 @@ export class CompetitiveIntelligenceStage implements Stage {
     // competitor prose/images never enter generation inputs).
     const nuggets: Array<Omit<HarvestedPattern, 'pattern_id' | 'donor_frequency'> & { donor: string }> = [];
     for (const donor of donors) {
-      const task = websiteImproveTask('DONOR_NUGGET_EXTRACTION', ctx.clientId, `[intelligence] donor nuggets for ${donor.domain}`);
       const prompt = [
         `Extract the strongest user-facing concepts from this competitor's SEO landscape evidence.`,
         `Return ONLY JSON: {"nuggets": [{"evidence": "...", "invariant": "abstract, reusable statement", "disposition": "one of PORT|PORT_WITH_HARDENING|CONFIGURE|MERGE_WITH_EXISTING|KEEP_LOCAL|REJECT", "beneficiary_destination": "which part of the site benefits", "risk": "...", "acceptance_test": "..."}]}.`,
         `No competitor prose, no images, no trademarked phrasing — only abstract invariants.`,
         `Donor: ${JSON.stringify(donor)}`,
       ].join('\n\n');
-      const raw = await ctx.llm.strategize(task, 'You harvest reusable design concepts from market evidence. Never copy competitor prose or visual treatments.', prompt);
-      const parsed = extractJson(raw) as { nuggets?: unknown };
-      for (const nugget of parsePatterns(parsed?.nuggets ?? [], `donor ${donor.domain}`)) {
+      const parsed = await strategizeJson(
+        ctx,
+        'DONOR_NUGGET_EXTRACTION',
+        `[intelligence] donor nuggets for ${donor.domain}`,
+        'You harvest reusable design concepts from market evidence. Never copy competitor prose or visual treatments.',
+        prompt,
+      );
+      for (const nugget of parsePatterns(parsed.nuggets ?? [], `donor ${donor.domain}`)) {
         nuggets.push({ ...nugget, donor: donor.domain });
       }
     }
 
     // Cross-donor synthesis into the pattern portfolio.
-    const synthesisTask = websiteImproveTask('PATTERN_SYNTHESIS', ctx.clientId, '[intelligence] cross-donor pattern synthesis');
-    const synthesisRaw = await ctx.llm.strategize(
-      synthesisTask,
+    const synthesis = await strategizeJson(
+      ctx,
+      'PATTERN_SYNTHESIS',
+      '[intelligence] cross-donor pattern synthesis',
       'You synthesize harvested concepts across competitors into a pattern portfolio. Every pattern carries evidence, an abstract invariant, a disposition, a beneficiary destination, a risk, and an acceptance test.',
       `Nuggets across ${nuggets.length} donor observations (deduplicate by invariant, merge donor_frequency): ${JSON.stringify(nuggets)}\n\nReturn ONLY JSON: {"patterns": [{"pattern_id","evidence","invariant","disposition","beneficiary_destination","risk","acceptance_test","donor_frequency"}]}`,
     );
-    const portfolio: PatternPortfolio = { patterns: parsePatterns((extractJson(synthesisRaw) as { patterns?: unknown })?.patterns ?? [], 'pattern synthesis') };
+    const portfolio: PatternPortfolio = { patterns: parsePatterns(synthesis.patterns ?? [], 'pattern synthesis') };
     if (portfolio.patterns.length === 0) throw new BuildError('INTELLIGENCE_PARSE_FAILED', 'pattern synthesis produced no patterns');
 
     // Website blueprint via the strategy op, with route identity re-asserted from
     // the spec (the model cannot invent routes).
-    const blueprintTask = websiteImproveTask('WEBSITE_BLUEPRINT', ctx.clientId, '[intelligence] website build blueprint');
     const routesContext = ctx.domainSpec.routes.map(route => ({
       route_id: route.slug,
       path: route.slug,
       purpose: route.title,
       spec_components: route.components,
     }));
-    const blueprintRaw = await ctx.llm.strategize(
-      blueprintTask,
+    const model = await strategizeJson(
+      ctx,
+      'WEBSITE_BLUEPRINT',
+      '[intelligence] website build blueprint',
       'You produce a website build blueprint: strategy, guardrails, conversion, and per-route sections referencing pattern portfolio ids. No layout/design/prose generation — abstractions only.',
       `Pattern portfolio: ${JSON.stringify(portfolio)}\nRoutes (identity is fixed — you may only choose sections, objectives, content slots, pattern refs, and proof requirements): ${JSON.stringify(routesContext)}\nReturn ONLY JSON: {"strategy":{"experience_attributes":[],"differentiation":[],"preserve":[],"evolve":[],"forbid":[]},"content_guardrails":{"forbidden_claims":[]},"conversion":{"primary_action":"","secondary_actions":[],"persistent_mobile_action":true},"routes":[{"route_id","sections":[{"section_id","component_class","objective","content_slots":[],"pattern_refs":[],"proof_requirements":[]}]}],"acceptance_tests":[]}`,
     );
-    const model = extractJson(blueprintRaw) as Record<string, unknown>;
     const expectedRoutes = ctx.domainSpec.routes.map(route => ({ route_id: route.slug, path: route.slug, purpose: route.title }));
     const modelRoutes = (Array.isArray(model.routes) ? model.routes : []) as Array<Record<string, unknown>>;
     const routes: WebsiteBlueprintRoute[] = expectedRoutes.map(expected => {
