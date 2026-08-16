@@ -11,6 +11,10 @@ on:
 
 jobs:
   ci:
+    # Pinned to a commit reachable from l9-ci-core main. The previous pin
+    # (102c9a5) is orphaned — no branch or tag contains it — so Actions could
+    # not resolve the reusable workflow and the run never started.
+    # pr-pipeline.yml at this revision declares no `secrets:` under
+    # workflow_call, so the caller must not pass any: handing a reusable
+    # workflow an undeclared secret is rejected at parse time.
     uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@373bb6d26084e67ef76aaab95021364182a34ee7
-    secrets:
-      SDK_TOKEN: ${{ secrets.SDK_TOKEN }}
