@@ -1,0 +1,452 @@
+{
+  "build_id": "safehavenrr-1786865186713",
+  "client_id": "safehavenrr",
+  "files": [
+    {
+      "bytes": 300,
+      "owner": "website-bot",
+      "path": "astro.config.mjs",
+      "sha256": "b2ce0d66680d0bcb57b96af2d052fbf040f33dc3ca2ff12a79ff397f2b53040e"
+    },
+    {
+      "bytes": 220577,
+      "owner": "website-bot",
+      "path": "package-lock.json",
+      "sha256": "226d40690cc247a7857c4a78564153af0df6bb07996dc0d5f0b428aab5bea880"
+    },
+    {
+      "bytes": 350,
+      "owner": "website-bot",
+      "path": "package.json",
+      "sha256": "be81b2be7b995ec9d7fd30f32703989c14909f4ead36d70765836c779a8d69f8"
+    },
+    {
+      "bytes": 78,
+      "owner": "website-bot",
+      "path": "public/robots.txt",
+      "sha256": "ce5f6c88af72867c8be83fa6887f2273f0dd13457321b8c3391a564f27a83985"
+    },
+    {
+      "bytes": 2405,
+      "owner": "website-bot",
+      "path": "scripts/lib.mjs",
+      "sha256": "96a256140162ee5f4843c56ddb717d25b3b1d97a257f977e665774be6797ebea"
+    },
+    {
+      "bytes": 1516,
+      "owner": "website-bot",
+      "path": "scripts/preflight.mjs",
+      "sha256": "2a9f4c5a29e1dfe75c2074329d992c6f55badb898aa86944f8665a1e154ef3bc"
+    },
+    {
+      "bytes": 2922,
+      "owner": "website-bot",
+      "path": "scripts/validation-framework.mjs",
+      "sha256": "47a0ca5992064f9a17c81012d7f25dcaa39f31837e308f739f47d8b65c07464a"
+    },
+    {
+      "bytes": 1611,
+      "owner": "website-bot",
+      "path": "scripts/verify-all.mjs",
+      "sha256": "cb0381fdfe395c8b54f5de6bbd88cc73c4ef21d0f0902f4db62ceb999970220a"
+    },
+    {
+      "bytes": 2933,
+      "owner": "website-bot",
+      "path": "scripts/verify-analytics.mjs",
+      "sha256": "6f461f5412d3cb4795263e7930b038db52fc1ed6042b0958f4f726d29348ea43"
+    },
+    {
+      "bytes": 1660,
+      "owner": "website-bot",
+      "path": "scripts/verify-build.mjs",
+      "sha256": "571e84f6b29664af32940a48bded7c1658bd6673c9a1ee89769eed4cfbc713b8"
+    },
+    {
+      "bytes": 3154,
+      "owner": "website-bot",
+      "path": "scripts/verify-crm.mjs",
+      "sha256": "6791c59f94e781e6ea3d275b115545f69c0aefb2bb2ed96ba93932d05bc37263"
+    },
+    {
+      "bytes": 2275,
+      "owner": "website-bot",
+      "path": "scripts/verify-form.mjs",
+      "sha256": "2dedc52c4a0b5ff3c6e94b11f46ba4b4d2a7ae1ed5c204b7596ed18ab76d827c"
+    },
+    {
+      "bytes": 4093,
+      "owner": "website-bot",
+      "path": "scripts/verify-rollback.mjs",
+      "sha256": "cca4654454a271532b89a12a586c26a9218362ce08fbeb2a1719049d31addb37"
+    },
+    {
+      "bytes": 5140,
+      "owner": "website-bot",
+      "path": "scripts/verify-seo.mjs",
+      "sha256": "edc09a449ee69791c9bb4cea505b0daec01a3222daf95b8ce677785633af65ca"
+    },
+    {
+      "bytes": 1725,
+      "owner": "website-bot",
+      "path": "scripts/verify-smoke.mjs",
+      "sha256": "bfb73a763ae3c7527299b3ab4bf23e4601a0c0656f429fbd64833d516cdf4e85"
+    },
+    {
+      "bytes": 2029,
+      "owner": "website-bot",
+      "path": "scripts/verify-source.mjs",
+      "sha256": "f823c70ea63fa9621d5cbcecdb1cb7be12edade11bf73baa351da80ff4e98036"
+    },
+    {
+      "bytes": 1184,
+      "owner": "website-bot",
+      "path": "src/components/LeadForm.astro",
+      "sha256": "d6eb18a82d57e73a0f57730b0695242712695d99bd18bdc2d781ac3b62e9879c"
+    },
+    {
+      "bytes": 534,
+      "owner": "website-bot",
+      "path": "src/components/SectionRegistry.ts",
+      "sha256": "e7a6ef80ef16185f3bd6b8216ab0f457b9be437c463ea56de4d2b7f9a945756b"
+    },
+    {
+      "bytes": 1232,
+      "owner": "website-bot",
+      "path": "src/components/SectionRenderer.astro",
+      "sha256": "1d4a7ef9c5f0fe55e7e9c20baef24e1934b46ec10a181f2e53e54d0743601747"
+    },
+    {
+      "bytes": 435,
+      "owner": "website-bot",
+      "path": "src/components/sections/AudiencePaths.astro",
+      "sha256": "f9d6eb617cbe963b7978f0d41017cbdbc72b894c3380b560f55b13b3476abde4"
+    },
+    {
+      "bytes": 435,
+      "owner": "website-bot",
+      "path": "src/components/sections/ComplianceNote.astro",
+      "sha256": "9be00f4b6a48f6546662212e64d60db61a13bb61f97e9cbdccdecfe50ce4ec23"
+    },
+    {
+      "bytes": 428,
+      "owner": "website-bot",
+      "path": "src/components/sections/Confirmation.astro",
+      "sha256": "fe755bff374c2b00b673cdf875be24c775f03121a86510ee27920af9f4828cbc"
+    },
+    {
+      "bytes": 718,
+      "owner": "website-bot",
+      "path": "src/components/sections/CtaBanner.astro",
+      "sha256": "94ef93e3d4613915c63469224a6f82118d56966b202cb1dd7b63d42cf868b44f"
+    },
+    {
+      "bytes": 418,
+      "owner": "website-bot",
+      "path": "src/components/sections/Faq.astro",
+      "sha256": "dda52e755ad44d79530f6955e215f87a884f43035b08cfa2bd5fc73007caf3a4"
+    },
+    {
+      "bytes": 808,
+      "owner": "website-bot",
+      "path": "src/components/sections/Gallery.astro",
+      "sha256": "dbb281d93844d2b4f0af0f0cb37f7f07b147c3ac9dce9ac61a862f0e60cc08ad"
+    },
+    {
+      "bytes": 1427,
+      "owner": "website-bot",
+      "path": "src/components/sections/Hero.astro",
+      "sha256": "50cfcf1c61cf73d4ec75ec104507d6e5d02cd4324865634074ea1fcbc624aeef"
+    },
+    {
+      "bytes": 415,
+      "owner": "website-bot",
+      "path": "src/components/sections/Process.astro",
+      "sha256": "45cdcbb41ba96647092c07b7cecb675c7545dc758267334f2d4da3d6638b6614"
+    },
+    {
+      "bytes": 600,
+      "owner": "website-bot",
+      "path": "src/components/sections/ProseSection.astro",
+      "sha256": "83532ddeac80dab4a242d03bbeb50002bf51eec2403e263a1cf9cb1d30a8c61a"
+    },
+    {
+      "bytes": 431,
+      "owner": "website-bot",
+      "path": "src/components/sections/ServiceArea.astro",
+      "sha256": "0e44820c14be9001f157b5adc98000741cd14b033fbae572c5e195711c4e4cdb"
+    },
+    {
+      "bytes": 430,
+      "owner": "website-bot",
+      "path": "src/components/sections/TrustBar.astro",
+      "sha256": "637a4f85060fa776b46cfcef87d3943bb0971034842a0b0bd51f9ebe4f917551"
+    },
+    {
+      "bytes": 4153,
+      "owner": "website-bot",
+      "path": "src/layouts/BaseLayout.astro",
+      "sha256": "4bf723c00cf1607527562108f6272b5497adaddb7ba39fdadea944f2fdd76425"
+    },
+    {
+      "bytes": 13243,
+      "owner": "website-bot",
+      "path": "src/lib/siteConfig.ts",
+      "sha256": "e55871110b924dfe4cee9ef5e1f590e318ff6a6645d89317f0f976d0c21b1685"
+    },
+    {
+      "bytes": 3407,
+      "owner": "website-bot",
+      "path": "src/pages/about/index.astro",
+      "sha256": "4a399b6a04ceb28b34920cbafa74b7b2eabdd7962a405443ed6b58dc04440a0c"
+    },
+    {
+      "bytes": 2098,
+      "owner": "website-bot",
+      "path": "src/pages/contact/index.astro",
+      "sha256": "7a22590de8f74fde6ae154dc9911557c0d931a687db188f592fc5be63741e55a"
+    },
+    {
+      "bytes": 7691,
+      "owner": "website-bot",
+      "path": "src/pages/faq/index.astro",
+      "sha256": "43341d82979f0e37de0df3f61f5de5ce6e374550524b75d8977340c30474a08d"
+    },
+    {
+      "bytes": 2146,
+      "owner": "website-bot",
+      "path": "src/pages/gallery/index.astro",
+      "sha256": "09c66f9fc27ba710db5088b0065172ff76cea17873a1c0e228bff7a5492955d6"
+    },
+    {
+      "bytes": 3879,
+      "owner": "website-bot",
+      "path": "src/pages/guides/how-long-roof-replacement-takes-charlotte/index.astro",
+      "sha256": "dbafdf0b198be470bd6f1e47422339dbe6c3d9590daeefbc2eb6244105e19fbc"
+    },
+    {
+      "bytes": 4475,
+      "owner": "website-bot",
+      "path": "src/pages/guides/how-to-choose-roofing-contractor-charlotte/index.astro",
+      "sha256": "ffd574e9677ebe46231b0ba8695815be5da317cd4f52bf4e599b4d83f6ffbc41"
+    },
+    {
+      "bytes": 3674,
+      "owner": "website-bot",
+      "path": "src/pages/guides/index.astro",
+      "sha256": "4c58d1d4f887df372aad6b2b202e6b9ff37769b03837e06f9607d64a67b52e06"
+    },
+    {
+      "bytes": 3325,
+      "owner": "website-bot",
+      "path": "src/pages/guides/metal-roof-vs-shingles-charlotte/index.astro",
+      "sha256": "99e1a77cbbe062294ac4283c78e6d0b4881e24e081e3383167ed1480f5ac05d4"
+    },
+    {
+      "bytes": 4066,
+      "owner": "website-bot",
+      "path": "src/pages/guides/repair-or-replace-roof-charlotte/index.astro",
+      "sha256": "334c455339d1fb1672d323b1c7d95fb6d0485d9ec768d1debef50ed317051e48"
+    },
+    {
+      "bytes": 4488,
+      "owner": "website-bot",
+      "path": "src/pages/guides/roof-replacement-cost-charlotte/index.astro",
+      "sha256": "3392f26c12a8289b2aec29aba1e422e329023dad2678ca4df25c0581ec386d90"
+    },
+    {
+      "bytes": 3867,
+      "owner": "website-bot",
+      "path": "src/pages/guides/storm-damage-roof-repair-charlotte/index.astro",
+      "sha256": "b8126939a15836abf4067a6d6ac5402d76cf46e24cfd922289d57880a4a534b3"
+    },
+    {
+      "bytes": 4731,
+      "owner": "website-bot",
+      "path": "src/pages/index.astro",
+      "sha256": "a08e9fc57c58c82f62b198a566d1327c86469fcd32f707922fbaf5ab22d620d2"
+    },
+    {
+      "bytes": 4143,
+      "owner": "website-bot",
+      "path": "src/pages/insurance-claims/index.astro",
+      "sha256": "6604eb7bd9b3e93b8f66fb8aa61aecafa290a04412c4c2b44dbeef54583f428c"
+    },
+    {
+      "bytes": 2502,
+      "owner": "website-bot",
+      "path": "src/pages/privacy/index.astro",
+      "sha256": "15d7dc7f2be2250b27cb0ec336d72168d3ea7e146dcac024b1a789c448beff7d"
+    },
+    {
+      "bytes": 3493,
+      "owner": "website-bot",
+      "path": "src/pages/service-areas/charlotte/index.astro",
+      "sha256": "3b97317c71aa8ccfd3c0d6d6bb26f53b8b075cd6e2675b7960b460e329a2760a"
+    },
+    {
+      "bytes": 4138,
+      "owner": "website-bot",
+      "path": "src/pages/service-areas/index.astro",
+      "sha256": "fa6aa185916f895b2b49892b4ba51fbecc7f6a8f443117063c2bcdf3d40f91b5"
+    },
+    {
+      "bytes": 3773,
+      "owner": "website-bot",
+      "path": "src/pages/services/asphalt-shingles/index.astro",
+      "sha256": "b58dc94c117c9fa43cc71fbbaa3032aba8d9bbc67131429d7b7fcd5df48c2ff8"
+    },
+    {
+      "bytes": 3763,
+      "owner": "website-bot",
+      "path": "src/pages/services/flat-roofing/index.astro",
+      "sha256": "785b488e86de6718c1fc9ed5cc761c9654c1a41d4ef538a332d652f75302de4c"
+    },
+    {
+      "bytes": 3418,
+      "owner": "website-bot",
+      "path": "src/pages/services/gutters/index.astro",
+      "sha256": "304b605b73a3ae30580d54d3df384882e293978f32ce41e80a8c5facd69c97c2"
+    },
+    {
+      "bytes": 3464,
+      "owner": "website-bot",
+      "path": "src/pages/services/index.astro",
+      "sha256": "41cba1d72d1dc9f9801c26bdc1a36434d6f348a1c056c2e19c9f3b0b269681b0"
+    },
+    {
+      "bytes": 3919,
+      "owner": "website-bot",
+      "path": "src/pages/services/interior-renovations/index.astro",
+      "sha256": "18c53852cb13986d73657e91a954d3963aad38926bdef658423b87ab302612f7"
+    },
+    {
+      "bytes": 3508,
+      "owner": "website-bot",
+      "path": "src/pages/services/metal-roofing/index.astro",
+      "sha256": "cda4204a857f951ff229e3b9e6675cf35c3b9a7c307e96ad23345b76ca5a41ea"
+    },
+    {
+      "bytes": 3924,
+      "owner": "website-bot",
+      "path": "src/pages/services/outdoor-living/index.astro",
+      "sha256": "e1a2619f5e5b13412695b409f895ce0bb89489c5d668a26bd00f74e93c10ef7e"
+    },
+    {
+      "bytes": 3516,
+      "owner": "website-bot",
+      "path": "src/pages/services/roof-inspection/index.astro",
+      "sha256": "d7818d86cfb9451ee521eb435de9beb7f4fb7363c182f267a5083cab24eec754"
+    },
+    {
+      "bytes": 3900,
+      "owner": "website-bot",
+      "path": "src/pages/services/roof-installation/index.astro",
+      "sha256": "68aa81baea5e2458327337044e6962084de3842266a6c1f6fb06dbafb971afe1"
+    },
+    {
+      "bytes": 3673,
+      "owner": "website-bot",
+      "path": "src/pages/services/roof-repair/index.astro",
+      "sha256": "0d0f65e93a300b5a580e9bd6c1c25f7394da810d918ee5f136ca5beef111ee22"
+    },
+    {
+      "bytes": 4041,
+      "owner": "website-bot",
+      "path": "src/pages/services/roof-replacement/index.astro",
+      "sha256": "dfa99fa4dc5a2e5ac5d9d9554839321ee8372fcf1ea58b1afb3b4ab33d60c74c"
+    },
+    {
+      "bytes": 3944,
+      "owner": "website-bot",
+      "path": "src/pages/services/siding-fascia-soffit/index.astro",
+      "sha256": "4add84550406ac2f243d90cbf50ef0049ca73f6b80a30a8a3ad77ce5bf00acfa"
+    },
+    {
+      "bytes": 3802,
+      "owner": "website-bot",
+      "path": "src/pages/services/storm-damage/index.astro",
+      "sha256": "968250e2744740c2dfdba9c9fb71e63b31b210aaef3b5fb0664c90f323f91f23"
+    },
+    {
+      "bytes": 3870,
+      "owner": "website-bot",
+      "path": "src/styles/global.css",
+      "sha256": "4fcfa3e27971d99f1c09f4b434b0dc7b5f87429c637ae0daeb40926dd5f1d11b"
+    },
+    {
+      "bytes": 337,
+      "owner": "website-bot",
+      "path": "src/styles/tokens.css",
+      "sha256": "982598183b34ff9b005c8988890786e39449fabde9e0c23cff58294a6920dbde"
+    },
+    {
+      "bytes": 6,
+      "owner": "website-bot",
+      "path": "TEMPLATE_VERSION",
+      "sha256": "64d23f858ef51b0f996e4966d4e27c0371b437e2d2787890b1f7ad22d4ec5663"
+    },
+    {
+      "bytes": 42,
+      "owner": "website-bot",
+      "path": "tsconfig.json",
+      "sha256": "974b0a3b37e52f3649d9df63e72e374794e9e797c8ae61eca4812f844406f7ef"
+    },
+    {
+      "bytes": 1346,
+      "owner": "website-bot",
+      "path": "validation/preflight_checks.jsonl",
+      "sha256": "f276e8e6a286830f557bd98403ced4c741aedfc9a77e78ed6e90c42849de3cda"
+    },
+    {
+      "bytes": 1790,
+      "owner": "website-bot",
+      "path": "validation/source_checks.jsonl",
+      "sha256": "1129b21a4bd20e074ba1ba3ab81bf3ce71800b60ff05f1b8baee8f2e3beaab64"
+    },
+    {
+      "bytes": 91,
+      "owner": "website-bot",
+      "path": "vercel.json",
+      "sha256": "8f0e23811cba310c56c25307e56c058b39a4898d7289038ae6d47167f12721dc"
+    }
+  ],
+  "generated_at": "2026-08-16T07:32:17.890Z",
+  "generator_version": "3.1.0",
+  "output_dir": "/Users/macm2/Website-Bot/build/sites/safehavenrr",
+  "routes": [
+    "/",
+    "/about",
+    "/contact",
+    "/faq",
+    "/gallery",
+    "/guides",
+    "/insurance-claims",
+    "/privacy",
+    "/service-areas",
+    "/services",
+    "/services/asphalt-shingles",
+    "/services/flat-roofing",
+    "/services/gutters",
+    "/services/interior-renovations",
+    "/services/metal-roofing",
+    "/services/outdoor-living",
+    "/services/roof-inspection",
+    "/services/roof-installation",
+    "/services/roof-repair",
+    "/services/roof-replacement",
+    "/services/siding-fascia-soffit",
+    "/services/storm-damage",
+    "/guides/how-long-roof-replacement-takes-charlotte",
+    "/guides/how-to-choose-roofing-contractor-charlotte",
+    "/guides/metal-roof-vs-shingles-charlotte",
+    "/guides/repair-or-replace-roof-charlotte",
+    "/guides/roof-replacement-cost-charlotte",
+    "/guides/storm-damage-roof-repair-charlotte",
+    "/service-areas/charlotte"
+  ],
+  "schema": "website-bot.assembly-manifest/v2",
+  "source_digest": "9b34147bd7837ee86a9f745bb31522d07404cac6457062dda2813d9ead3eee6b",
+  "template_digest": "31ad781cde6540a466b7eb1c5e9549564e00119b73adaf6fbd7a692a94a190c5",
+  "template_version": "1.3.0"
+}

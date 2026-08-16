@@ -1,0 +1,31 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786872912633",
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T10:28:25.866Z",
+  "input_digest": "dc8b5ae43521c3f67589326dcff81e85dd7d6a306344d25285ee663b04a454db",
+  "input_evidence": [
+    {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872912633:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "d18b4f63a03da8af348edda9399d6c2b0dfdfd1c9ed5ffbd5cca3babeb40b414"
+    }
+  ],
+  "output_digest": "558f4addcad176f6095269185b162cbff1264115263084fb6626daf8b58d732f",
+  "output_evidence": [
+    {
+      "kind": "build",
+      "logical_id": "build_d7f42a6da5fb0083bc047c4c7e228351",
+      "relative_path": "build-proof.json",
+      "schema": "website-bot.build-proof/v2",
+      "sha256": "94c3770041adc447dda4a2d05663f00085706913a2f204b6e591eb16596c4de4"
+    }
+  ],
+  "schema": "website-bot.stage-checkpoint/v2",
+  "stage": "site-build",
+  "stage_version": "3.0.0",
+  "started_at": "2026-08-16T10:28:06.478Z",
+  "status": "passed"
+}

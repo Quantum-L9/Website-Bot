@@ -1,0 +1,57 @@
+{
+  "assets": [
+    {
+      "byte_length": 1503039,
+      "disposition": "approved-client-owned",
+      "estimated_cost_usd": 0.03,
+      "height": 1024,
+      "mime_type": "image/png",
+      "model": "gemini-2.5-flash-image",
+      "output_path": "public/images/og-image.png",
+      "placement": "global:og-image",
+      "prompt_hash": "6aecbb4152389ee3a520e9ebb3c052fdb928122597c21e93a973fd22d59fde1b",
+      "provenance_warnings": [],
+      "sha256": "69fe6780c102833f62f76d6a69a8acf924bfd30a4c121ca26879214ba8afe067",
+      "slot_id": "og-image",
+      "source": "generated",
+      "width": 1024
+    },
+    {
+      "byte_length": 1334087,
+      "disposition": "approved-client-owned",
+      "estimated_cost_usd": 0.03,
+      "height": 1024,
+      "mime_type": "image/png",
+      "model": "gemini-2.5-flash-image",
+      "output_path": "public/images/hero-home.png",
+      "placement": "/:hero",
+      "prompt_hash": "7f5c47d40988ec5260bb366f8625e6c8d51e7bfd6f2997125866f4f356381567",
+      "provenance_warnings": [],
+      "sha256": "83a1cc61e0c0a1dc5405e29165d14ae6e8896c95d820fdc0b43bde3f9420add4",
+      "slot_id": "hero-home",
+      "source": "generated",
+      "width": 1024
+    },
+    {
+      "byte_length": 249362,
+      "disposition": "approved-client-owned",
+      "estimated_cost_usd": 0.03,
+      "height": 1024,
+      "mime_type": "image/png",
+      "model": "gemini-2.5-flash-image",
+      "output_path": "public/images/logo.png",
+      "placement": "global:logo",
+      "prompt_hash": "01246986158218c64200a35a85dee429ae5a70ad2006c91b50ce2fab0825c2a2",
+      "provenance_warnings": [],
+      "sha256": "c2cc58f6e5555a62e8ff04621b70025823c52f0d37f767a247e4496bad45944c",
+      "slot_id": "logo",
+      "source": "generated",
+      "width": 1024
+    }
+  ],
+  "build_id": "safehavenrr-1786876188151",
+  "client_id": "safehavenrr",
+  "digest": "b5c3949c527b0266c793e89b65ba196bca754fc7cacd70e466e7e5e7712ffd5a",
+  "generated_at": "2026-08-16T10:29:48.188Z",
+  "schema": "website-bot.image-asset-manifest/v1"
+}

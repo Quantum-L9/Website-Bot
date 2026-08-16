@@ -1,0 +1,54 @@
+{
+  "assets": [
+    {
+      "placement": "global:og-image",
+      "required": false,
+      "resolution": {
+        "compiled_brief": {
+          "aspect_ratio": "16:9",
+          "image_size": "2K",
+          "intent": "Professional social preview image for a Charlotte roofing contractor",
+          "slot_id": "og-image",
+          "style": "professional, modern, trustworthy",
+          "subject": "Safe Haven Roofing & Renovations"
+        },
+        "source": "generated"
+      },
+      "slot_id": "og-image"
+    },
+    {
+      "placement": "/:hero",
+      "required": true,
+      "resolution": {
+        "compiled_brief": {
+          "aspect_ratio": "16:9",
+          "image_size": "2K",
+          "intent": "Hero image for a roofing contractor homepage in Charlotte",
+          "slot_id": "hero-home",
+          "style": "professional, modern, trustworthy",
+          "subject": "Safe Haven Roofing & Renovations"
+        },
+        "source": "generated"
+      },
+      "slot_id": "hero-home"
+    },
+    {
+      "placement": "global:logo",
+      "required": false,
+      "resolution": {
+        "compiled_brief": {
+          "aspect_ratio": "1:1",
+          "image_size": "1K",
+          "intent": "Simple minimal company logo mark for a roofing contractor",
+          "slot_id": "logo",
+          "style": "minimal, professional",
+          "subject": "Safe Haven Roofing & Renovations"
+        },
+        "source": "generated"
+      },
+      "slot_id": "logo"
+    }
+  ],
+  "schema": "website-bot.image-asset-plan/v1",
+  "version": "1.0.0"
+}

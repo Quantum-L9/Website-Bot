@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "assembly": {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786876760654:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "ff4496fa490a9f9b0574c391b356b626ce20de475bda0f051599fe8fce9efb36",
+      "written_at": "2026-08-16T10:45:03.661Z"
+    },
+    "build": {
+      "kind": "build",
+      "logical_id": "build_2ec25daf5c34e291fb1f91646c7644f5",
+      "relative_path": "build-proof.json",
+      "schema": "website-bot.build-proof/v2",
+      "sha256": "d504bf6b5bf059a181443d77d8c58892e93b28b7740c82046806e7b9862080a3",
+      "written_at": "2026-08-16T10:45:08.902Z"
+    },
+    "image_assets": {
+      "kind": "image_assets",
+      "logical_id": "safehavenrr-1786876760654:image_assets",
+      "relative_path": "image-asset-manifest.json",
+      "schema": "website-bot.image-asset-manifest/v1",
+      "sha256": "d00c9514289037c8ee5be97d1f7faa60f2cb971d0b5b964c7172ee0bc5bf2553",
+      "written_at": "2026-08-16T10:44:49.186Z"
+    },
+    "image_plan": {
+      "kind": "image_plan",
+      "logical_id": "safehavenrr-1786876760654:image_plan",
+      "relative_path": "image-asset-plan.json",
+      "schema": "website-bot.image-asset-plan/v1",
+      "sha256": "20bfd3509d60ee98a3411575dda6c41b11db59a9224b79063fa2067a97f8b2f3",
+      "written_at": "2026-08-16T10:44:49.124Z"
+    },
+    "release": {
+      "kind": "release",
+      "logical_id": "receipt_e652cc2f226e0ac2c6d5602703fb4ae9",
+      "relative_path": "release-receipt.json",
+      "schema": "website-bot.release-receipt/v2",
+      "sha256": "50975f7c8d89def96bf56942b4fb4c5d075befb46ef985c751e9691c94f1d268",
+      "written_at": "2026-08-16T10:45:08.940Z"
+    }
+  },
+  "build_id": "safehavenrr-1786876760654",
+  "chain_status": "released",
+  "client_id": "safehavenrr",
+  "created_at": "2026-08-16T10:39:20.654Z",
+  "failure_history": [],
+  "last_successful_stage": "terminal-convergence",
+  "mode": "local-proof",
+  "revision": 24,
+  "schema": "website-bot.evidence-index/v2",
+  "updated_at": "2026-08-16T10:45:08.979Z"
+}

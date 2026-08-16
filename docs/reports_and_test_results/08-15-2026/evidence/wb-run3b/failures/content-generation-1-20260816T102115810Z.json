@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786872912633",
+  "client_id": "safehavenrr",
+  "code": "LLM_CALL_FAILED",
+  "failed_at": "2026-08-16T10:21:15.810Z",
+  "input_evidence": [],
+  "message": "LLM provider unavailable for content-generation: terminated",
+  "recoverable": false,
+  "schema": "website-bot.stage-failure/v2",
+  "stage": "content-generation"
+}

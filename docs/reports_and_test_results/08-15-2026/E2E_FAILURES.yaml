@@ -1,0 +1,366 @@
+# E2E Failure Registry — safehavenrr.com full E2E validation
+# Test run: 2026-08-16. Every failure: stage, observed/expected, immediate cause,
+# root cause, affected repo/contract, reproducibility, severity, evidence, remediation.
+# Severity: BLOCKER > HIGH > MEDIUM > LOW > INFO
+
+failures:
+  - failure_id: F-01
+    stage: phase_4_baseline_lint
+    entrypoint: npm run lint (biome check .)
+    observed: >
+      Found 957 errors / 197 warnings / 45 infos; exit non-zero. Checked 1667 files
+      (repo holds far fewer).
+    expected: lint passes on repository source
+    immediate_cause: >
+      Two independent contributors: (a) ~493 diagnostics from
+      ~/.cursor-governance reached via the repo's .cursor-commands symlink (biome
+      follows symlinks; biome.json files.includes had no exclusions);
+      (b) ~707 in-repo diagnostics (format, noExplicitAny x89, noUnusedVariables x17,
+      nonNullAssertion, noShadowRestrictedNames, noImplicitAnyLet).
+    root_cause: >
+      Uncommitted Biome 2.5 migration in the working tree (untracked
+      biome.json/.biomeignore). .biomeignore is self-documented as ineffective for
+      Biome 2.5; includes lacked symlink exclusions; in-repo lint debt predates the
+      migration.
+    affected_repository: Website-Bot working tree
+    affected_contract: package.json lint script; CI l9-lint-test.yml
+    reproducibility: deterministic
+    severity: MEDIUM
+    evidence: e2e-safehaven/evidence/biome-lint-baseline.txt, biome-lint-full.txt
+    remediation_status: >
+      PARTIALLY_FIXED — biome.json now excludes .cursor-commands/.cursor/.claude/
+      .vscode/build trees (checked files 1667 -> 290; errors 957 -> 463). Remaining
+      ~463 in-repo errors are pre-existing lint debt in the working tree; sweeping
+      them touches ~100 files owned by other workstreams and is handed to the
+      operator as a PENDING_DECISION item (not bundled with the E2E fixes).
+
+  - failure_id: F-02
+    stage: phase_5_spec_generation_llm_fill
+    entrypoint: npx tsx scripts/generate-spec.ts https://www.safehavenrr.com
+    observed: >
+      LLM fill skipped (Missing required LLM configuration: OPENROUTER_API_KEY);
+      using CODE defaults
+    expected: Infisical hydration supplies provider keys; LLM fill runs
+    immediate_cause: OPENROUTER_API_KEY absent from process.env
+    root_cause: >
+      scripts/generate-spec.ts never calls hydrateSecretsIfConfigured()
+      (run-pipeline.ts does). With the repo's Infisical bootstrap path (the
+      documented secrets plane), fill silently degrades to CODE defaults.
+    affected_repository: Website-Bot (scripts/generate-spec.ts)
+    affected_contract: ADR-0009 Infisical secrets plane
+    reproducibility: deterministic with Infisical-only env
+    severity: MEDIUM
+    evidence: first generate-spec run log (07:21Z)
+    remediation_status: >
+      WORKAROUNDED in this run (wrapper hydrates via the repo's own
+      hydrate-secrets.mjs before spawning the CLI). Fix candidate documented:
+      add hydrateSecretsIfConfigured() at generate-spec entry, mirroring run-pipeline.
+
+  - failure_id: F-03
+    stage: phase_5_spec_generation_output_validation
+    entrypoint: generate-spec -> validateDomainSpec
+    observed: >
+      Generated spec failed validation: seo_contract.lead_form_action is required
+      because a route uses the contact_form component. Refusing to write invalid spec.
+    expected: crawl-derived spec is writable for operator review
+    immediate_cause: >
+      Target's quote form posts to its own relative /api/quote; the crawler extracts
+      no absolute HTTPS action, so contact-form routes lack lead_form_action and
+      self-validation fails.
+    root_cause: >
+      By-design contract (lead_form_action required with contact_form; production
+      endpoints are operator-owned). The script documents the escape
+      (--write-invalid) and the README documents review-and-correct. The default path
+      can never succeed for any form-bearing target with a relative action.
+    affected_repository: Website-Bot (generate-spec + validateDomainSpec)
+    reproducibility: deterministic for this target
+    severity: LOW
+    evidence: generate-spec run outputs; corrected spec safehavenrr.e2e.yaml
+    remediation_status: >
+      WORKAROUNDED per documented flow (--write-invalid -> operator correction).
+      Spec uses labeled TEST-ONLY endpoint https://httpbin.org/post (real, inert
+      POST echo; explicitly labeled in all test artifacts; the production endpoint
+      remains operator-owned/UNKNOWN).
+
+  - failure_id: F-04
+    stage: phase_5_pipeline_site_build_pass1
+    entrypoint: npm run pipeline -- --mode=local-proof (build safehavenrr-1786865186713)
+    observed: >
+      astro check: 4x TS2339 in generated Gallery.astro — Property
+      src/alt/width/height does not exist on type never
+    expected: text-only build (no assets block) assembles and checks clean
+    immediate_cause: >
+      Assembler emits siteConfig with galleryImages: [] under `as const` ->
+      readonly never[]; template Gallery.astro `const gallery =
+      siteConfig.galleryImages ?? []` -> never[]; gallery.map(image => image.src)
+      -> TS2339.
+    root_cause: >
+      astro_template/src/components/sections/Gallery.astro lacked an explicit element
+      type. Text-only builds with a gallery component always failed astro check
+      (CI's ci-test-spec home route has no gallery, so CI missed it).
+    affected_repository: Website-Bot (astro_template)
+    affected_contract: BuildContext contract "text-only builds must be unaffected"
+    reproducibility: deterministic
+    severity: BLOCKER
+    evidence: pipeline-run1.log astro check output
+    remediation_status: >
+      FIXED — Gallery.astro types the array as readonly GalleryImage[];
+      regression test in tests/unit/astro-template-contract.test.ts. Pass 2 pipeline
+      completed (exit 0). Committed c88d1c5 (branch e2e/safehaven-validation).
+
+  - failure_id: F-05
+    stage: phase_5_seo_bot_local_startup
+    entrypoint: npx tsx src/index.ts with INFISICAL_* bootstrap only
+    observed: >
+      Configuration Error box (POSTHOG/DATAFORSEO/PAGESPEED/OPENROUTER/PERPLEXITY
+      Required) before any hydration log
+    expected: hydrateSecretsIfConfigured() (first statement of main) fills env first
+    immediate_cause: >
+      getConfig() is invoked at module-import time in >=6 modules (api/index,
+      api/security, core/database, core/scheduler, answer-engine-port) — imports run
+      before main() -> loadConfig() validates empty env -> process.exit(1).
+    root_cause: >
+      Startup-order coupling: import-time config validation defeats the Infisical
+      hydration path. Docker deployments supply env directly (dotenv .env at config
+      import), so only Infisical-only local runs hit this.
+    affected_repository: SEO-Bot (config/import graph)
+    reproducibility: deterministic with Infisical-only env
+    severity: MEDIUM
+    evidence: seo-bot.log startup error box; import-graph grep (6 getConfig() call sites)
+    remediation_status: >
+      WORKAROUNDED (materialized .env from hydrated values — the documented local
+      path). Fix candidate: move import-time getConfig() reads behind lazy accessors.
+      Out of minimum scope; recorded for the operator.
+
+  - failure_id: F-06
+    stage: phase_5_competitive_landscape_pass1
+    entrypoint: POST /api/build-intelligence/competitive-landscape (location_name "Charlotte, NC")
+    observed: >
+      HTTP 422 COMPETITIVE_EVIDENCE_INCOMPLETE — 0 observations across 3 seed
+      queries; bot log showed NO provider error
+    expected: sealed artifact or a surfaced provider error
+    immediate_cause: >
+      DataForSEO returns task-level status_code 40501 ("Invalid Field:
+      'location_name'.") with result: null; the client checked only the top-level
+      status (20000) and treated task?.items || [] as empty — a real provider error
+      silently became "no data".
+    root_cause: >
+      DataForSeoClient.getOrganicSerp ignores task-level status and missing results
+      (silent zero-degradation); the producer's warn path only fires on thrown errors.
+    affected_repository: SEO-Bot (src/services/dataforseo.ts)
+    reproducibility: deterministic for non-canonical location names
+    severity: HIGH
+    evidence: >
+      Live DataForSEO probe (40501 with "Charlotte, NC"; canonical "United States"
+      returns 25 organic items); bot log absence of SERP-fetch warn on the failed call
+    remediation_status: >
+      FIXED — getOrganicSerp throws on task status != 20000 and on missing/empty
+      results; 2 regression tests (tests/services/dataforseo.test.ts, 6 tests).
+      Live call with canonical location then returned 201 (39 observations, 3 donors).
+      Committed 9eccc06 (SEO-Bot clone, branch e2e/safehaven-validation).
+
+  - failure_id: F-07
+    stage: phase_5_seo_content_blueprint_pass1
+    entrypoint: POST /api/build-intelligence/seo-content-blueprint
+    observed: 'HTTP 500 build_intelligence_failed — invalid input syntax for type uuid: "safehavenrr"'
+    expected: 201 sealed artifact
+    immediate_cause: >
+      canonicalClientId() (src/services/memory.ts) ran WHERE clients.id = 'safehavenrr'
+      — comparing a uuid column to a canonical string raises a Postgres uuid parse
+      error before any fallback.
+    root_cause: >
+      Build-time intelligence calls (pre-registration) carry canonical string client
+      ids; the resolver assumed the input was always the DB uuid (registered flow).
+      It also ran outside the guarded() wrapper, so the error propagated through
+      LlmService.execute -> producer -> 500.
+    affected_repository: SEO-Bot (src/services/memory.ts)
+    reproducibility: deterministic for unregistered client ids
+    severity: BLOCKER
+    evidence: HTTP 500 body; live DB schema (clients.id uuid); call path verified in source
+    remediation_status: >
+      FIXED — dual lookup (clients.id::text cast OR config JSON canonicalClientId)
+      with no-throw fallback to the input id. Pass 2 proceeded past hydration.
+      Committed 9eccc06.
+
+  - failure_id: F-08
+    stage: phase_5_seo_content_blueprint_pass2
+    entrypoint: POST /api/build-intelligence/seo-content-blueprint
+    observed: >
+      HTTP 500 build_intelligence_failed — "Client safehavenrr not initialized.
+      Call initClient() first."
+    expected: 201 sealed artifact
+    immediate_cause: >
+      L9LLMRouter budget store rejects execute() for a client that never had
+      initClient(). Startup only initializes clients already registered in the DB;
+      a pre-registration build-time client id had no budget account.
+    root_cause: >
+      SEO-Bot LlmService.execute() assumed the caller (scheduled jobs over registered
+      clients) had initialized the client; the build-time API path did not.
+    affected_repository: SEO-Bot (src/services/llm.ts)
+    reproducibility: deterministic for unregistered client ids
+    severity: BLOCKER
+    evidence: HTTP 500 body; LLM-Router budget/index.ts guard; initClient idempotency verified
+    remediation_status: >
+      FIXED — execute() now calls this.initClient(task.clientId) (idempotent) before
+      dispatch. Regression test (tests/services/llm.test.ts, 13 tests). Pass 3
+      dispatched the real strategic-reasoning LLM call. Committed 9eccc06.
+
+  - failure_id: F-09
+    stage: phase_5_seo_content_blueprint_pass3_post_dispatch
+    entrypoint: POST /api/build-intelligence/seo-content-blueprint
+    observed: >
+      HTTP 500 with zod issues: routes[0].search_intent.journey_stage "Required"
+      (twice; the single bounded repair also failed — 4 LLM attempts total)
+    expected: 201 sealed artifact
+    immediate_cause: >
+      The producer's user prompt output_contract described journey_stage as a FLAT
+      per-route field, while the shared schema requires the nested
+      routes[].search_intent.journey_stage. The model followed the prompt contract
+      and the validator rejected every attempt; the repair prompt keeps the
+      misleading base contract, so the retry failed the same way.
+    root_cause: prompt/schema contract mismatch in the producer
+    affected_repository: SEO-Bot (src/build-intelligence/seo-content-blueprint.ts)
+    reproducibility: observed 2/2 calls (4/4 LLM attempts)
+    severity: HIGH
+    evidence: two HTTP 500 bodies (identical zod path); schema-guards.ts nested search_intent; bot log repair warn
+    remediation_status: >
+      FIXED — output_contract now documents the nested route_shape; regression test
+      (tests/build-intelligence/seo-content-blueprint.test.ts, 6 tests). Live call
+      then returned 201 (artifact seo_content_blueprint:47e3f9b7..., 4 routes).
+      Committed 9eccc06.
+
+  - failure_id: F-10
+    stage: phase_6_recreation_validation_internal_linking
+    entrypoint: crawl of the recreated site (29 pages built, all 200)
+    observed: >
+      10 of 29 pages reachable from the site itself; 19 orphaned: 12 /services/*
+      details, 6 /guides/* articles, /service-areas/charlotte had ZERO inbound links
+      from any page (nav holds only top-level routes; no service-list component
+      exists in the template registry; no footer/sitemap).
+    expected: every built page reachable (target links all details from its indexes)
+    immediate_cause: >
+      SECTION_COMPONENTS has no service_list; assembled pages carry
+      hero/service_detail/contact_form only; siteConfig exposes nav (top-level only)
+      and no full route registry for the layout to link.
+    root_cause: >
+      Template/assembler gap: no mechanism links nested routes. Top nav mirrors the
+      source site's top nav (by design) but nothing links child pages.
+    affected_repository: Website-Bot (astro_template + SiteAssemblerStage)
+    reproducibility: deterministic for nested-route specs
+    severity: HIGH
+    evidence: recreated-inventory.json (10 pages crawled); orphan link counts; target baseline links all details
+    remediation_status: >
+      FIXED — assembler emits a full routes registry into siteConfig; BaseLayout
+      renders a grouped footer sitemap linking every route from every page + a
+      skip-link (a11y). Regression tests: site-assembler.test.ts (routes registry)
+      and astro-template-contract.test.ts (footer nav + skip link). Committed c88d1c5.
+      Re-verification: pipeline pass 3 (in progress at registry write time).
+
+  - failure_id: F-11
+    stage: phase_4_baseline_environment_tooling
+    entrypoint: curl https://www.safehavenrr.com
+    observed: HTTP 200 headers, 0-byte body; curl exits 56/23
+    expected: body delivered
+    immediate_cause: host drops the connection body for curl's TLS/HTTP fingerprint
+    root_cause: >
+      Server-side bot mitigation (Cloudflare-managed robots.txt with per-bot Disallow
+      rules suggests deliberate client filtering). Node undici (the client the repos'
+      crawlers use) succeeds (51,036-byte home page).
+    affected_repository: none (tooling only)
+    reproducibility: deterministic for curl
+    severity: INFO
+    evidence: curl exits 56/23 with size 0; node fetch 200/51036B; robots.txt bot Disallow list
+    remediation_status: NONE_NEEDED (repo crawlers use undici; test tooling uses node fetch)
+
+  - failure_id: F-12
+    stage: phase_5_integration_map_architecture_gap
+    entrypoint: structural code search
+    observed: >
+      (a) Website-Bot defines SeoBuildIntelligencePort (interface only); no HTTP
+      client and no pipeline stage consumes SEO-Bot's build-intelligence endpoints;
+      (b) WEBSITE_INTELLIGENCE_LOCK.json declares website_build_blueprint producer =
+      Website-Bot, but no blueprint producer exists in Website-Bot src;
+      (c) therefore the full artifact chain landscape -> seo_content_blueprint ->
+      website_build_blueprint -> page_content_contract -> structured_content cannot
+      be exercised through the real Website-Bot pipeline today.
+    expected: the declared l9.website-intelligence/v1 seam is consumable end-to-end
+    root_cause: >
+      The intelligence seam is partially implemented: SEO-Bot producer side is live
+      (all three endpoints implemented + tested); Website-Bot consumer side is
+      unimplemented (port interface + contract compiler exist; blueprint producer and
+      HTTP client do not). The lock file itself notes the dependency coordination is
+      EXPECTED_NEXT_REPO_DEPENDENCY for the seam rollout.
+    affected_repository: Website-Bot (consumer side); SEO-Bot (upstream input for structured-content)
+    reproducibility: structural
+    severity: INFO
+    evidence: grep of Website-Bot src; FactoryExecutionPlan stage list; SEO-Bot endpoints exercised live (201 x 2)
+    remediation_status: >
+      RECORDED — out of minimum-effective-fix scope for this E2E; recommended as the
+      next integration workstream (implement blueprint producer + intelligence HTTP
+      client in Website-Bot, then wire the chain).
+
+  - failure_id: F-13
+    stage: phase_5_handoff_to_seo_bot_registration
+    entrypoint: HandoffEmitterStage
+    observed: >
+      HandoffEmitterStage requires mode=end-to-end + deployTarget (GitHub publish +
+      Vercel deploy evidence) — not exercisable under this run's authority
+      (push/PR/deploy forbidden).
+    expected: registration leg exercised where the architecture wires it
+    root_cause: registration is post-deployment by design (the handoff carries publication + deployment proof)
+    affected_repository: Website-Bot (HandoffEmitterStage gating)
+    reproducibility: structural
+    severity: INFO
+    evidence: >
+      HandoffEmitterStage source (mode/deployTarget guard); SEO-Bot register contract
+      proven by its own suite (tests/api/register.test.ts: 201/400/409/401) and by
+      live fail-closed checks (401 wrong/missing bearer, 400 invalid body)
+    remediation_status: RECORDED — full loop requires an authorized deployment (out of scope)
+
+  - failure_id: F-14
+    stage: phase_5_seo_bot_live_run_operator_key
+    entrypoint: hydrate infisical-seo-bot
+    observed: >
+      The infisical-seo-bot project does not contain OPERATOR_API_KEY (hydrated 18
+      keys; operator key absent) — operator routes are fail-closed 401 by design
+      when unset.
+    expected: key exists or a local operator key is set for the local instance
+    root_cause: OPERATOR_API_KEY is an operator-owned shared secret, deliberately not in the vault
+    affected_repository: SEO-Bot (config contract)
+    reproducibility: deterministic
+    severity: INFO
+    evidence: hydrate key-name dump (no OPERATOR_API_KEY); security.ts fail-closed docs
+    remediation_status: >
+      WORKAROUNDED — local random key generated for the local test instance only
+      (never persisted outside .env, gitignored, mode 600)
+
+  - failure_id: F-15
+    stage: phase_5_pipeline_pass3_resume_content_generation
+    entrypoint: npm run pipeline -- --resume --build-id=safehavenrr-1786872912633
+    observed: >
+      Pipeline FAILED: LLM provider unavailable for content-generation: terminated
+      after 39 LLM calls in that resume (77/107 total across pass-3 attempts), ~28
+      min into the stage.
+    expected: stage completes (or fails loudly and resumes from checkpoints)
+    immediate_cause: >
+      A single OpenRouter call was terminated (provider-side timeout / connection
+      drop); Website-Bot configures providerMaxRetries: 0.
+    root_cause: >
+      Transient provider instability during a long sequential LLM stage — no retry is
+      configured by design; the evidence store's checkpoint/resume path is the
+      intended recovery mechanism and worked (re-resume continued the stage).
+    affected_repository: none (runtime environment); llm-router classified the error correctly
+    reproducibility: transient (did not recur on re-resume)
+    severity: LOW
+    evidence: pipeline-run3c.log Stage FAILED line; successful re-resume continuing from checkpoints
+    remediation_status: >
+      OBSERVED + RESOLVED BY RESUME. Optional hardening (providerMaxRetries 1 for
+      content-generation) noted for the operator.
+
+convergence_notes:
+  - Website-Bot suite: 246 tests pre-fix -> 248 post-fix, all passing.
+  - SEO-Bot suite: 233 -> 236 passing (3 new regression tests).
+  - LLM-Router suite: 100/100 passing (unchanged; no fixes needed).
+  - Website-Bot lint (F-01 remainder) and generate-spec hydration (F-02) are
+    deliberate PENDING_DECISION items handed back to the operator — they do not
+    block the E2E.

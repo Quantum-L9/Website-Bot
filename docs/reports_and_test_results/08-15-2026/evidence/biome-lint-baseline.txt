@@ -1,0 +1,1019 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+/Users/macm2/.cursor-governance/.cursor-plugin/plugin.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     7  7 │     "repository": "https://github.com/Quantum-L9/Cursor-Governance",
+     8  8 │     "license": "Proprietary",
+     9    │ - ··"keywords":·["l9",·"governance",·"constellation",·"rules",·"skills",·"commands",·"slash-commands"],
+        9 │ + ··"keywords":·[
+       10 │ + ····"l9",
+       11 │ + ····"governance",
+       12 │ + ····"constellation",
+       13 │ + ····"rules",
+       14 │ + ····"skills",
+       15 │ + ····"commands",
+       16 │ + ····"slash-commands"
+       17 │ + ··],
+    10 18 │     "skills": "skills",
+    11 19 │     "commands": "./commands",
+  
+
+/Users/macm2/.cursor-governance/WIP/llm_peer_execution_core/repo_overlay/environment/agents/schemas/peer-runtime-bindings.schema.json format ━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     11  11 │           }
+     12  12 │         },
+     13     │ - ······"required":·[
+     14     │ - ········"required",
+     15     │ - ········"provider_id"
+     16     │ - ······],
+         13 │ + ······"required":·["required",·"provider_id"],
+     17  14 │         "type": "object"
+     18  15 │       },
+    ······· │ 
+     30  27 │           }
+     31  28 │         },
+     32     │ - ······"required":·[
+     33     │ - ········"surface",
+     34     │ - ········"provider_ref",
+     35     │ - ········"execution_profile_ref"
+     36     │ - ······],
+         29 │ + ······"required":·["surface",·"provider_ref",·"execution_profile_ref"],
+     37  30 │         "type": "object"
+     38  31 │       },
+    ······· │ 
+     44  37 │           }
+     45  38 │         },
+     46     │ - ······"required":·[
+     47     │ - ········"readiness_required"
+     48     │ - ······],
+         39 │ + ······"required":·["readiness_required"],
+     49  40 │         "type": "object"
+     50  41 │       },
+    ······· │ 
+     59  50 │                 }
+     60  51 │               },
+     61     │ - ············"required":·[
+     62     │ - ··············"required"
+     63     │ - ············]
+         52 │ + ············"required":·["required"]
+     64  53 │             },
+     65  54 │             "then": {
+    ······· │ 
+     84  73 │           }
+     85  74 │         },
+     86     │ - ······"required":·[
+     87     │ - ········"required",
+     88     │ - ········"bindings"
+     89     │ - ······],
+         75 │ + ······"required":·["required",·"bindings"],
+     90  76 │         "type": "object"
+     91  77 │       },
+    ······· │ 
+    100  86 │           }
+    101  87 │         },
+    102     │ - ······"required":·[
+    103     │ - ········"required",
+    104     │ - ········"capture_readiness_required"
+    105     │ - ······],
+         88 │ + ······"required":·["required",·"capture_readiness_required"],
+    106  89 │         "type": "object"
+    107  90 │       },
+    ······· │ 
+    137 120 │           }
+    138 121 │         },
+    139     │ - ······"required":·[
+    140     │ - ········"agent_ref",
+    141     │ - ········"execution",
+    142     │ - ········"subagents",
+    143     │ - ········"results",
+    144     │ - ········"generated_data"
+    145     │ - ······],
+        122 │ + ······"required":·["agent_ref",·"execution",·"subagents",·"results",·"generated_data"],
+    146 123 │         "type": "object"
+    147 124 │       },
+    ······· │ 
+    153 130 │           }
+    154 131 │         },
+    155     │ - ······"required":·[
+    156     │ - ········"readiness_required"
+    157     │ - ······],
+        132 │ + ······"required":·["readiness_required"],
+    158 133 │         "type": "object"
+    159 134 │       },
+    ······· │ 
+    171 146 │           }
+    172 147 │         },
+    173     │ - ······"required":·[
+    174     │ - ········"enabled"
+    175     │ - ······],
+        148 │ + ······"required":·["enabled"],
+    176 149 │         "type": "object"
+    177 150 │       }
+    ······· │ 
+    200 173 │       }
+    201 174 │     },
+    202     │ - ··"required":·[
+    203     │ - ····"schema",
+    204     │ - ····"schema_version",
+    205     │ - ····"peers"
+    206     │ - ··],
+        175 │ + ··"required":·["schema",·"schema_version",·"peers"],
+    207 176 │     "title": "L9 Peer Runtime Bindings",
+    208 177 │     "type": "object"
+  
+
+/Users/macm2/.cursor-governance/WIP/llm_peer_execution_core/repo_overlay/environment/program-execution/conformance/schemas/canonical-execution-request.schema.json format ━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     40  40 │           }
+     41  41 │         },
+     42     │ - ······"required":·[
+     43     │ - ········"max_turns"
+     44     │ - ······],
+         42 │ + ······"required":·["max_turns"],
+     45  43 │         "type": "object"
+     46  44 │       },
+    ······· │ 
+    115 113 │           }
+    116 114 │         },
+    117     │ - ······"required":·[
+    118     │ - ········"dispatch_seconds",
+    119     │ - ········"poll_seconds"
+    120     │ - ······],
+        115 │ + ······"required":·["dispatch_seconds",·"poll_seconds"],
+    121 116 │         "type": "object"
+    122 117 │       },
+  
+
+/Users/macm2/.cursor-governance/WIP/llm_peer_execution_core/repo_overlay/environment/program-execution/conformance/schemas/canonical-provider-result.schema.json format ━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    18 18 │     ],
+    19 19 │     "properties": {
+    20    │ - ····"schema":·{"const":·"l9.peer-execution.provider-result.v1"},
+    21    │ - ····"execution_id":·{"type":·"string",·"minLength":·1},
+    22    │ - ····"status":·{"enum":·["PASS",·"FAIL",·"BLOCKED",·"CANCELLED"]},
+    23    │ - ····"structured_payload":·{"type":·"object"},
+    24    │ - ····"raw_output_digest":·{"type":·["string",·"null"]},
+    25    │ - ····"provider_metadata":·{"type":·"object"},
+    26    │ - ····"usage":·{"type":·"object"},
+    27    │ - ····"session_or_run_id":·{"type":·["string",·"null"]},
+       20 │ + ····"schema":·{·"const":·"l9.peer-execution.provider-result.v1"·},
+       21 │ + ····"execution_id":·{·"type":·"string",·"minLength":·1·},
+       22 │ + ····"status":·{·"enum":·["PASS",·"FAIL",·"BLOCKED",·"CANCELLED"]·},
+       23 │ + ····"structured_payload":·{·"type":·"object"·},
+       24 │ + ····"raw_output_digest":·{·"type":·["string",·"null"]·},
+       25 │ + ····"provider_metadata":·{·"type":·"object"·},
+       26 │ + ····"usage":·{·"type":·"object"·},
+       27 │ + ····"session_or_run_id":·{·"type":·["string",·"null"]·},
+    28 28 │       "observed_capabilities": {
+    29 29 │         "type": "array",
+    30 30 │         "uniqueItems": true,
+    31    │ - ······"items":·{"type":·"string",·"minLength":·1}
+       31 │ + ······"items":·{·"type":·"string",·"minLength":·1·}
+    32 32 │       },
+    33    │ - ····"errors":·{"type":·"array",·"items":·{"type":·"object"}},
+       33 │ + ····"errors":·{·"type":·"array",·"items":·{·"type":·"object"·}·},
+    34 34 │       "transport_evidence_refs": {
+    35 35 │         "type": "array",
+    36    │ - ······"items":·{"type":·"object"}
+       36 │ + ······"items":·{·"type":·"object"·}
+    37 37 │       }
+    38 38 │     }
+  
+
+/Users/macm2/.cursor-governance/WIP/llm_peer_execution_core/repo_overlay/environment/program-execution/conformance/schemas/execution-adapter-spec.schema.json format ━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      6   6 │     "additionalProperties": false,
+      7   7 │     "required": [
+      8     │ - ····"schema",·"adapter_id",·"adapter_version",·"adapter_kind",
+      9     │ - ····"contract_family",·"provider",·"capabilities",·"identity",
+     10     │ - ····"security",·"receipts",·"status"
+          8 │ + ····"schema",
+          9 │ + ····"adapter_id",
+         10 │ + ····"adapter_version",
+         11 │ + ····"adapter_kind",
+         12 │ + ····"contract_family",
+         13 │ + ····"provider",
+         14 │ + ····"capabilities",
+         15 │ + ····"identity",
+         16 │ + ····"security",
+         17 │ + ····"receipts",
+         18 │ + ····"status"
+     11  19 │     ],
+     12  20 │     "properties": {
+     13     │ - ····"schema":·{"const":·"program-execution-adapter.spec.v1"},
+         21 │ + ····"schema":·{·"const":·"program-execution-adapter.spec.v1"·},
+     14  22 │       "adapter_id": {
+     15  23 │         "type": "string",
+    ······· │ 
+     22  30 │       "adapter_kind": {
+     23  31 │         "enum": [
+     24     │ - ········"worker_host",·"verifier",·"remote_action",·"deployment_record",
+     25     │ - ········"target_deployment_factory",·"target_deployment"
+         32 │ + ········"worker_host",
+         33 │ + ········"verifier",
+         34 │ + ········"remote_action",
+         35 │ + ········"deployment_record",
+         36 │ + ········"target_deployment_factory",
+         37 │ + ········"target_deployment"
+     26  38 │         ]
+     27  39 │       },
+     28     │ - ····"contract_family":·{"const":·"program-execution-system.v2"},
+         40 │ + ····"contract_family":·{·"const":·"program-execution-system.v2"·},
+     29  41 │       "provider": {
+     30  42 │         "type": "object",
+    ······· │ 
+     34  46 │           "type": {
+     35  47 │             "enum": [
+     36     │ - ············"root_autonomy",·"cursor_task_tools",
+     37     │ - ············"subprocess",·"manual_handoff",·"gh_cli",·"factory"
+         48 │ + ············"root_autonomy",
+         49 │ + ············"cursor_task_tools",
+         50 │ + ············"subprocess",
+         51 │ + ············"manual_handoff",
+         52 │ + ············"gh_cli",
+         53 │ + ············"factory"
+     38  54 │             ]
+     39  55 │           },
+    ······· │ 
+     48  64 │         "additionalProperties": false,
+     49  65 │         "required": [
+     50     │ - ········"target_kinds",·"actions",·"async_execution",·"cancellation",
+     51     │ - ········"structured_output",·"isolated_execution",·"remote_credentials"
+         66 │ + ········"target_kinds",
+         67 │ + ········"actions",
+         68 │ + ········"async_execution",
+         69 │ + ········"cancellation",
+         70 │ + ········"structured_output",
+         71 │ + ········"isolated_execution",
+         72 │ + ········"remote_credentials"
+     52  73 │         ],
+     53  74 │         "properties": {
+     54     │ - ········"target_kinds":·{"type":·"array",·"items":·{"type":·"string"}},
+     55     │ - ········"actions":·{"type":·"array",·"items":·{"type":·"string"}},
+     56     │ - ········"async_execution":·{"type":·"boolean"},
+     57     │ - ········"cancellation":·{"enum":·["supported",·"unsupported",·"conditional"]},
+     58     │ - ········"structured_output":·{"type":·"boolean"},
+     59     │ - ········"isolated_execution":·{"type":·"boolean"},
+     60     │ - ········"remote_credentials":·{"enum":·["forbidden",·"conditional",·"required"]}
+         75 │ + ········"target_kinds":·{·"type":·"array",·"items":·{·"type":·"string"·}·},
+         76 │ + ········"actions":·{·"type":·"array",·"items":·{·"type":·"string"·}·},
+         77 │ + ········"async_execution":·{·"type":·"boolean"·},
+         78 │ + ········"cancellation":·{·"enum":·["supported",·"unsupported",·"conditional"]·},
+         79 │ + ········"structured_output":·{·"type":·"boolean"·},
+         80 │ + ········"isolated_execution":·{·"type":·"boolean"·},
+         81 │ + ········"remote_credentials":·{·"enum":·["forbidden",·"conditional",·"required"]·}
+     61  82 │         }
+     62  83 │       },
+    ······· │ 
+     67  88 │         "properties": {
+     68  89 │           "binding": {
+     69     │ - ··········"enum":·[
+     70     │ - ············"peer_runtime_binding",·"controller_contract",·"external_receipt"
+     71     │ - ··········]
+         90 │ + ··········"enum":·["peer_runtime_binding",·"controller_contract",·"external_receipt"]
+     72  91 │           },
+     73  92 │           "memory_write": {
+    ······· │ 
+     80  99 │         "additionalProperties": false,
+     81 100 │         "required": [
+     82     │ - ········"default_deny",·"may_narrow_authority",·"may_widen_authority",
+     83     │ - ········"autonomous_merge",·"force_push",·"direct_graphiti_write"
+        101 │ + ········"default_deny",
+        102 │ + ········"may_narrow_authority",
+        103 │ + ········"may_widen_authority",
+        104 │ + ········"autonomous_merge",
+        105 │ + ········"force_push",
+        106 │ + ········"direct_graphiti_write"
+     84 107 │         ],
+     85 108 │         "properties": {
+     86     │ - ········"default_deny":·{"const":·true},
+     87     │ - ········"may_narrow_authority":·{"const":·true},
+     88     │ - ········"may_widen_authority":·{"const":·false},
+     89     │ - ········"autonomous_merge":·{"const":·false},
+     90     │ - ········"force_push":·{"const":·false},
+     91     │ - ········"direct_graphiti_write":·{"const":·false}
+        109 │ + ········"default_deny":·{·"const":·true·},
+        110 │ + ········"may_narrow_authority":·{·"const":·true·},
+        111 │ + ········"may_widen_authority":·{·"const":·false·},
+        112 │ + ········"autonomous_merge":·{·"const":·false·},
+        113 │ + ········"force_push":·{·"const":·false·},
+        114 │ + ········"direct_graphiti_write":·{·"const":·false·}
+     92 115 │         }
+     93 116 │       },
+    ······· │ 
+    110 133 │         "required": ["default", "blocked_reason"],
+    111 134 │         "properties": {
+    112     │ - ········"default":·{"enum":·["active",·"conditional",·"dormant",·"non_routable"]},
+    113     │ - ········"blocked_reason":·{"type":·["string",·"null"]}
+        135 │ + ········"default":·{·"enum":·["active",·"conditional",·"dormant",·"non_routable"]·},
+        136 │ + ········"blocked_reason":·{·"type":·["string",·"null"]·}
+    114 137 │         }
+    115 138 │       }
+  
+
+/Users/macm2/.cursor-governance/WIP/llm_peer_execution_core/repo_overlay/environment/program-execution/conformance/schemas/execution-profile.schema.json format ━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     24 24 │                 }
+     25 25 │               },
+     26    │ - ············"required":·[
+     27    │ - ··············"max_turns"
+     28    │ - ············],
+        26 │ + ············"required":·["max_turns"],
+     29 27 │               "type": "object"
+     30 28 │             },
+     31 29 │             "permission_profile_ref": {
+     32    │ - ············"enum":·[
+     33    │ - ··············"read-only",
+     34    │ - ··············"repo-local-bounded"
+     35    │ - ············]
+        30 │ + ············"enum":·["read-only",·"repo-local-bounded"]
+     36 31 │             },
+     37 32 │             "retry_policy": {
+    ······ │ 
+     48 43 │                 }
+     49 44 │               },
+     50    │ - ············"required":·[
+     51    │ - ··············"max_attempts",
+     52    │ - ··············"backoff_seconds"
+     53    │ - ············],
+        45 │ + ············"required":·["max_attempts",·"backoff_seconds"],
+     54 46 │               "type": "object"
+     55 47 │             },
+    ······ │ 
+     68 60 │                 }
+     69 61 │               },
+     70    │ - ············"required":·[
+     71    │ - ··············"dispatch_seconds",
+     72    │ - ··············"poll_seconds"
+     73    │ - ············],
+        62 │ + ············"required":·["dispatch_seconds",·"poll_seconds"],
+     74 63 │               "type": "object"
+     75 64 │             }
+    ······ │ 
+     95 84 │       }
+     96 85 │     },
+     97    │ - ··"required":·[
+     98    │ - ····"schema",
+     99    │ - ····"schema_version",
+    100    │ - ····"default_profile_ref",
+    101    │ - ····"profiles"
+    102    │ - ··],
+        86 │ + ··"required":·["schema",·"schema_version",·"default_profile_ref",·"profiles"],
+    103 87 │     "type": "object"
+    104 88 │   }
+  
+
+/Users/macm2/.cursor-governance/autonomy/examples/w7-campaign.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     9  9 │     },
+    10 10 │     "scope": {
+    11    │ - ····"repositories":·[
+    12    │ - ······"Quantum-L9/Cursor-Governance"
+    13    │ - ····],
+       11 │ + ····"repositories":·["Quantum-L9/Cursor-Governance"],
+    14 12 │       "allowed_paths": [
+    15 13 │         "addons/plasticos_gate/**",
+    ····· │ 
+    18 16 │         "autonomy/**"
+    19 17 │       ],
+    20    │ - ····"forbidden_paths":·[
+    21    │ - ······"ops/secrets/**",
+    22    │ - ······".env",
+    23    │ - ······"**/*.pem",
+    24    │ - ······"**/*.key"
+    25    │ - ····],
+       18 │ + ····"forbidden_paths":·["ops/secrets/**",·".env",·"**/*.pem",·"**/*.key"],
+    26 19 │       "allowed_operations": [
+    27 20 │         "read",
+  
+
+/Users/macm2/.cursor-governance/autonomy/examples/w7-deployment.json format ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    34 34 │         "max": 4,
+    35 35 │         "mutation": false,
+    36    │ - ······"independent_from":·[
+    37    │ - ········"executor"
+    38    │ - ······]
+       36 │ + ······"independent_from":·["executor"]
+    39 37 │       },
+    40 38 │       "poller": {
+  
+
+/Users/macm2/.cursor-governance/autonomy/policies/role-capabilities.json format ━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      4   4 │       "coordinator": {
+      5   5 │         "mutation_allowed": false,
+      6     │ - ······"capabilities":·[
+      7     │ - ········"campaign.inspect",
+      8     │ - ········"graph.inspect",
+      9     │ - ········"scheduler.request",
+     10     │ - ········"status.inspect"
+     11     │ - ······]
+          6 │ + ······"capabilities":·["campaign.inspect",·"graph.inspect",·"scheduler.request",·"status.inspect"]
+     12   7 │       },
+     13   8 │       "recon": {
+    ······· │ 
+     64  59 │       "poller": {
+     65  60 │         "mutation_allowed": false,
+     66     │ - ······"capabilities":·[
+     67     │ - ········"pr.inspect",
+     68     │ - ········"ci.inspect",
+     69     │ - ········"review.inspect",
+     70     │ - ········"artifact.write_poll_report"
+     71     │ - ······]
+         61 │ + ······"capabilities":·["pr.inspect",·"ci.inspect",·"review.inspect",·"artifact.write_poll_report"]
+     72  62 │       },
+     73  63 │       "failure_classifier": {
+    ······· │ 
+    115 105 │       "evidence_writer": {
+    116 106 │         "mutation_allowed": false,
+    117     │ - ······"capabilities":·[
+    118     │ - ········"artifact.read",
+    119     │ - ········"receipt.append",
+    120     │ - ········"artifact.write_evidence_receipt"
+    121     │ - ······]
+        107 │ + ······"capabilities":·["artifact.read",·"receipt.append",·"artifact.write_evidence_receipt"]
+    122 108 │       }
+    123 109 │     },
+  
+
+/Users/macm2/.cursor-governance/autonomy/schemas/adapter-config.schema.json format ━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    28 28 │       "adapter_type": {
+    29 29 │         "type": "string",
+    30    │ - ······"enum":·[
+    31    │ - ········"cursor",
+    32    │ - ········"claude-code"
+    33    │ - ······]
+       30 │ + ······"enum":·["cursor",·"claude-code"]
+    34 31 │       },
+    35 32 │       "protocol_version": {
+  
+
+/Users/macm2/.cursor-governance/autonomy/schemas/agent-deployment.schema.json format ━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     36 36 │           "type": "object",
+     37 37 │           "additionalProperties": false,
+     38    │ - ········"required":·[
+     39    │ - ··········"min",
+     40    │ - ··········"max",
+     41    │ - ··········"mutation"
+     42    │ - ········],
+        38 │ + ········"required":·["min",·"max",·"mutation"],
+     43 39 │           "properties": {
+     44 40 │             "min": {
+  
+
+/Users/macm2/.cursor-governance/kernels/L9 Coding Control Plane/package.json format ━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     6  6 │     "license": "UNLICENSED",
+     7  7 │     "type": "module",
+     8    │ - ··"workspaces":·[
+     9    │ - ····"packages/*"
+    10    │ - ··],
+        8 │ + ··"workspaces":·["packages/*"],
+    11  9 │     "engines": {
+    12 10 │       "node": ">=20.0.0",
+  
+
+/Users/macm2/.cursor/plans/pe-pipeline-fix-program.plan.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     56  56 │     "code_in_scope": true,
+     57  57 │     "pre_validation": [
+     58     │ - ····{"id":·"PV-01",·"command_or_action":·"git·rev-parse·HEAD·in·worktree·pe-pipeline-fix-program",·"pass_criteria":·"==·dbc0bde0f3bbbf646f0da96dd36531198f379567·and·branch·exists·(rebaselined·after·PR·#161·landed;·scope·files·verified·non-overlapping·with·#161)",·"status":·"passed"},
+     59     │ - ····{"id":·"PV-02",·"command_or_action":·"re-diff·in-flight·pe/pipeline-fixes·worktree·and·intersect·with·scope.in",·"pass_criteria":·"no·overlapping·file·paths",·"status":·"pending"},
+     60     │ - ····{"id":·"PV-03",·"command_or_action":·"git·worktree·list·shows·pe-pipeline-fix-program·registered",·"pass_criteria":·"registered·(re-verify:·registration·was·pruned·once)",·"status":·"passed"},
+     61     │ - ····{"id":·"PV-04",·"command_or_action":·"governance·venv·python·+·pytest·+·pre-commit·available",·"pass_criteria":·"versions·print;·pre-commit·run·--version",·"status":·"pending"}
+         58 │ + ····{
+         59 │ + ······"id":·"PV-01",
+         60 │ + ······"command_or_action":·"git·rev-parse·HEAD·in·worktree·pe-pipeline-fix-program",
+         61 │ + ······"pass_criteria":·"==·dbc0bde0f3bbbf646f0da96dd36531198f379567·and·branch·exists·(rebaselined·after·PR·#161·landed;·scope·files·verified·non-overlapping·with·#161)",
+         62 │ + ······"status":·"passed"
+         63 │ + ····},
+         64 │ + ····{
+         65 │ + ······"id":·"PV-02",
+         66 │ + ······"command_or_action":·"re-diff·in-flight·pe/pipeline-fixes·worktree·and·intersect·with·scope.in",
+         67 │ + ······"pass_criteria":·"no·overlapping·file·paths",
+         68 │ + ······"status":·"pending"
+         69 │ + ····},
+         70 │ + ····{
+         71 │ + ······"id":·"PV-03",
+         72 │ + ······"command_or_action":·"git·worktree·list·shows·pe-pipeline-fix-program·registered",
+         73 │ + ······"pass_criteria":·"registered·(re-verify:·registration·was·pruned·once)",
+         74 │ + ······"status":·"passed"
+         75 │ + ····},
+         76 │ + ····{
+         77 │ + ······"id":·"PV-04",
+         78 │ + ······"command_or_action":·"governance·venv·python·+·pytest·+·pre-commit·available",
+         79 │ + ······"pass_criteria":·"versions·print;·pre-commit·run·--version",
+         80 │ + ······"status":·"pending"
+         81 │ + ····}
+     62  82 │     ],
+     63  83 │     "todos": [
+     64     │ - ····{"id":·"todo-01-baseline-preflight",·"task":·"Lock·immutable·baseline·SHA,·verify·worktree·registration,·re-check·in-flight·overlap·against·scope.in,·record·receipts",·"files":·[],·"effort":·"S",·"risk":·"low",·"dependencies":·[],·"leverage_rank":·1,·"blocker":·"no·code·mutation;·produces·preflight·receipts·under·.l9/autonomy"},
+     65     │ - ····{"id":·"todo-02-merge-gate-human-channel",·"task":·"merge_gate.py:·accept·one-shot·human·authori...
+     66     │ - ····{"id":·"todo-03-secrets-path-guard",·"task":·"resolve_secret.py·+·sync_secrets_registry.py:·allo...
+     67     │ - ····{"id":·"todo-04-authed-npm-wrapper",·"task":·"Add·ops/secrets/authed_npm.sh·that·resolves·the·sole·PAT·and·exports·npm_config_//npm.pkg.github.com/:_authToken;·document·npm·mechanics·in·skills/l9-aws-secrets/SKILL.md",·"files":·["ops/secrets/authed_npm.sh",·"skills/l9-aws-secrets/SKILL.md"],·"effort":·"S",·"risk":·"low",·"dependencies":·["todo-01-baseline-preflight"],·"leverage_rank":·6},
+     68     │ - ····{"id":·"todo-05-dep-publish-preflight",·"task":·"New·ops/hooks/check_gh_package_deps.py:·every·@...
+     69     │ - ····{"id":·"todo-06-graphiti-conflicts-freshness",·"task":·"graphiti_memory_client.py·conflicts:·exclude·edges·with·expired_at·in·the·past·(--fresh-only);·unit·test·with·expired·edge·fixture",·"files":·["ops/graphiti/graphiti_memory_client.py",·"tests"],·"effort":·"S",·"risk":·"low",·"dependencies":·["todo-01-baseline-preflight"],·"leverage_rank":·7},
+     70     │ - ····{"id":·"todo-07-surface-profile-defaults",·"task":·"surface_profile.yaml:·authorize·pr_remediati...
+     71     │ - ····{"id":·"todo-08-autonomy-manifest-routing",·"task":·"AUTONOMY_MANIFEST.yaml·claude_routing:·l9-p...
+     72     │ - ····{"id":·"todo-09-campaign-stacking-policy",·"task":·"CAMPAIGN_EXECUTION_POLICY.yaml:·one·feature·...
+     73     │ - ····{"id":·"todo-10-rules-docs",·"task":·"Update·rules/zz-autonomy-surface-override.mdc·+·rules/48-m...
+     74     │ - ····{"id":·"todo-11-prove",·"task":·"Run·unit·tests,·lint,·make·pr-check,·policy·structural·assertio...
+     75     │ - ...···{"id":·"todo-12-converge-halt-before-merge",·"task":·"Open·PR·for·pe/pipeline-fix-program·(stacke...
+         84 │ + ····{
+         85 │ + ······"id":·"todo-01-baseline-preflight",
+         86 │ + ······"task":·"Lock·immutable·baseline·SHA,·verify·worktree·registration,·re-check·in-flight·overlap·against·scope.in,·record·receipts",
+         87 │ + ······"files":·[],
+         88 │ + ······"effort":·"S",
+         89 │ + ······"risk":·"low",
+         90 │ + ······"dependencies":·[],
+         91 │ + ······"leverage_rank":·1,
+         92 │ + ······"blocker":·"no·code·mutation;·produces·preflight·receipts·under·.l9/autonomy"
+         93 │ + ····},
+         94 │ + ····{
+         95 │ + ······"id":·"todo-02-merge-gate-human-channel",
+         96 │ + ······"task":·"merge_gate.py:·accept·one-shot·human·authorization·file·(~/.l9/autonomy/merge-authorization.json·with·repo/pr/sha/expires_at)·alongside·L9_MERGE_AUTHORIZED;·default·remains·deny;·add·unit·tests·(deny·default,·allow·valid,·deny·stale/forged)",
+         97 │ + ······"files":·["ops/autonomy/merge_gate.py",·"tests·(alongside·ops/autonomy)"],
+         98 │ + ······"effort":·"M",
+         99 │ + ······"risk":·"high",
+        100 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        101 │ + ······"leverage_rank":·2
+        102 │ + ····},
+        103 │ + ····{
+        104 │ + ······"id":·"todo-03-secrets-path-guard",
+        105 │ + ······"task":·"resolve_secret.py·+·sync_secrets_registry.py:·allow·governance·root·(script-relative)·in·_safe_path·allowed·roots;·regression·test·running·from·a·consumer·cwd",
+        106 │ + ······"files":·["ops/secrets/resolve_secret.py",·"ops/secrets/sync_secrets_registry.py",·"tests"],
+        107 │ + ······"effort":·"S",
+        108 │ + ······"risk":·"medium",
+        109 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        110 │ + ······"leverage_rank":·3
+        111 │ + ····},
+        112 │ + ····{
+        113 │ + ······"id":·"todo-04-authed-npm-wrapper",
+        114 │ + ······"task":·"Add·ops/secrets/authed_npm.sh·that·resolves·the·sole·PAT·and·exports·npm_config_//npm.pkg.github.com/:_authToken;·document·npm·mechanics·in·skills/l9-aws-secrets/SKILL.md",
+        115 │ + ······"files":·["ops/secrets/authed_npm.sh",·"skills/l9-aws-secrets/SKILL.md"],
+        116 │ + ······"effort":·"S",
+        117 │ + ······"risk":·"low",
+        118 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        119 │ + ······"leverage_rank":·6
+        120 │ + ····},
+        121 │ + ····{
+        122 │ + ······"id":·"todo-05-dep-publish-preflight",
+        123 │ + ······"task":·"New·ops/hooks/check_gh_package_deps.py:·every·@quantum-l9/*·version·in·package.json·must·exist·on·GitHub·Packages·and·lock·resolved/integrity·must·match·registry·metadata;·register·in·.pre-commit-config.yaml·(+·precommit-hook-contract.json·if·required);·fixtures·+·unit·tests",
+        124 │ + ······"files":·[
+        125 │ + ········"ops/hooks/check_gh_package_deps.py",
+        126 │ + ········".pre-commit-config.yaml",
+        127 │ + ········"ops/config/precommit-hook-contract.json",
+        128 │ + ········"fixtures",
+        129 │ + ········"tests"
+        130 │ + ······],
+        131 │ + ······"effort":·"M",
+        132 │ + ······"risk":·"medium",
+        133 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        134 │ + ······"leverage_rank":·5
+        135 │ + ····},
+        136 │ + ····{
+        137 │ + ······"id":·"todo-06-graphiti-conflicts-freshness",
+        138 │ + ······"task":·"graphiti_memory_client.py·conflicts:·exclude·edges·with·expired_at·in·the·past·(--fresh-only);·unit·test·with·expired·edge·fixture",
+        139 │ + ······"files":·["ops/graphiti/graphiti_memory_client.py",·"tests"],
+        140 │ + ······"effort":·"S",
+        141 │ + ······"risk":·"low",
+        142 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        143 │ + ······"leverage_rank":·7
+        144 │ + ····},
+        145 │ + ····{
+        146 │ + ······"id":·"todo-07-surface-profile-defaults",
+        147 │ + ······"task":·"surface_profile.yaml:·authorize·pr_remediation_until_green_and_mergeable·+·open_stack...
+        148 │ + ······"files":·["ops/autonomy/surface_profile.yaml",·"tests"],
+        149 │ + ······"effort":·"M",
+        150 │ + ······"risk":·"high",
+        151 │ + ······"dependencies":·["todo-01-baseline-preflight"],
+        152 │ + ······"leverage_rank":·1
+        153 │ + ····},
+        154 │ + ····{
+        155 │ + ······"id":·"todo-08-autonomy-manifest-routing",
+        156 │ + ······"task":·"AUTONOMY_MANIFEST.yaml·claude_routing:·l9-pr-remediation·auto_invoke·under·campaign/PE·packet·(remediate-until-green·scope);·merge·intents·remain·explicit/human;·validate·with·existing·manifest·validation",
+        157 │ + ······"files":·["skills/AUTONOMY_MANIFEST.yaml"],
+        158 │ + ······"effort":·"M",
+        159 │ + ······"risk":·"medium",
+        160 │ + ······"dependencies":·["todo-07-surface-profile-defaults"],
+        161 │ + ······"leverage_rank":·4
+        162 │ + ····},
+        163 │ + ····{
+        164 │ + ······"id":·"todo-09-campaign-stacking-policy",
+        165 │ + ······"task":·"CAMPAIGN_EXECUTION_POLICY.yaml:·one·feature·branch·off·main·per·program,·exclusive·worktree·lease·per·mutating·agent,·stacked·PRs·bottom-up·without·rebase·(first·PR·base·=·integration/main,·subsequent·base·=·open·PR·head);·add·ops/scripts/stack_pr.py·helper·implementing·base·selection·+·bottom-up·merge·order·check",
+        166 │ + ······"files":·[
+        167 │ + ········"environment/program-execution/campaigns/CAMPAIGN_EXECUTION_POLICY.yaml",
+        168 │ + ········"ops/scripts/stack_pr.py"
+        169 │ + ······],
+        170 │ + ······"effort":·"M",
+        171 │ + ······"risk":·"medium",
+        172 │ + ······"dependencies":·["todo-07-surface-profile-defaults"],
+        173 │ + ······"leverage_rank":·4
+        174 │ + ····},
+        175 │ + ····{
+        176 │ + ······"id":·"todo-10-rules-docs",
+        177 │ + ······"task":·"Update·rules/zz-autonomy-surface-override.mdc·+·rules/48-make-pr-remediation.mdc·prose·to·the·new·defaults;·regenerate·generated·llm-rules·(project_llm_rules.py·--root)",
+        178 │ + ······"files":·[
+        179 │ + ········"rules/zz-autonomy-surface-override.mdc",
+        180 │ + ········"rules/48-make-pr-remediation.mdc",
+        181 │ + ········"environment/generated/llm-rules·(regenerated)"
+        182 │ + ······],
+        183 │ + ······"effort":·"S",
+        184 │ + ······"risk":·"low",
+        185 │ + ······"dependencies":·[
+        186 │ + ········"todo-07-surface-profile-defaults",
+        187 │ + ········"todo-08-autonomy-manifest-routing",
+        188 │ + ········"todo-09-campaign-stacking-policy"
+        189 │ + ······],
+  296 more lines truncated
+  
+
+/Users/macm2/.cursor/plans/pe-unified-loop_v1.plan.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     35  35 │     },
+     36  36 │     "pre_validation": [
+     37     │ - ····{"id":·"PV-01",·"command_or_action":·"git·ls-remote·origin·main·+·record·full·SHA",·"pass_criteria":·"origin/main·resolves·to·6869e73e1b833198921888926c3ad4e9f61da4ca·(or·a·later·fast-forward-only·tip·—·lock·the·SHA·observed·at·execution·start)",·"status":·"pending"},
+     38     │ - ····{"id":·"PV-02",·"command_or_action":·"git·worktree·add·(new·dir)·-b·pe/unified-loop·origin/main",·"pass_criteria":·"clean·worktree·at·the·locked·SHA;·git·status·--porcelain·empty",·"status":·"pending"},
+     39     │ - ····{"id":·"PV-03",·"command_or_action":·"verify·main·does·NOT·contain·the·8·fixes·(ls-tree/grep·blueprint_ops.py,·command_parse.py,·base..HEAD·union,·session-id·flags)",·"pass_criteria":·"all·8·confirmed·absent·on·origin/main",·"status":·"pending"},
+     40     │ - ····{"id":·"PV-04",·"command_or_action":·"make·program-execution-core-validate·+·campaign-schema·on·the·clean·worktree",·"pass_criteria":·"PASS·at·baseline",·"status":·"pending"},
+     41     │ - ····{"id":·"PV-05",·"command_or_action":·"capability·probe:·probe_execution_adapters.py·+·registry·health",·"pass_criteria":·"providers·registered·with·fresh·capability·receipts·(or·explicitly·degraded·—·plan·handles·CAPABILITY_UNSUPPORTED)",·"status":·"pending"}
+         37 │ + ····{
+         38 │ + ······"id":·"PV-01",
+         39 │ + ······"command_or_action":·"git·ls-remote·origin·main·+·record·full·SHA",
+         40 │ + ······"pass_criteria":·"origin/main·resolves·to·6869e73e1b833198921888926c3ad4e9f61da4ca·(or·a·later·fast-forward-only·tip·—·lock·the·SHA·observed·at·execution·start)",
+         41 │ + ······"status":·"pending"
+         42 │ + ····},
+         43 │ + ····{
+         44 │ + ······"id":·"PV-02",
+         45 │ + ······"command_or_action":·"git·worktree·add·(new·dir)·-b·pe/unified-loop·origin/main",
+         46 │ + ······"pass_criteria":·"clean·worktree·at·the·locked·SHA;·git·status·--porcelain·empty",
+         47 │ + ······"status":·"pending"
+         48 │ + ····},
+         49 │ + ····{
+         50 │ + ······"id":·"PV-03",
+         51 │ + ······"command_or_action":·"verify·main·does·NOT·contain·the·8·fixes·(ls-tree/grep·blueprint_ops.py,·command_parse.py,·base..HEAD·union,·session-id·flags)",
+         52 │ + ······"pass_criteria":·"all·8·confirmed·absent·on·origin/main",
+         53 │ + ······"status":·"pending"
+         54 │ + ····},
+         55 │ + ····{
+         56 │ + ······"id":·"PV-04",
+         57 │ + ······"command_or_action":·"make·program-execution-core-validate·+·campaign-schema·on·the·clean·worktree",
+         58 │ + ······"pass_criteria":·"PASS·at·baseline",
+         59 │ + ······"status":·"pending"
+         60 │ + ····},
+         61 │ + ····{
+         62 │ + ······"id":·"PV-05",
+         63 │ + ······"command_or_action":·"capability·probe:·probe_execution_adapters.py·+·registry·health",
+         64 │ + ······"pass_criteria":·"providers·registered·with·fresh·capability·receipts·(or·explicitly·degraded·—·plan·handles·CAPABILITY_UNSUPPORTED)",
+         65 │ + ······"status":·"pending"
+         66 │ + ····}
+     42  67 │     ],
+     43  68 │     "todos": [
+     44     │ - ····{"id":·"todo-01",·"task":·"Baseline·+·clean·branch:·lock·origin/main·full·SHA;·create·pe/unified-loop·from·it·in·a·dedicated·worktree·(rule·46);·record·baseline·receipt",·"files":·["(worktree)"],·"effort":·"S",·"risk":·"low",·"dependencies":·[],·"leverage_rank":·9},
+     45     │ - ····{"id":·"todo-02",·"task":·"Re-land·the·8·unmerged·admission/gate·fixes·on·the·clean·branch·(re-c...
+     46     │ - ····{"id":·"todo-03",·"task":·"Dispatch·seam:·new·pec/dispatch.py·—·at·render-contract,·resolve·exec...
+     47     │ - ····{"id":·"todo-04",·"task":·"Signal·seam:·call·outcome_publisher·at·record-attempt,·verify,·evalua...
+     48     │ - ····{"id":·"todo-05",·"task":·"Evidence·intake:·collect_evidence.py·memory-lookup·flag·using·integra...
+     49     │ - ····{"id":·"todo-06",·"task":·"Autonomy·projection:·claim-time·autonomy_action_id·+·campaign-packet·...
+     50     │ - ····{"id":·"todo-07",·"task":·"Routing·+·conformance:·add·codex·preference·row·to·EXECUTION_ROUTING_...
+     51     │ - ····{"id":·"todo-08",·"task":·"Converge:·make·sync-generated·+·template·manifest·regen;·full·suites·...
+         69 │ + ····{
+         70 │ + ······"id":·"todo-01",
+         71 │ + ······"task":·"Baseline·+·clean·branch:·lock·origin/main·full·SHA;·create·pe/unified-loop·from·it·in·a·dedicated·worktree·(rule·46);·record·baseline·receipt",
+         72 │ + ······"files":·["(worktree)"],
+         73 │ + ······"effort":·"S",
+         74 │ + ······"risk":·"low",
+         75 │ + ······"dependencies":·[],
+         76 │ + ······"leverage_rank":·9
+         77 │ + ····},
+         78 │ + ····{
+         79 │ + ······"id":·"todo-02",
+         80 │ + ······"task":·"Re-land·the·8·unmerged·admission/gate·fixes·on·the·clean·branch·(re-cut·from·the·clean·6c65557·content·with·explicit·pathspecs;·NOT·from·the·contaminated·branch·tip;·verify·each·against·main·before·landing)",
+         81 │ + ······"files":·[
+         82 │ + ········"environment/program-execution/scripts/blueprint_ops.py",
+         83 │ + ········"environment/program-execution/scripts/accept_blueprint.py",
+         84 │ + ········"environment/program-execution/scripts/collect_evidence.py",
+         85 │ + ········"environment/program-execution/scripts/compile_campaign_source.py",
+         86 │ + ········"environment/program-execution/scripts/tests/test_compile_campaign_source.py",
+         87 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/controller.py",
+         88 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/contracts.py",
+         89 │ + ········"environment/program-execution/core/program-execution-controller-template/RUNBOOK.md",
+         90 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/tests/test_verify_committed_work.py",
+         91 │ + ········"environment/program-execution/core/program-execution-blueprint-template/schemas/acceptance-receipt.schema.json",
+         92 │ + ········"ops/autonomy/command_parse.py",
+         93 │ + ········"ops/autonomy/local_execution_gate.py",
+         94 │ + ········"ops/autonomy/worktree_isolation_gate.py",
+         95 │ + ········"tests/ops/autonomy/test_command_parse.py",
+         96 │ + ········"tests/ops/autonomy/test_gate_named_roots.py",
+         97 │ + ········"tests/ops/autonomy/test_gate_heredoc_data.py",
+         98 │ + ········"environment/agents/adapters/claude-code/hooks/memory_prefetch.py",
+         99 │ + ········"environment/agents/adapters/claude-code/hooks/memory_lock.py",
+        100 │ + ········"environment/agents/adapters/claude-code/hooks/memory_gate.py"
+        101 │ + ······],
+        102 │ + ······"effort":·"M",
+        103 │ + ······"risk":·"medium",
+        104 │ + ······"dependencies":·["todo-01"],
+        105 │ + ······"leverage_rank":·8
+        106 │ + ····},
+        107 │ + ····{
+        108 │ + ······"id":·"todo-03",
+        109 │ + ······"task":·"Dispatch·seam:·new·pec/dispatch.py·—·at·render-contract,·resolve·execution·profile·vi...
+        110 │ + ······"files":·[
+        111 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/dispatch.py",
+        112 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/contracts.py",
+        113 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/tests/test_dispatch_seam.py"
+        114 │ + ······],
+        115 │ + ······"effort":·"L",
+        116 │ + ······"risk":·"medium",
+        117 │ + ······"dependencies":·["todo-02"],
+        118 │ + ······"leverage_rank":·1
+        119 │ + ····},
+        120 │ + ····{
+        121 │ + ······"id":·"todo-04",
+        122 │ + ······"task":·"Signal·seam:·call·outcome_publisher·at·record-attempt,·verify,·evaluate-gate,·export-handoff·—·receipt_projection·—·distill_queue·enqueue·(dry-run·observable);·agent-scoped·atomic·facts·only",
+        123 │ + ······"files":·[
+        124 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/controller.py",
+        125 │ + ········"environment/program-execution/integrations/subagent-generated-data/outcome_publisher.py",
+        126 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/tests/test_distill_signals.py"
+        127 │ + ······],
+        128 │ + ······"effort":·"M",
+        129 │ + ······"risk":·"medium",
+        130 │ + ······"dependencies":·["todo-03"],
+        131 │ + ······"leverage_rank":·2
+        132 │ + ····},
+        133 │ + ····{
+        134 │ + ······"id":·"todo-05",
+        135 │ + ······"task":·"Evidence·intake:·collect_evidence.py·memory-lookup·flag·using·integrations/graphiti/context_reader·(read-only;·fails·closed·offline;·never·writes·memory·from·admission)",
+        136 │ + ······"files":·[
+        137 │ + ········"environment/program-execution/scripts/collect_evidence.py",
+        138 │ + ········"environment/program-execution/scripts/tests/test_compile_campaign_source.py"
+        139 │ + ······],
+        140 │ + ······"effort":·"S",
+        141 │ + ······"risk":·"low",
+        142 │ + ······"dependencies":·["todo-02"],
+        143 │ + ······"leverage_rank":·4
+        144 │ + ····},
+        145 │ + ····{
+        146 │ + ······"id":·"todo-06",
+        147 │ + ······"task":·"Autonomy·projection:·claim-time·autonomy_action_id·+·campaign-packet·skeleton·emission·via·autonomy-control-plane·contract_mapper·(emission·only·—·no·autonomy-side·mutation)",
+        148 │ + ······"files":·[
+        149 │ + ········"environment/program-execution/integrations/autonomy-control-plane/contract_mapper.py",
+        150 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/pec/controller.py",
+        151 │ + ········"environment/program-execution/integrations/autonomy-control-plane/tests/"
+        152 │ + ······],
+        153 │ + ······"effort":·"M",
+        154 │ + ······"risk":·"medium",
+        155 │ + ······"dependencies":·["todo-02"],
+        156 │ + ······"leverage_rank":·3
+        157 │ + ····},
+        158 │ + ····{
+        159 │ + ······"id":·"todo-07",
+        160 │ + ······"task":·"Routing·+·conformance:·add·codex·preference·row·to·EXECUTION_ROUTING_POLICY·for·tightly-scoped·mechanical·work;·golden·vectors:·policy·enforcement,·no-match·returns·CAPABILITY_UNSUPPORTED,·worker_cannot_self_verify;·extend·shared·peer-execution·lifecycle·test·with·the·dispatch·path",
+        161 │ + ······"files":·[
+        162 │ + ········"environment/program-execution/registry/EXECUTION_ROUTING_POLICY.yaml",
+        163 │ + ········"environment/program-execution/peer_execution/tests/",
+        164 │ + ········"environment/program-execution/core/program-execution-controller-template/scripts/tests/test_dispatch_seam.py"
+        165 │ + ······],
+        166 │ + ······"effort":·"M",
+        167 │ + ······"risk":·"medium",
+        168 │ + ······"dependencies":·["todo-03",·"todo-06"],
+        169 │ + ······"leverage_rank":·5
+        170 │ + ····},
+        171 │ + ····{
+  192 more lines truncated
+  
+
+/Users/macm2/.cursor/plans/website_bot_source_first_reconstruction.plan.json format ━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     84  84 │         "id": "T1",
+     85  85 │         "task": "Lock Website-Bot baseline SHA and reuse the existing campaign dirty tree; list uncommitted reconstruction files versus origin/main; do not clone a new campaign directory",
+     86     │ - ······"files":·[
+     87     │ - ········"/Users/macm2/dev/website-bot-e2e-full-feature-20260813/repos/Website-Bot"
+     88     │ - ······],
+         86 │ + ······"files":·["/Users/macm2/dev/website-bot-e2e-full-feature-20260813/repos/Website-Bot"],
+     89  87 │         "effort": "S",
+     90  88 │         "risk": "low",
+    ······· │ 
+    115 113 │         "id": "T3",
+    116 114 │         "task": "Keep source-copy port when pages exist; when sourceSite.enabled and pages are empty, throw CONTENT_VALIDATION_FAILED; when reconstructing, do not fall back to home bodyText for an unmatched slug",
+    117     │ - ······"files":·[
+    118     │ - ········"src/services/content/sourceCopy.ts",
+    119     │ - ········"src/stages/ContentGenerationStage.ts"
+    120     │ - ······],
+        115 │ + ······"files":·["src/services/content/sourceCopy.ts",·"src/stages/ContentGenerationStage.ts"],
+    121 116 │         "effort": "M",
+    122 117 │         "risk": "medium",
+    ······· │ 
+    130 125 │         "id": "T4",
+    131 126 │         "task": "Keep crawled CSS palette as design tokens and DESIGN_REASONING_FAILED when sourceSite.enabled and palette missing; do not restore a designReasoning prompt that says preserve the original",
+    132     │ - ······"files":·[
+    133     │ - ········"src/stages/DesignIntelligenceStage.ts",
+    134     │ - ········"src/ingestion/SourcePalette.ts"
+    135     │ - ······],
+        127 │ + ······"files":·["src/stages/DesignIntelligenceStage.ts",·"src/ingestion/SourcePalette.ts"],
+    136 128 │         "effort": "S",
+    137 129 │         "risk": "low",
+    ······· │ 
+    196 188 │         "id": "T8",
+    197 189 │         "task": "When reconstructing, skip generateFaqs; port FAQ pairs from the crawled FAQ page body or omit FAQPage; leave Organization and LocalBusiness as the existing CODE emitters from DomainSpec",
+    198     │ - ······"files":·[
+    199     │ - ········"src/stages/SchemaGeneratorStage.ts",
+    200     │ - ········"tests/unit/schema-generator.test.ts"
+    201     │ - ······],
+        190 │ + ······"files":·["src/stages/SchemaGeneratorStage.ts",·"tests/unit/schema-generator.test.ts"],
+    202 191 │         "effort": "S",
+    203 192 │         "risk": "low",
+    ······· │ 
+    244 233 │         "id": "T11",
+    245 234 │         "task": "Open a scoped PR on Quantum-L9/Website-Bot with the factory patches; run make verify-all; merge only via L4 plan Build after green",
+    246     │ - ······"files":·[
+    247     │ - ········"src/",
+    248     │ - ········"astro_template/",
+    249     │ - ········"scripts/generate-spec.ts",
+    250     │ - ········"tests/unit/"
+    251     │ - ······],
+        235 │ + ······"files":·["src/",·"astro_template/",·"scripts/generate-spec.ts",·"tests/unit/"],
+    252 236 │         "effort": "M",
+    253 237 │         "risk": "medium",
+    ······· │ 
+    259 243 │       }
+    260 244 │     ],
+    261     │ - ··"critical_path":·[
+    262     │ - ····"T1",
+    263     │ - ····"T2",
+    264     │ - ····"T7",
+    265     │ - ····"T3",
+    266     │ - ····"T5",
+    267     │ - ····"T9",
+    268     │ - ····"T10",
+    269     │ - ····"T11"
+    270     │ - ··],
+        245 │ + ··"critical_path":·["T1",·"T2",·"T7",·"T3",·"T5",·"T9",·"T10",·"T11"],
+    271 246 │     "milestones": [
+    272 247 │       {
+    ······· │ 
+    364 339 │     },
+    365 340 │     "leverage": {
+    366     │ - ····"ranked_todo_ids":·[
+    367     │ - ······"T2",
+    368     │ - ······"T3",
+    369     │ - ······"T7",
+    370     │ - ······"T4",
+    371     │ - ······"T6",
+    372     │ - ······"T5",
+    373     │ - ······"T8",
+    374     │ - ······"T9",
+    375     │ - ······"T10",
+    376     │ - ······"T11",
+    377     │ - ······"T1"
+    378     │ - ····],
+        341 │ + ····"ranked_todo_ids":·["T2",·"T3",·"T7",·"T4",·"T6",·"T5",·"T8",·"T9",·"T10",·"T11",·"T1"],
+    379 342 │       "shared_causes": [
+    380 343 │         "Crawl discarded copy, phones, and nav so downstream had nothing to port",
+  
+
+astro_template/package.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     5  5 │     "type": "module",
+     6  6 │     "engines": { "node": ">=20.3.0" },
+     7    │ - ··"scripts":·{·
+     8    │ - ····"check":·"astro·check",·
+        7 │ + ··"scripts":·{
+        8 │ + ····"check":·"astro·check",
+     9  9 │       "build": "astro build",
+    10 10 │       "dev": "astro dev",
+    11 11 │       "preview": "astro preview",
+    12 12 │       "verify:preflight": "node scripts/preflight.mjs",
+    13    │ - ····"verify:source":·"node·scripts/verify-source.mjs",·
+       13 │ + ····"verify:source":·"node·scripts/verify-source.mjs",
+    14 14 │       "verify:build": "node scripts/verify-build.mjs",
+    15 15 │       "verify:smoke": "node scripts/verify-smoke.mjs",
+  
+
+examples/supplemental-insurance-pros/astro_site/tsconfig.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    1 1 │   {
+    2 2 │     "extends": "astro/tsconfigs/strict"
+    3   │ - }
+      3 │ + }
+      4 │ + 
+  
+
+packages/validation-executor/package.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    21 21 │       "node": ">=20.0.0"
+    22 22 │     },
+    23    │ - ··"keywords":·[
+    24    │ - ····"validation",
+    25    │ - ····"testing",
+    26    │ - ····"evidence",
+    27    │ - ····"audit",
+    28    │ - ····"preflight",
+    29    │ - ····"e2e"
+    30    │ - ··],
+       23 │ + ··"keywords":·["validation",·"testing",·"evidence",·"audit",·"preflight",·"e2e"],
+    31 24 │     "author": "Quantum L9",
+    32 25 │     "license": "MIT",
+    ····· │ 
+    44 37 │       "typescript": "^7.0.2"
+    45 38 │     },
+    46    │ - ··"files":·[
+    47    │ - ····"dist/",
+    48    │ - ····"schemas/",
+    49    │ - ····"README.md"
+    50    │ - ··],
+       39 │ + ··"files":·["dist/",·"schemas/",·"README.md"],
+    51 40 │     "repository": {
+    52 41 │       "type": "git",
+  
+
+packages/validation-executor/tsconfig.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    17 17 │     "include": ["src/**/*"],
+    18 18 │     "exclude": ["node_modules", "dist", "test"]
+    19    │ - }
+       19 │ + }
+       20 │ + 
+  
+
+tsconfig.provisioning.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     4  4 │       "noEmit": true,
+     5  5 │       "rootDir": ".",
+     6    │ - ····"types":·[
+     7    │ - ······"node"
+     8    │ - ····],
+     9    │ - ····"lib":·[
+    10    │ - ······"ES2022",
+    11    │ - ······"DOM"
+    12    │ - ····]
+        6 │ + ····"types":·["node"],
+        7 │ + ····"lib":·["ES2022",·"DOM"]
+    13  8 │     },
+    14  9 │     "include": [
+    ····· │ 
+    20 15 │       "tests/unit/provisioning-transaction.test.ts"
+    21 16 │     ],
+    22    │ - ··"exclude":·[
+    23    │ - ····"node_modules",
+    24    │ - ····"dist",
+    25    │ - ····"build"
+    26    │ - ··]
+       17 │ + ··"exclude":·["node_modules",·"dist",·"build"]
+    27 18 │   }
+    28 19 │   
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 1179.
+Checked 1667 files in 315ms. No fixes applied.
+Found 957 errors.
+Found 197 warnings.
+Found 45 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
