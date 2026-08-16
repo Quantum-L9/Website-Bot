@@ -45,7 +45,10 @@
       "transport": "github-contents-api",
       "github_credential_ref": "env://CLIENT_GITHUB_TOKEN",
       "vercel_deploy_hook_ref": "env://CLIENT_VERCEL_HOOK",
-      "required_paths": [".l9/generated-manifest.json", "src/pages/index.astro"]
+      "required_paths": [
+        ".l9/generated-manifest.json",
+        "src/pages/index.astro"
+      ]
     }
   },
   "proof": {

@@ -34,7 +34,12 @@
     "client": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "domain", "name", "industry"],
+      "required": [
+        "id",
+        "domain",
+        "name",
+        "industry"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -64,7 +69,10 @@
     "seo": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["target_keywords", "competitor_urls"],
+      "required": [
+        "target_keywords",
+        "competitor_urls"
+      ],
       "properties": {
         "target_keywords": {
           "type": "array",
@@ -72,14 +80,22 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["keyword", "priority"],
+            "required": [
+              "keyword",
+              "priority"
+            ],
             "properties": {
               "keyword": {
                 "type": "string",
                 "minLength": 1
               },
               "priority": {
-                "enum": ["critical", "high", "medium", "low"]
+                "enum": [
+                  "critical",
+                  "high",
+                  "medium",
+                  "low"
+                ]
               }
             }
           }
@@ -96,7 +112,11 @@
     "site": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "deployment", "maintenance"],
+      "required": [
+        "repository",
+        "deployment",
+        "maintenance"
+      ],
       "properties": {
         "repository": {
           "type": "object",
@@ -190,7 +210,12 @@
         "maintenance": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["enabled", "transport", "github_credential_ref", "required_paths"],
+          "required": [
+            "enabled",
+            "transport",
+            "github_credential_ref",
+            "required_paths"
+          ],
           "properties": {
             "enabled": {
               "const": true
@@ -275,7 +300,10 @@
     "integrity": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["algorithm", "payload_digest"],
+      "required": [
+        "algorithm",
+        "payload_digest"
+      ],
       "properties": {
         "algorithm": {
           "const": "sha256"
