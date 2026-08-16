@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.recursive.recursive-artifact-ref.v1",
+  "title": "RecursiveArtifactRef",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["refKind", "refId", "digest"],
+  "properties": {
+    "refKind": { "type": "string", "minLength": 1 },
+    "refId": { "type": "string", "minLength": 1 },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

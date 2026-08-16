@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.recursive-engineering-event.v1",
+  "title": "RecursiveEngineeringEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "eventId", "eventType", "recursiveRunId", "wave",
+    "correlationId", "causationId", "source", "occurredAt", "evidenceRefs"
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refKind", "refId", "digest"],
+      "properties": {
+        "refKind": { "type": "string", "minLength": 1 },
+        "refId": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "properties": {
+    "schema": { "const": "l9.recursive-engineering-event/v1" },
+    "eventId": { "type": "string", "minLength": 1 },
+    "eventType": {
+      "enum": [
+        "e2e.completed", "engineering_harvest.completed", "pe_pack.ready",
+        "verification.completed", "pr.merged", "deployment.succeeded",
+        "deployment.failed", "rollback.completed", "wave.completed"
+      ]
+    },
+    "recursiveRunId": { "type": "string", "minLength": 1 },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "causationId": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "evidenceRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "fullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "deploymentId": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

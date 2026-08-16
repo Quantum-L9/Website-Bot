@@ -139,7 +139,7 @@ workspace-clean:
 	$(MAKE) -C "$(HOME)/.cursor-governance" clean WS="$(CURDIR)"
 
 # ── Publish ── checkers run before push; one PR against main
-PR_TITLE ?= [campaign] Autonomous multi-candidate improvement and learning loop v1
+PR_TITLE ?= [campaign-6] Deploy bounded Recursive Engineering Run v1
 PR_BODY ?= .l9/pr-body.md
 PR_BASE ?= main
 

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l9.code-change-outcome.v1",
+  "title": "CodeChangeOutcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "outcomeId", "pePackRef", "code", "diff", "validation", "causalResult", "verdict"
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refKind", "refId", "digest"],
+      "properties": {
+        "refKind": { "type": "string", "minLength": 1 },
+        "refId": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "validationSetResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "caseRefs", "summary"],
+      "properties": {
+        "verdict": { "enum": ["PASS", "FAIL"] },
+        "caseRefs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "summary": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "properties": {
+    "schema": { "const": "l9.code-change-outcome/v1" },
+    "outcomeId": { "type": "string", "minLength": 1 },
+    "pePackRef": { "$ref": "#/$defs/artifactRef" },
+    "code": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "beforeFullSha", "patchedFullSha"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "beforeFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "patchedFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "mergedFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+      }
+    },
+    "diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changedFiles", "diffDigest"],
+      "properties": {
+        "changedFiles": { "type": "array", "items": { "type": "string" } },
+        "changedSymbols": { "type": "array", "items": { "type": "string" } },
+        "diffDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originating", "controls", "disconfirm", "protectedHoldout", "repositoryCI", "semanticArtifactDiff"],
+      "properties": {
+        "originating": { "$ref": "#/$defs/validationSetResult" },
+        "controls": { "$ref": "#/$defs/validationSetResult" },
+        "disconfirm": { "$ref": "#/$defs/validationSetResult" },
+        "protectedHoldout": { "$ref": "#/$defs/validationSetResult" },
+        "repositoryCI": { "$ref": "#/$defs/validationSetResult" },
+        "semanticArtifactDiff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expectedChangedArtifacts", "observedChangedArtifacts",
+            "expectedUnchangedArtifacts", "unexpectedlyChangedArtifacts", "verdict"
+          ],
+          "properties": {
+            "expectedChangedArtifacts": { "type": "array", "items": { "type": "string" } },
+            "observedChangedArtifacts": { "type": "array", "items": { "type": "string" } },
+            "expectedUnchangedArtifacts": { "type": "array", "items": { "type": "string" } },
+            "unexpectedlyChangedArtifacts": { "type": "array", "items": { "type": "string" } },
+            "verdict": { "enum": ["PASS", "FAIL"] }
+          }
+        }
+      }
+    },
+    "causalResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expectedSystemEffect", "observedSystemEffect", "verdict"],
+      "properties": {
+        "expectedSystemEffect": { "type": "string", "minLength": 1 },
+        "observedSystemEffect": { "type": "string", "minLength": 1 },
+        "verdict": { "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+      }
+    },
+    "merge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prId", "mergeReceiptRef"],
+      "properties": {
+        "prId": { "type": "string", "minLength": 1 },
+        "mergeReceiptRef": { "$ref": "#/$defs/artifactRef" }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deploymentReceiptRef", "deployedFullSha", "healthVerdict"],
+      "properties": {
+        "deploymentReceiptRef": { "$ref": "#/$defs/artifactRef" },
+        "deployedFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "healthVerdict": { "enum": ["PASS", "FAIL"] },
+        "rollbackReceiptRef": { "$ref": "#/$defs/artifactRef" }
+      }
+    },
+    "verdict": {
+      "enum": [
+        "PASS", "FAIL_TARGET", "FAIL_CONTROL", "FAIL_DISCONFIRM",
+        "FAIL_HOLDOUT", "FAIL_BLAST_RADIUS", "FAIL_CI", "FAIL_SCOPE"
+      ]
+    }
+  }
+}
