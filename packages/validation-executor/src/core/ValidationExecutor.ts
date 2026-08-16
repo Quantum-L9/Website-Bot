@@ -125,7 +125,7 @@ export class ValidationExecutor {
       // Step 5: Execute complete E2E suite (only if preflight gate passes)
       const e2eEngine = new E2EEngine(this.adapter, evidenceCollector);
       let e2eResults: any[] = [];
-      let e2eGate: any = { status: "Unknown" as ValidationGateStatus, evidence_references: [] };
+      let e2eGate: any;
 
       if (preflightGate.status === "Passed") {
         e2eResults = await e2eEngine.executeAll(e2eTests);
