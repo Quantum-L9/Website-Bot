@@ -53,6 +53,25 @@ export function normalizeDesignTokens(
 export class DesignIntelligenceStage implements Stage {
   name = 'design-intelligence';
 
+  private blueprintContext(ctx: BuildContext): string {
+    // REDESIGN_IMPROVE: the gated website blueprint (ADR-0004) informs design
+    // decisions — differentiation to amplify, attributes to preserve, claims to
+    // forbid. Copy-only builds carry no blueprint.
+    const blueprint = ctx.websiteBlueprint;
+    if (!blueprint) return '';
+    const strategy = blueprint.payload.strategy;
+    return [
+      'Market-informed design constraints from the gated website blueprint:',
+      `differentiation: ${strategy.differentiation.join('; ') || 'none'}`,
+      `preserve: ${strategy.preserve.join('; ') || 'none'}`,
+      `evolve: ${strategy.evolve.join('; ') || 'none'}`,
+      `forbid: ${strategy.forbid.join('; ') || 'none'}`,
+      `experience_attributes: ${strategy.experience_attributes.join('; ') || 'none'}`,
+      `forbidden_claims: ${blueprint.payload.content_guardrails.forbidden_claims.join('; ') || 'none'}`,
+      `primary_conversion_action: ${blueprint.payload.conversion.primary_action}`,
+    ].join('\n');
+  }
+
   async run(ctx: BuildContext): Promise<void> {
     const sourcePalette = ctx.sourceSiteManifest?.palette;
     if (sourcePalette?.primary && sourcePalette?.background) {
@@ -107,13 +126,15 @@ export class DesignIntelligenceStage implements Stage {
     }
 
     const { vertical, business_name, geography } = ctx.domainSpec;
+    const blueprintContext = this.blueprintContext(ctx);
     const prompt = [
       `Generate CSS brand tokens for a ${vertical} business named "${business_name}" operating in ${geography.primary_state}.`,
       'Return ONLY a JSON object with primary, secondary, accent, background, text, font_heading, and font_body.',
       'Colors must be CSS hex/rgb/hsl/named values. Fonts must be plain font-family names.',
       'If reconstructing an existing website, preserve its palette. Do not invent sage, beige, forest-green, or grey marketing palettes.',
       'Dark sites stay dark (near-black background, light text). Blue accents stay blue.',
-    ].join(' ');
+      blueprintContext,
+    ].filter(Boolean).join(' ');
 
     let raw: string;
     try { raw = await ctx.llm.designReasoning(prompt); }

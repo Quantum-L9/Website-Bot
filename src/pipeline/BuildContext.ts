@@ -1,6 +1,8 @@
 // L9_META: layer=pipeline, role=context_carrier, status=active, version=3.0.0
 import { resolve } from 'node:path';
 import type { WebsiteFactoryLLM } from '../services/llm.js';
+import { type BuildIntent } from './BuildIntent.js';
+import type { WebsiteBuildBlueprintArtifact } from '@quantum-l9/bot-interop';
 import type { AssemblyManifest } from './evidence/AssemblyManifest.js';
 import type { BuildProof } from './evidence/BuildProof.js';
 import type { DeploymentEvidence } from './evidence/DeploymentEvidence.js';
@@ -108,6 +110,8 @@ export interface DomainSpec {
   };
   provision?: ProvisioningSpec;
   assets?: AssetSpec;
+  /** Transformation intent. Legacy specs default to COPY; REDESIGN_IMPROVE must be explicit. */
+  build_intent?: 'COPY' | 'REDESIGN_IMPROVE';
 }
 
 /** A resolved image as exposed to the generated Astro site's siteConfig. */
@@ -167,6 +171,8 @@ export interface BuildContext {
   evidenceIndex: EvidenceIndex;
   resume: boolean;
   qualityEvidence: QualityEvidence;
+  buildIntent: BuildIntent;
+  websiteBlueprint?: WebsiteBuildBlueprintArtifact;
   distDir?: string;
   deployTarget?: DeployTarget;
   deploymentUrl?: string;

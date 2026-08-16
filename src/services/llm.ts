@@ -49,6 +49,8 @@ export interface WebsiteFactoryLLM {
   designReasoning(prompt: string): Promise<string>;
   generateSchema(prompt: string): Promise<string>;
   validateLayout(imagePaths: string[], context: string): Promise<string>;
+  /** Raw router dispatch with an explicit task descriptor (REDESIGN_IMPROVE ops). */
+  strategize(task: TaskDescriptor, systemPrompt: string, userPrompt: string): Promise<string>;
   recordUsage(stage: string, taskType: string, inputTokens: number, outputTokens: number, costUsd: number, model: string): void;
   flushUsage(): UsageRecord[];
 }
@@ -210,6 +212,16 @@ export function createWebsiteFactoryLLM(
         'visual-qa',
         'layout_validation',
         { images },
+      );
+      return response.content;
+    },
+    async strategize(task, systemPrompt, userPrompt) {
+      const response = await run(
+        { ...task, clientId, description: task.description ?? '[intelligence] improve_op' },
+        systemPrompt,
+        userPrompt,
+        'competitive-intelligence',
+        task.type,
       );
       return response.content;
     },

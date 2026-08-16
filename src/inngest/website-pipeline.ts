@@ -7,6 +7,7 @@ import { AgentBudgetGuard, AdmissionRejectedError, BudgetExceededError } from '.
 import { CompensationRegistry } from '../lib/compensation.js';
 import { buildFactoryExecutionPlan, executeFactoryPlan } from '../pipeline/FactoryExecutionPlan.js';
 import type { BuildContext, ExecutionMode } from '../pipeline/BuildContext.js';
+import { parseBuildIntent } from '../pipeline/BuildIntent.js';
 import { validateDomainSpec } from '../pipeline/validateDomainSpec.js';
 import { FileEvidenceStore } from '../pipeline/evidence/FileEvidenceStore.js';
 import { createWebsiteFactoryLLM } from '../services/llm.js';
@@ -52,6 +53,7 @@ export const websitePipeline = inngest.createFunction(
         dryRun: false,
         mode,
         autoRegisterSeoBot: data.autoRegisterSeoBot ?? false,
+  buildIntent: parseBuildIntent(spec.build_intent),
         llm: createWebsiteFactoryLLM(spec.client_id),
         outputDir: '',
         evidenceStore,

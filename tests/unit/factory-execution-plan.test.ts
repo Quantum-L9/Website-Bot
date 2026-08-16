@@ -49,3 +49,18 @@ test('plan mode contains no provider mutation stages', () => {
   assert.equal(names.includes('vercel-deploy'), false);
   assert.equal(names.at(-1), 'terminal-convergence');
 });
+
+test('REDESIGN_IMPROVE inserts competitive-intelligence before design generation', () => {
+  const plan = buildFactoryExecutionPlan({ mode: 'local-proof', specPath: 'fixtures/ci-test-spec.yaml', buildIntent: 'REDESIGN_IMPROVE' });
+  const names = plan.stages.map(stage => stage.name);
+  const intelligenceIndex = names.indexOf('competitive-intelligence');
+  const designIndex = names.indexOf('design-intelligence');
+  assert.ok(intelligenceIndex > -1, 'competitive-intelligence must be present in improve mode');
+  assert.ok(intelligenceIndex < designIndex, 'competitive-intelligence must run before design-intelligence');
+});
+
+test('COPY intent (legacy default) keeps the original stage topology', () => {
+  const plan = buildFactoryExecutionPlan({ mode: 'local-proof', specPath: 'fixtures/ci-test-spec.yaml' });
+  const names = plan.stages.map(stage => stage.name);
+  assert.equal(names.includes('competitive-intelligence'), false);
+});

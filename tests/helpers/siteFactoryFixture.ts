@@ -2,6 +2,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { type BuildIntent } from '../../src/pipeline/BuildIntent.js';
 import type { BuildContext, DomainSpec } from '../../src/pipeline/BuildContext.js';
 import { FileEvidenceStore } from '../../src/pipeline/evidence/FileEvidenceStore.js';
 import { computeAssemblySourceDigest, type AssemblyManifest } from '../../src/pipeline/evidence/AssemblyManifest.js';
@@ -59,6 +60,7 @@ export function fixtureContext(overrides: Partial<DomainSpec> = {}): BuildContex
     dryRun: false,
     mode: 'local-proof',
     autoRegisterSeoBot: false,
+  buildIntent: 'COPY',
     llm: { flushUsage: () => [] } as unknown as BuildContext['llm'],
     outputDir,
     designTokens: {

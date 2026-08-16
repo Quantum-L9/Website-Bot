@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { buildFactoryExecutionPlan, executeFactoryPlan } from '../src/pipeline/FactoryExecutionPlan.js';
 import { makeBuildId, type BuildContext, type ExecutionMode } from '../src/pipeline/BuildContext.js';
+import { parseBuildIntent } from '../src/pipeline/BuildIntent.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { FileEvidenceStore } from '../src/pipeline/evidence/FileEvidenceStore.js';
 import { MemoryEvidenceStore } from '../src/pipeline/evidence/MemoryEvidenceStore.js';
@@ -65,6 +66,7 @@ const ctx: BuildContext = {
   dryRun,
   mode,
   autoRegisterSeoBot,
+  buildIntent: parseBuildIntent(bootstrapSpec.build_intent),
   llm: createWebsiteFactoryLLM(clientId),
   outputDir: requestedOutputDir,
   evidenceStore,
@@ -101,6 +103,7 @@ const plan = buildFactoryExecutionPlan({
   mode,
   specPath,
   skipStages,
+  buildIntent: ctx.buildIntent,
   provision: shouldProvision,
   persistDeployBlock: !noPersistProvision,
   rollbackCreatedResources: !noRollbackProvision,

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { makeBuildId, type BuildContext } from '../src/pipeline/BuildContext.js';
+import { parseBuildIntent } from '../src/pipeline/BuildIntent.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { DesignIntelligenceStage } from '../src/stages/DesignIntelligenceStage.js';
 import { SiteAssemblerStage } from '../src/stages/SiteAssemblerStage.js';
@@ -59,6 +60,7 @@ const ctx: BuildContext = {
   dryRun: false,
   mode: 'end-to-end',
   autoRegisterSeoBot: false,
+  buildIntent: parseBuildIntent(spec.build_intent),
   llm: { flushUsage: () => [] } as unknown as BuildContext['llm'],
   outputDir: resolve('build', 'disposable-e2e', spec.client_id, buildId),
   evidenceStore,

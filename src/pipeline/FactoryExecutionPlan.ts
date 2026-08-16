@@ -5,6 +5,8 @@ import { PipelineRunner, type Stage } from './PipelineRunner.js';
 import { DomainSpecLoaderStage } from '../stages/DomainSpecLoaderStage.js';
 import { ProvisionClientStage } from '../stages/ProvisionClientStage.js';
 import { UnknownResolverStage } from '../stages/UnknownResolverStage.js';
+import { CompetitiveIntelligenceStage } from '../stages/CompetitiveIntelligenceStage.js';
+import { type BuildIntent } from './BuildIntent.js';
 import { SourceSiteIngestionStage } from '../stages/SourceSiteIngestionStage.js';
 import { DesignIntelligenceStage } from '../stages/DesignIntelligenceStage.js';
 import { ContentGenerationStage } from '../stages/ContentGenerationStage.js';
@@ -26,6 +28,8 @@ import { HandoffEmitterStage } from '../stages/HandoffEmitterStage.js';
 
 export interface FactoryExecutionPlanOptions {
   mode: ExecutionMode;
+  /** Transformation intent; REDESIGN_IMPROVE inserts the competitive-intelligence stage. */
+  buildIntent?: BuildIntent;
   specPath: string;
   skipStages?: string[];
   provision?: boolean;
@@ -102,7 +106,9 @@ export function buildFactoryExecutionPlan(options: FactoryExecutionPlanOptions):
   if (illegal.length) throw new BuildError('VALIDATION_FAILED', `Cannot skip mandatory ${options.mode} stages: ${illegal.join(', ')}`);
   const stages: Stage[]=[new DomainSpecLoaderStage(options.specPath)];
   if (options.provision) stages.push(new ProvisionClientStage(options.specPath,{persistDeployBlock:options.persistDeployBlock ?? true,rollbackCreatedResources:options.rollbackCreatedResources ?? true}));
-  stages.push(new UnknownResolverStage(),new SourceSiteIngestionStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new ImageAssetPlanningStage(),new ImageGenerationStage(),new PlaceholderScanStage(),new SiteAssemblerStage(),new ImageValidationStage(),new PostHogSnippetStage());
+  stages.push(new UnknownResolverStage());
+  if (options.buildIntent === 'REDESIGN_IMPROVE') stages.push(new CompetitiveIntelligenceStage());
+  stages.push(new SourceSiteIngestionStage(),new DesignIntelligenceStage(),new ContentGenerationStage(),new SchemaGeneratorStage(),new ImageAssetPlanningStage(),new ImageGenerationStage(),new PlaceholderScanStage(),new SiteAssemblerStage(),new ImageValidationStage(),new PostHogSnippetStage());
   if (options.mode !== 'plan') stages.push(new SiteBuildStage());
   if (options.mode === 'publish-proof' || options.mode === 'end-to-end') stages.push(new ClientSourcePublishStage());
   if (options.mode === 'end-to-end') stages.push(new VercelDeployStage());

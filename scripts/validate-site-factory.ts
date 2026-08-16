@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { SiteAssemblerStage } from '../src/stages/SiteAssemblerStage.js';
 import type { BuildContext } from '../src/pipeline/BuildContext.js';
+import { parseBuildIntent } from '../src/pipeline/BuildIntent.js';
 import { validateDomainSpec } from '../src/pipeline/validateDomainSpec.js';
 import { validateGeneratedSite } from '../src/validation/validate-generated-site.js';
 import { FileEvidenceStore } from '../src/pipeline/evidence/FileEvidenceStore.js';
@@ -28,6 +29,7 @@ const ctx: BuildContext = {
   dryRun: false,
   mode: 'local-proof',
   autoRegisterSeoBot: false,
+  buildIntent: parseBuildIntent(spec.build_intent),
   llm: { flushUsage: () => [] } as unknown as BuildContext['llm'],
   outputDir,
   evidenceStore,
