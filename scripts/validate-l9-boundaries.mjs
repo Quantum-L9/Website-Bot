@@ -143,6 +143,12 @@ function runCli() {
   const allowedPlatformApiPaths = new Set([
     "Website-Bot/src/stages/HandoffEmitterStage.ts",
     "src/stages/HandoffEmitterStage.ts",
+    // Machine-to-machine intelligence seam (ADR-0004 / WEBSITE_INTELLIGENCE_LOCK):
+    // the improve pipeline is the sanctioned consumer of SEO-Bot's build-time API.
+    "Website-Bot/src/stages/CompetitiveIntelligenceStage.ts",
+    "src/stages/CompetitiveIntelligenceStage.ts",
+    "Website-Bot/src/intelligence/SeoBuildIntelligenceHttpClient.ts",
+    "src/intelligence/SeoBuildIntelligenceHttpClient.ts",
   ]);
 
   const walkStats = walkRoots(roots, {
