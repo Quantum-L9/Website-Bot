@@ -55,7 +55,7 @@ const REQUIRED_EVIDENCE: Record<ExecutionMode,string[]> = {
 };
 
 
-class TerminalConvergenceStage implements Stage {
+export class TerminalConvergenceStage implements Stage {
   name = 'terminal-convergence';
   version = '1.0.0';
   evidence = { inputs: (_ctx: BuildContext) => [], outputs: (_ctx: BuildContext) => [], resumable: false, externalMutation: false };
@@ -63,7 +63,12 @@ class TerminalConvergenceStage implements Stage {
   async run(ctx: BuildContext): Promise<void> {
     for (const stage of this.mandatory) {
       const result=ctx.stageResults.get(stage);
-      if (!result?.ok || result.skipped) throw new BuildError('RELEASE_EVIDENCE_INCOMPLETE', `Mandatory stage did not converge: ${stage}`);
+      // A skipped mandatory stage can only come from a resume whose checkpoint was
+      // re-verified against on-disk evidence (checkpointIsValid) — user --skip of
+      // mandatory stages is rejected at plan build. Skipped-with-valid-checkpoint
+      // therefore IS convergence; failing here made every resume after a
+      // downstream stage failure unusable.
+      if (!result?.ok) throw new BuildError('RELEASE_EVIDENCE_INCOMPLETE', `Mandatory stage did not converge: ${stage}`);
     }
     if (this.mode === 'plan') return;
     for (const kind of this.requiredEvidence) {

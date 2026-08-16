@@ -12,10 +12,9 @@ const path = Astro.url.pathname !== '/' ? Astro.url.pathname.replace(/\/$/, '') 
 const logo = images['global:logo'];
 const rawHero = images[`${path}:hero`];
 const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawHero;
----
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
-
+---
 <section class={heroImage ? 'hero hero--image' : 'hero'} data-section={name}>
   <div class="hero__content">
     <p class="eyebrow">{siteConfig.businessName}</p>

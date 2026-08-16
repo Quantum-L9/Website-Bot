@@ -1,7 +1,27 @@
 // L9_META: layer=test, role=execution_plan_regression, status=active, version=1.0.0
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildFactoryExecutionPlan } from '../../src/pipeline/FactoryExecutionPlan.js';
+import { buildFactoryExecutionPlan, TerminalConvergenceStage } from '../../src/pipeline/FactoryExecutionPlan.js';
+import type { BuildContext } from '../../src/pipeline/BuildContext.js';
+
+test('terminal convergence accepts a resume-skipped mandatory stage (valid checkpoint)', async () => {
+  // Regression: resume marks checked stages {ok:true, skipped:true}; a resume
+  // after a downstream failure (e.g. site-build) must converge, not dead-end.
+  const ctx = {
+    stageResults: new Map([['placeholder-scan', { ok: true, skipped: true }]]),
+  } as unknown as BuildContext;
+  await new TerminalConvergenceStage('plan', ['placeholder-scan'], []).run(ctx);
+});
+
+test('terminal convergence rejects a failed mandatory stage', async () => {
+  const ctx = {
+    stageResults: new Map([['placeholder-scan', { ok: false, skipped: false }]]),
+  } as unknown as BuildContext;
+  await assert.rejects(
+    new TerminalConvergenceStage('plan', ['placeholder-scan'], []).run(ctx),
+    /Mandatory stage did not converge: placeholder-scan/,
+  );
+});
 
 test('end-to-end plan owns the complete proof-gated topology', () => {
   const plan = buildFactoryExecutionPlan({ mode: 'end-to-end', specPath: 'fixtures/ci-test-spec.yaml' });
