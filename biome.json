@@ -30,7 +30,11 @@
       "!**/.cursor",
       "!**/.claude",
       "!**/.vscode",
-      "!**/build"
+      "!**/build",
+      "!**/contracts/CONTRACT_LOCK.json",
+      "!**/contracts/WEBSITE_INTELLIGENCE_LOCK.json",
+      "!**/contracts/website-factory-handoff.v3.schema.json",
+      "!**/contracts/website-factory-handoff.v3.example.json"
     ]
   },
   "formatter": {
@@ -158,7 +162,10 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.jsonc", "**/.vscode"],
+      "includes": [
+        "**/*.jsonc",
+        "**/.vscode"
+      ],
       "json": {
         "parser": {
           "allowComments": true,
