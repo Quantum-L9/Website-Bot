@@ -35,39 +35,21 @@
     },
     "mode": {
       "type": "string",
-      "enum": [
-        "plan",
-        "local-proof",
-        "publish-proof",
-        "end-to-end"
-      ]
+      "enum": ["plan", "local-proof", "publish-proof", "end-to-end"]
     },
     "status": {
-      "enum": [
-        "planned",
-        "partial",
-        "succeeded",
-        "failed"
-      ]
+      "enum": ["planned", "partial", "succeeded", "failed"]
     },
     "missing_gates": {
       "type": "array",
       "items": {
-        "enum": [
-          "assembly",
-          "local_build",
-          "github_publication",
-          "vercel_deployment",
-          "visual_qa"
-        ]
+        "enum": ["assembly", "local_build", "github_publication", "vercel_deployment", "visual_qa"]
       }
     },
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "assembly"
-      ],
+      "required": ["assembly"],
       "properties": {
         "assembly": {
           "$ref": "#/$defs/reference"
@@ -89,10 +71,7 @@
     "correlation": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "source_digest",
-        "all_required_identities_match"
-      ],
+      "required": ["source_digest", "all_required_identities_match"],
       "properties": {
         "source_digest": {
           "type": "string",
@@ -118,26 +97,13 @@
     "qa": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seo_baseline",
-        "visual_qa"
-      ],
+      "required": ["seo_baseline", "visual_qa"],
       "properties": {
         "seo_baseline": {
-          "enum": [
-            "pending",
-            "passed",
-            "failed",
-            "skipped"
-          ]
+          "enum": ["pending", "passed", "failed", "skipped"]
         },
         "visual_qa": {
-          "enum": [
-            "pending",
-            "passed",
-            "failed",
-            "skipped"
-          ]
+          "enum": ["pending", "passed", "failed", "skipped"]
         }
       }
     },
@@ -154,13 +120,7 @@
     "reference": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "kind",
-        "schema",
-        "logical_id",
-        "relative_path",
-        "sha256"
-      ],
+      "required": ["kind", "schema", "logical_id", "relative_path", "sha256"],
       "properties": {
         "kind": {
           "type": "string",

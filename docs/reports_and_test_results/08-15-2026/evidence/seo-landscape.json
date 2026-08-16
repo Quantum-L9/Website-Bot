@@ -1,0 +1,602 @@
+{
+  "protocol": "l9.website-intelligence",
+  "protocol_version": "1.0",
+  "artifact_type": "competitive_landscape",
+  "artifact_id": "competitive_landscape:361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957",
+  "client_id": "safehavenrr",
+  "build_id": "e2e-safehaven-20260816",
+  "producer": { "repo": "SEO-Bot", "version": "2.1.0" },
+  "produced_at": "2026-08-16T07:56:52.981Z",
+  "input_refs": [],
+  "payload": {
+    "schema": "l9://website-intelligence/competitive-landscape/v1",
+    "market": {
+      "niche": "roofing contractor",
+      "country": "US",
+      "language": "English",
+      "device": "desktop",
+      "location_name": "United States"
+    },
+    "query_portfolio": [
+      {
+        "query_id": "q1",
+        "query": "roof replacement charlotte nc",
+        "intent": "commercial",
+        "weight": 1
+      },
+      {
+        "query_id": "q2",
+        "query": "roof repair charlotte",
+        "intent": "transactional",
+        "weight": 1
+      },
+      {
+        "query_id": "q3",
+        "query": "storm damage roof inspection charlotte",
+        "intent": "local",
+        "weight": 1
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "q1-r1",
+        "query_id": "q1",
+        "rank": 1,
+        "url": "https://www.yelp.com/search?find_desc=Roofers&find_loc=Charlotte%2C+NC",
+        "domain": "yelp.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r2",
+        "query_id": "q1",
+        "rank": 2,
+        "url": "https://charlotteaceroofing.com/",
+        "domain": "charlotteaceroofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r3",
+        "query_id": "q1",
+        "rank": 3,
+        "url": "https://www.angi.com/articles/how-much-does-roof-replacement-cost/nc/charlotte",
+        "domain": "angi.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r4",
+        "query_id": "q1",
+        "rank": 4,
+        "url": "https://www.bbb.org/us/nc/charlotte/category/roofing-contractors",
+        "domain": "bbb.org",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r5",
+        "query_id": "q1",
+        "rank": 5,
+        "url": "https://www.newroofclt.com/",
+        "domain": "newroofclt.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r6",
+        "query_id": "q1",
+        "rank": 6,
+        "url": "https://www.gaf.com/en-us/roofing-contractors/residential/usa/nc/charlotte",
+        "domain": "gaf.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r7",
+        "query_id": "q1",
+        "rank": 7,
+        "url": "https://southernstarroofing.com/",
+        "domain": "southernstarroofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r8",
+        "query_id": "q1",
+        "rank": 8,
+        "url": "https://premier-roofing.com/locations/charlotte-roofing/",
+        "domain": "premier-roofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r9",
+        "query_id": "q1",
+        "rank": 9,
+        "url": "https://www.homeyou.com/nc/roof-replacement-charlotte-costs",
+        "domain": "homeyou.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r10",
+        "query_id": "q1",
+        "rank": 10,
+        "url": "https://www.expertise.com/home-improvement/roofing/north-carolina/charlotte",
+        "domain": "expertise.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r11",
+        "query_id": "q1",
+        "rank": 11,
+        "url": "https://www.roofhero.com/locations/nc/charlotte",
+        "domain": "roofhero.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r12",
+        "query_id": "q1",
+        "rank": 12,
+        "url": "https://premier-roofing.com/locations/charlotte-roofing/",
+        "domain": "premier-roofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r13",
+        "query_id": "q1",
+        "rank": 13,
+        "url": "https://www.valhallaroofingnc.com/",
+        "domain": "valhallaroofingnc.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r14",
+        "query_id": "q1",
+        "rank": 14,
+        "url": "https://evergreenroofingcharlotte.com/",
+        "domain": "evergreenroofingcharlotte.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r15",
+        "query_id": "q1",
+        "rank": 15,
+        "url": "https://max-roofing.com/",
+        "domain": "max-roofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r16",
+        "query_id": "q1",
+        "rank": 16,
+        "url": "https://www.charlotteroofing.com/",
+        "domain": "charlotteroofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r17",
+        "query_id": "q1",
+        "rank": 17,
+        "url": "https://guyroofing.com/charlotte-roofing-company/roof-repairs",
+        "domain": "guyroofing.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r18",
+        "query_id": "q1",
+        "rank": 18,
+        "url": "https://www.roofsbytaylor.com/",
+        "domain": "roofsbytaylor.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q1-r19",
+        "query_id": "q1",
+        "rank": 19,
+        "url": "https://www.roofroofnc.com/",
+        "domain": "roofroofnc.com",
+        "observed_at": "2026-08-16T07:56:31.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r1",
+        "query_id": "q2",
+        "rank": 1,
+        "url": "https://www.reddit.com/r/Charlotte/comments/1fvknpg/roofer_suggestions/",
+        "domain": "reddit.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r2",
+        "query_id": "q2",
+        "rank": 2,
+        "url": "https://www.rrischarlotte.com/",
+        "domain": "rrischarlotte.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r3",
+        "query_id": "q2",
+        "rank": 3,
+        "url": "https://www.yelp.com/search?find_desc=Roof+Repair&find_loc=Charlotte%2C+NC",
+        "domain": "yelp.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r4",
+        "query_id": "q2",
+        "rank": 4,
+        "url": "https://bakerroofing.com/commercial-roofing-charlotte/",
+        "domain": "bakerroofing.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r5",
+        "query_id": "q2",
+        "rank": 5,
+        "url": "https://roofmedic.com/",
+        "domain": "roofmedic.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r6",
+        "query_id": "q2",
+        "rank": 6,
+        "url": "https://www.bbb.org/us/nc/charlotte/category/roofing-contractors",
+        "domain": "bbb.org",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r7",
+        "query_id": "q2",
+        "rank": 7,
+        "url": "https://southernstarroofing.com/",
+        "domain": "southernstarroofing.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r8",
+        "query_id": "q2",
+        "rank": 8,
+        "url": "https://www.facebook.com/charlotteroofingspecialists/",
+        "domain": "facebook.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r9",
+        "query_id": "q2",
+        "rank": 9,
+        "url": "https://www.mrhandyman.com/east-west-charlotte-belmont/about-us/roof-repair/",
+        "domain": "mrhandyman.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r10",
+        "query_id": "q2",
+        "rank": 10,
+        "url": "https://www.gaf.com/en-us/roofing-contractors/residential/usa/nc/charlotte",
+        "domain": "gaf.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r11",
+        "query_id": "q2",
+        "rank": 11,
+        "url": "https://roofmedic.com/",
+        "domain": "roofmedic.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r12",
+        "query_id": "q2",
+        "rank": 12,
+        "url": "https://www.roofsbytaylor.com/",
+        "domain": "roofsbytaylor.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r13",
+        "query_id": "q2",
+        "rank": 13,
+        "url": "https://premier-roofing.com/locations/charlotte-roofing/",
+        "domain": "premier-roofing.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r14",
+        "query_id": "q2",
+        "rank": 14,
+        "url": "https://charlotteaceroofing.com/",
+        "domain": "charlotteaceroofing.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r15",
+        "query_id": "q2",
+        "rank": 15,
+        "url": "https://www.mastersroofinginc.com/service-areas/charlotte-roofing-company/",
+        "domain": "mastersroofinginc.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r16",
+        "query_id": "q2",
+        "rank": 16,
+        "url": "https://charlotteproroofing.com/",
+        "domain": "charlotteproroofing.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r17",
+        "query_id": "q2",
+        "rank": 17,
+        "url": "https://www.thumbtack.com/nc/charlotte/rubber-roofing-contractors",
+        "domain": "thumbtack.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r18",
+        "query_id": "q2",
+        "rank": 18,
+        "url": "https://www.stormguardrc.com/nc/charlotte/",
+        "domain": "stormguardrc.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r19",
+        "query_id": "q2",
+        "rank": 19,
+        "url": "https://www.forbes.com/home-improvement/roofing/local-roofers/roofing-companies-charlotte-nc/",
+        "domain": "forbes.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      },
+      {
+        "observation_id": "q2-r20",
+        "query_id": "q2",
+        "rank": 20,
+        "url": "https://evergreenroofingcharlotte.com/",
+        "domain": "evergreenroofingcharlotte.com",
+        "observed_at": "2026-08-16T07:56:35.000Z",
+        "source": "dataforseo"
+      }
+    ],
+    "domains": [
+      {
+        "domain": "yelp.com",
+        "aggregate_visibility": 1.5,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r1", "q2-r3"]
+      },
+      {
+        "domain": "reddit.com",
+        "aggregate_visibility": 1,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r1"]
+      },
+      {
+        "domain": "charlotteaceroofing.com",
+        "aggregate_visibility": 0.886888,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r2", "q2-r14"]
+      },
+      {
+        "domain": "premier-roofing.com",
+        "aggregate_visibility": 0.848353,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r8", "q1-r12", "q2-r13"]
+      },
+      {
+        "domain": "bbb.org",
+        "aggregate_visibility": 0.786884,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r4", "q2-r6"]
+      },
+      {
+        "domain": "southernstarroofing.com",
+        "aggregate_visibility": 0.666667,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r7", "q2-r7"]
+      },
+      {
+        "domain": "roofmedic.com",
+        "aggregate_visibility": 0.665796,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r5", "q2-r11"]
+      },
+      {
+        "domain": "gaf.com",
+        "aggregate_visibility": 0.645272,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r6", "q2-r10"]
+      },
+      {
+        "domain": "rrischarlotte.com",
+        "aggregate_visibility": 0.63093,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r2"]
+      },
+      {
+        "domain": "roofsbytaylor.com",
+        "aggregate_visibility": 0.505647,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r18", "q2-r12"]
+      },
+      {
+        "domain": "angi.com",
+        "aggregate_visibility": 0.5,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r3"]
+      },
+      {
+        "domain": "evergreenroofingcharlotte.com",
+        "aggregate_visibility": 0.483628,
+        "qualifying_query_ids": ["q1", "q2"],
+        "observation_ids": ["q1-r14", "q2-r20"]
+      },
+      {
+        "domain": "bakerroofing.com",
+        "aggregate_visibility": 0.430677,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r4"]
+      },
+      {
+        "domain": "newroofclt.com",
+        "aggregate_visibility": 0.386853,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r5"]
+      },
+      {
+        "domain": "facebook.com",
+        "aggregate_visibility": 0.315465,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r8"]
+      },
+      {
+        "domain": "homeyou.com",
+        "aggregate_visibility": 0.30103,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r9"]
+      },
+      {
+        "domain": "mrhandyman.com",
+        "aggregate_visibility": 0.30103,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r9"]
+      },
+      {
+        "domain": "expertise.com",
+        "aggregate_visibility": 0.289065,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r10"]
+      },
+      {
+        "domain": "roofhero.com",
+        "aggregate_visibility": 0.278943,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r11"]
+      },
+      {
+        "domain": "valhallaroofingnc.com",
+        "aggregate_visibility": 0.26265,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r13"]
+      },
+      {
+        "domain": "max-roofing.com",
+        "aggregate_visibility": 0.25,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r15"]
+      },
+      {
+        "domain": "mastersroofinginc.com",
+        "aggregate_visibility": 0.25,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r15"]
+      },
+      {
+        "domain": "charlotteroofing.com",
+        "aggregate_visibility": 0.244651,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r16"]
+      },
+      {
+        "domain": "charlotteproroofing.com",
+        "aggregate_visibility": 0.244651,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r16"]
+      },
+      {
+        "domain": "guyroofing.com",
+        "aggregate_visibility": 0.239812,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r17"]
+      },
+      {
+        "domain": "thumbtack.com",
+        "aggregate_visibility": 0.239812,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r17"]
+      },
+      {
+        "domain": "stormguardrc.com",
+        "aggregate_visibility": 0.235409,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r18"]
+      },
+      {
+        "domain": "roofroofnc.com",
+        "aggregate_visibility": 0.231378,
+        "qualifying_query_ids": ["q1"],
+        "observation_ids": ["q1-r19"]
+      },
+      {
+        "domain": "forbes.com",
+        "aggregate_visibility": 0.231378,
+        "qualifying_query_ids": ["q2"],
+        "observation_ids": ["q2-r19"]
+      }
+    ],
+    "selected_donors": [
+      {
+        "domain": "charlotteaceroofing.com",
+        "aggregate_visibility": 0.886888,
+        "observation_ids": ["q1-r2", "q2-r14"]
+      },
+      {
+        "domain": "premier-roofing.com",
+        "aggregate_visibility": 0.848353,
+        "observation_ids": ["q1-r8", "q1-r12", "q2-r13"]
+      },
+      {
+        "domain": "southernstarroofing.com",
+        "aggregate_visibility": 0.666667,
+        "observation_ids": ["q1-r7", "q2-r7"]
+      }
+    ],
+    "exclusions": [
+      { "domain": "yelp.com", "reason": "directory" },
+      { "domain": "reddit.com", "reason": "social" },
+      { "domain": "bbb.org", "reason": "directory" },
+      { "domain": "angi.com", "reason": "directory" },
+      { "domain": "facebook.com", "reason": "social" },
+      { "domain": "expertise.com", "reason": "aggregator" },
+      { "domain": "thumbtack.com", "reason": "directory" },
+      { "domain": "forbes.com", "reason": "publisher" }
+    ],
+    "evidence_complete": true
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "payload_digest": "361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957"
+  }
+}

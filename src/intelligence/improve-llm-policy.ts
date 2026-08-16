@@ -1,8 +1,4 @@
-import {
-  TaskComplexity,
-  TaskType,
-  type TaskDescriptor,
-} from '@quantum-l9/llm-router';
+import { TaskComplexity, type TaskDescriptor, TaskType } from "@quantum-l9/llm-router";
 
 /**
  * Website-Bot's LLM operations for the REDESIGN_IMPROVE seam.
@@ -12,13 +8,13 @@ import {
  * page copy is owned by SEO-Bot (see WEBSITE_INTELLIGENCE_LOCK.json).
  */
 export type WebsiteImproveLlmOperation =
-  | 'DONOR_NUGGET_EXTRACTION'
-  | 'VISUAL_PATTERN_ANALYSIS'
-  | 'PATTERN_SYNTHESIS'
-  | 'WEBSITE_BLUEPRINT'
-  | 'VISUAL_DELTA_ANALYSIS';
+  | "DONOR_NUGGET_EXTRACTION"
+  | "VISUAL_PATTERN_ANALYSIS"
+  | "PATTERN_SYNTHESIS"
+  | "WEBSITE_BLUEPRINT"
+  | "VISUAL_DELTA_ANALYSIS";
 
-type PolicyEntry = Omit<TaskDescriptor, 'clientId' | 'description'>;
+type PolicyEntry = Omit<TaskDescriptor, "clientId" | "description">;
 
 export const WEBSITE_IMPROVE_LLM_POLICY: Record<WebsiteImproveLlmOperation, PolicyEntry> = {
   DONOR_NUGGET_EXTRACTION: {

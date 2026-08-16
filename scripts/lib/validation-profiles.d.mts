@@ -3,7 +3,7 @@ export const UNIMPLEMENTED_SITE_PROFILES: string[];
 export const WEBSITE_BOT_VALIDATION_PROFILES: string[];
 
 export interface ProfileRunDecision {
-  status: 'INVALID_PROFILE' | 'INCOMPLETE' | 'RUN';
+  status: "INVALID_PROFILE" | "INCOMPLETE" | "RUN";
   exitCode: number;
   nonEvidence: boolean;
   reason: string | null;

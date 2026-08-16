@@ -8,7 +8,7 @@
     "type": "object",
     "required": [
       "evidence_id",
-      "evidence_type", 
+      "evidence_type",
       "path_or_reference",
       "checksum",
       "redaction_status",
@@ -24,7 +24,7 @@
         "enum": [
           "execution_trace",
           "command_output_stdout",
-          "command_output_stderr", 
+          "command_output_stderr",
           "preflight_evidence",
           "e2e_test_evidence",
           "command_execution",
@@ -44,7 +44,7 @@
         "description": "SHA-256 checksum of the evidence content, null if unavailable"
       },
       "redaction_status": {
-        "type": "string", 
+        "type": "string",
         "enum": ["original", "redacted", "unknown"],
         "description": "Whether sensitive data has been redacted from this evidence"
       },

@@ -20,12 +20,7 @@
       "const": "website-bot.provisioning-receipt/v1"
     },
     "status": {
-      "enum": [
-        "planned",
-        "succeeded",
-        "rolled_back",
-        "failed"
-      ]
+      "enum": ["planned", "succeeded", "rolled_back", "failed"]
     },
     "client_id": {
       "type": "string",
@@ -127,10 +122,7 @@
     "spec": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "path",
-        "persisted"
-      ],
+      "required": ["path", "persisted"],
       "properties": {
         "path": {
           "type": "string",
@@ -148,9 +140,7 @@
     "maintenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "github_credential_ref"
-      ],
+      "required": ["github_credential_ref"],
       "properties": {
         "github_credential_ref": {
           "type": "string",
@@ -165,12 +155,7 @@
     "rollback": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "attempted",
-        "completed",
-        "actions",
-        "errors"
-      ],
+      "required": ["attempted", "completed", "actions", "errors"],
       "properties": {
         "attempted": {
           "type": "boolean"
@@ -213,10 +198,7 @@
         }
       },
       "then": {
-        "required": [
-          "github",
-          "vercel"
-        ]
+        "required": ["github", "vercel"]
       }
     },
     {
@@ -228,10 +210,7 @@
         }
       },
       "then": {
-        "required": [
-          "github",
-          "vercel"
-        ]
+        "required": ["github", "vercel"]
       }
     }
   ],

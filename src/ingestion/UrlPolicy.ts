@@ -18,26 +18,26 @@ export class UrlPolicyError extends Error {
     readonly reason: string,
   ) {
     super(message);
-    this.name = 'UrlPolicyError';
+    this.name = "UrlPolicyError";
   }
 }
 
-const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
+const ALLOWED_PROTOCOLS = new Set(["http:", "https:"]);
 
 /** Cloud metadata + obviously-internal hostnames that must never be fetched. */
 const FORBIDDEN_HOSTNAMES = new Set([
-  'localhost',
-  'localhost.localdomain',
-  'metadata',
-  'metadata.google.internal',
-  'instance-data',
+  "localhost",
+  "localhost.localdomain",
+  "metadata",
+  "metadata.google.internal",
+  "instance-data",
 ]);
 
 function ipv4Octets(hostname: string): number[] | null {
   const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
   if (!match) return null;
   const octets = match.slice(1, 5).map(Number);
-  if (octets.some(octet => octet > 255)) return null;
+  if (octets.some((octet) => octet > 255)) return null;
   return octets;
 }
 
@@ -59,12 +59,12 @@ export function isForbiddenIpv4(hostname: string): boolean {
 
 /** True for IPv6 loopback, unspecified, unique-local, and link-local addresses. */
 export function isForbiddenIpv6(hostname: string): boolean {
-  const raw = hostname.startsWith('[') && hostname.endsWith(']') ? hostname.slice(1, -1) : hostname;
-  if (!raw.includes(':')) return false;
+  const raw = hostname.startsWith("[") && hostname.endsWith("]") ? hostname.slice(1, -1) : hostname;
+  if (!raw.includes(":")) return false;
   const lower = raw.toLowerCase();
-  if (lower === '::1' || lower === '::') return true; // loopback / unspecified
-  if (lower.startsWith('fe80')) return true; // link-local
-  if (lower.startsWith('fc') || lower.startsWith('fd')) return true; // unique-local fc00::/7
+  if (lower === "::1" || lower === "::") return true; // loopback / unspecified
+  if (lower.startsWith("fe80")) return true; // link-local
+  if (lower.startsWith("fc") || lower.startsWith("fd")) return true; // unique-local fc00::/7
   // IPv4-mapped (::ffff:127.0.0.1) — inspect the embedded literal.
   const mapped = /::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i.exec(lower);
   if (mapped && isForbiddenIpv4(mapped[1])) return true;
@@ -72,9 +72,10 @@ export function isForbiddenIpv6(hostname: string): boolean {
 }
 
 export function isForbiddenHostname(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/\.$/, '');
+  const host = hostname.toLowerCase().replace(/\.$/, "");
   if (FORBIDDEN_HOSTNAMES.has(host)) return true;
-  if (host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal')) return true;
+  if (host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal"))
+    return true;
   return false;
 }
 
@@ -85,8 +86,8 @@ export function isForbiddenAddress(address: string): boolean {
 
 /** Reduce a hostname to its registrable-ish suffix for same-site scoping. */
 function registrableHost(hostname: string): string {
-  const parts = hostname.toLowerCase().replace(/\.$/, '').split('.');
-  return parts.length <= 2 ? parts.join('.') : parts.slice(-2).join('.');
+  const parts = hostname.toLowerCase().replace(/\.$/, "").split(".");
+  return parts.length <= 2 ? parts.join(".") : parts.slice(-2).join(".");
 }
 
 /**
@@ -98,29 +99,29 @@ export function assertUrlAllowed(rawUrl: string, options: UrlPolicyOptions = {})
   try {
     parsed = new URL(rawUrl);
   } catch {
-    throw new UrlPolicyError(`Not a valid absolute URL: ${rawUrl}`, 'invalid-url');
+    throw new UrlPolicyError(`Not a valid absolute URL: ${rawUrl}`, "invalid-url");
   }
   if (!ALLOWED_PROTOCOLS.has(parsed.protocol)) {
-    throw new UrlPolicyError(`Protocol not allowed: ${parsed.protocol}`, 'forbidden-protocol');
+    throw new UrlPolicyError(`Protocol not allowed: ${parsed.protocol}`, "forbidden-protocol");
   }
   const hostname = parsed.hostname;
-  if (!hostname) throw new UrlPolicyError('URL has no hostname', 'no-hostname');
+  if (!hostname) throw new UrlPolicyError("URL has no hostname", "no-hostname");
   if (isForbiddenHostname(hostname)) {
-    throw new UrlPolicyError(`Forbidden hostname: ${hostname}`, 'forbidden-hostname');
+    throw new UrlPolicyError(`Forbidden hostname: ${hostname}`, "forbidden-hostname");
   }
   if (isForbiddenAddress(hostname)) {
-    throw new UrlPolicyError(`Forbidden address: ${hostname}`, 'forbidden-address');
+    throw new UrlPolicyError(`Forbidden address: ${hostname}`, "forbidden-address");
   }
   if (options.seedHost) {
-    const host = hostname.toLowerCase().replace(/\.$/, '');
-    const seed = options.seedHost.toLowerCase().replace(/\.$/, '');
+    const host = hostname.toLowerCase().replace(/\.$/, "");
+    const seed = options.seedHost.toLowerCase().replace(/\.$/, "");
     // Without allowSubdomains the fetch host must be the seed host exactly; with
     // it, any host under the same registrable domain is in scope (but a sibling
     // registrable domain never is).
     const allowed = options.allowSubdomains
       ? registrableHost(host) === registrableHost(seed)
       : host === seed;
-    if (!allowed) throw new UrlPolicyError(`Off-site host not allowed: ${hostname}`, 'off-site');
+    if (!allowed) throw new UrlPolicyError(`Off-site host not allowed: ${hostname}`, "off-site");
   }
   return parsed;
 }

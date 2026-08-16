@@ -93,16 +93,10 @@
       "minLength": 1
     },
     "trigger_mode": {
-      "enum": [
-        "api",
-        "deploy_hook"
-      ]
+      "enum": ["api", "deploy_hook"]
     },
     "target": {
-      "enum": [
-        "preview",
-        "production"
-      ]
+      "enum": ["preview", "production"]
     },
     "created_at": {
       "type": "string",

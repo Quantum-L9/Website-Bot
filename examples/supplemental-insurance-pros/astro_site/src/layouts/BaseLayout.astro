@@ -1,20 +1,23 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
+
 const {
-  title = 'Supplemental Insurance Pros',
-  description = 'Insurance supplementing support for homeowners and contractors.',
-  path = Astro.url?.pathname || '/',
+  title = "Supplemental Insurance Pros",
+  description = "Insurance supplementing support for homeowners and contractors.",
+  path = Astro.url?.pathname || "/",
   noindex = false,
 } = Astro.props;
-const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://supplementalinsurancepros.com').replace(/\/$/, '');
+const siteUrl = (
+  import.meta.env.PUBLIC_SITE_URL || "https://supplementalinsurancepros.com"
+).replace(/\/$/, "");
 const canonicalUrl = `${siteUrl}${path}`;
 const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'Supplemental Insurance Pros',
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Supplemental Insurance Pros",
   url: siteUrl,
   description,
-  areaServed: ['TN', 'KY', 'VA', 'NC', 'GA', 'AL', 'MS', 'AR', 'MO'],
+  areaServed: ["TN", "KY", "VA", "NC", "GA", "AL", "MS", "AR", "MO"],
 };
 ---
 <html lang="en">

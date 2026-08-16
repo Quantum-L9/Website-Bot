@@ -2,8 +2,8 @@
 // Fenced leases around expensive transitions: only the active generation may
 // commit transition results; expired/stale workers are rejected. Two workers
 // can never both believe they own the same wave operation.
-import { canonicalJson, sha256Text } from '../../services/hashing.js';
-import type { JsonStore } from '../storage/json-store.js';
+import { canonicalJson, sha256Text } from "../../services/hashing.js";
+import type { JsonStore } from "../storage/json-store.js";
 
 export interface Lease {
   campaign: string;
@@ -55,7 +55,13 @@ export class LeaseManager {
    * Validates that the caller holds the active generation. Returns false for
    * missing, expired, or superseded leases — the caller must not commit state.
    */
-  validate(input: { campaign: string; wave: number; operation: string; owner: string; now?: number }): boolean {
+  validate(input: {
+    campaign: string;
+    wave: number;
+    operation: string;
+    owner: string;
+    now?: number;
+  }): boolean {
     const now = input.now ?? Date.now();
     const path = this.pathFor(input.campaign, input.wave, input.operation);
     if (!this.store.has(path)) return false;

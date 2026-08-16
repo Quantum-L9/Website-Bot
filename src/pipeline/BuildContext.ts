@@ -1,21 +1,21 @@
 // L9_META: layer=pipeline, role=context_carrier, status=active, version=3.0.0
-import { resolve } from 'node:path';
-import type { WebsiteFactoryLLM } from '../services/llm.js';
-import { type BuildIntent } from './BuildIntent.js';
-import type { WebsiteBuildBlueprintArtifact } from '@quantum-l9/bot-interop';
-import type { AssemblyManifest } from './evidence/AssemblyManifest.js';
-import type { BuildProof } from './evidence/BuildProof.js';
-import type { DeploymentEvidence } from './evidence/DeploymentEvidence.js';
-import type { PublicationEvidence } from './evidence/PublicationEvidence.js';
-import type { EvidenceGateStatus, ReleaseReceipt } from './evidence/ReleaseReceipt.js';
-import type { ProvisioningReceipt, ProvisioningSpec } from '../provisioning/types.js';
-import type { EvidenceStore } from './evidence/EvidenceStore.js';
-import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
-import type { SourceSiteManifest } from './evidence/SourceSiteManifest.js';
-import type { ImageAssetPlan } from './evidence/ImageAssetPlan.js';
-import type { ImageAssetManifest, ResolvedImageAsset } from './evidence/ImageAssetManifest.js';
+import { resolve } from "node:path";
+import type { WebsiteBuildBlueprintArtifact } from "@quantum-l9/bot-interop";
+import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
+import type { WebsiteFactoryLLM } from "../services/llm.js";
+import type { BuildIntent } from "./BuildIntent.js";
+import type { AssemblyManifest } from "./evidence/AssemblyManifest.js";
+import type { BuildProof } from "./evidence/BuildProof.js";
+import type { DeploymentEvidence } from "./evidence/DeploymentEvidence.js";
+import type { EvidenceIndex } from "./evidence/EvidenceIndex.js";
+import type { EvidenceStore } from "./evidence/EvidenceStore.js";
+import type { ImageAssetManifest, ResolvedImageAsset } from "./evidence/ImageAssetManifest.js";
+import type { ImageAssetPlan } from "./evidence/ImageAssetPlan.js";
+import type { PublicationEvidence } from "./evidence/PublicationEvidence.js";
+import type { EvidenceGateStatus, ReleaseReceipt } from "./evidence/ReleaseReceipt.js";
+import type { SourceSiteManifest } from "./evidence/SourceSiteManifest.js";
 
-export type ExecutionMode = 'plan' | 'local-proof' | 'publish-proof' | 'end-to-end';
+export type ExecutionMode = "plan" | "local-proof" | "publish-proof" | "end-to-end";
 
 export interface DeployTarget {
   githubRepo: string;
@@ -59,10 +59,10 @@ export interface ImageSlotSpec {
   id: string;
   placement: string;
   required: boolean;
-  preferredSources?: Array<'provided' | 'source-site' | 'generated'>;
+  preferredSources?: Array<"provided" | "source-site" | "generated">;
   altText?: string;
   aspectRatio?: string;
-  imageSize?: '1K' | '2K' | '4K';
+  imageSize?: "1K" | "2K" | "4K";
   generation?: {
     intent: string;
     subject?: string;
@@ -85,7 +85,7 @@ export interface AssetSpec {
     enabled: boolean;
     model?: string;
     budgetUsd?: number;
-    promptCompiler?: 'default' | 'igor-motif';
+    promptCompiler?: "default" | "igor-motif";
   };
 }
 
@@ -94,10 +94,14 @@ export interface DomainSpec {
   business_name: string;
   vertical: string;
   geography: { states: string[]; primary_state: string };
-  design: { status: 'resolved' | 'pending'; palette?: Record<string, string>; fonts?: Record<string, string> };
+  design: {
+    status: "resolved" | "pending";
+    palette?: Record<string, string>;
+    fonts?: Record<string, string>;
+  };
   routes: Array<{ slug: string; title: string; components: string[]; noindex?: boolean }>;
   seo_contract?: SeoContract;
-  wom_flags?: Array<{ key: string; value: string; severity: 'error' | 'warning' | 'info' }>;
+  wom_flags?: Array<{ key: string; value: string; severity: "error" | "warning" | "info" }>;
   deploy?: {
     github_repo: string;
     github_repo_id?: string;
@@ -111,7 +115,7 @@ export interface DomainSpec {
   provision?: ProvisioningSpec;
   assets?: AssetSpec;
   /** Transformation intent. Legacy specs default to COPY; REDESIGN_IMPROVE must be explicit. */
-  build_intent?: 'COPY' | 'REDESIGN_IMPROVE';
+  build_intent?: "COPY" | "REDESIGN_IMPROVE";
 }
 
 /** A resolved image as exposed to the generated Astro site's siteConfig. */
@@ -120,7 +124,7 @@ export interface SiteImageEntry {
   alt: string;
   width: number;
   height: number;
-  source: 'provided' | 'source-site' | 'generated';
+  source: "provided" | "source-site" | "generated";
 }
 
 export interface SiteConfig {
@@ -205,13 +209,13 @@ export function makeBuildId(clientId: string): string {
 }
 
 /** Per-build on-disk root for staged images/manifests. Scoped by buildId so concurrent builds (and parallel tests) cannot clobber each other. */
-export function clientAssetRoot(ctx: Pick<BuildContext, 'clientId' | 'buildId'>): string {
-  return resolve('build', 'assets', ctx.clientId, ctx.buildId);
+export function clientAssetRoot(ctx: Pick<BuildContext, "clientId" | "buildId">): string {
+  return resolve("build", "assets", ctx.clientId, ctx.buildId);
 }
 
 /** Client-scoped cache that survives new buildIds. Generated images and crawled
  *  source-site downloads live here so a 10-run test loop reuses media instead of
  *  regenerating. Concurrent builds of the same client share this directory. */
-export function clientPersistentAssetRoot(ctx: Pick<BuildContext, 'clientId'>): string {
-  return resolve('build', 'assets', ctx.clientId, '_cache');
+export function clientPersistentAssetRoot(ctx: Pick<BuildContext, "clientId">): string {
+  return resolve("build", "assets", ctx.clientId, "_cache");
 }

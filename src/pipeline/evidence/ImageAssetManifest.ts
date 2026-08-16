@@ -9,16 +9,16 @@
 // image manifest. Presence of the copied files is already attested by the
 // assembly manifest; this record adds source, hashes, dimensions, and cost.
 
-import { sha256Text } from './EvidenceCanonicalizer.js';
+import { sha256Text } from "./EvidenceCanonicalizer.js";
 
-export type ImageSource = 'provided' | 'source-site' | 'generated';
+export type ImageSource = "provided" | "source-site" | "generated";
 
 /** Provenance disposition — only client-owned assets may be republished. */
 export type ReuseDisposition =
-  | 'approved-client-owned'
-  | 'reference-only'
-  | 'unknown-rights'
-  | 'rejected';
+  | "approved-client-owned"
+  | "reference-only"
+  | "unknown-rights"
+  | "rejected";
 
 /** A fully inspected image staged for assembly into the generated site. */
 export interface ResolvedImageAsset {
@@ -65,7 +65,7 @@ export interface ImageAssetEvidence {
 }
 
 export interface ImageAssetManifest {
-  schema: 'website-bot.image-asset-manifest/v1';
+  schema: "website-bot.image-asset-manifest/v1";
   buildId: string;
   clientId: string;
   generatedAt: string;
@@ -97,8 +97,8 @@ export function evidenceFromResolved(asset: ResolvedImageAsset): ImageAssetEvide
 export function computeImageManifestDigest(assets: ImageAssetEvidence[]): string {
   const lines = [...assets]
     .sort((left, right) => left.placement.localeCompare(right.placement))
-    .map(asset => `${asset.placement}\0${asset.source}\0${asset.sha256}\0${asset.byteLength}\n`)
-    .join('');
+    .map((asset) => `${asset.placement}\0${asset.source}\0${asset.sha256}\0${asset.byteLength}\n`)
+    .join("");
   return sha256Text(lines);
 }
 
@@ -110,7 +110,7 @@ export function buildImageAssetManifest(
 ): ImageAssetManifest {
   const assets = resolved.map(evidenceFromResolved);
   return {
-    schema: 'website-bot.image-asset-manifest/v1',
+    schema: "website-bot.image-asset-manifest/v1",
     buildId,
     clientId,
     generatedAt,
@@ -122,20 +122,28 @@ export function buildImageAssetManifest(
 const SHA256 = /^[a-f0-9]{64}$/;
 
 export function validateImageAssetManifest(value: unknown): asserts value is ImageAssetManifest {
-  if (!value || typeof value !== 'object') throw new Error('image asset manifest must be an object');
+  if (!value || typeof value !== "object")
+    throw new Error("image asset manifest must be an object");
   const manifest = value as Partial<ImageAssetManifest>;
-  if (manifest.schema !== 'website-bot.image-asset-manifest/v1' || !manifest.buildId || !manifest.clientId) {
-    throw new Error('image asset manifest identity is invalid');
+  if (
+    manifest.schema !== "website-bot.image-asset-manifest/v1" ||
+    !manifest.buildId ||
+    !manifest.clientId
+  ) {
+    throw new Error("image asset manifest identity is invalid");
   }
-  if (!Array.isArray(manifest.assets)) throw new Error('image asset manifest assets must be an array');
+  if (!Array.isArray(manifest.assets))
+    throw new Error("image asset manifest assets must be an array");
   const placements = new Set<string>();
   for (const asset of manifest.assets) {
-    if (!asset.placement || placements.has(asset.placement)) throw new Error(`invalid or duplicate placement: ${asset.placement}`);
+    if (!asset.placement || placements.has(asset.placement))
+      throw new Error(`invalid or duplicate placement: ${asset.placement}`);
     placements.add(asset.placement);
     if (!SHA256.test(asset.sha256)) throw new Error(`invalid sha256 for ${asset.placement}`);
-    if (!Number.isInteger(asset.byteLength) || asset.byteLength < 0) throw new Error(`invalid byteLength for ${asset.placement}`);
+    if (!Number.isInteger(asset.byteLength) || asset.byteLength < 0)
+      throw new Error(`invalid byteLength for ${asset.placement}`);
   }
   if (computeImageManifestDigest(manifest.assets) !== manifest.digest) {
-    throw new Error('image asset manifest digest does not match assets');
+    throw new Error("image asset manifest digest does not match assets");
   }
 }

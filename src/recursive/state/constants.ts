@@ -10,15 +10,15 @@ export const MAX_VALIDATION_REPAIR_ATTEMPTS_PER_WAVE = 1 as const;
 export const INITIAL_ENGINEERING_MUTATION_STREAMS = 1 as const;
 
 export const CONTROL_PLANE_PATHS: readonly string[] = [
-  'src/recursive/state/constants.ts',
-  'src/recursive/state/transitions.ts',
-  'src/recursive/pepack/',
-  'src/recursive/verifier/',
-  'src/recursive/events/',
-  'src/recursive/contracts/',
-  'src/recursive/holdout/',
-  'schemas/recursive/',
-  'tests/unit/recursive/',
-  'tests/integration/recursive/',
-  '.l9/recursive/',
+  "src/recursive/state/constants.ts",
+  "src/recursive/state/transitions.ts",
+  "src/recursive/pepack/",
+  "src/recursive/verifier/",
+  "src/recursive/events/",
+  "src/recursive/contracts/",
+  "src/recursive/holdout/",
+  "schemas/recursive/",
+  "tests/unit/recursive/",
+  "tests/integration/recursive/",
+  ".l9/recursive/",
 ];

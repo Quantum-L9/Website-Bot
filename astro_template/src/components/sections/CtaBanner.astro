@@ -1,12 +1,19 @@
 <!-- L9_META: layer=template, role=cta_section, status=active, version=1.2.0 -->
 ---
-import { siteConfig } from '../../lib/siteConfig';
-interface Props { name?: string; content: string; }
-const { name = 'cta', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
-const heading = paragraphs[0] || 'Request Your Free Inspection';
+import { siteConfig } from "../../lib/siteConfig";
+
+interface Props {
+  name?: string;
+  content: string;
+}
+const { name = "cta", content } = Astro.props;
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim().replace(/\*\*/g, ""))
+  .filter(Boolean);
+const heading = paragraphs[0] || "Request Your Free Inspection";
 const phone = siteConfig.phone;
-const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
+const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 ---
 <section class="cta-banner" data-section={name}>
   <h2>{heading}</h2>

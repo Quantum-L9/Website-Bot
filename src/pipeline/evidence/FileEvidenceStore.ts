@@ -1,46 +1,64 @@
 // L9_META: layer=pipeline, role=file_evidence_store, status=active, version=2.0.0
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import {
   closeSync,
   existsSync,
   fsyncSync,
   mkdirSync,
   openSync,
+  readdirSync,
   readFileSync,
   renameSync,
-  readdirSync,
   rmSync,
   writeFileSync,
-} from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
-import type { ExecutionMode } from '../BuildContext.js';
-import { validateStageCheckpoint, type StageCheckpoint } from '../StageCheckpoint.js';
-import { assertWebsiteFactoryHandoffV3, type WebsiteFactoryHandoffV3 } from '../../contracts/WebsiteFactoryHandoffV3.js';
-import { validateSeoBotRegistrationAck, type SeoBotRegistrationAck } from '../../contracts/SeoBotRegistrationAck.js';
-import { canonicalJson, sha256File } from './EvidenceCanonicalizer.js';
-import { decodeCheckpoint, decodeEvidenceArtifact, decodeIndex, encodeCheckpoint, encodeEvidenceArtifact, encodeIndex } from './EvidenceCodec.js';
-import { derivedChainStatus, transitionRunConverged as convergeIndex, transitionStageFailed as failIndex, transitionStageSucceeded as succeedIndex } from './EvidenceLifecycle.js';
-import { validateAssemblyManifest, type AssemblyManifest } from './AssemblyManifest.js';
-import { validateBuildProof, type BuildProof } from './BuildProof.js';
-import { validateDeploymentEvidence, type DeploymentEvidence } from './DeploymentEvidence.js';
-import { validateReleaseEvidenceChain } from './EvidenceChainValidator.js';
-import { validateEvidenceIndex, type EvidenceIndex } from './EvidenceIndex.js';
-import type { EvidenceKind, EvidenceRecord, EvidenceReference } from './EvidenceReference.js';
-import { recordToReference } from './EvidenceReference.js';
-import type { EvidenceStore } from './EvidenceStore.js';
-import { validatePublicationEvidence, type PublicationEvidence } from './PublicationEvidence.js';
-import { validateReleaseReceipt, type ReleaseReceipt } from './ReleaseReceipt.js';
-import { validateSourceSiteManifest, type SourceSiteManifest } from './SourceSiteManifest.js';
-import { validateImageAssetPlan, type ImageAssetPlan } from './ImageAssetPlan.js';
-import { validateImageAssetManifest, type ImageAssetManifest } from './ImageAssetManifest.js';
-import { validateStageFailureEvidence, type StageFailureEvidence } from './StageFailureEvidence.js';
+} from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
+import {
+  type SeoBotRegistrationAck,
+  validateSeoBotRegistrationAck,
+} from "../../contracts/SeoBotRegistrationAck.js";
+import {
+  assertWebsiteFactoryHandoffV3,
+  type WebsiteFactoryHandoffV3,
+} from "../../contracts/WebsiteFactoryHandoffV3.js";
+import type { ExecutionMode } from "../BuildContext.js";
+import { type StageCheckpoint, validateStageCheckpoint } from "../StageCheckpoint.js";
+import { type AssemblyManifest, validateAssemblyManifest } from "./AssemblyManifest.js";
+import { type BuildProof, validateBuildProof } from "./BuildProof.js";
+import { type DeploymentEvidence, validateDeploymentEvidence } from "./DeploymentEvidence.js";
+import { canonicalJson, sha256File } from "./EvidenceCanonicalizer.js";
+import { validateReleaseEvidenceChain } from "./EvidenceChainValidator.js";
+import {
+  decodeCheckpoint,
+  decodeEvidenceArtifact,
+  decodeIndex,
+  encodeCheckpoint,
+  encodeEvidenceArtifact,
+  encodeIndex,
+} from "./EvidenceCodec.js";
+import { type EvidenceIndex, validateEvidenceIndex } from "./EvidenceIndex.js";
+import {
+  transitionRunConverged as convergeIndex,
+  derivedChainStatus,
+  transitionStageFailed as failIndex,
+  transitionStageSucceeded as succeedIndex,
+} from "./EvidenceLifecycle.js";
+import type { EvidenceKind, EvidenceRecord, EvidenceReference } from "./EvidenceReference.js";
+import { recordToReference } from "./EvidenceReference.js";
+import type { EvidenceStore } from "./EvidenceStore.js";
+import { type ImageAssetManifest, validateImageAssetManifest } from "./ImageAssetManifest.js";
+import { type ImageAssetPlan, validateImageAssetPlan } from "./ImageAssetPlan.js";
+import { type PublicationEvidence, validatePublicationEvidence } from "./PublicationEvidence.js";
+import { type ReleaseReceipt, validateReleaseReceipt } from "./ReleaseReceipt.js";
+import { type SourceSiteManifest, validateSourceSiteManifest } from "./SourceSiteManifest.js";
+import { type StageFailureEvidence, validateStageFailureEvidence } from "./StageFailureEvidence.js";
 import type {
   EvidenceChainValidation,
   LoadReleaseBundleOptions,
   StoredEvidence,
   ValidatedReleaseBundle,
-} from './ValidatedReleaseBundle.js';
+} from "./ValidatedReleaseBundle.js";
 
 export interface FileEvidenceStoreOptions {
   evidenceRoot?: string;
@@ -51,31 +69,31 @@ export interface FileEvidenceStoreOptions {
   now?: () => Date;
 }
 
-const FILES: Record<Exclude<EvidenceKind, 'failure'>, string> = {
-  assembly: 'assembly-manifest.json',
-  build: 'build-proof.json',
-  publication: 'publication-evidence.json',
-  deployment: 'deployment-evidence.json',
-  release: 'release-receipt.json',
-  handoff: 'handoff-v3.json',
-  registration_ack: 'seo-bot-registration-ack.json',
-  source_site: 'source-site-manifest.json',
-  image_plan: 'image-asset-plan.json',
-  image_assets: 'image-asset-manifest.json',
+const FILES: Record<Exclude<EvidenceKind, "failure">, string> = {
+  assembly: "assembly-manifest.json",
+  build: "build-proof.json",
+  publication: "publication-evidence.json",
+  deployment: "deployment-evidence.json",
+  release: "release-receipt.json",
+  handoff: "handoff-v3.json",
+  registration_ack: "seo-bot-registration-ack.json",
+  source_site: "source-site-manifest.json",
+  image_plan: "image-asset-plan.json",
+  image_assets: "image-asset-manifest.json",
 };
 
 const SCHEMAS: Record<EvidenceKind, string> = {
-  assembly: 'website-bot.assembly-manifest/v2',
-  build: 'website-bot.build-proof/v2',
-  publication: 'website-bot.publication-evidence/v2',
-  deployment: 'website-bot.deployment-evidence/v2',
-  release: 'website-bot.release-receipt/v2',
-  handoff: 'l9.website-factory.handoff/3.0',
-  registration_ack: 'seo-bot.website-factory-registration-ack/v1',
-  source_site: 'website-bot.source-site-manifest/v1',
-  image_plan: 'website-bot.image-asset-plan/v1',
-  image_assets: 'website-bot.image-asset-manifest/v1',
-  failure: 'website-bot.stage-failure/v2',
+  assembly: "website-bot.assembly-manifest/v2",
+  build: "website-bot.build-proof/v2",
+  publication: "website-bot.publication-evidence/v2",
+  deployment: "website-bot.deployment-evidence/v2",
+  release: "website-bot.release-receipt/v2",
+  handoff: "l9.website-factory.handoff/3.0",
+  registration_ack: "seo-bot.website-factory-registration-ack/v1",
+  source_site: "website-bot.source-site-manifest/v1",
+  image_plan: "website-bot.image-asset-plan/v1",
+  image_assets: "website-bot.image-asset-manifest/v1",
+  failure: "website-bot.stage-failure/v2",
 };
 
 function safeStage(stage: string): string {
@@ -90,9 +108,10 @@ export class FileEvidenceStore implements EvidenceStore {
 
   constructor(private readonly options: FileEvidenceStoreOptions) {
     this.rootDir = resolve(
-      options.rootDir ?? join(options.evidenceRoot ?? join('build', 'evidence'), options.clientId, options.buildId),
+      options.rootDir ??
+        join(options.evidenceRoot ?? join("build", "evidence"), options.clientId, options.buildId),
     );
-    this.indexPath = join(this.rootDir, 'evidence-index.json');
+    this.indexPath = join(this.rootDir, "evidence-index.json");
     this.now = options.now ?? (() => new Date());
   }
 
@@ -105,14 +124,14 @@ export class FileEvidenceStore implements EvidenceStore {
     }
     const timestamp = this.now().toISOString();
     const index: EvidenceIndex = {
-      schema: 'website-bot.evidence-index/v2',
+      schema: "website-bot.evidence-index/v2",
       build_id: this.options.buildId,
       client_id: this.options.clientId,
       mode: this.options.mode,
       revision: 1,
       artifacts: {},
       failure_history: [],
-      chain_status: 'empty',
+      chain_status: "empty",
       created_at: timestamp,
       updated_at: timestamp,
     };
@@ -122,43 +141,53 @@ export class FileEvidenceStore implements EvidenceStore {
 
   async readIndex(): Promise<EvidenceIndex> {
     if (!existsSync(this.indexPath)) return this.initialize();
-    const value = decodeIndex(JSON.parse(readFileSync(this.indexPath, 'utf-8')) as unknown);
+    const value = decodeIndex(JSON.parse(readFileSync(this.indexPath, "utf-8")) as unknown);
     validateEvidenceIndex(value);
     this.assertIdentity(value);
     return value;
   }
 
   async rebuildIndex(): Promise<EvidenceIndex> {
-    const existing = existsSync(this.indexPath)
-      ? await this.readIndex()
-      : await this.initialize();
-    const artifacts: EvidenceIndex['artifacts'] = {};
+    const existing = existsSync(this.indexPath) ? await this.readIndex() : await this.initialize();
+    const artifacts: EvidenceIndex["artifacts"] = {};
 
-    for (const [kind, relativePath] of Object.entries(FILES) as Array<[Exclude<EvidenceKind, 'failure'>, string]>) {
+    for (const [kind, relativePath] of Object.entries(FILES) as Array<
+      [Exclude<EvidenceKind, "failure">, string]
+    >) {
       const path = join(this.rootDir, relativePath);
       if (!existsSync(path)) continue;
-      const persisted = JSON.parse(readFileSync(path, 'utf-8')) as unknown;
+      const persisted = JSON.parse(readFileSync(path, "utf-8")) as unknown;
       const value = decodeEvidenceArtifact<Record<string, unknown>>(kind, persisted);
       this.validateByKind(kind, value);
       artifacts[kind] = this.recordFor(kind, relativePath, value, existing.updated_at);
     }
 
     const failureHistory: EvidenceRecord[] = [];
-    const failuresDir = join(this.rootDir, 'failures');
+    const failuresDir = join(this.rootDir, "failures");
     if (existsSync(failuresDir)) {
-      for (const name of readdirSync(failuresDir).filter(name => name.endsWith('.json') && name !== 'active.json').sort()) {
+      for (const name of readdirSync(failuresDir)
+        .filter((name) => name.endsWith(".json") && name !== "active.json")
+        .sort()) {
         const relativePath = `failures/${name}`;
-        const persisted = JSON.parse(readFileSync(join(failuresDir, name), 'utf-8')) as unknown;
-        const value = decodeEvidenceArtifact<StageFailureEvidence>('failure', persisted);
+        const persisted = JSON.parse(readFileSync(join(failuresDir, name), "utf-8")) as unknown;
+        const value = decodeEvidenceArtifact<StageFailureEvidence>("failure", persisted);
         validateStageFailureEvidence(value);
-        failureHistory.push(this.recordFor('failure', relativePath, value, existing.updated_at));
+        failureHistory.push(this.recordFor("failure", relativePath, value, existing.updated_at));
       }
     }
-    const activeFailurePath = join(failuresDir, 'active.json');
+    const activeFailurePath = join(failuresDir, "active.json");
     if (existsSync(activeFailurePath)) {
-      const value = decodeEvidenceArtifact<StageFailureEvidence>('failure', JSON.parse(readFileSync(activeFailurePath, 'utf-8')) as unknown);
+      const value = decodeEvidenceArtifact<StageFailureEvidence>(
+        "failure",
+        JSON.parse(readFileSync(activeFailurePath, "utf-8")) as unknown,
+      );
       validateStageFailureEvidence(value);
-      artifacts.failure = this.recordFor('failure', 'failures/active.json', value, existing.updated_at);
+      artifacts.failure = this.recordFor(
+        "failure",
+        "failures/active.json",
+        value,
+        existing.updated_at,
+      );
     }
 
     const index: EvidenceIndex = {
@@ -166,7 +195,9 @@ export class FileEvidenceStore implements EvidenceStore {
       revision: existing.revision + 1,
       artifacts,
       failure_history: failureHistory,
-      chain_status: artifacts.failure ? 'failed' : derivedChainStatus({ ...existing, artifacts, failure_history: failureHistory }),
+      chain_status: artifacts.failure
+        ? "failed"
+        : derivedChainStatus({ ...existing, artifacts, failure_history: failureHistory }),
       updated_at: this.now().toISOString(),
     };
     this.atomicJson(this.indexPath, encodeIndex(index));
@@ -181,7 +212,8 @@ export class FileEvidenceStore implements EvidenceStore {
     return this.withIndexLock(async () => {
       const current = await this.readIndex();
       const next = succeedIndex(current, stage, this.now().toISOString());
-      if (!next.artifacts.failure) rmSync(join(this.rootDir, 'failures', 'active.json'), { force: true });
+      if (!next.artifacts.failure)
+        rmSync(join(this.rootDir, "failures", "active.json"), { force: true });
       this.atomicJson(this.indexPath, encodeIndex(next));
       return next;
     });
@@ -215,7 +247,7 @@ export class FileEvidenceStore implements EvidenceStore {
         checkedAt: this.now().toISOString(),
         gates: [],
         identities: {},
-        errors: ['assembly manifest and release receipt are required'],
+        errors: ["assembly manifest and release receipt are required"],
       };
     }
     return validateReleaseEvidenceChain({
@@ -245,90 +277,90 @@ export class FileEvidenceStore implements EvidenceStore {
 
   async writeAssembly(value: AssemblyManifest): Promise<EvidenceRecord> {
     validateAssemblyManifest(value);
-    return this.write('assembly', value);
+    return this.write("assembly", value);
   }
   async readAssembly(): Promise<StoredEvidence<AssemblyManifest> | undefined> {
-    return this.read('assembly', validateAssemblyManifest);
+    return this.read("assembly", validateAssemblyManifest);
   }
   async writeBuild(value: BuildProof): Promise<EvidenceRecord> {
     validateBuildProof(value);
-    return this.write('build', value);
+    return this.write("build", value);
   }
   async readBuild(): Promise<StoredEvidence<BuildProof> | undefined> {
-    return this.read('build', validateBuildProof);
+    return this.read("build", validateBuildProof);
   }
   async writePublication(value: PublicationEvidence): Promise<EvidenceRecord> {
     validatePublicationEvidence(value);
-    return this.write('publication', value);
+    return this.write("publication", value);
   }
   async readPublication(): Promise<StoredEvidence<PublicationEvidence> | undefined> {
-    return this.read('publication', validatePublicationEvidence);
+    return this.read("publication", validatePublicationEvidence);
   }
   async writeDeployment(value: DeploymentEvidence): Promise<EvidenceRecord> {
     validateDeploymentEvidence(value);
-    return this.write('deployment', value);
+    return this.write("deployment", value);
   }
   async readDeployment(): Promise<StoredEvidence<DeploymentEvidence> | undefined> {
-    return this.read('deployment', validateDeploymentEvidence);
+    return this.read("deployment", validateDeploymentEvidence);
   }
   async writeReleaseReceipt(value: ReleaseReceipt): Promise<EvidenceRecord> {
     validateReleaseReceipt(value);
-    return this.write('release', value);
+    return this.write("release", value);
   }
   async readReleaseReceipt(): Promise<StoredEvidence<ReleaseReceipt> | undefined> {
-    return this.read('release', validateReleaseReceipt);
+    return this.read("release", validateReleaseReceipt);
   }
   async writeHandoff(value: WebsiteFactoryHandoffV3): Promise<EvidenceRecord> {
     assertWebsiteFactoryHandoffV3(value);
-    return this.write('handoff', value);
+    return this.write("handoff", value);
   }
   async readHandoff(): Promise<WebsiteFactoryHandoffV3 | undefined> {
-    const stored = await this.readRaw<WebsiteFactoryHandoffV3>('handoff');
+    const stored = await this.readRaw<WebsiteFactoryHandoffV3>("handoff");
     if (!stored) return undefined;
     assertWebsiteFactoryHandoffV3(stored.value);
     return stored.value;
   }
   async writeRegistrationAck(value: SeoBotRegistrationAck): Promise<EvidenceRecord> {
     validateSeoBotRegistrationAck(value);
-    return this.write('registration_ack', value);
+    return this.write("registration_ack", value);
   }
   async readRegistrationAck(): Promise<SeoBotRegistrationAck | undefined> {
-    const stored = await this.readRaw<SeoBotRegistrationAck>('registration_ack');
+    const stored = await this.readRaw<SeoBotRegistrationAck>("registration_ack");
     if (!stored) return undefined;
     validateSeoBotRegistrationAck(stored.value);
     return stored.value;
   }
   async writeSourceSite(value: SourceSiteManifest): Promise<EvidenceRecord> {
     validateSourceSiteManifest(value);
-    return this.write('source_site', value);
+    return this.write("source_site", value);
   }
   async readSourceSite(): Promise<StoredEvidence<SourceSiteManifest> | undefined> {
-    return this.read('source_site', validateSourceSiteManifest);
+    return this.read("source_site", validateSourceSiteManifest);
   }
   async writeImagePlan(value: ImageAssetPlan): Promise<EvidenceRecord> {
     validateImageAssetPlan(value);
-    return this.write('image_plan', value);
+    return this.write("image_plan", value);
   }
   async readImagePlan(): Promise<StoredEvidence<ImageAssetPlan> | undefined> {
-    return this.read('image_plan', validateImageAssetPlan);
+    return this.read("image_plan", validateImageAssetPlan);
   }
   async writeImageAssets(value: ImageAssetManifest): Promise<EvidenceRecord> {
     validateImageAssetManifest(value);
-    return this.write('image_assets', value);
+    return this.write("image_assets", value);
   }
   async readImageAssets(): Promise<StoredEvidence<ImageAssetManifest> | undefined> {
-    return this.read('image_assets', validateImageAssetManifest);
+    return this.read("image_assets", validateImageAssetManifest);
   }
   async writeFailure(value: StageFailureEvidence): Promise<EvidenceRecord> {
     validateStageFailureEvidence(value);
     await this.initialize();
     return this.withIndexLock(async () => {
-      const timestamp = value.failedAt.replace(/[^0-9TZ]/g, '');
+      const timestamp = value.failedAt.replace(/[^0-9TZ]/g, "");
       const relativePath = `failures/${safeStage(value.stage)}-${value.attempt}-${timestamp}.json`;
-      const persisted = encodeEvidenceArtifact('failure', value);
+      const persisted = encodeEvidenceArtifact("failure", value);
       this.atomicJson(join(this.rootDir, relativePath), persisted);
-      this.atomicJson(join(this.rootDir, 'failures', 'active.json'), persisted);
-      const record = this.recordFor('failure', relativePath, value, this.now().toISOString());
+      this.atomicJson(join(this.rootDir, "failures", "active.json"), persisted);
+      const record = this.recordFor("failure", relativePath, value, this.now().toISOString());
       const current = await this.readIndex();
       const next = failIndex(current, value.stage, record, this.now().toISOString());
       this.atomicJson(this.indexPath, encodeIndex(next));
@@ -336,50 +368,54 @@ export class FileEvidenceStore implements EvidenceStore {
     });
   }
   async readFailure(): Promise<StoredEvidence<StageFailureEvidence> | undefined> {
-    return this.read('failure', validateStageFailureEvidence);
+    return this.read("failure", validateStageFailureEvidence);
   }
 
   async requireBuildProof(): Promise<StoredEvidence<BuildProof>> {
     const stored = await this.readBuild();
-    if (!stored) throw new Error('build proof evidence is required');
+    if (!stored) throw new Error("build proof evidence is required");
     return stored;
   }
   async requirePublicationEvidence(): Promise<StoredEvidence<PublicationEvidence>> {
     const stored = await this.readPublication();
-    if (!stored) throw new Error('publication evidence is required');
+    if (!stored) throw new Error("publication evidence is required");
     return stored;
   }
   async requireDeploymentEvidence(): Promise<StoredEvidence<DeploymentEvidence>> {
     const stored = await this.readDeployment();
-    if (!stored) throw new Error('deployment evidence is required');
+    if (!stored) throw new Error("deployment evidence is required");
     return stored;
   }
   async requireSucceededReleaseReceipt(): Promise<StoredEvidence<ReleaseReceipt>> {
     const stored = await this.readReleaseReceipt();
-    if (stored?.value.status !== 'succeeded') throw new Error('succeeded release receipt evidence is required');
+    if (stored?.value.status !== "succeeded")
+      throw new Error("succeeded release receipt evidence is required");
     return stored;
   }
 
   async writeCheckpoint(value: StageCheckpoint): Promise<string> {
     validateStageCheckpoint(value);
-    const path = join(this.rootDir, 'checkpoints', `${safeStage(value.stage)}.json`);
+    const path = join(this.rootDir, "checkpoints", `${safeStage(value.stage)}.json`);
     this.atomicJson(path, encodeCheckpoint(value));
     return path;
   }
 
   async readCheckpoint(stage: string): Promise<StageCheckpoint | undefined> {
-    const path = join(this.rootDir, 'checkpoints', `${safeStage(stage)}.json`);
+    const path = join(this.rootDir, "checkpoints", `${safeStage(stage)}.json`);
     if (!existsSync(path)) return undefined;
-    const value = decodeCheckpoint(JSON.parse(readFileSync(path, 'utf-8')) as unknown);
+    const value = decodeCheckpoint(JSON.parse(readFileSync(path, "utf-8")) as unknown);
     validateStageCheckpoint(value);
     return value;
   }
 
-  async loadValidatedReleaseBundle(options: LoadReleaseBundleOptions = {}): Promise<ValidatedReleaseBundle> {
+  async loadValidatedReleaseBundle(
+    options: LoadReleaseBundleOptions = {},
+  ): Promise<ValidatedReleaseBundle> {
     const index = await this.readIndex();
     const assembly = await this.readAssembly();
     const receipt = await this.readReleaseReceipt();
-    if (!assembly || !receipt) throw new Error('release bundle requires assembly and receipt evidence');
+    if (!assembly || !receipt)
+      throw new Error("release bundle requires assembly and receipt evidence");
     const build = await this.readBuild();
     const publication = await this.readPublication();
     const deployment = await this.readDeployment();
@@ -392,9 +428,12 @@ export class FileEvidenceStore implements EvidenceStore {
       receipt,
       checkedAt: this.now().toISOString(),
     });
-    if (!validation.valid) throw new Error(`release evidence chain is invalid: ${validation.errors.join('; ')}`);
+    if (!validation.valid)
+      throw new Error(`release evidence chain is invalid: ${validation.errors.join("; ")}`);
     if (options.requireStatus && receipt.value.status !== options.requireStatus) {
-      throw new Error(`release receipt status ${receipt.value.status} does not satisfy ${options.requireStatus}`);
+      throw new Error(
+        `release receipt status ${receipt.value.status} does not satisfy ${options.requireStatus}`,
+      );
     }
     if (options.requireMode && index.mode !== options.requireMode) {
       throw new Error(`evidence mode ${index.mode} does not satisfy ${options.requireMode}`);
@@ -422,7 +461,10 @@ export class FileEvidenceStore implements EvidenceStore {
     };
   }
 
-  private async write(kind: Exclude<EvidenceKind, 'failure'>, value: object): Promise<EvidenceRecord> {
+  private async write(
+    kind: Exclude<EvidenceKind, "failure">,
+    value: object,
+  ): Promise<EvidenceRecord> {
     await this.initialize();
     return this.withIndexLock(async () => {
       const relativePath = FILES[kind];
@@ -455,11 +497,16 @@ export class FileEvidenceStore implements EvidenceStore {
     const path = this.safeResolve(record.relativePath);
     if (!existsSync(path)) throw new Error(`${kind} evidence file is missing`);
     if (sha256File(path) !== record.sha256) throw new Error(`${kind} evidence hash mismatch`);
-    const persisted = JSON.parse(readFileSync(path, 'utf-8')) as unknown;
+    const persisted = JSON.parse(readFileSync(path, "utf-8")) as unknown;
     return { value: decodeEvidenceArtifact<T>(kind, persisted), record };
   }
 
-  private recordFor(kind: EvidenceKind, relativePath: string, value: object, writtenAt: string): EvidenceRecord {
+  private recordFor(
+    kind: EvidenceKind,
+    relativePath: string,
+    value: object,
+    writtenAt: string,
+  ): EvidenceRecord {
     const path = this.safeResolve(relativePath);
     return {
       kind,
@@ -476,57 +523,91 @@ export class FileEvidenceStore implements EvidenceStore {
     // Kind-specific IDs first. DeploymentEvidence also carries publicationId; using
     // the generic fallback order made deployment share publication's logical_id and
     // tripped UNIQUE(evidence_artifacts.logical_id).
-    if (kind === 'deployment' && typeof record.deploymentEvidenceId === 'string' && record.deploymentEvidenceId) {
+    if (
+      kind === "deployment" &&
+      typeof record.deploymentEvidenceId === "string" &&
+      record.deploymentEvidenceId
+    ) {
       return record.deploymentEvidenceId;
     }
-    if (kind === 'publication' && typeof record.publicationId === 'string' && record.publicationId) {
+    if (
+      kind === "publication" &&
+      typeof record.publicationId === "string" &&
+      record.publicationId
+    ) {
       return record.publicationId;
     }
-    if (kind === 'build' && typeof record.proofId === 'string' && record.proofId) {
+    if (kind === "build" && typeof record.proofId === "string" && record.proofId) {
       return record.proofId;
     }
-    if (kind === 'release' && typeof record.receipt_id === 'string' && record.receipt_id) {
+    if (kind === "release" && typeof record.receipt_id === "string" && record.receipt_id) {
       return record.receipt_id;
     }
-    if (kind === 'handoff' && typeof record.contract_id === 'string' && record.contract_id) {
+    if (kind === "handoff" && typeof record.contract_id === "string" && record.contract_id) {
       return record.contract_id;
     }
     return String(
-      record.proofId
-      ?? record.publicationId
-      ?? record.deploymentEvidenceId
-      ?? record.receipt_id
-      ?? record.contract_id
-      ?? `${this.options.buildId}:${kind}`,
+      record.proofId ??
+        record.publicationId ??
+        record.deploymentEvidenceId ??
+        record.receipt_id ??
+        record.contract_id ??
+        `${this.options.buildId}:${kind}`,
     );
   }
 
-
   private validateByKind(kind: EvidenceKind, value: unknown): void {
     switch (kind) {
-      case 'assembly': validateAssemblyManifest(value); break;
-      case 'build': validateBuildProof(value); break;
-      case 'publication': validatePublicationEvidence(value); break;
-      case 'deployment': validateDeploymentEvidence(value); break;
-      case 'release': validateReleaseReceipt(value); break;
-      case 'handoff': assertWebsiteFactoryHandoffV3(value as WebsiteFactoryHandoffV3); break;
-      case 'registration_ack': validateSeoBotRegistrationAck(value); break;
-      case 'source_site': validateSourceSiteManifest(value); break;
-      case 'image_plan': validateImageAssetPlan(value); break;
-      case 'image_assets': validateImageAssetManifest(value); break;
-      case 'failure': validateStageFailureEvidence(value); break;
+      case "assembly":
+        validateAssemblyManifest(value);
+        break;
+      case "build":
+        validateBuildProof(value);
+        break;
+      case "publication":
+        validatePublicationEvidence(value);
+        break;
+      case "deployment":
+        validateDeploymentEvidence(value);
+        break;
+      case "release":
+        validateReleaseReceipt(value);
+        break;
+      case "handoff":
+        assertWebsiteFactoryHandoffV3(value as WebsiteFactoryHandoffV3);
+        break;
+      case "registration_ack":
+        validateSeoBotRegistrationAck(value);
+        break;
+      case "source_site":
+        validateSourceSiteManifest(value);
+        break;
+      case "image_plan":
+        validateImageAssetPlan(value);
+        break;
+      case "image_assets":
+        validateImageAssetManifest(value);
+        break;
+      case "failure":
+        validateStageFailureEvidence(value);
+        break;
     }
   }
 
   private assertIdentity(index: EvidenceIndex): void {
-    if (index.client_id !== this.options.clientId || index.build_id !== this.options.buildId || index.mode !== this.options.mode) {
-      throw new Error('evidence root identity does not match current run');
+    if (
+      index.client_id !== this.options.clientId ||
+      index.build_id !== this.options.buildId ||
+      index.mode !== this.options.mode
+    ) {
+      throw new Error("evidence root identity does not match current run");
     }
   }
 
   private safeResolve(relativePath: string): string {
     const path = resolve(this.rootDir, relativePath);
-    if (path !== this.rootDir && !path.startsWith(`${this.rootDir}/`)) throw new Error('evidence path escapes root');
+    if (path !== this.rootDir && !path.startsWith(`${this.rootDir}/`))
+      throw new Error("evidence path escapes root");
     return path;
   }
 
@@ -534,9 +615,9 @@ export class FileEvidenceStore implements EvidenceStore {
     mkdirSync(dirname(path), { recursive: true });
     const temporary = `${path}.${process.pid}.${randomUUID()}.tmp`;
     const stable = JSON.parse(canonicalJson(value)) as unknown;
-    const fd = openSync(temporary, 'wx', 0o600);
+    const fd = openSync(temporary, "wx", 0o600);
     try {
-      writeFileSync(fd, `${JSON.stringify(stable, null, 2)}\n`, 'utf-8');
+      writeFileSync(fd, `${JSON.stringify(stable, null, 2)}\n`, "utf-8");
       fsyncSync(fd);
     } finally {
       closeSync(fd);
@@ -550,25 +631,34 @@ export class FileEvidenceStore implements EvidenceStore {
   }
 
   private fsyncDirectory(path: string): void {
-    const fd = openSync(path, 'r');
-    try { fsyncSync(fd); } finally { closeSync(fd); }
+    const fd = openSync(path, "r");
+    try {
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
   }
 
   private async withIndexLock<T>(operation: () => Promise<T>): Promise<T> {
     mkdirSync(this.rootDir, { recursive: true });
-    const lockPath = join(this.rootDir, '.evidence-index.lock');
+    const lockPath = join(this.rootDir, ".evidence-index.lock");
     const deadline = Date.now() + 5000;
     let fd: number | undefined;
     while (fd === undefined) {
-      try { fd = openSync(lockPath, 'wx', 0o600); }
-      catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'EEXIST' || Date.now() >= deadline) {
-          throw new Error('evidence index is locked by another writer');
+      try {
+        fd = openSync(lockPath, "wx", 0o600);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) {
+          throw new Error("evidence index is locked by another writer");
         }
         await delay(25);
       }
     }
-    try { return await operation(); }
-    finally { closeSync(fd); rmSync(lockPath, { force: true }); }
+    try {
+      return await operation();
+    } finally {
+      closeSync(fd);
+      rmSync(lockPath, { force: true });
+    }
   }
 }

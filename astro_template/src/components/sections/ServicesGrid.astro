@@ -1,14 +1,24 @@
 <!-- L9_META: layer=template, role=services_grid_section, status=active, version=1.0.0 -->
 ---
-import { siteConfig } from '../../lib/siteConfig';
-interface Props { name?: string; content?: string; }
-const { name = 'services_overview', content = '' } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
-const heading = paragraphs[0] || 'Our Services';
+import { siteConfig } from "../../lib/siteConfig";
+
+interface Props {
+  name?: string;
+  content?: string;
+}
+const { name = "services_overview", content = "" } = Astro.props;
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim().replace(/\*\*/g, ""))
+  .filter(Boolean);
+const heading = paragraphs[0] || "Our Services";
 const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
-const images: Record<string, { src: string; alt: string; width: number; height: number }> = siteConfig.images ?? {};
-const services = allRoutes.filter(route => route.href.startsWith('/services/') && route.href !== '/services/');
+const images: Record<string, { src: string; alt: string; width: number; height: number }> =
+  siteConfig.images ?? {};
+const services = allRoutes.filter(
+  (route) => route.href.startsWith("/services/") && route.href !== "/services/",
+);
 ---
 <section class="services-grid" data-section={name}>
   <h2>{heading}</h2>

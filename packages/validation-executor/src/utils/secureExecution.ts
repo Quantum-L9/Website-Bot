@@ -9,9 +9,9 @@
  * - dangerous denylist patterns still throw
  */
 
-import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { type SpawnSyncReturns, spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { basename, join } from "node:path";
 
 /**
  * Fixed, non-writable system directories trusted to resolve executables from.
@@ -19,22 +19,83 @@ import { basename, join } from 'node:path';
  * which may include attacker-writable directories (CWE-426/427). Resolving
  * against this fixed allowlist first avoids relying on that ambient PATH.
  */
-const TRUSTED_BIN_DIRS = ['/usr/bin', '/bin', '/usr/local/bin', '/usr/sbin', '/sbin', '/opt/homebrew/bin'];
+const TRUSTED_BIN_DIRS = [
+  "/usr/bin",
+  "/bin",
+  "/usr/local/bin",
+  "/usr/sbin",
+  "/sbin",
+  "/opt/homebrew/bin",
+];
 
 /** Executables permitted when `allowShell: true` (Website-Bot#53). */
 const SHELL_ALLOWED_EXECUTABLES = new Set([
-  'echo', 'printf', 'ls', 'cat', 'grep', 'egrep', 'fgrep', 'wc', 'pwd',
-  'test', '[', 'true', 'false', 'sleep', 'mkdir', 'cp', 'mv', 'find',
-  'head', 'tail', 'sort', 'uniq', 'basename', 'dirname', 'xargs', 'tr',
-  'cut', 'awk', 'sed', 'tee', 'diff', 'which', 'env', 'cd',
-  'npm', 'npx', 'node', 'pnpm', 'yarn', 'git', 'tsc', 'vitest',
-  'python', 'python3', 'pip', 'pip3',
+  "echo",
+  "printf",
+  "ls",
+  "cat",
+  "grep",
+  "egrep",
+  "fgrep",
+  "wc",
+  "pwd",
+  "test",
+  "[",
+  "true",
+  "false",
+  "sleep",
+  "mkdir",
+  "cp",
+  "mv",
+  "find",
+  "head",
+  "tail",
+  "sort",
+  "uniq",
+  "basename",
+  "dirname",
+  "xargs",
+  "tr",
+  "cut",
+  "awk",
+  "sed",
+  "tee",
+  "diff",
+  "which",
+  "env",
+  "cd",
+  "npm",
+  "npx",
+  "node",
+  "pnpm",
+  "yarn",
+  "git",
+  "tsc",
+  "vitest",
+  "python",
+  "python3",
+  "pip",
+  "pip3",
 ]);
 
 /** Shell keywords / builtins that are not filesystem executables. */
 const SHELL_KEYWORDS = new Set([
-  'if', 'then', 'else', 'elif', 'fi', 'for', 'while', 'until', 'do', 'done',
-  'case', 'esac', 'in', '!', '{', '}',
+  "if",
+  "then",
+  "else",
+  "elif",
+  "fi",
+  "for",
+  "while",
+  "until",
+  "do",
+  "done",
+  "case",
+  "esac",
+  "in",
+  "!",
+  "{",
+  "}",
 ]);
 
 /**
@@ -76,15 +137,13 @@ export interface ExecutionOptions {
  */
 export function executeCommandSecurely(
   command: string,
-  options: ExecutionOptions = {}
+  options: ExecutionOptions = {},
 ): CommandResult {
   const startTime = Date.now();
 
   if (requiresShellExecution(command)) {
     if (!options.allowShell) {
-      throw new Error(
-        `Command requires shell features but allowShell was not set: ${command}`
-      );
+      throw new Error(`Command requires shell features but allowShell was not set: ${command}`);
     }
     const sanitizedCommand = sanitizeShellCommand(command);
     assertShellAllowlist(sanitizedCommand);
@@ -100,30 +159,30 @@ export function executeCommandSecurely(
  */
 function requiresShellExecution(command: string): boolean {
   const shellFeatures = [
-    '|',     // Pipes
-    '>',     // Redirection
-    '>>',    // Append redirection
-    '<',     // Input redirection
-    '&&',    // Command chaining (AND)
-    '||',    // Command chaining (OR)
-    ';',     // Command separator
-    '`',     // Command substitution
-    '$(',    // Command substitution
-    '*',     // Globbing
-    '?',     // Globbing
-    '[',     // Globbing / test — also matches `[ -d` test form
-    '~',     // Home directory expansion
-    '$'      // Environment variable expansion
+    "|", // Pipes
+    ">", // Redirection
+    ">>", // Append redirection
+    "<", // Input redirection
+    "&&", // Command chaining (AND)
+    "||", // Command chaining (OR)
+    ";", // Command separator
+    "`", // Command substitution
+    "$(", // Command substitution
+    "*", // Globbing
+    "?", // Globbing
+    "[", // Globbing / test — also matches `[ -d` test form
+    "~", // Home directory expansion
+    "$", // Environment variable expansion
   ];
 
-  return shellFeatures.some(feature => command.includes(feature));
+  return shellFeatures.some((feature) => command.includes(feature));
 }
 
 /**
  * Sanitize shell command to prevent injection while preserving functionality
  */
 function sanitizeShellCommand(command: string): string {
-  let sanitized = command;
+  const sanitized = command;
 
   const dangerousPatterns = [
     /[;&|]{1,2}\s*rm\s/gi,
@@ -159,10 +218,10 @@ export function assertShellAllowlist(command: string): void {
     let trimmed = segment.trim();
     if (!trimmed) continue;
     // Strip leading redirects / env assignments for first-token detection
-    trimmed = trimmed.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)+/, '');
-    trimmed = trimmed.replace(/^[<>]+\s*\S+\s*/, '');
-    const rawFirst = trimmed.split(/\s+/)[0] ?? '';
-    const first = rawFirst.replace(/^[()]+/, '');
+    trimmed = trimmed.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)+/, "");
+    trimmed = trimmed.replace(/^[<>]+\s*\S+\s*/, "");
+    const rawFirst = trimmed.split(/\s+/)[0] ?? "";
+    const first = rawFirst.replace(/^[()]+/, "");
     if (!first || SHELL_KEYWORDS.has(first)) continue;
     const base = basename(first);
     if (!SHELL_ALLOWED_EXECUTABLES.has(base)) {
@@ -178,7 +237,7 @@ function parseCommand(command: string): { executable: string; args: string[] } {
   const parts = command.trim().split(/\s+/);
 
   if (parts.length === 0) {
-    throw new Error('Empty command');
+    throw new Error("Empty command");
   }
 
   const executable = parts[0];
@@ -190,23 +249,19 @@ function parseCommand(command: string): { executable: string; args: string[] } {
 function spawnSyncOptions(options: ExecutionOptions) {
   return {
     cwd: options.cwd,
-    encoding: (options.encoding || 'utf8') as BufferEncoding,
-    stdio: ['inherit', 'pipe', 'pipe'] as Array<'inherit' | 'pipe'>,
+    encoding: (options.encoding || "utf8") as BufferEncoding,
+    stdio: ["inherit", "pipe", "pipe"] as Array<"inherit" | "pipe">,
     timeout: options.timeout,
   };
 }
 
-function toCommandResult(
-  result: SpawnSyncReturns<string>,
-  startTime: number
-): CommandResult {
+function toCommandResult(result: SpawnSyncReturns<string>, startTime: number): CommandResult {
   const duration = Date.now() - startTime;
-  const exitCode =
-    result.status !== null ? result.status : result.error ? 127 : 0;
+  const exitCode = result.status !== null ? result.status : result.error ? 127 : 0;
   return {
     exitCode,
-    stdout: result.stdout || '',
-    stderr: result.stderr || (result.error ? result.error.message : ''),
+    stdout: result.stdout || "",
+    stderr: result.stderr || (result.error ? result.error.message : ""),
     duration,
   };
 }
@@ -218,13 +273,10 @@ function executeDirectly(
   executable: string,
   args: string[],
   options: ExecutionOptions,
-  startTime: number
+  startTime: number,
 ): CommandResult {
   const resolved = resolveTrustedExecutable(executable);
-  return toCommandResult(
-    spawnSync(resolved, args, spawnSyncOptions(options)),
-    startTime
-  );
+  return toCommandResult(spawnSync(resolved, args, spawnSyncOptions(options)), startTime);
 }
 
 /**
@@ -233,12 +285,12 @@ function executeDirectly(
 function executeWithShell(
   command: string,
   options: ExecutionOptions,
-  startTime: number
+  startTime: number,
 ): CommandResult {
   // Trusted absolute sh path; command already sanitized + allowlisted.
   return toCommandResult(
-    spawnSync(resolveTrustedExecutable('sh'), ['-c', command], spawnSyncOptions(options)),
-    startTime
+    spawnSync(resolveTrustedExecutable("sh"), ["-c", command], spawnSyncOptions(options)),
+    startTime,
   );
 }
 
@@ -255,12 +307,12 @@ export function executeAdapterCommand(
   workingDir: string,
   timeoutMs = 300_000,
   logger?: AdapterDebugLogger,
-  label = 'adapter'
+  label = "adapter",
 ): CommandResult {
   logger?.debug({ command, workingDir }, `Executing ${label} command`);
   const result = executeCommandSecurely(command, {
     cwd: workingDir,
-    encoding: 'utf8',
+    encoding: "utf8",
     timeout: timeoutMs,
     allowShell: true,
   });
@@ -272,7 +324,7 @@ export function executeAdapterCommand(
       stdoutLength: result.stdout.length,
       stderrLength: result.stderr.length,
     },
-    `${label} command execution completed`
+    `${label} command execution completed`,
   );
   return result;
 }

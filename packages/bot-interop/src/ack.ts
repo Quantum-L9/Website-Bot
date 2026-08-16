@@ -1,4 +1,4 @@
-import type { WebsiteFactoryHandoffV3 } from './handoff.js';
+import type { WebsiteFactoryHandoffV3 } from "./handoff.js";
 
 export interface SeoBotProbe {
   name: string;
@@ -7,7 +7,7 @@ export interface SeoBotProbe {
 }
 
 export interface SeoBotRegistrationAck {
-  schema: 'seo-bot.website-factory-registration-ack/v1';
+  schema: "seo-bot.website-factory-registration-ack/v1";
   registered: true;
   maintenance_ready: true;
   client_id: string;
@@ -30,7 +30,7 @@ export function buildSeoBotRegistrationAck(
   acknowledgedAt = new Date().toISOString(),
 ): SeoBotRegistrationAck {
   const ack: SeoBotRegistrationAck = {
-    schema: 'seo-bot.website-factory-registration-ack/v1',
+    schema: "seo-bot.website-factory-registration-ack/v1",
     registered: true,
     maintenance_ready: true,
     client_id: contract.client.id,
@@ -47,26 +47,37 @@ export function buildSeoBotRegistrationAck(
   return ack;
 }
 
-export function validateSeoBotRegistrationAck(value: unknown): asserts value is SeoBotRegistrationAck {
-  if (!value || typeof value !== 'object') throw new Error('registration acknowledgement must be an object');
+export function validateSeoBotRegistrationAck(
+  value: unknown,
+): asserts value is SeoBotRegistrationAck {
+  if (!value || typeof value !== "object")
+    throw new Error("registration acknowledgement must be an object");
   const ack = value as Partial<SeoBotRegistrationAck>;
-  if (ack.schema !== 'seo-bot.website-factory-registration-ack/v1'
-      || ack.registered !== true
-      || ack.maintenance_ready !== true
-      || !ack.client_id
-      || !ack.contract_id
-      || !ack.release_receipt_id
-      || !ack.verified_repository
-      || !ack.verified_branch) {
-    throw new Error('registration acknowledgement identity is invalid');
+  if (
+    ack.schema !== "seo-bot.website-factory-registration-ack/v1" ||
+    ack.registered !== true ||
+    ack.maintenance_ready !== true ||
+    !ack.client_id ||
+    !ack.contract_id ||
+    !ack.release_receipt_id ||
+    !ack.verified_repository ||
+    !ack.verified_branch
+  ) {
+    throw new Error("registration acknowledgement identity is invalid");
   }
   if (!SHA64.test(String(ack.contract_digest)) || !SHA40.test(String(ack.verified_commit_sha))) {
-    throw new Error('registration acknowledgement proof is invalid');
+    throw new Error("registration acknowledgement proof is invalid");
   }
-  if (Number.isNaN(Date.parse(String(ack.acknowledged_at)))) throw new Error('registration acknowledgement timestamp is invalid');
-  if (!Array.isArray(ack.probes) || ack.probes.length < 4 || ack.probes.some(probe => probe.ok !== true || !probe.name?.trim())) {
-    throw new Error('registration acknowledgement probes are incomplete');
+  if (Number.isNaN(Date.parse(String(ack.acknowledged_at))))
+    throw new Error("registration acknowledgement timestamp is invalid");
+  if (
+    !Array.isArray(ack.probes) ||
+    ack.probes.length < 4 ||
+    ack.probes.some((probe) => probe.ok !== true || !probe.name?.trim())
+  ) {
+    throw new Error("registration acknowledgement probes are incomplete");
   }
-  const probeNames = new Set(ack.probes.map(probe => probe.name));
-  if (probeNames.size !== ack.probes.length) throw new Error('registration acknowledgement probes must be unique');
+  const probeNames = new Set(ack.probes.map((probe) => probe.name));
+  if (probeNames.size !== ack.probes.length)
+    throw new Error("registration acknowledgement probes must be unique");
 }

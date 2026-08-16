@@ -5,16 +5,16 @@
 // conformance test pins the field sets (tests/unit/recursive/contract-shape.test.ts).
 
 export type EngineeringSignalClass =
-  | 'CORRECTNESS_DEFECT'
-  | 'QUALITY_MODEL_DEFECT'
-  | 'GENERATION_CAPABILITY_DEFECT'
-  | 'ATTRIBUTION_DEFECT'
-  | 'EFFICIENCY_DEFECT'
-  | 'CONTROL_PLANE_CHANGE_REQUIRED';
+  | "CORRECTNESS_DEFECT"
+  | "QUALITY_MODEL_DEFECT"
+  | "GENERATION_CAPABILITY_DEFECT"
+  | "ATTRIBUTION_DEFECT"
+  | "EFFICIENCY_DEFECT"
+  | "CONTROL_PLANE_CHANGE_REQUIRED";
 
-export type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
-export type Reach = 'SITE' | 'VERTICAL' | 'CROSS_VERTICAL' | 'GLOBAL';
-export type Severity = 'BLOCKING' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type Confidence = "HIGH" | "MEDIUM" | "LOW";
+export type Reach = "SITE" | "VERTICAL" | "CROSS_VERTICAL" | "GLOBAL";
+export type Severity = "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
 export type WaveNumber = 1 | 2 | 3;
 
 /**
@@ -36,7 +36,7 @@ export interface RegressionCaseRef {
 }
 
 export interface ValidationSetResult {
-  verdict: 'PASS' | 'FAIL';
+  verdict: "PASS" | "FAIL";
   caseRefs: RecursiveArtifactRef[];
   summary: string;
 }
@@ -47,7 +47,7 @@ export interface PropertyExpectation {
 }
 
 export interface EngineeringSignal {
-  schema: 'l9.engineering-signal/v1';
+  schema: "l9.engineering-signal/v1";
   signalId: string;
   recursiveRunId: string;
   wave: WaveNumber;
@@ -90,7 +90,7 @@ export interface EngineeringSignal {
     statement: string;
     confidence: Confidence;
     disconfirmingTest: string;
-    result?: 'CONFIRMED' | 'DISCONFIRMED' | 'INCONCLUSIVE';
+    result?: "CONFIRMED" | "DISCONFIRMED" | "INCONCLUSIVE";
   };
   recurrence: {
     currentRunOccurrences: number;
@@ -99,15 +99,15 @@ export interface EngineeringSignal {
   engineeringImplication: string;
   regressionCaseCandidate: boolean;
   leverage: {
-    humanReviewImpact: 'HIGH' | 'MEDIUM' | 'LOW';
-    downstreamCostImpact: 'HIGH' | 'MEDIUM' | 'LOW';
-    recurrence: 'HIGH' | 'MEDIUM' | 'LOW';
-    implementationRisk: 'HIGH' | 'MEDIUM' | 'LOW';
+    humanReviewImpact: "HIGH" | "MEDIUM" | "LOW";
+    downstreamCostImpact: "HIGH" | "MEDIUM" | "LOW";
+    recurrence: "HIGH" | "MEDIUM" | "LOW";
+    implementationRisk: "HIGH" | "MEDIUM" | "LOW";
   };
 }
 
 export interface PEPack {
-  schema: 'l9.pe-pack/v1';
+  schema: "l9.pe-pack/v1";
   packId: string;
   recursiveRunId: string;
   wave: WaveNumber;
@@ -124,7 +124,7 @@ export interface PEPack {
     repository: string;
     subsystem: string;
     diagnosis: string;
-    confidence: 'HIGH' | 'MEDIUM';
+    confidence: "HIGH" | "MEDIUM";
   };
   hypothesis: {
     proposedSystemChange: string;
@@ -191,26 +191,26 @@ export interface PEPack {
     rollbackRequiredOnFailure: true;
   };
   nextTransition: {
-    success: 'DEPLOY_AND_RECONCILE';
-    validationFailure: 'PATCH_VALIDATION_FAILED';
-    scopeInsufficient: 'PE_PACK_INSUFFICIENT_SCOPE';
+    success: "DEPLOY_AND_RECONCILE";
+    validationFailure: "PATCH_VALIDATION_FAILED";
+    scopeInsufficient: "PE_PACK_INSUFFICIENT_SCOPE";
   };
 }
 
 export type CodeChangeVerdict =
-  | 'PASS'
-  | 'FAIL_TARGET'
-  | 'FAIL_CONTROL'
-  | 'FAIL_DISCONFIRM'
-  | 'FAIL_HOLDOUT'
-  | 'FAIL_BLAST_RADIUS'
-  | 'FAIL_CI'
-  | 'FAIL_SCOPE';
+  | "PASS"
+  | "FAIL_TARGET"
+  | "FAIL_CONTROL"
+  | "FAIL_DISCONFIRM"
+  | "FAIL_HOLDOUT"
+  | "FAIL_BLAST_RADIUS"
+  | "FAIL_CI"
+  | "FAIL_SCOPE";
 
-export type CausalVerdict = 'CONFIRMED' | 'PARTIALLY_CONFIRMED' | 'DISCONFIRMED' | 'INCONCLUSIVE';
+export type CausalVerdict = "CONFIRMED" | "PARTIALLY_CONFIRMED" | "DISCONFIRMED" | "INCONCLUSIVE";
 
 export interface CodeChangeOutcome {
-  schema: 'l9.code-change-outcome/v1';
+  schema: "l9.code-change-outcome/v1";
   outcomeId: string;
   pePackRef: RecursiveArtifactRef;
   code: {
@@ -235,7 +235,7 @@ export interface CodeChangeOutcome {
       observedChangedArtifacts: string[];
       expectedUnchangedArtifacts: string[];
       unexpectedlyChangedArtifacts: string[];
-      verdict: 'PASS' | 'FAIL';
+      verdict: "PASS" | "FAIL";
     };
   };
   causalResult: {
@@ -250,25 +250,25 @@ export interface CodeChangeOutcome {
   deployment?: {
     deploymentReceiptRef: RecursiveArtifactRef;
     deployedFullSha: string;
-    healthVerdict: 'PASS' | 'FAIL';
+    healthVerdict: "PASS" | "FAIL";
     rollbackReceiptRef?: RecursiveArtifactRef;
   };
   verdict: CodeChangeVerdict;
 }
 
 export type RecursiveEventType =
-  | 'e2e.completed'
-  | 'engineering_harvest.completed'
-  | 'pe_pack.ready'
-  | 'verification.completed'
-  | 'pr.merged'
-  | 'deployment.succeeded'
-  | 'deployment.failed'
-  | 'rollback.completed'
-  | 'wave.completed';
+  | "e2e.completed"
+  | "engineering_harvest.completed"
+  | "pe_pack.ready"
+  | "verification.completed"
+  | "pr.merged"
+  | "deployment.succeeded"
+  | "deployment.failed"
+  | "rollback.completed"
+  | "wave.completed";
 
 export interface RecursiveEngineeringEvent {
-  schema: 'l9.recursive-engineering-event/v1';
+  schema: "l9.recursive-engineering-event/v1";
   eventId: string;
   eventType: RecursiveEventType;
   recursiveRunId: string;
@@ -286,7 +286,7 @@ export interface RecursiveEngineeringEvent {
 }
 
 export interface WaveReceipt {
-  schema: 'l9.recursive-engineering-wave/v1';
+  schema: "l9.recursive-engineering-wave/v1";
   recursiveRunId: string;
   wave: WaveNumber;
   inputCode: {
@@ -326,38 +326,38 @@ export interface WaveReceipt {
     beforePatch: boolean;
   };
   status:
-    | 'WAVE_COMPLETE'
-    | 'NO_ACTIONABLE_SIGNAL'
-    | 'PATCH_VALIDATION_FAILED'
-    | 'DEPLOYMENT_FAILED'
-    | 'CONTROL_PLANE_CHANGE_REQUIRED';
-  next: 'NEXT_WAVE' | 'STOP';
+    | "WAVE_COMPLETE"
+    | "NO_ACTIONABLE_SIGNAL"
+    | "PATCH_VALIDATION_FAILED"
+    | "DEPLOYMENT_FAILED"
+    | "CONTROL_PLANE_CHANGE_REQUIRED";
+  next: "NEXT_WAVE" | "STOP";
 }
 
 export type RunTerminalState =
-  | 'WAVE_LIMIT_REACHED'
-  | 'REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL'
-  | 'NO_ACTIONABLE_SIGNAL'
-  | 'NO_MATERIAL_IMPROVEMENT'
-  | 'CONTROL_PLANE_CHANGE_REQUIRED'
-  | 'PATCH_VALIDATION_FAILED'
-  | 'DEPLOYMENT_FAILED'
-  | 'BLOCKED'
-  | 'FATAL';
+  | "WAVE_LIMIT_REACHED"
+  | "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL"
+  | "NO_ACTIONABLE_SIGNAL"
+  | "NO_MATERIAL_IMPROVEMENT"
+  | "CONTROL_PLANE_CHANGE_REQUIRED"
+  | "PATCH_VALIDATION_FAILED"
+  | "DEPLOYMENT_FAILED"
+  | "BLOCKED"
+  | "FATAL";
 
 export type RunNextAction =
-  | 'START_NEXT_RUN_WITH_FINAL_SHA'
-  | 'HUMAN_REVIEW'
-  | 'REMEDIATE_CONTROL_PLANE'
-  | 'REMEDIATE_FAILED_PATCH'
-  | 'REMEDIATE_DEPLOYMENT'
-  | 'INVESTIGATE_BLOCKER';
+  | "START_NEXT_RUN_WITH_FINAL_SHA"
+  | "HUMAN_REVIEW"
+  | "REMEDIATE_CONTROL_PLANE"
+  | "REMEDIATE_FAILED_PATCH"
+  | "REMEDIATE_DEPLOYMENT"
+  | "INVESTIGATE_BLOCKER";
 
 export interface RecursiveEngineeringRunReceipt {
-  schema: 'l9.recursive-engineering-run/v1';
+  schema: "l9.recursive-engineering-run/v1";
   recursiveRunId: string;
   sourceUrl: string;
-  mode: 'DEVELOPMENT_RECURSIVE';
+  mode: "DEVELOPMENT_RECURSIVE";
   policy: {
     targetWaves: 3;
     hardMaxWaves: 3;
@@ -409,30 +409,30 @@ export interface RecursiveEngineeringRunReceipt {
   };
 }
 
-export const ENGINEERING_SIGNAL_SCHEMA = 'l9.engineering-signal/v1';
-export const PE_PACK_SCHEMA = 'l9.pe-pack/v1';
-export const CODE_CHANGE_OUTCOME_SCHEMA = 'l9.code-change-outcome/v1';
-export const RECURSIVE_EVENT_SCHEMA = 'l9.recursive-engineering-event/v1';
-export const WAVE_RECEIPT_SCHEMA = 'l9.recursive-engineering-wave/v1';
-export const RUN_RECEIPT_SCHEMA = 'l9.recursive-engineering-run/v1';
+export const ENGINEERING_SIGNAL_SCHEMA = "l9.engineering-signal/v1";
+export const PE_PACK_SCHEMA = "l9.pe-pack/v1";
+export const CODE_CHANGE_OUTCOME_SCHEMA = "l9.code-change-outcome/v1";
+export const RECURSIVE_EVENT_SCHEMA = "l9.recursive-engineering-event/v1";
+export const WAVE_RECEIPT_SCHEMA = "l9.recursive-engineering-wave/v1";
+export const RUN_RECEIPT_SCHEMA = "l9.recursive-engineering-run/v1";
 
 export const SIGNAL_CLASSES: readonly EngineeringSignalClass[] = [
-  'CORRECTNESS_DEFECT',
-  'QUALITY_MODEL_DEFECT',
-  'GENERATION_CAPABILITY_DEFECT',
-  'ATTRIBUTION_DEFECT',
-  'EFFICIENCY_DEFECT',
-  'CONTROL_PLANE_CHANGE_REQUIRED',
+  "CORRECTNESS_DEFECT",
+  "QUALITY_MODEL_DEFECT",
+  "GENERATION_CAPABILITY_DEFECT",
+  "ATTRIBUTION_DEFECT",
+  "EFFICIENCY_DEFECT",
+  "CONTROL_PLANE_CHANGE_REQUIRED",
 ];
 
 export const EVENT_TYPES: readonly RecursiveEventType[] = [
-  'e2e.completed',
-  'engineering_harvest.completed',
-  'pe_pack.ready',
-  'verification.completed',
-  'pr.merged',
-  'deployment.succeeded',
-  'deployment.failed',
-  'rollback.completed',
-  'wave.completed',
+  "e2e.completed",
+  "engineering_harvest.completed",
+  "pe_pack.ready",
+  "verification.completed",
+  "pr.merged",
+  "deployment.succeeded",
+  "deployment.failed",
+  "rollback.completed",
+  "wave.completed",
 ];

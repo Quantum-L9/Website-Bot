@@ -4,23 +4,12 @@
  * Tests assert package.json verify:* parity independently — do not mirror that list here.
  */
 
-export const IMPLEMENTED_VALIDATION_PROFILES = [
-  'preflight',
-  'source',
-  'build',
-  'smoke',
-];
+export const IMPLEMENTED_VALIDATION_PROFILES = ["preflight", "source", "build", "smoke"];
 
-export const UNIMPLEMENTED_SITE_PROFILES = [
-  'form',
-  'analytics',
-  'crm',
-  'seo',
-  'rollback',
-];
+export const UNIMPLEMENTED_SITE_PROFILES = ["form", "analytics", "crm", "seo", "rollback"];
 
 export const WEBSITE_BOT_VALIDATION_PROFILES = [
-  'default',
+  "default",
   ...IMPLEMENTED_VALIDATION_PROFILES,
   ...UNIMPLEMENTED_SITE_PROFILES,
 ];
@@ -34,22 +23,22 @@ export const WEBSITE_BOT_VALIDATION_PROFILES = [
 export function resolveProfileRun(profile) {
   if (!profile || !WEBSITE_BOT_VALIDATION_PROFILES.includes(profile)) {
     return {
-      status: 'INVALID_PROFILE',
+      status: "INVALID_PROFILE",
       exitCode: 1,
       nonEvidence: true,
-      reason: 'unknown_profile',
+      reason: "unknown_profile",
     };
   }
   if (UNIMPLEMENTED_SITE_PROFILES.includes(profile)) {
     return {
-      status: 'INCOMPLETE',
+      status: "INCOMPLETE",
       exitCode: 2,
       nonEvidence: true,
-      reason: 'site_level_validation_unimplemented',
+      reason: "site_level_validation_unimplemented",
     };
   }
   return {
-    status: 'RUN',
+    status: "RUN",
     exitCode: 0,
     nonEvidence: false,
     reason: null,
@@ -65,7 +54,7 @@ export function resolveProfileRun(profile) {
 export function collectWebsiteBotConfigErrors(options = {}) {
   const errors = [];
 
-  const timeout = Number.parseInt(options.timeout ?? '300000', 10);
+  const timeout = Number.parseInt(options.timeout ?? "300000", 10);
   if (Number.isNaN(timeout)) {
     errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
   } else if (timeout < 1000) {
@@ -76,14 +65,14 @@ export function collectWebsiteBotConfigErrors(options = {}) {
 
   if (options.profile && !WEBSITE_BOT_VALIDATION_PROFILES.includes(options.profile)) {
     errors.push(
-      `Unknown Website-Bot profile '${options.profile}': valid profiles are ${WEBSITE_BOT_VALIDATION_PROFILES.join(', ')}`,
+      `Unknown Website-Bot profile '${options.profile}': valid profiles are ${WEBSITE_BOT_VALIDATION_PROFILES.join(", ")}`,
     );
   }
 
-  const validEnvironments = ['development', 'staging', 'production', 'test', 'ci'];
+  const validEnvironments = ["development", "staging", "production", "test", "ci"];
   if (options.environment && !validEnvironments.includes(options.environment)) {
     errors.push(
-      `Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(', ')}`,
+      `Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(", ")}`,
     );
   }
 

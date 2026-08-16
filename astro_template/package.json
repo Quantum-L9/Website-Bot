@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "engines": { "node": ">=20.3.0" },
-  "scripts": { 
-    "check": "astro check", 
+  "scripts": {
+    "check": "astro check",
     "build": "astro build",
     "dev": "astro dev",
     "preview": "astro preview",
     "verify:preflight": "node scripts/preflight.mjs",
-    "verify:source": "node scripts/verify-source.mjs", 
+    "verify:source": "node scripts/verify-source.mjs",
     "verify:build": "node scripts/verify-build.mjs",
     "verify:smoke": "node scripts/verify-smoke.mjs",
     "verify:form": "node scripts/verify-form.mjs",

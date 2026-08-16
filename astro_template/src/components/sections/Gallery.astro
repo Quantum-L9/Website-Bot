@@ -1,13 +1,20 @@
 <!-- L9_META: layer=template, role=gallery_section, status=active, version=1.0.0 -->
 ---
-import { siteConfig } from '../../lib/siteConfig';
-interface Props { name?: string; content?: string; }
-const { name = 'gallery', content = '' } = Astro.props;
+import { siteConfig } from "../../lib/siteConfig";
+
+interface Props {
+  name?: string;
+  content?: string;
+}
+const { name = "gallery", content = "" } = Astro.props;
 // siteConfig is emitted `as const`, so an empty galleryImages becomes `never[]`
 // in text-only builds; the explicit element type keeps .map() well-typed.
 type GalleryImage = { src: string; alt: string; width: number; height: number; source?: string };
 const gallery: readonly GalleryImage[] = siteConfig.galleryImages ?? [];
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim().replace(/\*\*/g, ""))
+  .filter(Boolean);
 ---
 {gallery.length > 0 && (
   <section class="gallery" data-section={name}>

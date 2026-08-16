@@ -4,7 +4,16 @@
   "title": "Website-Bot Source-Site Manifest v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "source_url", "crawled_at", "crawler_version", "pages", "images", "rejected", "warnings"],
+  "required": [
+    "schema",
+    "source_url",
+    "crawled_at",
+    "crawler_version",
+    "pages",
+    "images",
+    "rejected",
+    "warnings"
+  ],
   "properties": {
     "schema": { "const": "website-bot.source-site-manifest/v1" },
     "source_url": { "type": "string", "minLength": 1 },
@@ -34,7 +43,18 @@
     "image": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "source_url", "referring_page_url", "local_path", "mime_type", "width", "height", "byte_length", "sha256", "provenance"],
+      "required": [
+        "id",
+        "source_url",
+        "referring_page_url",
+        "local_path",
+        "mime_type",
+        "width",
+        "height",
+        "byte_length",
+        "sha256",
+        "provenance"
+      ],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "source_url": { "type": "string", "minLength": 1 },

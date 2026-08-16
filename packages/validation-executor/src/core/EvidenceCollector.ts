@@ -1,34 +1,41 @@
-import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, writeFile, readFile, stat } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
-import { createLogger } from '../utils/logger.js';
-import type { RepositoryAdapter } from '../types/index.js';
+import { createHash, randomUUID } from "node:crypto";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import type { RepositoryAdapter } from "../types/index.js";
+import { createLogger } from "../utils/logger.js";
 
 export class EvidenceCollectorError extends Error {
-  constructor(message: string, public readonly evidenceId?: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly evidenceId?: string,
+    public readonly cause?: unknown,
+  ) {
     super(message);
-    this.name = 'EvidenceCollectorError';
+    this.name = "EvidenceCollectorError";
   }
 }
 
 /**
  * EvidenceCollector implements evidence collection with integrity validation
  * according to the specification's evidence policy.
- * 
+ *
  * MUST preserve execution evidence with checksums, timestamps, and redaction.
  */
 export class EvidenceCollector {
-  private readonly logger = createLogger('EvidenceCollector');
+  private readonly logger = createLogger("EvidenceCollector");
   private readonly evidenceStore = new Map<string, any>();
 
   constructor(
     private readonly adapter: RepositoryAdapter,
-    private readonly evidenceRoot: string
+    private readonly evidenceRoot: string,
   ) {
-    this.logger.info({ evidenceRoot }, 'Evidence collector initialized');
+    this.logger.info({ evidenceRoot }, "Evidence collector initialized");
     // Ensure evidence directory exists
-    this.ensureEvidenceDirectory().catch(error => {
-      this.logger.warn({ error, evidenceRoot }, 'Could not create evidence directory during initialization');
+    this.ensureEvidenceDirectory().catch((error) => {
+      this.logger.warn(
+        { error, evidenceRoot },
+        "Could not create evidence directory during initialization",
+      );
     });
   }
 
@@ -42,7 +49,7 @@ export class EvidenceCollector {
 
       // Redact sensitive data
       const redactedData = this.redactSensitiveData(data);
-      
+
       // Generate evidence record
       const evidenceRecord = {
         evidence_id: evidenceId,
@@ -50,7 +57,7 @@ export class EvidenceCollector {
         data: redactedData,
         original_size: JSON.stringify(data).length,
         redacted_size: JSON.stringify(redactedData).length,
-        redaction_applied: JSON.stringify(data) !== JSON.stringify(redactedData)
+        redaction_applied: JSON.stringify(data) !== JSON.stringify(redactedData),
       };
 
       // Calculate checksum
@@ -64,18 +71,24 @@ export class EvidenceCollector {
       const evidencePath = join(this.evidenceRoot, `${evidenceId}.json`);
       await this.writeEvidenceFile(evidencePath, evidenceRecord);
 
-      this.logger.debug({ 
-        evidenceId, 
-        path: evidencePath, 
-        checksum,
-        redacted: evidenceRecord.redaction_applied 
-      }, 'Evidence stored');
+      this.logger.debug(
+        {
+          evidenceId,
+          path: evidencePath,
+          checksum,
+          redacted: evidenceRecord.redaction_applied,
+        },
+        "Evidence stored",
+      );
 
       return evidencePath;
-
     } catch (error) {
-      this.logger.error({ error, evidenceId }, 'Failed to store evidence');
-      throw new EvidenceCollectorError(`Evidence storage failed for ${evidenceId}`, evidenceId, error);
+      this.logger.error({ error, evidenceId }, "Failed to store evidence");
+      throw new EvidenceCollectorError(
+        `Evidence storage failed for ${evidenceId}`,
+        evidenceId,
+        error,
+      );
     }
   }
 
@@ -83,17 +96,17 @@ export class EvidenceCollector {
    * Store execution trace evidence
    */
   async storeExecutionTrace(
-    command: string, 
-    workingDirectory: string, 
+    command: string,
+    workingDirectory: string,
     exitCode: number,
     stdout: string,
     stderr: string,
     duration: number,
     startedAt: string,
-    endedAt: string
+    endedAt: string,
   ): Promise<string> {
     const traceId = `execution_trace_${randomUUID()}`;
-    
+
     const trace = {
       command,
       working_directory: workingDirectory,
@@ -105,7 +118,7 @@ export class EvidenceCollector {
       ended_at: endedAt,
       environment_variables: this.getRelevantEnvVars(),
       process_id: process.pid,
-      node_version: process.version
+      node_version: process.version,
     };
 
     await this.storeEvidence(traceId, trace);
@@ -118,23 +131,23 @@ export class EvidenceCollector {
   async storeCommandOutput(
     commandId: string,
     stdout: string,
-    stderr: string
+    stderr: string,
   ): Promise<{ stdoutPath: string; stderrPath: string }> {
     const stdoutId = `${commandId}_stdout`;
     const stderrId = `${commandId}_stderr`;
 
     const stdoutPath = await this.storeEvidence(stdoutId, {
-      type: 'stdout',
+      type: "stdout",
       command_id: commandId,
       content: stdout,
-      length: stdout.length
+      length: stdout.length,
     });
 
     const stderrPath = await this.storeEvidence(stderrId, {
-      type: 'stderr',
+      type: "stderr",
       command_id: commandId,
       content: stderr,
-      length: stderr.length
+      length: stderr.length,
     });
 
     return { stdoutPath, stderrPath };
@@ -143,23 +156,25 @@ export class EvidenceCollector {
   /**
    * Generate evidence manifest for all collected evidence
    */
-  async generateManifest(): Promise<Array<{
-    evidence_id: string;
-    evidence_type: string;
-    file_path: string;
-    checksum: string | null;
-    file_size: number;
-    created_at: string;
-    integrity_validated: boolean;
-  }>> {
-    this.logger.info('Generating evidence manifest');
+  async generateManifest(): Promise<
+    Array<{
+      evidence_id: string;
+      evidence_type: string;
+      file_path: string;
+      checksum: string | null;
+      file_size: number;
+      created_at: string;
+      integrity_validated: boolean;
+    }>
+  > {
+    this.logger.info("Generating evidence manifest");
 
     const manifest = [];
 
     for (const [evidenceId, record] of this.evidenceStore.entries()) {
       try {
         const evidencePath = join(this.evidenceRoot, `${evidenceId}.json`);
-        
+
         // Verify file exists and is accessible
         const fileStats = await stat(evidencePath);
 
@@ -170,25 +185,24 @@ export class EvidenceCollector {
           checksum: record.checksum || null,
           file_size: fileStats.size,
           created_at: record.timestamp,
-          integrity_validated: true
+          integrity_validated: true,
         });
-
       } catch (error) {
-        this.logger.warn({ error, evidenceId }, 'Evidence file not accessible');
-        
+        this.logger.warn({ error, evidenceId }, "Evidence file not accessible");
+
         manifest.push({
           evidence_id: evidenceId,
-          evidence_type: 'unknown',
+          evidence_type: "unknown",
           file_path: `${evidenceId}.json`,
           checksum: null,
           file_size: 0,
           created_at: new Date().toISOString(),
-          integrity_validated: false
+          integrity_validated: false,
         });
       }
     }
 
-    this.logger.info({ totalEvidence: manifest.length }, 'Evidence manifest generated');
+    this.logger.info({ totalEvidence: manifest.length }, "Evidence manifest generated");
     return manifest;
   }
 
@@ -207,15 +221,15 @@ export class EvidenceCollector {
     for (const [evidenceId] of this.evidenceStore.entries()) {
       try {
         const evidencePath = join(this.evidenceRoot, `${evidenceId}.json`);
-        
+
         // Verify file exists
-        const fileContent = await readFile(evidencePath, 'utf8');
+        const fileContent = await readFile(evidencePath, "utf8");
         const storedRecord = JSON.parse(fileContent);
 
         // Verify checksum matches
         const currentChecksum = this.calculateChecksum({
           ...storedRecord,
-          checksum: undefined // Exclude checksum from checksum calculation
+          checksum: undefined, // Exclude checksum from checksum calculation
         });
 
         if (currentChecksum !== storedRecord.checksum) {
@@ -223,26 +237,28 @@ export class EvidenceCollector {
         } else {
           validEvidence++;
         }
-
       } catch (error) {
         issues.push(`Cannot verify evidence ${evidenceId}: ${error}`);
       }
     }
 
     const valid = issues.length === 0;
-    
-    this.logger.info({ 
-      valid, 
-      issues: issues.length,
-      totalEvidence: this.evidenceStore.size,
-      validEvidence 
-    }, 'Evidence integrity validation completed');
+
+    this.logger.info(
+      {
+        valid,
+        issues: issues.length,
+        totalEvidence: this.evidenceStore.size,
+        validEvidence,
+      },
+      "Evidence integrity validation completed",
+    );
 
     return {
       valid,
       issues,
       totalEvidence: this.evidenceStore.size,
-      validEvidence
+      validEvidence,
     };
   }
 
@@ -258,15 +274,15 @@ export class EvidenceCollector {
     // Try to load from disk
     try {
       const evidencePath = join(this.evidenceRoot, `${evidenceId}.json`);
-      const fileContent = await readFile(evidencePath, 'utf8');
+      const fileContent = await readFile(evidencePath, "utf8");
       const storedRecord = JSON.parse(fileContent);
-      
+
       // Cache in memory
       this.evidenceStore.set(evidenceId, storedRecord);
-      
+
       return storedRecord.data;
     } catch (error) {
-      this.logger.warn({ error, evidenceId }, 'Could not retrieve evidence');
+      this.logger.warn({ error, evidenceId }, "Could not retrieve evidence");
       return null;
     }
   }
@@ -275,41 +291,45 @@ export class EvidenceCollector {
     try {
       await mkdir(this.evidenceRoot, { recursive: true });
     } catch (error) {
-      this.logger.error({ error, path: this.evidenceRoot }, 'Failed to create evidence directory');
-      throw new EvidenceCollectorError(`Failed to create evidence directory ${this.evidenceRoot}`, undefined, error);
+      this.logger.error({ error, path: this.evidenceRoot }, "Failed to create evidence directory");
+      throw new EvidenceCollectorError(
+        `Failed to create evidence directory ${this.evidenceRoot}`,
+        undefined,
+        error,
+      );
     }
   }
 
   private async writeEvidenceFile(filePath: string, data: any): Promise<void> {
     await mkdir(dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+    await writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
   }
 
   private calculateChecksum(data: any): string {
     const content = JSON.stringify(data, null, 0); // Consistent serialization
-    return createHash('sha256').update(content).digest('hex');
+    return createHash("sha256").update(content).digest("hex");
   }
 
   private redactSensitiveData(data: any): any {
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== "object" || data === null) {
       return this.redactSensitiveString(String(data));
     }
 
     if (Array.isArray(data)) {
-      return data.map(item => this.redactSensitiveData(item));
+      return data.map((item) => this.redactSensitiveData(item));
     }
 
     const redacted = { ...data };
-    
+
     for (const [key, value] of Object.entries(redacted)) {
       const keyLower = key.toLowerCase();
-      
+
       // Redact sensitive field names
       if (this.isSensitiveField(keyLower)) {
-        redacted[key] = '[REDACTED]';
-      } else if (typeof value === 'string') {
+        redacted[key] = "[REDACTED]";
+      } else if (typeof value === "string") {
         redacted[key] = this.redactSensitiveString(value);
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         redacted[key] = this.redactSensitiveData(value);
       }
     }
@@ -319,35 +339,50 @@ export class EvidenceCollector {
 
   private isSensitiveField(field: string): boolean {
     const sensitiveFields = [
-      'password', 'secret', 'token', 'key', 'auth', 'credential',
-      'api_key', 'access_token', 'refresh_token', 'private_key',
-      'cert', 'certificate', 'passphrase', 'pin', 'ssn', 'email',
-      'phone', 'credit_card', 'bank_account'
+      "password",
+      "secret",
+      "token",
+      "key",
+      "auth",
+      "credential",
+      "api_key",
+      "access_token",
+      "refresh_token",
+      "private_key",
+      "cert",
+      "certificate",
+      "passphrase",
+      "pin",
+      "ssn",
+      "email",
+      "phone",
+      "credit_card",
+      "bank_account",
     ];
-    
-    return sensitiveFields.some(sensitive => field.includes(sensitive));
+
+    return sensitiveFields.some((sensitive) => field.includes(sensitive));
   }
 
   private redactSensitiveString(value: string): string {
     // Redact patterns that look like secrets
     const patterns = [
       /\b[A-Za-z0-9+/]{20,}={0,2}\b/g, // Base64-like strings
-      /\b[A-Fa-f0-9]{32,}\b/g,         // Hex strings (API keys, hashes)
-      /\bsk_\w{20,}\b/g,     // Stripe-like secret keys
-      /\bpk_\w{20,}\b/g,     // Public keys
-      /\bghp_[a-zA-Z0-9]{36}\b/g,      // GitHub personal access tokens
-      /\bxoxb-[a-zA-Z0-9-]+\b/g,       // Slack bot tokens
-      /\bAKIA[0-9A-Z]{16}\b/g,         // AWS access keys
-      /\b[A-Za-z0-9+/]{40}\b/g,        // 40-character tokens
-      /--api[_-]?key[=:]\s*[^\s]+/gi,  // Command line API key arguments
-      /--token[=:]\s*[^\s]+/gi,        // Command line token arguments
-      /--password[=:]\s*[^\s]+/gi,     // Command line password arguments
-      /password[=:]\s*[^\s]+/gi,       // Generic password patterns in text
+      /\b[A-Fa-f0-9]{32,}\b/g, // Hex strings (API keys, hashes)
+      /\bsk_\w{20,}\b/g, // Stripe-like secret keys
+      /\bpk_\w{20,}\b/g, // Public keys
+      /\bghp_[a-zA-Z0-9]{36}\b/g, // GitHub personal access tokens
+      /\bxoxb-[a-zA-Z0-9-]+\b/g, // Slack bot tokens
+      /\bAKIA[0-9A-Z]{16}\b/g, // AWS access keys
+      /\b[A-Za-z0-9+/]{40}\b/g, // 40-character tokens
+      /--api[_-]?key[=:]\s*[^\s]+/gi, // Command line API key arguments
+      /--token[=:]\s*[^\s]+/gi, // Command line token arguments
+      /--password[=:]\s*[^\s]+/gi, // Command line password arguments
+      /password[=:]\s*[^\s]+/gi, // Generic password patterns in text
     ];
 
     let redacted = value;
     for (const pattern of patterns) {
-      redacted = redacted.replace(pattern, '[REDACTED]');
+      redacted = redacted.replace(pattern, "[REDACTED]");
     }
 
     return redacted;
@@ -364,15 +399,22 @@ export class EvidenceCollector {
 
   private getRelevantEnvVars(): Record<string, string> {
     const relevantVars: Record<string, string> = {};
-    
+
     // Include important environment variables (non-sensitive)
     const includePatterns = [
-      'NODE_ENV', 'CI', 'GITHUB_ACTIONS', 'VERCEL_ENV',
-      'PATH', 'HOME', 'USER', 'PWD', 'SHELL'
+      "NODE_ENV",
+      "CI",
+      "GITHUB_ACTIONS",
+      "VERCEL_ENV",
+      "PATH",
+      "HOME",
+      "USER",
+      "PWD",
+      "SHELL",
     ];
 
     for (const [key, value] of Object.entries(process.env)) {
-      if (value && includePatterns.some(pattern => key.includes(pattern))) {
+      if (value && includePatterns.some((pattern) => key.includes(pattern))) {
         relevantVars[key] = this.redactSensitiveString(value);
       }
     }
@@ -382,47 +424,47 @@ export class EvidenceCollector {
 
   private classifyEvidenceType(evidenceId: string, data: any): string {
     // Check for execution_trace first since it's a specific type of command execution
-    if (evidenceId.includes('execution_trace')) {
-      return 'execution_trace';
+    if (evidenceId.includes("execution_trace")) {
+      return "execution_trace";
     }
-    
+
     // Check data structure for accurate classification
-    if (data && typeof data === 'object') {
+    if (data && typeof data === "object") {
       if (data.command || data.exit_code !== undefined) {
-        return 'command_execution';
+        return "command_execution";
       }
-      
+
       if (data.test_id || data.suite_id) {
-        return 'test_result';
+        return "test_result";
       }
-      
+
       if (data.check_id) {
-        return 'preflight_check';
+        return "preflight_check";
       }
     }
 
     // Then check other ID patterns
-    
-    if (evidenceId.includes('stdout')) {
-      return 'command_output_stdout';
-    }
-    
-    if (evidenceId.includes('stderr')) {
-      return 'command_output_stderr';
-    }
-    
-    if (evidenceId.includes('preflight')) {
-      return 'preflight_evidence';
-    }
-    
-    if (evidenceId.includes('e2e')) {
-      return 'e2e_test_evidence';
-    }
-    
-    if (evidenceId.includes('configuration') || evidenceId.includes('config')) {
-      return 'configuration';
+
+    if (evidenceId.includes("stdout")) {
+      return "command_output_stdout";
     }
 
-    return 'general';
+    if (evidenceId.includes("stderr")) {
+      return "command_output_stderr";
+    }
+
+    if (evidenceId.includes("preflight")) {
+      return "preflight_evidence";
+    }
+
+    if (evidenceId.includes("e2e")) {
+      return "e2e_test_evidence";
+    }
+
+    if (evidenceId.includes("configuration") || evidenceId.includes("config")) {
+      return "configuration";
+    }
+
+    return "general";
   }
 }

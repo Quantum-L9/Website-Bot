@@ -1,11 +1,11 @@
 // L9_META: layer=stage, role=placeholder_gate, stage_index=6, status=active, version=1.0.0
-import { createModuleLogger } from '../core/logger.js';
-import { BuildError } from '../pipeline/BuildError.js';
-import { scanText, type PlaceholderFinding } from '../validation/placeholderPatterns.js';
-import type { BuildContext } from '../pipeline/BuildContext.js';
-import type { Stage } from '../pipeline/PipelineRunner.js';
+import { createModuleLogger } from "../core/logger.js";
+import type { BuildContext } from "../pipeline/BuildContext.js";
+import { BuildError } from "../pipeline/BuildError.js";
+import type { Stage } from "../pipeline/PipelineRunner.js";
+import { type PlaceholderFinding, scanText } from "../validation/placeholderPatterns.js";
 
-const logger = createModuleLogger('stage:placeholder-scan');
+const logger = createModuleLogger("stage:placeholder-scan");
 
 /**
  * PlaceholderScanStage — quality gate between generation and assembly.
@@ -22,8 +22,8 @@ const logger = createModuleLogger('stage:placeholder-scan');
  *  - `warning` findings are logged and preserved but never block.
  */
 export class PlaceholderScanStage implements Stage {
-  name = 'placeholder-scan';
-  version = '1.0.0';
+  name = "placeholder-scan";
+  version = "1.0.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],
@@ -33,12 +33,12 @@ export class PlaceholderScanStage implements Stage {
 
   async run(ctx: BuildContext): Promise<void> {
     if (ctx.dryRun) {
-      logger.info('[dry-run] Would scan generated content and schemas for placeholder text');
+      logger.info("[dry-run] Would scan generated content and schemas for placeholder text");
       return;
     }
     const findings = this.collectFindings(ctx);
-    const errors = findings.filter(finding => finding.severity === 'error');
-    const warnings = findings.filter(finding => finding.severity === 'warning');
+    const errors = findings.filter((finding) => finding.severity === "error");
+    const warnings = findings.filter((finding) => finding.severity === "warning");
 
     for (const warning of warnings) {
       logger.warn(
@@ -49,10 +49,10 @@ export class PlaceholderScanStage implements Stage {
 
     if (errors.length > 0) {
       const summary = errors
-        .map(finding => `${finding.source} → ${finding.patternId} ("${finding.match}")`)
-        .join('; ');
+        .map((finding) => `${finding.source} → ${finding.patternId} ("${finding.match}")`)
+        .join("; ");
       throw new BuildError(
-        'PLACEHOLDER_CONTENT_DETECTED',
+        "PLACEHOLDER_CONTENT_DETECTED",
         `Generated output contains ${errors.length} placeholder defect(s): ${summary}`,
         false,
         { findings: errors },
@@ -60,8 +60,12 @@ export class PlaceholderScanStage implements Stage {
     }
 
     logger.info(
-      { sections: ctx.generatedContent.size, schemas: ctx.generatedSchemas.size, warnings: warnings.length },
-      'Placeholder scan passed',
+      {
+        sections: ctx.generatedContent.size,
+        schemas: ctx.generatedSchemas.size,
+        warnings: warnings.length,
+      },
+      "Placeholder scan passed",
     );
   }
 

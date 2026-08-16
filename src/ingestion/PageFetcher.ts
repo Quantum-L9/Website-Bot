@@ -25,9 +25,12 @@ export interface FetcherOptions {
 const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
 
 export class PageFetchError extends Error {
-  constructor(message: string, readonly url: string) {
+  constructor(
+    message: string,
+    readonly url: string,
+  ) {
     super(message);
-    this.name = 'PageFetchError';
+    this.name = "PageFetchError";
   }
 }
 
@@ -41,7 +44,7 @@ export class HttpPageFetcher {
     this.navigationTimeoutMs = options.navigationTimeoutMs ?? 20_000;
     this.maxRedirects = options.maxRedirects ?? 5;
     this.maxBytes = options.maxBytes ?? 15 * 1024 * 1024;
-    this.userAgent = options.userAgent ?? 'L9-Website-Bot-Crawler/1.0 (+https://quantum-l9.dev)';
+    this.userAgent = options.userAgent ?? "L9-Website-Bot-Crawler/1.0 (+https://quantum-l9.dev)";
   }
 
   async fetch(startUrl: string): Promise<FetchedResource> {
@@ -53,9 +56,9 @@ export class HttpPageFetcher {
       let response: Response;
       try {
         response = await fetch(current, {
-          redirect: 'manual',
+          redirect: "manual",
           signal: controller.signal,
-          headers: { 'user-agent': this.userAgent, accept: '*/*' },
+          headers: { "user-agent": this.userAgent, accept: "*/*" },
         });
       } catch (error) {
         throw new PageFetchError(`fetch failed: ${String(error)}`, current);
@@ -64,21 +67,24 @@ export class HttpPageFetcher {
       }
 
       if (REDIRECT_STATUS.has(response.status)) {
-        const location = response.headers.get('location');
-        if (!location) throw new PageFetchError(`redirect without Location (${response.status})`, current);
+        const location = response.headers.get("location");
+        if (!location)
+          throw new PageFetchError(`redirect without Location (${response.status})`, current);
         current = new URL(location, current).toString();
         continue;
       }
 
-      const declaredLength = Number(response.headers.get('content-length') ?? '0');
-      if (declaredLength > this.maxBytes) throw new PageFetchError(`content-length ${declaredLength} exceeds cap`, current);
+      const declaredLength = Number(response.headers.get("content-length") ?? "0");
+      if (declaredLength > this.maxBytes)
+        throw new PageFetchError(`content-length ${declaredLength} exceeds cap`, current);
       const body = Buffer.from(await response.arrayBuffer());
-      if (body.byteLength > this.maxBytes) throw new PageFetchError(`body ${body.byteLength} exceeds cap`, current);
+      if (body.byteLength > this.maxBytes)
+        throw new PageFetchError(`body ${body.byteLength} exceeds cap`, current);
       return {
         requestedUrl: startUrl,
         finalUrl: current,
         status: response.status,
-        contentType: response.headers.get('content-type') ?? undefined,
+        contentType: response.headers.get("content-type") ?? undefined,
         body,
       };
     }

@@ -4,21 +4,24 @@
 // A health failure restores the previous verified SHA and terminates the run.
 // NOTE: this program run never deploys (DEC-001); the simulation drives the
 // same code against a local deployment directory.
-import { sha256Text } from '../../services/hashing.js';
+import { sha256Text } from "../../services/hashing.js";
 
 export interface DeploymentAdapter {
   deploy(sha: string, environment: string): Promise<{ deploymentId: string; deployedSha: string }>;
   health(environment: string): Promise<boolean>;
-  rollback(previousSha: string, environment: string): Promise<{ rollbackId: string; deployedSha: string }>;
+  rollback(
+    previousSha: string,
+    environment: string,
+  ): Promise<{ rollbackId: string; deployedSha: string }>;
 }
 
 export interface DeploymentReceipt {
-  schema: 'l9.recursive.deployment-receipt/v1';
+  schema: "l9.recursive.deployment-receipt/v1";
   deploymentId: string;
   environment: string;
   mergeSha: string;
   deployedSha: string;
-  healthVerdict: 'PASS' | 'FAIL';
+  healthVerdict: "PASS" | "FAIL";
   rollback?: {
     rollbackReceiptRef: string;
     restoredSha: string;
@@ -27,7 +30,7 @@ export interface DeploymentReceipt {
   producedAt: string;
 }
 
-export const DEPLOYMENT_RECEIPT_SCHEMA = 'l9.recursive.deployment-receipt/v1';
+export const DEPLOYMENT_RECEIPT_SCHEMA = "l9.recursive.deployment-receipt/v1";
 
 export class DeploymentVerifier {
   constructor(private readonly adapter: DeploymentAdapter) {}
@@ -54,7 +57,7 @@ export class DeploymentVerifier {
             environment: input.environment,
             mergeSha: input.mergeSha,
             deployedSha: deployment.deployedSha,
-            healthVerdict: 'FAIL',
+            healthVerdict: "FAIL",
             rollback: {
               rollbackReceiptRef: rollback.rollbackId,
               restoredSha: rollback.deployedSha,
@@ -72,7 +75,7 @@ export class DeploymentVerifier {
             environment: input.environment,
             mergeSha: input.mergeSha,
             deployedSha: deployment.deployedSha,
-            healthVerdict: 'PASS',
+            healthVerdict: "PASS",
           }),
         };
       }
@@ -85,7 +88,7 @@ export class DeploymentVerifier {
             environment: input.environment,
             mergeSha: input.mergeSha,
             deployedSha: deployment.deployedSha,
-            healthVerdict: 'FAIL',
+            healthVerdict: "FAIL",
             rollback: {
               rollbackReceiptRef: rollback.rollbackId,
               restoredSha: rollback.deployedSha,
@@ -106,7 +109,7 @@ export class DeploymentVerifier {
     environment: string;
     mergeSha: string;
     deployedSha: string;
-    healthVerdict: 'PASS' | 'FAIL';
+    healthVerdict: "PASS" | "FAIL";
     rollback?: { rollbackReceiptRef: string; restoredSha: string; verified: boolean };
   }): DeploymentReceipt {
     return {
@@ -129,23 +132,32 @@ export class LocalDirectoryDeploymentAdapter implements DeploymentAdapter {
     private readonly healthMarker: string,
   ) {}
 
-  async deploy(sha: string, _environment: string): Promise<{ deploymentId: string; deployedSha: string }> {
-    const { mkdirSync, writeFileSync } = await import('node:fs');
+  async deploy(
+    sha: string,
+    _environment: string,
+  ): Promise<{ deploymentId: string; deployedSha: string }> {
+    const { mkdirSync, writeFileSync } = await import("node:fs");
     mkdirSync(this.targetDir, { recursive: true });
-    writeFileSync(this.healthMarker, `deployed:${sha}:healthy\n`, 'utf-8');
+    writeFileSync(this.healthMarker, `deployed:${sha}:healthy\n`, "utf-8");
     return { deploymentId: `local-${sha256Text(sha).slice(0, 12)}`, deployedSha: sha };
   }
 
   async health(_environment: string): Promise<boolean> {
-    const { readFileSync, existsSync } = await import('node:fs');
+    const { readFileSync, existsSync } = await import("node:fs");
     if (!existsSync(this.healthMarker)) return false;
-    return readFileSync(this.healthMarker, 'utf-8').includes(':healthy');
+    return readFileSync(this.healthMarker, "utf-8").includes(":healthy");
   }
 
-  async rollback(previousSha: string, _environment: string): Promise<{ rollbackId: string; deployedSha: string }> {
-    const { writeFileSync, mkdirSync } = await import('node:fs');
+  async rollback(
+    previousSha: string,
+    _environment: string,
+  ): Promise<{ rollbackId: string; deployedSha: string }> {
+    const { writeFileSync, mkdirSync } = await import("node:fs");
     mkdirSync(this.targetDir, { recursive: true });
-    writeFileSync(this.healthMarker, `deployed:${previousSha}:healthy\n`, 'utf-8');
-    return { rollbackId: `rollback-${sha256Text(previousSha).slice(0, 12)}`, deployedSha: previousSha };
+    writeFileSync(this.healthMarker, `deployed:${previousSha}:healthy\n`, "utf-8");
+    return {
+      rollbackId: `rollback-${sha256Text(previousSha).slice(0, 12)}`,
+      deployedSha: previousSha,
+    };
   }
 }

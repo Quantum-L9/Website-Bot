@@ -3,7 +3,8 @@
 // Gallery / portfolio / work pages carry the photos operators expect to reuse.
 // A FIFO BFS that fills maxPages with service URLs never reaches them.
 
-export const MEDIA_PAGE_PATH = /\/(gallery|portfolio|our-work|work|projects|photos|before-and-after|before-after)\b/i;
+export const MEDIA_PAGE_PATH =
+  /\/(gallery|portfolio|our-work|work|projects|photos|before-and-after|before-after)\b/i;
 
 /** Lower number is crawled sooner. Media pages beat generic service lists. */
 export function crawlPagePriority(url: string): number {
@@ -19,7 +20,7 @@ export function crawlPagePriority(url: string): number {
 }
 
 export function hasMediaPage(urls: readonly string[]): boolean {
-  return urls.some(url => {
+  return urls.some((url) => {
     try {
       return MEDIA_PAGE_PATH.test(new URL(url).pathname);
     } catch {

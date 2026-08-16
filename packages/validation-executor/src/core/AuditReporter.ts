@@ -1,23 +1,27 @@
-import { writeFile } from 'node:fs/promises';
-import { stringify as yamlStringify } from 'yaml';
-import { createLogger } from '../utils/logger.js';
-import type { ValidationExecutionReport, ValidationGateStatus } from '../types/index.js';
+import { writeFile } from "node:fs/promises";
+import { stringify as yamlStringify } from "yaml";
+import type { ValidationExecutionReport, ValidationGateStatus } from "../types/index.js";
+import { createLogger } from "../utils/logger.js";
 
 export class AuditReporterError extends Error {
-  constructor(message: string, public readonly reportPath?: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly reportPath?: string,
+    public readonly cause?: unknown,
+  ) {
     super(message);
-    this.name = 'AuditReporterError';
+    this.name = "AuditReporterError";
   }
 }
 
 /**
  * AuditReporter implements Step 9 of the validation specification:
  * "Emit Audit Report"
- * 
+ *
  * MUST emit one deterministic YAML audit report with complete evidence.
  */
 export class AuditReporter {
-  private readonly logger = createLogger('AuditReporter');
+  private readonly logger = createLogger("AuditReporter");
 
   /**
    * Generate the complete YAML audit report
@@ -37,19 +41,18 @@ export class AuditReporter {
     validationGates: any;
     finalVerdict: any;
   }): ValidationExecutionReport {
-    
-    this.logger.info({ runId: data.runId }, 'Generating validation execution report');
+    this.logger.info({ runId: data.runId }, "Generating validation execution report");
 
     const duration = Date.parse(data.endedAt) - Date.parse(data.startedAt);
 
     const report: ValidationExecutionReport = {
       run_metadata: {
         run_id: data.runId,
-        report_schema_version: '1.0.0',
+        report_schema_version: "1.0.0",
         started_at: data.startedAt,
         ended_at: data.endedAt,
         duration,
-        last_completed_stage: this.determineLastCompletedStage(data.finalVerdict)
+        last_completed_stage: this.determineLastCompletedStage(data.finalVerdict),
       },
 
       execution_context: data.executionContext,
@@ -60,14 +63,18 @@ export class AuditReporter {
         preflight_checks: data.preflightResults,
         e2e_suites: this.extractSuiteNames(data.e2eResults),
         required_e2e_tests: data.e2eResults,
-        dynamic_inventory_items: this.detectDynamicInventoryItems(data.executionContext, data.preflightResults, data.e2eResults),
+        dynamic_inventory_items: this.detectDynamicInventoryItems(
+          data.executionContext,
+          data.preflightResults,
+          data.e2eResults,
+        ),
         authoritative_skips: this.extractAuthoritativeSkips(data.preflightResults, data.e2eResults),
         inventory_sources: data.executionContext.configuration_sources || [],
-        inventory_status: 'complete'
+        inventory_status: "complete",
       },
 
       preflight_summary: this.generatePreflightSummary(data.preflightResults),
-      
+
       preflight_results: data.preflightResults,
 
       preflight_gate: this.generatePreflightGate(data.preflightResults),
@@ -84,7 +91,11 @@ export class AuditReporter {
 
       regressions: data.regressions,
 
-      unknowns: this.generateUnknowns(data.preflightResults, data.e2eResults, data.executionContext),
+      unknowns: this.generateUnknowns(
+        data.preflightResults,
+        data.e2eResults,
+        data.executionContext,
+      ),
 
       evidence_manifest: data.evidenceManifest,
 
@@ -92,15 +103,22 @@ export class AuditReporter {
 
       final_verdict: data.finalVerdict,
 
-      minimum_safe_next_action: this.determineNextAction(data.finalVerdict, data.preflightResults, data.e2eResults)
+      minimum_safe_next_action: this.determineNextAction(
+        data.finalVerdict,
+        data.preflightResults,
+        data.e2eResults,
+      ),
     };
 
-    this.logger.info({ 
-      verdict: report.final_verdict.status,
-      preflightChecks: report.preflight_results.length,
-      e2eTests: report.e2e_results.length,
-      duration: report.run_metadata.duration
-    }, 'Validation execution report generated');
+    this.logger.info(
+      {
+        verdict: report.final_verdict.status,
+        preflightChecks: report.preflight_results.length,
+        e2eTests: report.e2e_results.length,
+        duration: report.run_metadata.duration,
+      },
+      "Validation execution report generated",
+    );
 
     return report;
   }
@@ -114,14 +132,13 @@ export class AuditReporter {
       const yamlString = yamlStringify(report, {
         indent: 2,
         lineWidth: 120,
-        minContentWidth: 20
+        minContentWidth: 20,
       });
 
-      this.logger.debug('Report converted to YAML format');
+      this.logger.debug("Report converted to YAML format");
       return yamlString;
-
     } catch (error) {
-      this.logger.error({ error }, 'Failed to convert report to YAML');
+      this.logger.error({ error }, "Failed to convert report to YAML");
       throw new AuditReporterError(`YAML serialization failed`, undefined, error);
     }
   }
@@ -131,34 +148,33 @@ export class AuditReporter {
    */
   async writeReport(report: ValidationExecutionReport, filePath: string): Promise<void> {
     try {
-      const { mkdir } = await import('node:fs/promises');
-      const { dirname } = await import('node:path');
+      const { mkdir } = await import("node:fs/promises");
+      const { dirname } = await import("node:path");
 
       // Ensure directory exists
       await mkdir(dirname(filePath), { recursive: true });
 
       // Write YAML report
       const yamlContent = this.toYAML(report);
-      await writeFile(filePath, yamlContent, 'utf8');
+      await writeFile(filePath, yamlContent, "utf8");
 
-      this.logger.info({ filePath, size: yamlContent.length }, 'Report written to file');
-
+      this.logger.info({ filePath, size: yamlContent.length }, "Report written to file");
     } catch (error) {
-      this.logger.error({ error, filePath }, 'Failed to write report file');
+      this.logger.error({ error, filePath }, "Failed to write report file");
       throw new AuditReporterError(`Report write failed`, filePath, error);
     }
   }
 
   private determineLastCompletedStage(finalVerdict: any): string {
     switch (finalVerdict.status) {
-      case 'PASS':
-        return 'audit_report_generation';
-      case 'FAIL':
-        return 'failure_analysis';
-      case 'INCOMPLETE':
-        return 'context_resolution';
+      case "PASS":
+        return "audit_report_generation";
+      case "FAIL":
+        return "failure_analysis";
+      case "INCOMPLETE":
+        return "context_resolution";
       default:
-        return 'unknown';
+        return "unknown";
     }
   }
 
@@ -171,9 +187,9 @@ export class AuditReporter {
         sources.push({
           source,
           revision_or_version: this.getConfigFileRevision(source, executionContext.source_revision),
-          applicable_scope: 'execution_configuration',
+          applicable_scope: "execution_configuration",
           precedence: index + 1,
-          verification_status: 'verified'
+          verification_status: "verified",
         });
       });
     }
@@ -182,73 +198,84 @@ export class AuditReporter {
   }
 
   private extractSuiteNames(e2eResults: any[]): string[] {
-    const suites = new Set(e2eResults.map(result => result.suite_name || result.suite_id));
+    const suites = new Set(e2eResults.map((result) => result.suite_name || result.suite_id));
     return Array.from(suites).filter(Boolean);
   }
 
   private extractAuthoritativeSkips(preflightResults: any[], e2eResults: any[]): string[] {
     const skipped = [];
-    
+
     const preflightSkipped = preflightResults
-      .filter(r => r.status === 'AuthoritativelySkipped')
-      .map(r => r.check_id);
-    
+      .filter((r) => r.status === "AuthoritativelySkipped")
+      .map((r) => r.check_id);
+
     const e2eSkipped = e2eResults
-      .filter(r => r.status === 'AuthoritativelySkipped')
-      .map(r => r.test_id);
+      .filter((r) => r.status === "AuthoritativelySkipped")
+      .map((r) => r.test_id);
 
     return [...preflightSkipped, ...e2eSkipped];
   }
 
   private generatePreflightSummary(preflightResults: any[]) {
-    const blockingChecks = preflightResults.filter(r => r.blocking);
-    
+    const blockingChecks = preflightResults.filter((r) => r.blocking);
+
     return {
       discovered: preflightResults.length,
       executable: preflightResults.length,
-      executed: preflightResults.filter(r => r.status !== 'NotExecuted').length,
-      passed: preflightResults.filter(r => r.status === 'Passed').length,
-      failed: preflightResults.filter(r => r.status === 'Failed').length,
-      errors: preflightResults.filter(r => r.status === 'Error').length,
-      timeouts: preflightResults.filter(r => r.status === 'Timeout').length,
-      blocked: preflightResults.filter(r => r.status === 'Blocked').length,
-      authoritatively_skipped: preflightResults.filter(r => r.status === 'AuthoritativelySkipped').length,
-      not_executed: preflightResults.filter(r => r.status === 'NotExecuted').length,
-      unknown: preflightResults.filter(r => r.status === 'Unknown').length,
+      executed: preflightResults.filter((r) => r.status !== "NotExecuted").length,
+      passed: preflightResults.filter((r) => r.status === "Passed").length,
+      failed: preflightResults.filter((r) => r.status === "Failed").length,
+      errors: preflightResults.filter((r) => r.status === "Error").length,
+      timeouts: preflightResults.filter((r) => r.status === "Timeout").length,
+      blocked: preflightResults.filter((r) => r.status === "Blocked").length,
+      authoritatively_skipped: preflightResults.filter((r) => r.status === "AuthoritativelySkipped")
+        .length,
+      not_executed: preflightResults.filter((r) => r.status === "NotExecuted").length,
+      unknown: preflightResults.filter((r) => r.status === "Unknown").length,
       blocking_total: blockingChecks.length,
-      blocking_passed: blockingChecks.filter(r => r.status === 'Passed').length,
-      gate_status: this.evaluateGateStatus(blockingChecks) as ValidationGateStatus
+      blocking_passed: blockingChecks.filter((r) => r.status === "Passed").length,
+      gate_status: this.evaluateGateStatus(blockingChecks) as ValidationGateStatus,
     };
   }
 
   private generatePreflightGate(preflightResults: any[]) {
-    const blockingChecks = preflightResults.filter(r => r.blocking);
+    const blockingChecks = preflightResults.filter((r) => r.blocking);
     const blockingFailures = blockingChecks
-      .filter(r => ['Failed', 'Error', 'Timeout', 'Blocked', 'NotExecuted'].includes(r.status))
-      .map(r => r.check_id);
+      .filter((r) => ["Failed", "Error", "Timeout", "Blocked", "NotExecuted"].includes(r.status))
+      .map((r) => r.check_id);
     const blockingUnknowns = blockingChecks
-      .filter(r => r.status === 'Unknown')
-      .map(r => r.check_id);
+      .filter((r) => r.status === "Unknown")
+      .map((r) => r.check_id);
 
-    const gateStatus = blockingFailures.length === 0 && blockingUnknowns.length === 0 ? 'Passed' : 'Failed';
+    const gateStatus =
+      blockingFailures.length === 0 && blockingUnknowns.length === 0 ? "Passed" : "Failed";
 
     return {
       status: gateStatus as ValidationGateStatus,
       blocking_failures: blockingFailures,
       blocking_unknowns: blockingUnknowns,
-      e2e_authorized: gateStatus === 'Passed',
-      decision_evidence: preflightResults.map(r => `preflight_${r.check_id}_result`)
+      e2e_authorized: gateStatus === "Passed",
+      decision_evidence: preflightResults.map((r) => `preflight_${r.check_id}_result`),
     };
   }
 
   private generateE2ESummary(e2eResults: any[]) {
-    const uniqueTests = new Set(e2eResults.map(r => r.test_id)).size;
-    const suites = new Set(e2eResults.map(r => r.suite_id));
+    const uniqueTests = new Set(e2eResults.map((r) => r.test_id)).size;
+    const suites = new Set(e2eResults.map((r) => r.suite_id));
 
     // Count unique tests that were actually executed (not blocked)
-    const executedTests = new Set(e2eResults
-      .filter(r => !['BlockedByPreflightGate', 'BlockedByAuthoritativeFailFast', 'Blocked', 'NotExecuted'].includes(r.status))
-      .map(r => r.test_id)
+    const executedTests = new Set(
+      e2eResults
+        .filter(
+          (r) =>
+            ![
+              "BlockedByPreflightGate",
+              "BlockedByAuthoritativeFailFast",
+              "Blocked",
+              "NotExecuted",
+            ].includes(r.status),
+        )
+        .map((r) => r.test_id),
     ).size;
 
     return {
@@ -256,65 +283,69 @@ export class AuditReporter {
       discovered_required_tests: uniqueTests,
       executed_unique_tests: executedTests,
       execution_attempts: e2eResults.length,
-      passed: e2eResults.filter(r => r.status === 'Passed').length,
-      failed: e2eResults.filter(r => r.status === 'Failed').length,
-      errors: e2eResults.filter(r => r.status === 'Error').length,
-      timeouts: e2eResults.filter(r => r.status === 'Timeout').length,
-      blocked_by_preflight_gate: e2eResults.filter(r => r.status === 'BlockedByPreflightGate').length,
-      blocked_by_authoritative_fail_fast: e2eResults.filter(r => r.status === 'BlockedByAuthoritativeFailFast').length,
-      blocked: e2eResults.filter(r => r.status === 'Blocked').length,
-      not_executed: e2eResults.filter(r => r.status === 'NotExecuted').length,
-      authoritatively_skipped: e2eResults.filter(r => r.status === 'AuthoritativelySkipped').length,
-      unknown: e2eResults.filter(r => r.status === 'Unknown').length,
-      runner_crashes: e2eResults.filter(r => 
-        r.primary_failure_classification === 'RunnerFailure'
+      passed: e2eResults.filter((r) => r.status === "Passed").length,
+      failed: e2eResults.filter((r) => r.status === "Failed").length,
+      errors: e2eResults.filter((r) => r.status === "Error").length,
+      timeouts: e2eResults.filter((r) => r.status === "Timeout").length,
+      blocked_by_preflight_gate: e2eResults.filter((r) => r.status === "BlockedByPreflightGate")
+        .length,
+      blocked_by_authoritative_fail_fast: e2eResults.filter(
+        (r) => r.status === "BlockedByAuthoritativeFailFast",
       ).length,
-      gate_status: this.evaluateE2EGateStatus(e2eResults) as ValidationGateStatus
+      blocked: e2eResults.filter((r) => r.status === "Blocked").length,
+      not_executed: e2eResults.filter((r) => r.status === "NotExecuted").length,
+      authoritatively_skipped: e2eResults.filter((r) => r.status === "AuthoritativelySkipped")
+        .length,
+      unknown: e2eResults.filter((r) => r.status === "Unknown").length,
+      runner_crashes: e2eResults.filter((r) => r.primary_failure_classification === "RunnerFailure")
+        .length,
+      gate_status: this.evaluateE2EGateStatus(e2eResults) as ValidationGateStatus,
     };
   }
 
   private evaluateGateStatus(blockingChecks: any[]): string {
-    const failures = blockingChecks.filter(r => 
-      ['Failed', 'Error', 'Timeout', 'Blocked', 'NotExecuted', 'Unknown'].includes(r.status)
+    const failures = blockingChecks.filter((r) =>
+      ["Failed", "Error", "Timeout", "Blocked", "NotExecuted", "Unknown"].includes(r.status),
     );
-    return failures.length === 0 ? 'Passed' : 'Failed';
+    return failures.length === 0 ? "Passed" : "Failed";
   }
 
   private evaluateE2EGateStatus(e2eResults: any[]): string {
-    const failures = e2eResults.filter(r => 
-      ['Failed', 'Error', 'Timeout'].includes(r.status)
-    );
-    const unknowns = e2eResults.filter(r => r.status === 'Unknown');
-    return failures.length === 0 && unknowns.length === 0 ? 'Passed' : 'Failed';
+    const failures = e2eResults.filter((r) => ["Failed", "Error", "Timeout"].includes(r.status));
+    const unknowns = e2eResults.filter((r) => r.status === "Unknown");
+    return failures.length === 0 && unknowns.length === 0 ? "Passed" : "Failed";
   }
 
-  private generateUnknowns(preflightResults: any[], e2eResults: any[], executionContext: any): any[] {
+  private generateUnknowns(
+    preflightResults: any[],
+    e2eResults: any[],
+    executionContext: any,
+  ): any[] {
     const unknowns = [];
 
     // Check for context unknowns
-    if (executionContext.source_revision === 'Unknown') {
+    if (executionContext.source_revision === "Unknown") {
       unknowns.push({
         unknown_id: `unknown_source_revision_${Date.now()}`,
-        item: 'source_revision',
-        reason: 'Git revision could not be determined',
-        execution_impact: 'Cannot verify target revision identity',
-        affected_results: ['all'],
-        minimum_resolution_evidence: 'Valid git repository with committed changes'
+        item: "source_revision",
+        reason: "Git revision could not be determined",
+        execution_impact: "Cannot verify target revision identity",
+        affected_results: ["all"],
+        minimum_resolution_evidence: "Valid git repository with committed changes",
       });
     }
 
     // Check for unknown test results
-    const unknownTests = [...preflightResults, ...e2eResults]
-      .filter(r => r.status === 'Unknown');
+    const unknownTests = [...preflightResults, ...e2eResults].filter((r) => r.status === "Unknown");
 
-    unknownTests.forEach(test => {
+    unknownTests.forEach((test) => {
       unknowns.push({
         unknown_id: `unknown_${test.check_id || test.test_id}_${Date.now()}`,
         item: test.check_id || test.test_id,
-        reason: 'Test result could not be determined',
-        execution_impact: 'Cannot assess test success or failure',
+        reason: "Test result could not be determined",
+        execution_impact: "Cannot assess test success or failure",
         affected_results: [test.check_id || test.test_id],
-        minimum_resolution_evidence: 'Successful test execution with definitive result'
+        minimum_resolution_evidence: "Successful test execution with definitive result",
       });
     });
 
@@ -322,64 +353,74 @@ export class AuditReporter {
   }
 
   private determineNextAction(finalVerdict: any, preflightResults: any[], e2eResults: any[]): any {
-    if (finalVerdict.status === 'PASS') {
+    if (finalVerdict.status === "PASS") {
       return {
-        action: 'NoActionRequired',
-        blocker_or_failure: 'None',
-        expected_evidence: 'Validation completed successfully'
+        action: "NoActionRequired",
+        blocker_or_failure: "None",
+        expected_evidence: "Validation completed successfully",
       };
     }
 
     // Find the first blocking issue
-    const preflightFailures = preflightResults.filter(r => 
-      r.blocking && ['Failed', 'Error', 'Timeout'].includes(r.status)
+    const preflightFailures = preflightResults.filter(
+      (r) => r.blocking && ["Failed", "Error", "Timeout"].includes(r.status),
     );
 
     if (preflightFailures.length > 0) {
       const firstFailure = preflightFailures[0];
       return {
-        action: 'FixPreflightFailure',
+        action: "FixPreflightFailure",
         blocker_or_failure: `Preflight check ${firstFailure.check_id}: ${firstFailure.primary_failure_classification}`,
-        expected_evidence: 'Preflight check passes with exit code 0'
+        expected_evidence: "Preflight check passes with exit code 0",
       };
     }
 
-    const e2eFailures = e2eResults.filter(r => 
-      ['Failed', 'Error', 'Timeout'].includes(r.status)
-    );
+    const e2eFailures = e2eResults.filter((r) => ["Failed", "Error", "Timeout"].includes(r.status));
 
     if (e2eFailures.length > 0) {
       const firstFailure = e2eFailures[0];
       return {
-        action: 'FixTestFailure',
+        action: "FixTestFailure",
         blocker_or_failure: `E2E test ${firstFailure.test_id}: ${firstFailure.primary_failure_classification}`,
-        expected_evidence: 'Test passes with expected assertions'
+        expected_evidence: "Test passes with expected assertions",
       };
     }
 
     return {
-      action: 'ResolveIncompleteExecution',
-      blocker_or_failure: finalVerdict.verdict_reason || 'Unknown execution issue',
-      expected_evidence: 'Complete execution context and evidence validation'
+      action: "ResolveIncompleteExecution",
+      blocker_or_failure: finalVerdict.verdict_reason || "Unknown execution issue",
+      expected_evidence: "Complete execution context and evidence validation",
     };
   }
 
-  private detectDynamicInventoryItems(executionContext: any, preflightResults: any[], e2eResults: any[]): string[] {
+  private detectDynamicInventoryItems(
+    executionContext: any,
+    preflightResults: any[],
+    e2eResults: any[],
+  ): string[] {
     const dynamicItems = [];
 
     // Detect environment-specific configurations
-    if (executionContext.target_environment !== 'local') {
+    if (executionContext.target_environment !== "local") {
       dynamicItems.push(`environment-specific-config:${executionContext.target_environment}`);
     }
 
     // Detect service dependencies that might vary
     if (executionContext.required_services?.length > 0) {
-      dynamicItems.push(...executionContext.required_services.map((service: string) => `service-dependency:${service}`));
+      dynamicItems.push(
+        ...executionContext.required_services.map(
+          (service: string) => `service-dependency:${service}`,
+        ),
+      );
     }
 
     // Detect runtime credentials that affect test availability
     if (executionContext.required_credentials?.length > 0) {
-      dynamicItems.push(...executionContext.required_credentials.map((cred: string) => `credential-dependent:${cred}`));
+      dynamicItems.push(
+        ...executionContext.required_credentials.map(
+          (cred: string) => `credential-dependent:${cred}`,
+        ),
+      );
     }
 
     return dynamicItems;
@@ -388,13 +429,18 @@ export class AuditReporter {
   private getConfigFileRevision(configFile: string, sourceRevision: string): string {
     try {
       // For files in the current repository, use the source revision
-      if (configFile.includes('.json') || configFile.includes('.yaml') || configFile.includes('.yml') || configFile.includes('Makefile')) {
+      if (
+        configFile.includes(".json") ||
+        configFile.includes(".yaml") ||
+        configFile.includes(".yml") ||
+        configFile.includes("Makefile")
+      ) {
         return sourceRevision;
       }
       // For system/external configs, return version info if available
-      return 'current';
+      return "current";
     } catch (error) {
-      return 'unknown';
+      return "unknown";
     }
   }
 }

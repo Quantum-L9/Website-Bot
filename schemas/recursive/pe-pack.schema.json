@@ -5,9 +5,21 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "packId", "recursiveRunId", "wave", "source", "selectedRootCause",
-    "hypothesis", "mutationEnvelope", "immutableAuthorities", "regressionSets",
-    "expectedProperties", "validation", "budgets", "mergePolicy", "deploymentPolicy",
+    "schema",
+    "packId",
+    "recursiveRunId",
+    "wave",
+    "source",
+    "selectedRootCause",
+    "hypothesis",
+    "mutationEnvelope",
+    "immutableAuthorities",
+    "regressionSets",
+    "expectedProperties",
+    "validation",
+    "budgets",
+    "mergePolicy",
+    "deploymentPolicy",
     "nextTransition"
   ],
   "$defs": {
@@ -49,7 +61,13 @@
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["e2eReceiptRef", "engineeringHarvestRef", "engineeringSignalRefs", "sourceCodeFullSha", "artifactManifestDigest"],
+      "required": [
+        "e2eReceiptRef",
+        "engineeringHarvestRef",
+        "engineeringSignalRefs",
+        "sourceCodeFullSha",
+        "artifactManifestDigest"
+      ],
       "properties": {
         "e2eReceiptRef": { "$ref": "#/$defs/artifactRef" },
         "engineeringHarvestRef": { "$ref": "#/$defs/artifactRef" },
@@ -61,12 +79,23 @@
     "selectedRootCause": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["signalClass", "clusterId", "repository", "subsystem", "diagnosis", "confidence"],
+      "required": [
+        "signalClass",
+        "clusterId",
+        "repository",
+        "subsystem",
+        "diagnosis",
+        "confidence"
+      ],
       "properties": {
         "signalClass": {
           "enum": [
-            "CORRECTNESS_DEFECT", "QUALITY_MODEL_DEFECT", "GENERATION_CAPABILITY_DEFECT",
-            "ATTRIBUTION_DEFECT", "EFFICIENCY_DEFECT", "CONTROL_PLANE_CHANGE_REQUIRED"
+            "CORRECTNESS_DEFECT",
+            "QUALITY_MODEL_DEFECT",
+            "GENERATION_CAPABILITY_DEFECT",
+            "ATTRIBUTION_DEFECT",
+            "EFFICIENCY_DEFECT",
+            "CONTROL_PLANE_CHANGE_REQUIRED"
           ]
         },
         "clusterId": { "type": "string", "minLength": 1 },
@@ -89,7 +118,15 @@
     "mutationEnvelope": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "allowedPaths", "forbiddenPaths", "forbiddenSubsystems", "architectureExpansionAllowed", "maxChangedFiles", "maxDiffLines"],
+      "required": [
+        "repository",
+        "allowedPaths",
+        "forbiddenPaths",
+        "forbiddenSubsystems",
+        "architectureExpansionAllowed",
+        "maxChangedFiles",
+        "maxDiffLines"
+      ],
       "properties": {
         "repository": { "type": "string", "minLength": 1 },
         "allowedPaths": { "type": "array", "items": { "type": "string" } },
@@ -104,7 +141,13 @@
     "immutableAuthorities": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["controlPlaneCommit", "planDigest", "peSchemaDigest", "testContractDigest", "holdoutManifestDigest"],
+      "required": [
+        "controlPlaneCommit",
+        "planDigest",
+        "peSchemaDigest",
+        "testContractDigest",
+        "holdoutManifestDigest"
+      ],
       "properties": {
         "controlPlaneCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
         "planDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
@@ -147,8 +190,13 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "targetedReplayRequired", "differentialReplayRequired", "controlsRequired",
-        "disconfirmRequired", "protectedHoldoutRequired", "semanticArtifactDiffRequired", "repositoryChecks"
+        "targetedReplayRequired",
+        "differentialReplayRequired",
+        "controlsRequired",
+        "disconfirmRequired",
+        "protectedHoldoutRequired",
+        "semanticArtifactDiffRequired",
+        "repositoryChecks"
       ],
       "properties": {
         "targetedReplayRequired": { "const": true },
@@ -176,7 +224,11 @@
     "mergePolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["autonomousMergeAllowed", "requiredVerifier", "verifiedPatchShaMustEqualMergedSha"],
+      "required": [
+        "autonomousMergeAllowed",
+        "requiredVerifier",
+        "verifiedPatchShaMustEqualMergedSha"
+      ],
       "properties": {
         "autonomousMergeAllowed": { "type": "boolean" },
         "requiredVerifier": { "type": "string", "minLength": 1 },

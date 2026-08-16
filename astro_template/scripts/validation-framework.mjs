@@ -1,4 +1,4 @@
-import { result, writeJsonl, statusFromRows } from './lib.mjs';
+import { result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 /**
  * Shared validation framework for Astro site scripts
@@ -15,64 +15,73 @@ export class ValidationRunner {
     return this;
   }
 
-  async addFileExistenceCheck(id, filePath, description, severity = 'medium', isRequired = false) {
-    const { exists } = await import('./lib.mjs');
+  async addFileExistenceCheck(id, filePath, description, severity = "medium", isRequired = false) {
+    const { exists } = await import("./lib.mjs");
     const fileExists = exists(filePath);
-    let status = 'UNKNOWN';
-    if (fileExists) status = 'PASS';
-    else if (isRequired) status = 'FAIL';
+    let status = "UNKNOWN";
+    if (fileExists) status = "PASS";
+    else if (isRequired) status = "FAIL";
     return this.addCheck(
       id,
-      'file_existence',
+      "file_existence",
       filePath,
       description,
       fileExists ? `${filePath} exists` : `${filePath} missing`,
       status,
       severity,
-      `Create ${filePath}`
+      `Create ${filePath}`,
     );
   }
 
-  async addDirectoryContentCheck(id, dirPath, fileFilter, description, severity = 'medium', minCount = 1) {
-    const { listFiles } = await import('./lib.mjs');
+  async addDirectoryContentCheck(
+    id,
+    dirPath,
+    fileFilter,
+    description,
+    severity = "medium",
+    minCount = 1,
+  ) {
+    const { listFiles } = await import("./lib.mjs");
     const files = listFiles(dirPath, fileFilter);
     const hasEnoughFiles = files.length >= minCount;
     return this.addCheck(
       id,
-      'file_structure',
+      "file_structure",
       dirPath,
       description,
-      hasEnoughFiles ? `${files.length} files found` : `Only ${files.length} files found (need ${minCount})`,
-      hasEnoughFiles ? 'PASS' : 'UNKNOWN',
+      hasEnoughFiles
+        ? `${files.length} files found`
+        : `Only ${files.length} files found (need ${minCount})`,
+      hasEnoughFiles ? "PASS" : "UNKNOWN",
       severity,
-      `Add more files to ${dirPath}`
+      `Add more files to ${dirPath}`,
     );
   }
 
-  async addCommandCheck(id, command, args, description, severity = 'high') {
-    const { spawnSync } = await import('node:child_process');
-    const result = spawnSync(command, args, { 
-      encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'pipe']
+  async addCommandCheck(id, command, args, description, severity = "high") {
+    const { spawnSync } = await import("node:child_process");
+    const result = spawnSync(command, args, {
+      encoding: "utf8",
+      stdio: ["inherit", "pipe", "pipe"],
     });
 
     return this.addCheck(
       id,
-      'command_execution',
-      `${command} ${args.join(' ')}`,
+      "command_execution",
+      `${command} ${args.join(" ")}`,
       description,
-      `Exit code ${result.status}, stderr: ${result.stderr?.slice(0, 200) || 'none'}`,
-      result.status === 0 ? 'PASS' : 'FAIL',
+      `Exit code ${result.status}, stderr: ${result.stderr?.slice(0, 200) || "none"}`,
+      result.status === 0 ? "PASS" : "FAIL",
       severity,
-      'Fix command errors shown in output'
+      "Fix command errors shown in output",
     );
   }
 
   async run(options = {}) {
-    const { 
+    const {
       outputFile = `validation/${this.name}_checks.jsonl`,
       strictMode = false,
-      exitOnFail = true
+      exitOnFail = true,
     } = options;
 
     // Write evidence
@@ -80,15 +89,21 @@ export class ValidationRunner {
 
     // Generate summary
     const status = statusFromRows(this.checks);
-    console.log(JSON.stringify({ 
-      status, 
-      checks: this.checks.length,
-      name: this.name
-    }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          status,
+          checks: this.checks.length,
+          name: this.name,
+        },
+        null,
+        2,
+      ),
+    );
 
     // Exit handling
-    if (status === 'FAIL' && exitOnFail) {
-      if (strictMode || process.env.STRICT_VALIDATION === 'true') {
+    if (status === "FAIL" && exitOnFail) {
+      if (strictMode || process.env.STRICT_VALIDATION === "true") {
         process.exit(1);
       }
     }

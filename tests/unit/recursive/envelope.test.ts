@@ -1,43 +1,44 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { evaluateMutationEnvelope } from '../../../src/recursive/executor/envelope.js';
-import { compilePEPack } from '../../../src/recursive/pepack/compiler.js';
-import { compileEngineeringHarvest } from '../../../src/recursive/harvest/compiler.js';
-import { clusterSignals, selectEligibleCluster } from '../../../src/recursive/signals/registry.js';
-import { sha256Text } from '../../../src/services/hashing.js';
-import type { ReleaseReceipt } from '../../../src/pipeline/evidence/ReleaseReceipt.js';
+
+import assert from "node:assert/strict";
+import test from "node:test";
+import type { ReleaseReceipt } from "../../../src/pipeline/evidence/ReleaseReceipt.js";
+import { evaluateMutationEnvelope } from "../../../src/recursive/executor/envelope.js";
+import { compileEngineeringHarvest } from "../../../src/recursive/harvest/compiler.js";
+import { compilePEPack } from "../../../src/recursive/pepack/compiler.js";
+import { clusterSignals, selectEligibleCluster } from "../../../src/recursive/signals/registry.js";
+import { sha256Text } from "../../../src/services/hashing.js";
 
 function packForSubsystem(subsystem: string) {
   const receipt: ReleaseReceipt = {
-    schema: 'website-bot.release-receipt/v2',
-    receipt_id: 'rr-env',
-    build_id: 'build-env',
-    client_id: 'env-client',
-    mode: 'end-to-end',
-    status: 'failed',
-    missing_gates: ['visual_qa'],
+    schema: "website-bot.release-receipt/v2",
+    receipt_id: "rr-env",
+    build_id: "build-env",
+    client_id: "env-client",
+    mode: "end-to-end",
+    status: "failed",
+    missing_gates: ["visual_qa"],
     evidence: {
       assembly: {
-        kind: 'assembly',
-        schema: 'website-bot.assembly-manifest/v2',
-        logical_id: 'assembly:env',
-        relative_path: 'env/assembly.json',
-        sha256: sha256Text('env-assembly'),
+        kind: "assembly",
+        schema: "website-bot.assembly-manifest/v2",
+        logical_id: "assembly:env",
+        relative_path: "env/assembly.json",
+        sha256: sha256Text("env-assembly"),
       },
     },
-    correlation: { source_digest: sha256Text('env-source'), all_required_identities_match: true },
-    qa: { seo_baseline: 'passed', visual_qa: 'failed' },
-    created_at: '2026-08-15T00:00:00.000Z',
+    correlation: { source_digest: sha256Text("env-source"), all_required_identities_match: true },
+    qa: { seo_baseline: "passed", visual_qa: "failed" },
+    created_at: "2026-08-15T00:00:00.000Z",
   };
   const harvest = compileEngineeringHarvest({
-    recursiveRunId: 'env-run',
+    recursiveRunId: "env-run",
     wave: 1,
-    repository: 'Quantum-L9/Website-Bot',
-    fullCommitSha: 'a'.repeat(40),
-    sourceUrl: 'https://env.example.com',
+    repository: "Quantum-L9/Website-Bot",
+    fullCommitSha: "a".repeat(40),
+    sourceUrl: "https://env.example.com",
     releaseReceipt: receipt,
-    chainStatus: 'released',
+    chainStatus: "released",
     stageFailures: [],
     checkpointDigests: [],
     previousWaveOutcomes: [],
@@ -46,20 +47,20 @@ function packForSubsystem(subsystem: string) {
   const cluster = selectEligibleCluster(clusters);
   assert.ok(cluster);
   const compiled = compilePEPack({
-    recursiveRunId: 'env-run',
+    recursiveRunId: "env-run",
     wave: 1,
     harvest,
     cluster,
-    sourceCodeFullSha: 'a'.repeat(40),
-    artifactManifestDigest: sha256Text('manifest'),
-    controlPlaneCommit: 'c'.repeat(40),
-    planDigest: sha256Text('plan'),
-    peSchemaDigest: sha256Text('pe-schema'),
-    holdoutManifestDigest: sha256Text('holdout'),
+    sourceCodeFullSha: "a".repeat(40),
+    artifactManifestDigest: sha256Text("manifest"),
+    controlPlaneCommit: "c".repeat(40),
+    planDigest: sha256Text("plan"),
+    peSchemaDigest: sha256Text("pe-schema"),
+    holdoutManifestDigest: sha256Text("holdout"),
     regressionSets: { originating: [], controls: [], disconfirm: [] },
-    testContractDigest: sha256Text('test-contract'),
-    requiredVerifier: 'independent-verifier',
-    environment: 'preview',
+    testContractDigest: sha256Text("test-contract"),
+    requiredVerifier: "independent-verifier",
+    environment: "preview",
     maxChangedFiles: 3,
     maxDiffLines: 30,
     maxDeploymentAttempts: 1,
@@ -67,59 +68,75 @@ function packForSubsystem(subsystem: string) {
   return compiled.pack;
 }
 
-test('control-plane path edits are rejected as immutable', () => {
-  const pack = packForSubsystem('VisualQA');
+test("control-plane path edits are rejected as immutable", () => {
+  const pack = packForSubsystem("VisualQA");
   const verdict = evaluateMutationEnvelope(pack, {
-    changedFiles: ['src/recursive/state/constants.ts'],
+    changedFiles: ["src/recursive/state/constants.ts"],
     diffLines: 1,
   });
   assert.equal(verdict.allowed, false);
-  assert.ok(verdict.violations.some(violation => violation.includes('control-plane')));
+  assert.ok(verdict.violations.some((violation) => violation.includes("control-plane")));
 });
 
-test('schema edits and test edits by the coding agent are envelope violations', () => {
-  const pack = packForSubsystem('VisualQA');
-  for (const file of ['schemas/recursive/pe-pack.schema.json', 'tests/unit/recursive/state-machine.test.ts']) {
+test("schema edits and test edits by the coding agent are envelope violations", () => {
+  const pack = packForSubsystem("VisualQA");
+  for (const file of [
+    "schemas/recursive/pe-pack.schema.json",
+    "tests/unit/recursive/state-machine.test.ts",
+  ]) {
     const verdict = evaluateMutationEnvelope(pack, { changedFiles: [file], diffLines: 1 });
     assert.equal(verdict.allowed, false, file);
   }
 });
 
-test('explicitly forbidden paths and subsystems are rejected', () => {
-  const pack = packForSubsystem('VisualQA');
-  pack.mutationEnvelope.forbiddenPaths = ['src/stages/ReleaseReceiptStage.ts'];
+test("explicitly forbidden paths and subsystems are rejected", () => {
+  const pack = packForSubsystem("VisualQA");
+  pack.mutationEnvelope.forbiddenPaths = ["src/stages/ReleaseReceiptStage.ts"];
   const verdict = evaluateMutationEnvelope(pack, {
-    changedFiles: ['src/stages/ReleaseReceiptStage.ts'],
+    changedFiles: ["src/stages/ReleaseReceiptStage.ts"],
     diffLines: 1,
   });
   assert.equal(verdict.allowed, false);
 });
 
-test('files outside the allowed envelope are rejected when allowedPaths is set', () => {
-  const pack = packForSubsystem('VisualQA');
-  pack.mutationEnvelope.allowedPaths = ['src/stages/VisualQAStage.ts'];
+test("files outside the allowed envelope are rejected when allowedPaths is set", () => {
+  const pack = packForSubsystem("VisualQA");
+  pack.mutationEnvelope.allowedPaths = ["src/stages/VisualQAStage.ts"];
   const verdict = evaluateMutationEnvelope(pack, {
-    changedFiles: ['src/stages/DesignIntelligenceStage.ts'],
+    changedFiles: ["src/stages/DesignIntelligenceStage.ts"],
     diffLines: 1,
   });
   assert.equal(verdict.allowed, false);
-  assert.ok(verdict.violations.some(violation => violation.includes('outside allowed envelope')));
+  assert.ok(verdict.violations.some((violation) => violation.includes("outside allowed envelope")));
 });
 
-test('file and line budgets are hard ceilings', () => {
-  const pack = packForSubsystem('VisualQA');
-  assert.equal(evaluateMutationEnvelope(pack, { changedFiles: ['a.ts', 'b.ts', 'c.ts', 'd.ts'], diffLines: 1 }).allowed, false);
-  assert.equal(evaluateMutationEnvelope(pack, { changedFiles: ['a.ts'], diffLines: 500 }).allowed, false);
+test("file and line budgets are hard ceilings", () => {
+  const pack = packForSubsystem("VisualQA");
+  assert.equal(
+    evaluateMutationEnvelope(pack, { changedFiles: ["a.ts", "b.ts", "c.ts", "d.ts"], diffLines: 1 })
+      .allowed,
+    false,
+  );
+  assert.equal(
+    evaluateMutationEnvelope(pack, { changedFiles: ["a.ts"], diffLines: 500 }).allowed,
+    false,
+  );
 });
 
-test('architecture expansion is structurally prohibited', () => {
-  const pack = packForSubsystem('VisualQA');
+test("architecture expansion is structurally prohibited", () => {
+  const pack = packForSubsystem("VisualQA");
   pack.mutationEnvelope.architectureExpansionAllowed = false;
-  const verdict = evaluateMutationEnvelope(pack, { changedFiles: ['src/visual-q.ts'], diffLines: 1 });
+  const verdict = evaluateMutationEnvelope(pack, {
+    changedFiles: ["src/visual-q.ts"],
+    diffLines: 1,
+  });
   assert.equal(verdict.allowed, true); // within budgets and paths; expansion flag stays false
   // A tampered pack that flips the flag fails the structural check.
   const tampered = JSON.parse(JSON.stringify(pack)) as typeof pack;
   tampered.mutationEnvelope.architectureExpansionAllowed = true as never;
-  const tamperedVerdict = evaluateMutationEnvelope(tampered, { changedFiles: ['src/visual-q.ts'], diffLines: 1 });
+  const tamperedVerdict = evaluateMutationEnvelope(tampered, {
+    changedFiles: ["src/visual-q.ts"],
+    diffLines: 1,
+  });
   assert.equal(tamperedVerdict.allowed, false);
 });

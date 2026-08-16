@@ -4,18 +4,17 @@
 // the pack's idempotency boundary (runId + wave + eventType + subject SHA).
 // A duplicate delivery is a NOOP; an out-of-order/stale delivery is recorded
 // as STALE and never moves campaign state backward.
-import { appendFileSync, readFileSync, existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { mkdirSync } from 'node:fs';
-import { canonicalJson, sha256Text } from '../../services/hashing.js';
-import type { RecursiveEngineeringEvent } from '../contracts/types.js';
-import type { SignedEventEnvelope } from './envelope.js';
-import { eventDigest, verifyEventSignature } from './envelope.js';
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { canonicalJson, sha256Text } from "../../services/hashing.js";
+import type { RecursiveEngineeringEvent } from "../contracts/types.js";
+import type { SignedEventEnvelope } from "./envelope.js";
+import { eventDigest, verifyEventSignature } from "./envelope.js";
 
 export interface LedgerRecord {
   event: RecursiveEngineeringEvent;
   digest: string;
-  disposition: 'ACCEPTED' | 'DUPLICATE' | 'STALE' | 'REJECTED';
+  disposition: "ACCEPTED" | "DUPLICATE" | "STALE" | "REJECTED";
   acceptedAt: string;
 }
 
@@ -26,22 +25,24 @@ export class EventLedger {
 
   readAll(): LedgerRecord[] {
     if (!existsSync(this.path)) return [];
-    const raw = readFileSync(this.path, 'utf-8');
+    const raw = readFileSync(this.path, "utf-8");
     if (!raw.trim()) return [];
     return raw
       .trim()
-      .split('\n')
-      .map(line => JSON.parse(line) as LedgerRecord);
+      .split("\n")
+      .map((line) => JSON.parse(line) as LedgerRecord);
   }
 
   readForRun(runId: string): RecursiveEngineeringEvent[] {
     return this.readAll()
-      .filter(record => record.disposition === 'ACCEPTED' && record.event.recursiveRunId === runId)
-      .map(record => record.event);
+      .filter(
+        (record) => record.disposition === "ACCEPTED" && record.event.recursiveRunId === runId,
+      )
+      .map((record) => record.event);
   }
 
   private append(record: LedgerRecord): void {
-    appendFileSync(this.path, JSON.stringify(record) + '\n', 'utf-8');
+    appendFileSync(this.path, JSON.stringify(record) + "\n", "utf-8");
   }
 
   /**
@@ -52,12 +53,14 @@ export class EventLedger {
   ingest(envelope: SignedEventEnvelope, secret: string, currentWave: number): LedgerRecord {
     const { event } = envelope;
     const digest = eventDigest(event);
-    const existing = this.readAll().find(record => record.event.eventId === event.eventId || record.digest === digest);
+    const existing = this.readAll().find(
+      (record) => record.event.eventId === event.eventId || record.digest === digest,
+    );
     if (existing) {
       const duplicate: LedgerRecord = {
         event,
         digest,
-        disposition: existing.disposition === 'ACCEPTED' ? 'DUPLICATE' : 'STALE',
+        disposition: existing.disposition === "ACCEPTED" ? "DUPLICATE" : "STALE",
         acceptedAt: new Date().toISOString(),
       };
       this.append(duplicate);
@@ -67,7 +70,7 @@ export class EventLedger {
       const rejected: LedgerRecord = {
         event,
         digest,
-        disposition: 'REJECTED',
+        disposition: "REJECTED",
         acceptedAt: new Date().toISOString(),
       };
       this.append(rejected);
@@ -77,7 +80,7 @@ export class EventLedger {
       const stale: LedgerRecord = {
         event,
         digest,
-        disposition: 'STALE',
+        disposition: "STALE",
         acceptedAt: new Date().toISOString(),
       };
       this.append(stale);
@@ -86,7 +89,7 @@ export class EventLedger {
     const accepted: LedgerRecord = {
       event,
       digest,
-      disposition: 'ACCEPTED',
+      disposition: "ACCEPTED",
       acceptedAt: new Date().toISOString(),
     };
     this.append(accepted);
@@ -99,7 +102,7 @@ export class EventLedger {
         runId: event.recursiveRunId,
         wave: event.wave,
         eventType: event.eventType,
-        subjectSha: event.subject?.fullSha ?? '',
+        subjectSha: event.subject?.fullSha ?? "",
         causationId: event.causationId,
       }),
     );

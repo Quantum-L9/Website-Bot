@@ -27,7 +27,14 @@
   "properties": {
     "run_metadata": {
       "type": "object",
-      "required": ["run_id", "report_schema_version", "started_at", "ended_at", "duration", "last_completed_stage"],
+      "required": [
+        "run_id",
+        "report_schema_version",
+        "started_at",
+        "ended_at",
+        "duration",
+        "last_completed_stage"
+      ],
       "properties": {
         "run_id": { "type": "string", "format": "uuid" },
         "report_schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
@@ -40,19 +47,39 @@
     "execution_context": {
       "type": "object",
       "required": [
-        "target_roots", "source_revision", "running_revision", "target_environment",
-        "environment_type", "active_identity", "preflight_commands", "e2e_commands",
-        "test_runner", "test_runner_version", "configuration_sources", "required_services",
-        "target_endpoints", "required_dependencies", "required_credentials", "evidence_root"
+        "target_roots",
+        "source_revision",
+        "running_revision",
+        "target_environment",
+        "environment_type",
+        "active_identity",
+        "preflight_commands",
+        "e2e_commands",
+        "test_runner",
+        "test_runner_version",
+        "configuration_sources",
+        "required_services",
+        "target_endpoints",
+        "required_dependencies",
+        "required_credentials",
+        "evidence_root"
       ],
       "properties": {
         "target_roots": { "type": "array", "items": { "type": "string" } },
         "source_revision": { "type": "string" },
         "running_revision": { "type": ["string", "null"] },
         "target_environment": { "type": "string" },
-        "environment_type": { 
-          "type": "string", 
-          "enum": ["local", "isolated_test", "shared_test", "staging", "production-like", "production", "ephemeral"]
+        "environment_type": {
+          "type": "string",
+          "enum": [
+            "local",
+            "isolated_test",
+            "shared_test",
+            "staging",
+            "production-like",
+            "production",
+            "ephemeral"
+          ]
         },
         "active_identity": { "type": "string" },
         "preflight_commands": { "type": "array", "items": { "type": "string" } },
@@ -71,7 +98,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["source", "revision_or_version", "applicable_scope", "precedence", "verification_status"],
+        "required": [
+          "source",
+          "revision_or_version",
+          "applicable_scope",
+          "precedence",
+          "verification_status"
+        ],
         "properties": {
           "source": { "type": "string" },
           "revision_or_version": { "type": "string" },
@@ -84,9 +117,20 @@
     "preflight_summary": {
       "type": "object",
       "required": [
-        "discovered", "executable", "executed", "passed", "failed", "errors", "timeouts",
-        "blocked", "authoritatively_skipped", "not_executed", "unknown", "blocking_total",
-        "blocking_passed", "gate_status"
+        "discovered",
+        "executable",
+        "executed",
+        "passed",
+        "failed",
+        "errors",
+        "timeouts",
+        "blocked",
+        "authoritatively_skipped",
+        "not_executed",
+        "unknown",
+        "blocking_total",
+        "blocking_passed",
+        "gate_status"
       ],
       "properties": {
         "discovered": { "type": "integer", "minimum": 0 },
@@ -111,7 +155,13 @@
     },
     "preflight_gate": {
       "type": "object",
-      "required": ["status", "blocking_failures", "blocking_unknowns", "e2e_authorized", "decision_evidence"],
+      "required": [
+        "status",
+        "blocking_failures",
+        "blocking_unknowns",
+        "e2e_authorized",
+        "decision_evidence"
+      ],
       "properties": {
         "status": { "type": "string", "enum": ["Passed", "Failed", "Unknown"] },
         "blocking_failures": { "type": "array", "items": { "type": "string" } },
@@ -123,11 +173,22 @@
     "e2e_summary": {
       "type": "object",
       "required": [
-        "discovered_suites", "discovered_required_tests", "executed_unique_tests", 
-        "execution_attempts", "passed", "failed", "errors", "timeouts",
-        "blocked_by_preflight_gate", "blocked_by_authoritative_fail_fast", 
-        "blocked", "not_executed", "authoritatively_skipped", "unknown",
-        "runner_crashes", "gate_status"
+        "discovered_suites",
+        "discovered_required_tests",
+        "executed_unique_tests",
+        "execution_attempts",
+        "passed",
+        "failed",
+        "errors",
+        "timeouts",
+        "blocked_by_preflight_gate",
+        "blocked_by_authoritative_fail_fast",
+        "blocked",
+        "not_executed",
+        "authoritatively_skipped",
+        "unknown",
+        "runner_crashes",
+        "gate_status"
       ]
     },
     "e2e_results": {
@@ -137,9 +198,15 @@
     "final_verdict": {
       "type": "object",
       "required": [
-        "status", "preflight_status", "e2e_status", "coverage_status", 
-        "evidence_status", "required_failure_count", "blocking_defect_ids", 
-        "unknown_count", "verdict_reason"
+        "status",
+        "preflight_status",
+        "e2e_status",
+        "coverage_status",
+        "evidence_status",
+        "required_failure_count",
+        "blocking_defect_ids",
+        "unknown_count",
+        "verdict_reason"
       ],
       "properties": {
         "status": { "type": "string", "enum": ["PASS", "FAIL", "INCOMPLETE"] },
@@ -158,10 +225,21 @@
     "preflight_check": {
       "type": "object",
       "required": [
-        "check_id", "check_name", "blocking", "command", "working_directory",
-        "status", "exit_code", "termination_signal", "started_at", "ended_at",
-        "duration", "primary_failure_classification", "contributing_causes",
-        "root_cause_group", "evidence_references"
+        "check_id",
+        "check_name",
+        "blocking",
+        "command",
+        "working_directory",
+        "status",
+        "exit_code",
+        "termination_signal",
+        "started_at",
+        "ended_at",
+        "duration",
+        "primary_failure_classification",
+        "contributing_causes",
+        "root_cause_group",
+        "evidence_references"
       ],
       "properties": {
         "check_id": { "type": "string" },
@@ -171,7 +249,16 @@
         "working_directory": { "type": "string" },
         "status": {
           "type": "string",
-          "enum": ["Passed", "Failed", "Error", "Timeout", "Blocked", "AuthoritativelySkipped", "NotExecuted", "Unknown"]
+          "enum": [
+            "Passed",
+            "Failed",
+            "Error",
+            "Timeout",
+            "Blocked",
+            "AuthoritativelySkipped",
+            "NotExecuted",
+            "Unknown"
+          ]
         },
         "exit_code": { "type": ["integer", "null"] },
         "termination_signal": { "type": ["string", "null"] },
@@ -181,10 +268,21 @@
         "primary_failure_classification": {
           "type": ["string", "null"],
           "enum": [
-            null, "PreflightFailure", "AssertionFailure", "ApplicationRuntimeFailure",
-            "RunnerFailure", "DependencyFailure", "CredentialFailure", "ConfigurationDefect",
-            "EnvironmentFailure", "AccessFailure", "Timeout", "Regression", "Blocked",
-            "AuthoritativelySkipped", "Unknown"
+            null,
+            "PreflightFailure",
+            "AssertionFailure",
+            "ApplicationRuntimeFailure",
+            "RunnerFailure",
+            "DependencyFailure",
+            "CredentialFailure",
+            "ConfigurationDefect",
+            "EnvironmentFailure",
+            "AccessFailure",
+            "Timeout",
+            "Regression",
+            "Blocked",
+            "AuthoritativelySkipped",
+            "Unknown"
           ]
         },
         "contributing_causes": { "type": "array", "items": { "type": "string" } },
@@ -195,10 +293,22 @@
     "e2e_test_result": {
       "type": "object",
       "required": [
-        "suite_id", "suite_name", "test_id", "test_name", "attempt",
-        "command_or_invocation", "status", "started_at", "ended_at", "duration",
-        "assertion_or_error", "exit_code_or_runner_result", "primary_failure_classification",
-        "contributing_causes", "root_cause_group", "evidence_references"
+        "suite_id",
+        "suite_name",
+        "test_id",
+        "test_name",
+        "attempt",
+        "command_or_invocation",
+        "status",
+        "started_at",
+        "ended_at",
+        "duration",
+        "assertion_or_error",
+        "exit_code_or_runner_result",
+        "primary_failure_classification",
+        "contributing_causes",
+        "root_cause_group",
+        "evidence_references"
       ],
       "properties": {
         "suite_id": { "type": "string" },
@@ -210,9 +320,16 @@
         "status": {
           "type": "string",
           "enum": [
-            "Passed", "Failed", "Error", "Timeout", "BlockedByPreflightGate",
-            "BlockedByAuthoritativeFailFast", "Blocked", "AuthoritativelySkipped",
-            "NotExecuted", "Unknown"
+            "Passed",
+            "Failed",
+            "Error",
+            "Timeout",
+            "BlockedByPreflightGate",
+            "BlockedByAuthoritativeFailFast",
+            "Blocked",
+            "AuthoritativelySkipped",
+            "NotExecuted",
+            "Unknown"
           ]
         },
         "started_at": { "type": "string", "format": "date-time" },
@@ -223,10 +340,21 @@
         "primary_failure_classification": {
           "type": ["string", "null"],
           "enum": [
-            null, "PreflightFailure", "AssertionFailure", "ApplicationRuntimeFailure",
-            "RunnerFailure", "DependencyFailure", "CredentialFailure", "ConfigurationDefect",
-            "EnvironmentFailure", "AccessFailure", "Timeout", "Regression", "Blocked",
-            "AuthoritativelySkipped", "Unknown"
+            null,
+            "PreflightFailure",
+            "AssertionFailure",
+            "ApplicationRuntimeFailure",
+            "RunnerFailure",
+            "DependencyFailure",
+            "CredentialFailure",
+            "ConfigurationDefect",
+            "EnvironmentFailure",
+            "AccessFailure",
+            "Timeout",
+            "Regression",
+            "Blocked",
+            "AuthoritativelySkipped",
+            "Unknown"
           ]
         },
         "contributing_causes": { "type": "array", "items": { "type": "string" } },

@@ -1,0 +1,35 @@
+{
+  "build_id": "safehavenrr-1786872912633",
+  "client_id": "safehavenrr",
+  "correlation": {
+    "all_required_identities_match": true,
+    "dist_digest": "b6ded340a0bfb26eeb6b37534e3153dc11124352b03c849c8a9ea38e586d2b4b",
+    "source_digest": "51c0ed4a8e5cfa60252cb6b097deb0cbfa04fb87df1c3945bcce5ab76b01b147"
+  },
+  "created_at": "2026-08-16T10:28:25.888Z",
+  "evidence": {
+    "assembly": {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872912633:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "531abfd53d179c60847d93b906c0490bcf8f4e6986d0b28bb61220cd001160bf"
+    },
+    "build": {
+      "kind": "build",
+      "logical_id": "build_d7f42a6da5fb0083bc047c4c7e228351",
+      "relative_path": "build-proof.json",
+      "schema": "website-bot.build-proof/v2",
+      "sha256": "94c3770041adc447dda4a2d05663f00085706913a2f204b6e591eb16596c4de4"
+    }
+  },
+  "missing_gates": ["github_publication", "vercel_deployment"],
+  "mode": "local-proof",
+  "qa": {
+    "seo_baseline": "pending",
+    "visual_qa": "pending"
+  },
+  "receipt_id": "receipt_a4acadd3abb43fad27418ee2d5780c84",
+  "schema": "website-bot.release-receipt/v2",
+  "status": "partial"
+}

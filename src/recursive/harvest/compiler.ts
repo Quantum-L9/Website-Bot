@@ -4,17 +4,18 @@
 // into compact causal EngineeringSignals plus regression-case candidates.
 // Raw evidence remains immutable backing evidence; the coding agent receives
 // the derived working set, never an unbounded request to inspect the repo.
+
+import type { ReleaseReceipt } from "../../pipeline/evidence/ReleaseReceipt.js";
+import { refForArtifact } from "../contracts/digest.js";
 import type {
   EngineeringSignal,
   EngineeringSignalClass,
   RecursiveArtifactRef,
   WaveNumber,
-} from '../contracts/types.js';
-import { refForArtifact } from '../contracts/digest.js';
-import type { ReleaseReceipt } from '../../pipeline/evidence/ReleaseReceipt.js';
+} from "../contracts/types.js";
 
 export interface E2EQualitySummary {
-  schema: 'l9.recursive.e2e-quality-summary/v1';
+  schema: "l9.recursive.e2e-quality-summary/v1";
   reviewable: boolean;
   releaseReceiptStatus: string;
   missingGates: string[];
@@ -43,7 +44,7 @@ export interface HarvestInput {
 }
 
 export interface EngineeringHarvest {
-  schema: 'l9.recursive.engineering-harvest/v1';
+  schema: "l9.recursive.engineering-harvest/v1";
   harvestId: string;
   recursiveRunId: string;
   wave: WaveNumber;
@@ -57,67 +58,67 @@ export interface EngineeringHarvest {
     sourceRef: RecursiveArtifactRef;
   }>;
   recommendedNextAction:
-    | 'MODIFY_CODE'
-    | 'NO_MATERIAL_ENGINEERING_SIGNAL'
-    | 'CONTROL_PLANE_CHANGE_REQUIRED';
+    | "MODIFY_CODE"
+    | "NO_MATERIAL_ENGINEERING_SIGNAL"
+    | "CONTROL_PLANE_CHANGE_REQUIRED";
 }
 
-export const ENGINEERING_HARVEST_SCHEMA = 'l9.recursive.engineering-harvest/v1';
+export const ENGINEERING_HARVEST_SCHEMA = "l9.recursive.engineering-harvest/v1";
 
 // Stage -> earliest responsible subsystem. A signal's suspected owner is the
 // first stage in the pipeline whose output evidence carried the defect, so
 // attribution stays causal instead of blaming the final symptom location.
 const STAGE_OWNER_MAP: Record<string, string> = {
-  'source-site-ingestion': 'SourceSiteIngestion',
-  'design-intelligence': 'DesignIntelligence',
-  'content-generation': 'ContentGeneration',
-  'schema-generator': 'SchemaGenerator',
-  'image-planning': 'ImageAssetPlanning',
-  'image-generation': 'ImageGeneration',
-  'placeholder-scan': 'PlaceholderScan',
-  'site-assembler': 'SiteAssembler',
-  'image-validation': 'ImageValidation',
-  'posthog-snippet': 'PostHogSnippet',
-  'site-build': 'SiteBuild',
-  'client-source-publish': 'ClientSourcePublish',
-  'vercel-deploy': 'VercelDeploy',
-  'release-receipt': 'ReleaseReceipt',
-  'seo-baseline': 'SEOBaseline',
-  'visual-qa': 'VisualQA',
-  'release-receipt-finalizer': 'ReleaseReceiptFinalizer',
-  'handoff-emitter': 'HandoffEmitter',
-  'terminal-convergence': 'TerminalConvergence',
+  "source-site-ingestion": "SourceSiteIngestion",
+  "design-intelligence": "DesignIntelligence",
+  "content-generation": "ContentGeneration",
+  "schema-generator": "SchemaGenerator",
+  "image-planning": "ImageAssetPlanning",
+  "image-generation": "ImageGeneration",
+  "placeholder-scan": "PlaceholderScan",
+  "site-assembler": "SiteAssembler",
+  "image-validation": "ImageValidation",
+  "posthog-snippet": "PostHogSnippet",
+  "site-build": "SiteBuild",
+  "client-source-publish": "ClientSourcePublish",
+  "vercel-deploy": "VercelDeploy",
+  "release-receipt": "ReleaseReceipt",
+  "seo-baseline": "SEOBaseline",
+  "visual-qa": "VisualQA",
+  "release-receipt-finalizer": "ReleaseReceiptFinalizer",
+  "handoff-emitter": "HandoffEmitter",
+  "terminal-convergence": "TerminalConvergence",
 };
 
 const GATE_CLASS: Record<string, EngineeringSignalClass> = {
-  assembly: 'CORRECTNESS_DEFECT',
-  local_build: 'CORRECTNESS_DEFECT',
-  github_publication: 'CORRECTNESS_DEFECT',
-  vercel_deployment: 'CORRECTNESS_DEFECT',
-  visual_qa: 'QUALITY_MODEL_DEFECT',
+  assembly: "CORRECTNESS_DEFECT",
+  local_build: "CORRECTNESS_DEFECT",
+  github_publication: "CORRECTNESS_DEFECT",
+  vercel_deployment: "CORRECTNESS_DEFECT",
+  visual_qa: "QUALITY_MODEL_DEFECT",
 };
 
 function observedGates(receipt: ReleaseReceipt): string[] {
   const failing: string[] = [];
-  if (receipt.status === 'failed' || receipt.missing_gates.length > 0) {
+  if (receipt.status === "failed" || receipt.missing_gates.length > 0) {
     for (const gate of receipt.missing_gates) failing.push(gate);
   }
-  if (receipt.qa.visual_qa === 'failed') failing.push('visual_qa');
+  if (receipt.qa.visual_qa === "failed") failing.push("visual_qa");
   return [...new Set(failing)];
 }
 
 export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarvest {
   const signals: EngineeringSignal[] = [];
-  const candidates: EngineeringHarvest['regressionCaseCandidates'] = [];
-  const e2eRef = refForArtifact('e2e-receipt', {
+  const candidates: EngineeringHarvest["regressionCaseCandidates"] = [];
+  const e2eRef = refForArtifact("e2e-receipt", {
     schema: input.releaseReceipt.schema,
     receipt_id: input.releaseReceipt.receipt_id,
   });
 
   const reviewable =
-    input.releaseReceipt.status === 'succeeded' &&
+    input.releaseReceipt.status === "succeeded" &&
     input.releaseReceipt.missing_gates.length === 0 &&
-    input.chainStatus === 'released';
+    input.chainStatus === "released";
 
   const failingGates = observedGates(input.releaseReceipt);
 
@@ -127,12 +128,12 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
       makeSignal({
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-${gate}`,
-        classification: GATE_CLASS[gate] ?? 'CORRECTNESS_DEFECT',
+        classification: GATE_CLASS[gate] ?? "CORRECTNESS_DEFECT",
         observation: `release gate ${gate} failed in the source E2E`,
-        suspectedSubsystem: STAGE_OWNER_MAP[gate] ?? 'ReleaseReceipt',
+        suspectedSubsystem: STAGE_OWNER_MAP[gate] ?? "ReleaseReceipt",
         e2eRef,
         dimension: gate,
-        confidence: 'HIGH',
+        confidence: "HIGH",
       }),
     );
   }
@@ -143,12 +144,12 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
       makeSignal({
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-${failure.stage}`,
-        classification: 'CORRECTNESS_DEFECT',
-        observation: `stage ${failure.stage} failed${failure.errorCode ? ` (${failure.errorCode})` : ''} in the source E2E`,
+        classification: "CORRECTNESS_DEFECT",
+        observation: `stage ${failure.stage} failed${failure.errorCode ? ` (${failure.errorCode})` : ""} in the source E2E`,
         suspectedSubsystem: STAGE_OWNER_MAP[failure.stage] ?? failure.stage,
         e2eRef,
         dimension: failure.stage,
-        confidence: 'HIGH',
+        confidence: "HIGH",
       }),
     );
     candidates.push({
@@ -160,17 +161,17 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
   }
 
   // Human-machine gap: reviewable-by-gates while evidence chain still open.
-  if (reviewable && input.chainStatus !== 'released') {
+  if (reviewable && input.chainStatus !== "released") {
     signals.push(
       makeSignal({
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-chain`,
-        classification: 'CORRECTNESS_DEFECT',
+        classification: "CORRECTNESS_DEFECT",
         observation: `release receipt succeeded while the evidence chain is ${input.chainStatus}`,
-        suspectedSubsystem: 'ReleaseReceiptFinalizer',
+        suspectedSubsystem: "ReleaseReceiptFinalizer",
         e2eRef,
-        dimension: 'evidence-chain',
-        confidence: 'HIGH',
+        dimension: "evidence-chain",
+        confidence: "HIGH",
       }),
     );
   }
@@ -183,12 +184,12 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
       makeSignal({
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-eff-${checkpoint.stage}`,
-        classification: 'EFFICIENCY_DEFECT',
+        classification: "EFFICIENCY_DEFECT",
         observation: `stage ${checkpoint.stage} recomputed downstream work without a material input change`,
         suspectedSubsystem: STAGE_OWNER_MAP[checkpoint.stage] ?? checkpoint.stage,
         e2eRef,
-        dimension: 'recomputation',
-        confidence: 'MEDIUM',
+        dimension: "recomputation",
+        confidence: "MEDIUM",
       }),
     );
   }
@@ -199,23 +200,25 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
       makeSignal({
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-prior-${prior.pePackRefId}`,
-        classification: 'EFFICIENCY_DEFECT',
+        classification: "EFFICIENCY_DEFECT",
         observation: `prior wave outcome ${prior.verdict} recorded against ${prior.pePackRefId}`,
-        suspectedSubsystem: 'EngineeringHarvestCompiler',
+        suspectedSubsystem: "EngineeringHarvestCompiler",
         e2eRef,
-        dimension: 'prior-wave-correlation',
-        confidence: 'MEDIUM',
+        dimension: "prior-wave-correlation",
+        confidence: "MEDIUM",
       }),
     );
   }
 
-  const controlPlaneSignal = signals.find(signal => signal.classification === 'CONTROL_PLANE_CHANGE_REQUIRED');
-  const materialSignals = signals.filter(signal => signal.confidence !== 'LOW');
-  const recommended: EngineeringHarvest['recommendedNextAction'] = controlPlaneSignal
-    ? 'CONTROL_PLANE_CHANGE_REQUIRED'
+  const controlPlaneSignal = signals.find(
+    (signal) => signal.classification === "CONTROL_PLANE_CHANGE_REQUIRED",
+  );
+  const materialSignals = signals.filter((signal) => signal.confidence !== "LOW");
+  const recommended: EngineeringHarvest["recommendedNextAction"] = controlPlaneSignal
+    ? "CONTROL_PLANE_CHANGE_REQUIRED"
     : materialSignals.length > 0
-      ? 'MODIFY_CODE'
-      : 'NO_MATERIAL_ENGINEERING_SIGNAL';
+      ? "MODIFY_CODE"
+      : "NO_MATERIAL_ENGINEERING_SIGNAL";
 
   const harvest: EngineeringHarvest = {
     schema: ENGINEERING_HARVEST_SCHEMA,
@@ -224,7 +227,7 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
     wave: input.wave,
     sourceE2E: e2eRef,
     qualitySummary: {
-      schema: 'l9.recursive.e2e-quality-summary/v1',
+      schema: "l9.recursive.e2e-quality-summary/v1",
       reviewable,
       releaseReceiptStatus: input.releaseReceipt.status,
       missingGates: input.releaseReceipt.missing_gates,
@@ -255,7 +258,7 @@ function makeSignal(options: {
   suspectedSubsystem: string;
   e2eRef: RecursiveArtifactRef;
   dimension: string;
-  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  confidence: "HIGH" | "MEDIUM" | "LOW";
 }): EngineeringSignal {
   const { input } = options;
   const fingerprint = {
@@ -263,7 +266,7 @@ function makeSignal(options: {
     invariantViolations: [],
   };
   return {
-    schema: 'l9.engineering-signal/v1',
+    schema: "l9.engineering-signal/v1",
     signalId: options.signalId,
     recursiveRunId: input.recursiveRunId,
     wave: input.wave,
@@ -274,8 +277,8 @@ function makeSignal(options: {
       evidenceRefs: [options.e2eRef],
     },
     classification: options.classification,
-    severity: options.classification === 'CORRECTNESS_DEFECT' ? 'BLOCKING' : 'HIGH',
-    reach: 'SITE',
+    severity: options.classification === "CORRECTNESS_DEFECT" ? "BLOCKING" : "HIGH",
+    reach: "SITE",
     confidence: options.confidence,
     failureFingerprint: fingerprint,
     observation: options.observation,
@@ -289,19 +292,19 @@ function makeSignal(options: {
       confidence: options.confidence,
     },
     strongestAlternative: {
-      statement: 'downstream assembly or verification misclassified upstream evidence',
-      confidence: 'LOW',
+      statement: "downstream assembly or verification misclassified upstream evidence",
+      confidence: "LOW",
       disconfirmingTest: `inspect ${options.suspectedSubsystem} checkpoint output digest against its input digest`,
-      result: 'INCONCLUSIVE',
+      result: "INCONCLUSIVE",
     },
     recurrence: { currentRunOccurrences: 1, historicalSignalRefs: [] },
     engineeringImplication: `investigate ${options.suspectedSubsystem} for the root cause of ${options.dimension}`,
     regressionCaseCandidate: true,
     leverage: {
-      humanReviewImpact: 'MEDIUM',
-      downstreamCostImpact: 'HIGH',
-      recurrence: 'MEDIUM',
-      implementationRisk: 'MEDIUM',
+      humanReviewImpact: "MEDIUM",
+      downstreamCostImpact: "HIGH",
+      recurrence: "MEDIUM",
+      implementationRisk: "MEDIUM",
     },
   };
 }

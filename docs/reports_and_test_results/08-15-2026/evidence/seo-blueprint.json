@@ -1,0 +1,422 @@
+{
+  "protocol": "l9.website-intelligence",
+  "protocol_version": "1.0",
+  "artifact_type": "seo_content_blueprint",
+  "artifact_id": "seo_content_blueprint:47e3f9b78c5dadb620c3f63ee1004163d543c68a2ccaefffb125ee5d65d5006f",
+  "client_id": "safehavenrr",
+  "build_id": "e2e-safehaven-20260816",
+  "producer": { "repo": "SEO-Bot", "version": "2.1.0" },
+  "produced_at": "2026-08-16T09:21:20.848Z",
+  "input_refs": [
+    {
+      "artifact_type": "competitive_landscape",
+      "artifact_id": "competitive_landscape:361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957",
+      "payload_digest": "361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957"
+    }
+  ],
+  "payload": {
+    "schema": "l9://website-intelligence/seo-content-blueprint/v1",
+    "competitive_landscape_ref": {
+      "artifact_type": "competitive_landscape",
+      "artifact_id": "competitive_landscape:361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957",
+      "payload_digest": "361ee21fe567f60c2a9f4e896f9578decd8a48fc1753604a47a95cf9ceb36957"
+    },
+    "routes": [
+      {
+        "route_id": "home",
+        "path": "/",
+        "search_intent": {
+          "primary": "commercial",
+          "secondary": ["transactional", "local"],
+          "journey_stage": "commercial"
+        },
+        "targets": {
+          "primary_query": "roof replacement charlotte nc",
+          "supporting_queries": [
+            "roof repair charlotte",
+            "charlotte roofing contractor",
+            "roofing companies charlotte nc"
+          ],
+          "topics": [
+            "roof replacement",
+            "roof repair",
+            "storm damage",
+            "roofing services",
+            "charlotte roofing"
+          ],
+          "entities": [
+            "Charlotte NC",
+            "roofing contractor",
+            "roof replacement",
+            "storm damage",
+            "insurance claims"
+          ]
+        },
+        "requirements": [
+          {
+            "requirement_id": "primary_offer",
+            "target_slots": ["primary_offer"],
+            "placement": "FIRST_MATCH",
+            "required_topics": ["roof replacement", "free inspection"],
+            "required_entities": ["Charlotte NC"],
+            "questions": ["What roofing services do you offer?"],
+            "proof_needed": ["service area coverage", "contact information"],
+            "required": true
+          },
+          {
+            "requirement_id": "trust_signals",
+            "target_slots": ["trust"],
+            "placement": "ALL_MATCHES",
+            "required_topics": ["experience", "local business"],
+            "required_entities": ["Charlotte NC"],
+            "questions": ["Why choose this roofing contractor?"],
+            "proof_needed": ["local presence", "contact information"],
+            "required": true
+          }
+        ],
+        "competitive_gaps": [
+          {
+            "gap_id": "local_emphasis",
+            "description": "Competitors lack strong Charlotte-specific messaging on homepage",
+            "donor_domains": ["charlotteaceroofing.com", "premier-roofing.com"],
+            "opportunity": "Emphasize local Charlotte expertise and service area coverage"
+          }
+        ],
+        "internal_links": [
+          {
+            "target_route_id": "roof-replacement",
+            "purpose": "direct users to detailed roof replacement service page"
+          },
+          {
+            "target_route_id": "storm-damage",
+            "purpose": "connect storm damage services to main offering"
+          },
+          { "target_route_id": "contact", "purpose": "conversion path for quote requests" }
+        ],
+        "aeo_geo": {
+          "answer_targets": [
+            "What roofing services are available in Charlotte NC?",
+            "How to find a roofing contractor in Charlotte?"
+          ],
+          "schema_requirements": ["LocalBusiness", "RoofingContractor", "Service"]
+        },
+        "metadata": {
+          "title_requirements": ["Charlotte NC", "roofing contractor", "roof replacement"],
+          "description_requirements": [
+            "Charlotte NC service area",
+            "roofing services",
+            "free inspection",
+            "contact information"
+          ]
+        },
+        "forbidden_claims": [
+          "cheapest prices",
+          "guaranteed lowest cost",
+          "emergency 24/7 without verification"
+        ],
+        "acceptance_tests": [
+          "includes Charlotte NC in title",
+          "displays phone number",
+          "mentions service area",
+          "includes conversion CTA"
+        ]
+      },
+      {
+        "route_id": "roof-replacement",
+        "path": "/services/roof-replacement",
+        "search_intent": {
+          "primary": "commercial",
+          "secondary": ["transactional"],
+          "journey_stage": "commercial"
+        },
+        "targets": {
+          "primary_query": "roof replacement charlotte nc",
+          "supporting_queries": [
+            "roof replacement cost charlotte",
+            "new roof charlotte nc",
+            "residential roof replacement"
+          ],
+          "topics": [
+            "roof replacement",
+            "roofing materials",
+            "installation process",
+            "cost factors",
+            "warranties"
+          ],
+          "entities": [
+            "Charlotte NC",
+            "roof replacement",
+            "asphalt shingles",
+            "metal roofing",
+            "warranties"
+          ]
+        },
+        "requirements": [
+          {
+            "requirement_id": "service_details",
+            "target_slots": ["service_overview", "process"],
+            "placement": "ALL_MATCHES",
+            "required_topics": ["roof replacement process", "materials", "timeline"],
+            "required_entities": ["Charlotte NC", "roof replacement"],
+            "questions": [
+              "What does roof replacement involve?",
+              "How long does roof replacement take?"
+            ],
+            "proof_needed": ["process explanation", "material options"],
+            "required": true
+          },
+          {
+            "requirement_id": "local_relevance",
+            "target_slots": ["local_relevance"],
+            "placement": "FIRST_MATCH",
+            "required_topics": ["Charlotte weather", "local building codes"],
+            "required_entities": ["Charlotte NC"],
+            "questions": ["Why is local expertise important for roof replacement?"],
+            "proof_needed": ["local knowledge", "service area"],
+            "required": true
+          }
+        ],
+        "competitive_gaps": [
+          {
+            "gap_id": "material_education",
+            "description": "Limited educational content about roofing material options",
+            "donor_domains": ["premier-roofing.com", "southernstarroofing.com"],
+            "opportunity": "Provide comprehensive material comparison and selection guidance"
+          }
+        ],
+        "internal_links": [
+          { "target_route_id": "home", "purpose": "return to main service overview" },
+          {
+            "target_route_id": "storm-damage",
+            "purpose": "cross-sell storm damage assessment services"
+          },
+          { "target_route_id": "contact", "purpose": "conversion path for replacement quotes" }
+        ],
+        "aeo_geo": {
+          "answer_targets": [
+            "How much does roof replacement cost in Charlotte NC?",
+            "What is the best roofing material for Charlotte climate?"
+          ],
+          "schema_requirements": ["Service", "Offer", "PriceRange"]
+        },
+        "metadata": {
+          "title_requirements": ["roof replacement", "Charlotte NC", "roofing contractor"],
+          "description_requirements": [
+            "roof replacement services",
+            "Charlotte NC",
+            "free estimate",
+            "materials"
+          ]
+        },
+        "forbidden_claims": [
+          "lowest price guarantee",
+          "same day completion",
+          "no permits required"
+        ],
+        "acceptance_tests": [
+          "explains replacement process",
+          "mentions Charlotte-specific factors",
+          "includes material options",
+          "provides contact CTA"
+        ]
+      },
+      {
+        "route_id": "storm-damage",
+        "path": "/services/storm-damage",
+        "search_intent": {
+          "primary": "local",
+          "secondary": ["commercial", "transactional"],
+          "journey_stage": "commercial"
+        },
+        "targets": {
+          "primary_query": "storm damage roof inspection charlotte",
+          "supporting_queries": [
+            "hail damage roof charlotte",
+            "wind damage roof repair",
+            "insurance claim roof damage"
+          ],
+          "topics": [
+            "storm damage",
+            "roof inspection",
+            "insurance claims",
+            "hail damage",
+            "wind damage"
+          ],
+          "entities": [
+            "Charlotte NC",
+            "storm damage",
+            "insurance claims",
+            "roof inspection",
+            "hail damage"
+          ]
+        },
+        "requirements": [
+          {
+            "requirement_id": "inspection_process",
+            "target_slots": ["service_overview", "process"],
+            "placement": "ALL_MATCHES",
+            "required_topics": ["storm damage inspection", "insurance documentation"],
+            "required_entities": ["storm damage", "insurance claims"],
+            "questions": [
+              "How do you inspect for storm damage?",
+              "How do you help with insurance claims?"
+            ],
+            "proof_needed": ["inspection methodology", "insurance experience"],
+            "required": true
+          },
+          {
+            "requirement_id": "urgency_handling",
+            "target_slots": ["objection_handling"],
+            "placement": "FIRST_MATCH",
+            "required_topics": ["emergency response", "temporary repairs"],
+            "required_entities": ["storm damage"],
+            "questions": ["What if I need emergency roof repair?"],
+            "proof_needed": ["response time", "temporary solutions"],
+            "required": true
+          }
+        ],
+        "competitive_gaps": [
+          {
+            "gap_id": "insurance_guidance",
+            "description": "Limited information about insurance claim process and documentation",
+            "donor_domains": ["charlotteaceroofing.com", "southernstarroofing.com"],
+            "opportunity": "Provide detailed insurance claim assistance and documentation guidance"
+          }
+        ],
+        "internal_links": [
+          { "target_route_id": "home", "purpose": "return to main service overview" },
+          {
+            "target_route_id": "roof-replacement",
+            "purpose": "upsell full replacement when damage is extensive"
+          },
+          { "target_route_id": "contact", "purpose": "urgent inspection request conversion" }
+        ],
+        "aeo_geo": {
+          "answer_targets": [
+            "How to get storm damage roof inspection in Charlotte?",
+            "Does insurance cover storm damage roof repair?"
+          ],
+          "schema_requirements": ["Service", "LocalBusiness", "EmergencyService"]
+        },
+        "metadata": {
+          "title_requirements": [
+            "storm damage",
+            "roof inspection",
+            "Charlotte NC",
+            "insurance claims"
+          ],
+          "description_requirements": [
+            "storm damage inspection",
+            "Charlotte NC",
+            "insurance assistance",
+            "free inspection"
+          ]
+        },
+        "forbidden_claims": [
+          "guaranteed insurance approval",
+          "we handle all insurance communication",
+          "no deductible required"
+        ],
+        "acceptance_tests": [
+          "explains inspection process",
+          "mentions insurance assistance",
+          "includes emergency contact",
+          "covers Charlotte service area"
+        ]
+      },
+      {
+        "route_id": "contact",
+        "path": "/contact",
+        "search_intent": {
+          "primary": "transactional",
+          "secondary": ["local"],
+          "journey_stage": "transactional"
+        },
+        "targets": {
+          "primary_query": "charlotte roofing contractor contact",
+          "supporting_queries": [
+            "roof inspection charlotte",
+            "roofing quote charlotte nc",
+            "free roof estimate"
+          ],
+          "topics": ["contact information", "free inspection", "quote request", "service area"],
+          "entities": ["Charlotte NC", "phone number", "free inspection", "quote request"]
+        },
+        "requirements": [
+          {
+            "requirement_id": "contact_details",
+            "target_slots": ["conversion"],
+            "placement": "FIRST_MATCH",
+            "required_topics": ["contact information", "service area"],
+            "required_entities": ["phone number", "Charlotte NC"],
+            "questions": ["How can I contact you?", "What areas do you serve?"],
+            "proof_needed": ["phone number", "service area coverage"],
+            "required": true
+          },
+          {
+            "requirement_id": "conversion_optimization",
+            "target_slots": ["conversion"],
+            "placement": "ALL_MATCHES",
+            "required_topics": ["free inspection", "quote request"],
+            "required_entities": ["free inspection"],
+            "questions": ["How do I get a free inspection?"],
+            "proof_needed": ["inspection offer", "response time"],
+            "required": true
+          }
+        ],
+        "competitive_gaps": [
+          {
+            "gap_id": "response_commitment",
+            "description": "Competitors don't clearly state response times or availability",
+            "donor_domains": ["premier-roofing.com", "southernstarroofing.com"],
+            "opportunity": "Clearly communicate response times and availability for inspections"
+          }
+        ],
+        "internal_links": [
+          { "target_route_id": "home", "purpose": "return to main service overview" },
+          {
+            "target_route_id": "roof-replacement",
+            "purpose": "link to detailed replacement services"
+          },
+          { "target_route_id": "storm-damage", "purpose": "link to emergency inspection services" }
+        ],
+        "aeo_geo": {
+          "answer_targets": [
+            "How to contact roofing contractor in Charlotte NC?",
+            "How to schedule roof inspection in Charlotte?"
+          ],
+          "schema_requirements": ["ContactPage", "LocalBusiness", "PostalAddress"]
+        },
+        "metadata": {
+          "title_requirements": [
+            "contact",
+            "Charlotte NC",
+            "roofing contractor",
+            "free inspection"
+          ],
+          "description_requirements": [
+            "contact roofing contractor",
+            "Charlotte NC",
+            "free inspection",
+            "phone number"
+          ]
+        },
+        "forbidden_claims": [
+          "instant response guaranteed",
+          "available 24/7 for all services",
+          "no appointment necessary"
+        ],
+        "acceptance_tests": [
+          "displays phone number prominently",
+          "includes service area",
+          "offers free inspection",
+          "provides multiple contact methods"
+        ]
+      }
+    ]
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "payload_digest": "47e3f9b78c5dadb620c3f63ee1004163d543c68a2ccaefffb125ee5d65d5006f"
+  }
+}

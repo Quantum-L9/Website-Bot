@@ -8,13 +8,10 @@
  * BuildIntent answers:
  *   "What kind of website transformation are we performing?"
  */
-export const BUILD_INTENTS = [
-  'COPY',
-  'REDESIGN_IMPROVE',
-] as const;
+export const BUILD_INTENTS = ["COPY", "REDESIGN_IMPROVE"] as const;
 export type BuildIntent = (typeof BUILD_INTENTS)[number];
 
-export const DEFAULT_LEGACY_BUILD_INTENT: BuildIntent = 'COPY';
+export const DEFAULT_LEGACY_BUILD_INTENT: BuildIntent = "COPY";
 
 /**
  * Backward compatibility:
@@ -23,10 +20,10 @@ export const DEFAULT_LEGACY_BUILD_INTENT: BuildIntent = 'COPY';
  * New REDESIGN_IMPROVE runs MUST declare the intent explicitly.
  */
 export function parseBuildIntent(value: unknown): BuildIntent {
-  if (value === undefined || value === null || value === '') {
+  if (value === undefined || value === null || value === "") {
     return DEFAULT_LEGACY_BUILD_INTENT;
   }
-  if (value === 'COPY' || value === 'REDESIGN_IMPROVE') {
+  if (value === "COPY" || value === "REDESIGN_IMPROVE") {
     return value;
   }
   throw new Error(
@@ -34,12 +31,10 @@ export function parseBuildIntent(value: unknown): BuildIntent {
   );
 }
 
-export function isCopyIntent(intent: BuildIntent): intent is 'COPY' {
-  return intent === 'COPY';
+export function isCopyIntent(intent: BuildIntent): intent is "COPY" {
+  return intent === "COPY";
 }
 
-export function isImproveIntent(
-  intent: BuildIntent,
-): intent is 'REDESIGN_IMPROVE' {
-  return intent === 'REDESIGN_IMPROVE';
+export function isImproveIntent(intent: BuildIntent): intent is "REDESIGN_IMPROVE" {
+  return intent === "REDESIGN_IMPROVE";
 }

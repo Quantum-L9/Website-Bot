@@ -26,11 +26,11 @@
       "!**/website_pack/generated",
       "!**/package-lock.json",
       "!**/npm-shrinkwrap.json",
-      "!**/.cursor-commands/**",
-      "!**/.cursor/**",
-      "!**/.claude/**",
-      "!**/.vscode/**",
-      "!**/build/**"
+      "!**/.cursor-commands",
+      "!**/.cursor",
+      "!**/.claude",
+      "!**/.vscode",
+      "!**/build"
     ]
   },
   "formatter": {

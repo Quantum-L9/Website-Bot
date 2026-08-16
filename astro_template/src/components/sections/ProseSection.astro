@@ -1,8 +1,14 @@
 <!-- L9_META: layer=template, role=generic_section, status=active, version=1.1.0 -->
 ---
-interface Props { name?: string; content: string; }
-const { name = 'section', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+interface Props {
+  name?: string;
+  content: string;
+}
+const { name = "section", content } = Astro.props;
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim())
+  .filter(Boolean);
 const heading = paragraphs[0] && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
 ---
 <section class="prose" data-section={name}>

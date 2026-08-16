@@ -30,12 +30,7 @@
     },
     "mode": {
       "type": "string",
-      "enum": [
-        "plan",
-        "local-proof",
-        "publish-proof",
-        "end-to-end"
-      ]
+      "enum": ["plan", "local-proof", "publish-proof", "end-to-end"]
     },
     "revision": {
       "type": "integer",
@@ -110,14 +105,7 @@
     "record": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "kind",
-        "schema",
-        "logical_id",
-        "relative_path",
-        "sha256",
-        "written_at"
-      ],
+      "required": ["kind", "schema", "logical_id", "relative_path", "sha256", "written_at"],
       "properties": {
         "kind": {
           "type": "string",

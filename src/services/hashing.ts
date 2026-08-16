@@ -1,8 +1,8 @@
 // L9_META: layer=service, role=deterministic_hashing, status=active, version=1.0.0
-import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync, readdirSync } from 'node:fs';
-import { relative, resolve, sep } from 'node:path';
-import { BuildError } from '../pipeline/BuildError.js';
+import { createHash } from "node:crypto";
+import { lstatSync, readdirSync, readFileSync } from "node:fs";
+import { relative, resolve, sep } from "node:path";
+import { BuildError } from "../pipeline/BuildError.js";
 
 export interface HashedFile {
   path: string;
@@ -24,34 +24,46 @@ export interface CollectFilesOptions {
 }
 
 export const LOCAL_EVIDENCE_PATHS = new Set([
-  '.l9/assembly-manifest.json',
-  '.l9/build-proof.json',
-  '.l9/publication-evidence.json',
-  '.l9/deployment-evidence.json',
+  ".l9/assembly-manifest.json",
+  ".l9/build-proof.json",
+  ".l9/publication-evidence.json",
+  ".l9/deployment-evidence.json",
 ]);
 
 export function normalizeRelativePath(path: string): string {
-  return path.replaceAll('\\', '/').replace(/^\.\//, '');
+  return path.replaceAll("\\", "/").replace(/^\.\//, "");
 }
 
 export function isSourceDigestExcluded(path: string): boolean {
   const normalized = normalizeRelativePath(path);
-  const root = normalized.split('/')[0];
-  return root === 'node_modules' || root === 'dist' || root === '.astro' || root === '.git' || root === '.l9';
+  const root = normalized.split("/")[0];
+  return (
+    root === "node_modules" ||
+    root === "dist" ||
+    root === ".astro" ||
+    root === ".git" ||
+    root === ".l9"
+  );
 }
 
 export function isPublicationExcluded(path: string): boolean {
   const normalized = normalizeRelativePath(path);
-  const root = normalized.split('/')[0];
-  return root === 'node_modules' || root === 'dist' || root === '.astro' || root === '.git' || LOCAL_EVIDENCE_PATHS.has(normalized);
+  const root = normalized.split("/")[0];
+  return (
+    root === "node_modules" ||
+    root === "dist" ||
+    root === ".astro" ||
+    root === ".git" ||
+    LOCAL_EVIDENCE_PATHS.has(normalized)
+  );
 }
 
 export function sha256Bytes(value: Uint8Array): string {
-  return createHash('sha256').update(value).digest('hex');
+  return createHash("sha256").update(value).digest("hex");
 }
 
 export function sha256Text(value: string): string {
-  return sha256Bytes(Buffer.from(value, 'utf-8'));
+  return sha256Bytes(Buffer.from(value, "utf-8"));
 }
 
 export function sha256File(path: string): string {
@@ -61,7 +73,7 @@ export function sha256File(path: string): string {
 export function canonicalJson(value: unknown): string {
   const normalize = (item: unknown): unknown => {
     if (Array.isArray(item)) return item.map(normalize);
-    if (item && typeof item === 'object') {
+    if (item && typeof item === "object") {
       return Object.fromEntries(
         Object.entries(item as Record<string, unknown>)
           .sort(([left], [right]) => left.localeCompare(right))
@@ -97,8 +109,8 @@ export function comparePaths(left: string, right: string): number {
  * digests (see `sha256Text` / `digestDirectory`).
  */
 export function gitBlobSha(content: Uint8Array): string {
-  const header = Buffer.from(`blob ${content.byteLength}\0`, 'utf-8');
-  return createHash('sha1').update(header).update(content).digest('hex'); // NOSONAR typescript:S4790 -- Git blob IDs are SHA-1 by protocol definition; not used as a security hash
+  const header = Buffer.from(`blob ${content.byteLength}\0`, "utf-8");
+  return createHash("sha1").update(header).update(content).digest("hex"); // NOSONAR typescript:S4790 -- Git blob IDs are SHA-1 by protocol definition; not used as a security hash
 }
 
 export function collectRegularFiles(root: string, options: CollectFilesOptions = {}): string[] {
@@ -113,22 +125,39 @@ export function collectRegularFiles(root: string, options: CollectFilesOptions =
     for (const name of readdirSync(directory).sort()) {
       const absolutePath = resolve(directory, name);
       if (absolutePath !== absoluteRoot && !absolutePath.startsWith(`${absoluteRoot}${sep}`)) {
-        throw new BuildError('VALIDATION_FAILED', `Path escaped root during file collection: ${absolutePath}`);
+        throw new BuildError(
+          "VALIDATION_FAILED",
+          `Path escaped root during file collection: ${absolutePath}`,
+        );
       }
       const relativePath = normalizeRelativePath(relative(absoluteRoot, absolutePath));
       if (options.exclude?.(relativePath)) continue;
       const stat = lstatSync(absolutePath);
-      if (stat.isSymbolicLink()) throw new BuildError('VALIDATION_FAILED', `Symbolic links are forbidden: ${relativePath}`);
+      if (stat.isSymbolicLink())
+        throw new BuildError("VALIDATION_FAILED", `Symbolic links are forbidden: ${relativePath}`);
       if (stat.isDirectory()) {
         walk(absolutePath);
         continue;
       }
-      if (!stat.isFile()) throw new BuildError('VALIDATION_FAILED', `Unsupported filesystem entry: ${relativePath}`);
-      if (stat.size > maxFileBytes) throw new BuildError('SOURCE_PUBLISH_FAILED', `File exceeds publication limit: ${relativePath}`);
+      if (!stat.isFile())
+        throw new BuildError("VALIDATION_FAILED", `Unsupported filesystem entry: ${relativePath}`);
+      if (stat.size > maxFileBytes)
+        throw new BuildError(
+          "SOURCE_PUBLISH_FAILED",
+          `File exceeds publication limit: ${relativePath}`,
+        );
       totalBytes += stat.size;
-      if (totalBytes > maxTotalBytes) throw new BuildError('SOURCE_PUBLISH_FAILED', 'Generated source exceeds total publication size limit');
+      if (totalBytes > maxTotalBytes)
+        throw new BuildError(
+          "SOURCE_PUBLISH_FAILED",
+          "Generated source exceeds total publication size limit",
+        );
       files.push(absolutePath);
-      if (files.length > maxFiles) throw new BuildError('SOURCE_PUBLISH_FAILED', 'Generated source exceeds publication file-count limit');
+      if (files.length > maxFiles)
+        throw new BuildError(
+          "SOURCE_PUBLISH_FAILED",
+          "Generated source exceeds publication file-count limit",
+        );
     }
   };
 
@@ -138,14 +167,18 @@ export function collectRegularFiles(root: string, options: CollectFilesOptions =
 
 export function digestDirectory(root: string, options: CollectFilesOptions = {}): DirectoryDigest {
   const absoluteRoot = resolve(root);
-  const files = collectRegularFiles(absoluteRoot, options).map(absolutePath => {
-    const content = readFileSync(absolutePath);
-    return {
-      path: normalizeRelativePath(relative(absoluteRoot, absolutePath)),
-      sha256: sha256Bytes(content),
-      bytes: content.byteLength,
-    } satisfies HashedFile;
-  }).sort((left, right) => left.path.localeCompare(right.path));
-  const digest = sha256Text(files.map(file => `${file.path}\0${file.sha256}\0${file.bytes}\n`).join(''));
+  const files = collectRegularFiles(absoluteRoot, options)
+    .map((absolutePath) => {
+      const content = readFileSync(absolutePath);
+      return {
+        path: normalizeRelativePath(relative(absoluteRoot, absolutePath)),
+        sha256: sha256Bytes(content),
+        bytes: content.byteLength,
+      } satisfies HashedFile;
+    })
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const digest = sha256Text(
+    files.map((file) => `${file.path}\0${file.sha256}\0${file.bytes}\n`).join(""),
+  );
   return { digest, files, totalBytes: files.reduce((sum, file) => sum + file.bytes, 0) };
 }

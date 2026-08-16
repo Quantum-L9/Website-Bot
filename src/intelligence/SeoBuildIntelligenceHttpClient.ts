@@ -4,13 +4,13 @@ import {
   type CompetitiveLandscapeArtifact,
   type SEOContentBlueprintArtifact,
   type StructuredContentPackageArtifact,
-} from '@quantum-l9/bot-interop';
+} from "@quantum-l9/bot-interop";
 import type {
   CompetitiveLandscapeRequest,
   SEOContentBlueprintRequest,
   SeoBuildIntelligencePort,
   StructuredContentRequest,
-} from './SeoBuildIntelligencePort.js';
+} from "./SeoBuildIntelligencePort.js";
 
 /**
  * HTTP transport for the SEO-Bot build-time intelligence seam
@@ -26,18 +26,20 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
   ) {}
 
   private async post<T>(path: string, body: unknown): Promise<T> {
-    const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, '')}${path}`, {
-      method: 'POST',
+    const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(120_000),
     });
     const raw = await response.text();
     if (!response.ok) {
-      throw new Error(`SEO-Bot intelligence ${path} failed (${response.status}): ${raw.slice(0, 500)}`);
+      throw new Error(
+        `SEO-Bot intelligence ${path} failed (${response.status}): ${raw.slice(0, 500)}`,
+      );
     }
     return JSON.parse(raw) as T;
   }
@@ -48,12 +50,12 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // Port carries plain seed queries; the API schema wants {query, intent} per
     // seed. Default intent is commercial (lead-gen factory context).
     const artifact = await this.post<CompetitiveLandscapeArtifact>(
-      '/api/build-intelligence/competitive-landscape',
+      "/api/build-intelligence/competitive-landscape",
       {
         client_id: request.client_id,
         build_id: request.build_id,
         market: request.market,
-        seed_queries: request.seed_queries.map(query => ({ query, intent: 'commercial' })),
+        seed_queries: request.seed_queries.map((query) => ({ query, intent: "commercial" })),
         desired_donor_count: request.desired_donor_count,
       },
     );
@@ -65,7 +67,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     request: SEOContentBlueprintRequest,
   ): Promise<SEOContentBlueprintArtifact> {
     const artifact = await this.post<SEOContentBlueprintArtifact>(
-      '/api/build-intelligence/seo-content-blueprint',
+      "/api/build-intelligence/seo-content-blueprint",
       request,
     );
     assertIntelligenceArtifactIntegrity(artifact);
@@ -76,7 +78,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     request: StructuredContentRequest,
   ): Promise<StructuredContentPackageArtifact> {
     const artifact = await this.post<StructuredContentPackageArtifact>(
-      '/api/build-intelligence/structured-content',
+      "/api/build-intelligence/structured-content",
       request,
     );
     assertIntelligenceArtifactIntegrity(artifact);

@@ -1,0 +1,21 @@
+{
+  "args": {},
+  "data": "",
+  "files": {},
+  "form": {
+    "email": "e2e@test.invalid",
+    "message": "form wiring check",
+    "name": "E2E Test"
+  },
+  "headers": {
+    "Accept": "*/*",
+    "Content-Length": "62",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Host": "httpbin.org",
+    "User-Agent": "curl/8.7.1",
+    "X-Amzn-Trace-Id": "Root=1-6a8191d8-319666750562d5a15cfb56fb"
+  },
+  "json": null,
+  "origin": "136.57.248.173",
+  "url": "https://httpbin.org/post"
+}

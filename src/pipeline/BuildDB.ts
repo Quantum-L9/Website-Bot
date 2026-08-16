@@ -1,67 +1,78 @@
 // L9_META: layer=pipeline, role=state_store, status=active, version=4.0.0
-import Database from 'better-sqlite3';
-import fs from 'node:fs';
-import nodePath from 'node:path';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import type { EvidenceIndex } from './evidence/EvidenceIndex.js';
 
-export const builds = sqliteTable('builds', {
-  id: text('id').primaryKey(),
-  clientId: text('client_id').notNull(),
-  status: text('status', { enum: ['running', 'success', 'failed', 'partial'] }).notNull().default('running'),
-  startedAt: text('started_at').notNull(),
-  completedAt: text('completed_at'),
-  deployUrl: text('deploy_url'),
-  dryRun: integer('dry_run', { mode: 'boolean' }).notNull().default(false),
-  errorCode: text('error_code'),
-  errorMsg: text('error_msg'),
+import fs from "node:fs";
+import nodePath from "node:path";
+import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import type { EvidenceIndex } from "./evidence/EvidenceIndex.js";
+
+export const builds = sqliteTable("builds", {
+  id: text("id").primaryKey(),
+  clientId: text("client_id").notNull(),
+  status: text("status", { enum: ["running", "success", "failed", "partial"] })
+    .notNull()
+    .default("running"),
+  startedAt: text("started_at").notNull(),
+  completedAt: text("completed_at"),
+  deployUrl: text("deploy_url"),
+  dryRun: integer("dry_run", { mode: "boolean" }).notNull().default(false),
+  errorCode: text("error_code"),
+  errorMsg: text("error_msg"),
 });
 
-export const stageRuns = sqliteTable('stage_runs', {
-  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  buildId: text('build_id').notNull().references(() => builds.id),
-  stageName: text('stage_name').notNull(),
-  status: text('status', { enum: ['running', 'ok', 'skipped', 'failed'] }).notNull(),
-  durationMs: integer('duration_ms'),
-  errorMsg: text('error_msg'),
-  ranAt: text('ran_at').notNull(),
+export const stageRuns = sqliteTable("stage_runs", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  buildId: text("build_id")
+    .notNull()
+    .references(() => builds.id),
+  stageName: text("stage_name").notNull(),
+  status: text("status", { enum: ["running", "ok", "skipped", "failed"] }).notNull(),
+  durationMs: integer("duration_ms"),
+  errorMsg: text("error_msg"),
+  ranAt: text("ran_at").notNull(),
 });
 
-export const llmUsage = sqliteTable('llm_usage', {
-  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  buildId: text('build_id').notNull().references(() => builds.id),
-  stage: text('stage').notNull(),
-  taskType: text('task_type').notNull(),
-  model: text('model').notNull(),
-  inputTokens: integer('input_tokens').notNull(),
-  outputTokens: integer('output_tokens').notNull(),
-  costUsd: real('cost_usd').notNull(),
-  recordedAt: text('recorded_at').notNull(),
+export const llmUsage = sqliteTable("llm_usage", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  buildId: text("build_id")
+    .notNull()
+    .references(() => builds.id),
+  stage: text("stage").notNull(),
+  taskType: text("task_type").notNull(),
+  model: text("model").notNull(),
+  inputTokens: integer("input_tokens").notNull(),
+  outputTokens: integer("output_tokens").notNull(),
+  costUsd: real("cost_usd").notNull(),
+  recordedAt: text("recorded_at").notNull(),
 });
 
-export const evidenceArtifacts = sqliteTable('evidence_artifacts', {
-  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  buildId: text('build_id').notNull().references(() => builds.id),
-  clientId: text('client_id').notNull(),
-  kind: text('kind').notNull(),
-  schemaId: text('schema_id').notNull(),
-  logicalId: text('logical_id').notNull(),
-  relativePath: text('relative_path').notNull(),
-  sha256: text('sha256').notNull(),
-  createdAt: text('created_at').notNull(),
+export const evidenceArtifacts = sqliteTable("evidence_artifacts", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  buildId: text("build_id")
+    .notNull()
+    .references(() => builds.id),
+  clientId: text("client_id").notNull(),
+  kind: text("kind").notNull(),
+  schemaId: text("schema_id").notNull(),
+  logicalId: text("logical_id").notNull(),
+  relativePath: text("relative_path").notNull(),
+  sha256: text("sha256").notNull(),
+  createdAt: text("created_at").notNull(),
 });
 
-export const evidenceChainStatus = sqliteTable('evidence_chain_status', {
-  buildId: text('build_id').primaryKey().references(() => builds.id),
-  clientId: text('client_id').notNull(),
-  mode: text('mode').notNull(),
-  status: text('status').notNull(),
-  lastSuccessfulStage: text('last_successful_stage'),
-  failedStage: text('failed_stage'),
-  evidenceIndexPath: text('evidence_index_path').notNull(),
-  indexRevision: integer('index_revision').notNull(),
-  updatedAt: text('updated_at').notNull(),
+export const evidenceChainStatus = sqliteTable("evidence_chain_status", {
+  buildId: text("build_id")
+    .primaryKey()
+    .references(() => builds.id),
+  clientId: text("client_id").notNull(),
+  mode: text("mode").notNull(),
+  status: text("status").notNull(),
+  lastSuccessfulStage: text("last_successful_stage"),
+  failedStage: text("failed_stage"),
+  evidenceIndexPath: text("evidence_index_path").notNull(),
+  indexRevision: integer("index_revision").notNull(),
+  updatedAt: text("updated_at").notNull(),
 });
 
 export const buildSchema = { builds, stageRuns, llmUsage, evidenceArtifacts, evidenceChainStatus };
@@ -69,11 +80,12 @@ export const buildSchema = { builds, stageRuns, llmUsage, evidenceArtifacts, evi
 export function getBuildDb(path?: string) {
   // Default to a dedicated data directory so run-state never lands in the repo root
   // (an in-tree website-bot.db was a recurring source of accidental commits).
-  const dbPath = path ?? process.env.BUILD_DB_PATH ?? '.l9/data/website-bot.db';
-  if (dbPath !== ':memory:') fs.mkdirSync(nodePath.dirname(nodePath.resolve(dbPath)), { recursive: true });
+  const dbPath = path ?? process.env.BUILD_DB_PATH ?? ".l9/data/website-bot.db";
+  if (dbPath !== ":memory:")
+    fs.mkdirSync(nodePath.dirname(nodePath.resolve(dbPath)), { recursive: true });
   const sqlite = new Database(dbPath);
-  sqlite.pragma('journal_mode = WAL');
-  sqlite.pragma('foreign_keys = ON');
+  sqlite.pragma("journal_mode = WAL");
+  sqlite.pragma("foreign_keys = ON");
   const db = drizzle(sqlite, { schema: buildSchema });
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS builds (
@@ -104,7 +116,11 @@ export function getBuildDb(path?: string) {
   return { db, sqlite };
 }
 
-export function syncEvidenceIndexToDb(sqlite: Database.Database, index: EvidenceIndex, evidenceRoot: string): void {
+export function syncEvidenceIndexToDb(
+  sqlite: Database.Database,
+  index: EvidenceIndex,
+  evidenceRoot: string,
+): void {
   const transaction = sqlite.transaction(() => {
     const upsertArtifact = sqlite.prepare(`
       INSERT INTO evidence_artifacts
@@ -117,11 +133,11 @@ export function syncEvidenceIndexToDb(sqlite: Database.Database, index: Evidence
     `);
     for (const record of Object.values(index.artifacts)) {
       if (!record) continue;
-      sqlite.prepare(`DELETE FROM evidence_artifacts WHERE (build_id = ? AND kind = ?) OR logical_id = ?`).run(
-        index.build_id,
-        record.kind,
-        record.logicalId,
-      );
+      sqlite
+        .prepare(
+          `DELETE FROM evidence_artifacts WHERE (build_id = ? AND kind = ?) OR logical_id = ?`,
+        )
+        .run(index.build_id, record.kind, record.logicalId);
       upsertArtifact.run({
         build_id: index.build_id,
         client_id: index.client_id,
@@ -133,7 +149,8 @@ export function syncEvidenceIndexToDb(sqlite: Database.Database, index: Evidence
         created_at: record.writtenAt,
       });
     }
-    sqlite.prepare(`
+    sqlite
+      .prepare(`
       INSERT INTO evidence_chain_status
         (build_id, client_id, mode, status, last_successful_stage, failed_stage, evidence_index_path, index_revision, updated_at)
       VALUES
@@ -142,17 +159,18 @@ export function syncEvidenceIndexToDb(sqlite: Database.Database, index: Evidence
         status=excluded.status, last_successful_stage=excluded.last_successful_stage,
         failed_stage=excluded.failed_stage, evidence_index_path=excluded.evidence_index_path,
         index_revision=excluded.index_revision, updated_at=excluded.updated_at
-    `).run({
-      build_id: index.build_id,
-      client_id: index.client_id,
-      mode: index.mode,
-      status: index.chain_status,
-      last_successful_stage: index.last_successful_stage ?? null,
-      failed_stage: index.failed_stage ?? null,
-      evidence_index_path: `${evidenceRoot}/evidence-index.json`,
-      index_revision: index.revision,
-      updated_at: index.updated_at,
-    });
+    `)
+      .run({
+        build_id: index.build_id,
+        client_id: index.client_id,
+        mode: index.mode,
+        status: index.chain_status,
+        last_successful_stage: index.last_successful_stage ?? null,
+        failed_stage: index.failed_stage ?? null,
+        evidence_index_path: `${evidenceRoot}/evidence-index.json`,
+        index_revision: index.revision,
+        updated_at: index.updated_at,
+      });
   });
   transaction();
 }

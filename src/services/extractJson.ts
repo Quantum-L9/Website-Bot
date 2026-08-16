@@ -16,21 +16,21 @@ export class JsonExtractionError extends Error {
   readonly attempts: string[];
   constructor(message: string, attempts: string[]) {
     super(message);
-    this.name = 'JsonExtractionError';
+    this.name = "JsonExtractionError";
     this.attempts = attempts;
   }
 }
 
 function stripCodeFences(raw: string): string | undefined {
   const trimmed = raw.trim();
-  if (!trimmed.startsWith('```')) return undefined;
+  if (!trimmed.startsWith("```")) return undefined;
   const lines = trimmed.split(/\r?\n/);
   // Drop the opening fence line (``` or ```json etc.).
   let body = lines.slice(1);
   // Drop the closing fence line if present.
-  const lastFence = body.map(line => line.trim()).lastIndexOf('```');
+  const lastFence = body.map((line) => line.trim()).lastIndexOf("```");
   if (lastFence !== -1) body = body.slice(0, lastFence);
-  const candidate = body.join('\n').trim();
+  const candidate = body.join("\n").trim();
   return candidate.length > 0 ? candidate : undefined;
 }
 
@@ -38,7 +38,7 @@ function scanBalancedJson(raw: string): string | undefined {
   const start = raw.search(/[[{]/);
   if (start === -1) return undefined;
   const open = raw[start];
-  const close = open === '{' ? '}' : ']';
+  const close = open === "{" ? "}" : "]";
   let depth = 0;
   let inString = false;
   let escaped = false;
@@ -46,11 +46,14 @@ function scanBalancedJson(raw: string): string | undefined {
     const char = raw[index];
     if (inString) {
       if (escaped) escaped = false;
-      else if (char === '\\') escaped = true;
+      else if (char === "\\") escaped = true;
       else if (char === '"') inString = false;
       continue;
     }
-    if (char === '"') { inString = true; continue; }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
     if (char === open) depth += 1;
     else if (char === close) {
       depth -= 1;
@@ -67,9 +70,9 @@ function scanBalancedJson(raw: string): string | undefined {
 export function extractJson(raw: string): unknown {
   const attempts: string[] = [];
   const candidates: Array<{ label: string; text: string | undefined }> = [
-    { label: 'raw', text: raw },
-    { label: 'fence-stripped', text: stripCodeFences(raw) },
-    { label: 'balanced-scan', text: scanBalancedJson(raw) },
+    { label: "raw", text: raw },
+    { label: "fence-stripped", text: stripCodeFences(raw) },
+    { label: "balanced-scan", text: scanBalancedJson(raw) },
   ];
   for (const { label, text } of candidates) {
     if (text === undefined) continue;

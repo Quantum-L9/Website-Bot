@@ -6,28 +6,34 @@
 // the (downstream) generation stage to fill. The whole stage is a no-op when the
 // spec declares no image slots, so text-only builds are unaffected.
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename, isAbsolute, resolve } from 'node:path';
-import { createModuleLogger } from '../core/logger.js';
-import { BuildError } from '../pipeline/BuildError.js';
-import { clientAssetRoot } from '../pipeline/BuildContext.js';
-import type { AssetSpec, BuildContext, ImageSlotSpec, ProvidedImageSpec } from '../pipeline/BuildContext.js';
-import type { EvidenceKind } from '../pipeline/evidence/EvidenceReference.js';
-import type { Stage } from '../pipeline/PipelineRunner.js';
-import { EXTENSION_BY_MIME, inspectImage, type InspectedImage } from '../services/images/ImageInspector.js';
-import {
-  planImageAssets,
-  type ProvidedCandidate,
-} from '../services/images/ImageAssetPlanner.js';
-import type { IngestedImage } from '../pipeline/evidence/SourceSiteManifest.js';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, isAbsolute, resolve } from "node:path";
+import { createModuleLogger } from "../core/logger.js";
+import type {
+  AssetSpec,
+  BuildContext,
+  ImageSlotSpec,
+  ProvidedImageSpec,
+} from "../pipeline/BuildContext.js";
+import { clientAssetRoot } from "../pipeline/BuildContext.js";
+import { BuildError } from "../pipeline/BuildError.js";
+import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
 import {
   buildImageAssetManifest,
-  type ReuseDisposition,
   type ResolvedImageAsset,
-} from '../pipeline/evidence/ImageAssetManifest.js';
-import { unresolvedRequiredSlots } from '../pipeline/evidence/ImageAssetPlan.js';
+  type ReuseDisposition,
+} from "../pipeline/evidence/ImageAssetManifest.js";
+import { unresolvedRequiredSlots } from "../pipeline/evidence/ImageAssetPlan.js";
+import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
+import type { Stage } from "../pipeline/PipelineRunner.js";
+import { type ProvidedCandidate, planImageAssets } from "../services/images/ImageAssetPlanner.js";
+import {
+  EXTENSION_BY_MIME,
+  type InspectedImage,
+  inspectImage,
+} from "../services/images/ImageInspector.js";
 
-const logger = createModuleLogger('stage:image-asset-planning');
+const logger = createModuleLogger("stage:image-asset-planning");
 
 interface InspectedProvided {
   spec: ProvidedImageSpec;
@@ -36,19 +42,24 @@ interface InspectedProvided {
 }
 
 function slugify(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'image';
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "image"
+  );
 }
 
-function dispositionForSource(source: ResolvedImageAsset['source']): ReuseDisposition {
+function dispositionForSource(source: ResolvedImageAsset["source"]): ReuseDisposition {
   // Operator-supplied and generated assets are client-owned by construction.
   // Source-site reuse is approved for the build but flagged for rights review;
   // PR5 tightens this to a domain-ownership check.
-  return 'approved-client-owned';
+  return "approved-client-owned";
 }
 
 export class ImageAssetPlanningStage implements Stage {
-  name = 'image-asset-planning';
-  version = '2.0.0';
+  name = "image-asset-planning";
+  version = "2.0.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Persist the plan and the (provided + source-site) delivered manifest whenever
@@ -56,7 +67,9 @@ export class ImageAssetPlanningStage implements Stage {
     // complete set; writing it here guarantees the evidence exists even for a
     // build with no generated slots. Text-only builds declare no output.
     outputs: (ctx: BuildContext): EvidenceKind[] =>
-      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0 ? [] : ['image_plan', 'image_assets'],
+      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0
+        ? []
+        : ["image_plan", "image_assets"],
     resumable: false,
     externalMutation: false,
   };
@@ -65,7 +78,7 @@ export class ImageAssetPlanningStage implements Stage {
     const assets = ctx.domainSpec.assets;
     const slots = assets?.imageSlots ?? [];
     if (!assets || slots.length === 0) {
-      logger.info('No image slots declared; skipping image asset planning');
+      logger.info("No image slots declared; skipping image asset planning");
       return;
     }
 
@@ -85,35 +98,47 @@ export class ImageAssetPlanningStage implements Stage {
     const missing = unresolvedRequiredSlots(plan);
     if (missing.length > 0) {
       throw new BuildError(
-        'VALIDATION_FAILED',
-        `Required image slots could not be resolved: ${missing.map(asset => asset.slotId).join(', ')}`,
+        "VALIDATION_FAILED",
+        `Required image slots could not be resolved: ${missing.map((asset) => asset.slotId).join(", ")}`,
       );
     }
 
     const stagingRoot = clientAssetRoot(ctx);
     const resolved: ResolvedImageAsset[] = [];
     for (const planned of plan.assets) {
-      const slot = slots.find(candidate => candidate.id === planned.slotId);
+      const slot = slots.find((candidate) => candidate.id === planned.slotId);
       if (!slot) continue;
       const resolution = planned.resolution;
-      if (resolution.source === 'provided') {
-        const match = provided.find(entry => entry.spec.id === resolution.candidateId);
+      if (resolution.source === "provided") {
+        const match = provided.find((entry) => entry.spec.id === resolution.candidateId);
         if (!match) continue;
-        resolved.push(this.stageAsset(ctx, stagingRoot, slot, 'provided', match.absolutePath, match.inspected, {
-          altText: slot.altText ?? match.spec.altText,
-          originalPath: match.absolutePath,
-        }));
-      } else if (resolution.source === 'source-site') {
-        const candidate = sourceCandidates.find(entry => entry.id === resolution.candidateId);
+        resolved.push(
+          this.stageAsset(ctx, stagingRoot, slot, "provided", match.absolutePath, match.inspected, {
+            altText: slot.altText ?? match.spec.altText,
+            originalPath: match.absolutePath,
+          }),
+        );
+      } else if (resolution.source === "source-site") {
+        const candidate = sourceCandidates.find((entry) => entry.id === resolution.candidateId);
         if (!candidate || !existsSync(candidate.localPath)) continue;
         const inspected = ctx.dryRun
-          ? { mimeType: candidate.mimeType, width: candidate.width, height: candidate.height, byteLength: candidate.byteLength, sha256: candidate.sha256 }
+          ? {
+              mimeType: candidate.mimeType,
+              width: candidate.width,
+              height: candidate.height,
+              byteLength: candidate.byteLength,
+              sha256: candidate.sha256,
+            }
           : inspectImage(readFileSync(candidate.localPath));
-        resolved.push(this.stageAsset(ctx, stagingRoot, slot, 'source-site', candidate.localPath, inspected, {
-          altText: slot.altText ?? candidate.altText,
-          sourceUrl: candidate.sourceUrl,
-          provenanceWarnings: ['source-site asset reused; verify client ownership before publication'],
-        }));
+        resolved.push(
+          this.stageAsset(ctx, stagingRoot, slot, "source-site", candidate.localPath, inspected, {
+            altText: slot.altText ?? candidate.altText,
+            sourceUrl: candidate.sourceUrl,
+            provenanceWarnings: [
+              "source-site asset reused; verify client ownership before publication",
+            ],
+          }),
+        );
       }
       // 'generated' resolutions are filled by the generation stage; 'unresolved'
       // non-required slots are simply left empty.
@@ -127,16 +152,24 @@ export class ImageAssetPlanningStage implements Stage {
     );
 
     if (!ctx.dryRun) {
-      const manifestDir = resolve(stagingRoot, 'manifests');
+      const manifestDir = resolve(stagingRoot, "manifests");
       mkdirSync(manifestDir, { recursive: true });
-      writeFileSync(resolve(manifestDir, 'image-asset-manifest.json'), `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`, 'utf-8');
+      writeFileSync(
+        resolve(manifestDir, "image-asset-manifest.json"),
+        `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`,
+        "utf-8",
+      );
       await ctx.evidenceStore.writeImagePlan(plan);
       await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);
     }
 
     logger.info(
-      { slots: slots.length, resolved: resolved.length, generated: plan.assets.filter(a => a.resolution.source === 'generated').length },
-      'Image asset plan resolved',
+      {
+        slots: slots.length,
+        resolved: resolved.length,
+        generated: plan.assets.filter((a) => a.resolution.source === "generated").length,
+      },
+      "Image asset plan resolved",
     );
   }
 
@@ -157,12 +190,18 @@ export class ImageAssetPlanningStage implements Stage {
       const absolutePath = isAbsolute(spec.path) ? spec.path : resolve(process.cwd(), spec.path);
       if (!existsSync(absolutePath)) {
         if (dryRun) continue;
-        throw new BuildError('MISSING_INPUT', `Provided image not found: ${spec.path} (resolved ${absolutePath})`);
+        throw new BuildError(
+          "MISSING_INPUT",
+          `Provided image not found: ${spec.path} (resolved ${absolutePath})`,
+        );
       }
       try {
         results.push({ spec, absolutePath, inspected: inspectImage(readFileSync(absolutePath)) });
       } catch (error) {
-        throw new BuildError('VALIDATION_FAILED', `Provided image ${spec.id} is not a decodable image: ${String(error)}`);
+        throw new BuildError(
+          "VALIDATION_FAILED",
+          `Provided image ${spec.id} is not a decodable image: ${String(error)}`,
+        );
       }
     }
     return results;
@@ -172,14 +211,20 @@ export class ImageAssetPlanningStage implements Stage {
     ctx: BuildContext,
     stagingRoot: string,
     slot: ImageSlotSpec,
-    source: ResolvedImageAsset['source'],
+    source: ResolvedImageAsset["source"],
     sourcePath: string,
     inspected: InspectedImage,
-    extra: { altText?: string; sourceUrl?: string; originalPath?: string; provenanceWarnings?: string[] },
+    extra: {
+      altText?: string;
+      sourceUrl?: string;
+      originalPath?: string;
+      provenanceWarnings?: string[];
+    },
   ): ResolvedImageAsset {
-    const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? basename(sourcePath).split('.').pop() ?? 'img';
+    const extension =
+      EXTENSION_BY_MIME[inspected.mimeType] ?? basename(sourcePath).split(".").pop() ?? "img";
     const outputFileName = `${slugify(slot.id)}.${extension}`;
-    const subdir = source === 'source-site' ? 'source-site' : 'provided';
+    const subdir = source === "source-site" ? "source-site" : "provided";
     let absolutePath = sourcePath;
     if (!ctx.dryRun) {
       const stagedDir = resolve(stagingRoot, subdir);

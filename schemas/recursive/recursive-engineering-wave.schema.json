@@ -5,8 +5,15 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "recursiveRunId", "wave", "inputCode", "e2e",
-    "engineeringHarvest", "reviewability", "status", "next"
+    "schema",
+    "recursiveRunId",
+    "wave",
+    "inputCode",
+    "e2e",
+    "engineeringHarvest",
+    "reviewability",
+    "status",
+    "next"
   ],
   "$defs": {
     "artifactRef": {
@@ -37,7 +44,13 @@
     "e2e": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["receiptRef", "artifactManifestRef", "sourceUrl", "candidateReviewable", "qualitySummaryRef"],
+      "required": [
+        "receiptRef",
+        "artifactManifestRef",
+        "sourceUrl",
+        "candidateReviewable",
+        "qualitySummaryRef"
+      ],
       "properties": {
         "receiptRef": { "$ref": "#/$defs/artifactRef" },
         "artifactManifestRef": { "$ref": "#/$defs/artifactRef" },
@@ -74,7 +87,9 @@
         "outcomeRef": { "$ref": "#/$defs/artifactRef" },
         "beforeSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
         "afterSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
-        "causalVerdict": { "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+        "causalVerdict": {
+          "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"]
+        }
       }
     },
     "promotion": {
@@ -97,8 +112,11 @@
     },
     "status": {
       "enum": [
-        "WAVE_COMPLETE", "NO_ACTIONABLE_SIGNAL", "PATCH_VALIDATION_FAILED",
-        "DEPLOYMENT_FAILED", "CONTROL_PLANE_CHANGE_REQUIRED"
+        "WAVE_COMPLETE",
+        "NO_ACTIONABLE_SIGNAL",
+        "PATCH_VALIDATION_FAILED",
+        "DEPLOYMENT_FAILED",
+        "CONTROL_PLANE_CHANGE_REQUIRED"
       ]
     },
     "next": { "enum": ["NEXT_WAVE", "STOP"] }

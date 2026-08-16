@@ -3,13 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "rootDir": ".",
-    "types": [
-      "node"
-    ],
-    "lib": [
-      "ES2022",
-      "DOM"
-    ]
+    "types": ["node"],
+    "lib": ["ES2022", "DOM"]
   },
   "include": [
     "src/provisioning/**/*.ts",
@@ -19,9 +14,5 @@
     "tests/unit/vercel-provisioner.test.ts",
     "tests/unit/provisioning-transaction.test.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "exclude": ["node_modules", "dist", "build"]
 }

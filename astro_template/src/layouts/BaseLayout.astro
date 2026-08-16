@@ -1,22 +1,31 @@
 <!-- L9_META: layer=template, role=base_layout, status=active, version=1.3.0 -->
 ---
-import { siteConfig } from '../lib/siteConfig';
-import '../styles/global.css';
-interface Props { title: string; description: string; noindex?: boolean; routeSchemas?: readonly object[]; }
+import { siteConfig } from "../lib/siteConfig";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  routeSchemas?: readonly object[];
+}
 const { title, description, noindex = false, routeSchemas = [] } = Astro.props;
-const images: Record<string, { src: string; alt: string; width: number; height: number }> = siteConfig.images ?? {};
-const logo = images['global:logo'];
-const ogImage = images['global:og-image'];
+const images: Record<string, { src: string; alt: string; width: number; height: number }> =
+  siteConfig.images ?? {};
+const logo = images["global:logo"];
+const ogImage = images["global:og-image"];
 const ogImageUrl = ogImage ? new URL(ogImage.src, siteConfig.siteUrl).toString() : undefined;
-const siteUrl = String(siteConfig.siteUrl ?? '').replace(/\/$/, '');
+const siteUrl = String(siteConfig.siteUrl ?? "").replace(/\/$/, "");
 const pathname = Astro.url.pathname
-  ? (Astro.url.pathname.startsWith('/') ? Astro.url.pathname : `/${Astro.url.pathname}`)
-  : '/';
+  ? Astro.url.pathname.startsWith("/")
+    ? Astro.url.pathname
+    : `/${Astro.url.pathname}`
+  : "/";
 const canonicalUrl = `${siteUrl}${pathname}`;
 const schemas = [...siteConfig.schemas.siteWide, ...routeSchemas];
-const jsonLd = schemas.map(schema => JSON.stringify(schema).replace(/</g, '\u003c'));
+const jsonLd = schemas.map((schema) => JSON.stringify(schema).replace(/</g, "\u003c"));
 const phone = siteConfig.phone;
-const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
+const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Footer sitemap: group every published route by its top-level segment so
 // service detail / guide / area pages are reachable from every page.
 const allRoutes: Array<{ href: string; title: string }> =
@@ -25,19 +34,22 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
 {
   const bySegment = new Map<string, Array<{ href: string; title: string }>>();
   for (const route of allRoutes) {
-    const segment = route.href === '/' ? 'Home' : (route.href.split('/')[1] ?? '');
+    const segment = route.href === "/" ? "Home" : (route.href.split("/")[1] ?? "");
     if (!segment) continue;
-    const label = segment === 'Home' ? 'Home' : segment.replace(/-/g, ' ');
+    const label = segment === "Home" ? "Home" : segment.replace(/-/g, " ");
     const items = bySegment.get(label) ?? [];
     items.push(route);
     bySegment.set(label, items);
   }
   // Home first, then alphabetical groups, longest titles first inside each group.
   const ordered = [...bySegment.entries()].sort(([a], [b]) =>
-    a === 'Home' ? -1 : b === 'Home' ? 1 : a.localeCompare(b),
+    a === "Home" ? -1 : b === "Home" ? 1 : a.localeCompare(b),
   );
   for (const [label, items] of ordered) {
-    footerGroups.push({ label: label[0]!.toUpperCase() + label.slice(1), items: items.sort((a, b) => b.title.length - a.title.length) });
+    footerGroups.push({
+      label: label[0]!.toUpperCase() + label.slice(1),
+      items: items.sort((a, b) => b.title.length - a.title.length),
+    });
   }
 }
 ---

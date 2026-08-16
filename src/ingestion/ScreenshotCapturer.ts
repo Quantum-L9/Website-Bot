@@ -46,7 +46,7 @@ export class PlaywrightScreenshotCapturer implements ScreenshotCapturer {
         screenshot(options: { path: string; fullPage?: boolean }): Promise<unknown>;
         close(): Promise<void>;
       };
-      await page.goto(request.url, { waitUntil: 'domcontentloaded', timeout: 20_000 });
+      await page.goto(request.url, { waitUntil: "domcontentloaded", timeout: 20_000 });
       await page.screenshot({ path: request.outputPath, fullPage: false });
       await page.close();
       return request.outputPath;
@@ -57,9 +57,11 @@ export class PlaywrightScreenshotCapturer implements ScreenshotCapturer {
     }
   }
 
-  private async ensureBrowser(): Promise<{ newPage(): Promise<unknown>; close(): Promise<void> } | undefined> {
+  private async ensureBrowser(): Promise<
+    { newPage(): Promise<unknown>; close(): Promise<void> } | undefined
+  > {
     if (this.browser) return this.browser;
-    const specifier = 'playwright';
+    const specifier = "playwright";
     let mod: { chromium?: { launch(options?: unknown): Promise<unknown> } };
     try {
       mod = (await import(specifier)) as typeof mod;
@@ -67,8 +69,14 @@ export class PlaywrightScreenshotCapturer implements ScreenshotCapturer {
       this.available = false;
       return undefined;
     }
-    if (!mod.chromium) { this.available = false; return undefined; }
-    this.browser = (await mod.chromium.launch({ headless: true })) as { newPage(): Promise<unknown>; close(): Promise<void> };
+    if (!mod.chromium) {
+      this.available = false;
+      return undefined;
+    }
+    this.browser = (await mod.chromium.launch({ headless: true })) as {
+      newPage(): Promise<unknown>;
+      close(): Promise<void>;
+    };
     return this.browser;
   }
 

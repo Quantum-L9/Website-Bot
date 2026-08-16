@@ -7,7 +7,7 @@
 export class ImageBudgetExceededError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ImageBudgetExceededError';
+    this.name = "ImageBudgetExceededError";
   }
 }
 
