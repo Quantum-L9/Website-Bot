@@ -71,7 +71,7 @@ Agents must not invent external values. Convert missing operator-owned values in
 
 ## Secrets / Infisical
 
-- Secrets plane: Infisical (see `docs/architecture/ADR-0009-infisical-secrets-plane.md`).
+- Secrets plane: Infisical (see `docs/adr/ADR-0009-infisical-secrets-plane.md`).
 - Required bootstrap for vault hydration: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_PROJECT_ID`.
 - Pipeline entry calls `await loadSecrets()` from `@quantum-l9/infisical-config` before config use.
 - Agents: resolve bootstrap from AWS via Cursor-Governance `l9-aws-secrets`
@@ -79,3 +79,21 @@ Agents must not invent external values. Convert missing operator-owned values in
   `INFISICAL_*`, then run. Do **not** ask the human for PostHog values when resolve works.
 - Never commit `.env` / `.env.local` values. Prefer Infisical over inventing credentials.
 
+<!-- BEGIN L9 FORMATTER OWNERSHIP (generated — do not edit) -->
+
+## Formatter ownership
+
+Workspace class: `biome_default` — Default for every governed workspace: Biome owns JS/TS/JSON, VS Code JSON language features owns JSONC (the Biome extension cannot format jsonc), Ruff owns Python, Prettier owns Markdown (format-on-save off so governance docs do not churn).
+
+Exactly one formatter owns each language. Do not reformat a file with a tool other than its owner, and do not add config for a competing formatter: the result is a diff that churns on every save.
+
+| Languages | Owner | Note |
+|---|---|---|
+| `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `json` | **biome** | bound by the governed IDE profile |
+| `jsonc` | **vscode-json** | bound by the governed IDE profile |
+| `python` | **ruff** | bound by the governed IDE profile |
+| `markdown` | **prettier** | bound by the governed IDE profile |
+
+Generated from `environment/ide/policy.json` in the governance clone by `ops/scripts/adapters/agentdocs.sh`. Edit the policy, not this block.
+
+<!-- END L9 FORMATTER OWNERSHIP -->

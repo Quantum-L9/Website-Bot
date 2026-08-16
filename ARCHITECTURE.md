@@ -4,6 +4,8 @@
 
 This repository is the **L9 Website Factory** — it designs, builds, and deploys Astro lead-generation websites from a canonical domain specification. `Quantum-L9/SEO-Bot` works alongside it to grow each deployed site's SEO and Domain Authority. The factory is client-agnostic; a worked reference client lives under `examples/supplemental-insurance-pros/`.
 
+Numbered Architecture Decision Records live in `docs/adr/`. That directory is the only canonical ADR location.
+
 ## Layers
 
 1. Domain specification: source of truth for business, audience, service area, compliance, and conversion assumptions.
@@ -52,5 +54,5 @@ Secret names in Infisical match application env var names (e.g. `PUBLIC_POSTHOG_
 GitHub Actions injects Infisical bootstrap (`INFISICAL_*`) plus not-yet-migrated
 deploy secrets; Node `loadSecrets()` performs vault hydration. CLI `infisical run`
 wrap is deferred (no curl|bash installer in CI).
-See `docs/architecture/ADR-0009-infisical-secrets-plane.md`.
+See `docs/adr/ADR-0009-infisical-secrets-plane.md`.
 
