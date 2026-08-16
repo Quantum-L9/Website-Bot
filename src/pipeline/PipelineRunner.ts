@@ -91,6 +91,12 @@ export class PipelineRunner {
           ctx.stageResults.set(stage.name, { ok: true });
           if (!ctx.dryRun) {
             ctx.evidenceIndex = await ctx.evidenceStore.transitionStageSucceeded(stage.name);
+            if (stage.name === 'terminal-convergence') {
+              // The stage's own checks have passed and its success (which clears
+              // any prior active failure) is now recorded — only then may the
+              // evidence chain converge.
+              ctx.evidenceIndex = await ctx.evidenceStore.transitionRunConverged();
+            }
             sqlite.prepare(`UPDATE stage_runs SET status='ok', duration_ms=? WHERE id=?`).run(durationMs, runRow);
             syncEvidenceIndexToDb(sqlite, ctx.evidenceIndex, ctx.evidenceStore.rootDir);
           }

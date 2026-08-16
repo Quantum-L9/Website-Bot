@@ -89,7 +89,9 @@ export class TerminalConvergenceStage implements Stage {
       if (!await ctx.evidenceStore.readHandoff()) throw new BuildError('RELEASE_EVIDENCE_INCOMPLETE','End-to-end convergence requires persisted handoff evidence');
       if (ctx.autoRegisterSeoBot && !await ctx.evidenceStore.readRegistrationAck()) throw new BuildError('RELEASE_EVIDENCE_INCOMPLETE','Auto-registration requires a verified SEO-Bot acknowledgement');
     }
-    ctx.evidenceIndex=await ctx.evidenceStore.transitionRunConverged();
+    // The chain-status transition happens in PipelineRunner AFTER this stage's
+    // success is recorded (transitionStageSucceeded clears the prior active
+    // failure); calling transitionRunConverged here dead-ended every resume.
   }
 }
 
