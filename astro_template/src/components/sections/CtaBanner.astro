@@ -16,7 +16,10 @@ const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 ---
 <section class="cta-banner" data-section={name}>
-  <h2>{heading}</h2>
-  {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
-  {telHref && <a class="btn" href={telHref}>{phone}</a>}
+  <a class="cta-banner__link" href="#quote" aria-label={heading}>
+    <h2>{heading}</h2>
+    {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+    <span class="btn" role="presentation">Get a Free Quote</span>
+  </a>
+  {telHref && <a class="btn btn--ghost cta-banner__phone" href={telHref}>{phone}</a>}
 </section>

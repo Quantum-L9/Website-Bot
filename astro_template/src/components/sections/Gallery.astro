@@ -21,9 +21,13 @@ const paragraphs = content
     <h2>{paragraphs[0] || 'Our Work'}</h2>
     {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
     <div class="gallery-grid">
-      {gallery.map(image => (
+      {gallery.slice(0, 7).map(image => (
         <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
       ))}
+      <a class="gallery-cta" href="/gallery">
+        <span>See all our work</span>
+        <span aria-hidden="true">→</span>
+      </a>
     </div>
   </section>
 )}

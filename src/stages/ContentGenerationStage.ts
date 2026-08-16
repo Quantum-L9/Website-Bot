@@ -187,6 +187,7 @@ export class ContentGenerationStage implements Stage {
               `Then a blank line.`,
               `Then the body: minimum ${minWords} words. Similar roofing copy across pages is acceptable.`,
               `Do not include guaranteed outcomes, win rates, or legal advice.`,
+              `Never invent years of experience, awards, certifications, guarantees, statistics, or third-party brand endorsements. State only facts given in this prompt; otherwise omit them.`,
               "Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.",
               ctaHint,
               takenHeadlineBlock(takenHeadlines),

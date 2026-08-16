@@ -167,3 +167,26 @@ a:not(.btn, .btn-phone, .site-nav a, .service-card):hover { color: var(--color-p
 .lead-form__phone { font-size: 1.05rem; }
 footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); }
 .footer-phone { color: var(--color-primary); font-weight: 700; text-decoration: none; }
+/* ── visual-loop tightening ─────────────────────────────────────────────── */
+.cta-banner { padding: 1.75rem 1.25rem; }
+.cta-banner__link { color: inherit; text-decoration: none; display: block; }
+.cta-banner__link .btn { display: inline-block; margin-top: 0.75rem; background: color-mix(in srgb, #fff 18%, var(--color-primary)); }
+.cta-banner__phone { margin-top: 0.75rem; }
+.trust-bar__badge { padding: 0.5rem 0.75rem; font-size: 0.95rem; }
+.trust-bar__badges { gap: 0.5rem; }
+.service-card__title { padding: 0.7rem 0.8rem 0.2rem; }
+.service-card__cta { padding: 0 0.8rem 0.8rem; }
+.service-card__image { height: 8rem; }
+.faq__item { border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); border-radius: 0.6rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); margin-bottom: 0.6rem; }
+.faq__item summary { cursor: pointer; padding: 0.75rem 1rem; font-weight: 700; color: var(--color-primary); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+.faq__item summary::after { content: "+"; font-size: 1.1rem; }
+.faq__item[open] summary::after { content: "\2212"; }
+.faq__item p { padding: 0 1rem 0.9rem; margin: 0; border: 0; background: transparent; }
+.process__steps { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
+.process__step { display: flex; gap: 1rem; align-items: flex-start; border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); border-radius: 0.6rem; padding: 0.9rem 1rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); }
+.process__step p { margin: 0; }
+.process__number { font-family: var(--font-heading); font-weight: 800; color: var(--color-primary); font-size: 1.15rem; line-height: 1.4; }
+.gallery-grid { grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+.gallery-cta { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-height: 12rem; border: 1px dashed color-mix(in srgb, var(--color-primary) 60%, transparent); border-radius: 0.5rem; text-decoration: none; color: var(--color-primary); font-weight: 700; }
+.gallery-cta:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+.hero__actions { margin-top: 1.25rem; }

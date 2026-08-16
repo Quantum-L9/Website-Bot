@@ -11,8 +11,8 @@ const paragraphs = content
   .filter(Boolean);
 ---
 <section class="trust-bar" data-section={name}>
-  <h2>Why clients trust us</h2>
+  <h2>The Safe Haven Standard</h2>
   <ul class="trust-bar__badges">
-    {paragraphs.map(paragraph => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span>{paragraph}</li>)}
+    {paragraphs.map(paragraph => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span><span>{paragraph}</span></li>)}
   </ul>
 </section>

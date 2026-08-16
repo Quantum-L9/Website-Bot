@@ -9,8 +9,17 @@ const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
   .filter(Boolean);
+const heading = paragraphs[0] || "Our process";
+const steps = paragraphs.slice(1);
 ---
 <section class="process" data-section={name}>
-  <h2>Our process</h2>
-  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+  <h2>{heading}</h2>
+  <ol class="process__steps">
+    {steps.map((step, index) => (
+      <li class="process__step">
+        <span class="process__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <p>{step}</p>
+      </li>
+    ))}
+  </ol>
 </section>

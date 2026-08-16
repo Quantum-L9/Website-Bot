@@ -7,8 +7,7 @@ SHELL := /bin/sh
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean workspace-clean \
-        pr push
+        site-test site-test-local evidence-validate evidence-show clean workspace-clean
 
 help:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -39,11 +38,6 @@ help:
 	@printf '%s\n' '── Evidence ──'
 	@printf '%-30s %s\n' 'make evidence-validate' 'Validate a persisted evidence chain (ARGS=--client-id=.. --build-id=.. --mode=..)'
 	@printf '%-30s %s\n' 'make evidence-show' 'Show persisted evidence for a build (ARGS as above)'
-	@printf '%s\n' ''
-	@printf '%s\n' '── Publish ──'
-	@printf '%-30s %s\n' 'make pr' 'verify-all, push the current branch, open one PR against main'
-	@printf '%-30s %s\n' 'make push' 'verify-all, push the current branch (same-PR remediation)'
-	@printf '%s\n' '  (override: PR_TITLE=.. PR_BODY=.. PR_BASE=..)'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Housekeeping ──'
 	@printf '%-30s %s\n' 'make clean' 'Remove local build/generated-site/evidence artifacts'
@@ -138,18 +132,37 @@ clean:
 workspace-clean:
 	$(MAKE) -C "$(HOME)/.cursor-governance" clean WS="$(CURDIR)"
 
-# ── Publish ── checkers run before push; one PR against main
-PR_TITLE ?= [campaign-6] Deploy bounded Recursive Engineering Run v1
-PR_BODY ?= .l9/pr-body.md
-PR_BASE ?= main
+# ── Publish (L9 sanctioned surface) ──────────────────────────────────────
+# make pr is the ONLY push/PR route (48-make-pr-remediation). Checkers run
+# before any remote mutation; OPEN_PR=0 runs the gate only.
+GOV_ROOT ?= $(HOME)/.cursor-governance
+OPEN_PR ?= 1
+PR_REMEDIATE ?= 1
+PR_BASE ?= origin/main
 
-pr: verify-all
-	git push -u origin HEAD
-	@if gh pr view --json url > /dev/null 2>&1; then \
-		echo "PR already open:"; gh pr view --json url --jq .url; \
+.PHONY: pr pr-check
+
+pr-check:
+	@echo "--- pr-check: Website-Bot repository gates ---"
+	npm run typecheck
+	npm run normalize-spec:check
+	npm run evidence:schemas
+	npm run evidence:contract-parity
+	node scripts/run-site-factory-tests.mjs --scope=local
+	node scripts/validate-recursive-schemas.mjs
+	node scripts/run-recursive-tests.mjs
+	npm run llm:wiring
+	npm run alignment:boundaries
+	# Lint scoped to the branch-owned surface. packages/validation-executor is
+	# excluded from the local gate because its working tree carries other
+	# sessions' uncommitted edits; CI lints its committed state on the branch.
+	npx biome check src scripts tests astro_template config contracts schemas examples validation packages/bot-interop
+	@echo "--- pr-check PASS ---"
+
+pr: pr-check
+	@if [ "$(OPEN_PR)" = "1" ]; then \
+		PR_BASE="$(PR_BASE)" PR_REMEDIATE="$(PR_REMEDIATE)" \
+			bash "$(GOV_ROOT)/ops/scripts/open_pr_after_gate.sh" "$(PWD)"; \
 	else \
-		gh pr create --base $(PR_BASE) --head $$(git branch --show-current) --title "$(PR_TITLE)" --body-file "$(PR_BODY)"; \
+		echo "OPEN_PR=0 — skipped GitHub PR open (gate already PASS)"; \
 	fi
-
-push: verify-all
-	git push origin HEAD

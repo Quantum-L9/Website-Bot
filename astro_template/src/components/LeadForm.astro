@@ -19,7 +19,7 @@ const serviceOptions = allRoutes.filter(
   (route) => route.href.startsWith("/services/") && route.href !== "/services/",
 );
 ---
-<section class="lead-form" data-section="contact_form">
+<section id="quote" class="lead-form" data-section="contact_form">
   <h2>{heading}</h2>
   {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
   {phone && <p class="lead-form__phone">Call or text <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
