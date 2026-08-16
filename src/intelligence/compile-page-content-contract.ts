@@ -42,7 +42,7 @@ export interface CompilePageContentContractInput {
 }
 
 function uniq(values: string[]): string[] {
-  return [...new Set(values.filter(Boolean))].sort();
+  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
 function intersects(a: ContentSlot[], b: ContentSlot[]): boolean {
