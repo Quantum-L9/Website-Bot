@@ -213,6 +213,9 @@ export class SiteAssemblerStage implements Stage {
           .filter(route => !route.noindex && isTopNavHref(route.slug))
           .map(route => ({ href: normalizeRouteSlug(route.slug), label: route.title }));
       })(),
+      routes: ctx.domainSpec.routes
+        .filter(route => !route.noindex)
+        .map(route => ({ href: normalizeRouteSlug(route.slug), title: route.title })),
       schemas: { siteWide, perRoute },
       designTokens: ctx.designTokens ?? {},
       leadFormAction: this.leadFormAction(ctx),

@@ -17,6 +17,29 @@ const schemas = [...siteConfig.schemas.siteWide, ...routeSchemas];
 const jsonLd = schemas.map(schema => JSON.stringify(schema).replace(/</g, '\u003c'));
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
+// Footer sitemap: group every published route by its top-level segment so
+// service detail / guide / area pages are reachable from every page.
+const allRoutes: Array<{ href: string; title: string }> =
+  (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
+const footerGroups: Array<{ label: string; items: Array<{ href: string; title: string }> }> = [];
+{
+  const bySegment = new Map<string, Array<{ href: string; title: string }>>();
+  for (const route of allRoutes) {
+    const segment = route.href === '/' ? 'Home' : (route.href.split('/')[1] ?? '');
+    if (!segment) continue;
+    const label = segment === 'Home' ? 'Home' : segment.replace(/-/g, ' ');
+    const items = bySegment.get(label) ?? [];
+    items.push(route);
+    bySegment.set(label, items);
+  }
+  // Home first, then alphabetical groups, longest titles first inside each group.
+  const ordered = [...bySegment.entries()].sort(([a], [b]) =>
+    a === 'Home' ? -1 : b === 'Home' ? 1 : a.localeCompare(b),
+  );
+  for (const [label, items] of ordered) {
+    footerGroups.push({ label: label[0]!.toUpperCase() + label.slice(1), items: items.sort((a, b) => b.title.length - a.title.length) });
+  }
+}
 ---
 <!doctype html>
 <html lang="en">
@@ -35,6 +58,7 @@ const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
     {jsonLd.map(value => <script is:inline type="application/ld+json" set:html={value} />)}
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
         {logo && <a href="/" class="site-logo"><img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} decoding="async" /></a>}
@@ -43,9 +67,19 @@ const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
         {telHref && <a class="btn btn-phone" href={telHref}>{phone}</a>}
       </div>
     </header>
-    <main><slot /></main>
+    <main id="main-content"><slot /></main>
     <footer>
       <p>© {new Date().getFullYear()} {siteConfig.businessName}</p>
+      {footerGroups.length > 0 && (
+        <nav class="footer-nav" aria-label="Footer">
+          {footerGroups.map(group => (
+            <div class="footer-nav__group">
+              <h2>{group.label}</h2>
+              {group.items.map(item => <a href={item.href}>{item.title}</a>)}
+            </div>
+          ))}
+        </nav>
+      )}
       {telHref && <p><a class="footer-phone" href={telHref}>{phone}</a></p>}
     </footer>
   </body>

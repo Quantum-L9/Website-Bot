@@ -15,3 +15,20 @@ test('canonical Astro template is versioned and exposes the required section reg
   assert.match(renderer, /const registry/);
   assert.match(renderer, /ProseSection/);
 });
+
+test('Gallery section types its image array so empty text-only builds pass astro check', () => {
+  // siteConfig is emitted `as const`; an empty galleryImages infers never[],
+  // which made image.src/image.alt fail astro check (ts2339) in text-only builds.
+  const gallery = readFileSync(resolve('astro_template/src/components/sections/Gallery.astro'), 'utf8');
+  assert.match(gallery, /const gallery:\s*readonly\s+GalleryImage\[\]\s*=\s*siteConfig\.galleryImages/);
+});
+
+test('BaseLayout links every route via a grouped footer nav and provides a skip link', () => {
+  // F-12 regression: without the routes registry + footer nav, detail pages
+  // (services/*, guides/*, service-areas/*) build but stay orphaned.
+  const layout = readFileSync(resolve('astro_template/src/layouts/BaseLayout.astro'), 'utf8');
+  assert.match(layout, /footer-nav/);
+  assert.match(layout, /routes\?: Array<\{ href: string; title: string \}>/);
+  assert.match(layout, /href="#main-content" class="skip-link"/);
+  assert.match(layout, /<main id="main-content">/);
+});

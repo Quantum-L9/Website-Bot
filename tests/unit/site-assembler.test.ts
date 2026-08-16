@@ -18,6 +18,11 @@ void test('materializes the fixture into a client-specific Astro project', async
     assert.ok(existsSync(join(ctx.outputDir, '.l9/assembly-manifest.json')));
     const config = readFileSync(join(ctx.outputDir, 'src/lib/siteConfig.ts'), 'utf-8');
     assert.match(config, /https:\/\/ci-test\.example\.com/);
+    // F-12 regression: every published route must be in the siteConfig routes
+    // registry so the layout footer can link it (no orphaned pages).
+    assert.match(config, /"routes": \[\s*\{\s*"href": "\/"/);
+    assert.match(config, /"href": "\/services"/);
+    assert.match(config, /"href": "\/contact"/);
     const contact = readFileSync(join(ctx.outputDir, 'src/pages/contact/index.astro'), 'utf-8');
     assert.match(contact, /contact_form/);
     assert.match(contact, /fixture content/);
