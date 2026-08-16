@@ -135,6 +135,8 @@ export interface SiteConfig {
   images?: Record<string, SiteImageEntry>;
   /** Extra source-site photos (gallery/work) not assigned to a slot. */
   galleryImages?: SiteImageEntry[];
+  /** Every published route (href + title) for footer sitemap / section grids. */
+  routes: Array<{ href: string; title: string }>;
 }
 
 export interface QualityEvidence {

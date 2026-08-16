@@ -13,11 +13,18 @@ const logo = images['global:logo'];
 const rawHero = images[`${path}:hero`];
 const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawHero;
 ---
-<section class="hero" data-section={name}>
+const phone = siteConfig.phone;
+const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : undefined;
+
+<section class={heroImage ? 'hero hero--image' : 'hero'} data-section={name}>
   <div class="hero__content">
     <p class="eyebrow">{siteConfig.businessName}</p>
     <h1>{headline.replace(/\*\*/g, '')}</h1>
     {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="#quote">Get a Free Quote</a>
+      {telHref && <a class="btn btn--ghost" href={telHref}>{phone}</a>}
+    </div>
   </div>
   {heroImage && (
     <img

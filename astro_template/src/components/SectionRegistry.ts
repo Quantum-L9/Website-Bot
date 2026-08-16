@@ -2,6 +2,7 @@
 export const SECTION_COMPONENTS = [
   'hero', 'trust_bar', 'process', 'audience_paths', 'service_area', 'cta', 'final_cta',
   'compliance_note', 'disclaimer', 'faq', 'confirmation', 'contact_form', 'gallery',
+  'services_overview',
 ] as const;
 export type SectionComponentName = typeof SECTION_COMPONENTS[number];
 export function isRegisteredSection(value: string): value is SectionComponentName {

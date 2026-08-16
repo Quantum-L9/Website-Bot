@@ -6,5 +6,7 @@ const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boo
 ---
 <section class="trust-bar" data-section={name}>
   <h2>Why clients trust us</h2>
-  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+  <ul class="trust-bar__badges">
+    {paragraphs.map(paragraph => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span>{paragraph}</li>)}
+  </ul>
 </section>
