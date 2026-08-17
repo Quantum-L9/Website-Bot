@@ -46,6 +46,153 @@ export class CampaignRunnerError extends Error {
   }
 }
 
+type RoundPlan = Awaited<ReturnType<RunnerConfig["deps"]["proposeMutation"]>>;
+type CandidateIndex = Awaited<ReturnType<RunnerConfig["deps"]["evaluateCandidate"]>>;
+
+function reviewableOrExhaustedOutcome(
+  manifest: CampaignManifest,
+  budget: CampaignManifest['budget'],
+  watch: (event: string) => void,
+): RunnerOutcome | null {
+  if (manifest.reviewable || manifest.status === 'REVIEWABLE') {
+    watch('CONVERGED REVIEWABLE');
+    return {
+      terminal: 'REVIEWABLE',
+      campaign: updateCampaignManifest(manifest, { status: 'REVIEWABLE', reviewable: true }),
+      escalation: null,
+    };
+  }
+  if (budgetExhausted(manifest, budget)) {
+    watch('EXHAUSTED');
+    return {
+      terminal: 'EXHAUSTED',
+      campaign: updateCampaignManifest(manifest, { status: 'EXHAUSTED' }),
+      escalation: buildExhaustionEscalation({
+        campaign: manifest,
+        best_candidate_id: manifest.champion?.candidate_id ?? 'C0',
+        persistent_blocking_dimension: manifest.persistent_blocking_dimension ?? null,
+        earliest_responsible_layer: manifest.persistent_responsible_layer ?? null,
+      }),
+    };
+  }
+  return null;
+}
+
+async function championReviewableOutcome(
+  config: RunnerConfig,
+  manifest: CampaignManifest,
+  watch: (event: string) => void,
+): Promise<{ outcome?: RunnerOutcome; failure?: FailureFingerprint }> {
+  const championId = manifest.champion?.candidate_id ?? 'C0';
+  watch(`CHAMPION ${championId}`);
+
+  const index = await config.deps.evaluateCandidate(championId);
+  if (isReviewable({
+    index,
+    build_passed: true,
+    business_truth_passed: index.aggregate.hard_gate_failures.includes('business.fact_accuracy') === false,
+    artifact_lineage_passed: true,
+    blueprint_conformance_passed:
+      !index.aggregate.hard_gate_failures.includes('architecture.route_coverage') &&
+      !index.aggregate.hard_gate_failures.includes('architecture.section_conformance'),
+    seo_content_contract_passed:
+      !index.aggregate.hard_gate_failures.includes('seo.metadata') &&
+      !index.aggregate.hard_gate_failures.includes('seo.internal_links') &&
+      !index.aggregate.hard_gate_failures.includes('seo.intent_alignment'),
+    campaign_confidence_sufficient: true,
+    champion_index: null,
+  })) {
+    const updated = updateCampaignManifest(manifest, {
+      status: 'REVIEWABLE',
+      reviewable: true,
+    });
+    atomicWriteManifest(config.campaignRoot, updated);
+    watch('REVIEWABILITY PASS');
+    watch('CONVERGED REVIEWABLE');
+    return { outcome: { terminal: 'REVIEWABLE', campaign: updated, escalation: null } };
+  }
+
+  const failure = earliestResponsibleFailure(index);
+  if (!failure) {
+    const updated = updateCampaignManifest(manifest, { status: 'BLOCKED' });
+    atomicWriteManifest(config.campaignRoot, updated);
+    return { outcome: { terminal: 'BLOCKED', campaign: updated, escalation: null } };
+  }
+  watch(`FAILURE ${failure.primary_dimension} / ${failure.location.component} / ${failure.location.viewport}`);
+  return { failure };
+}
+
+async function proposeRoundPlan(
+  config: RunnerConfig,
+  manifest: CampaignManifest,
+  failure: FailureFingerprint,
+  watch: (event: string) => void,
+): Promise<RoundPlan> {
+  const learnings = await config.deps.retrieveLearnings({
+    context: manifest.context_signature,
+    fingerprint: failure,
+    layer: failure.suspected_layer,
+  });
+  watch(`LEARNING ${learnings.length} relevant events retrieved`);
+
+  const plan = await config.deps.proposeMutation({
+    campaign: manifest,
+    failure,
+    learnings,
+  });
+  watch(`HYPOTHESIS ${plan.hypothesis.primary_dimension} @ ${plan.mutation.layer}`);
+
+  const frontierViolations = assertFrontier(plan.mutation.layer, []);
+  if (frontierViolations.length > 0) {
+    throw new CampaignRunnerError(`frontier assertion failed for ${plan.mutation.layer}`, 'FATAL');
+  }
+  // Envelope assertion against the plan's own target paths: targets must not
+  // overlap forbidden or unchanged-contract members (build-time diffs are
+  // additionally checked by the caller of buildIncrementally).
+  const envelopeViolations = assertMutationEnvelope(plan, [
+    ...plan.mutation.target_paths.map(path => ({ path, kind: 'changed' as const })),
+  ]);
+  if (envelopeViolations.length > 0) {
+    throw new CampaignRunnerError(`envelope assertion failed: ${envelopeViolations.join('; ')}`, 'FATAL');
+  }
+  return plan;
+}
+
+function applyNoProgressBookkeeping(
+  config: RunnerConfig,
+  manifest: CampaignManifest,
+  failure: FailureFingerprint,
+  budget: CampaignManifest['budget'],
+  noProgress: boolean,
+  watch: (event: string) => void,
+): { manifest: CampaignManifest; outcome?: RunnerOutcome } {
+  let updated = manifest;
+  if (noProgress) {
+    updated = updateCampaignManifest(updated, {
+      attempts: {
+        ...updated.attempts,
+        no_progress_rounds: updated.attempts.no_progress_rounds + 1,
+      },
+      persistent_blocking_dimension: failure.primary_dimension,
+      persistent_responsible_layer: failure.suspected_layer,
+    });
+    if (updated.attempts.no_progress_rounds >= budget.stop_after_no_improvement_rounds) {
+      watch('NO_PROGRESS attribution reconsideration');
+      updated = updateCampaignManifest(updated, {
+        persistent_blocking_dimension: failure.primary_dimension,
+        persistent_responsible_layer: failure.suspected_layer,
+      });
+      atomicWriteManifest(config.campaignRoot, updated);
+      return { manifest: updated, outcome: { terminal: 'NO_PROGRESS', campaign: updated, escalation: null } };
+    }
+  } else {
+    updated = updateCampaignManifest(updated, {
+      attempts: { ...updated.attempts, no_progress_rounds: 0 },
+    });
+  }
+  return { manifest: updated };
+}
+
 export async function runCampaign(config: RunnerConfig): Promise<RunnerOutcome> {
   cleanStaleTempFiles(config.campaignRoot);
   let manifest = loadCampaignManifest(config.campaignRoot);
@@ -67,176 +214,75 @@ export async function runCampaign(config: RunnerConfig): Promise<RunnerOutcome> 
   };
 
   for (;;) {
-        try {
-        if (manifest.reviewable || manifest.status === 'REVIEWABLE') {
-          watch('CONVERGED REVIEWABLE');
-          return {
-            terminal: 'REVIEWABLE',
-            campaign: updateCampaignManifest(manifest, { status: 'REVIEWABLE', reviewable: true }),
-            escalation: null,
-          };
-        }
-        if (budgetExhausted(manifest, budget)) {
-          watch('EXHAUSTED');
-          const outcome: RunnerOutcome = {
-            terminal: 'EXHAUSTED',
-            campaign: updateCampaignManifest(manifest, { status: 'EXHAUSTED' }),
-            escalation: buildExhaustionEscalation({
-              campaign: manifest,
-              best_candidate_id: manifest.champion?.candidate_id ?? 'C0',
-              persistent_blocking_dimension: manifest.persistent_blocking_dimension ?? null,
-              earliest_responsible_layer: manifest.persistent_responsible_layer ?? null,
-            }),
-          };
-          return outcome;
-        }
+    try {
+      const early = reviewableOrExhaustedOutcome(manifest, budget, watch);
+      if (early) return early;
 
-        const championId = manifest.champion?.candidate_id ?? 'C0';
-        watch(`CHAMPION ${championId}`);
+      const champion = await championReviewableOutcome(config, manifest, watch);
+      if (champion.outcome) return champion.outcome;
+      const failure = champion.failure as FailureFingerprint;
 
-        const index = await config.deps.evaluateCandidate(championId);
-        if (isReviewable({
-          index,
-          build_passed: true,
-          business_truth_passed: index.aggregate.hard_gate_failures.includes('business.fact_accuracy') === false,
-          artifact_lineage_passed: true,
-          blueprint_conformance_passed:
-            !index.aggregate.hard_gate_failures.includes('architecture.route_coverage') &&
-            !index.aggregate.hard_gate_failures.includes('architecture.section_conformance'),
-          seo_content_contract_passed:
-            !index.aggregate.hard_gate_failures.includes('seo.metadata') &&
-            !index.aggregate.hard_gate_failures.includes('seo.internal_links') &&
-            !index.aggregate.hard_gate_failures.includes('seo.intent_alignment'),
-          campaign_confidence_sufficient: true,
-          champion_index: null,
-        })) {
-          const updated = updateCampaignManifest(manifest, {
-            status: 'REVIEWABLE',
-            reviewable: true,
-          });
-          atomicWriteManifest(config.campaignRoot, updated);
-          watch('REVIEWABILITY PASS');
-          watch('CONVERGED REVIEWABLE');
-          return { terminal: 'REVIEWABLE', campaign: updated, escalation: null };
-        }
+      const plan = await proposeRoundPlan(config, manifest, failure, watch);
 
-        const failure = earliestResponsibleFailure(index);
-        if (!failure) {
-          const updated = updateCampaignManifest(manifest, { status: 'BLOCKED' });
-          atomicWriteManifest(config.campaignRoot, updated);
-          return { terminal: 'BLOCKED', campaign: updated, escalation: null };
-        }
-        watch(`FAILURE ${failure.primary_dimension} / ${failure.location.component} / ${failure.location.viewport}`);
+      watch(`INVALIDATION ${plan.mutation.layer.toLowerCase()} → render → quality`);
+      const { buildRef } = await config.deps.buildIncrementally(plan);
+      if (buildRef) watch(`CANDIDATE ${plan.candidate_id} built`);
 
-        const learnings = await config.deps.retrieveLearnings({
-          context: manifest.context_signature,
-          fingerprint: failure,
-          layer: failure.suspected_layer,
+      const probe = await config.deps.runCheapestAdequateTests(plan);
+      if (!probe.viable) {
+        watch(`PROBE FAIL ${plan.candidate_id} rejected`);
+        manifest = recordRejection(manifest);
+        manifest = updateCampaignManifest(manifest, {
+          persistent_blocking_dimension: failure.primary_dimension,
+          persistent_responsible_layer: failure.suspected_layer,
         });
-        watch(`LEARNING ${learnings.length} relevant events retrieved`);
-
-        const plan = await config.deps.proposeMutation({
-          campaign: manifest,
-          failure,
-          learnings,
-        });
-        watch(`HYPOTHESIS ${plan.hypothesis.primary_dimension} @ ${plan.mutation.layer}`);
-
-        const frontierViolations = assertFrontier(plan.mutation.layer, []);
-        if (frontierViolations.length > 0) {
-          throw new CampaignRunnerError(`frontier assertion failed for ${plan.mutation.layer}`, 'FATAL');
-        }
-        // Envelope assertion against the plan's own target paths: targets must not
-        // overlap forbidden or unchanged-contract members (build-time diffs are
-        // additionally checked by the caller of buildIncrementally).
-        const envelopeViolations = assertMutationEnvelope(plan, [
-          ...plan.mutation.target_paths.map(path => ({ path, kind: 'changed' as const })),
-        ]);
-        if (envelopeViolations.length > 0) {
-          throw new CampaignRunnerError(`envelope assertion failed: ${envelopeViolations.join('; ')}`, 'FATAL');
-        }
-
-        watch(`INVALIDATION ${plan.mutation.layer.toLowerCase()} → render → quality`);
-        const { buildRef } = await config.deps.buildIncrementally(plan);
-        if (buildRef) watch(`CANDIDATE ${plan.candidate_id} built`);
-
-        const probe = await config.deps.runCheapestAdequateTests(plan);
-        if (!probe.viable) {
-          watch(`PROBE FAIL ${plan.candidate_id} rejected`);
-          manifest = recordRejection(manifest);
-          manifest = updateCampaignManifest(manifest, {
-            persistent_blocking_dimension: failure.primary_dimension,
-            persistent_responsible_layer: failure.suspected_layer,
-          });
-          atomicWriteManifest(config.campaignRoot, manifest);
-          continue;
-        }
-        watch(`PROBE PASS`);
-
-        const challengerIndex = await config.deps.evaluateCandidate(plan.candidate_id);
-        const improved = challengerIndex.aggregate.regressions_vs_baseline.length === 0
-          ? challengerIndex.results.filter(result => result.verdict_vs_baseline === 'IMPROVED').length
-          : 0;
-        const regressed = challengerIndex.aggregate.regressions_vs_baseline.length;
-        watch(`QUALITY improves ${improved} / regresses ${regressed}`);
-
-        let noProgress = false;
-        if (manifest.champion) {
-          const championIndex = await config.deps.evaluateCandidate(manifest.champion.candidate_id);
-          const promotion = evaluateChampionPromotion({
-            challenger: challengerIndex,
-            champion: championIndex,
-            target_dimension: plan.hypothesis.primary_dimension,
-          });
-          if (promotion.promote) {
-            watch(`PROMOTE ${plan.candidate_id}`);
-            manifest = promoteChampion(manifest, plan);
-          } else {
-            watch(`REJECT ${plan.candidate_id} (${promotion.reasons.join('; ')})`);
-            manifest = recordRejection(manifest);
-            noProgress = promotion.reasons.includes('target dimension did not materially improve');
-          }
-        } else {
-          // First evaluated challenger becomes the champion only when it clears hard
-          // gates and shows no regressions on its own (single-fix promotion never
-          // happens; the initial candidate must stand on its own merits).
-          if (
-            challengerIndex.aggregate.hard_gate_failures.length === 0 &&
-            challengerIndex.aggregate.regressions_vs_baseline.length === 0
-          ) {
-            watch(`PROMOTE ${plan.candidate_id}`);
-            manifest = promoteChampion(manifest, plan);
-          } else {
-            manifest = recordRejection(manifest);
-            noProgress = true;
-          }
-        }
-
-        if (noProgress) {
-          manifest = updateCampaignManifest(manifest, {
-            attempts: {
-              ...manifest.attempts,
-              no_progress_rounds: manifest.attempts.no_progress_rounds + 1,
-            },
-            persistent_blocking_dimension: failure.primary_dimension,
-            persistent_responsible_layer: failure.suspected_layer,
-          });
-          if (manifest.attempts.no_progress_rounds >= budget.stop_after_no_improvement_rounds) {
-            watch('NO_PROGRESS attribution reconsideration');
-            manifest = updateCampaignManifest(manifest, {
-              persistent_blocking_dimension: failure.primary_dimension,
-              persistent_responsible_layer: failure.suspected_layer,
-            });
-            atomicWriteManifest(config.campaignRoot, manifest);
-            return { terminal: 'NO_PROGRESS', campaign: manifest, escalation: null };
-          }
-        } else {
-          manifest = updateCampaignManifest(manifest, {
-            attempts: { ...manifest.attempts, no_progress_rounds: 0 },
-          });
-        }
-
         atomicWriteManifest(config.campaignRoot, manifest);
+        continue;
+      }
+      watch(`PROBE PASS`);
+
+      const challengerIndex = await config.deps.evaluateCandidate(plan.candidate_id);
+      const improved = challengerIndex.aggregate.regressions_vs_baseline.length === 0
+        ? challengerIndex.results.filter(result => result.verdict_vs_baseline === 'IMPROVED').length
+        : 0;
+      const regressed = challengerIndex.aggregate.regressions_vs_baseline.length;
+      watch(`QUALITY improves ${improved} / regresses ${regressed}`);
+
+      let noProgress = false;
+      if (manifest.champion) {
+        const championIndex = await config.deps.evaluateCandidate(manifest.champion.candidate_id);
+        const promotion = evaluateChampionPromotion({
+          challenger: challengerIndex,
+          champion: championIndex,
+          target_dimension: plan.hypothesis.primary_dimension,
+        });
+        if (promotion.promote) {
+          watch(`PROMOTE ${plan.candidate_id}`);
+          manifest = promoteChampion(manifest, plan);
+        } else {
+          watch(`REJECT ${plan.candidate_id} (${promotion.reasons.join('; ')})`);
+          manifest = recordRejection(manifest);
+          noProgress = promotion.reasons.includes('target dimension did not materially improve');
+        }
+      } else if (
+        challengerIndex.aggregate.hard_gate_failures.length === 0 &&
+        challengerIndex.aggregate.regressions_vs_baseline.length === 0
+      ) {
+        // First evaluated challenger becomes the champion only when it clears hard
+        // gates and shows no regressions on its own (single-fix promotion never
+        // happens; the initial candidate must stand on its own merits).
+        watch(`PROMOTE ${plan.candidate_id}`);
+        manifest = promoteChampion(manifest, plan);
+      } else {
+        manifest = recordRejection(manifest);
+        noProgress = true;
+      }
+
+      const bookkeeping = applyNoProgressBookkeeping(config, manifest, failure, budget, noProgress, watch);
+      manifest = bookkeeping.manifest;
+      if (bookkeeping.outcome) return bookkeeping.outcome;
+
+      atomicWriteManifest(config.campaignRoot, manifest);
     } catch (error) {
       return block(error);
     }

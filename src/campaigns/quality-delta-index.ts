@@ -13,7 +13,7 @@ export interface BuildQualityDeltaIndexInput {
   results: QualityDimensionResult[];
 }
 
-export function buildQualityDeltaIndex(input: BuildQualityDeltaIndexInput): QualityDeltaIndex {
+function assertIndexInputs(input: BuildQualityDeltaIndexInput): void {
   const seen = new Set<string>();
   for (const result of input.results) {
     const errors = validateQualityDimensionResult(result);
@@ -26,28 +26,36 @@ export function buildQualityDeltaIndex(input: BuildQualityDeltaIndexInput): Qual
     if (seen.has(result.dimension)) throw new Error(`Duplicate dimension in index: ${result.dimension}`);
     seen.add(result.dimension);
   }
+}
+
+function aggregateResults(results: QualityDimensionResult[]): QualityDeltaIndex["aggregate"] {
   const hardGateFailures: QualityDimension[] = [];
   const regressionsVsBaseline: QualityDimension[] = [];
   const regressionsVsChampion: QualityDimension[] = [];
   const inconclusive: QualityDimension[] = [];
-  for (const result of input.results) {
+  for (const result of results) {
     if (result.status === 'FAIL' && result.hard_gate) hardGateFailures.push(result.dimension);
     if (result.verdict_vs_baseline === 'REGRESSED') regressionsVsBaseline.push(result.dimension);
     if (result.verdict_vs_champion === 'REGRESSED') regressionsVsChampion.push(result.dimension);
     if (result.status === 'INCONCLUSIVE') inconclusive.push(result.dimension);
   }
   return {
+    hard_gate_failures: hardGateFailures,
+    regressions_vs_baseline: regressionsVsBaseline,
+    regressions_vs_champion: regressionsVsChampion,
+    inconclusive,
+  };
+}
+
+export function buildQualityDeltaIndex(input: BuildQualityDeltaIndexInput): QualityDeltaIndex {
+  assertIndexInputs(input);
+  return {
     schema: 'website-bot.quality-delta-index/v1',
     schema_version: '1.0.0',
     campaign_id: input.campaign_id,
     candidate_id: input.candidate_id,
     results: [...input.results].sort((a, b) => a.dimension.localeCompare(b.dimension)),
-    aggregate: {
-      hard_gate_failures: hardGateFailures,
-      regressions_vs_baseline: regressionsVsBaseline,
-      regressions_vs_champion: regressionsVsChampion,
-      inconclusive,
-    },
+    aggregate: aggregateResults(input.results),
   };
 }
 

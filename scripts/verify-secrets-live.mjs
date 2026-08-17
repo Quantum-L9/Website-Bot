@@ -150,37 +150,37 @@ async function perplexity() {
 }
 
 // --- Vercel: /v2/user proves token; optional project+team resolution ---
+async function vercelProjectProbe(name) {
+  // Project identity resolution (uses team scoping when present)
+  const proj = val("VERCEL_PROJECT_ID");
+  if (!present("VERCEL_TOKEN") || !proj) return;
+  const team = val("VERCEL_TEAM_ID");
+  const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(proj)}${team ? `?teamId=${encodeURIComponent(team)}` : ""}`;
+  const pr = await http(url, { headers: { Authorization: `Bearer ${val(name)}` } });
+  record(
+    "VERCEL_PROJECT_ID",
+    "vercel",
+    pr.status === 200 ? "resolves" : `http(${pr.status})`,
+    team ? "scoped-by-team" : "no-team-scope",
+  );
+}
+
 async function vercel() {
   const name = "VERCEL_TOKEN";
-  if (!present(name)) {
-    record(name, "vercel", "missing");
-  } else {
-    const r = await http("https://api.vercel.com/v2/user", {
-      headers: { Authorization: `Bearer ${val(name)}` },
-    });
-    record(
-      name,
-      "vercel",
-      r.status === 200
-        ? "valid"
-        : r.status === 401 || r.status === 403
-          ? `invalid(${r.status})`
-          : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-    );
-    // Project identity resolution (uses team scoping when present)
-    const proj = val("VERCEL_PROJECT_ID");
-    if (present("VERCEL_TOKEN") && proj) {
-      const team = val("VERCEL_TEAM_ID");
-      const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(proj)}${team ? `?teamId=${encodeURIComponent(team)}` : ""}`;
-      const pr = await http(url, { headers: { Authorization: `Bearer ${val(name)}` } });
-      record(
-        "VERCEL_PROJECT_ID",
-        "vercel",
-        pr.status === 200 ? "resolves" : `http(${pr.status})`,
-        team ? "scoped-by-team" : "no-team-scope",
-      );
-    }
-  }
+  if (!present(name)) return record(name, "vercel", "missing");
+  const r = await http("https://api.vercel.com/v2/user", {
+    headers: { Authorization: `Bearer ${val(name)}` },
+  });
+  record(
+    name,
+    "vercel",
+    r.status === 200
+      ? "valid"
+      : r.status === 401 || r.status === 403
+        ? `invalid(${r.status})`
+        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
+  );
+  await vercelProjectProbe(name);
 }
 
 // --- DataForSEO: Basic auth account endpoint returns balance ---
@@ -267,6 +267,37 @@ async function inngest() {
   );
 }
 
+function probeDeployHook() {
+  // presence-only records (sync)
+  const hook = "SEO_BOT_SITE_VERCEL_DEPLOY_HOOK";
+  let hookDetail = "deploy hook — NOT called (would trigger a deploy)";
+  if (present(hook)) {
+    try {
+      hookDetail = `host=${new URL(val(hook)).host} — NOT called`;
+    } catch {
+      hookDetail = "malformed-url — NOT called";
+    }
+  }
+  record(hook, "vercel", present(hook) ? "present(not called)" : "missing", hookDetail);
+}
+
+function probePresence() {
+  for (const n of ["POSTHOG_KEY", "PUBLIC_POSTHOG_KEY"])
+    record(n, "analytics", present(n) ? "present(not auth-validatable)" : "missing");
+  record("SDK_TOKEN", "other", present("SDK_TOKEN") ? "present(no known probe)" : "missing");
+  // Vars (resolution/presence)
+  for (const v of ["CLIENT_ID", "VERCEL_PROJECT_ID", "VERCEL_TEAM_ID"])
+    record(v, "var", present(v) ? "resolves" : "MISSING");
+}
+
+async function probePublicSiteUrl() {
+  const pub = "CLIENT_PUBLIC_SITE_URL";
+  if (present(pub)) {
+    const r = await http(String(val(pub)));
+    record(pub, "var", r.status ? `http(${r.status})` : `unreachable:${r.err}`);
+  } else record(pub, "var", "MISSING");
+}
+
 async function main() {
   await Promise.all([
     githubToken("GITHUB_SITE_TOKEN"),
@@ -280,29 +311,9 @@ async function main() {
     postgres(),
     inngest(),
   ]);
-  // presence-only records (sync)
-  const hook = "SEO_BOT_SITE_VERCEL_DEPLOY_HOOK";
-  let hookDetail = "deploy hook — NOT called (would trigger a deploy)";
-  if (present(hook)) {
-    try {
-      hookDetail = `host=${new URL(val(hook)).host} — NOT called`;
-    } catch {
-      hookDetail = "malformed-url — NOT called";
-    }
-  }
-  record(hook, "vercel", present(hook) ? "present(not called)" : "missing", hookDetail);
-  for (const n of ["POSTHOG_KEY", "PUBLIC_POSTHOG_KEY"])
-    record(n, "analytics", present(n) ? "present(not auth-validatable)" : "missing");
-  record("SDK_TOKEN", "other", present("SDK_TOKEN") ? "present(no known probe)" : "missing");
-
-  // Vars (resolution/presence)
-  for (const v of ["CLIENT_ID", "VERCEL_PROJECT_ID", "VERCEL_TEAM_ID"])
-    record(v, "var", present(v) ? "resolves" : "MISSING");
-  const pub = "CLIENT_PUBLIC_SITE_URL";
-  if (present(pub)) {
-    const r = await http(String(val(pub)));
-    record(pub, "var", r.status ? `http(${r.status})` : `unreachable:${r.err}`);
-  } else record(pub, "var", "MISSING");
+  probeDeployHook();
+  probePresence();
+  await probePublicSiteUrl();
 
   const summary = {
     scope: "live_secret_resolution",
