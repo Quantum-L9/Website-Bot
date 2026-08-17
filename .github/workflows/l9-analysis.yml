@@ -24,6 +24,9 @@ env:
 permissions:
   contents: read
   checks: write
+  # Required by publish-analysis.yml (SARIF upload). Without this grant the
+  # reusable workflow is rejected at startup and zero jobs are created.
+  security-events: write
 
 concurrency:
   group: l9-analysis-${{ github.workflow }}-${{ github.ref }}
@@ -42,6 +45,7 @@ jobs:
     permissions:
       contents: read
       checks: write
+      security-events: write
     steps:
       - name: Checkout immutable event revision
         env:
@@ -75,18 +79,26 @@ jobs:
           set -euo pipefail
           echo "artifact-name=l9-semgrep-${MATRIX_ID}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
 
-      - name: Run semgrep
+      - id: scan
+        name: Run semgrep
         if: steps.gov.outputs.enabled == 'true'
         run: |
           set -euo pipefail
           pip install --upgrade pip semgrep
           mkdir -p "artifacts/raw/semgrep/${L9_MATRIX_ID}"
+          echo "provider-version=$(semgrep --version)" >> "$GITHUB_OUTPUT"
           semgrep scan \
             --config p/typescript \
             --config p/javascript \
             --json \
             --output "artifacts/raw/semgrep/${L9_MATRIX_ID}/report.json" \
             --error --quiet || true
+          semgrep scan \
+            --config p/typescript \
+            --config p/javascript \
+            --sarif \
+            --output "artifacts/raw/semgrep/${L9_MATRIX_ID}/results.sarif" \
+            --quiet || true
         env:
           L9_MATRIX_ID: ${{ env.L9_MATRIX_ID }}
 
@@ -110,6 +122,7 @@ jobs:
           required: ${{ steps.gov.outputs.required-provider }}
           policy: ${{ steps.gov.outputs.sdk-policy }}
           identity-map: .github/governance/semgrep-identity-map.yaml
+          provider-version: ${{ steps.scan.outputs.provider-version }}
 
       - name: Validate canonical bundle
         if: steps.gov.outputs.enabled == 'true'
@@ -152,6 +165,13 @@ jobs:
           raw-directory: ${{ steps.route.outputs.raw-directory }}
           output: artifacts/metadata/${{ env.L9_MATRIX_ID }}/artifact-manifest.json
 
+      - name: Upload Semgrep SARIF to code scanning
+        if: steps.gov.outputs.enabled == 'true' && hashFiles('artifacts/raw/semgrep/pr-semgrep/results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b  # v3
+        with:
+          sarif_file: artifacts/raw/semgrep/${{ env.L9_MATRIX_ID }}/results.sarif
+          category: l9-pr-semgrep
+
       - name: Upload analysis artifact set
         if: steps.gov.outputs.enabled == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -173,6 +193,7 @@ jobs:
       actions: read
       checks: write
       contents: read
+      security-events: write
     with:
       artifact-name: ${{ needs.analyze.outputs.artifact-name }}
       profile: pr_fast
