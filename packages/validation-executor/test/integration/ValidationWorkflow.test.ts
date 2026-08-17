@@ -329,19 +329,21 @@ describe("Validation Workflow Integration", () => {
       duration: 1500,
     });
 
+    // E2E commands execute with the current working directory (E2EEngine
+    // contract), so the mock keys must match process.cwd() — not /test/root.
     // Unit test passes
-    adapter.setCommandResult("npm run test:unit", "/test/root", {
+    adapter.setCommandResult("npm run test:unit", process.cwd(), {
       exitCode: 0,
       stdout: "Unit tests: all passed",
       stderr: "",
       duration: 3000,
     });
 
-    // E2E test fails
-    adapter.setCommandResult("npm run test:e2e", "/test/root", {
+    // E2E test fails with an assertion error line the extractor recognizes
+    adapter.setCommandResult("npm run test:e2e", process.cwd(), {
       exitCode: 1,
       stdout: "",
-      stderr: "E2E test failed: Connection timeout",
+      stderr: "AssertionError: expected true to equal false - Connection timeout",
       duration: 8000,
     });
 
@@ -386,9 +388,11 @@ describe("Validation Workflow Integration", () => {
       evidence_root: env.evidenceDir,
       timeout: 1000, // Very short timeout for testing
       preflight_commands: ["npm run typecheck"],
-      e2e_commands: [],
+      e2e_commands: ["npm run test:e2e"],
     });
 
+    // The authoritative-inventory gate requires at least one E2E test;
+    // without one the workflow returns INCOMPLETE before preflight runs.
     const adapter = new MockRepositoryAdapter(
       [
         {
@@ -399,15 +403,32 @@ describe("Validation Workflow Integration", () => {
           working_directory: "/test/root",
         },
       ],
-      [],
+      [
+        {
+          suite_id: "e2e-tests",
+          suite_name: "E2E Tests",
+          test_id: "e2e-pass",
+          test_name: "E2E Test Pass",
+          attempt: 1,
+          command_or_invocation: "npm run test:e2e",
+        },
+      ],
     );
 
-    // Configure command to timeout
+    // Configure preflight command to timeout
     adapter.setCommandResult("npm run typecheck", "/test/root", {
       exitCode: 124, // Timeout exit code
       stdout: "",
       stderr: "Command timed out",
       duration: 5000, // Longer than config timeout
+    });
+
+    // E2E test passes so only the timeout drives the verdict
+    adapter.setCommandResult("npm run test:e2e", process.cwd(), {
+      exitCode: 0,
+      stdout: "All E2E tests passed",
+      stderr: "",
+      duration: 1000,
     });
 
     try {
