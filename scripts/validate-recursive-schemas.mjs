@@ -96,15 +96,17 @@ function sample(root, schema = root) {
     return Array.from({ length: schema.minItems ?? 0 }, () => sample(root, schema.items ?? {}));
   if (schema.type === "boolean") return true;
   if (schema.type === "integer" || schema.type === "number") return schema.minimum ?? 1;
-  if (schema.type === "string") {
-    if (schema.format === "date-time") return "2026-08-15T00:00:00.000Z";
-    const p = schema.pattern ?? "";
-    if (p.includes("{64}")) return "a".repeat(64);
-    if (p.includes("{40}")) return "a".repeat(40);
-    if (p.includes("\\d+\\.\\d+\\.\\d+")) return "1.0.0";
-    return "x".repeat(Math.max(1, schema.minLength ?? 1));
-  }
+  if (schema.type === "string") return sampleString(schema);
   return {};
+}
+
+function sampleString(schema) {
+  if (schema.format === "date-time") return "2026-08-15T00:00:00.000Z";
+  const p = schema.pattern ?? "";
+  if (p.includes("{64}")) return "a".repeat(64);
+  if (p.includes("{40}")) return "a".repeat(40);
+  if (p.includes("\\d+\\.\\d+\\.\\d+")) return "1.0.0";
+  return "x".repeat(Math.max(1, schema.minLength ?? 1));
 }
 const results = [];
 for (const [file, schemaConst] of Object.entries(required)) {

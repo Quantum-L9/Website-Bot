@@ -183,9 +183,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
 - issue_id: WB-051
   canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:32
   source: SONARCLOUD
@@ -203,9 +203,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
 - issue_id: WB-202
   canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:88
   source: SONARCLOUD
@@ -223,9 +223,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 28 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
 - issue_id: WB-052
   canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:29
   source: SONARCLOUD
@@ -243,9 +243,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
 - issue_id: WB-125
   canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:85
   source: SONARCLOUD
@@ -263,9 +263,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
 - issue_id: WB-160
   canonical_fingerprint: javascript:S3776:scripts/verify-secrets-live.mjs:153
   source: SONARCLOUD

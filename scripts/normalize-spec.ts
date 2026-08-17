@@ -87,29 +87,66 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     applies_to?: string[];
     required_sections?: string[];
   }> = ds.content.page_templates ?? [];
-  const routes = (ds.content.required_pages as any[]).map((p) => {
-    const tpl =
-      templates.find((t) => t.template_name && t.template_name === p.template) ??
-      templates.find((t) => (t.applies_to ?? []).includes(p.path));
-    const components = p.sections ?? tpl?.required_sections ?? [];
-    const route: DomainSpec["routes"][number] = {
-      slug: p.path,
-      title: p.title ?? titleFromPath(p.path),
-      components,
-    };
-    if (p.noindex === true) route.noindex = true;
-    return route;
-  });
+  const routes = (ds.content.required_pages as any[]).map((p) =>
+    routeFromRequiredPage(p, templates),
+  );
 
-  // seo_contract: flatten keyword clusters + carry rules; annotate per-route schema application.
-  const clusters = [ds.seo.primary_keyword_cluster, ...(ds.seo.secondary_keyword_clusters ?? [])];
-  const targetKeywords = clusters.flatMap((c: any) => c.keywords as string[]);
   // lead_form_action: the concrete POST endpoint for lead forms. Authored at
   // conversion.lead_capture.form_action in the nested spec. validateDomainSpec
   // requires it whenever a route renders contact_form, so the transform carries
   // it through (placeholders excluded — those surface as wom_flags instead).
   const leadCapture = ds.conversion?.lead_capture ?? {};
   const leadFormAction: unknown = leadCapture.form_action;
+  const contact = ds.identity?.contact_placeholders ?? {};
+  const seoContract = buildSeoContract(ds, leadFormAction, contact);
+
+  // wom_flags: emit a flag ONLY for items that are still UNRESOLVED (ordered as
+  // reviewed in SD2). Critically, the error-severity gates (license number +
+  // required disclaimers) are conditional on the underlying nested value still
+  // being a `{{…PLACEHOLDER}}` token — once an operator fills in the real value
+  // in inputs/, the flag drops and UnknownResolverStage stops blocking. Emitting
+  // them unconditionally would leave the pipeline permanently unable to proceed.
+  const womFlags = buildWomFlags(ds, contact, leadFormAction, designPending, primaryRegions);
+
+  const flat: DomainSpec = {
+    client_id: ds.metadata.spec_id,
+    business_name: ds.identity.business_name,
+    vertical: ds.market.niche,
+    geography: { primary_state: primaryRegions[0], states: primaryRegions },
+    design: { status: designPending ? "pending" : "resolved" },
+    routes,
+    seo_contract: seoContract,
+    wom_flags: womFlags,
+  };
+  carryStructuredAssets(ds, flat);
+  return flat;
+}
+
+function routeFromRequiredPage(
+  p: any,
+  templates: Array<{
+    template_name?: string;
+    applies_to?: string[];
+    required_sections?: string[];
+  }>,
+): DomainSpec["routes"][number] {
+  const tpl =
+    templates.find((t) => t.template_name && t.template_name === p.template) ??
+    templates.find((t) => (t.applies_to ?? []).includes(p.path));
+  const components = p.sections ?? tpl?.required_sections ?? [];
+  const route: DomainSpec["routes"][number] = {
+    slug: p.path,
+    title: p.title ?? titleFromPath(p.path),
+    components,
+  };
+  if (p.noindex === true) route.noindex = true;
+  return route;
+}
+
+function buildSeoContract(ds: any, leadFormAction: unknown, contact: any): Record<string, unknown> {
+  // seo_contract: flatten keyword clusters + carry rules; annotate per-route schema application.
+  const clusters = [ds.seo.primary_keyword_cluster, ...(ds.seo.secondary_keyword_clusters ?? [])];
+  const targetKeywords = clusters.flatMap((c: any) => c.keywords as string[]);
   const seoContract: Record<string, unknown> = {
     site_url: ds.identity.canonical_url,
     target_keywords: targetKeywords,
@@ -125,14 +162,6 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   ) {
     seoContract.lead_form_action = leadFormAction.trim();
   }
-
-  // wom_flags: emit a flag ONLY for items that are still UNRESOLVED (ordered as
-  // reviewed in SD2). Critically, the error-severity gates (license number +
-  // required disclaimers) are conditional on the underlying nested value still
-  // being a `{{…PLACEHOLDER}}` token — once an operator fills in the real value
-  // in inputs/, the flag drops and UnknownResolverStage stops blocking. Emitting
-  // them unconditionally would leave the pipeline permanently unable to proceed.
-  const contact = ds.identity?.contact_placeholders ?? {};
   if (
     typeof contact.phone === "string" &&
     contact.phone.trim() !== "" &&
@@ -140,13 +169,23 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   ) {
     seoContract.phone = contact.phone.trim();
   }
+  return seoContract;
+}
+
+function buildWomFlags(
+  ds: any,
+  contact: any,
+  leadFormAction: unknown,
+  designPending: boolean,
+  primaryRegions: string[],
+): DomainSpec["wom_flags"] {
   const licenses = (ds.authority?.licenses ?? []) as any[];
   const licenseUnresolved = licenses.some((l) => hasPlaceholder(l?.license_number));
   const stateRules = ds.compliance?.state_specific_rules;
   const stateUnvalidated =
     stateRules?.validation_required_before_launch === true || stateRules?.status === "Unknown";
 
-  const womFlags: DomainSpec["wom_flags"] = [
+  return [
     ...(hasPlaceholder(contact.phone)
       ? [{ key: "identity.contact.phone", value: "unresolved", severity: "warning" as const }]
       : []),
@@ -188,21 +227,13 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
         ]
       : []),
   ];
+}
 
+function carryStructuredAssets(ds: any, flat: DomainSpec): void {
   // assets: carried through verbatim when authored. The flat `assets` block is
   // already in pipeline shape (sourceSite/providedImages/imageSlots), so there is
   // nothing to derive — losing it here would silently drop the image pipeline
   // inputs from the normalized spec the pipeline actually consumes.
-  const flat: DomainSpec = {
-    client_id: ds.metadata.spec_id,
-    business_name: ds.identity.business_name,
-    vertical: ds.market.niche,
-    geography: { primary_state: primaryRegions[0], states: primaryRegions },
-    design: { status: designPending ? "pending" : "resolved" },
-    routes,
-    seo_contract: seoContract,
-    wom_flags: womFlags,
-  };
   // Only a STRUCTURED asset block (sourceSite / providedImages / imageSlots /
   // generation) is carried. The legacy authoring format also uses `assets` for a
   // freeform {logo, photos, icons} note; that shape is not the pipeline contract
@@ -215,7 +246,6 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   ) {
     flat.assets = ds.assets as DomainSpec["assets"];
   }
-  return flat;
 }
 
 function main() {
