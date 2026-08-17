@@ -217,7 +217,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error) => {
+await main().catch((error) => {
   console.error(String(error?.stack ?? error));
   process.exit(1);
 });

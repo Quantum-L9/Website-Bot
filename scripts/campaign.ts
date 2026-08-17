@@ -218,7 +218,7 @@ function loadHypothesisPlans(campaignRoot: string): CandidateMutationPlan[] {
     .filter(plan => plan && plan.schema === 'website-bot.candidate-mutation-plan/v1');
 }
 
-main().catch(error => {
+await main().catch(error => {
   console.error(`CAMPAIGN ERROR: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

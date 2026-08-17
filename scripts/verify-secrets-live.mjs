@@ -89,6 +89,35 @@ function record(name, kind, verdict, detail) {
 }
 
 // --- GitHub tokens: /user proves auth; x-oauth-scopes shows granted scopes ---
+function httpErrSuffix(r) {
+  return r.err ? ":" + r.err : "";
+}
+
+function authVerdict(r, invalidCodes = [401]) {
+  if (r.status === 200) return "valid";
+  if (invalidCodes.includes(r.status)) return `invalid(${r.status})`;
+  return `http(${r.status})${httpErrSuffix(r)}`;
+}
+
+function perplexityVerdict(r) {
+  if (r.status === 200) return "valid";
+  if (r.status === 401 || r.status === 403) return `invalid(${r.status})`;
+  if (r.status === 400) return "auth-ok(400 bad-req)";
+  return `http(${r.status})${httpErrSuffix(r)}`;
+}
+
+function reachabilityVerdict(r) {
+  if (r.status === 200) return "reachable+ok";
+  if (r.status) return `reachable(http ${r.status})`;
+  return `unreachable:${r.err}`;
+}
+
+function inngestVerdict(r) {
+  if (r.status === 200) return "valid(event accepted)";
+  if (r.status) return `http(${r.status})`;
+  return `err:${r.err}`;
+}
+
 async function githubToken(name) {
   if (!present(name)) return record(name, "github", "missing");
   const r = await http("https://api.github.com/user", {
@@ -98,12 +127,7 @@ async function githubToken(name) {
       Accept: "application/vnd.github+json",
     },
   });
-  const verdict =
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`;
+  const verdict = authVerdict(r);
   record(name, "github", verdict, r.scopes !== undefined ? `scopes=[${r.scopes}]` : "");
 }
 
@@ -114,15 +138,7 @@ async function openrouter() {
   const r = await http("https://openrouter.ai/api/v1/key", {
     headers: { Authorization: `Bearer ${val(name)}` },
   });
-  record(
-    name,
-    "llm",
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-  );
+  record(name, "llm", authVerdict(r));
 }
 
 // --- Perplexity: minimal 1-token completion (tiny cost) to distinguish 401 vs ok ---
@@ -138,14 +154,7 @@ async function perplexity() {
       max_tokens: 1,
     }),
   });
-  const verdict =
-    r.status === 200
-      ? "valid"
-      : r.status === 401 || r.status === 403
-        ? `invalid(${r.status})`
-        : r.status === 400
-          ? "auth-ok(400 bad-req)"
-          : `http(${r.status})${r.err ? ":" + r.err : ""}`;
+  const verdict = perplexityVerdict(r);
   record(name, "llm", verdict);
 }
 
@@ -171,15 +180,7 @@ async function vercel() {
   const r = await http("https://api.vercel.com/v2/user", {
     headers: { Authorization: `Bearer ${val(name)}` },
   });
-  record(
-    name,
-    "vercel",
-    r.status === 200
-      ? "valid"
-      : r.status === 401 || r.status === 403
-        ? `invalid(${r.status})`
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-  );
+  record(name, "vercel", authVerdict(r, [401, 403]));
   await vercelProjectProbe(name);
 }
 
@@ -193,15 +194,7 @@ async function dataforseo() {
   const r = await http("https://api.dataforseo.com/v3/appendix/user_data", {
     headers: { Authorization: `Basic ${basic}` },
   });
-  record(
-    `${l}+${p}`,
-    "seo",
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-  );
+  record(`${l}+${p}`, "seo", authVerdict(r));
 }
 
 // --- SEO bot service: best-effort auth probe against its URL ---
@@ -213,12 +206,7 @@ async function seoBot() {
   const r = await http(`${base}/health`, {
     headers: present(k) ? { Authorization: `Bearer ${val(k)}`, "x-api-key": val(k) } : {},
   });
-  const verdict =
-    r.status === 200
-      ? "reachable+ok"
-      : r.status
-        ? `reachable(http ${r.status})`
-        : `unreachable:${r.err}`;
+  const verdict = reachabilityVerdict(r);
   record(`${u}+${k}`, "seo", verdict, present(k) ? "api-key sent" : "no api-key");
 }
 
@@ -256,7 +244,7 @@ async function inngest() {
     record(
       name,
       "inngest",
-      r.status === 200 ? "valid(event accepted)" : r.status ? `http(${r.status})` : `err:${r.err}`,
+      inngestVerdict(r),
       "emitted 1 labeled test event",
     );
   } else record(name, "inngest", "missing");
@@ -354,4 +342,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+await main();

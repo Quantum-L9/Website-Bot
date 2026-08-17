@@ -2003,9 +2003,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer top-level await over using a promise chain."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-050
   canonical_fingerprint: typescript:S7785:scripts/recursive/recursive-cli.ts:220
   source: SONARCLOUD
@@ -2023,9 +2023,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer top-level await over using a promise chain."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-054
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:104
   source: SONARCLOUD
@@ -2043,9 +2043,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-055
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:106
   source: SONARCLOUD
@@ -2063,9 +2063,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-056
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:122
   source: SONARCLOUD
@@ -2083,9 +2083,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-057
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:124
   source: SONARCLOUD
@@ -2103,9 +2103,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-058
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:144
   source: SONARCLOUD
@@ -2123,9 +2123,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-059
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:146
   source: SONARCLOUD
@@ -2143,9 +2143,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-060
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:148
   source: SONARCLOUD
@@ -2163,9 +2163,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-061
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:166
   source: SONARCLOUD
@@ -2183,9 +2183,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-062
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:168
   source: SONARCLOUD
@@ -2203,9 +2203,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-063
   canonical_fingerprint: javascript:S4624:scripts/verify-secrets-live.mjs:174
   source: SONARCLOUD
@@ -2223,9 +2223,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this code to not use nested template literals."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-064
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:201
   source: SONARCLOUD
@@ -2243,9 +2243,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-065
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:203
   source: SONARCLOUD
@@ -2263,9 +2263,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-066
   canonical_fingerprint: javascript:S8786:scripts/verify-secrets-live.mjs:212
   source: SONARCLOUD
@@ -2283,8 +2283,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-067
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:219
@@ -2303,9 +2303,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-068
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:259
   source: SONARCLOUD
@@ -2323,9 +2323,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-162
   canonical_fingerprint: javascript:S7785:scripts/verify-secrets-live.mjs:346
   source: SONARCLOUD
@@ -2343,9 +2343,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer top-level await over an async function `main` call."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a1-pending
 - issue_id: WB-140
   canonical_fingerprint: typescript:S7760:src/campaigns/candidate-evaluation.ts:110
   source: SONARCLOUD
@@ -2363,8 +2363,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer default parameters over reassignment."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-147
   canonical_fingerprint: typescript:S6660:src/campaigns/runner.ts:203
@@ -2423,8 +2423,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Mark these members as `readonly`."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-075
   canonical_fingerprint: typescript:S8786:src/ingestion/SourceImagePolicy.ts:95
@@ -2443,8 +2443,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-076
   canonical_fingerprint: typescript:S5843:src/ingestion/SourceImagePolicy.ts:101
@@ -2483,8 +2483,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-078
   canonical_fingerprint: typescript:S3358:src/pipeline/PipelineRunner.ts:287
@@ -2543,8 +2543,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-128
   canonical_fingerprint: typescript:S4782:src/recursive/events/envelope.ts:41
@@ -2563,8 +2563,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Consider removing 'undefined' type or '?' specifier, one of them is redundant."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-129
   canonical_fingerprint: typescript:S8786:src/recursive/executor/envelope.ts:20
@@ -2583,8 +2583,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-086
   canonical_fingerprint: typescript:S4624:src/recursive/harvest/compiler.ts:148
@@ -2843,8 +2843,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Either use this collection's contents or remove the collection."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-177
   canonical_fingerprint: typescript:S8786:src/services/images/ImageInspector.ts:109
@@ -2863,8 +2863,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-178
   canonical_fingerprint: typescript:S8786:src/services/images/ImageInspector.ts:110
@@ -2883,8 +2883,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-111
   canonical_fingerprint: typescript:S8786:src/stages/ContentGenerationStage.ts:24
@@ -2903,8 +2903,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-112
   canonical_fingerprint: typescript:S8786:src/stages/ContentGenerationStage.ts:32
@@ -2923,8 +2923,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-114
   canonical_fingerprint: typescript:S8786:src/stages/HandoffEmitterStage.ts:168
@@ -2943,8 +2943,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-115
   canonical_fingerprint: typescript:S3358:src/stages/ImageGenerationStage.ts:57
@@ -3023,8 +3023,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-156
   canonical_fingerprint: javascript:S7780:astro_template/scripts/verify-seo.mjs:19
