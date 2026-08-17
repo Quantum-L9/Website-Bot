@@ -150,14 +150,42 @@ export function fileExistenceResult(
   missingText,
   remediationIfFailed,
 ) {
+  return existenceCheckResult({
+    checkId,
+    checkClass: "build_output",
+    targetArtifact,
+    expectedResult,
+    foundText,
+    missingText,
+    remediationIfFailed,
+  });
+}
+
+/**
+ * Generic "does path exist on disk" check-result row. Consolidates the
+ * PASS/FAIL and expected/found/missing wording that would otherwise be
+ * duplicated across preflight and verify-* scripts (SonarCloud S4144 —
+ * duplicated blocks on new code).
+ */
+export function existenceCheckResult({
+  checkId,
+  checkClass = "file_existence",
+  targetArtifact,
+  expectedResult,
+  foundText,
+  missingText,
+  severity = "high",
+  remediationIfFailed,
+}) {
+  const present = exists(targetArtifact);
   return result({
     check_id: checkId,
-    check_class: "build_output",
+    check_class: checkClass,
     target_artifact: targetArtifact,
     expected_result: expectedResult,
-    actual_result: exists(targetArtifact) ? foundText : missingText,
-    status: exists(targetArtifact) ? "PASS" : "FAIL",
-    severity: "high",
+    actual_result: present ? foundText : missingText,
+    status: present ? "PASS" : "FAIL",
+    severity,
     remediation_if_failed: remediationIfFailed,
   });
 }

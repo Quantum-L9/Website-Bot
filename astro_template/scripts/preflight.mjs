@@ -1,38 +1,37 @@
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { existenceCheckResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
-// Check essential files exist
+// Check essential files/directories exist. Each row uses the shared
+// existenceCheckResult() helper to avoid the duplicated block that
+// SonarCloud (S4144) previously flagged as new-code duplication.
 checks.push(
-  result({
-    check_id: "package-json-exists",
-    check_class: "file_existence",
-    target_artifact: "package.json",
-    expected_result: "File exists",
-    actual_result: exists("package.json") ? "File exists" : "File missing",
-    status: exists("package.json") ? "PASS" : "FAIL",
-    severity: "high",
-    remediation_if_failed: "Create package.json file",
+  existenceCheckResult({
+    checkId: "package-json-exists",
+    checkClass: "file_existence",
+    targetArtifact: "package.json",
+    expectedResult: "File exists",
+    foundText: "File exists",
+    missingText: "File missing",
+    remediationIfFailed: "Create package.json file",
   }),
-  result({
-    check_id: "astro-config-exists",
-    check_class: "file_existence",
-    target_artifact: "astro.config.mjs",
-    expected_result: "File exists",
-    actual_result: exists("astro.config.mjs") ? "File exists" : "File missing",
-    status: exists("astro.config.mjs") ? "PASS" : "FAIL",
-    severity: "high",
-    remediation_if_failed: "Create astro.config.mjs file",
+  existenceCheckResult({
+    checkId: "astro-config-exists",
+    checkClass: "file_existence",
+    targetArtifact: "astro.config.mjs",
+    expectedResult: "File exists",
+    foundText: "File exists",
+    missingText: "File missing",
+    remediationIfFailed: "Create astro.config.mjs file",
   }),
-  result({
-    check_id: "src-directory-exists",
-    check_class: "directory_existence",
-    target_artifact: "src/",
-    expected_result: "Directory exists",
-    actual_result: exists("src") ? "Directory exists" : "Directory missing",
-    status: exists("src") ? "PASS" : "FAIL",
-    severity: "high",
-    remediation_if_failed: "Create src/ directory",
+  existenceCheckResult({
+    checkId: "src-directory-exists",
+    checkClass: "directory_existence",
+    targetArtifact: "src",
+    expectedResult: "Directory exists",
+    foundText: "Directory exists",
+    missingText: "Directory missing",
+    remediationIfFailed: "Create src/ directory",
   }),
 );
 
