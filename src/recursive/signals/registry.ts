@@ -7,6 +7,8 @@
 import { refForArtifact } from "../contracts/digest.js";
 import type { EngineeringSignal, RecursiveArtifactRef } from "../contracts/types.js";
 
+type LeverageSeverity = "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
+
 export interface SignalCluster {
   clusterId: string;
   subsystem: string;
@@ -15,7 +17,7 @@ export interface SignalCluster {
   dimensions: string[];
   confidence: "VERY_HIGH" | "HIGH" | "MEDIUM" | "LOW";
   leverage: {
-    severity: "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
+    severity: LeverageSeverity;
     recurrence: "HIGH" | "MEDIUM" | "LOW";
     reach: EngineeringSignal["reach"];
     humanReviewImpact: "HIGH" | "MEDIUM" | "LOW";

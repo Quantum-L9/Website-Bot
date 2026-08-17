@@ -215,7 +215,7 @@ function loadHypothesisPlans(campaignRoot: string): CandidateMutationPlan[] {
   return readdirSync(dir)
     .filter(name => name.endsWith('.json'))
     .map(name => JSON.parse(readFileSync(join(dir, name), 'utf8')) as CandidateMutationPlan)
-    .filter(plan => plan && plan.schema === 'website-bot.candidate-mutation-plan/v1');
+    .filter(plan => plan?.schema === 'website-bot.candidate-mutation-plan/v1');
 }
 
 await main().catch(error => {

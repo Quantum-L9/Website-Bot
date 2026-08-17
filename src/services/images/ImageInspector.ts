@@ -83,7 +83,7 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
 function readWebpDimensions(bytes: Uint8Array): { width: number; height: number } {
   if (bytes.length < 30) throw new ImageInspectError("WEBP header truncated");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const format = String.fromCharCode(bytes[12], bytes[13], bytes[14], bytes[15]);
+  const format = String.fromCodePoint(bytes[12], bytes[13], bytes[14], bytes[15]);
   if (format === "VP8 ") {
     // Lossy: 16-bit width/height (14 bits used) at offset 26/28.
     return { width: view.getUint16(26, true) & 0x3fff, height: view.getUint16(28, true) & 0x3fff };
@@ -127,7 +127,7 @@ export function detectMimeType(bytes: Uint8Array): string | undefined {
     return "image/webp";
   // AVIF: ftyp box with an avif/avis brand.
   if (bytes.length > 12 && startsWith(bytes, [0x66, 0x74, 0x79, 0x70], 4)) {
-    const brand = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]);
+    const brand = String.fromCodePoint(bytes[8], bytes[9], bytes[10], bytes[11]);
     if (brand === "avif" || brand === "avis") return "image/avif";
   }
   const head = Buffer.from(bytes.subarray(0, Math.min(bytes.length, 512)))

@@ -3043,9 +3043,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-157
   canonical_fingerprint: javascript:S7780:astro_template/scripts/verify-seo.mjs:20
   source: SONARCLOUD
@@ -3063,9 +3063,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-037
   canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs:12
   source: SONARCLOUD
@@ -3083,8 +3083,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-038
   canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs:20
@@ -3103,8 +3103,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-039
   canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/verify-build.mjs:21
@@ -3123,8 +3123,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-134
   canonical_fingerprint: typescript:S7781:scripts/campaign-cli-args.ts:62
@@ -3143,9 +3143,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-135
   canonical_fingerprint: typescript:S6582:scripts/campaign.ts:218
   source: SONARCLOUD
@@ -3163,9 +3163,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-159
   canonical_fingerprint: typescript:S7750:scripts/generate-spec.ts:31
   source: SONARCLOUD
@@ -3183,9 +3183,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `.find(\u2026)` over `.filter(\u2026)`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-044
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:181
   source: SONARCLOUD
@@ -3203,9 +3203,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-045
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:192
   source: SONARCLOUD
@@ -3223,9 +3223,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-046
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:203
   source: SONARCLOUD
@@ -3243,9 +3243,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'(parsed as Record<string, unknown>).vertical ?? \"business\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-047
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:217
   source: SONARCLOUD
@@ -3263,9 +3263,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-048
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:254
   source: SONARCLOUD
@@ -3283,9 +3283,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-049
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:255
   source: SONARCLOUD
@@ -3303,9 +3303,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-053
   canonical_fingerprint: javascript:S7780:scripts/validate-recursive-schemas.mjs:104
   source: SONARCLOUD
@@ -3323,8 +3323,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-137
   canonical_fingerprint: typescript:S7763:src/campaigns/campaign-budget.ts:9
@@ -3343,9 +3343,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Use `export\u2026from` to re-export `DEFAULT_CAMPAIGN_BUDGET`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-138
   canonical_fingerprint: typescript:S7754:src/campaigns/campaign-files.ts:26
   source: SONARCLOUD
@@ -3363,9 +3363,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-139
   canonical_fingerprint: typescript:S7744:src/campaigns/campaign-manifest.ts:28
   source: SONARCLOUD
@@ -3383,9 +3383,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "The empty object is useless."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-141
   canonical_fingerprint: typescript:S6582:src/campaigns/candidate-evaluation.ts:149
   source: SONARCLOUD
@@ -3403,9 +3403,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-142
   canonical_fingerprint: typescript:S6582:src/campaigns/learning-registry.ts:44
   source: SONARCLOUD
@@ -3423,9 +3423,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-144
   canonical_fingerprint: typescript:S7786:src/campaigns/quality-dimension-result.ts:41
   source: SONARCLOUD
@@ -3443,9 +3443,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-148
   canonical_fingerprint: typescript:S6598:src/campaigns/test-ladder.ts:43
   source: SONARCLOUD
@@ -3463,9 +3463,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Interface has only a call signature, you should use a function type instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-149
   canonical_fingerprint: typescript:S6598:src/campaigns/types.ts:379
   source: SONARCLOUD
@@ -3483,9 +3483,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Interface has only a call signature, you should use a function type instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-069
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:52
   source: SONARCLOUD
@@ -3503,9 +3503,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-070
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:53
   source: SONARCLOUD
@@ -3523,9 +3523,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-071
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:54
   source: SONARCLOUD
@@ -3543,9 +3543,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-167
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:55
   source: SONARCLOUD
@@ -3563,9 +3563,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-168
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:56
   source: SONARCLOUD
@@ -3583,9 +3583,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-072
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:57
   source: SONARCLOUD
@@ -3603,9 +3603,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-074
   canonical_fingerprint: typescript:S7780:src/ingestion/PageExtractor.ts:66
   source: SONARCLOUD
@@ -3623,9 +3623,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-151
   canonical_fingerprint: typescript:S7755:src/ingestion/SourcePalette.ts:87
   source: SONARCLOUD
@@ -3643,9 +3643,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `.at(\u2026)` over `[\u2026.length - index]`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-002
   canonical_fingerprint: typescript:S7763:src/intelligence/DonorIngestion.ts:146
   source: SONARCLOUD
@@ -3663,9 +3663,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Use `export\u2026from` to re-export `NoopScreenshotCapturer`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-080
   canonical_fingerprint: typescript:S6551:src/pipeline/evidence/FileEvidenceStore.ts:552
   source: SONARCLOUD
@@ -3683,8 +3683,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'record.proofId ??\n        record.publicationId ??\n        record.deploymentEvidenceId ??\n        record.receipt_id ??\n        record.contract_id ??\n        `${this.options.buildId}:${kind}`' will use"
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-081
   canonical_fingerprint: typescript:S7786:src/pipeline/evidence/SourceSiteManifest.ts:118
@@ -3703,9 +3703,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-082
   canonical_fingerprint: typescript:S6551:src/pipeline/validateDomainSpec.ts:328
   source: SONARCLOUD
@@ -3723,8 +3723,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'slot.imageSize' may use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-126
   canonical_fingerprint: typescript:S4323:src/recursive/contracts/types.ts:102
@@ -3743,9 +3743,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Replace this union type with a type alias."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-084
   canonical_fingerprint: typescript:S6582:src/recursive/contracts/validate.ts:34
   source: SONARCLOUD
@@ -3763,9 +3763,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-085
   canonical_fingerprint: typescript:S7737:src/recursive/exec.ts:35
   source: SONARCLOUD
@@ -3783,9 +3783,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Do not use an object literal as default for parameter `options`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-087
   canonical_fingerprint: typescript:S7754:src/recursive/harvest/compiler.ts:213
   source: SONARCLOUD
@@ -3803,9 +3803,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-088
   canonical_fingerprint: typescript:S4323:src/recursive/signals/registry.ts:19
   source: SONARCLOUD
@@ -3823,9 +3823,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Replace this union type with a type alias."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-133
   canonical_fingerprint: typescript:S6582:src/recursive/state/run-manifest.ts:147
   source: SONARCLOUD
@@ -3843,9 +3843,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-153
   canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:7
   source: SONARCLOUD
@@ -3863,9 +3863,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-154
   canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:13
   source: SONARCLOUD
@@ -3883,9 +3883,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-176
   canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:86
   source: SONARCLOUD
@@ -3903,9 +3903,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-179
   canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:130
   source: SONARCLOUD
@@ -3923,9 +3923,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-100
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:99
   source: SONARCLOUD
@@ -3943,8 +3943,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.disposition ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-101
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:107
@@ -3963,8 +3963,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.pattern_id ?? `p-${index}`' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-102
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:108
@@ -3983,8 +3983,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.evidence ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-103
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:109
@@ -4003,8 +4003,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.invariant ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-104
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:111
@@ -4023,8 +4023,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.beneficiary_destination ?? entry.beneficiary ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-105
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:112
@@ -4043,8 +4043,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.risk ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-106
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:113
@@ -4063,8 +4063,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'entry.acceptance_test ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-108
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:711
@@ -4083,8 +4083,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'row.section_id ?? `s-${index}`' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-109
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:712
@@ -4103,8 +4103,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'row.component_class ?? \"prose\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-110
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:713
@@ -4123,8 +4123,8 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'row.objective ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
-  remediation_status: pending
-  validation_status: not_run
+  remediation_status: excluded
+  validation_status: verified
   commit_SHA: None
 - issue_id: WB-113
   canonical_fingerprint: typescript:S7781:src/stages/ContentGenerationStage.ts:37
@@ -4143,9 +4143,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-116
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4163,9 +4163,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Use the opposite operator (<=) instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-117
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4183,9 +4183,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Use the opposite operator (<=) instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-118
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4203,9 +4203,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Use the opposite operator (<=) instead."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-119
   canonical_fingerprint: typescript:S6582:src/stages/ReleaseReceiptStage.ts:68
   source: SONARCLOUD
@@ -4223,9 +4223,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-173
   canonical_fingerprint: typescript:S6582:src/stages/SourceSiteIngestionStage.ts:48
   source: SONARCLOUD
@@ -4243,9 +4243,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 - issue_id: WB-121
   canonical_fingerprint: typescript:S1128:tests/helpers/siteFactoryFixture.ts:7
   source: SONARCLOUD
@@ -4263,9 +4263,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Remove this unused import of 'BuildIntent'."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: low-pending
 
 github_ci_history:
 - issue_id: GH-CI-ci

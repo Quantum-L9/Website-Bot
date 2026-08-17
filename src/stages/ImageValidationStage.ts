@@ -126,7 +126,7 @@ export class ImageValidationStage implements Stage {
             `source mismatch for ${placement}: evidence ${asset.source} vs site ${entry.source}`,
           );
         if (!SHA256.test(asset.sha256)) critical.push(`invalid digest for ${placement}`);
-        if (!(asset.byteLength > 0) || !(asset.width > 0) || !(asset.height > 0))
+        if (asset.byteLength <= 0 || asset.width <= 0 || asset.height <= 0)
           critical.push(`degenerate image metrics for ${placement}`);
         // A crawled image may only be republished when its disposition clears it.
         if (asset.source === "source-site" && asset.disposition !== "approved-client-owned") {

@@ -66,10 +66,10 @@ export class ReleaseReceiptStage implements Stage {
             publication.value.sourceDigest === build.value.sourceDigest)) &&
         (!deployment ||
           (publication &&
-            deployment.value.publicationId === publication.value.publicationId &&
+            deployment.value.publicationId === publication?.value.publicationId &&
             deployment.value.publicationSha256 === publication.record.sha256 &&
-            deployment.value.requestedCommitSha === publication.value.commitSha &&
-            deployment.value.observedCommitSha === publication.value.commitSha)),
+            deployment.value.requestedCommitSha === publication?.value.commitSha &&
+            deployment.value.observedCommitSha === publication?.value.commitSha)),
     );
 
     const seed = [

@@ -25,7 +25,7 @@ export function buildCampaignManifest(input: NewCampaignInput): CampaignManifest
   if (!input.campaign_id) throw new Error('campaign_id required');
   if (!input.source_url) throw new Error('source_url required');
   const now = input.now ?? new Date().toISOString();
-  const budget: CampaignBudget = { ...DEFAULT_CAMPAIGN_BUDGET, ...(input.budget ?? {}) };
+  const budget: CampaignBudget = { ...DEFAULT_CAMPAIGN_BUDGET, ...input.budget };
   const payload: Omit<CampaignManifest, 'integrity'> = {
     schema: 'website-bot.campaign-manifest/v1',
     schema_version: '1.0.0',

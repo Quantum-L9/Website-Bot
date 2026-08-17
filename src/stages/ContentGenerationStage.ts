@@ -34,7 +34,7 @@ function stripHeadlineMarkup(headline: string): string {
 }
 
 function parseHeadlineAndBody(content: string): { headline: string; body: string } {
-  const normalized = content.replace(/\r\n/g, "\n");
+  const normalized = content.replaceAll("\r\n", "\n");
   const lines = normalized.split("\n");
   const headline = stripHeadlineMarkup((lines[0] ?? "").trim());
   let blankIndex = -1;

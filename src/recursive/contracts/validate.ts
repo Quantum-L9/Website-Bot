@@ -31,7 +31,7 @@ function resolveRef(root: JsonSchema, ref: string): JsonSchema {
     .reduce<JsonSchema>((current, key) => {
       const decoded = key.replaceAll("~1", "/").replaceAll("~0", "~");
       return (
-        (current.$defs ?? {})[decoded] ??
+        current.$defs?.[decoded] ??
         (current as unknown as Record<string, JsonSchema>)[decoded]
       );
     }, root);

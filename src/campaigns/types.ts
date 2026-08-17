@@ -375,9 +375,7 @@ export interface HumanReviewReceipt {
 // Runner
 // ---------------------------------------------------------------------------
 
-export interface RunnerWatchSink {
-  (event: string): void;
-}
+export type RunnerWatchSink = (event: string) => void;
 
 export interface CampaignDeps {
   evaluateCandidate(candidateId: string): Promise<QualityDeltaIndex>;

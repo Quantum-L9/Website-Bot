@@ -11,10 +11,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import {
-  NoopScreenshotCapturer,
   PlaywrightScreenshotCapturer,
   type ScreenshotCapturer,
 } from "../ingestion/ScreenshotCapturer.js";
+export { NoopScreenshotCapturer } from "../ingestion/ScreenshotCapturer.js";
 
 const logger = createModuleLogger("intelligence:donor-ingestion");
 
@@ -143,4 +143,3 @@ export class HttpDonorIngestor implements DonorIngestor {
   }
 }
 
-export { NoopScreenshotCapturer };

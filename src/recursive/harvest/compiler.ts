@@ -108,7 +108,7 @@ function observedGates(receipt: ReleaseReceipt): string[] {
 }
 
 function recommendedActionFor(
-  controlPlaneSignal: EngineeringSignal | undefined,
+  controlPlaneSignal: boolean,
   materialSignals: EngineeringSignal[],
 ): EngineeringHarvest["recommendedNextAction"] {
   if (controlPlaneSignal) return "CONTROL_PLANE_CHANGE_REQUIRED";
@@ -224,7 +224,7 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
     );
   }
 
-  const controlPlaneSignal = signals.find(
+  const controlPlaneSignal = signals.some(
     (signal) => signal.classification === "CONTROL_PLANE_CHANGE_REQUIRED",
   );
   const materialSignals = signals.filter((signal) => signal.confidence !== "LOW");

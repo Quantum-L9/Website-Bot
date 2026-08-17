@@ -45,7 +45,7 @@ export class SourceSiteIngestionStage implements Stage {
 
   async run(ctx: BuildContext): Promise<void> {
     const sourceSite = ctx.domainSpec.assets?.sourceSite;
-    if (!sourceSite || sourceSite.enabled !== true) {
+    if (sourceSite?.enabled !== true) {
       logger.info("Source-site ingestion not enabled; skipping");
       return;
     }

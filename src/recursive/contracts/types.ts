@@ -23,6 +23,8 @@ export type WaveNumber = 1 | 2 | 3;
  * to the five intelligence artifacts); this vocabulary carries recursive evidence
  * refs while real intelligence lineage still flows through bot-interop refs.
  */
+export type LeverageRating = "HIGH" | "MEDIUM" | "LOW";
+
 export interface RecursiveArtifactRef {
   refKind: string;
   refId: string;
@@ -99,10 +101,10 @@ export interface EngineeringSignal {
   engineeringImplication: string;
   regressionCaseCandidate: boolean;
   leverage: {
-    humanReviewImpact: "HIGH" | "MEDIUM" | "LOW";
-    downstreamCostImpact: "HIGH" | "MEDIUM" | "LOW";
-    recurrence: "HIGH" | "MEDIUM" | "LOW";
-    implementationRisk: "HIGH" | "MEDIUM" | "LOW";
+    humanReviewImpact: LeverageRating;
+    downstreamCostImpact: LeverageRating;
+    recurrence: LeverageRating;
+    implementationRisk: LeverageRating;
   };
 }
 

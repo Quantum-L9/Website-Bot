@@ -28,8 +28,7 @@ import { buildCrawlIdentity, overlayCrawlIdentity } from "../src/services/spec/c
 // ── CLI argument parsing ──
 
 const args = process.argv.slice(2);
-const positional = args.filter((a) => !a.startsWith("--"));
-const targetUrl = positional[0];
+const targetUrl = args.find((a) => !a.startsWith("--"));
 if (!targetUrl) {
   console.error(
     "Usage: npx tsx scripts/generate-spec.ts <url> [--out=<path>] [--client-id=<id>] [--with-assets] [--site-url=<url>] [--write-invalid]",
@@ -178,7 +177,7 @@ if (withAssets) {
       aspectRatio: "1:1",
       imageSize: "1K",
       generation: {
-        intent: `Company logo for ${(parsed as Record<string, unknown>).business_name ?? clientId}`,
+        intent: `Company logo for ${String((parsed as Record<string, unknown>).business_name ?? clientId)}`,
       },
     },
     {
@@ -189,7 +188,7 @@ if (withAssets) {
       aspectRatio: "16:9",
       imageSize: "2K",
       generation: {
-        intent: `Professional Open Graph social preview image for ${(parsed as Record<string, unknown>).business_name ?? clientId}`,
+        intent: `Professional Open Graph social preview image for ${String((parsed as Record<string, unknown>).business_name ?? clientId)}`,
       },
     },
     {
@@ -200,7 +199,7 @@ if (withAssets) {
       aspectRatio: "16:9",
       imageSize: "2K",
       generation: {
-        intent: `Hero image for a ${(parsed as Record<string, unknown>).vertical ?? "business"} company homepage`,
+        intent: `Hero image for a ${String((parsed as Record<string, unknown>).vertical ?? "business")} company homepage`,
         subject: (parsed as Record<string, unknown>).business_name as string,
         style: "professional, modern, trustworthy",
       },
@@ -214,7 +213,7 @@ if (withAssets) {
           []
         ).find((r) => r.slug === slug)?.title ?? slug;
       imageSlots.push({
-        id: `hero-${slug.replace(/\//g, "-").replace(/^-/, "")}`,
+        id: `hero-${slug.replaceAll("/", "-").replace(/^-/, "")}`,
         placement: `${slug}:hero`,
         required: false,
         preferredSources: ["source-site", "generated"],
@@ -251,8 +250,8 @@ if (withAssets) {
   const home = routes?.find((route) => route.slug === "/");
   if (home) {
     home.components ??= [];
-    if (!home.components.some((name) => name.replace(/-/g, "_") === "gallery")) {
-      const heroIndex = home.components.findIndex((name) => name.replace(/-/g, "_") === "hero");
+    if (!home.components.some((name) => name.replaceAll("-", "_") === "gallery")) {
+      const heroIndex = home.components.findIndex((name) => name.replaceAll("-", "_") === "hero");
       home.components.splice(heroIndex >= 0 ? heroIndex + 1 : 0, 0, "gallery");
     }
   }

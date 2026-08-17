@@ -146,7 +146,7 @@ export function evaluateChampionPromotion(args: {
   const { challenger, champion, target_dimension } = args;
   const reasons: string[] = [];
   const challengerTarget = challenger.results.find(result => result.dimension === target_dimension);
-  if (!challengerTarget || challengerTarget.verdict_vs_baseline !== 'IMPROVED') {
+  if (challengerTarget?.verdict_vs_baseline !== 'IMPROVED') {
     reasons.push('target dimension did not materially improve');
   }
   if (challenger.aggregate.hard_gate_failures.length > 0) {

@@ -84,7 +84,7 @@ export function inferPalette(hexes: readonly string[]): SourcePaletteHint | unde
 
   const byLum = [...colors].sort((a, b) => a.luminance - b.luminance);
   const darkest = byLum[0];
-  const lightest = byLum[byLum.length - 1];
+  const lightest = byLum.at(-1)!;
   const darkSite = darkest.luminance < 0.25;
   const background = darkSite ? darkest.hex : lightest.hex;
   const text = darkSite ? lightest.hex : darkest.hex;

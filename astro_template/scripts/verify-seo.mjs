@@ -16,8 +16,8 @@ function hasRelCanonical(html) {
 }
 
 function hasProperty(html, property) {
-  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`property\\s*=\\s*(?:"${escaped}"|'${escaped}')`, "i").test(html);
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`property\s*=\s*(?:"${escaped}"|'${escaped}')`, "i").test(html);
 }
 
 // Check for robots.txt

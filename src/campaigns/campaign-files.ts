@@ -23,8 +23,7 @@ export function appendLearningEvent(campaignRoot: string, event: LearningEvent):
   mkdirSync(campaignRoot, { recursive: true });
   const path = learningEventsPathOf(campaignRoot);
   const events = loadLearningEvents(campaignRoot);
-  const existing = events.find(item => item.learning_id === event.learning_id);
-  if (existing) return; // learning events are content-addressed and immutable
+  if (events.some(item => item.learning_id === event.learning_id)) return; // learning events are content-addressed and immutable
   events.push(event);
   writeFileSync(path, `${JSON.stringify(events, null, 2)}\n`, 'utf8');
 }

@@ -59,6 +59,6 @@ export function siteSlugOf(sourceUrl: string): string {
 
 export function defaultCampaignId(sourceUrl: string): string {
   const slug = siteSlugOf(sourceUrl);
-  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const stamp = new Date().toISOString().slice(0, 10).replaceAll('-', '');
   return `${slug}-${stamp}-001`;
 }
