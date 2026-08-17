@@ -1,45 +1,38 @@
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { existenceCheckResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
-// Check essential files exist
+// Check essential files/directories exist. Each row uses the shared
+// existenceCheckResult() helper to avoid the duplicated block that
+// SonarCloud (S4144) previously flagged as new-code duplication.
 checks.push(
-  result(
-    "package-json-exists",
-    "file_existence",
-    "package.json",
-    "File exists",
-    exists("package.json") ? "File exists" : "File missing",
-    exists("package.json") ? "PASS" : "FAIL",
-    "high",
-    "Create package.json file",
-  ),
-);
-
-checks.push(
-  result(
-    "astro-config-exists",
-    "file_existence",
-    "astro.config.mjs",
-    "File exists",
-    exists("astro.config.mjs") ? "File exists" : "File missing",
-    exists("astro.config.mjs") ? "PASS" : "FAIL",
-    "high",
-    "Create astro.config.mjs file",
-  ),
-);
-
-checks.push(
-  result(
-    "src-directory-exists",
-    "directory_existence",
-    "src/",
-    "Directory exists",
-    exists("src") ? "Directory exists" : "Directory missing",
-    exists("src") ? "PASS" : "FAIL",
-    "high",
-    "Create src/ directory",
-  ),
+  existenceCheckResult({
+    checkId: "package-json-exists",
+    checkClass: "file_existence",
+    targetArtifact: "package.json",
+    expectedResult: "File exists",
+    foundText: "File exists",
+    missingText: "File missing",
+    remediationIfFailed: "Create package.json file",
+  }),
+  existenceCheckResult({
+    checkId: "astro-config-exists",
+    checkClass: "file_existence",
+    targetArtifact: "astro.config.mjs",
+    expectedResult: "File exists",
+    foundText: "File exists",
+    missingText: "File missing",
+    remediationIfFailed: "Create astro.config.mjs file",
+  }),
+  existenceCheckResult({
+    checkId: "src-directory-exists",
+    checkClass: "directory_existence",
+    targetArtifact: "src",
+    expectedResult: "Directory exists",
+    foundText: "Directory exists",
+    missingText: "Directory missing",
+    remediationIfFailed: "Create src/ directory",
+  }),
 );
 
 // Check Node.js version compatibility
@@ -48,16 +41,16 @@ const requiredNodeVersion = "20.3.0";
 const nodeVersionOk = nodeVersion >= `v${requiredNodeVersion}`;
 
 checks.push(
-  result(
-    "node-version-compatibility",
-    "version_check",
-    "Node.js version",
-    `>= ${requiredNodeVersion}`,
-    nodeVersion,
-    nodeVersionOk ? "PASS" : "FAIL",
-    "high",
-    `Update Node.js to version ${requiredNodeVersion} or higher`,
-  ),
+  result({
+    check_id: "node-version-compatibility",
+    check_class: "version_check",
+    target_artifact: "Node.js version",
+    expected_result: `>= ${requiredNodeVersion}`,
+    actual_result: nodeVersion,
+    status: nodeVersionOk ? "PASS" : "FAIL",
+    severity: "high",
+    remediation_if_failed: `Update Node.js to version ${requiredNodeVersion} or higher`,
+  }),
 );
 
 writeJsonl("validation/preflight_checks.jsonl", checks);

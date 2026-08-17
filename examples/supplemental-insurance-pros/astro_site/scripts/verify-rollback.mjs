@@ -7,16 +7,16 @@ const rollbackMarkers = ["vercel rollback", "previous deployment", "rollback val
 for (const marker of rollbackMarkers) {
   const found = text.toLowerCase().includes(marker);
   rows.push(
-    result(
-      `ROLLBACK-${marker}`,
-      "rollback_validation",
-      "docs/DEPLOYMENT_RUNBOOK.md",
-      `runbook documents ${marker}`,
-      found ? "found" : "missing",
-      found ? "PASS" : "FAIL",
-      "medium",
-      `Add rollback instruction covering ${marker}.`,
-    ),
+    result({
+      check_id: `ROLLBACK-${marker}`,
+      check_class: "rollback_validation",
+      target_artifact: "docs/DEPLOYMENT_RUNBOOK.md",
+      expected_result: `runbook documents ${marker}`,
+      actual_result: found ? "found" : "missing",
+      status: found ? "PASS" : "FAIL",
+      severity: "medium",
+      remediation_if_failed: `Add rollback instruction covering ${marker}.`,
+    }),
   );
 }
 writeJsonl("validation/rollback_checks.jsonl", rows);

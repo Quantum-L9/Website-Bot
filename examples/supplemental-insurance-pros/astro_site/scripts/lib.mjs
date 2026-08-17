@@ -50,27 +50,24 @@ export function parseEnvExample() {
   return values;
 }
 
-export function result(
-  check_id,
-  check_class,
-  target_artifact,
-  expected_result,
-  actual_result,
-  status,
-  severity = "medium",
-  remediation_if_failed = "",
-) {
+/**
+ * Build a check-result row (S107: options object instead of 8 params).
+ * This example-site copy is options-only: every caller in this site was
+ * migrated, and the backward-compatibility shim for generated sites lives
+ * in the template (astro_template/scripts/lib.mjs).
+ */
+export function result(options) {
   return {
-    check_id,
-    check_class,
-    target_artifact,
+    check_id: options.check_id,
+    check_class: options.check_class,
+    target_artifact: options.target_artifact,
     command_or_inspection_method: "node script inspection",
-    expected_result,
-    actual_result,
-    status,
-    severity,
-    remediation_if_failed,
-    evidence: target_artifact,
+    expected_result: options.expected_result,
+    actual_result: options.actual_result,
+    status: options.status,
+    severity: options.severity ?? "medium",
+    remediation_if_failed: options.remediation_if_failed ?? "",
+    evidence: options.target_artifact,
   };
 }
 

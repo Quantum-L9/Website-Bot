@@ -1,0 +1,716 @@
+{
+  "schema_version": "l9.plan_document/v4",
+  "mode": "plan",
+  "depth": "deep",
+  "title": "SonarCloud High-Risk Issues Remediation - Phase 2 (38 Deferred Issues)",
+  "objective": "Systematically remediate 38 remaining high-risk SonarCloud defects across 4 phased waves with zero regressions. Security-review ReDoS fixes, refactor high-complexity validators, migrate 8-param functions to options objects, and eliminate architectural async-constructor pattern. Each phase independently shippable with full validation gates.",
+  "success_criteria": [
+    "38 SonarCloud issues resolved (249 total → 173 Phase 1 → 158 current → 120 after Phase 2)",
+    "Zero behavioral regressions verified by existing test suite + new coverage",
+    "Security review APPROVED for all 6 ReDoS regex changes with 800k+ fuzz-test equivalence proof",
+    "TypeScript compilation clean, all .mjs files pass node --check",
+    "SonarCloud re-analysis confirms issue closure on each phase PR",
+    "Cognitive complexity reduced: 8 functions from 32-40 → <15, track remaining 15 high-complexity functions",
+    "All API-breaking S107 changes backward-compatible via deprecation shims",
+    "make pr PASS after each phase implementation"
+  ],
+  "scope": {
+    "in": [
+      "S3776 cognitive complexity reduction (23 total: 8 low-hanging phase 1, 15 deferred to phase 4)",
+      "S8786 ReDoS regex optimization with security review (6 regex patterns)",
+      "S107 function signature migration to options objects (4 functions)",
+      "S7059 async constructor elimination (1 occurrence)",
+      "S2486 exception handling in templates (3 template files, advisory only)",
+      "S4036 PATH resolution in template (1 template file, advisory only)",
+      "Unit test coverage additions for refactored complex functions",
+      "Fuzz-test harness for regex equivalence validation",
+      "Security review process integration",
+      "Documentation updates: REMAINING_HIGH_RISK_ANALYSIS.md, SONARCLOUD_REMEDIATION_REPORT.md"
+    ],
+    "out": [
+      "S3776 high complexity 40-79 (15 issues deferred to dedicated Phase 4 with architecture review)",
+      "Upstream l9-ci-core workflow fixes (20 issues, separate repo)",
+      "False-positive S1854/S2699 issues (3 confirmed, no action)",
+      "Performance optimization beyond SonarCloud compliance",
+      "Unrelated code quality improvements",
+      "Test framework changes or migrations",
+      "CI/CD pipeline modifications beyond validation gates",
+      "SonarCloud rule configuration changes"
+    ]
+  },
+  "code_in_scope": true,
+  "pre_validation": [
+    {
+      "id": "baseline-branch",
+      "command_or_action": "git fetch origin && git status",
+      "pass_criteria": "On fix/sonarcloud-deferred-safe-issues branch, 15 safe fixes committed, origin synced",
+      "status": "passed"
+    },
+    {
+      "id": "baseline-sonar-status",
+      "command_or_action": "Review docs/sonarcloud-remediation/SONARCLOUD_ISSUE_REGISTER.yaml",
+      "pass_criteria": "53 REMAINS_DEFERRED issues documented (38 in-repo + 15 just fixed)",
+      "status": "passed"
+    },
+    {
+      "id": "test-suite-green",
+      "command_or_action": "npm test 2>&1 | tail -20",
+      "pass_criteria": "Unit test suite baseline PASS (100 PASS / 3 BLOCKED pre-existing)",
+      "status": "pending"
+    },
+    {
+      "id": "existing-coverage",
+      "command_or_action": "Identify test coverage for validateDomainSpec, EvidenceCollector, CLI validation",
+      "pass_criteria": "Coverage map confirms ≥70% line coverage for target refactor functions",
+      "status": "pending"
+    },
+    {
+      "id": "security-review-process",
+      "command_or_action": "Confirm security review availability for ReDoS changes",
+      "pass_criteria": "Security reviewer identified or establish self-review protocol with fuzz evidence",
+      "status": "pending"
+    }
+  ],
+  "todos": [
+    {
+      "id": "phase1-s107-template-lib",
+      "task": "Refactor astro_template/scripts/lib.mjs:49 result() function from 8 params to options object with backward-compatible shim",
+      "files": [
+        "astro_template/scripts/lib.mjs",
+        "astro_template/scripts/preflight.mjs",
+        "astro_template/scripts/verify-*.mjs (6 files)"
+      ],
+      "effort": "2h",
+      "risk": "low",
+      "dependencies": [],
+      "operation": "Replace",
+      "anchor": "export function result(id, category, target, expected, actual, status, severity, remedy)",
+      "leverage_rank": 1,
+      "shared_root_cause": "8-param result() function signature used across all template scripts"
+    },
+    {
+      "id": "phase1-s107-example-lib",
+      "task": "Apply same refactor to examples/.../scripts/lib.mjs:49 (duplicated template code)",
+      "files": [
+        "examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs"
+      ],
+      "effort": "30m",
+      "risk": "low",
+      "dependencies": ["phase1-s107-template-lib"],
+      "operation": "Replace",
+      "leverage_rank": 5,
+      "shared_root_cause": "duplicated template"
+    },
+    {
+      "id": "phase1-s107-validation-framework",
+      "task": "Refactor astro_template/scripts/validation-framework.mjs:13 validate() from 8 params to options",
+      "files": [
+        "astro_template/scripts/validation-framework.mjs"
+      ],
+      "effort": "1h",
+      "risk": "low",
+      "dependencies": [],
+      "operation": "Replace",
+      "leverage_rank": 6
+    },
+    {
+      "id": "phase1-s107-evidence-collector",
+      "task": "Refactor packages/validation-executor/src/core/EvidenceCollector.ts:86 from 8 params to EvidenceEntryOptions interface",
+      "files": [
+        "packages/validation-executor/src/core/EvidenceCollector.ts",
+        "packages/validation-executor/src/core/ValidationExecutor.ts (callers)",
+        "packages/validation-executor/test/unit/EvidenceCollector.test.ts (mocks)"
+      ],
+      "effort": "3h",
+      "risk": "medium",
+      "dependencies": [],
+      "operation": "Replace",
+      "leverage_rank": 7
+    },
+    {
+      "id": "phase1-validate",
+      "task": "Validate Phase 1 changes: node --check all .mjs, npx tsc --noEmit, npm test",
+      "files": [],
+      "blocker": "checkpoint_validation",
+      "effort": "30m",
+      "risk": "low",
+      "dependencies": ["phase1-s107-template-lib", "phase1-s107-example-lib", "phase1-s107-validation-framework", "phase1-s107-evidence-collector"],
+      "leverage_rank": 8
+    },
+    {
+      "id": "phase2-s3776-validate-spec-low",
+      "task": "Extract validation helpers from src/pipeline/validateDomainSpec.ts:75 (complexity 35 → <15): validateBusiness(), validateRoutes(), validateDeploy()",
+      "files": [
+        "src/pipeline/validateDomainSpec.ts",
+        "tests/unit/domain-spec-validation.test.ts (add coverage)"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase1-validate"],
+      "operation": "Replace",
+      "anchor": "function validateDomainSpec(spec: unknown): ValidationResult",
+      "leverage_rank": 2,
+      "shared_root_cause": "nested validation logic without helper extraction"
+    },
+    {
+      "id": "phase2-s3776-validate-spec-routes",
+      "task": "Extract route validation from src/pipeline/validateDomainSpec.ts:119 (complexity 38 → <15)",
+      "files": [
+        "src/pipeline/validateDomainSpec.ts"
+      ],
+      "effort": "3h",
+      "risk": "high",
+      "dependencies": ["phase2-s3776-validate-spec-low"],
+      "operation": "Replace",
+      "leverage_rank": 3,
+      "shared_root_cause": "nested validation logic without helper extraction"
+    },
+    {
+      "id": "phase2-s3776-validate-spec-provision",
+      "task": "Extract provision validation from src/pipeline/validateDomainSpec.ts:153 (complexity 40 → <15)",
+      "files": [
+        "src/pipeline/validateDomainSpec.ts"
+      ],
+      "effort": "3h",
+      "risk": "high",
+      "dependencies": ["phase2-s3776-validate-spec-routes"],
+      "operation": "Replace",
+      "leverage_rank": 4,
+      "shared_root_cause": "nested validation logic without helper extraction"
+    },
+    {
+      "id": "phase2-s3776-cli-low",
+      "task": "Extract CLI subcommand handlers from packages/validation-executor/src/cli.ts:8,192 (complexity 32-35 → <15)",
+      "files": [
+        "packages/validation-executor/src/cli.ts"
+      ],
+      "effort": "5h",
+      "risk": "high",
+      "dependencies": ["phase1-validate"],
+      "operation": "Replace",
+      "leverage_rank": 9
+    },
+    {
+      "id": "phase2-s3776-validator-low",
+      "task": "Extract helpers from scripts/validation-executor.ts:100, scripts/validate-l9-boundaries.mjs:57 (complexity 32-35 → <15)",
+      "files": [
+        "scripts/validation-executor.ts",
+        "scripts/validate-l9-boundaries.mjs"
+      ],
+      "effort": "3h",
+      "risk": "medium",
+      "dependencies": ["phase1-validate"],
+      "operation": "Replace",
+      "leverage_rank": 10
+    },
+    {
+      "id": "phase2-s3776-extract-json",
+      "task": "Refactor src/services/extractJson.ts:37 (complexity 37 → <15) - extract parsing stages",
+      "files": [
+        "src/services/extractJson.ts",
+        "tests/unit/extract-json.test.ts (add coverage)"
+      ],
+      "effort": "2h",
+      "risk": "medium",
+      "dependencies": ["phase1-validate"],
+      "operation": "Replace",
+      "leverage_rank": 11
+    },
+    {
+      "id": "phase2-s3776-example-verify-smoke",
+      "task": "Refactor examples/.../scripts/verify-smoke.mjs:19 (complexity 35 → <15) - advisory template fix",
+      "files": [
+        "examples/supplemental-insurance-pros/astro_site/scripts/verify-smoke.mjs"
+      ],
+      "effort": "2h",
+      "risk": "low",
+      "dependencies": ["phase1-validate"],
+      "operation": "Replace",
+      "leverage_rank": 12
+    },
+    {
+      "id": "phase2-validate",
+      "task": "Validate Phase 2: unit tests green, integration smoke tests, complexity verified via linter",
+      "files": [],
+      "blocker": "checkpoint_validation",
+      "effort": "1h",
+      "risk": "low",
+      "dependencies": ["phase2-s3776-validate-spec-low", "phase2-s3776-validate-spec-routes", "phase2-s3776-validate-spec-provision", "phase2-s3776-cli-low", "phase2-s3776-validator-low", "phase2-s3776-extract-json", "phase2-s3776-example-verify-smoke"],
+      "leverage_rank": 13
+    },
+    {
+      "id": "phase3-redos-fuzz-harness",
+      "task": "Create scripts/fuzz_regex_equivalence.mjs harness (if not existing) for 800k+ test case generation and comparison",
+      "files": [
+        "scripts/fuzz_regex_equivalence.mjs"
+      ],
+      "effort": "3h",
+      "risk": "low",
+      "dependencies": ["phase2-validate"],
+      "operation": "Create",
+      "leverage_rank": 14
+    },
+    {
+      "id": "phase3-redos-secure-exec-110",
+      "task": "Optimize packages/validation-executor/src/utils/secureExecution.ts:110 ReDoS regex, generate fuzz corpus, prove equivalence",
+      "files": [
+        "packages/validation-executor/src/utils/secureExecution.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-110.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-fuzz-harness"],
+      "operation": "Replace",
+      "leverage_rank": 15
+    },
+    {
+      "id": "phase3-redos-secure-exec-113",
+      "task": "Optimize packages/validation-executor/src/utils/secureExecution.ts:113 ReDoS regex with equivalence proof",
+      "files": [
+        "packages/validation-executor/src/utils/secureExecution.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-113.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-secure-exec-110"],
+      "operation": "Replace",
+      "leverage_rank": 16
+    },
+    {
+      "id": "phase3-redos-e2e-engine",
+      "task": "Optimize packages/validation-executor/src/core/E2EEngine.ts:186 ReDoS regex with equivalence proof",
+      "files": [
+        "packages/validation-executor/src/core/E2EEngine.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-186.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-secure-exec-113"],
+      "operation": "Replace",
+      "leverage_rank": 17
+    },
+    {
+      "id": "phase3-redos-handoff-emitter",
+      "task": "Optimize src/stages/HandoffEmitterStage.ts:103 ReDoS regex with equivalence proof",
+      "files": [
+        "src/stages/HandoffEmitterStage.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-103.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-e2e-engine"],
+      "operation": "Replace",
+      "leverage_rank": 18
+    },
+    {
+      "id": "phase3-redos-request",
+      "task": "Optimize src/provisioning/request.ts:17 ReDoS regex with equivalence proof",
+      "files": [
+        "src/provisioning/request.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-17.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-handoff-emitter"],
+      "operation": "Replace",
+      "leverage_rank": 19
+    },
+    {
+      "id": "phase3-redos-validate-site",
+      "task": "Optimize src/validation/validate-generated-site.ts:57 ReDoS regex with equivalence proof",
+      "files": [
+        "src/validation/validate-generated-site.ts",
+        "docs/sonarcloud-remediation/regex-equivalence-proof-57.md"
+      ],
+      "effort": "4h",
+      "risk": "high",
+      "dependencies": ["phase3-redos-request"],
+      "operation": "Replace",
+      "leverage_rank": 20
+    },
+    {
+      "id": "phase3-security-review",
+      "task": "Security review: all 6 ReDoS changes + fuzz evidence → APPROVED or BLOCKED with required changes",
+      "files": [
+        "docs/sonarcloud-remediation/SECURITY_REVIEW_REDOS.md"
+      ],
+      "effort": "2h",
+      "risk": "irreversible",
+      "dependencies": ["phase3-redos-secure-exec-110", "phase3-redos-secure-exec-113", "phase3-redos-e2e-engine", "phase3-redos-handoff-emitter", "phase3-redos-request", "phase3-redos-validate-site"],
+      "leverage_rank": 21
+    },
+    {
+      "id": "phase3-validate",
+      "task": "Validate Phase 3: security APPROVED, test suite green, fuzz evidence documented, make pr PASS",
+      "files": [],
+      "blocker": "checkpoint_validation",
+      "effort": "1h",
+      "risk": "high",
+      "dependencies": ["phase3-security-review"],
+      "leverage_rank": 22
+    },
+    {
+      "id": "phase4-s7059-evidence-collector",
+      "task": "Refactor packages/validation-executor/src/core/EvidenceCollector.ts:31 async constructor to static factory pattern",
+      "files": [
+        "packages/validation-executor/src/core/EvidenceCollector.ts",
+        "packages/validation-executor/src/core/ValidationExecutor.ts (update instantiation)"
+      ],
+      "effort": "2h",
+      "risk": "medium",
+      "dependencies": ["phase1-s107-evidence-collector"],
+      "operation": "Replace",
+      "leverage_rank": 23
+    },
+    {
+      "id": "phase4-validate",
+      "task": "Final validation: all 38 issues closed on SonarCloud, zero regressions, make pr PASS",
+      "files": [],
+      "blocker": "checkpoint_validation",
+      "effort": "1h",
+      "risk": "low",
+      "dependencies": ["phase4-s7059-evidence-collector"],
+      "leverage_rank": 24
+    },
+    {
+      "id": "phase4-doc-update",
+      "task": "Update REMAINING_HIGH_RISK_ANALYSIS.md with Phase 4 deferral (15 high-complexity S3776 functions requiring architecture review)",
+      "files": [
+        "docs/sonarcloud-remediation/REMAINING_HIGH_RISK_ANALYSIS.md",
+        "docs/sonarcloud-remediation/SONARCLOUD_REMEDIATION_REPORT.md"
+      ],
+      "effort": "1h",
+      "risk": "low",
+      "dependencies": ["phase4-validate"],
+      "operation": "Replace",
+      "leverage_rank": 25
+    }
+  ],
+  "critical_path": [
+    "phase1-s107-template-lib",
+    "phase1-s107-example-lib",
+    "phase1-s107-validation-framework",
+    "phase1-s107-evidence-collector",
+    "phase1-validate",
+    "phase2-s3776-validate-spec-low",
+    "phase2-s3776-validate-spec-routes",
+    "phase2-s3776-validate-spec-provision",
+    "phase2-validate",
+    "phase3-redos-fuzz-harness",
+    "phase3-redos-secure-exec-110",
+    "phase3-redos-secure-exec-113",
+    "phase3-redos-e2e-engine",
+    "phase3-redos-handoff-emitter",
+    "phase3-redos-request",
+    "phase3-redos-validate-site",
+    "phase3-security-review",
+    "phase3-validate",
+    "phase4-s7059-evidence-collector",
+    "phase4-validate",
+    "phase4-doc-update"
+  ],
+  "milestones": [
+    {
+      "id": "M1-phase1-complete",
+      "outcome": "4 S107 functions migrated to options objects, backward-compatible, tests green",
+      "unlocks": "Safe API pattern established for future refactors, Phase 2 complexity work"
+    },
+    {
+      "id": "M2-phase2-complete",
+      "outcome": "8 low-complexity S3776 functions refactored (32-40 → <15), helper extraction pattern proven",
+      "unlocks": "Validates refactoring approach for remaining 15 high-complexity functions in future Phase 4"
+    },
+    {
+      "id": "M3-phase3-security-approved",
+      "outcome": "6 ReDoS regexes optimized, 800k+ fuzz tests PASS, security review APPROVED",
+      "unlocks": "Production deployment of security fixes, closes HIGH SECURITY RISK category"
+    },
+    {
+      "id": "M4-phase4-complete",
+      "outcome": "S7059 async constructor eliminated, all 38 issues closed, SonarCloud validates closure",
+      "unlocks": "SonarCloud status 249 → 120, plan for remaining 15 critical complexity issues"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "CP1-phase1-tests",
+      "after": "phase1-validate",
+      "evidence_required": "npm test output showing 100 PASS / 3 BLOCKED (no new failures), TypeScript compilation clean",
+      "no_go_action": "Rollback Phase 1 changes, debug test failures, do not proceed to Phase 2"
+    },
+    {
+      "id": "CP2-phase2-complexity-verified",
+      "after": "phase2-validate",
+      "evidence_required": "SonarCloud analysis or biome/eslint complexity metrics showing target functions <15 complexity, integration tests PASS",
+      "no_go_action": "Rollback complexity refactors, add more unit tests, re-extract helpers, do not proceed to Phase 3"
+    },
+    {
+      "id": "CP3-redos-fuzz-equivalence",
+      "after": "phase3-redos-validate-site",
+      "evidence_required": "All 6 regex fuzz reports showing 0 differences over 800k+ test cases, documented in equivalence-proof-*.md files",
+      "no_go_action": "BLOCK Phase 3, do not submit for security review until equivalence proven, revise regex implementations"
+    },
+    {
+      "id": "CP4-security-approval",
+      "after": "phase3-security-review",
+      "evidence_required": "SECURITY_REVIEW_REDOS.md with APPROVED status signed by reviewer, or self-review protocol satisfied",
+      "no_go_action": "BLOCK merge, address security reviewer feedback, re-fuzz if regex changed, do not deploy to production"
+    },
+    {
+      "id": "CP5-sonarcloud-closure",
+      "after": "phase4-validate",
+      "evidence_required": "SonarCloud re-analysis showing 38 issues closed (or re-query /api/issues/search confirming closure)",
+      "no_go_action": "Investigate why SonarCloud did not close issues, verify branch analysis ran, manual issue review if needed"
+    }
+  ],
+  "doc_root_surface_impact": [
+    {
+      "surface": "docs/sonarcloud-remediation/REMAINING_HIGH_RISK_ANALYSIS.md",
+      "action": "update",
+      "todo_ids": ["phase4-doc-update"],
+      "reason": "Document Phase 2-4 completion, update remaining issue count, add Phase 4 deferral notes"
+    },
+    {
+      "surface": "docs/sonarcloud-remediation/SONARCLOUD_REMEDIATION_REPORT.md",
+      "action": "update",
+      "todo_ids": ["phase4-doc-update"],
+      "reason": "Update total fixed count 173 → 211, add Phase 2-4 summary section"
+    },
+    {
+      "surface": "docs/sonarcloud-remediation/SONARCLOUD_ISSUE_REGISTER.yaml",
+      "action": "update",
+      "todo_ids": ["phase4-validate"],
+      "reason": "Change disposition from REMAINS_DEFERRED to FIXED_PENDING_REMOTE_ANALYSIS for 38 issues"
+    },
+    {
+      "surface": "README.md",
+      "action": "n_a",
+      "reason": "Internal code quality improvement, no user-facing changes"
+    },
+    {
+      "surface": "AGENTS.md",
+      "action": "n_a",
+      "reason": "No agent instruction changes, code quality only"
+    }
+  ],
+  "stress_test": {
+    "disconfirming_questions": [
+      "What if the extracted validation helpers in Phase 2 alter error message formats that downstream systems depend on?",
+      "What if the ReDoS regex optimizations in Phase 3 change matching behavior on edge cases that production data contains?",
+      "What if the options-object migration in Phase 1 breaks external callers we're unaware of (e.g. dynamic require in user scripts)?",
+      "What if existing test coverage is insufficient to catch behavioral regressions in high-complexity function refactors?",
+      "What if security reviewer is unavailable or rejects all 6 ReDoS changes, blocking Phase 3 entirely?"
+    ],
+    "assumed_false_ifs": [
+      "Validation error messages in validateDomainSpec are NOT consumed by external parsers expecting exact format",
+      "No production code dynamically calls the 8-param result() function via reflection or apply()",
+      "Existing unit/integration tests provide ≥70% coverage for functions being refactored",
+      "ReDoS regex patterns are NOT embedded in user-provided config or loaded dynamically",
+      "Security review can be completed within 1-2 day SLA or self-review protocol is acceptable",
+      "SonarCloud re-analysis triggers automatically on PR merge (not manual)"
+    ],
+    "blast_radius": "Phase 1: Template script breakage affects local validation only. Phase 2: Validator bugs could break site generation for all clients. Phase 3: Regex bugs could introduce SECURITY VULNERABILITIES (command injection, sanitization bypass) or AVAILABILITY ISSUES (ReDoS in production). Phase 4: Factory pattern bugs affect validation-executor instantiation across repo.",
+    "rollback": "Per-phase git revert commits. Phase 1: Revert options-object changes, restore 8-param signatures. Phase 2: Revert helper extractions, restore monolithic validators. Phase 3 (CRITICAL): Emergency revert all regex changes if any production security incident, restore original patterns. Phase 4: Revert static factory, restore constructor pattern. Each phase independently revertible via git revert <phase-commit-sha>."
+  },
+  "leverage": {
+    "ranked_todo_ids": [
+      "phase1-s107-template-lib",
+      "phase2-s3776-validate-spec-low",
+      "phase2-s3776-validate-spec-routes",
+      "phase2-s3776-validate-spec-provision",
+      "phase1-s107-example-lib",
+      "phase1-s107-validation-framework",
+      "phase1-s107-evidence-collector",
+      "phase1-validate",
+      "phase2-s3776-cli-low",
+      "phase2-s3776-validator-low",
+      "phase2-s3776-extract-json",
+      "phase2-s3776-example-verify-smoke",
+      "phase2-validate",
+      "phase3-redos-fuzz-harness",
+      "phase3-redos-secure-exec-110",
+      "phase3-redos-secure-exec-113",
+      "phase3-redos-e2e-engine",
+      "phase3-redos-handoff-emitter",
+      "phase3-redos-request",
+      "phase3-redos-validate-site",
+      "phase3-security-review",
+      "phase3-validate",
+      "phase4-s7059-evidence-collector",
+      "phase4-validate",
+      "phase4-doc-update"
+    ],
+    "shared_causes": [
+      "8-param function signatures (S107) - result() and validate() used across 7+ files",
+      "Nested validation logic without helper extraction (S3776) - 3 functions in validateDomainSpec.ts share pattern",
+      "Nested quantifiers in regexes (S8786) - 6 security-critical patterns need atomic grouping"
+    ],
+    "deletions_or_consolidations": [
+      "Consolidate duplicated lib.mjs between template and examples into shared module (future optimization)",
+      "Remove 8-param legacy shims after 1-2 release deprecation period (future cleanup)"
+    ]
+  },
+  "risks": [
+    {
+      "risk": "Phase 2 validator refactoring introduces subtle behavioral regression in edge case validation (e.g. route slug normalization, special characters in business names)",
+      "mitigation": "Add comprehensive unit tests before refactoring. Run full E2E site generation tests with 3+ domain specs covering edge cases. Compare validation output before/after refactor byte-for-byte."
+    },
+    {
+      "risk": "Phase 3 ReDoS regex changes alter matching behavior on production data edge cases not covered by fuzz corpus",
+      "mitigation": "Generate fuzz corpus from production data samples if available. Include unicode, special chars, max-length inputs. Require 800k+ test cases minimum. Security review includes production data validation."
+    },
+    {
+      "risk": "Security reviewer unavailable or blocks all 6 regex changes, stalling Phase 3 for weeks",
+      "mitigation": "Establish self-review protocol: if external reviewer unavailable within 48h, proceed with (1) documented fuzz equivalence, (2) security checklist self-audit, (3) staged rollout with monitoring, (4) async post-merge review."
+    },
+    {
+      "risk": "Existing test coverage insufficient, refactored functions break but tests still pass (false positive test quality)",
+      "mitigation": "Pre-validation step: inject intentional bugs into target functions, verify tests catch them. If not, add failing-then-passing test cases before refactoring. Require mutation testing or manual break-test validation."
+    },
+    {
+      "risk": "Phase 1 API-breaking changes discovered in external caller (e.g. user-maintained scripts importing lib.mjs)",
+      "mitigation": "Keep deprecated 8-param signatures with console.warn for 2+ releases. Document migration in CHANGELOG. Search codebase for dynamic calls (eval, apply, call patterns)."
+    },
+    {
+      "risk": "SonarCloud does not re-analyze PR or reports false negatives, issues not closed despite fix",
+      "mitigation": "Manual SonarCloud issue review via /api/issues/search after merge. Trigger re-analysis manually if needed. Document actual vs expected closure in validation checkpoint."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U1-external-callers",
+      "question": "Are there external scripts or user-maintained code calling the 8-param result() function that would break with signature change?",
+      "decision_effect": "If yes: must keep legacy shim permanently or extend deprecation period. If no: can remove shim after 1 release.",
+      "resolution": "probe"
+    },
+    {
+      "id": "U2-security-reviewer-identity",
+      "question": "Who is the designated security reviewer for ReDoS changes? What is their availability SLA?",
+      "decision_effect": "If unavailable: must establish self-review protocol or defer Phase 3. If available: proceed with external review.",
+      "resolution": "ask"
+    },
+    {
+      "id": "U3-prod-data-regex-coverage",
+      "question": "Do we have access to production data samples for regex fuzz corpus generation?",
+      "decision_effect": "If yes: use production data for high-confidence equivalence testing. If no: rely on synthetic edge cases (still valid but lower confidence).",
+      "resolution": "probe"
+    },
+    {
+      "id": "U4-validation-error-consumers",
+      "question": "Are validation error messages from validateDomainSpec parsed by external systems (e.g. CI dashboard, monitoring)?",
+      "decision_effect": "If yes: must preserve exact error format during refactor. If no: can improve error messages during refactor.",
+      "resolution": "probe"
+    },
+    {
+      "id": "U5-mutation-test-availability",
+      "question": "Is mutation testing tooling (Stryker, etc.) available for verifying test quality before refactoring?",
+      "decision_effect": "If yes: use mutation testing to validate test coverage. If no: use manual break-test approach (inject bugs, verify tests fail).",
+      "resolution": "probe"
+    }
+  ],
+  "final_validation": [
+    {
+      "id": "FV1-all-phases-tests",
+      "command": "npm test",
+      "pass_criteria": "100 PASS / 3 BLOCKED (no new failures), exit code 0",
+      "status": "pending"
+    },
+    {
+      "id": "FV2-typescript-clean",
+      "command": "npx tsc --noEmit -p tsconfig.json && npx tsc --noEmit -p tsconfig.provisioning.json",
+      "pass_criteria": "No type errors (ignoring missing private package declarations)",
+      "status": "pending"
+    },
+    {
+      "id": "FV3-javascript-syntax",
+      "command": "for f in astro_template/scripts/*.mjs examples/**/scripts/*.mjs; do node --check \"$f\" || exit 1; done",
+      "pass_criteria": "All .mjs files parse successfully",
+      "status": "pending"
+    },
+    {
+      "id": "FV4-regex-equivalence",
+      "command": "node scripts/fuzz_regex_equivalence.mjs --verify-all",
+      "pass_criteria": "0 differences reported across all 6 regex pairs, ≥800k test cases each",
+      "status": "pending"
+    },
+    {
+      "id": "FV5-security-review",
+      "command": "cat docs/sonarcloud-remediation/SECURITY_REVIEW_REDOS.md | grep 'Status: APPROVED'",
+      "pass_criteria": "Security review document exists with APPROVED status",
+      "status": "pending"
+    },
+    {
+      "id": "FV6-sonarcloud-closure",
+      "command": "curl -s 'https://sonarcloud.io/api/issues/search?componentKeys=Quantum-L9_Website-Bot&resolved=false' | jq '.issues | length'",
+      "pass_criteria": "Issue count reduced by 38 (from baseline count after Phase 1)",
+      "status": "pending"
+    },
+    {
+      "id": "FV7-make-pr",
+      "command": "make pr",
+      "pass_criteria": "All local pre-PR checks PASS (lint, typecheck, tests)",
+      "status": "pending"
+    }
+  ],
+  "convergence": {
+    "status": "partial",
+    "remaining_unknown_ids": ["U1-external-callers", "U2-security-reviewer-identity", "U3-prod-data-regex-coverage", "U4-validation-error-consumers", "U5-mutation-test-availability"],
+    "next_skill": "l9-ynp",
+    "stop_reason": "Plan ready for execution, pending runtime validation gates and unknown resolution during implementation. Pre-validation checks test-suite-green, existing-coverage, security-review-process require execution context. All final validations are pending until implementation. 5 unknowns will be resolved via probe/ask during phased execution."
+  },
+  "gmp_handoff": {
+    "may_modify": [
+      "astro_template/scripts/lib.mjs",
+      "astro_template/scripts/preflight.mjs",
+      "astro_template/scripts/verify-*.mjs",
+      "astro_template/scripts/validation-framework.mjs",
+      "examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs",
+      "examples/supplemental-insurance-pros/astro_site/scripts/verify-smoke.mjs",
+      "packages/validation-executor/src/core/EvidenceCollector.ts",
+      "packages/validation-executor/src/core/ValidationExecutor.ts",
+      "packages/validation-executor/src/core/E2EEngine.ts",
+      "packages/validation-executor/src/utils/secureExecution.ts",
+      "packages/validation-executor/test/unit/EvidenceCollector.test.ts",
+      "src/pipeline/validateDomainSpec.ts",
+      "src/services/extractJson.ts",
+      "src/provisioning/request.ts",
+      "src/stages/HandoffEmitterStage.ts",
+      "src/validation/validate-generated-site.ts",
+      "scripts/validation-executor.ts",
+      "scripts/validate-l9-boundaries.mjs",
+      "scripts/fuzz_regex_equivalence.mjs",
+      "tests/unit/domain-spec-validation.test.ts",
+      "tests/unit/extract-json.test.ts",
+      "docs/sonarcloud-remediation/REMAINING_HIGH_RISK_ANALYSIS.md",
+      "docs/sonarcloud-remediation/SONARCLOUD_REMEDIATION_REPORT.md",
+      "docs/sonarcloud-remediation/SONARCLOUD_ISSUE_REGISTER.yaml",
+      "docs/sonarcloud-remediation/SECURITY_REVIEW_REDOS.md",
+      "docs/sonarcloud-remediation/regex-equivalence-proof-*.md"
+    ],
+    "must_not_modify": [
+      "contracts/**/*.json",
+      "contracts/**/*.yaml",
+      ".github/workflows/l9-*.yml",
+      "AGENTS.md",
+      "package-lock.json (except via npm install)",
+      "src/intelligence/**/*.ts (locked by intelligence protocol)",
+      "src/contracts/**/*.ts (handoff/interop contracts)"
+    ],
+    "preserved_contracts": [
+      "DomainSpec schema must remain backward-compatible during validation refactoring",
+      "Validation error structure { valid: boolean, errors: string[] } must not change",
+      "Evidence collector public API (post-refactor) must be import-compatible",
+      "Regex patterns must be match-equivalent (proven via fuzz testing)",
+      "Template script exit codes (0=PASS, 1=FAIL) must not change"
+    ],
+    "validation_commands": [
+      "npm test",
+      "npx tsc --noEmit -p tsconfig.json",
+      "npx tsc --noEmit -p tsconfig.provisioning.json",
+      "node --check astro_template/scripts/*.mjs",
+      "node scripts/fuzz_regex_equivalence.mjs --verify-all",
+      "make pr"
+    ]
+  },
+  "estimate": "Phase 1: 6-8h. Phase 2: 20-25h. Phase 3: 28-32h (includes security review). Phase 4: 4-6h. Total: 58-71h spread across 4 PRs over 3-4 weeks with checkpoint validations between phases."
+}

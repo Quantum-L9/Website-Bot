@@ -35,43 +35,43 @@ await validator.addDirectoryContentCheck(
 
 // Check for main page
 const indexExists = exists("src/pages/index.astro") || exists("src/pages/index.md");
-validator.addCheck(
-  "index-page-exists",
-  "file_existence",
-  "src/pages/index.*",
-  "Index page exists",
-  indexExists ? "Index page found" : "No index page found",
-  indexExists ? "PASS" : "FAIL",
-  "high",
-  "Create src/pages/index.astro or src/pages/index.md",
-);
+validator.addCheck({
+  id: "index-page-exists",
+  category: "file_existence",
+  target: "src/pages/index.*",
+  description: "Index page exists",
+  evidence: indexExists ? "Index page found" : "No index page found",
+  status: indexExists ? "PASS" : "FAIL",
+  severity: "high",
+  remedy: "Create src/pages/index.astro or src/pages/index.md",
+});
 
 // Validate Astro config if it exists
 if (exists("astro.config.mjs")) {
   try {
     const configText = readText("astro.config.mjs");
     const hasDefineConfig = configText.includes("defineConfig");
-    validator.addCheck(
-      "astro-config-valid",
-      "config_validation",
-      "astro.config.mjs",
-      "Uses defineConfig export",
-      hasDefineConfig ? "defineConfig found" : "defineConfig missing",
-      hasDefineConfig ? "PASS" : "FAIL",
-      "medium",
-      "Use defineConfig in astro.config.mjs",
-    );
+    validator.addCheck({
+      id: "astro-config-valid",
+      category: "config_validation",
+      target: "astro.config.mjs",
+      description: "Uses defineConfig export",
+      evidence: hasDefineConfig ? "defineConfig found" : "defineConfig missing",
+      status: hasDefineConfig ? "PASS" : "FAIL",
+      severity: "medium",
+      remedy: "Use defineConfig in astro.config.mjs",
+    });
   } catch (error) {
-    validator.addCheck(
-      "astro-config-readable",
-      "file_validation",
-      "astro.config.mjs",
-      "Config file is readable",
-      `Error: ${error.message}`,
-      "FAIL",
-      "medium",
-      "Fix astro.config.mjs syntax errors",
-    );
+    validator.addCheck({
+      id: "astro-config-readable",
+      category: "file_validation",
+      target: "astro.config.mjs",
+      description: "Config file is readable",
+      evidence: `Error: ${error.message}`,
+      status: "FAIL",
+      severity: "medium",
+      remedy: "Fix astro.config.mjs syntax errors",
+    });
   }
 }
 

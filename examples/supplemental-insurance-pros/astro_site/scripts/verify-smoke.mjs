@@ -11,92 +11,108 @@ async function fetchMode() {
     try {
       const res = await fetch(new URL(route, baseUrl));
       rows.push(
-        result(
-          `SMOKE-HTTP-${route}`,
-          "runtime_smoke_validation",
-          route,
-          "HTTP 200",
-          `HTTP ${res.status}`,
-          res.status === 200 ? "PASS" : "FAIL",
-          "critical",
-          "Fix route or deployment.",
-        ),
+        result({
+          check_id: `SMOKE-HTTP-${route}`,
+          check_class: "runtime_smoke_validation",
+          target_artifact: route,
+          expected_result: "HTTP 200",
+          actual_result: `HTTP ${res.status}`,
+          status: res.status === 200 ? "PASS" : "FAIL",
+          severity: "critical",
+          remediation_if_failed: "Fix route or deployment.",
+        }),
       );
     } catch (error) {
       rows.push(
-        result(
-          `SMOKE-HTTP-${route}`,
-          "runtime_smoke_validation",
-          route,
-          "fetch succeeds",
-          error.message,
-          "FAIL",
-          "critical",
-          "Start preview server or verify deployed URL.",
-        ),
+        result({
+          check_id: `SMOKE-HTTP-${route}`,
+          check_class: "runtime_smoke_validation",
+          target_artifact: route,
+          expected_result: "fetch succeeds",
+          actual_result: error.message,
+          status: "FAIL",
+          severity: "critical",
+          remediation_if_failed: "Start preview server or verify deployed URL.",
+        }),
       );
     }
   }
 }
 
-function staticMode() {
-  if (!fs.existsSync("dist")) {
-    rows.push(
-      result(
-        "SMOKE-DIST",
-        "runtime_smoke_validation",
-        "dist",
-        "dist exists for static route check",
-        "dist missing",
-        "BLOCKED",
-        "critical",
-        "Run npm run build first.",
-      ),
-    );
-    return;
-  }
-  for (const route of cfg.routes) {
-    const file = route === "/" ? "dist/index.html" : `dist${route}index.html`;
-    rows.push(
-      result(
-        `SMOKE-STATIC-${route}`,
-        "runtime_smoke_validation",
-        file,
-        "static HTML exists",
-        fs.existsSync(file) ? "exists" : "missing",
-        fs.existsSync(file) ? "PASS" : "FAIL",
-        "critical",
-        "Fix route generation.",
-      ),
-    );
-  }
+function pushDistBlockedCheck() {
+  rows.push(
+    result({
+      check_id: "SMOKE-DIST",
+      check_class: "runtime_smoke_validation",
+      target_artifact: "dist",
+      expected_result: "dist exists for static route check",
+      actual_result: "dist missing",
+      status: "BLOCKED",
+      severity: "critical",
+      remediation_if_failed: "Run npm run build first.",
+    }),
+  );
+}
+
+function pushStaticRouteCheck(route) {
+  const file = route === "/" ? "dist/index.html" : `dist${route}index.html`;
+  rows.push(
+    result({
+      check_id: `SMOKE-STATIC-${route}`,
+      check_class: "runtime_smoke_validation",
+      target_artifact: file,
+      expected_result: "static HTML exists",
+      actual_result: fs.existsSync(file) ? "exists" : "missing",
+      status: fs.existsSync(file) ? "PASS" : "FAIL",
+      severity: "critical",
+      remediation_if_failed: "Fix route generation.",
+    }),
+  );
+}
+
+function collectHtmlFiles(dir) {
   const htmlFiles = [];
-  const walk = (dir) => {
-    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, item.name);
+  const walk = (current) => {
+    for (const item of fs.readdirSync(current, { withFileTypes: true })) {
+      const full = path.join(current, item.name);
       if (item.isDirectory()) walk(full);
       else if (full.endsWith(".html")) htmlFiles.push(full);
     }
   };
-  walk("dist");
-  for (const file of htmlFiles) {
+  walk(dir);
+  return htmlFiles;
+}
+
+function pushLinkCheck(file, link) {
+  const target = link === "/" ? "dist/index.html" : `dist${link.replace(/\/$/, "")}/index.html`;
+  rows.push(
+    result({
+      check_id: `LINK-${path.relative("dist", file)}-${link}`,
+      check_class: "broken_link_validation",
+      target_artifact: file,
+      expected_result: `internal link ${link} resolves`,
+      actual_result: fs.existsSync(target) ? "resolved" : `missing ${target}`,
+      status: fs.existsSync(target) ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: "Fix internal link target.",
+    }),
+  );
+}
+
+function staticMode() {
+  if (!fs.existsSync("dist")) {
+    pushDistBlockedCheck();
+    return;
+  }
+  for (const route of cfg.routes) {
+    pushStaticRouteCheck(route);
+  }
+  for (const file of collectHtmlFiles("dist")) {
     const html = fs.readFileSync(file, "utf8");
     const links = [...html.matchAll(/href="(\/[^"#?]*)/g)].map((m) => m[1]);
     for (const link of links) {
       if (link.includes(".")) continue;
-      const target = link === "/" ? "dist/index.html" : `dist${link.replace(/\/$/, "")}/index.html`;
-      rows.push(
-        result(
-          `LINK-${path.relative("dist", file)}-${link}`,
-          "broken_link_validation",
-          file,
-          `internal link ${link} resolves`,
-          fs.existsSync(target) ? "resolved" : `missing ${target}`,
-          fs.existsSync(target) ? "PASS" : "FAIL",
-          "high",
-          "Fix internal link target.",
-        ),
-      );
+      pushLinkCheck(file, link);
     }
   }
 }

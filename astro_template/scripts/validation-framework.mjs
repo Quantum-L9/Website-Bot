@@ -10,8 +10,37 @@ export class ValidationRunner {
     this.checks = [];
   }
 
-  addCheck(id, category, target, description, evidence, status, severity, remedy) {
-    this.checks.push(result(id, category, target, description, evidence, status, severity, remedy));
+  /**
+   * Add a check (S107: options object instead of 8 params). Positional calls
+   * are still accepted via the shim for backward compatibility with
+   * generated sites that copy this script verbatim.
+   */
+  addCheck(optionsOrId, ...legacyArgs) {
+    const opts =
+      typeof optionsOrId === "object" && optionsOrId !== null
+        ? optionsOrId
+        : {
+            id: optionsOrId,
+            category: legacyArgs[0],
+            target: legacyArgs[1],
+            description: legacyArgs[2],
+            evidence: legacyArgs[3],
+            status: legacyArgs[4],
+            severity: legacyArgs[5] ?? "medium",
+            remedy: legacyArgs[6] ?? "",
+          };
+    this.checks.push(
+      result({
+        check_id: opts.id,
+        check_class: opts.category,
+        target_artifact: opts.target,
+        expected_result: opts.description,
+        actual_result: opts.evidence,
+        status: opts.status,
+        severity: opts.severity,
+        remediation_if_failed: opts.remedy,
+      }),
+    );
     return this;
   }
 
@@ -21,16 +50,16 @@ export class ValidationRunner {
     let status = "UNKNOWN";
     if (fileExists) status = "PASS";
     else if (isRequired) status = "FAIL";
-    return this.addCheck(
+    return this.addCheck({
       id,
-      "file_existence",
-      filePath,
+      category: "file_existence",
+      target: filePath,
       description,
-      fileExists ? `${filePath} exists` : `${filePath} missing`,
+      evidence: fileExists ? `${filePath} exists` : `${filePath} missing`,
       status,
       severity,
-      `Create ${filePath}`,
-    );
+      remedy: `Create ${filePath}`,
+    });
   }
 
   async addDirectoryContentCheck(
@@ -44,18 +73,18 @@ export class ValidationRunner {
     const { listFiles } = await import("./lib.mjs");
     const files = listFiles(dirPath, fileFilter);
     const hasEnoughFiles = files.length >= minCount;
-    return this.addCheck(
+    return this.addCheck({
       id,
-      "file_structure",
-      dirPath,
+      category: "file_structure",
+      target: dirPath,
       description,
-      hasEnoughFiles
+      evidence: hasEnoughFiles
         ? `${files.length} files found`
         : `Only ${files.length} files found (need ${minCount})`,
-      hasEnoughFiles ? "PASS" : "UNKNOWN",
+      status: hasEnoughFiles ? "PASS" : "UNKNOWN",
       severity,
-      `Add more files to ${dirPath}`,
-    );
+      remedy: `Add more files to ${dirPath}`,
+    });
   }
 
   async addCommandCheck(id, command, args, description, severity = "high") {
@@ -65,16 +94,16 @@ export class ValidationRunner {
       stdio: ["inherit", "pipe", "pipe"],
     });
 
-    return this.addCheck(
+    return this.addCheck({
       id,
-      "command_execution",
-      `${command} ${args.join(" ")}`,
+      category: "command_execution",
+      target: `${command} ${args.join(" ")}`,
       description,
-      `Exit code ${result.status}, stderr: ${result.stderr?.slice(0, 200) || "none"}`,
-      result.status === 0 ? "PASS" : "FAIL",
+      evidence: `Exit code ${result.status}, stderr: ${result.stderr?.slice(0, 200) || "none"}`,
+      status: result.status === 0 ? "PASS" : "FAIL",
       severity,
-      "Fix command errors shown in output",
-    );
+      remedy: "Fix command errors shown in output",
+    });
   }
 
   async run(options = {}) {

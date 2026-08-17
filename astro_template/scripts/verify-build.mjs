@@ -1,52 +1,49 @@
 import { spawnSync } from "node:child_process";
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { fileExistenceResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
-// Try to build the site
-const buildResult = spawnSync("npm", ["run", "build"], {
+// Try to build the site. Prefer the absolute npm CLI path that npm sets for
+// its own lifecycle scripts; fall back to PATH resolution for direct node
+// invocations (S4036).
+const npmCommand = process.env.npm_execpath || "npm";
+const buildResult = spawnSync(npmCommand, ["run", "build"], {
   encoding: "utf8",
   stdio: ["inherit", "pipe", "pipe"],
 });
 
 checks.push(
-  result(
-    "astro-build",
-    "build_process",
-    "npm run build",
-    "Build succeeds (exit code 0)",
-    `Exit code ${buildResult.status}, stderr: ${buildResult.stderr?.slice(0, 200) || "none"}`,
-    buildResult.status === 0 ? "PASS" : "FAIL",
-    "high",
-    "Fix build errors shown in output",
-  ),
+  result({
+    check_id: "astro-build",
+    check_class: "build_process",
+    target_artifact: "npm run build",
+    expected_result: "Build succeeds (exit code 0)",
+    actual_result: `Exit code ${buildResult.status}, stderr: ${buildResult.stderr?.slice(0, 200) || "none"}`,
+    status: buildResult.status === 0 ? "PASS" : "FAIL",
+    severity: "high",
+    remediation_if_failed: "Fix build errors shown in output",
+  }),
 );
 
 // Check if dist directory was created
 if (buildResult.status === 0) {
   checks.push(
-    result(
+    fileExistenceResult(
       "dist-directory-created",
-      "build_output",
       "dist/",
       "Build output directory exists",
-      exists("dist") ? "dist/ directory exists" : "dist/ directory missing",
-      exists("dist") ? "PASS" : "FAIL",
-      "high",
+      "dist/ directory exists",
+      "dist/ directory missing",
       "Verify build process creates dist/ directory",
     ),
-  );
 
-  // Check for index.html in output
-  checks.push(
-    result(
+    // Check for index.html in output
+    fileExistenceResult(
       "index-html-generated",
-      "build_output",
       "dist/index.html",
       "Index HTML file generated",
-      exists("dist/index.html") ? "index.html found" : "index.html missing",
-      exists("dist/index.html") ? "PASS" : "FAIL",
-      "high",
+      "index.html found",
+      "index.html missing",
       "Ensure pages generate HTML output",
     ),
   );

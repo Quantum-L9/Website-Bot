@@ -63,7 +63,7 @@ export class ValidationExecutor {
       }
 
       // Step 2: Discovery inventory
-      const evidenceCollector = new EvidenceCollector(this.adapter, executionContext.evidence_root);
+      const evidenceCollector = await EvidenceCollector.create(this.adapter, executionContext.evidence_root);
 
       this.logger.info("Step 2: Starting inventory discovery");
       const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks(

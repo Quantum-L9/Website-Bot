@@ -1,30 +1,24 @@
-import { parseEnvExample, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { envVarsMatching, parseEnvExample, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
 // Check for CRM environment variables
 const envVars = parseEnvExample();
-const crmEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("crm") ||
-    key.toLowerCase().includes("hubspot") ||
-    key.toLowerCase().includes("salesforce") ||
-    key.toLowerCase().includes("acculynx"),
-);
+const crmEnvVars = envVarsMatching("crm", "hubspot", "salesforce", "acculynx");
 
 checks.push(
-  result(
-    "crm-env-vars-defined",
-    "environment_config",
-    ".env.example",
-    "CRM environment variables defined",
-    crmEnvVars.length > 0
+  result({
+    check_id: "crm-env-vars-defined",
+    check_class: "environment_config",
+    target_artifact: ".env.example",
+    expected_result: "CRM environment variables defined",
+    actual_result: crmEnvVars.length > 0
       ? `Found: ${crmEnvVars.join(", ")}`
       : "No CRM environment variables found",
-    crmEnvVars.length > 0 ? "PASS" : "UNKNOWN",
-    "medium",
-    "Define CRM provider and API configuration in .env.example",
-  ),
+    status: crmEnvVars.length > 0 ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Define CRM provider and API configuration in .env.example",
+  }),
 );
 
 // Check for CRM provider configuration
@@ -32,16 +26,16 @@ const crmProviderVar = Object.keys(envVars).find((key) => key === "CRM_PROVIDER"
 const crmProvider = crmProviderVar ? envVars[crmProviderVar] : null;
 
 checks.push(
-  result(
-    "crm-provider-configured",
-    "crm_config",
-    "CRM_PROVIDER",
-    "CRM provider specified",
-    crmProvider ? `Provider: ${crmProvider}` : "CRM_PROVIDER not set",
-    crmProvider ? "PASS" : "UNKNOWN",
-    "medium",
-    "Set CRM_PROVIDER to: acculynx, hubspot, salesforce, or none",
-  ),
+  result({
+    check_id: "crm-provider-configured",
+    check_class: "crm_config",
+    target_artifact: "CRM_PROVIDER",
+    expected_result: "CRM provider specified",
+    actual_result: crmProvider ? `Provider: ${crmProvider}` : "CRM_PROVIDER not set",
+    status: crmProvider ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Set CRM_PROVIDER to: acculynx, hubspot, salesforce, or none",
+  }),
 );
 
 // Validate CRM provider value if set
@@ -50,16 +44,16 @@ if (crmProvider) {
   const isValidProvider = validProviders.includes(crmProvider.toLowerCase());
 
   checks.push(
-    result(
-      "crm-provider-valid",
-      "crm_config_validation",
-      "CRM_PROVIDER",
-      `Valid CRM provider (${validProviders.join(", ")})`,
-      crmProvider,
-      isValidProvider ? "PASS" : "FAIL",
-      "high",
-      `CRM_PROVIDER must be one of: ${validProviders.join(", ")}`,
-    ),
+    result({
+      check_id: "crm-provider-valid",
+      check_class: "crm_config_validation",
+      target_artifact: "CRM_PROVIDER",
+      expected_result: `Valid CRM provider (${validProviders.join(", ")})`,
+      actual_result: crmProvider,
+      status: isValidProvider ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: `CRM_PROVIDER must be one of: ${validProviders.join(", ")}`,
+    }),
   );
 
   // Check for provider-specific configuration
@@ -74,16 +68,16 @@ if (crmProvider) {
     const missing = required.filter((varName) => !envVars[varName]);
 
     checks.push(
-      result(
-        "crm-provider-config-complete",
-        "crm_provider_config",
-        `${crmProvider} configuration`,
-        `Required variables: ${required.join(", ")}`,
-        missing.length === 0 ? "All required variables defined" : `Missing: ${missing.join(", ")}`,
-        missing.length === 0 ? "PASS" : "FAIL",
-        "high",
-        `Define missing CRM variables: ${missing.join(", ")}`,
-      ),
+      result({
+        check_id: "crm-provider-config-complete",
+        check_class: "crm_provider_config",
+        target_artifact: `${crmProvider} configuration`,
+        expected_result: `Required variables: ${required.join(", ")}`,
+        actual_result: missing.length === 0 ? "All required variables defined" : `Missing: ${missing.join(", ")}`,
+        status: missing.length === 0 ? "PASS" : "FAIL",
+        severity: "high",
+        remediation_if_failed: `Define missing CRM variables: ${missing.join(", ")}`,
+      }),
     );
   }
 }
@@ -91,16 +85,16 @@ if (crmProvider) {
 // Check test mode configuration
 const testModeVar = envVars["CRM_TEST_MODE"];
 checks.push(
-  result(
-    "crm-test-mode-configured",
-    "crm_safety",
-    "CRM_TEST_MODE",
-    "CRM test mode configured",
-    testModeVar ? `Test mode: ${testModeVar}` : "CRM_TEST_MODE not set",
-    testModeVar ? "PASS" : "UNKNOWN",
-    "medium",
-    "Set CRM_TEST_MODE=true for development/testing",
-  ),
+  result({
+    check_id: "crm-test-mode-configured",
+    check_class: "crm_safety",
+    target_artifact: "CRM_TEST_MODE",
+    expected_result: "CRM test mode configured",
+    actual_result: testModeVar ? `Test mode: ${testModeVar}` : "CRM_TEST_MODE not set",
+    status: testModeVar ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Set CRM_TEST_MODE=true for development/testing",
+  }),
 );
 
 writeJsonl("validation/crm_checks.jsonl", checks);

@@ -13,30 +13,30 @@ const env = parseEnvExample();
 const form = readText(cfg.form.component);
 const rows = [];
 rows.push(
-  result(
-    "FORM-TAG",
-    "form_validation",
-    cfg.form.component,
-    "form tag exists",
-    /<form\b/i.test(form) ? "found" : "missing",
-    /<form\b/i.test(form) ? "PASS" : "FAIL",
-    "critical",
-    "Restore LeadForm form tag.",
-  ),
+  result({
+    check_id: "FORM-TAG",
+    check_class: "form_validation",
+    target_artifact: cfg.form.component,
+    expected_result: "form tag exists",
+    actual_result: /<form\b/i.test(form) ? "found" : "missing",
+    status: /<form\b/i.test(form) ? "PASS" : "FAIL",
+    severity: "critical",
+    remediation_if_failed: "Restore LeadForm form tag.",
+  }),
 );
 for (const field of cfg.form.requiredFields) {
   const found = new RegExp(`name=["']${field}["']`).test(form);
   rows.push(
-    result(
-      `FORM-FIELD-${field}`,
-      "form_validation",
-      cfg.form.component,
-      `field ${field} exists`,
-      found ? "found" : "missing",
-      found ? "PASS" : "FAIL",
-      "critical",
-      `Add required field ${field}.`,
-    ),
+    result({
+      check_id: `FORM-FIELD-${field}`,
+      check_class: "form_validation",
+      target_artifact: cfg.form.component,
+      expected_result: `field ${field} exists`,
+      actual_result: found ? "found" : "missing",
+      status: found ? "PASS" : "FAIL",
+      severity: "critical",
+      remediation_if_failed: `Add required field ${field}.`,
+    }),
   );
 }
 const hasEndpoint = env.PUBLIC_FORM_ENDPOINT && !env.PUBLIC_FORM_ENDPOINT.includes("UNKNOWN");
@@ -48,16 +48,16 @@ let destinationStatus = "FAIL";
 if (hasEndpoint) destinationStatus = "PASS";
 else if (hasEnvDrivenAction) destinationStatus = "UNKNOWN";
 rows.push(
-  result(
-    "FORM-DESTINATION",
-    "form_delivery_validation",
-    cfg.form.component,
-    "delivery path env-driven or configured",
-    destinationDetail,
-    destinationStatus,
-    "critical",
-    "Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.",
-  ),
+  result({
+    check_id: "FORM-DESTINATION",
+    check_class: "form_delivery_validation",
+    target_artifact: cfg.form.component,
+    expected_result: "delivery path env-driven or configured",
+    actual_result: destinationDetail,
+    status: destinationStatus,
+    severity: "critical",
+    remediation_if_failed: "Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.",
+  }),
 );
 writeJsonl("validation/form_checks.jsonl", rows);
 console.log(JSON.stringify({ status: statusFromRows(rows), checks: rows.length }, null, 2));

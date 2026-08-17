@@ -184,6 +184,10 @@ function requiresShellExecution(command: string): boolean {
 function sanitizeShellCommand(command: string): string {
   const sanitized = command;
 
+  // Command-substitution patterns use a lookahead + single unbounded class so
+  // no two overlapping quantifiers can backtrack against each other (S8786);
+  // the lookahead only checks for the dangerous word, the body then consumes
+  // the whole substitution exactly once.
   const dangerousPatterns = [
     /[;&|]{1,2}\s*rm\s/gi,
     /[;&|]{1,2}\s*dd\s/gi,
@@ -192,12 +196,12 @@ function sanitizeShellCommand(command: string): string {
     /[;&|]{1,2}\s*nc\s/gi,
     /[;&|]{1,2}\s*bash\s/gi,
     /[;&|]{1,2}\s*sh\s/gi,
-    /\$\([^)]*rm[^)]*\)/gi,
-    /\$\([^)]*dd[^)]*\)/gi,
-    /\$\([^)]*curl[^)]*\)/gi,
-    /`[^`]*rm[^`]*`/gi,
-    /`[^`]*dd[^`]*`/gi,
-    /`[^`]*curl[^`]*`/gi,
+    /\$\((?=[^)]*rm)[^)]*\)/gi,
+    /\$\((?=[^)]*dd)[^)]*\)/gi,
+    /\$\((?=[^)]*curl)[^)]*\)/gi,
+    /`(?=[^`]*rm)[^`]*`/gi,
+    /`(?=[^`]*dd)[^`]*`/gi,
+    /`(?=[^`]*curl)[^`]*`/gi,
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -210,6 +214,31 @@ function sanitizeShellCommand(command: string): string {
 }
 
 /**
+ * Strip a maximal run of leading `NAME=value ` env assignments. One
+ * assignment per iteration keeps every pass linear (S8786): the old
+ * `(?:...=\S+\s+)+` nested quantifier is replaced by an equivalent
+ * repeated single-step strip.
+ */
+function stripLeadingEnvAssignments(segment: string): string {
+  let rest = segment;
+  for (;;) {
+    const next = rest.replace(/^[A-Za-z_]\w*=\S+\s+/, "");
+    if (next === rest) break;
+    rest = next;
+  }
+  return rest;
+}
+
+/**
+ * Strip a leading redirect prefix (`>`, `>> file`, `< file` …). The `<>`
+ * run is bounded because shell redirect prefixes are 1–2 characters;
+ * beyond 64 there is no valid redirect spelling to preserve (S8786).
+ */
+function stripLeadingRedirect(segment: string): string {
+  return segment.replace(/^[<>]{1,64}\s*\S+\s*/, "");
+}
+
+/**
  * Fail closed unless every shell segment starts with an allowlisted executable.
  */
 export function assertShellAllowlist(command: string): void {
@@ -218,8 +247,8 @@ export function assertShellAllowlist(command: string): void {
     let trimmed = segment.trim();
     if (!trimmed) continue;
     // Strip leading redirects / env assignments for first-token detection
-    trimmed = trimmed.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)+/, "");
-    trimmed = trimmed.replace(/^[<>]+\s*\S+\s*/, "");
+    trimmed = stripLeadingEnvAssignments(trimmed);
+    trimmed = stripLeadingRedirect(trimmed);
     const rawFirst = trimmed.split(/\s+/)[0] ?? "";
     const first = rawFirst.replace(/^[()]+/, "");
     if (!first || SHELL_KEYWORDS.has(first)) continue;

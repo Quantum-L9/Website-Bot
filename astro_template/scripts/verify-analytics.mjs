@@ -1,30 +1,32 @@
-import { exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import {
+  buildRequiredResult,
+  envVarsMatching,
+  exists,
+  fileReadErrorResult,
+  readText,
+  result,
+  statusFromRows,
+  writeJsonl,
+} from "./lib.mjs";
 
 const checks = [];
 
 // Check for analytics environment variables
-const envVars = parseEnvExample();
-const analyticsEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("analytics") ||
-    key.toLowerCase().includes("gtag") ||
-    key.toLowerCase().includes("measurement") ||
-    key.toLowerCase().includes("posthog"),
-);
+const analyticsEnvVars = envVarsMatching("analytics", "gtag", "measurement", "posthog");
 
 checks.push(
-  result(
-    "analytics-env-vars-defined",
-    "environment_config",
-    ".env.example",
-    "Analytics environment variables defined",
-    analyticsEnvVars.length > 0
+  result({
+    check_id: "analytics-env-vars-defined",
+    check_class: "environment_config",
+    target_artifact: ".env.example",
+    expected_result: "Analytics environment variables defined",
+    actual_result: analyticsEnvVars.length > 0
       ? `Found: ${analyticsEnvVars.join(", ")}`
       : "No analytics environment variables found",
-    analyticsEnvVars.length > 0 ? "PASS" : "UNKNOWN",
-    "medium",
-    "Define analytics configuration in .env.example",
-  ),
+    status: analyticsEnvVars.length > 0 ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Define analytics configuration in .env.example",
+  }),
 );
 
 // Check for analytics tracking in built HTML
@@ -40,57 +42,41 @@ if (exists("dist/index.html")) {
     const analyticsFound = hasGoogleAnalytics || hasPostHog || hasGenericAnalytics;
 
     checks.push(
-      result(
-        "analytics-tracking-present",
-        "analytics_implementation",
-        "dist/index.html",
-        "Analytics tracking code present",
-        analyticsFound ? "Analytics tracking code found" : "No analytics tracking code found",
-        analyticsFound ? "PASS" : "UNKNOWN",
-        "medium",
-        "Add analytics tracking code to site",
-      ),
+      result({
+        check_id: "analytics-tracking-present",
+        check_class: "analytics_implementation",
+        target_artifact: "dist/index.html",
+        expected_result: "Analytics tracking code present",
+        actual_result: analyticsFound ? "Analytics tracking code found" : "No analytics tracking code found",
+        status: analyticsFound ? "PASS" : "UNKNOWN",
+        severity: "medium",
+        remediation_if_failed: "Add analytics tracking code to site",
+      }),
     );
 
     // Check for event tracking setup
     const hasEventTracking = indexHtml.includes("track") || indexHtml.includes("event");
     checks.push(
-      result(
-        "event-tracking-setup",
-        "analytics_events",
-        "dist/index.html",
-        "Event tracking setup present",
-        hasEventTracking ? "Event tracking code found" : "No event tracking code found",
-        hasEventTracking ? "PASS" : "UNKNOWN",
-        "low",
-        "Add event tracking for user interactions",
-      ),
+      result({
+        check_id: "event-tracking-setup",
+        check_class: "analytics_events",
+        target_artifact: "dist/index.html",
+        expected_result: "Event tracking setup present",
+        actual_result: hasEventTracking ? "Event tracking code found" : "No event tracking code found",
+        status: hasEventTracking ? "PASS" : "UNKNOWN",
+        severity: "low",
+        remediation_if_failed: "Add event tracking for user interactions",
+      }),
     );
   } catch (error) {
-    checks.push(
-      result(
-        "analytics-check-failed",
-        "file_access",
-        "dist/index.html",
-        "Analytics check completed",
-        `Error reading file: ${error.message}`,
-        "UNKNOWN",
-        "low",
-        "Ensure build output is readable",
-      ),
-    );
+    checks.push(fileReadErrorResult("analytics-check-failed", "dist/index.html", "Analytics", error));
   }
 } else {
   checks.push(
-    result(
+    buildRequiredResult(
       "build-required-for-analytics",
-      "prerequisite",
-      "dist/",
       "Build output exists for analytics checking",
       "Build output missing",
-      "BLOCKED",
-      "medium",
-      "Run npm run build first",
     ),
   );
 }

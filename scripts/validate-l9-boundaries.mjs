@@ -21,6 +21,28 @@ export function isInsideRoot(root, candidate) {
   return !rel.startsWith("..") && !isAbsolute(rel);
 }
 
+/** readdir that tolerates ENOENT (dangling links/missing dirs return undefined). */
+function readdirTolerant(dir) {
+  try {
+    return readdirSync(dir, { withFileTypes: true });
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT")
+      return undefined;
+    throw error;
+  }
+}
+
+/** lstat that tolerates ENOENT (missing roots return undefined). */
+function lstatTolerant(path) {
+  try {
+    return lstatSync(path);
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT")
+      return undefined;
+    throw error;
+  }
+}
+
 /**
  * Walk scan roots without following symlinks (including symlink roots).
  * Dangling symlinks are skipped (no unhandled ENOENT).
@@ -32,17 +54,11 @@ export function isInsideRoot(root, candidate) {
 export function walkRoots(roots, options = {}) {
   const onFile = options.onFile ?? (() => {});
   const skipDirNames = options.skipDirNames ?? DEFAULT_SKIP_DIR_NAMES;
-  let skipped_symlinks = 0;
-  let skipped_symlink_roots = 0;
+  const stats = { skipped_symlinks: 0, skipped_symlink_roots: 0 };
 
   function walk(dir, root) {
-    let entries;
-    try {
-      entries = readdirSync(dir, { withFileTypes: true });
-    } catch (error) {
-      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return;
-      throw error;
-    }
+    const entries = readdirTolerant(dir);
+    if (!entries) return;
 
     for (const dirent of entries) {
       if (skipDirNames.includes(dirent.name)) continue;
@@ -51,7 +67,7 @@ export function walkRoots(roots, options = {}) {
 
       // Do not follow symlinks (files or directories); dangling links must not throw.
       if (dirent.isSymbolicLink()) {
-        skipped_symlinks += 1;
+        stats.skipped_symlinks += 1;
         continue;
       }
 
@@ -64,41 +80,35 @@ export function walkRoots(roots, options = {}) {
   }
 
   for (const root of roots) {
-    let st;
-    try {
-      st = lstatSync(root);
-    } catch (error) {
-      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT")
-        continue;
-      throw error;
-    }
+    const st = lstatTolerant(root);
+    if (!st) continue;
     // Symlink supplied as a root must not bypass no-follow.
     if (st.isSymbolicLink()) {
-      skipped_symlink_roots += 1;
+      stats.skipped_symlink_roots += 1;
       continue;
     }
     if (!st.isDirectory()) continue;
     walk(root, root);
   }
 
-  return { skipped_symlinks, skipped_symlink_roots };
+  return stats;
 }
 
-function runCli() {
-  // Layout detection: applied-repository layout keeps BOUNDARY_CLASSIFICATION.yaml at the
-  // repository root; the paired overlay pack keeps it one level above the Website-Bot subtree.
-  let contextRoot;
-  let classificationPath;
+/**
+ * Layout detection: applied-repository layout keeps BOUNDARY_CLASSIFICATION.yaml at the
+ * repository root; the paired overlay pack keeps it one level above the Website-Bot subtree.
+ */
+function resolveClassificationLocations() {
   if (existsSync(resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml"))) {
-    contextRoot = repoRoot;
-    classificationPath = resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml");
-  } else if (existsSync(resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml"))) {
-    contextRoot = packRoot;
-    classificationPath = resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml");
-  } else {
-    throw new Error("BOUNDARY_CLASSIFICATION.yaml not found at repository root or pack root");
+    return { contextRoot: repoRoot, classificationPath: resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml") };
   }
+  if (existsSync(resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml"))) {
+    return { contextRoot: packRoot, classificationPath: resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml") };
+  }
+  throw new Error("BOUNDARY_CLASSIFICATION.yaml not found at repository root or pack root");
+}
 
+function loadAndValidateClassification(classificationPath) {
   const classificationText = readFileSync(classificationPath, "utf8")
     .split(/\r?\n/)
     .filter((line) => !line.trim().startsWith("#"))
@@ -117,10 +127,15 @@ function runCli() {
   ) {
     throw new Error("website_bot_to_seo_bot exception is incomplete");
   }
+  return boundary;
+}
 
-  // In pack layout, scan both overlay subtrees; in applied-repository layout, scan the
-  // repository source itself. Missing roots are skipped rather than fatal so the same
-  // validator runs in Website-Bot and SEO-Bot checkouts.
+/**
+ * In pack layout, scan both overlay subtrees; in applied-repository layout, scan the
+ * repository source itself. Missing roots are skipped rather than fatal so the same
+ * validator runs in Website-Bot and SEO-Bot checkouts.
+ */
+function resolveScanRoots(contextRoot) {
   const candidateRoots =
     contextRoot === packRoot
       ? [resolve(packRoot, "Website-Bot"), resolve(packRoot, "SEO-Bot")]
@@ -134,8 +149,10 @@ function runCli() {
     }
   });
   if (roots.length === 0) throw new Error("no scan roots found for boundary validation");
+  return roots;
+}
 
-  const violations = [];
+function createFileInspector(contextRoot, violations) {
   const validatorRelPaths = new Set([
     "Website-Bot/scripts/validate-l9-boundaries.mjs",
     "scripts/validate-l9-boundaries.mjs",
@@ -151,50 +168,65 @@ function runCli() {
     "src/intelligence/SeoBuildIntelligenceHttpClient.ts",
   ]);
 
+  return function inspectFile(p) {
+    const text = readFileSync(p, "utf8");
+    const rel = relative(contextRoot, p).replaceAll("\\", "/");
+    if (!validatorRelPaths.has(rel) && /PacketEnvelope/.test(text))
+      violations.push(`${rel}: PacketEnvelope`);
+    const inProducerSource = rel.startsWith("Website-Bot/src/") || rel.startsWith("src/");
+    if (
+      /SEO_BOT_URL|\/api\/clients\/register/.test(text) &&
+      inProducerSource &&
+      !allowedPlatformApiPaths.has(rel)
+    ) {
+      violations.push(`${rel}: unauthorized direct platform API egress`);
+    }
+    if (inProducerSource && /llm-stub/.test(text)) {
+      violations.push(
+        `${rel}: forbidden llm-stub reference (production LLM must use @quantum-l9/llm-router)`,
+      );
+    }
+  };
+}
+
+/**
+ * LLM router restoration guards: the production generation path must consume the real
+ * @quantum-l9/llm-router package and never fall back to a local stub.
+ */
+function checkLlmRouterGuards(producerRoot, violations) {
+  if (!existsSync(producerRoot)) return;
+  if (existsSync(resolve(producerRoot, "src/services/llm-stub.ts"))) {
+    violations.push("src/services/llm-stub.ts: production LLM stub must not exist");
+  }
+  const llmServicePath = resolve(producerRoot, "src/services/llm.ts");
+  if (
+    existsSync(llmServicePath) &&
+    !/@quantum-l9\/llm-router/.test(readFileSync(llmServicePath, "utf8"))
+  ) {
+    violations.push("src/services/llm.ts: must import @quantum-l9/llm-router");
+  }
+  const pkgPath = resolve(producerRoot, "package.json");
+  if (
+    existsSync(pkgPath) &&
+    !JSON.parse(readFileSync(pkgPath, "utf8")).dependencies?.["@quantum-l9/llm-router"]
+  ) {
+    violations.push("package.json: missing @quantum-l9/llm-router dependency");
+  }
+}
+
+function runCli() {
+  const { contextRoot, classificationPath } = resolveClassificationLocations();
+  const boundary = loadAndValidateClassification(classificationPath);
+  const roots = resolveScanRoots(contextRoot);
+
+  const violations = [];
   const walkStats = walkRoots(roots, {
-    onFile(p) {
-      const text = readFileSync(p, "utf8");
-      const rel = relative(contextRoot, p).replaceAll("\\", "/");
-      if (!validatorRelPaths.has(rel) && /PacketEnvelope/.test(text))
-        violations.push(`${rel}: PacketEnvelope`);
-      const inProducerSource = rel.startsWith("Website-Bot/src/") || rel.startsWith("src/");
-      if (
-        /SEO_BOT_URL|\/api\/clients\/register/.test(text) &&
-        inProducerSource &&
-        !allowedPlatformApiPaths.has(rel)
-      ) {
-        violations.push(`${rel}: unauthorized direct platform API egress`);
-      }
-      if (inProducerSource && /llm-stub/.test(text)) {
-        violations.push(
-          `${rel}: forbidden llm-stub reference (production LLM must use @quantum-l9/llm-router)`,
-        );
-      }
-    },
+    onFile: createFileInspector(contextRoot, violations),
   });
 
-  // LLM router restoration guards: the production generation path must consume the real
-  // @quantum-l9/llm-router package and never fall back to a local stub.
+  // LLM router restoration guards (producer subtree only).
   const producerRoot = contextRoot === packRoot ? resolve(packRoot, "Website-Bot") : repoRoot;
-  if (existsSync(producerRoot)) {
-    if (existsSync(resolve(producerRoot, "src/services/llm-stub.ts"))) {
-      violations.push("src/services/llm-stub.ts: production LLM stub must not exist");
-    }
-    const llmServicePath = resolve(producerRoot, "src/services/llm.ts");
-    if (
-      existsSync(llmServicePath) &&
-      !/@quantum-l9\/llm-router/.test(readFileSync(llmServicePath, "utf8"))
-    ) {
-      violations.push("src/services/llm.ts: must import @quantum-l9/llm-router");
-    }
-    const pkgPath = resolve(producerRoot, "package.json");
-    if (
-      existsSync(pkgPath) &&
-      !JSON.parse(readFileSync(pkgPath, "utf8")).dependencies?.["@quantum-l9/llm-router"]
-    ) {
-      violations.push("package.json: missing @quantum-l9/llm-router dependency");
-    }
-  }
+  checkLlmRouterGuards(producerRoot, violations);
 
   if (violations.length)
     throw new Error(`forbidden boundary references:\n${violations.join("\n")}`);

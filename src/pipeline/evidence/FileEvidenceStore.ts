@@ -508,9 +508,11 @@ export class FileEvidenceStore implements EvidenceStore {
     writtenAt: string,
   ): EvidenceRecord {
     const path = this.safeResolve(relativePath);
+    const rawSchema = (value as Record<string, unknown>).schema;
+    const schema = typeof rawSchema === "string" ? rawSchema : SCHEMAS[kind];
     return {
       kind,
-      schema: String((value as Record<string, unknown>).schema ?? SCHEMAS[kind]),
+      schema,
       logicalId: this.logicalId(kind, value),
       relativePath,
       sha256: sha256File(path),
