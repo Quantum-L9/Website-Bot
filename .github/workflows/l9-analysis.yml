@@ -24,6 +24,9 @@ env:
 permissions:
   contents: read
   checks: write
+  # Required by publish-analysis.yml (SARIF upload). Without this grant the
+  # reusable workflow is rejected at startup and zero jobs are created.
+  security-events: write
 
 concurrency:
   group: l9-analysis-${{ github.workflow }}-${{ github.ref }}
@@ -173,6 +176,7 @@ jobs:
       actions: read
       checks: write
       contents: read
+      security-events: write
     with:
       artifact-name: ${{ needs.analyze.outputs.artifact-name }}
       profile: pr_fast
