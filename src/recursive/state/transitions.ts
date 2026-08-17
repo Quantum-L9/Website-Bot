@@ -83,6 +83,212 @@ function currentWaveState(manifest: CampaignManifest): WaveState {
  * the transition ends the run. Attempted wave four is unrepresentable: no
  * action can produce a fourth wave, and any attempt is hard rejected.
  */
+type ActionOf<K extends TransitionAction["kind"]> = Extract<TransitionAction, { kind: K }>;
+type TransitionHandlers = {
+  ensure: () => WaveState;
+  reject: (reason: string) => TransitionResult;
+  stamp: () => void;
+};
+
+function applyE2ECompleted(
+  state: WaveState,
+  action: ActionOf<"E2E_COMPLETED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "E2E") return h.reject(`E2E already completed in wave ${state.wave}`);
+  h.ensure();
+  state.phase = "HARVEST";
+  state.e2eReceiptRef = action.e2eReceiptRef;
+  state.reviewableBeforePatch = action.reviewable;
+  state.deployedSha = action.deployedSha;
+  h.stamp();
+  return { applied: true };
+}
+
+function applyHarvestCompleted(
+  manifest: CampaignManifest,
+  state: WaveState,
+  action: ActionOf<"HARVEST_COMPLETED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "HARVEST") return h.reject(`harvest is not due in phase ${state.phase}`);
+  h.ensure();
+  state.harvestRef = action.harvestRef;
+  state.phase = "SIGNAL_DECISION";
+  h.stamp();
+  if (!action.materialActionableSignal) {
+    if (state.reviewableBeforePatch) {
+      manifest.state.status = "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL";
+    } else {
+      manifest.state.status = "NO_ACTIONABLE_SIGNAL";
+    }
+    h.stamp();
+    return { applied: true, status: manifest.state.status };
+  }
+  return { applied: true };
+}
+
+function applySignalDecisionNoPack(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "SIGNAL_DECISION")
+    return h.reject(`signal decision is not due in phase ${state.phase}`);
+  manifest.state.status = state.reviewableBeforePatch
+    ? "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL"
+    : "NO_ACTIONABLE_SIGNAL";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyControlPlaneChangeRequired(
+  manifest: CampaignManifest,
+  h: TransitionHandlers,
+): TransitionResult {
+  manifest.state.status = "CONTROL_PLANE_CHANGE_REQUIRED";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyPePackCompiled(
+  state: WaveState,
+  action: ActionOf<"PE_PACK_COMPILED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "SIGNAL_DECISION")
+    return h.reject(`PE pack is not due in phase ${state.phase}`);
+  h.ensure();
+  state.pePackRef = action.pePackRef;
+  state.selectedClusterId = action.clusterId;
+  state.phase = "PATCH";
+  h.stamp();
+  return { applied: true };
+}
+
+function applyPatchApplied(
+  state: WaveState,
+  action: ActionOf<"PATCH_APPLIED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "PATCH") return h.reject(`patch is not due in phase ${state.phase}`);
+  h.ensure();
+  state.codeChangeRef = action.codeChangeRef;
+  state.phase = "VERIFY";
+  h.stamp();
+  return { applied: true };
+}
+
+function applyPatchValidationFailed(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "VERIFY")
+    return h.reject(`patch validation is not due in phase ${state.phase}`);
+  manifest.state.status = "PATCH_VALIDATION_FAILED";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyScopeInsufficient(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "VERIFY")
+    return h.reject(`scope verdict is not due in phase ${state.phase}`);
+  manifest.state.status = "PATCH_VALIDATION_FAILED";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyVerificationPassed(
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "VERIFY")
+    return h.reject(`verification is not due in phase ${state.phase}`);
+  h.ensure();
+  state.phase = "MERGE";
+  h.stamp();
+  return { applied: true };
+}
+
+function applyVerificationFailed(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "VERIFY")
+    return h.reject(`verification is not due in phase ${state.phase}`);
+  manifest.state.status = "PATCH_VALIDATION_FAILED";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyMerged(
+  state: WaveState,
+  action: ActionOf<"MERGED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "MERGE") return h.reject(`merge is not due in phase ${state.phase}`);
+  h.ensure();
+  state.promotionRef = action.promotionRef;
+  state.phase = "DEPLOY";
+  h.stamp();
+  return { applied: true };
+}
+
+function applyDeployed(
+  state: WaveState,
+  action: ActionOf<"DEPLOYED">,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "DEPLOY") return h.reject(`deployment is not due in phase ${state.phase}`);
+  h.ensure();
+  state.deployedSha = action.deployedSha;
+  state.phase = "DEPLOY_VERIFY";
+  h.stamp();
+  return { applied: true };
+}
+
+function applyDeploymentVerificationFailed(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "DEPLOY_VERIFY")
+    return h.reject(`deployment verification is not due in phase ${state.phase}`);
+  manifest.state.status = "DEPLOYMENT_FAILED";
+  h.stamp();
+  return { applied: true, status: manifest.state.status };
+}
+
+function applyWaveCompleted(
+  manifest: CampaignManifest,
+  state: WaveState,
+  h: TransitionHandlers,
+): TransitionResult {
+  if (state.phase !== "DEPLOY_VERIFY")
+    return h.reject(`wave completion is not due in phase ${state.phase}`);
+  const next = nextWaveAfter(state.wave);
+  if (next === null) {
+    manifest.state.status = "WAVE_LIMIT_REACHED";
+    h.stamp();
+    return { applied: true, status: manifest.state.status };
+  }
+  // The completed wave's phase stays DEPLOY_VERIFY as its durable record;
+  // only the fresh wave is initialized.
+  manifest.state.currentWave = next;
+  const fresh = currentWaveState(manifest);
+  fresh.phase = "E2E";
+  fresh.inputSha = state.deployedSha;
+  fresh.deployedSha = state.deployedSha;
+  h.stamp();
+  return { applied: true };
+}
+
 export function applyTransition(
   manifest: CampaignManifest,
   action: TransitionAction,
@@ -111,139 +317,37 @@ export function applyTransition(
   };
 
   const reject = (reason: string): TransitionResult => ({ applied: false, reason });
+  const h: TransitionHandlers = { ensure, reject, stamp };
 
   switch (action.kind) {
     case "E2E_COMPLETED":
-      if (state.phase !== "E2E") return reject(`E2E already completed in wave ${state.wave}`);
-      ensure();
-      state.phase = "HARVEST";
-      state.e2eReceiptRef = action.e2eReceiptRef;
-      state.reviewableBeforePatch = action.reviewable;
-      state.deployedSha = action.deployedSha;
-      stamp();
-      return { applied: true };
-
+      return applyE2ECompleted(state, action, h);
     case "HARVEST_COMPLETED":
-      if (state.phase !== "HARVEST") return reject(`harvest is not due in phase ${state.phase}`);
-      ensure();
-      state.harvestRef = action.harvestRef;
-      state.phase = "SIGNAL_DECISION";
-      stamp();
-      if (!action.materialActionableSignal) {
-        if (state.reviewableBeforePatch) {
-          manifest.state.status = "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL";
-        } else {
-          manifest.state.status = "NO_ACTIONABLE_SIGNAL";
-        }
-        stamp();
-        return { applied: true, status: manifest.state.status };
-      }
-      return { applied: true };
-
+      return applyHarvestCompleted(manifest, state, action, h);
     case "SIGNAL_DECISION_NO_PACK":
-      if (state.phase !== "SIGNAL_DECISION")
-        return reject(`signal decision is not due in phase ${state.phase}`);
-      manifest.state.status = state.reviewableBeforePatch
-        ? "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL"
-        : "NO_ACTIONABLE_SIGNAL";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
+      return applySignalDecisionNoPack(manifest, state, h);
     case "CONTROL_PLANE_CHANGE_REQUIRED":
-      manifest.state.status = "CONTROL_PLANE_CHANGE_REQUIRED";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
+      return applyControlPlaneChangeRequired(manifest, h);
     case "PE_PACK_COMPILED":
-      if (state.phase !== "SIGNAL_DECISION")
-        return reject(`PE pack is not due in phase ${state.phase}`);
-      ensure();
-      state.pePackRef = action.pePackRef;
-      state.selectedClusterId = action.clusterId;
-      state.phase = "PATCH";
-      stamp();
-      return { applied: true };
-
+      return applyPePackCompiled(state, action, h);
     case "PATCH_APPLIED":
-      if (state.phase !== "PATCH") return reject(`patch is not due in phase ${state.phase}`);
-      ensure();
-      state.codeChangeRef = action.codeChangeRef;
-      state.phase = "VERIFY";
-      stamp();
-      return { applied: true };
-
+      return applyPatchApplied(state, action, h);
     case "PATCH_VALIDATION_FAILED":
-      if (state.phase !== "VERIFY")
-        return reject(`patch validation is not due in phase ${state.phase}`);
-      manifest.state.status = "PATCH_VALIDATION_FAILED";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
+      return applyPatchValidationFailed(manifest, state, h);
     case "SCOPE_INSUFFICIENT":
-      if (state.phase !== "VERIFY")
-        return reject(`scope verdict is not due in phase ${state.phase}`);
-      manifest.state.status = "PATCH_VALIDATION_FAILED";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
+      return applyScopeInsufficient(manifest, state, h);
     case "VERIFICATION_PASSED":
-      if (state.phase !== "VERIFY")
-        return reject(`verification is not due in phase ${state.phase}`);
-      ensure();
-      state.phase = "MERGE";
-      stamp();
-      return { applied: true };
-
+      return applyVerificationPassed(state, h);
     case "VERIFICATION_FAILED":
-      if (state.phase !== "VERIFY")
-        return reject(`verification is not due in phase ${state.phase}`);
-      manifest.state.status = "PATCH_VALIDATION_FAILED";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
+      return applyVerificationFailed(manifest, state, h);
     case "MERGED":
-      if (state.phase !== "MERGE") return reject(`merge is not due in phase ${state.phase}`);
-      ensure();
-      state.promotionRef = action.promotionRef;
-      state.phase = "DEPLOY";
-      stamp();
-      return { applied: true };
-
+      return applyMerged(state, action, h);
     case "DEPLOYED":
-      if (state.phase !== "DEPLOY") return reject(`deployment is not due in phase ${state.phase}`);
-      ensure();
-      state.deployedSha = action.deployedSha;
-      state.phase = "DEPLOY_VERIFY";
-      stamp();
-      return { applied: true };
-
+      return applyDeployed(state, action, h);
     case "DEPLOYMENT_VERIFICATION_FAILED":
-      if (state.phase !== "DEPLOY_VERIFY")
-        return reject(`deployment verification is not due in phase ${state.phase}`);
-      manifest.state.status = "DEPLOYMENT_FAILED";
-      stamp();
-      return { applied: true, status: manifest.state.status };
-
-    case "WAVE_COMPLETED": {
-      if (state.phase !== "DEPLOY_VERIFY")
-        return reject(`wave completion is not due in phase ${state.phase}`);
-      const next = nextWaveAfter(state.wave);
-      if (next === null) {
-        manifest.state.status = "WAVE_LIMIT_REACHED";
-        stamp();
-        return { applied: true, status: manifest.state.status };
-      }
-      // The completed wave's phase stays DEPLOY_VERIFY as its durable record;
-      // only the fresh wave is initialized.
-      manifest.state.currentWave = next;
-      const fresh = currentWaveState(manifest);
-      fresh.phase = "E2E";
-      fresh.inputSha = state.deployedSha;
-      fresh.deployedSha = state.deployedSha;
-      stamp();
-      return { applied: true };
-    }
-
+      return applyDeploymentVerificationFailed(manifest, state, h);
+    case "WAVE_COMPLETED":
+      return applyWaveCompleted(manifest, state, h);
     default:
       return reject(`unknown action ${(action as TransitionAction).kind}`);
   }

@@ -42,60 +42,68 @@ function looksLikeWebsiteBot(packageJson: any, fs: typeof import("node:fs")): bo
   );
 }
 
+async function loadExplicitAdapter(repositoryType: string): Promise<RepositoryAdapter | null> {
+  // Handle explicit repository type override
+  switch (repositoryType.toLowerCase()) {
+    case "website-bot":
+      return await tryLoadAdapter(
+        "./adapters/WebsiteBotAdapter.js",
+        "WebsiteBotAdapter",
+        "WebsiteBotAdapter",
+      );
+    case "seo-bot":
+      return await tryLoadAdapter(
+        "./adapters/SeoBotAdapter.js",
+        "SeoBotAdapter",
+        "SeoBotAdapter",
+      );
+    case "default":
+      return new DefaultRepositoryAdapter();
+    default:
+      console.warn(`Unknown repository type '${repositoryType}', using auto-detection`);
+      return null;
+  }
+}
+
+async function autoDetectAdapter(
+  fs: typeof import("node:fs"),
+  packageJson: { name?: string; dependencies?: Record<string, string>; devDependencies?: Record<string, string> },
+): Promise<RepositoryAdapter | null> {
+  // Check for SEO-Bot patterns
+  if (looksLikeSeoBot(packageJson, fs)) {
+    const adapter = await tryLoadAdapter(
+      "./adapters/SeoBotAdapter.js",
+      "SeoBotAdapter",
+      "SeoBotAdapter",
+    );
+    if (adapter) return adapter;
+  }
+
+  // Check for Website-Bot patterns
+  if (looksLikeWebsiteBot(packageJson, fs)) {
+    const adapter = await tryLoadAdapter(
+      "./adapters/WebsiteBotAdapter.js",
+      "WebsiteBotAdapter",
+      "WebsiteBotAdapter",
+    );
+    if (adapter) return adapter;
+  }
+  return null;
+}
+
 async function loadRepositoryAdapter(repositoryType: string = "auto"): Promise<RepositoryAdapter> {
   const fs = await import("node:fs");
 
-  // Handle explicit repository type override
   if (repositoryType !== "auto") {
-    switch (repositoryType.toLowerCase()) {
-      case "website-bot": {
-        const adapter = await tryLoadAdapter(
-          "./adapters/WebsiteBotAdapter.js",
-          "WebsiteBotAdapter",
-          "WebsiteBotAdapter",
-        );
-        if (adapter) return adapter;
-        break;
-      }
-      case "seo-bot": {
-        const adapter = await tryLoadAdapter(
-          "./adapters/SeoBotAdapter.js",
-          "SeoBotAdapter",
-          "SeoBotAdapter",
-        );
-        if (adapter) return adapter;
-        break;
-      }
-      case "default":
-        return new DefaultRepositoryAdapter();
-      default:
-        console.warn(`Unknown repository type '${repositoryType}', using auto-detection`);
-    }
+    const explicit = await loadExplicitAdapter(repositoryType);
+    if (explicit) return explicit;
   }
 
   // Auto-detect project type based on file patterns
   if (fs.existsSync("package.json")) {
     const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
-
-    // Check for SEO-Bot patterns
-    if (looksLikeSeoBot(packageJson, fs)) {
-      const adapter = await tryLoadAdapter(
-        "./adapters/SeoBotAdapter.js",
-        "SeoBotAdapter",
-        "SeoBotAdapter",
-      );
-      if (adapter) return adapter;
-    }
-
-    // Check for Website-Bot patterns
-    if (looksLikeWebsiteBot(packageJson, fs)) {
-      const adapter = await tryLoadAdapter(
-        "./adapters/WebsiteBotAdapter.js",
-        "WebsiteBotAdapter",
-        "WebsiteBotAdapter",
-      );
-      if (adapter) return adapter;
-    }
+    const detected = await autoDetectAdapter(fs, packageJson);
+    if (detected) return detected;
   }
 
   // Fallback to default adapter

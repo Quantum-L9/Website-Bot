@@ -37,64 +37,81 @@ function resolveRef(root: JsonSchema, ref: string): JsonSchema {
     }, root);
 }
 
+type Walk = (node: JsonSchema, item: unknown, itemPath: string) => string | null;
+
+function walkObject(node: JsonSchema, item: unknown, itemPath: string, walk: Walk): string | null {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return `${itemPath} must be object`;
+  for (const key of node.required ?? [])
+    if (!(key in item)) return `${itemPath}.${key} is required`;
+  if (node.additionalProperties === false) {
+    for (const key of Object.keys(item))
+      if (!(key in (node.properties ?? {}))) return `${itemPath}.${key} is not allowed`;
+  }
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    if (key in item) {
+      const error = walk(child, (item as Record<string, unknown>)[key], `${itemPath}.${key}`);
+      if (error) return error;
+    }
+  }
+  return null;
+}
+
+function walkArray(node: JsonSchema, item: unknown, itemPath: string, walk: Walk): string | null {
+  if (!Array.isArray(item)) return `${itemPath} must be array`;
+  if (item.length < (node.minItems ?? 0)) return `${itemPath} has too few items`;
+  for (let index = 0; index < item.length; index += 1) {
+    const error = walk(node.items ?? {}, item[index], `${itemPath}[${index}]`);
+    if (error) return error;
+  }
+  return null;
+}
+
+function walkString(node: JsonSchema, item: unknown, itemPath: string): string | null {
+  if (typeof item !== "string") return `${itemPath} must be string`;
+  if (item.length < (node.minLength ?? 0)) return `${itemPath} is too short`;
+  if (node.pattern && !new RegExp(node.pattern).test(item)) return `${itemPath} does not match pattern`;
+  if (node.format === "date-time" && Number.isNaN(Date.parse(item)))
+    return `${itemPath} must be date-time`;
+  return null;
+}
+
+function walkInteger(node: JsonSchema, item: unknown, itemPath: string): string | null {
+  if (
+    !Number.isInteger(item) ||
+    (item as number) < (node.minimum ?? -Infinity) ||
+    (item as number) > (node.maximum ?? Infinity)
+  ) {
+    return `${itemPath} must be integer in range`;
+  }
+  return null;
+}
+
+function walkNumber(node: JsonSchema, item: unknown, itemPath: string): string | null {
+  if (
+    typeof item !== "number" ||
+    item < (node.minimum ?? -Infinity) ||
+    item > (node.maximum ?? Infinity)
+  ) {
+    return `${itemPath} must be number in range`;
+  }
+  return null;
+}
+
 export function validateAgainstSchema(
   schema: JsonSchema,
   value: unknown,
   path = "$",
 ): string | null {
   const root = schema;
-  const walk = (node: JsonSchema, item: unknown, itemPath: string): string | null => {
+  const walk: Walk = (node, item, itemPath) => {
     if (node.$ref) return walk(resolveRef(root, node.$ref), item, itemPath);
     if ("const" in node && item !== node.const) return `${itemPath} must equal const`;
     if (node.enum && !node.enum.includes(item)) return `${itemPath} must be in enum`;
-    if (node.type === "object") {
-      if (!item || typeof item !== "object" || Array.isArray(item))
-        return `${itemPath} must be object`;
-      for (const key of node.required ?? [])
-        if (!(key in item)) return `${itemPath}.${key} is required`;
-      if (node.additionalProperties === false) {
-        for (const key of Object.keys(item))
-          if (!(key in (node.properties ?? {}))) return `${itemPath}.${key} is not allowed`;
-      }
-      for (const [key, child] of Object.entries(node.properties ?? {})) {
-        if (key in item) {
-          const error = walk(child, (item as Record<string, unknown>)[key], `${itemPath}.${key}`);
-          if (error) return error;
-        }
-      }
-    }
-    if (node.type === "array") {
-      if (!Array.isArray(item)) return `${itemPath} must be array`;
-      if (item.length < (node.minItems ?? 0)) return `${itemPath} has too few items`;
-      for (let index = 0; index < item.length; index += 1) {
-        const error = walk(node.items ?? {}, item[index], `${itemPath}[${index}]`);
-        if (error) return error;
-      }
-    }
-    if (node.type === "string") {
-      if (typeof item !== "string") return `${itemPath} must be string`;
-      if (item.length < (node.minLength ?? 0)) return `${itemPath} is too short`;
-      if (node.pattern && !new RegExp(node.pattern).test(item))
-        return `${itemPath} does not match pattern`;
-      if (node.format === "date-time" && Number.isNaN(Date.parse(item)))
-        return `${itemPath} must be date-time`;
-    }
-    if (
-      node.type === "integer" &&
-      (!Number.isInteger(item) ||
-        (item as number) < (node.minimum ?? -Infinity) ||
-        (item as number) > (node.maximum ?? Infinity))
-    ) {
-      return `${itemPath} must be integer in range`;
-    }
-    if (
-      node.type === "number" &&
-      (typeof item !== "number" ||
-        item < (node.minimum ?? -Infinity) ||
-        item > (node.maximum ?? Infinity))
-    ) {
-      return `${itemPath} must be number in range`;
-    }
+    if (node.type === "object") return walkObject(node, item, itemPath, walk);
+    if (node.type === "array") return walkArray(node, item, itemPath, walk);
+    if (node.type === "string") return walkString(node, item, itemPath);
+    if (node.type === "integer") return walkInteger(node, item, itemPath);
+    if (node.type === "number") return walkNumber(node, item, itemPath);
     if (node.type === "boolean" && typeof item !== "boolean") return `${itemPath} must be boolean`;
     return null;
   };
