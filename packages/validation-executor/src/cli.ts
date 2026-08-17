@@ -202,9 +202,10 @@ function validateWhitelistOption(
   pluralLabel: string,
   errors: string[],
 ): void {
-  if (value && !allowed.includes(String(value))) {
+  const stringValue = stringifyOptionValue(value);
+  if (stringValue && !allowed.includes(stringValue)) {
     errors.push(
-      `Unknown ${optionLabel} '${stringifyOptionValue(value)}': valid ${pluralLabel} are ${allowed.join(", ")}`,
+      `Unknown ${optionLabel} '${stringValue}': valid ${pluralLabel} are ${allowed.join(", ")}`,
     );
   }
 }

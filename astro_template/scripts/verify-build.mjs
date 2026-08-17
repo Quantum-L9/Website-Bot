@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { exists, fileExistenceResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { fileExistenceResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
