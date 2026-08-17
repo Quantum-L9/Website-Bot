@@ -133,6 +133,16 @@ export class ContentGenerationStage implements Stage {
   version = "2.3.0";
 
   async run(ctx: BuildContext): Promise<void> {
+    // Campaign 7 R9 tripwire: under REDESIGN_IMPROVE the legacy content
+    // authority is absent from the execution plan. If anything still invokes
+    // it, the attempt is counted and the build fails closed.
+    if (ctx.buildIntent === "REDESIGN_IMPROVE") {
+      if (ctx.redesignCounters) ctx.redesignCounters.legacyContentGenerationCalls += 1;
+      throw new BuildError(
+        "LEGACY_CONTENT_AUTHORITY_USED",
+        "legacy ContentGenerationStage must not generate final prose under REDESIGN_IMPROVE (StructuredContentPackage is the content authority)",
+      );
+    }
     if (ctx.dryRun) {
       logger.info(
         { routes: ctx.domainSpec.routes.length },

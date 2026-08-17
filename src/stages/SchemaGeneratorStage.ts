@@ -38,6 +38,15 @@ export class SchemaGeneratorStage implements Stage {
   version = "2.2.0";
 
   async run(ctx: BuildContext): Promise<void> {
+    // Campaign 7 R10 tripwire: the LLM-backed schema generator must never
+    // govern final schema under REDESIGN_IMPROVE (deterministic serializer
+    // owns that path).
+    if (ctx.buildIntent === "REDESIGN_IMPROVE") {
+      throw new BuildError(
+        "FORBIDDEN_LLM_OPERATION",
+        "legacy SchemaGeneratorStage must not run under REDESIGN_IMPROVE (RedesignSchemaSerializerStage is the deterministic schema authority)",
+      );
+    }
     if (ctx.dryRun) {
       logger.info("[dry-run] Would generate JSON-LD schemas");
       return;

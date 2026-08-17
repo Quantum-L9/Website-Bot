@@ -7,7 +7,7 @@ import {
   type ExecutionMode,
   makeBuildId,
 } from "../src/pipeline/BuildContext.js";
-import { parseBuildIntent } from "../src/pipeline/BuildIntent.js";
+import { parseBuildIntent, requireRedesignIntent } from "../src/pipeline/BuildIntent.js";
 import { FileEvidenceStore } from "../src/pipeline/evidence/FileEvidenceStore.js";
 import { MemoryEvidenceStore } from "../src/pipeline/evidence/MemoryEvidenceStore.js";
 import {
@@ -56,6 +56,11 @@ const provisionRequested = arguments_.includes("--provision");
 const noPersistProvision = arguments_.includes("--no-persist-provision");
 const noRollbackProvision = arguments_.includes("--no-rollback-provision");
 
+// Campaign 7 R2: --redesign marks this invocation as a redesign product
+// surface. On that surface a missing/COPY intent fails closed
+// (BUILD_INTENT_REQUIRED) instead of resolving to the legacy COPY default.
+const redesignSurface = arguments_.includes("--redesign");
+
 const bootstrapSpec = validateDomainSpec(parse(readFileSync(specPath, "utf-8")), specPath);
 if (process.env.CLIENT_ID && process.env.CLIENT_ID !== bootstrapSpec.client_id) {
   throw new Error(
@@ -88,7 +93,9 @@ const ctx: BuildContext = {
   dryRun,
   mode,
   autoRegisterSeoBot,
-  buildIntent: parseBuildIntent(bootstrapSpec.build_intent),
+  buildIntent: redesignSurface
+    ? requireRedesignIntent(bootstrapSpec.build_intent, "run-pipeline --redesign")
+    : parseBuildIntent(bootstrapSpec.build_intent),
   llm: createWebsiteFactoryLLM(clientId),
   outputDir: requestedOutputDir,
   evidenceStore,

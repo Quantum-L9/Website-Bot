@@ -7,7 +7,19 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
 const packRoot = resolve(scriptDir, "../..");
 
-const DEFAULT_SKIP_DIR_NAMES = ["node_modules", ".git", "build", "dist", ".astro"];
+// .l9 and .l9-worktrees are git-ignored governance state (memory receipts,
+// externally managed lock worktrees of OTHER repos) that can appear in a
+// working copy at any time; they are not repository source and must not
+// affect boundary classification of this repo's code.
+const DEFAULT_SKIP_DIR_NAMES = [
+  "node_modules",
+  ".git",
+  "build",
+  "dist",
+  ".astro",
+  ".l9",
+  ".l9-worktrees",
+];
 
 /**
  * Structural containment: candidate must be root or a strict descendant.
@@ -164,6 +176,10 @@ function createFileInspector(contextRoot, violations) {
     // the improve pipeline is the sanctioned consumer of SEO-Bot's build-time API.
     "Website-Bot/src/stages/CompetitiveIntelligenceStage.ts",
     "src/stages/CompetitiveIntelligenceStage.ts",
+    // Campaign 7: the redesign content authority chain (SEOContentBlueprint →
+    // PageContentContract → StructuredContentPackage) consumes the same seam.
+    "Website-Bot/src/stages/RedesignContentAuthorityStage.ts",
+    "src/stages/RedesignContentAuthorityStage.ts",
     "Website-Bot/src/intelligence/SeoBuildIntelligenceHttpClient.ts",
     "src/intelligence/SeoBuildIntelligenceHttpClient.ts",
   ]);

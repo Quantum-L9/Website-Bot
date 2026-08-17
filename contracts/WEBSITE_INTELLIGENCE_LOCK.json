@@ -42,7 +42,14 @@
       "producer": "Website-Bot",
       "consumers": [
         "Website-Bot"
-      ]
+      ],
+      "additive_surfaces": {
+        "visual_requirements": {
+          "added": "campaign-7-redesign-runtime-convergence",
+          "owner": "Website-Bot",
+          "note": "Blueprint-owned visual requirement intent (role, slot, required, min_count, preferred provenance). Asset planning selects WHICH eligible asset satisfies each requirement, never WHETHER the site needs it."
+        }
+      }
     },
     "seo_content_blueprint": {
       "version": 1,

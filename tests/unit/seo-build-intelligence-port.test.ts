@@ -51,6 +51,7 @@ function websiteBlueprint(landscapeRef: ArtifactRef) {
     content_guardrails: { forbidden_claims: [] },
     conversion: { primary_action: "quote", secondary_actions: [], persistent_mobile_action: true },
     routes: [],
+    visual_requirements: [],
     acceptance_tests: [],
   };
   return sealIntelligenceArtifact({
