@@ -3,8 +3,11 @@ import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
-// Try to build the site
-const buildResult = spawnSync("npm", ["run", "build"], {
+// Try to build the site. Prefer the absolute npm CLI path that npm sets for
+// its own lifecycle scripts; fall back to PATH resolution for direct node
+// invocations (S4036).
+const npmCommand = process.env.npm_execpath || "npm";
+const buildResult = spawnSync(npmCommand, ["run", "build"], {
   encoding: "utf8",
   stdio: ["inherit", "pipe", "pipe"],
 });
@@ -35,10 +38,8 @@ if (buildResult.status === 0) {
       "high",
       "Verify build process creates dist/ directory",
     ),
-  );
 
-  // Check for index.html in output
-  checks.push(
+    // Check for index.html in output
     result(
       "index-html-generated",
       "build_output",

@@ -14,9 +14,6 @@ checks.push(
     "high",
     "Create package.json file",
   ),
-);
-
-checks.push(
   result(
     "astro-config-exists",
     "file_existence",
@@ -27,9 +24,6 @@ checks.push(
     "high",
     "Create astro.config.mjs file",
   ),
-);
-
-checks.push(
   result(
     "src-directory-exists",
     "directory_existence",

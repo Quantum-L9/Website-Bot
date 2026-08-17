@@ -440,6 +440,10 @@ export class AuditReporter {
       // For system/external configs, return version info if available
       return "current";
     } catch (error) {
+      this.logger.warn(
+        { error, configFile, sourceRevision },
+        "Failed to resolve config file revision; defaulting to 'unknown'",
+      );
       return "unknown";
     }
   }

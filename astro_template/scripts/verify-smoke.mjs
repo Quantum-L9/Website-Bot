@@ -5,11 +5,16 @@ const checks = [];
 
 // Check if we can start the preview server
 if (exists("dist/index.html")) {
-  // Try to start preview server for smoke test
-  const previewProc = spawnSync("timeout", ["5", "npm", "run", "preview"], {
+  // Try to start preview server for smoke test. Use Node's built-in timeout
+  // option instead of the external `timeout` binary so no command is resolved
+  // from PATH (S4036): a server that is still running after 5s is killed by
+  // Node with code ETIMEDOUT, which is the success signal here.
+  const previewProc = spawnSync("npm", ["run", "preview"], {
     encoding: "utf8",
     stdio: ["inherit", "pipe", "pipe"],
+    timeout: 5000,
   });
+  const timedOut = previewProc.error?.code === "ETIMEDOUT";
 
   checks.push(
     result(
@@ -17,10 +22,10 @@ if (exists("dist/index.html")) {
       "server_startup",
       "npm run preview",
       "Preview server starts without immediate errors",
-      previewProc.status === 124
+      timedOut
         ? "Server started (timeout reached)"
         : `Exit code ${previewProc.status}`,
-      previewProc.status === 124 || previewProc.status === 0 ? "PASS" : "FAIL",
+      timedOut || previewProc.status === 0 ? "PASS" : "FAIL",
       "medium",
       "Fix server startup issues",
     ),

@@ -65,9 +65,6 @@ function checkHtmlFile(file) {
       "high",
       "Add meaningful <title> tag to pages",
     ),
-  );
-
-  checks.push(
     result(
       `meta-description-present:${file}`,
       "seo_meta",
@@ -78,9 +75,6 @@ function checkHtmlFile(file) {
       "high",
       "Add meta description to pages",
     ),
-  );
-
-  checks.push(
     result(
       `viewport-meta-present:${file}`,
       "seo_meta",
@@ -91,9 +85,6 @@ function checkHtmlFile(file) {
       "medium",
       "Add viewport meta tag for mobile responsiveness",
     ),
-  );
-
-  checks.push(
     result(
       `charset-declared:${file}`,
       "seo_meta",
@@ -104,9 +95,6 @@ function checkHtmlFile(file) {
       "medium",
       "Add charset declaration to HTML",
     ),
-  );
-
-  checks.push(
     result(
       `open-graph-tags:${file}`,
       "seo_social",
@@ -117,9 +105,6 @@ function checkHtmlFile(file) {
       "high",
       "Add Open Graph meta tags for social media sharing",
     ),
-  );
-
-  checks.push(
     result(
       `canonical-link:${file}`,
       "seo_canonical",
@@ -130,9 +115,6 @@ function checkHtmlFile(file) {
       "high",
       'Add <link rel="canonical"> to pages',
     ),
-  );
-
-  checks.push(
     result(
       `og-url:${file}`,
       "seo_social",

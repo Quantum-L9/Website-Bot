@@ -32,8 +32,6 @@ if (!hasNodeModules) {
       "critical",
       "Fix build errors shown in validation/build_output.txt.",
     ),
-  );
-  rows.push(
     result(
       "BUILD-DIST",
       "execution_validation",
