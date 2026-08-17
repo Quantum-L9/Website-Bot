@@ -133,16 +133,7 @@ export class ContentGenerationStage implements Stage {
   version = "2.3.0";
 
   async run(ctx: BuildContext): Promise<void> {
-    // Campaign 7 R9 tripwire: under REDESIGN_IMPROVE the legacy content
-    // authority is absent from the execution plan. If anything still invokes
-    // it, the attempt is counted and the build fails closed.
-    if (ctx.buildIntent === "REDESIGN_IMPROVE") {
-      if (ctx.redesignCounters) ctx.redesignCounters.legacyContentGenerationCalls += 1;
-      throw new BuildError(
-        "LEGACY_CONTENT_AUTHORITY_USED",
-        "legacy ContentGenerationStage must not generate final prose under REDESIGN_IMPROVE (StructuredContentPackage is the content authority)",
-      );
-    }
+    this.assertNotRedesign(ctx);
     if (ctx.dryRun) {
       logger.info(
         { routes: ctx.domainSpec.routes.length },
@@ -158,7 +149,6 @@ export class ContentGenerationStage implements Stage {
         "Source-site reconstruction requires crawled pages. Refusing to invent copy.",
       );
     }
-    const reconstructing = hasPages;
     const { vertical, business_name, geography, routes } = ctx.domainSpec;
     const phone = ctx.domainSpec.seo_contract?.phone?.trim();
     const seenH1s = new Set<string>();
@@ -166,75 +156,121 @@ export class ContentGenerationStage implements Stage {
     for (const route of routes) {
       for (const component of route.components) {
         const key = `${route.slug}:${component}`;
-        if (reconstructing) {
-          const page = matchSourcePage(ctx.sourceSiteManifest, route.slug);
-          if (!page) {
-            throw new BuildError(
-              "CONTENT_VALIDATION_FAILED",
-              `${key}: source-site reconstruction is on but no crawled page matched ${route.slug}`,
-            );
-          }
-          ctx.generatedContent.set(key, assembleSourceSection(page, component));
+        if (hasPages) {
+          ctx.generatedContent.set(key, this.reconstructSection(ctx, route, component, key));
           continue;
         }
-        let content = "";
-        const minWords = minWordsFor(component);
-        const keyName = sectionKey(component);
-        const ctaHint = /^(contact_form|cta|final_cta)$/.test(keyName)
-          ? 'First line must be a concrete offer headline. For roofing and home services use exactly: Free Roof Inspection Within 24 Hours. Never write "Tell us about the job", "Take the next step", or similar uninviting filler.'
-          : "";
-        let correction = "";
-        for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
-          content = await ctx.llm.generateContent(
-            [
-              `Write the ${component} section for the "${route.title}" page of a ${vertical} business.`,
-              `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
-              `Business: ${business_name}. States served: ${geography.states.join(", ")}.`,
-              phone
-                ? `Known phone: ${phone}. Use this number when a phone is needed. Never invent a number and never write bracketed placeholders such as [phone number].`
-                : "No phone is on file. Omit phone numbers. Never write bracketed placeholders such as [phone number].",
-              `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across pages).`,
-              `Then a blank line.`,
-              `Then the body: minimum ${minWords} words. Similar roofing copy across pages is acceptable.`,
-              `Do not include guaranteed outcomes, win rates, or legal advice.`,
-              `Never invent years of experience, awards, certifications, guarantees, statistics, or third-party brand endorsements. State only facts given in this prompt; otherwise omit them.`,
-              "Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.",
-              ctaHint,
-              takenHeadlineBlock(takenHeadlines),
-              correction,
-            ]
-              .filter(Boolean)
-              .join("\n"),
-          );
-          if (phone) {
-            content = content.replace(
-              /\[(?:your |insert |add |enter )?phone(?: number)?\]/gi,
-              phone,
-            );
-          }
-          content = stripMarkdownDecorators(content);
-          const issue = validateSlot(key, content, seenH1s, takenHeadlines, minWords);
-          if (!issue) break;
-          if (attempt === MAX_RETRIES) {
-            throw new BuildError("CONTENT_VALIDATION_FAILED", issue.message);
-          }
-          correction = [
-            "Your previous answer failed validation.",
-            issue.correction,
-            "Rewrite the complete section from scratch.",
-          ]
-            .filter(Boolean)
-            .join("\n");
-        }
-        const { headline, body } = parseHeadlineAndBody(content);
-        if (seenH1s.has(headline.toLowerCase())) {
-          throw new BuildError("CONTENT_VALIDATION_FAILED", `${key}: duplicate H1 "${headline}"`);
-        }
-        seenH1s.add(headline.toLowerCase());
-        takenHeadlines.push(headline);
-        ctx.generatedContent.set(key, `${headline}\n\n${body}`);
+        await this.generateSection(ctx, {
+          route,
+          component,
+          key,
+          phone,
+          vertical,
+          business_name,
+          geography,
+          seenH1s,
+          takenHeadlines,
+        });
       }
     }
     logger.info({ sections: ctx.generatedContent.size }, "Content generation complete");
+  }
+
+  private assertNotRedesign(ctx: BuildContext): void {
+    // Campaign 7 R9 tripwire: under REDESIGN_IMPROVE the legacy content
+    // authority is absent from the execution plan. If anything still invokes
+    // it, the attempt is counted and the build fails closed.
+    if (ctx.buildIntent !== "REDESIGN_IMPROVE") return;
+    if (ctx.redesignCounters) ctx.redesignCounters.legacyContentGenerationCalls += 1;
+    throw new BuildError(
+      "LEGACY_CONTENT_AUTHORITY_USED",
+      "legacy ContentGenerationStage must not generate final prose under REDESIGN_IMPROVE (StructuredContentPackage is the content authority)",
+    );
+  }
+
+  private reconstructSection(
+    ctx: BuildContext,
+    route: BuildContext["domainSpec"]["routes"][number],
+    component: string,
+    key: string,
+  ): string {
+    const page = matchSourcePage(ctx.sourceSiteManifest, route.slug);
+    if (!page) {
+      throw new BuildError(
+        "CONTENT_VALIDATION_FAILED",
+        `${key}: source-site reconstruction is on but no crawled page matched ${route.slug}`,
+      );
+    }
+    return assembleSourceSection(page, component);
+  }
+
+  private async generateSection(
+    ctx: BuildContext,
+    section: {
+      route: BuildContext["domainSpec"]["routes"][number];
+      component: string;
+      key: string;
+      phone: string | undefined;
+      vertical: string;
+      business_name: string;
+      geography: { states: string[] };
+      seenH1s: Set<string>;
+      takenHeadlines: string[];
+    },
+  ): Promise<void> {
+    const { route, component, key, phone, seenH1s, takenHeadlines } = section;
+    const minWords = minWordsFor(component);
+    const keyName = sectionKey(component);
+    const ctaHint = /^(contact_form|cta|final_cta)$/.test(keyName)
+      ? 'First line must be a concrete offer headline. For roofing and home services use exactly: Free Roof Inspection Within 24 Hours. Never write "Tell us about the job", "Take the next step", or similar uninviting filler.'
+      : "";
+    let content = "";
+    let correction = "";
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+      content = await ctx.llm.generateContent(
+        [
+          `Write the ${component} section for the "${route.title}" page of a ${section.vertical} business.`,
+          `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
+          `Business: ${section.business_name}. States served: ${section.geography.states.join(", ")}.`,
+          phone
+            ? `Known phone: ${phone}. Use this number when a phone is needed. Never invent a number and never write bracketed placeholders such as [phone number].`
+            : "No phone is on file. Omit phone numbers. Never write bracketed placeholders such as [phone number].",
+          `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across pages).`,
+          `Then a blank line.`,
+          `Then the body: minimum ${minWords} words. Similar roofing copy across pages is acceptable.`,
+          `Do not include guaranteed outcomes, win rates, or legal advice.`,
+          `Never invent years of experience, awards, certifications, guarantees, statistics, or third-party brand endorsements. State only facts given in this prompt; otherwise omit them.`,
+          "Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.",
+          ctaHint,
+          takenHeadlineBlock(takenHeadlines),
+          correction,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      );
+      if (phone) {
+        content = content.replace(/\[(?:your |insert |add |enter )?phone(?: number)?\]/gi, phone);
+      }
+      content = stripMarkdownDecorators(content);
+      const issue = validateSlot(key, content, seenH1s, takenHeadlines, minWords);
+      if (!issue) break;
+      if (attempt === MAX_RETRIES) {
+        throw new BuildError("CONTENT_VALIDATION_FAILED", issue.message);
+      }
+      correction = [
+        "Your previous answer failed validation.",
+        issue.correction,
+        "Rewrite the complete section from scratch.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+    const { headline, body } = parseHeadlineAndBody(content);
+    if (seenH1s.has(headline.toLowerCase())) {
+      throw new BuildError("CONTENT_VALIDATION_FAILED", `${key}: duplicate H1 "${headline}"`);
+    }
+    seenH1s.add(headline.toLowerCase());
+    takenHeadlines.push(headline);
+    ctx.generatedContent.set(key, `${headline}\n\n${body}`);
   }
 }

@@ -34,16 +34,7 @@ export class ImageValidationStage implements Stage {
     const images = ctx.siteConfig?.images ?? {};
     const placements = Object.keys(images);
 
-    // Required slots must be resolved (defense in depth; planning also enforces).
-    const unresolvedRequired = (ctx.imageAssetPlan?.assets ?? [])
-      .filter((asset) => asset.required && asset.resolution.source === "unresolved")
-      .map((asset) => asset.slotId);
-    if (unresolvedRequired.length > 0) {
-      throw new BuildError(
-        "VALIDATION_FAILED",
-        `Required image slots unresolved at validation: ${unresolvedRequired.join(", ")}`,
-      );
-    }
+    this.assertRequiredSlotsResolved(ctx);
 
     if (placements.length === 0 && slots.length === 0) {
       logger.info("No site images to validate");
@@ -54,6 +45,44 @@ export class ImageValidationStage implements Stage {
       return;
     }
 
+    const critical = this.collectCriticalIssues(ctx, slots, images);
+    const stored = await ctx.evidenceStore.readImageAssets();
+    this.checkEvidenceParity(slots, images, stored, critical);
+
+    if (critical.length > 0) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `Image QA found ${critical.length} issue(s): ${critical.join("; ")}`,
+      );
+    }
+
+    const warnings = this.surfaceProvenanceWarnings(ctx);
+    this.surfaceAltAdvisories(slots, images);
+
+    logger.info(
+      { images: placements.length, evidence: Boolean(stored), warnings: warnings.length },
+      "Image references validated",
+    );
+  }
+
+  private assertRequiredSlotsResolved(ctx: BuildContext): void {
+    // Required slots must be resolved (defense in depth; planning also enforces).
+    const unresolvedRequired = (ctx.imageAssetPlan?.assets ?? [])
+      .filter((asset) => asset.required && asset.resolution.source === "unresolved")
+      .map((asset) => asset.slotId);
+    if (unresolvedRequired.length > 0) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `Required image slots unresolved at validation: ${unresolvedRequired.join(", ")}`,
+      );
+    }
+  }
+
+  private collectCriticalIssues(
+    ctx: BuildContext,
+    slots: NonNullable<NonNullable<BuildContext["domainSpec"]["assets"]>["imageSlots"]>,
+    images: NonNullable<NonNullable<BuildContext["siteConfig"]>["images"]>,
+  ): string[] {
     const critical: string[] = [];
 
     // Every required slot must have reached the delivered site config.
@@ -71,8 +100,16 @@ export class ImageValidationStage implements Stage {
       }
     }
 
+    return critical;
+  }
+
+  private checkEvidenceParity(
+    slots: NonNullable<NonNullable<BuildContext["domainSpec"]["assets"]>["imageSlots"]>,
+    images: NonNullable<NonNullable<BuildContext["siteConfig"]>["images"]>,
+    stored: Awaited<ReturnType<BuildContext["evidenceStore"]["readImageAssets"]>>,
+    critical: string[],
+  ): void {
     // Evidence/assembly parity + integrity + republication governance.
-    const stored = await ctx.evidenceStore.readImageAssets();
     if (slots.length > 0 && !stored) {
       critical.push("image slots declared but no image_assets evidence was persisted");
     }
@@ -99,14 +136,9 @@ export class ImageValidationStage implements Stage {
         }
       }
     }
+  }
 
-    if (critical.length > 0) {
-      throw new BuildError(
-        "VALIDATION_FAILED",
-        `Image QA found ${critical.length} issue(s): ${critical.join("; ")}`,
-      );
-    }
-
+  private surfaceProvenanceWarnings(ctx: BuildContext): string[] {
     const warnings = (ctx.imageAssetManifest?.assets ?? []).flatMap((asset) =>
       asset.provenanceWarnings.map((warning) => `${asset.placement}: ${warning}`),
     );
@@ -114,15 +146,16 @@ export class ImageValidationStage implements Stage {
       ctx.imageProvenanceWarnings = warnings;
       logger.warn({ warnings }, "Image provenance warnings surfaced for release evidence");
     }
+    return warnings;
+  }
 
+  private surfaceAltAdvisories(
+    slots: NonNullable<NonNullable<BuildContext["domainSpec"]["assets"]>["imageSlots"]>,
+    images: NonNullable<NonNullable<BuildContext["siteConfig"]>["images"]>,
+  ): void {
     const altAdvisories = slots
       .filter((slot) => images[slot.placement] && !images[slot.placement].alt?.trim())
       .map((slot) => `${slot.placement} has no alt text`);
     if (altAdvisories.length > 0) logger.warn({ altAdvisories }, "Image alt-text advisories");
-
-    logger.info(
-      { images: placements.length, evidence: Boolean(stored), warnings: warnings.length },
-      "Image references validated",
-    );
   }
 }
