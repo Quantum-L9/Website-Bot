@@ -52,49 +52,22 @@ export function parseEnvExample() {
 
 /**
  * Build a check-result row (S107: options object instead of 8 params).
- *
- * Preferred form: result({ check_id, check_class, target_artifact,
- *   expected_result, actual_result, status, severity, remediation_if_failed })
- *
- * Positional calls are still accepted for backward compatibility with
- * generated sites that copy this script verbatim; the shim maps the legacy
- * argument order onto the options object.
+ * This example-site copy is options-only: every caller in this site was
+ * migrated, and the backward-compatibility shim for generated sites lives
+ * in the template (astro_template/scripts/lib.mjs).
  */
-export function result(optionsOrCheckId, ...legacyArgs) {
-  const {
-    check_id,
-    check_class,
-    target_artifact,
-    expected_result,
-    actual_result,
-    status,
-    severity = "medium",
-    remediation_if_failed = "",
-  } =
-    typeof optionsOrCheckId === "object" && optionsOrCheckId !== null
-      ? optionsOrCheckId
-      : {
-          check_id: optionsOrCheckId,
-          check_class: legacyArgs[0],
-          target_artifact: legacyArgs[1],
-          expected_result: legacyArgs[2],
-          actual_result: legacyArgs[3],
-          status: legacyArgs[4],
-          severity: legacyArgs[5] ?? "medium",
-          remediation_if_failed: legacyArgs[6] ?? "",
-        };
-
+export function result(options) {
   return {
-    check_id,
-    check_class,
-    target_artifact,
+    check_id: options.check_id,
+    check_class: options.check_class,
+    target_artifact: options.target_artifact,
     command_or_inspection_method: "node script inspection",
-    expected_result,
-    actual_result,
-    status,
-    severity,
-    remediation_if_failed,
-    evidence: target_artifact,
+    expected_result: options.expected_result,
+    actual_result: options.actual_result,
+    status: options.status,
+    severity: options.severity ?? "medium",
+    remediation_if_failed: options.remediation_if_failed ?? "",
+    evidence: options.target_artifact,
   };
 }
 

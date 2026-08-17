@@ -6,10 +6,12 @@ const checks = [];
 // Check if we can start the preview server
 if (exists("dist/index.html")) {
   // Try to start preview server for smoke test. Use Node's built-in timeout
-  // option instead of the external `timeout` binary so no command is resolved
-  // from PATH (S4036): a server that is still running after 5s is killed by
-  // Node with code ETIMEDOUT, which is the success signal here.
-  const previewProc = spawnSync("npm", ["run", "preview"], {
+  // option instead of the external `timeout` binary, and prefer the absolute
+  // npm CLI path npm sets for its own lifecycle scripts so no command is
+  // resolved from PATH (S4036). A server that is still running after 5s is
+  // killed by Node with code ETIMEDOUT, which is the success signal here.
+  const npmCommand = process.env.npm_execpath || "npm";
+  const previewProc = spawnSync(npmCommand, ["run", "preview"], {
     encoding: "utf8",
     stdio: ["inherit", "pipe", "pipe"],
     timeout: 5000,

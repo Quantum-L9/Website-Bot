@@ -235,7 +235,9 @@ function validateWhitelistOption(
   errors: string[],
 ): void {
   if (value && !allowed.includes(String(value))) {
-    errors.push(`Unknown ${optionLabel} '${value}': valid ${pluralLabel} are ${allowed.join(", ")}`);
+    errors.push(
+      `Unknown ${optionLabel} '${String(value)}': valid ${pluralLabel} are ${allowed.join(", ")}`,
+    );
   }
 }
 

@@ -32,45 +32,49 @@ function randomString(rng, alphabet, minLen, maxLen) {
   return out;
 }
 
+function recordDivergence(result, input, oldResult, newResult, inDomainInput) {
+  result.diffs++;
+  if (inDomainInput) {
+    if (result.firstDiffExamples.length < 3) {
+      result.firstDiffExamples.push({ input: truncate(input), old: oldResult, new: newResult });
+    }
+    return;
+  }
+  result.divergenceCatalog.push({ input: truncate(input), old: oldResult, new: newResult });
+  if (result.divergenceCatalog.length > 5) result.divergenceCatalog.pop();
+}
+
 function runPair(name, { oldMatcher, newMatcher, generate, domainCheck, corpusSize }) {
   const rng = makeRng(hashSeed(name));
   const size = QUICK ? Math.min(8000, corpusSize) : corpusSize;
-  let diffs = 0;
-  let inDomain = 0;
-  const divergenceCatalog = [];
-  const firstDiffExamples = [];
+  const result = {
+    diffs: 0,
+    inDomain: 0,
+    firstDiffExamples: [],
+    divergenceCatalog: [],
+  };
   const start = Date.now();
   for (let i = 0; i < size; i++) {
     const input = generate(rng, i);
     const inDomainInput = domainCheck ? domainCheck(input) : true;
-    if (inDomainInput) inDomain++;
+    if (inDomainInput) result.inDomain++;
     const oldResult = oldMatcher(input);
     const newResult = newMatcher(input);
     if (oldResult !== newResult) {
-      diffs++;
-      if (inDomainInput) {
-        // A difference inside the declared equivalence domain is a proof failure.
-        if (firstDiffExamples.length < 3) {
-          firstDiffExamples.push({ input: truncate(input), old: oldResult, new: newResult });
-        }
-      } else {
-        // Outside the domain: catalog the divergence class for the review.
-        divergenceCatalog.push({ input: truncate(input), old: oldResult, new: newResult });
-        if (divergenceCatalog.length > 5) divergenceCatalog.pop();
-      }
+      recordDivergence(result, input, oldResult, newResult, inDomainInput);
     }
   }
   const elapsedMs = Date.now() - start;
   return {
     pair: name,
     corpusSize: size,
-    inDomain,
-    domainDiffs: firstDiffExamples.length > 0 ? undefined : 0,
-    domainDiffExamples: firstDiffExamples,
-    outsideDomainDivergences: divergenceCatalog.length,
-    divergenceCatalog,
+    inDomain: result.inDomain,
+    domainDiffs: result.firstDiffExamples.length > 0 ? undefined : 0,
+    domainDiffExamples: result.firstDiffExamples,
+    outsideDomainDivergences: result.divergenceCatalog.length,
+    divergenceCatalog: result.divergenceCatalog,
     elapsedMs,
-    pass: firstDiffExamples.length === 0,
+    pass: result.firstDiffExamples.length === 0,
   };
 }
 
@@ -82,7 +86,7 @@ function truncate(value) {
 function hashSeed(name) {
   let h = 2166136261;
   for (const c of name) {
-    h ^= c.charCodeAt(0);
+    h ^= c.codePointAt(0);
     h = Math.imul(h, 16777619);
   }
   return h >>> 0;
@@ -94,8 +98,8 @@ const DENYLIST_WORDS = ["rm", "dd", "curl"];
 const SHELL_CHARS = ["a", "b", "Z", "0", "_", "=", " ", "-", ".", "/", ";", "&", "|", "(", ")", ">", "<", "`", "$", '"', "'", "\n"];
 
 function pairEnvAssignments() {
-  const oldEnv = /^(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)+/;
-  const newEnv = /^[A-Za-z_][A-Za-z0-9_]*=\S+\s+/;
+  const oldEnv = /^(?:[A-Za-z_]\w*=\S+\s+)+/;
+  const newEnv = /^[A-Za-z_]\w*=\S+\s+/;
   const oldMatcher = (s) => s.replace(oldEnv, "");
   const newMatcher = (s) => {
     let rest = s;
@@ -134,6 +138,8 @@ function pairEnvAssignments() {
 }
 
 function pairRedirectStrip() {
+  // NOSONAR: this is the pre-fix vulnerable form, kept intentionally as the
+  // reference matcher the bounded rewrite is fuzz-compared against.
   const oldRedirect = /^[<>]+\s*\S+\s*/;
   const newRedirect = /^[<>]{1,64}\s*\S+\s*/;
   const domainCheck = (s) => {
@@ -231,11 +237,11 @@ function pairDenylist() {
   // $(...rm...) and `...rm...` families: lookahead rewrite must agree exactly.
   const oldPatterns = DENYLIST_WORDS.flatMap((word) => [
     new RegExp(`\\$\\([^)]*${word}[^)]*\\)`, "gi"),
-    new RegExp(`\`[^\`]*${word}[^\`]*\``, "gi"),
+    new RegExp(String.raw`\`[^\`]*${word}[^\`]*\``, "gi"),
   ]);
   const newPatterns = DENYLIST_WORDS.flatMap((word) => [
     new RegExp(`\\$\\((?=[^)]*${word})[^)]*\\)`, "gi"),
-    new RegExp(`\`(?=[^\`]*${word})[^\`]*\``, "gi"),
+    new RegExp(String.raw`\`(?=[^\`]*${word})[^\`]*\``, "gi"),
   ]);
   const matchSet = (patterns, s) => patterns.map((p) => Boolean(p.exec(s))).join(",");
   return {

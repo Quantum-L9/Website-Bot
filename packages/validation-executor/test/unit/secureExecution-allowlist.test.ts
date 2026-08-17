@@ -4,36 +4,38 @@
  * denylist rewrite must behave exactly like their predecessors.
  */
 
-import { ok, strictEqual, throws } from "node:assert";
+import { doesNotThrow, ok, strictEqual, throws } from "node:assert";
 import { describe, test } from "node:test";
 import { assertShellAllowlist, executeCommandSecurely } from "../../src/utils/secureExecution.js";
 
 describe("assertShellAllowlist", () => {
   test("accepts an allowlisted executable", () => {
-    assertShellAllowlist("npm run build");
-    assertShellAllowlist("git status");
-    assertShellAllowlist("node scripts/x.mjs");
+    doesNotThrow(() => assertShellAllowlist("npm run build"), "npm should be allowlisted");
+    doesNotThrow(() => assertShellAllowlist("git status"), "git should be allowlisted");
+    doesNotThrow(() => assertShellAllowlist("node scripts/x.mjs"), "node should be allowlisted");
   });
 
   test("strips leading env assignments before first-token detection", () => {
-    assertShellAllowlist("NODE_ENV=production FOO=bar npm run build");
-    assertShellAllowlist("A=1 npm run build");
+    doesNotThrow(() =>
+      assertShellAllowlist("NODE_ENV=production FOO=bar npm run build"),
+    );
+    doesNotThrow(() => assertShellAllowlist("A=1 npm run build"));
   });
 
   test("strips leading redirect prefixes before first-token detection", () => {
-    assertShellAllowlist("> /tmp/out.log npm run build");
-    assertShellAllowlist(">> log.txt npm run build");
-    assertShellAllowlist("< input.txt npm run build");
+    doesNotThrow(() => assertShellAllowlist("> /tmp/out.log npm run build"));
+    doesNotThrow(() => assertShellAllowlist(">> log.txt npm run build"));
+    doesNotThrow(() => assertShellAllowlist("< input.txt npm run build"));
   });
 
   test("strips combined env assignments and redirects", () => {
     // Strip order: env assignments first, then the redirect prefix.
-    assertShellAllowlist("NODE_ENV=ci > out.log npm run build");
-    assertShellAllowlist("A=1 B=2 > out.log git status");
+    doesNotThrow(() => assertShellAllowlist("NODE_ENV=ci > out.log npm run build"));
+    doesNotThrow(() => assertShellAllowlist("A=1 B=2 > out.log git status"));
   });
 
   test("strips ALL leading env assignments to fixpoint", () => {
-    assertShellAllowlist("A=1 B=2 C=3 D=4 E=5 npm run build");
+    doesNotThrow(() => assertShellAllowlist("A=1 B=2 C=3 D=4 E=5 npm run build"));
   });
 
   test("rejects a non-allowlisted executable", () => {

@@ -417,17 +417,18 @@ function validateGeography(
   );
 }
 
-function validateRoute(
-  route: unknown,
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error != null) return String(error);
+  return "unknown error";
+}
+
+function checkRouteShape(
+  route: Record<string, unknown>,
   index: number,
-  seen: Set<string>,
   errors: string[],
   check: (condition: boolean, message: string) => void,
 ): void {
-  if (!isObject(route)) {
-    errors.push(`routes[${index}] must be an object`);
-    return;
-  }
   check(
     typeof route.slug === "string" && route.slug.length > 0,
     `routes[${index}].slug must be a non-empty string`,
@@ -447,26 +448,55 @@ function validateRoute(
     route.noindex === undefined || typeof route.noindex === "boolean",
     `routes[${index}].noindex, when present, must be a boolean`,
   );
-  if (typeof route.slug === "string") {
+}
+
+function checkRouteSlugUniqueness(
+  route: Record<string, unknown>,
+  index: number,
+  seen: Set<string>,
+  errors: string[],
+): void {
+  if (typeof route.slug !== "string") return;
+  try {
+    const normalized = normalizeRouteSlug(route.slug);
+    if (seen.has(normalized))
+      errors.push(`routes[${index}].slug normalizes to duplicate route ${normalized}`);
+    seen.add(normalized);
+  } catch (error) {
+    errors.push(describeError(error));
+  }
+}
+
+function checkRouteComponentNames(
+  route: Record<string, unknown>,
+  index: number,
+  errors: string[],
+): void {
+  if (!Array.isArray(route.components)) return;
+  for (const component of route.components) {
+    if (typeof component !== "string") continue;
     try {
-      const normalized = normalizeRouteSlug(route.slug);
-      if (seen.has(normalized))
-        errors.push(`routes[${index}].slug normalizes to duplicate route ${normalized}`);
-      seen.add(normalized);
+      normalizeComponentName(component);
     } catch (error) {
-      errors.push(error instanceof Error ? error.message : (error != null ? error.toString() : 'unknown error'));
+      errors.push(describeError(error));
     }
   }
-  if (Array.isArray(route.components)) {
-    for (const component of route.components) {
-      if (typeof component !== "string") continue;
-      try {
-        normalizeComponentName(component);
-      } catch (error) {
-        errors.push(error instanceof Error ? error.message : String(error));
-      }
-    }
+}
+
+function validateRoute(
+  route: unknown,
+  index: number,
+  seen: Set<string>,
+  errors: string[],
+  check: (condition: boolean, message: string) => void,
+): void {
+  if (!isObject(route)) {
+    errors.push(`routes[${index}] must be an object`);
+    return;
   }
+  checkRouteShape(route, index, errors, check);
+  checkRouteSlugUniqueness(route, index, seen, errors);
+  checkRouteComponentNames(route, index, errors);
 }
 
 function validateRoutes(

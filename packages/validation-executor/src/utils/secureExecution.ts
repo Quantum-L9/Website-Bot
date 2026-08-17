@@ -222,7 +222,7 @@ function sanitizeShellCommand(command: string): string {
 function stripLeadingEnvAssignments(segment: string): string {
   let rest = segment;
   for (;;) {
-    const next = rest.replace(/^[A-Za-z_][A-Za-z0-9_]*=\S+\s+/, "");
+    const next = rest.replace(/^[A-Za-z_]\w*=\S+\s+/, "");
     if (next === rest) break;
     rest = next;
   }
