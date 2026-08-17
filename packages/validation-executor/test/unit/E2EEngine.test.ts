@@ -244,8 +244,11 @@ describe("E2EEngine", () => {
     try {
       const evaluation = engine.evaluateResults(tests);
 
-      assertions.gateStatus(evaluation, "Failed");
-      assertions.evidenceReferences(evaluation.evidence_references);
+      strictEqual(evaluation.status, "Failed");
+      ok(
+        evaluation.evidence_references.every((ref) => typeof ref === "string" && ref.length > 0),
+        "evidence references must be non-empty strings",
+      );
     } finally {
       await env.cleanup();
     }
@@ -299,8 +302,11 @@ describe("E2EEngine", () => {
     try {
       const evaluation = engine.evaluateResults(tests);
 
-      assertions.gateStatus(evaluation, "Passed");
-      assertions.evidenceReferences(evaluation.evidence_references);
+      strictEqual(evaluation.status, "Passed");
+      ok(
+        evaluation.evidence_references.every((ref) => typeof ref === "string" && ref.length > 0),
+        "evidence references must be non-empty strings",
+      );
     } finally {
       await env.cleanup();
     }

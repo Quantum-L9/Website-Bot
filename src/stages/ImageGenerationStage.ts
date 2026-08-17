@@ -50,11 +50,27 @@ function slugify(value: string): string {
   );
 }
 
+type ResolveAssetParams = {
+  generator: ImageGenerator;
+  budget: ImageBudget;
+  cacheRoot: string;
+  slot: ImageSlotSpec;
+  brief: ImageGenerationBrief;
+  prompt: string;
+  fingerprint: string;
+};
+
+function compareKeys(a: string, b: string): number {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value && typeof value === "object") {
     return `{${Object.keys(value as Record<string, unknown>)
-      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+      .sort(compareKeys)
       .map(
         (key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`,
       )
@@ -133,17 +149,15 @@ export class ImageGenerationStage implements Stage {
         )
         .digest("hex");
 
-      const resolved = await this.resolveAsset(
-        ctx,
+      const resolved = await this.resolveAsset(ctx, {
         generator,
         budget,
         cacheRoot,
         slot,
         brief,
-        compiled.prompt,
-        model,
+        prompt: compiled.prompt,
         fingerprint,
-      );
+      });
       ctx.resolvedImages.set(slot.placement, resolved);
     }
 
@@ -171,60 +185,13 @@ export class ImageGenerationStage implements Stage {
 
   private async resolveAsset(
     ctx: BuildContext,
-    generator: ImageGenerator,
-    budget: ImageBudget,
-    cacheRoot: string,
-    slot: ImageSlotSpec,
-    brief: ImageGenerationBrief,
-    prompt: string,
-    model: string,
-    fingerprint: string,
+    params: ResolveAssetParams,
   ): Promise<ResolvedImageAsset> {
+    const { cacheRoot, slot, fingerprint } = params;
     const metaPath = resolve(cacheRoot, `${fingerprint}.json`);
-    let bytes: Buffer;
-    let mimeType: string;
-    let usedModel: string;
-    let cost: number;
-
     const cached = this.readCache(cacheRoot, fingerprint, metaPath);
-    if (cached) {
-      ({ bytes, mimeType, model: usedModel, estimatedCostUsd: cost } = cached);
-      logger.info({ slot: slot.id, fingerprint }, "Reused cached generated image");
-    } else {
-      let result: Awaited<ReturnType<typeof generator.generate>> | undefined;
-      try {
-        result = await generator.generate({
-          prompt,
-          aspectRatio: brief.aspectRatio,
-          imageSize: brief.imageSize,
-        });
-      } catch (error) {
-        throw new BuildError(
-          "CONTENT_GENERATION_FAILED",
-          `Image generation failed for slot ${slot.id}: ${String(error)}`,
-        );
-      }
-      cost = result.estimatedCostUsd ?? 0;
-      try {
-        budget.charge(cost);
-      } catch (error) {
-        if (error instanceof ImageBudgetExceededError)
-          throw new BuildError("VALIDATION_FAILED", error.message);
-        throw error;
-      }
-      bytes = result.bytes;
-      mimeType = result.mimeType;
-      usedModel = result.model;
-      const extension = EXTENSION_BY_MIME[mimeType] ?? "png";
-      writeFileSync(resolve(cacheRoot, `${fingerprint}.${extension}`), bytes);
-      const metadata: CacheMetadata = {
-        mimeType,
-        model: usedModel,
-        prompt,
-        estimatedCostUsd: cost,
-      };
-      writeFileSync(metaPath, `${JSON.stringify(metadata, null, 2)}\n`, "utf-8");
-    }
+    const materialized = cached ?? (await this.generateAndCache(params));
+    const { bytes, model: usedModel, estimatedCostUsd: cost } = materialized;
 
     const inspected = inspectImage(bytes);
     const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? "png";
@@ -235,7 +202,7 @@ export class ImageGenerationStage implements Stage {
       source: "generated",
       absolutePath,
       outputFileName: `${slugify(slot.id)}.${extension}`,
-      altText: slot.altText ?? brief.subject ?? slot.id,
+      altText: slot.altText ?? params.brief.subject ?? slot.id,
       mimeType: inspected.mimeType,
       width: inspected.width,
       height: inspected.height,
@@ -247,6 +214,45 @@ export class ImageGenerationStage implements Stage {
       disposition: "approved-client-owned",
       provenanceWarnings: [],
     };
+  }
+
+  private async generateAndCache(params: ResolveAssetParams): Promise<CacheMetadata & { bytes: Buffer }> {
+    const { generator, budget, cacheRoot, slot, brief, prompt, fingerprint } = params;
+    const metaPath = resolve(cacheRoot, `${fingerprint}.json`);
+    let result: Awaited<ReturnType<typeof generator.generate>> | undefined;
+    try {
+      result = await generator.generate({
+        prompt,
+        aspectRatio: brief.aspectRatio,
+        imageSize: brief.imageSize,
+      });
+    } catch (error) {
+      throw new BuildError(
+        "CONTENT_GENERATION_FAILED",
+        `Image generation failed for slot ${slot.id}: ${String(error)}`,
+      );
+    }
+    const cost = result.estimatedCostUsd ?? 0;
+    try {
+      budget.charge(cost);
+    } catch (error) {
+      if (error instanceof ImageBudgetExceededError)
+        throw new BuildError("VALIDATION_FAILED", error.message);
+      throw error;
+    }
+    const bytes = result.bytes;
+    const mimeType = result.mimeType;
+    const usedModel = result.model;
+    const extension = EXTENSION_BY_MIME[mimeType] ?? "png";
+    writeFileSync(resolve(cacheRoot, `${fingerprint}.${extension}`), bytes);
+    const metadata: CacheMetadata = {
+      mimeType,
+      model: usedModel,
+      prompt,
+      estimatedCostUsd: cost,
+    };
+    writeFileSync(metaPath, `${JSON.stringify(metadata, null, 2)}\n`, "utf-8");
+    return { bytes, mimeType, model: usedModel, estimatedCostUsd: cost, prompt };
   }
 
   private readCache(

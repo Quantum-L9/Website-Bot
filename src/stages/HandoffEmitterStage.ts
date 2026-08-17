@@ -99,18 +99,35 @@ export class HandoffEmitterStage implements Stage {
       );
       return;
     }
+    const deployTarget = this.assertEmitAllowed(ctx);
+    const bundle = await this.loadReleaseBundle(ctx);
+    const contract = this.buildContract(ctx, bundle, deployTarget);
+    await this.persistHandoff(ctx, contract);
+    await recordWebsiteRelease(
+      contract,
+      ctx.domainSpec.routes.map((route) => ({
+        path: normalizeRouteSlug(route.slug),
+        title: route.title,
+      })),
+    );
+    await this.registerSeoBot(ctx, contract);
+  }
+
+  private assertEmitAllowed(ctx: BuildContext): NonNullable<BuildContext["deployTarget"]> {
     if (ctx.mode !== "end-to-end" || !ctx.deployTarget) {
       throw new BuildError(
         "HANDOFF_EMIT_FAILED",
         "Canonical v3 handoff requires end-to-end mode and a deploy target",
       );
     }
+    return ctx.deployTarget;
+  }
 
-    let bundle:
-      | Awaited<ReturnType<BuildContext["evidenceStore"]["loadValidatedReleaseBundle"]>>
-      | undefined;
+  private async loadReleaseBundle(
+    ctx: BuildContext,
+  ): Promise<Awaited<ReturnType<BuildContext["evidenceStore"]["loadValidatedReleaseBundle"]>>> {
     try {
-      bundle = await ctx.evidenceStore.loadValidatedReleaseBundle({
+      return await ctx.evidenceStore.loadValidatedReleaseBundle({
         requireStatus: "succeeded",
         requireMode: "end-to-end",
       });
@@ -120,15 +137,20 @@ export class HandoffEmitterStage implements Stage {
         `Handoff release bundle validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
 
-    let contract: WebsiteFactoryHandoffV3;
+  private buildContract(
+    ctx: BuildContext,
+    bundle: Awaited<ReturnType<BuildContext["evidenceStore"]["loadValidatedReleaseBundle"]>>,
+    deployTarget: NonNullable<BuildContext["deployTarget"]>,
+  ): WebsiteFactoryHandoffV3 {
     try {
-      contract = buildWebsiteFactoryHandoffV3({
+      return buildWebsiteFactoryHandoffV3({
         domainSpec: ctx.domainSpec,
         clientId: ctx.clientId,
         buildId: ctx.buildId,
         releaseBundle: bundle,
-        deployTarget: ctx.deployTarget,
+        deployTarget,
         qualitySummary: {
           seoBaseline: bundle.releaseReceipt.qa.seo_baseline,
           visualQa: bundle.releaseReceipt.qa.visual_qa,
@@ -140,7 +162,9 @@ export class HandoffEmitterStage implements Stage {
         `Canonical v3 handoff could not be built: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
 
+  private async persistHandoff(ctx: BuildContext, contract: WebsiteFactoryHandoffV3): Promise<void> {
     const handoffRecord = await ctx.evidenceStore.writeHandoff(contract);
     mkdirSync(dirname(this.outputPath), { recursive: true });
     const header = `# Convenience copy only. Authoritative evidence: ${ctx.evidenceStore.rootDir}/${handoffRecord.relativePath}\n`;
@@ -149,15 +173,9 @@ export class HandoffEmitterStage implements Stage {
       { contractId: contract.contract_id, evidencePath: handoffRecord.relativePath },
       "Canonical v3 handoff persisted",
     );
+  }
 
-    await recordWebsiteRelease(
-      contract,
-      ctx.domainSpec.routes.map((route) => ({
-        path: normalizeRouteSlug(route.slug),
-        title: route.title,
-      })),
-    );
-
+  private async registerSeoBot(ctx: BuildContext, contract: WebsiteFactoryHandoffV3): Promise<void> {
     if (!ctx.autoRegisterSeoBot) {
       logger.info(
         "SEO-Bot auto-registration disabled; handoff evidence emitted without activation",

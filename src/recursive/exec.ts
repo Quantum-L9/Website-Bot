@@ -32,12 +32,13 @@ export function trustedEnv(extra?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
 export function execTrusted(
   name: string,
   args: string[],
-  options: ExecFileSyncOptionsWithStringEncoding = { encoding: "utf-8" },
+  options?: ExecFileSyncOptionsWithStringEncoding,
 ): string {
+  const opts = options ?? { encoding: "utf-8" };
   const result = execFileSync(resolveTrustedExecutable(name), args, {
-    ...options,
-    encoding: options.encoding ?? "utf-8",
-    env: trustedEnv(options.env as NodeJS.ProcessEnv | undefined),
+    ...opts,
+    encoding: opts.encoding ?? "utf-8",
+    env: trustedEnv(opts.env as NodeJS.ProcessEnv | undefined),
   });
   return result ?? "";
 }

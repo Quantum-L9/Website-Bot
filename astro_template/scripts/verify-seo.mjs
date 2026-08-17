@@ -16,8 +16,8 @@ function hasRelCanonical(html) {
 }
 
 function hasProperty(html, property) {
-  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`property\\s*=\\s*(?:"${escaped}"|'${escaped}')`, "i").test(html);
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`property\s*=\s*(?:"${escaped}"|'${escaped}')`, "i").test(html);
 }
 
 // Check for robots.txt
@@ -51,6 +51,21 @@ if (exists("dist")) {
   );
 }
 
+function pushSeoCheck(file, checkId, checkClass, targetArtifact, expectedResult, okText, failText, ok, severity, remediation) {
+  checks.push(
+    result({
+      check_id: `${checkId}:${file}`,
+      check_class: checkClass,
+      target_artifact: targetArtifact,
+      expected_result: expectedResult,
+      actual_result: ok ? okText : failText,
+      status: ok ? "PASS" : "FAIL",
+      severity,
+      remediation_if_failed: remediation,
+    }),
+  );
+}
+
 function checkHtmlFile(file) {
   const html = readText(file);
 
@@ -63,78 +78,13 @@ function checkHtmlFile(file) {
   const hasOgUrl = hasProperty(html, "og:url");
   const hasCanonical = hasRelCanonical(html);
 
-  checks.push(
-    result({
-      check_id: `html-title-present:${file}`,
-      check_class: "seo_meta",
-      target_artifact: `${file} <title>`,
-      expected_result: "Page title is present and not empty",
-      actual_result: hasTitle ? "Title found" : "Title missing or empty",
-      status: hasTitle ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: "Add meaningful <title> tag to pages",
-    }),
-    result({
-      check_id: `meta-description-present:${file}`,
-      check_class: "seo_meta",
-      target_artifact: `${file} meta[name="description"]`,
-      expected_result: "Meta description present",
-      actual_result: hasDescription ? "Description meta tag found" : "Description meta tag missing",
-      status: hasDescription ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: "Add meta description to pages",
-    }),
-    result({
-      check_id: `viewport-meta-present:${file}`,
-      check_class: "seo_meta",
-      target_artifact: `${file} meta[name="viewport"]`,
-      expected_result: "Viewport meta tag present",
-      actual_result: hasViewport ? "Viewport meta tag found" : "Viewport meta tag missing",
-      status: hasViewport ? "PASS" : "FAIL",
-      severity: "medium",
-      remediation_if_failed: "Add viewport meta tag for mobile responsiveness",
-    }),
-    result({
-      check_id: `charset-declared:${file}`,
-      check_class: "seo_meta",
-      target_artifact: `${file} charset`,
-      expected_result: "Character encoding declared",
-      actual_result: hasCharset ? "Charset declaration found" : "Charset declaration missing",
-      status: hasCharset ? "PASS" : "FAIL",
-      severity: "medium",
-      remediation_if_failed: "Add charset declaration to HTML",
-    }),
-    result({
-      check_id: `open-graph-tags:${file}`,
-      check_class: "seo_social",
-      target_artifact: `${file} Open Graph`,
-      expected_result: "Open Graph meta tags present",
-      actual_result: hasOgTitle && hasOgDescription ? "OG tags found" : "OG tags incomplete",
-      status: hasOgTitle && hasOgDescription ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: "Add Open Graph meta tags for social media sharing",
-    }),
-    result({
-      check_id: `canonical-link:${file}`,
-      check_class: "seo_canonical",
-      target_artifact: `${file} link[rel=canonical]`,
-      expected_result: "Canonical link present",
-      actual_result: hasCanonical ? "Canonical link found" : "Canonical link missing",
-      status: hasCanonical ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: 'Add <link rel="canonical"> to pages',
-    }),
-    result({
-      check_id: `og-url:${file}`,
-      check_class: "seo_social",
-      target_artifact: `${file} meta[property="og:url"]`,
-      expected_result: "Open Graph URL present",
-      actual_result: hasOgUrl ? "og:url found" : "og:url missing",
-      status: hasOgUrl ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: 'Add meta property="og:url" to pages',
-    }),
-  );
+  pushSeoCheck(file, "html-title-present", "seo_meta", `${file} <title>`, "Page title is present and not empty", "Title found", "Title missing or empty", hasTitle, "high", "Add meaningful <title> tag to pages");
+  pushSeoCheck(file, "meta-description-present", "seo_meta", `${file} meta[name="description"]`, "Meta description present", "Description meta tag found", "Description meta tag missing", hasDescription, "high", "Add meta description to pages");
+  pushSeoCheck(file, "viewport-meta-present", "seo_meta", `${file} meta[name="viewport"]`, "Viewport meta tag present", "Viewport meta tag found", "Viewport meta tag missing", hasViewport, "medium", "Add viewport meta tag for mobile responsiveness");
+  pushSeoCheck(file, "charset-declared", "seo_meta", `${file} charset`, "Character encoding declared", "Charset declaration found", "Charset declaration missing", hasCharset, "medium", "Add charset declaration to HTML");
+  pushSeoCheck(file, "open-graph-tags", "seo_social", `${file} Open Graph`, "Open Graph meta tags present", "OG tags found", "OG tags incomplete", hasOgTitle && hasOgDescription, "high", "Add Open Graph meta tags for social media sharing");
+  pushSeoCheck(file, "canonical-link", "seo_canonical", `${file} link[rel=canonical]`, "Canonical link present", "Canonical link found", "Canonical link missing", hasCanonical, "high", 'Add <link rel="canonical"> to pages');
+  pushSeoCheck(file, "og-url", "seo_social", `${file} meta[property="og:url"]`, "Open Graph URL present", "og:url found", "og:url missing", hasOgUrl, "high", 'Add meta property="og:url" to pages');
 }
 
 // Check HTML meta tags in built output

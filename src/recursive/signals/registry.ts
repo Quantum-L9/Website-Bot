@@ -7,6 +7,8 @@
 import { refForArtifact } from "../contracts/digest.js";
 import type { EngineeringSignal, RecursiveArtifactRef } from "../contracts/types.js";
 
+type LeverageSeverity = "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
+
 export interface SignalCluster {
   clusterId: string;
   subsystem: string;
@@ -15,7 +17,7 @@ export interface SignalCluster {
   dimensions: string[];
   confidence: "VERY_HIGH" | "HIGH" | "MEDIUM" | "LOW";
   leverage: {
-    severity: "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
+    severity: LeverageSeverity;
     recurrence: "HIGH" | "MEDIUM" | "LOW";
     reach: EngineeringSignal["reach"];
     humanReviewImpact: "HIGH" | "MEDIUM" | "LOW";
@@ -42,6 +44,61 @@ function equivalent(signal: EngineeringSignal, other: EngineeringSignal): boolea
   return true;
 }
 
+function weightedScore(weights: Record<string, number>, value: string | undefined, fallback: number): number {
+  if (value === undefined) return fallback;
+  return weights[value] ?? fallback;
+}
+
+function confidenceOf(value: EngineeringSignal["confidence"]): SignalCluster["confidence"] {
+  if (value === "HIGH") return "HIGH";
+  if (value === "MEDIUM") return "MEDIUM";
+  return "LOW";
+}
+
+function priorityFor(score: number): SignalCluster["leverage"]["priority"] {
+  if (score >= 10) return "P0";
+  if (score >= 7) return "P1";
+  if (score >= 4) return "P2";
+  return "P3";
+}
+
+function buildCluster(signals: EngineeringSignal[], signal: EngineeringSignal, index: number): SignalCluster {
+  const dimensions = [
+    ...new Set(
+      signals
+        .filter((other) => equivalent(signal, other))
+        .flatMap((other) => other.failureFingerprint?.qualityDimensions ?? []),
+    ),
+  ];
+  return {
+    clusterId: `EC-${index + 1}`,
+    subsystem: signal.causalTrace.suspectedOwner.subsystem,
+    signalClass: signal.classification,
+    signals: [signal],
+    dimensions,
+    confidence: confidenceOf(signal.confidence),
+    leverage: {
+      severity: signal.severity,
+      recurrence: signal.leverage.recurrence,
+      reach: signal.reach,
+      humanReviewImpact: signal.leverage.humanReviewImpact,
+      implementationRisk: signal.leverage.implementationRisk,
+      priority: "P2",
+    },
+  };
+}
+
+function scoreCluster(cluster: SignalCluster): void {
+  const { severity, recurrence, reach, humanReviewImpact, implementationRisk } = cluster.leverage;
+  const score =
+    weightedScore({ BLOCKING: 4, HIGH: 3, MEDIUM: 2 }, severity, 1) +
+    weightedScore({ HIGH: 2, MEDIUM: 1 }, recurrence, 0) +
+    weightedScore({ GLOBAL: 3, CROSS_VERTICAL: 2, VERTICAL: 1 }, reach, 0) +
+    weightedScore({ HIGH: 2, MEDIUM: 1 }, humanReviewImpact, 0) +
+    weightedScore({ LOW: 2, MEDIUM: 1 }, implementationRisk, 0);
+  cluster.leverage.priority = priorityFor(score);
+}
+
 export function clusterSignals(signals: EngineeringSignal[]): SignalCluster[] {
   const clusters: SignalCluster[] = [];
   for (const signal of signals) {
@@ -50,41 +107,9 @@ export function clusterSignals(signals: EngineeringSignal[]): SignalCluster[] {
       existing.signals.push(signal);
       continue;
     }
-    const dimensions = [
-      ...new Set(
-        signals
-          .filter((other) => equivalent(signal, other))
-          .flatMap((other) => other.failureFingerprint?.qualityDimensions ?? []),
-      ),
-    ];
-    clusters.push({
-      clusterId: `EC-${clusters.length + 1}`,
-      subsystem: signal.causalTrace.suspectedOwner.subsystem,
-      signalClass: signal.classification,
-      signals: [signal],
-      dimensions,
-      confidence:
-        signal.confidence === "HIGH" ? "HIGH" : signal.confidence === "MEDIUM" ? "MEDIUM" : "LOW",
-      leverage: {
-        severity: signal.severity,
-        recurrence: signal.leverage.recurrence,
-        reach: signal.reach,
-        humanReviewImpact: signal.leverage.humanReviewImpact,
-        implementationRisk: signal.leverage.implementationRisk,
-        priority: "P2",
-      },
-    });
+    clusters.push(buildCluster(signals, signal, clusters.length));
   }
-  for (const cluster of clusters) {
-    const { severity, recurrence, reach, humanReviewImpact, implementationRisk } = cluster.leverage;
-    const score =
-      (severity === "BLOCKING" ? 4 : severity === "HIGH" ? 3 : severity === "MEDIUM" ? 2 : 1) +
-      (recurrence === "HIGH" ? 2 : recurrence === "MEDIUM" ? 1 : 0) +
-      (reach === "GLOBAL" ? 3 : reach === "CROSS_VERTICAL" ? 2 : reach === "VERTICAL" ? 1 : 0) +
-      (humanReviewImpact === "HIGH" ? 2 : humanReviewImpact === "MEDIUM" ? 1 : 0) +
-      (implementationRisk === "LOW" ? 2 : implementationRisk === "MEDIUM" ? 1 : 0);
-    cluster.leverage.priority = score >= 10 ? "P0" : score >= 7 ? "P1" : score >= 4 ? "P2" : "P3";
-  }
+  for (const cluster of clusters) scoreCluster(cluster);
   return clusters.sort((left, right) =>
     left.leverage.priority.localeCompare(right.leverage.priority),
   );

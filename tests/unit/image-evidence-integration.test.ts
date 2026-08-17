@@ -213,7 +213,7 @@ async function runQa(
   clientId: string,
   assets: ResolvedImageAsset[],
   siteImages: NonNullable<SiteConfig["images"]>,
-): Promise<void> {
+) {
   const ctx = fixtureContext({
     client_id: clientId,
     assets: { imageSlots: [{ id: "hero", placement: "/:hero", required: true }] },
@@ -228,6 +228,9 @@ async function runQa(
       writeFileSync(join(ctx.outputDir, "public", image.src.replace(/^\//, "")), PNG_1x1);
     }
     await new ImageValidationStage().run(ctx);
+    // Snapshot persisted evidence before cleanup so callers can assert QA outcomes.
+    const stored = await ctx.evidenceStore.readImageAssets();
+    return { stored };
   } finally {
     cleanupContext(ctx);
     rmSync(resolve("build", "assets", clientId, ctx.buildId), { recursive: true, force: true });
@@ -235,7 +238,7 @@ async function runQa(
 }
 
 void test("QA passes for a delivered source-site asset with republishable disposition", async () => {
-  await runQa(
+  const outcome = await runQa(
     "qa-ok",
     [
       resolvedAsset({
@@ -254,6 +257,14 @@ void test("QA passes for a delivered source-site asset with republishable dispos
         source: "source-site",
       },
     },
+  );
+  assert.ok(outcome.stored, "image_assets evidence must persist through QA");
+  const hero = outcome.stored?.value.assets.find((asset) => asset.placement === "/:hero");
+  assert.ok(hero, "delivered hero asset must have persisted evidence");
+  assert.equal(
+    hero?.disposition,
+    "approved-client-owned",
+    "source-site asset must carry a republishable disposition",
   );
 });
 

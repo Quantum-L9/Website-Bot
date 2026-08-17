@@ -21,6 +21,7 @@ import {
   sameArtifactRef,
   sealIntelligenceArtifact,
   type StructuredContentPackageArtifact,
+  type VerifiedBusinessFact,
 } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
 import {
@@ -96,14 +97,7 @@ export class RedesignContentAuthorityStage implements Stage {
       logger.info({ intent: ctx.buildIntent }, "not a redesign build; content authority skipped");
       return;
     }
-    const blueprint = ctx.websiteBlueprint;
-    const landscape = ctx.competitiveLandscape;
-    if (!blueprint || !landscape) {
-      throw new BuildError(
-        "REDESIGN_PIPELINE_INCOMPLETE",
-        "redesign content authority requires the sealed WebsiteBuildBlueprint and CompetitiveLandscape",
-      );
-    }
+    const { blueprint, landscape } = this.assertPrerequisites(ctx);
     ctx.redesignCounters ??= {
       pageContentContractLlmCalls: 0,
       legacyContentGenerationCalls: 0,
@@ -127,6 +121,63 @@ export class RedesignContentAuthorityStage implements Stage {
       routes,
       business_facts: businessFacts,
     });
+    this.assertSeoBlueprintLineage(ctx, seoBlueprint, blueprint, landscape, routes);
+    ctx.seoContentBlueprint = seoBlueprint;
+    logger.info(
+      { artifactId: seoBlueprint.artifact_id, routes: seoBlueprint.payload.routes.length },
+      "SEOContentBlueprint accepted (lineage verified)",
+    );
+
+    // ---- R7: deterministic PageContentContract (zero LLM) ------------
+    const contract = this.compileContractDeterministically(
+      ctx,
+      blueprint,
+      seoBlueprint,
+      businessFacts,
+      counters,
+    );
+    ctx.pageContentContract = contract;
+    logger.info(
+      { artifactId: contract.artifact_id, llmCalls: counters.pageContentContractLlmCalls },
+      "PageContentContract sealed deterministically (0 LLM calls)",
+    );
+
+    // ---- R8: real StructuredContentPackage ---------------------------
+    const contentPackage = await port.createStructuredContent({
+      client_id: ctx.clientId,
+      build_id: ctx.buildId,
+      page_content_contract: contract,
+    });
+    this.validateStructuredContent(ctx, contract, contentPackage);
+    ctx.structuredContentPackage = contentPackage;
+    logger.info(
+      { artifactId: contentPackage.artifact_id, routes: contentPackage.payload.routes.length },
+      "StructuredContentPackage accepted as final page prose authority",
+    );
+  }
+
+  private assertPrerequisites(ctx: BuildContext): {
+    blueprint: NonNullable<BuildContext["websiteBlueprint"]>;
+    landscape: NonNullable<BuildContext["competitiveLandscape"]>;
+  } {
+    const blueprint = ctx.websiteBlueprint;
+    const landscape = ctx.competitiveLandscape;
+    if (!blueprint || !landscape) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "redesign content authority requires the sealed WebsiteBuildBlueprint and CompetitiveLandscape",
+      );
+    }
+    return { blueprint, landscape };
+  }
+
+  private assertSeoBlueprintLineage(
+    ctx: BuildContext,
+    seoBlueprint: Awaited<ReturnType<SeoBuildIntelligencePort["createSEOContentBlueprint"]>>,
+    blueprint: NonNullable<BuildContext["websiteBlueprint"]>,
+    landscape: NonNullable<BuildContext["competitiveLandscape"]>,
+    routes: Array<{ route_id: string; path: string; purpose: string }>,
+  ): void {
     try {
       assertIntelligenceArtifactIntegrity(seoBlueprint);
     } catch (error) {
@@ -167,13 +218,15 @@ export class RedesignContentAuthorityStage implements Stage {
         "SEOContentBlueprint route set does not match the spec route set",
       );
     }
-    ctx.seoContentBlueprint = seoBlueprint;
-    logger.info(
-      { artifactId: seoBlueprint.artifact_id, routes: seoBlueprint.payload.routes.length },
-      "SEOContentBlueprint accepted (lineage verified)",
-    );
+  }
 
-    // ---- R7: deterministic PageContentContract (zero LLM) ------------
+  private compileContractDeterministically(
+    ctx: BuildContext,
+    blueprint: NonNullable<BuildContext["websiteBlueprint"]>,
+    seoBlueprint: Awaited<ReturnType<SeoBuildIntelligencePort["createSEOContentBlueprint"]>>,
+    businessFacts: VerifiedBusinessFact[],
+    counters: NonNullable<BuildContext["redesignCounters"]>,
+  ): PageContentContractArtifact {
     const realLlm = ctx.llm;
     ctx.llm = forbiddenLlm("PageContentContract compilation", () => {
       counters.pageContentContractLlmCalls += 1;
@@ -211,24 +264,7 @@ export class RedesignContentAuthorityStage implements Stage {
         `PageContentContract compilation performed ${counters.pageContentContractLlmCalls} LLM call(s); required count is 0`,
       );
     }
-    ctx.pageContentContract = contract;
-    logger.info(
-      { artifactId: contract.artifact_id, llmCalls: counters.pageContentContractLlmCalls },
-      "PageContentContract sealed deterministically (0 LLM calls)",
-    );
-
-    // ---- R8: real StructuredContentPackage ---------------------------
-    const contentPackage = await port.createStructuredContent({
-      client_id: ctx.clientId,
-      build_id: ctx.buildId,
-      page_content_contract: contract,
-    });
-    this.validateStructuredContent(ctx, contract, contentPackage);
-    ctx.structuredContentPackage = contentPackage;
-    logger.info(
-      { artifactId: contentPackage.artifact_id, routes: contentPackage.payload.routes.length },
-      "StructuredContentPackage accepted as final page prose authority",
-    );
+    return contract;
   }
 
   private validateStructuredContent(

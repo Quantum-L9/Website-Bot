@@ -54,9 +54,7 @@ const GATES = new Set<ReleaseGate>([
   "visual_qa",
 ]);
 
-export function validateReleaseReceipt(value: unknown): asserts value is ReleaseReceipt {
-  if (!value || typeof value !== "object") throw new Error("release receipt must be an object");
-  const receipt = value as Partial<ReleaseReceipt>;
+function validateReceiptIdentity(receipt: Partial<ReleaseReceipt>): void {
   if (
     receipt.schema !== "website-bot.release-receipt/v2" ||
     !receipt.receipt_id ||
@@ -71,15 +69,24 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
   ) {
     throw new Error("release receipt mode or status is invalid");
   }
+}
+
+function validateReceiptGates(receipt: Partial<ReleaseReceipt>): void {
   if (
     !Array.isArray(receipt.missing_gates) ||
     receipt.missing_gates.some((gate) => !GATES.has(gate))
   ) {
     throw new Error("release receipt missing_gates is invalid");
   }
+}
+
+function validateReceiptEvidence(receipt: Partial<ReleaseReceipt>): void {
   if (!receipt.evidence?.assembly) throw new Error("release receipt assembly reference is missing");
   for (const reference of Object.values(receipt.evidence))
     if (reference) validateEvidenceReference(reference);
+}
+
+function validateReceiptCorrelation(receipt: Partial<ReleaseReceipt>): void {
   if (!receipt.correlation || !SHA256.test(String(receipt.correlation.source_digest))) {
     throw new Error("release receipt source correlation is invalid");
   }
@@ -87,6 +94,9 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
     throw new Error("release receipt dist digest is invalid");
   if (receipt.correlation.commit_sha && !SHA1.test(receipt.correlation.commit_sha))
     throw new Error("release receipt commit is invalid");
+}
+
+function validateReceiptQa(receipt: Partial<ReleaseReceipt>): void {
   if (
     !receipt.qa ||
     !["pending", "passed", "failed", "skipped"].includes(String(receipt.qa.seo_baseline)) ||
@@ -94,32 +104,49 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
   ) {
     throw new Error("release receipt QA status is invalid");
   }
+}
+
+function validateReceiptTimestamps(receipt: Partial<ReleaseReceipt>): void {
   if (!receipt.created_at || Number.isNaN(Date.parse(receipt.created_at)))
     throw new Error("release receipt created_at is invalid");
   if (receipt.finalized_at && Number.isNaN(Date.parse(receipt.finalized_at)))
     throw new Error("release receipt finalized_at is invalid");
+}
 
+function validateReceiptStatusConsistency(receipt: Partial<ReleaseReceipt>): void {
   if (receipt.status === "succeeded") {
-    if (receipt.mode !== "end-to-end" || receipt.missing_gates.length > 0)
+    if (receipt.mode !== "end-to-end" || (receipt.missing_gates?.length ?? 0) > 0)
       throw new Error("succeeded receipt requires end-to-end mode with no missing gates");
-    if (!receipt.evidence.build || !receipt.evidence.publication || !receipt.evidence.deployment) {
+    if (!receipt.evidence?.build || !receipt.evidence.publication || !receipt.evidence.deployment) {
       throw new Error("succeeded receipt requires build, publication, and deployment references");
     }
     if (
-      !receipt.correlation.dist_digest ||
+      !receipt.correlation?.dist_digest ||
       !receipt.correlation.commit_sha ||
       !receipt.correlation.deployment_id ||
       !receipt.correlation.all_required_identities_match
     ) {
       throw new Error("succeeded receipt correlation is incomplete");
     }
-    if (receipt.qa.visual_qa !== "passed")
+    if (receipt.qa?.visual_qa !== "passed")
       throw new Error("succeeded receipt requires passed visual QA");
   }
-  if (receipt.status === "partial" && receipt.missing_gates.length === 0)
+  if (receipt.status === "partial" && (receipt.missing_gates?.length ?? 0) === 0)
     throw new Error("partial receipt must name missing gates");
   if (receipt.status === "planned" && receipt.mode !== "plan")
     throw new Error("planned receipt requires plan mode");
-  if (receipt.status === "failed" && !receipt.evidence.failure)
+  if (receipt.status === "failed" && !receipt.evidence?.failure)
     throw new Error("failed receipt requires failure evidence");
+}
+
+export function validateReleaseReceipt(value: unknown): asserts value is ReleaseReceipt {
+  if (!value || typeof value !== "object") throw new Error("release receipt must be an object");
+  const receipt = value as Partial<ReleaseReceipt>;
+  validateReceiptIdentity(receipt);
+  validateReceiptGates(receipt);
+  validateReceiptEvidence(receipt);
+  validateReceiptCorrelation(receipt);
+  validateReceiptQa(receipt);
+  validateReceiptTimestamps(receipt);
+  validateReceiptStatusConsistency(receipt);
 }

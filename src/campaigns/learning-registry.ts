@@ -41,7 +41,7 @@ export function contextSimilarity(event: LearningEvent, query: RegistryQuery): n
   if (query.archetype && event.context.page_archetype === query.archetype) score += 0.2;
   if (query.component && event.context.component === query.component) score += 0.2;
   if (event.context.quality_dimension === query.dimension) score += 0.2;
-  if (event.attribution_feedback && event.attribution_feedback.actual_layer === query.layer) score += 0.15;
+  if (event.attribution_feedback?.actual_layer === query.layer) score += 0.15;
   return score;
 }
 

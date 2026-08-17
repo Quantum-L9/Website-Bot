@@ -23,7 +23,7 @@ import {
   type ResolvedImageAsset,
   type ReuseDisposition,
 } from "../pipeline/evidence/ImageAssetManifest.js";
-import { unresolvedRequiredSlots } from "../pipeline/evidence/ImageAssetPlan.js";
+import { unresolvedRequiredSlots, type ImageAssetPlan } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { VisualRequirement } from "@quantum-l9/bot-interop";
@@ -116,27 +116,8 @@ export class ImageAssetPlanningStage implements Stage {
   async run(ctx: BuildContext): Promise<void> {
     const assets = ctx.domainSpec.assets;
     const redesign = ctx.buildIntent === "REDESIGN_IMPROVE";
-    let slots = assets?.imageSlots ?? [];
-    if (redesign) {
-      // R11: the blueprint is the visual requirement authority. Spec-declared
-      // slots are merged in only where the blueprint has no slot of that id
-      // (operator additions), never as a replacement for blueprint intent.
-      const blueprint = ctx.websiteBlueprint;
-      if (!blueprint) {
-        throw new BuildError(
-          "REDESIGN_PIPELINE_INCOMPLETE",
-          "REDESIGN_IMPROVE image planning requires the sealed WebsiteBuildBlueprint",
-        );
-      }
-      const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
-      const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
-      slots = [...blueprintSlots, ...slots.filter((slot) => !blueprintIds.has(slot.id))];
-    }
-    if (!assets && !redesign) {
-      logger.info("No image slots declared; skipping image asset planning");
-      return;
-    }
-    if (slots.length === 0) {
+    const slots = this.resolveSlots(ctx, assets, redesign);
+    if ((!assets && !redesign) || slots.length === 0) {
       logger.info("No image slots declared; skipping image asset planning");
       return;
     }
@@ -163,6 +144,68 @@ export class ImageAssetPlanningStage implements Stage {
     }
 
     const stagingRoot = clientAssetRoot(ctx);
+    const resolved = this.resolvePlannedAssets(ctx, plan, slots, provided, sourceCandidates, stagingRoot);
+    ctx.imageAssetManifest = buildImageAssetManifest(
+      ctx.buildId,
+      ctx.clientId,
+      ctx.startedAt.toISOString(),
+      resolved,
+    );
+
+    if (!ctx.dryRun) {
+      const manifestDir = resolve(stagingRoot, "manifests");
+      mkdirSync(manifestDir, { recursive: true });
+      writeFileSync(
+        resolve(manifestDir, "image-asset-manifest.json"),
+        `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`,
+        "utf-8",
+      );
+      await ctx.evidenceStore.writeImagePlan(plan);
+      await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);
+    }
+
+    if (redesign) this.recordSourceAssetDecisions(ctx, plan, sourceCandidates);
+
+    logger.info(
+      {
+        slots: slots.length,
+        resolved: resolved.length,
+        generated: plan.assets.filter((a) => a.resolution.source === "generated").length,
+      },
+      "Image asset plan resolved",
+    );
+  }
+
+  private resolveSlots(
+    ctx: BuildContext,
+    assets: BuildContext["domainSpec"]["assets"],
+    redesign: boolean,
+  ): ImageSlotSpec[] {
+    const slots = assets?.imageSlots ?? [];
+    if (!redesign) return slots;
+    // R11: the blueprint is the visual requirement authority. Spec-declared
+    // slots are merged in only where the blueprint has no slot of that id
+    // (operator additions), never as a replacement for blueprint intent.
+    const blueprint = ctx.websiteBlueprint;
+    if (!blueprint) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "REDESIGN_IMPROVE image planning requires the sealed WebsiteBuildBlueprint",
+      );
+    }
+    const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
+    const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
+    return [...blueprintSlots, ...slots.filter((slot) => !blueprintIds.has(slot.id))];
+  }
+
+  private resolvePlannedAssets(
+    ctx: BuildContext,
+    plan: ImageAssetPlan,
+    slots: ImageSlotSpec[],
+    provided: InspectedProvided[],
+    sourceCandidates: IngestedImage[],
+    stagingRoot: string,
+  ): ResolvedImageAsset[] {
     const resolved: ResolvedImageAsset[] = [];
     for (const planned of plan.assets) {
       const slot = slots.find((candidate) => candidate.id === planned.slotId);
@@ -202,90 +245,67 @@ export class ImageAssetPlanningStage implements Stage {
       // 'generated' resolutions are filled by the generation stage; 'unresolved'
       // non-required slots are simply left empty.
     }
+    return resolved;
+  }
 
-    ctx.imageAssetManifest = buildImageAssetManifest(
-      ctx.buildId,
-      ctx.clientId,
-      ctx.startedAt.toISOString(),
-      resolved,
-    );
-
-    if (!ctx.dryRun) {
-      const manifestDir = resolve(stagingRoot, "manifests");
-      mkdirSync(manifestDir, { recursive: true });
-      writeFileSync(
-        resolve(manifestDir, "image-asset-manifest.json"),
-        `${JSON.stringify(ctx.imageAssetManifest, null, 2)}\n`,
-        "utf-8",
-      );
-      await ctx.evidenceStore.writeImagePlan(plan);
-      await ctx.evidenceStore.writeImageAssets(ctx.imageAssetManifest);
-    }
-
+  private recordSourceAssetDecisions(
+    ctx: BuildContext,
+    plan: ImageAssetPlan,
+    sourceCandidates: IngestedImage[],
+  ): void {
     // Campaign 7 R12: every discovered source asset gets an explicit
     // SELECTED / REJECTED-with-reason decision. Silent loss is a defect.
-    if (redesign) {
-      const selectedByAssetId = new Map<string, string>();
-      for (const planned of plan.assets) {
-        if (planned.resolution.source === "source-site" && planned.resolution.candidateId) {
-          selectedByAssetId.set(planned.resolution.candidateId, planned.slotId);
-        }
+    const selectedByAssetId = new Map<string, string>();
+    for (const planned of plan.assets) {
+      if (planned.resolution.source === "source-site" && planned.resolution.candidateId) {
+        selectedByAssetId.set(planned.resolution.candidateId, planned.slotId);
       }
-      const decisions: NonNullable<BuildContext["sourceAssetDecisions"]> = [];
-      for (const image of sourceCandidates) {
-        const slotId = selectedByAssetId.get(image.id);
-        if (slotId) {
-          decisions.push({
-            assetPath: image.localPath,
-            decision: "SELECTED",
-            reason: `selected for blueprint visual slot ${slotId} (authorized source asset outranks generation)`,
-            slotId,
-          });
-        } else if (!existsSync(image.localPath)) {
-          decisions.push({
-            assetPath: image.localPath,
-            decision: "REJECTED",
-            reason: "source file missing on disk at planning time",
-          });
-        } else if (isBrandMarkCandidate(image)) {
-          decisions.push({
-            assetPath: image.localPath,
-            decision: "REJECTED",
-            reason: "brand mark (logo/favicon/OG card) not required by any unfilled blueprint visual slot",
-          });
-        } else {
-          decisions.push({
-            assetPath: image.localPath,
-            decision: "SELECTED",
-            reason: "reused in project gallery (no dedicated blueprint slot required it)",
-            slotId: "gallery",
-          });
-        }
+    }
+    const decisions: NonNullable<BuildContext["sourceAssetDecisions"]> = [];
+    for (const image of sourceCandidates) {
+      const slotId = selectedByAssetId.get(image.id);
+      if (slotId) {
+        decisions.push({
+          assetPath: image.localPath,
+          decision: "SELECTED",
+          reason: `selected for blueprint visual slot ${slotId} (authorized source asset outranks generation)`,
+          slotId,
+        });
+      } else if (!existsSync(image.localPath)) {
+        decisions.push({
+          assetPath: image.localPath,
+          decision: "REJECTED",
+          reason: "source file missing on disk at planning time",
+        });
+      } else if (isBrandMarkCandidate(image)) {
+        decisions.push({
+          assetPath: image.localPath,
+          decision: "REJECTED",
+          reason: "brand mark (logo/favicon/OG card) not required by any unfilled blueprint visual slot",
+        });
+      } else {
+        decisions.push({
+          assetPath: image.localPath,
+          decision: "SELECTED",
+          reason: "reused in project gallery (no dedicated blueprint slot required it)",
+          slotId: "gallery",
+        });
       }
-      if (decisions.length !== sourceCandidates.length) {
-        throw new BuildError(
-          "SOURCE_ASSET_REUSE_UNEXPLAINED",
-          `source asset ledger covers ${decisions.length} of ${sourceCandidates.length} discovered assets`,
-        );
-      }
-      ctx.sourceAssetDecisions = decisions;
-      logger.info(
-        {
-          discovered: sourceCandidates.length,
-          selected: decisions.filter((entry) => entry.decision === "SELECTED").length,
-          rejected: decisions.filter((entry) => entry.decision === "REJECTED").length,
-        },
-        "Source asset reuse ledger complete (no unexplained loss)",
+    }
+    if (decisions.length !== sourceCandidates.length) {
+      throw new BuildError(
+        "SOURCE_ASSET_REUSE_UNEXPLAINED",
+        `source asset ledger covers ${decisions.length} of ${sourceCandidates.length} discovered assets`,
       );
     }
-
+    ctx.sourceAssetDecisions = decisions;
     logger.info(
       {
-        slots: slots.length,
-        resolved: resolved.length,
-        generated: plan.assets.filter((a) => a.resolution.source === "generated").length,
+        discovered: sourceCandidates.length,
+        selected: decisions.filter((entry) => entry.decision === "SELECTED").length,
+        rejected: decisions.filter((entry) => entry.decision === "REJECTED").length,
       },
-      "Image asset plan resolved",
+      "Source asset reuse ledger complete (no unexplained loss)",
     );
   }
 

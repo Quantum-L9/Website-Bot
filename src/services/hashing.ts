@@ -115,54 +115,65 @@ export function gitBlobSha(content: Uint8Array): string {
 
 export function collectRegularFiles(root: string, options: CollectFilesOptions = {}): string[] {
   const absoluteRoot = resolve(root);
-  const files: string[] = [];
-  let totalBytes = 0;
-  const maxFiles = options.maxFiles ?? Number.POSITIVE_INFINITY;
-  const maxFileBytes = options.maxFileBytes ?? Number.POSITIVE_INFINITY;
-  const maxTotalBytes = options.maxTotalBytes ?? Number.POSITIVE_INFINITY;
-
-  const walk = (directory: string): void => {
-    for (const name of readdirSync(directory).sort()) {
-      const absolutePath = resolve(directory, name);
-      if (absolutePath !== absoluteRoot && !absolutePath.startsWith(`${absoluteRoot}${sep}`)) {
-        throw new BuildError(
-          "VALIDATION_FAILED",
-          `Path escaped root during file collection: ${absolutePath}`,
-        );
-      }
-      const relativePath = normalizeRelativePath(relative(absoluteRoot, absolutePath));
-      if (options.exclude?.(relativePath)) continue;
-      const stat = lstatSync(absolutePath);
-      if (stat.isSymbolicLink())
-        throw new BuildError("VALIDATION_FAILED", `Symbolic links are forbidden: ${relativePath}`);
-      if (stat.isDirectory()) {
-        walk(absolutePath);
-        continue;
-      }
-      if (!stat.isFile())
-        throw new BuildError("VALIDATION_FAILED", `Unsupported filesystem entry: ${relativePath}`);
-      if (stat.size > maxFileBytes)
-        throw new BuildError(
-          "SOURCE_PUBLISH_FAILED",
-          `File exceeds publication limit: ${relativePath}`,
-        );
-      totalBytes += stat.size;
-      if (totalBytes > maxTotalBytes)
-        throw new BuildError(
-          "SOURCE_PUBLISH_FAILED",
-          "Generated source exceeds total publication size limit",
-        );
-      files.push(absolutePath);
-      if (files.length > maxFiles)
-        throw new BuildError(
-          "SOURCE_PUBLISH_FAILED",
-          "Generated source exceeds publication file-count limit",
-        );
-    }
+  const limits = {
+    maxFiles: options.maxFiles ?? Number.POSITIVE_INFINITY,
+    maxFileBytes: options.maxFileBytes ?? Number.POSITIVE_INFINITY,
+    maxTotalBytes: options.maxTotalBytes ?? Number.POSITIVE_INFINITY,
+    exclude: options.exclude,
   };
+  const state: { files: string[]; totalBytes: number } = { files: [], totalBytes: 0 };
+  collectEntry(absoluteRoot, absoluteRoot, limits, state);
+  return state.files;
+}
 
-  walk(absoluteRoot);
-  return files;
+function collectEntry(
+  absoluteRoot: string,
+  directory: string,
+  limits: {
+    maxFiles: number;
+    maxFileBytes: number;
+    maxTotalBytes: number;
+    exclude?: (relativePath: string) => boolean;
+  },
+  state: { files: string[]; totalBytes: number },
+): void {
+  for (const name of readdirSync(directory).sort()) {
+    const absolutePath = resolve(directory, name);
+    if (absolutePath !== absoluteRoot && !absolutePath.startsWith(`${absoluteRoot}${sep}`)) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `Path escaped root during file collection: ${absolutePath}`,
+      );
+    }
+    const relativePath = normalizeRelativePath(relative(absoluteRoot, absolutePath));
+    if (limits.exclude?.(relativePath)) continue;
+    const stat = lstatSync(absolutePath);
+    if (stat.isSymbolicLink())
+      throw new BuildError("VALIDATION_FAILED", `Symbolic links are forbidden: ${relativePath}`);
+    if (stat.isDirectory()) {
+      collectEntry(absoluteRoot, absolutePath, limits, state);
+      continue;
+    }
+    if (!stat.isFile())
+      throw new BuildError("VALIDATION_FAILED", `Unsupported filesystem entry: ${relativePath}`);
+    if (stat.size > limits.maxFileBytes)
+      throw new BuildError(
+        "SOURCE_PUBLISH_FAILED",
+        `File exceeds publication limit: ${relativePath}`,
+      );
+    state.totalBytes += stat.size;
+    if (state.totalBytes > limits.maxTotalBytes)
+      throw new BuildError(
+        "SOURCE_PUBLISH_FAILED",
+        "Generated source exceeds total publication size limit",
+      );
+    state.files.push(absolutePath);
+    if (state.files.length > limits.maxFiles)
+      throw new BuildError(
+        "SOURCE_PUBLISH_FAILED",
+        "Generated source exceeds publication file-count limit",
+      );
+  }
 }
 
 export function digestDirectory(root: string, options: CollectFilesOptions = {}): DirectoryDigest {

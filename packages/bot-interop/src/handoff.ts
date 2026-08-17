@@ -110,11 +110,7 @@ export function sealWebsiteFactoryHandoff(
   return contract;
 }
 
-export function assertWebsiteFactoryHandoffV3(
-  value: unknown,
-): asserts value is WebsiteFactoryHandoffV3 {
-  if (!value || typeof value !== "object") throw new Error("handoff must be an object");
-  const contract = value as WebsiteFactoryHandoffV3;
+function assertHandoffIdentity(contract: WebsiteFactoryHandoffV3): void {
   if (
     contract.protocol !== WEBSITE_FACTORY_HANDOFF_PROTOCOL ||
     contract.schema_version !== WEBSITE_FACTORY_HANDOFF_VERSION
@@ -137,6 +133,9 @@ export function assertWebsiteFactoryHandoffV3(
   } catch {
     throw new Error("client.domain is invalid");
   }
+}
+
+function assertHandoffSeo(contract: WebsiteFactoryHandoffV3): void {
   if (
     !Array.isArray(contract.seo?.target_keywords) ||
     contract.seo.target_keywords.length === 0 ||
@@ -153,6 +152,9 @@ export function assertWebsiteFactoryHandoffV3(
       throw new Error("seo.competitor_urls contains an invalid URL");
     }
   }
+}
+
+function assertHandoffSite(contract: WebsiteFactoryHandoffV3): void {
   if (!REPOSITORY.test(contract.site?.repository?.full_name ?? ""))
     throw new Error("site.repository.full_name must be owner/repo");
   if (!SHA1.test(contract.site.repository.commit_sha))
@@ -197,6 +199,9 @@ export function assertWebsiteFactoryHandoffV3(
       "maintenance.required_paths must uniquely include the canonical manifest and Astro home page",
     );
   }
+}
+
+function assertHandoffProofAndIntegrity(contract: WebsiteFactoryHandoffV3): void {
   if (
     contract.proof.receipt_status !== "succeeded" ||
     contract.proof.local_build_status !== "passed" ||
@@ -210,4 +215,15 @@ export function assertWebsiteFactoryHandoffV3(
     throw new Error("handoff integrity envelope is invalid");
   if (digestHandoffPayload(payload) !== integrity.payload_digest)
     throw new Error("handoff payload digest mismatch");
+}
+
+export function assertWebsiteFactoryHandoffV3(
+  value: unknown,
+): asserts value is WebsiteFactoryHandoffV3 {
+  if (!value || typeof value !== "object") throw new Error("handoff must be an object");
+  const contract = value as WebsiteFactoryHandoffV3;
+  assertHandoffIdentity(contract);
+  assertHandoffSeo(contract);
+  assertHandoffSite(contract);
+  assertHandoffProofAndIntegrity(contract);
 }

@@ -224,18 +224,20 @@ export class SiteAssemblerStage implements Stage {
         "Validated design tokens are required before site assembly",
       );
     validateRouteContracts(ctx.domainSpec.routes);
-    if (!ctx.dryRun) {
-      for (const route of ctx.domainSpec.routes) {
-        for (const component of route.components) {
-          const normalized = normalizeComponentName(component);
-          if (normalized === "contact_form" && this.leadFormAction(ctx)) continue;
-          if (normalized === "gallery") continue;
-          if (this.lookupContent(ctx, route.slug, component) === undefined) {
-            throw new BuildError(
-              "SITE_ASSEMBLY_FAILED",
-              `Missing generated content for ${normalizeRouteSlug(route.slug)}:${component}`,
-            );
-          }
+    if (!ctx.dryRun) this.assertRouteContentAvailable(ctx);
+  }
+
+  private assertRouteContentAvailable(ctx: BuildContext): void {
+    for (const route of ctx.domainSpec.routes) {
+      for (const component of route.components) {
+        const normalized = normalizeComponentName(component);
+        if (normalized === "contact_form" && this.leadFormAction(ctx)) continue;
+        if (normalized === "gallery") continue;
+        if (this.lookupContent(ctx, route.slug, component) === undefined) {
+          throw new BuildError(
+            "SITE_ASSEMBLY_FAILED",
+            `Missing generated content for ${normalizeRouteSlug(route.slug)}:${component}`,
+          );
         }
       }
     }

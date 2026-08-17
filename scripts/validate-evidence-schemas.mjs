@@ -28,55 +28,71 @@ function resolveRef(root, ref) {
     .split("/")
     .reduce((v, k) => v?.[k.replaceAll("~1", "/").replaceAll("~0", "~")], root);
 }
+function validateObject(schema, value, path, validate) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return `${path} must be object`;
+  for (const key of schema.required ?? [])
+    if (!(key in value)) return `${path}.${key} is required`;
+  if (schema.additionalProperties === false)
+    for (const key of Object.keys(value))
+      if (!(key in (schema.properties ?? {}))) return `${path}.${key} is not allowed`;
+  for (const [key, child] of Object.entries(schema.properties ?? {}))
+    if (key in value) {
+      const e = validate(child, value[key], `${path}.${key}`);
+      if (e) return e;
+    }
+  return null;
+}
+
+function validateArray(schema, value, path, validate) {
+  if (!Array.isArray(value)) return `${path} must be array`;
+  if (value.length < (schema.minItems ?? 0)) return `${path} has too few items`;
+  for (let i = 0; i < value.length; i++) {
+    const e = validate(schema.items ?? {}, value[i], `${path}[${i}]`);
+    if (e) return e;
+  }
+  return null;
+}
+
+function validateString(schema, value, path) {
+  if (typeof value !== "string") return `${path} must be string`;
+  if (value.length < (schema.minLength ?? 0)) return `${path} is too short`;
+  if (schema.pattern && !new RegExp(schema.pattern).test(value))
+    return `${path} does not match pattern`;
+  if (schema.format === "date-time" && Number.isNaN(Date.parse(value)))
+    return `${path} must be date-time`;
+  return null;
+}
+
+function validateInteger(schema, value, path) {
+  if (
+    !Number.isInteger(value) ||
+    value < (schema.minimum ?? -Infinity) ||
+    value > (schema.maximum ?? Infinity)
+  )
+    return `${path} must be integer in range`;
+  return null;
+}
+
+function validateNumber(schema, value, path) {
+  if (
+    typeof value !== "number" ||
+    value < (schema.minimum ?? -Infinity) ||
+    value > (schema.maximum ?? Infinity)
+  )
+    return `${path} must be number in range`;
+  return null;
+}
+
 function compile(root) {
   const validate = (schema, value, path = "$") => {
     if (schema.$ref) return validate(resolveRef(root, schema.$ref), value, path);
     if ("const" in schema && value !== schema.const) return `${path} must equal const`;
     if (schema.enum && !schema.enum.includes(value)) return `${path} must be in enum`;
-    if (schema.type === "object") {
-      if (!value || typeof value !== "object" || Array.isArray(value))
-        return `${path} must be object`;
-      for (const key of schema.required ?? [])
-        if (!(key in value)) return `${path}.${key} is required`;
-      if (schema.additionalProperties === false)
-        for (const key of Object.keys(value))
-          if (!(key in (schema.properties ?? {}))) return `${path}.${key} is not allowed`;
-      for (const [key, child] of Object.entries(schema.properties ?? {}))
-        if (key in value) {
-          const e = validate(child, value[key], `${path}.${key}`);
-          if (e) return e;
-        }
-    }
-    if (schema.type === "array") {
-      if (!Array.isArray(value)) return `${path} must be array`;
-      if (value.length < (schema.minItems ?? 0)) return `${path} has too few items`;
-      for (let i = 0; i < value.length; i++) {
-        const e = validate(schema.items ?? {}, value[i], `${path}[${i}]`);
-        if (e) return e;
-      }
-    }
-    if (schema.type === "string") {
-      if (typeof value !== "string") return `${path} must be string`;
-      if (value.length < (schema.minLength ?? 0)) return `${path} is too short`;
-      if (schema.pattern && !new RegExp(schema.pattern).test(value))
-        return `${path} does not match pattern`;
-      if (schema.format === "date-time" && Number.isNaN(Date.parse(value)))
-        return `${path} must be date-time`;
-    }
-    if (
-      schema.type === "integer" &&
-      (!Number.isInteger(value) ||
-        value < (schema.minimum ?? -Infinity) ||
-        value > (schema.maximum ?? Infinity))
-    )
-      return `${path} must be integer in range`;
-    if (
-      schema.type === "number" &&
-      (typeof value !== "number" ||
-        value < (schema.minimum ?? -Infinity) ||
-        value > (schema.maximum ?? Infinity))
-    )
-      return `${path} must be number in range`;
+    if (schema.type === "object") return validateObject(schema, value, path, validate);
+    if (schema.type === "array") return validateArray(schema, value, path, validate);
+    if (schema.type === "string") return validateString(schema, value, path);
+    if (schema.type === "integer") return validateInteger(schema, value, path);
+    if (schema.type === "number") return validateNumber(schema, value, path);
     if (schema.type === "boolean" && typeof value !== "boolean") return `${path} must be boolean`;
     return null;
   };
@@ -108,20 +124,22 @@ function sample(root, schema = root) {
   if (schema.type === "integer" || schema.type === "number") {
     return schema.minimum ?? 1;
   }
-  if (schema.type === "string") {
-    if (schema.format === "date-time") return "2026-07-21T00:00:00.000Z";
-    const p = schema.pattern ?? "";
-    if (p.includes(String.raw`\d+\.\d+\.\d+`)) return "1.0.0";
-    if (p.includes("{64}")) return "a".repeat(64);
-    if (p.includes("{40}")) return "a".repeat(40);
-    if (p.includes("env://")) return "env://TEST_SECRET";
-    if (p.includes("https")) return "https://example.test";
-    if (p.includes("/")) return "owner/repository";
-    if (p.includes("^/")) return "/";
-    if (p.includes("A-Za-z0-9._/-")) return "main";
-    return "x".repeat(Math.max(1, schema.minLength ?? 1));
-  }
+  if (schema.type === "string") return sampleString(schema);
   return {};
+}
+
+function sampleString(schema) {
+  if (schema.format === "date-time") return "2026-07-21T00:00:00.000Z";
+  const p = schema.pattern ?? "";
+  if (p.includes(String.raw`\d+\.\d+\.\d+`)) return "1.0.0";
+  if (p.includes("{64}")) return "a".repeat(64);
+  if (p.includes("{40}")) return "a".repeat(40);
+  if (p.includes("env://")) return "env://TEST_SECRET";
+  if (p.includes("https")) return "https://example.test";
+  if (p.includes("/")) return "owner/repository";
+  if (p.includes("^/")) return "/";
+  if (p.includes("A-Za-z0-9._/-")) return "main";
+  return "x".repeat(Math.max(1, schema.minLength ?? 1));
 }
 const results = [];
 for (const [file, schemaConst] of Object.entries(required)) {

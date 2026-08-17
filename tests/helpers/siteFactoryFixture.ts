@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.js";
 import { makeBuildId } from "../../src/pipeline/BuildContext.js";
-import type { BuildIntent } from "../../src/pipeline/BuildIntent.js";
 import {
   type AssemblyManifest,
   computeAssemblySourceDigest,

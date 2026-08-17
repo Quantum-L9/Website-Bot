@@ -89,6 +89,35 @@ function record(name, kind, verdict, detail) {
 }
 
 // --- GitHub tokens: /user proves auth; x-oauth-scopes shows granted scopes ---
+function httpErrSuffix(r) {
+  return r.err ? ":" + r.err : "";
+}
+
+function authVerdict(r, invalidCodes = [401]) {
+  if (r.status === 200) return "valid";
+  if (invalidCodes.includes(r.status)) return `invalid(${r.status})`;
+  return `http(${r.status})${httpErrSuffix(r)}`;
+}
+
+function perplexityVerdict(r) {
+  if (r.status === 200) return "valid";
+  if (r.status === 401 || r.status === 403) return `invalid(${r.status})`;
+  if (r.status === 400) return "auth-ok(400 bad-req)";
+  return `http(${r.status})${httpErrSuffix(r)}`;
+}
+
+function reachabilityVerdict(r) {
+  if (r.status === 200) return "reachable+ok";
+  if (r.status) return `reachable(http ${r.status})`;
+  return `unreachable:${r.err}`;
+}
+
+function inngestVerdict(r) {
+  if (r.status === 200) return "valid(event accepted)";
+  if (r.status) return `http(${r.status})`;
+  return `err:${r.err}`;
+}
+
 async function githubToken(name) {
   if (!present(name)) return record(name, "github", "missing");
   const r = await http("https://api.github.com/user", {
@@ -98,12 +127,7 @@ async function githubToken(name) {
       Accept: "application/vnd.github+json",
     },
   });
-  const verdict =
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`;
+  const verdict = authVerdict(r);
   record(name, "github", verdict, r.scopes !== undefined ? `scopes=[${r.scopes}]` : "");
 }
 
@@ -114,15 +138,7 @@ async function openrouter() {
   const r = await http("https://openrouter.ai/api/v1/key", {
     headers: { Authorization: `Bearer ${val(name)}` },
   });
-  record(
-    name,
-    "llm",
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-  );
+  record(name, "llm", authVerdict(r));
 }
 
 // --- Perplexity: minimal 1-token completion (tiny cost) to distinguish 401 vs ok ---
@@ -138,49 +154,34 @@ async function perplexity() {
       max_tokens: 1,
     }),
   });
-  const verdict =
-    r.status === 200
-      ? "valid"
-      : r.status === 401 || r.status === 403
-        ? `invalid(${r.status})`
-        : r.status === 400
-          ? "auth-ok(400 bad-req)"
-          : `http(${r.status})${r.err ? ":" + r.err : ""}`;
+  const verdict = perplexityVerdict(r);
   record(name, "llm", verdict);
 }
 
 // --- Vercel: /v2/user proves token; optional project+team resolution ---
+async function vercelProjectProbe(name) {
+  // Project identity resolution (uses team scoping when present)
+  const proj = val("VERCEL_PROJECT_ID");
+  if (!present("VERCEL_TOKEN") || !proj) return;
+  const team = val("VERCEL_TEAM_ID");
+  const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(proj)}${team ? `?teamId=${encodeURIComponent(team)}` : ""}`;
+  const pr = await http(url, { headers: { Authorization: `Bearer ${val(name)}` } });
+  record(
+    "VERCEL_PROJECT_ID",
+    "vercel",
+    pr.status === 200 ? "resolves" : `http(${pr.status})`,
+    team ? "scoped-by-team" : "no-team-scope",
+  );
+}
+
 async function vercel() {
   const name = "VERCEL_TOKEN";
-  if (!present(name)) {
-    record(name, "vercel", "missing");
-  } else {
-    const r = await http("https://api.vercel.com/v2/user", {
-      headers: { Authorization: `Bearer ${val(name)}` },
-    });
-    record(
-      name,
-      "vercel",
-      r.status === 200
-        ? "valid"
-        : r.status === 401 || r.status === 403
-          ? `invalid(${r.status})`
-          : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-    );
-    // Project identity resolution (uses team scoping when present)
-    const proj = val("VERCEL_PROJECT_ID");
-    if (present("VERCEL_TOKEN") && proj) {
-      const team = val("VERCEL_TEAM_ID");
-      const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(proj)}${team ? `?teamId=${encodeURIComponent(team)}` : ""}`;
-      const pr = await http(url, { headers: { Authorization: `Bearer ${val(name)}` } });
-      record(
-        "VERCEL_PROJECT_ID",
-        "vercel",
-        pr.status === 200 ? "resolves" : `http(${pr.status})`,
-        team ? "scoped-by-team" : "no-team-scope",
-      );
-    }
-  }
+  if (!present(name)) return record(name, "vercel", "missing");
+  const r = await http("https://api.vercel.com/v2/user", {
+    headers: { Authorization: `Bearer ${val(name)}` },
+  });
+  record(name, "vercel", authVerdict(r, [401, 403]));
+  await vercelProjectProbe(name);
 }
 
 // --- DataForSEO: Basic auth account endpoint returns balance ---
@@ -193,15 +194,7 @@ async function dataforseo() {
   const r = await http("https://api.dataforseo.com/v3/appendix/user_data", {
     headers: { Authorization: `Basic ${basic}` },
   });
-  record(
-    `${l}+${p}`,
-    "seo",
-    r.status === 200
-      ? "valid"
-      : r.status === 401
-        ? "invalid(401)"
-        : `http(${r.status})${r.err ? ":" + r.err : ""}`,
-  );
+  record(`${l}+${p}`, "seo", authVerdict(r));
 }
 
 // --- SEO bot service: best-effort auth probe against its URL ---
@@ -213,12 +206,7 @@ async function seoBot() {
   const r = await http(`${base}/health`, {
     headers: present(k) ? { Authorization: `Bearer ${val(k)}`, "x-api-key": val(k) } : {},
   });
-  const verdict =
-    r.status === 200
-      ? "reachable+ok"
-      : r.status
-        ? `reachable(http ${r.status})`
-        : `unreachable:${r.err}`;
+  const verdict = reachabilityVerdict(r);
   record(`${u}+${k}`, "seo", verdict, present(k) ? "api-key sent" : "no api-key");
 }
 
@@ -256,7 +244,7 @@ async function inngest() {
     record(
       name,
       "inngest",
-      r.status === 200 ? "valid(event accepted)" : r.status ? `http(${r.status})` : `err:${r.err}`,
+      inngestVerdict(r),
       "emitted 1 labeled test event",
     );
   } else record(name, "inngest", "missing");
@@ -265,6 +253,37 @@ async function inngest() {
     "inngest",
     present("INNGEST_SIGNING_KEY") ? "present(not live-tested)" : "missing",
   );
+}
+
+function probeDeployHook() {
+  // presence-only records (sync)
+  const hook = "SEO_BOT_SITE_VERCEL_DEPLOY_HOOK";
+  let hookDetail = "deploy hook — NOT called (would trigger a deploy)";
+  if (present(hook)) {
+    try {
+      hookDetail = `host=${new URL(val(hook)).host} — NOT called`;
+    } catch {
+      hookDetail = "malformed-url — NOT called";
+    }
+  }
+  record(hook, "vercel", present(hook) ? "present(not called)" : "missing", hookDetail);
+}
+
+function probePresence() {
+  for (const n of ["POSTHOG_KEY", "PUBLIC_POSTHOG_KEY"])
+    record(n, "analytics", present(n) ? "present(not auth-validatable)" : "missing");
+  record("SDK_TOKEN", "other", present("SDK_TOKEN") ? "present(no known probe)" : "missing");
+  // Vars (resolution/presence)
+  for (const v of ["CLIENT_ID", "VERCEL_PROJECT_ID", "VERCEL_TEAM_ID"])
+    record(v, "var", present(v) ? "resolves" : "MISSING");
+}
+
+async function probePublicSiteUrl() {
+  const pub = "CLIENT_PUBLIC_SITE_URL";
+  if (present(pub)) {
+    const r = await http(String(val(pub)));
+    record(pub, "var", r.status ? `http(${r.status})` : `unreachable:${r.err}`);
+  } else record(pub, "var", "MISSING");
 }
 
 async function main() {
@@ -280,29 +299,9 @@ async function main() {
     postgres(),
     inngest(),
   ]);
-  // presence-only records (sync)
-  const hook = "SEO_BOT_SITE_VERCEL_DEPLOY_HOOK";
-  let hookDetail = "deploy hook — NOT called (would trigger a deploy)";
-  if (present(hook)) {
-    try {
-      hookDetail = `host=${new URL(val(hook)).host} — NOT called`;
-    } catch {
-      hookDetail = "malformed-url — NOT called";
-    }
-  }
-  record(hook, "vercel", present(hook) ? "present(not called)" : "missing", hookDetail);
-  for (const n of ["POSTHOG_KEY", "PUBLIC_POSTHOG_KEY"])
-    record(n, "analytics", present(n) ? "present(not auth-validatable)" : "missing");
-  record("SDK_TOKEN", "other", present("SDK_TOKEN") ? "present(no known probe)" : "missing");
-
-  // Vars (resolution/presence)
-  for (const v of ["CLIENT_ID", "VERCEL_PROJECT_ID", "VERCEL_TEAM_ID"])
-    record(v, "var", present(v) ? "resolves" : "MISSING");
-  const pub = "CLIENT_PUBLIC_SITE_URL";
-  if (present(pub)) {
-    const r = await http(String(val(pub)));
-    record(pub, "var", r.status ? `http(${r.status})` : `unreachable:${r.err}`);
-  } else record(pub, "var", "MISSING");
+  probeDeployHook();
+  probePresence();
+  await probePublicSiteUrl();
 
   const summary = {
     scope: "live_secret_resolution",
@@ -343,4 +342,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+await main();

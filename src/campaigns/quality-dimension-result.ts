@@ -38,7 +38,7 @@ export function buildQualityDimensionResult(input: QualityDimensionResultInput):
   const measurements = input.measurements ?? {};
   for (const key of Object.keys(measurements)) {
     if (typeof measurements[key] !== 'number' || !Number.isFinite(measurements[key])) {
-      throw new Error(`Measurement ${key} for ${dimension} must be a finite number`);
+      throw new TypeError(`Measurement ${key} for ${dimension} must be a finite number`);
     }
   }
   const result: QualityDimensionResult = {

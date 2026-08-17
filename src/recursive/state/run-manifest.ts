@@ -144,7 +144,7 @@ export function validateCampaignManifest(value: unknown): asserts value is Campa
   if (manifest.mode !== "DEVELOPMENT_RECURSIVE")
     throw new Error("campaign manifest mode is invalid");
   const limits = manifest.limits;
-  if (!limits || limits.maxWaves !== 3 || limits.hardMaxWaves !== 3) {
+  if (limits?.maxWaves !== 3 || limits?.hardMaxWaves !== 3) {
     throw new Error("campaign manifest wave limits must be exactly three");
   }
   if (

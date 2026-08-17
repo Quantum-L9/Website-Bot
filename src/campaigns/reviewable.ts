@@ -28,8 +28,7 @@ export interface ReviewableInput {
 
 const ALLOWED_CONVERSION_VERDICTS = new Set(['IMPROVED', 'NON_REGRESSED']);
 
-export function isReviewable(input: ReviewableInput): boolean {
-  const { index } = input;
+function passesGateChecks(input: ReviewableInput, index: QualityDeltaIndex): boolean {
   if (!input.build_passed) return false;
   if (!input.business_truth_passed) return false;
   if (!input.artifact_lineage_passed) return false;
@@ -41,6 +40,13 @@ export function isReviewable(input: ReviewableInput): boolean {
   if (hardGateFailuresOf(index, 'accessibility').length > 0) return false;
   if (hardGateFailuresOf(index, 'responsive').length > 0) return false;
 
+  // No blocking INCONCLUSIVE and no unresolved blocking defect (hard-gate FAIL).
+  if (index.aggregate.inconclusive.some(dimension => isHardGateDimension(dimension))) return false;
+  if (index.aggregate.hard_gate_failures.length > 0) return false;
+  return true;
+}
+
+function passesConversionChecks(index: QualityDeltaIndex): boolean {
   // conversion_clarity / visual_hierarchy / trust_presentation in {IMPROVED, NON_REGRESSED}
   const conversionClarity = bestVerdictOf(index, [
     'conversion.primary_cta',
@@ -52,19 +58,25 @@ export function isReviewable(input: ReviewableInput): boolean {
   for (const verdict of [conversionClarity, visualHierarchy, trustPresentation]) {
     if (verdict === null || !ALLOWED_CONVERSION_VERDICTS.has(verdict)) return false;
   }
+  return true;
+}
 
-  // No blocking INCONCLUSIVE and no unresolved blocking defect (hard-gate FAIL).
-  if (index.aggregate.inconclusive.some(dimension => isHardGateDimension(dimension))) return false;
-  if (index.aggregate.hard_gate_failures.length > 0) return false;
-
+function passesChampionCheck(input: ReviewableInput, index: QualityDeltaIndex): boolean {
+  if (!input.champion_index) return true;
   // candidate >= champion: no regression vs champion on any hard-gate dimension.
-  if (input.champion_index) {
-    for (const result of index.results) {
-      if (!isHardGateDimension(result.dimension)) continue;
-      const championResult = dimensionResultOf(input.champion_index, result.dimension);
-      if (championResult && result.verdict_vs_champion === 'REGRESSED') return false;
-    }
+  for (const result of index.results) {
+    if (!isHardGateDimension(result.dimension)) continue;
+    const championResult = dimensionResultOf(input.champion_index, result.dimension);
+    if (championResult && result.verdict_vs_champion === 'REGRESSED') return false;
   }
+  return true;
+}
+
+export function isReviewable(input: ReviewableInput): boolean {
+  const { index } = input;
+  if (!passesGateChecks(input, index)) return false;
+  if (!passesConversionChecks(index)) return false;
+  if (!passesChampionCheck(input, index)) return false;
   return true;
 }
 

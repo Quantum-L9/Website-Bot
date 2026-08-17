@@ -15,6 +15,11 @@ test("terminal convergence accepts a resume-skipped mandatory stage (valid check
     stageResults: new Map([["placeholder-scan", { ok: true, skipped: true }]]),
   } as unknown as BuildContext;
   await new TerminalConvergenceStage("plan", ["placeholder-scan"], []).run(ctx);
+  assert.strictEqual(
+    ctx.stageResults.get("placeholder-scan")?.ok,
+    true,
+    "resume-skipped mandatory stage with valid checkpoint must converge, not dead-end",
+  );
 });
 
 test("terminal convergence rejects a failed mandatory stage", async () => {

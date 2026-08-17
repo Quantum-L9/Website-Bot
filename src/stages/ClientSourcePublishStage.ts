@@ -78,6 +78,66 @@ export class ClientSourcePublishStage implements Stage {
       );
       return;
     }
+    const deployTarget = ctx.deployTarget;
+    const { storedBuild, currentSource } = await this.requireBuildProof(ctx);
+    const token = this.resolvePublishToken(deployTarget);
+    const headers: Headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Content-Type": "application/json",
+    };
+    const { githubRepo, sourceBranch } = deployTarget;
+    this.validateTarget(githubRepo, sourceBranch);
+
+    const { manifestText, managedManifestDigest } = this.prepareGeneratedManifest(
+      ctx,
+      currentSource,
+    );
+    const remote = await this.loadRemoteState(githubRepo, sourceBranch, headers);
+    this.assertTargetOwnership(remote.previousManifest, ctx.clientId);
+    const localFiles = this.collectLocalFiles(ctx, manifestText);
+    const diff = this.computeDiff(localFiles, remote.remoteBlobs, remote.previousManifest);
+
+    if (diff.changedPaths.length === 0 && diff.deletedPaths.length === 0) {
+      return this.recordNoOpEvidence(ctx, {
+        deployTarget,
+        storedBuild,
+        currentSource,
+        managedManifestDigest,
+        previousHeadSha: remote.previousHeadSha,
+        baseTreeSha: remote.baseTreeSha,
+      });
+    }
+
+    const published = await this.publishCommit(ctx, {
+      deployTarget,
+      currentSource,
+      headers,
+      refUrl: remote.refUrl,
+      previousHeadSha: remote.previousHeadSha,
+      baseTreeSha: remote.baseTreeSha,
+      localFiles,
+      diff,
+    });
+    return this.recordPublicationEvidence(ctx, {
+      deployTarget,
+      storedBuild,
+      currentSource,
+      managedManifestDigest,
+      previousHeadSha: remote.previousHeadSha,
+      commitSha: published.commitSha,
+      treeSha: published.treeSha,
+      diff,
+    });
+  }
+
+  private async requireBuildProof(
+    ctx: BuildContext,
+  ): Promise<{
+    storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
+    currentSource: ReturnType<typeof digestDirectory>;
+  }> {
     const storedBuild = await ctx.evidenceStore.readBuild();
     if (storedBuild?.value.status !== "passed")
       throw new BuildError(
@@ -97,26 +157,25 @@ export class ClientSourcePublishStage implements Stage {
         },
       );
     }
+    return { storedBuild, currentSource };
+  }
 
-    const publishCredentialRef = ctx.deployTarget.publishCredentialRef ?? "env://GITHUB_SITE_TOKEN";
-    let token: string;
+  private resolvePublishToken(deployTarget: NonNullable<BuildContext["deployTarget"]>): string {
+    const publishCredentialRef = deployTarget.publishCredentialRef ?? "env://GITHUB_SITE_TOKEN";
     try {
-      token = resolveEnvRef(publishCredentialRef, "deploy.publish_credential_ref");
+      return resolveEnvRef(publishCredentialRef, "deploy.publish_credential_ref");
     } catch (error) {
       throw new BuildError(
         "SOURCE_PUBLISH_FAILED",
         error instanceof Error ? error.message : String(error),
       );
     }
-    const headers: Headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Content-Type": "application/json",
-    };
-    const { githubRepo, sourceBranch } = ctx.deployTarget;
-    this.validateTarget(githubRepo, sourceBranch);
+  }
 
+  private prepareGeneratedManifest(
+    ctx: BuildContext,
+    currentSource: ReturnType<typeof digestDirectory>,
+  ): { manifestText: string; managedManifestDigest: string } {
     const filesBeforeManifest = collectRegularFiles(ctx.outputDir, {
       exclude: isPublicationExcluded,
       maxFiles: MAX_FILES,
@@ -139,8 +198,20 @@ export class ClientSourcePublishStage implements Stage {
     const manifestPath = resolve(ctx.outputDir, MANIFEST_PATH);
     mkdirSync(dirname(manifestPath), { recursive: true });
     writeFileSync(manifestPath, manifestText, "utf-8");
-    const managedManifestDigest = sha256Text(canonicalJson(generatedManifest));
+    return { manifestText, managedManifestDigest: sha256Text(canonicalJson(generatedManifest)) };
+  }
 
+  private async loadRemoteState(
+    githubRepo: string,
+    sourceBranch: string,
+    headers: Headers,
+  ): Promise<{
+    refUrl: string;
+    previousHeadSha: string;
+    baseTreeSha: string;
+    remoteBlobs: Map<string, string>;
+    previousManifest: GeneratedManifest;
+  }> {
     const refUrl = `${API}/repos/${githubRepo}/git/ref/heads/${encodeURIComponent(sourceBranch)}`;
     const ref = await this.requestJson<{ object?: { sha?: string } }>(
       refUrl,
@@ -173,13 +244,19 @@ export class ClientSourcePublishStage implements Stage {
         .map((item) => [normalizeManagedPath(item.path as string), item.sha as string]),
     );
     const previousManifest = await this.readPreviousManifest(githubRepo, sourceBranch, headers);
-    if (previousManifest.clientId && previousManifest.clientId !== ctx.clientId) {
+    return { refUrl, previousHeadSha, baseTreeSha, remoteBlobs, previousManifest };
+  }
+
+  private assertTargetOwnership(previousManifest: GeneratedManifest, clientId: string): void {
+    if (previousManifest.clientId && previousManifest.clientId !== clientId) {
       throw new BuildError(
         "SOURCE_PUBLISH_FAILED",
-        `Target repository is already owned by generated client ${previousManifest.clientId}; refusing cross-client overwrite for ${ctx.clientId}`,
+        `Target repository is already owned by generated client ${previousManifest.clientId}; refusing cross-client overwrite for ${clientId}`,
       );
     }
+  }
 
+  private collectLocalFiles(ctx: BuildContext, manifestText: string): Map<string, Buffer> {
     const allFiles = collectRegularFiles(ctx.outputDir, {
       exclude: isPublicationExcluded,
       maxFiles: MAX_FILES,
@@ -195,7 +272,14 @@ export class ClientSourcePublishStage implements Stage {
     }
     if (!localFiles.has(MANIFEST_PATH))
       localFiles.set(MANIFEST_PATH, Buffer.from(manifestText, "utf-8"));
+    return localFiles;
+  }
 
+  private computeDiff(
+    localFiles: Map<string, Buffer>,
+    remoteBlobs: Map<string, string>,
+    previousManifest: GeneratedManifest,
+  ): { changedPaths: string[]; deletedPaths: string[] } {
     const changedPaths = [...localFiles.entries()]
       .filter(([path, content]) => remoteBlobs.get(path) !== gitBlobSha(content))
       .map(([path]) => path)
@@ -204,42 +288,26 @@ export class ClientSourcePublishStage implements Stage {
     const deletedPaths = [...new Set(previousManifest.paths)]
       .filter((path) => !currentPathSet.has(path) && remoteBlobs.has(path))
       .sort(comparePaths);
+    return { changedPaths, deletedPaths };
+  }
 
-    if (changedPaths.length === 0 && deletedPaths.length === 0) {
-      const publicationSeed = `${ctx.buildId}\0${previousHeadSha}\0${currentSource.digest}`;
-      const evidence: PublicationEvidence = {
-        schema: "website-bot.publication-evidence/v2",
-        publicationId: `pub_${sha256Text(publicationSeed).slice(0, 32)}`,
-        buildId: ctx.buildId,
-        clientId: ctx.clientId,
-        buildProofId: storedBuild.value.proofId,
-        buildProofSha256: storedBuild.record.sha256,
-        repository: githubRepo,
-        repositoryId: ctx.deployTarget.githubRepoId,
-        branch: sourceBranch,
-        previousHeadSha,
-        commitSha: previousHeadSha,
-        treeSha: baseTreeSha,
-        verifiedBranchHeadSha: previousHeadSha,
-        sourceDigest: currentSource.digest,
-        managedManifestDigest,
-        changedPaths: [],
-        deletedPaths: [],
-        noOp: true,
-        publishedAt: this.now().toISOString(),
-        status: "passed",
-      };
-      await this.recordEvidence(ctx, evidence);
-      logger.info(
-        { repository: githubRepo, branch: sourceBranch, commitSha: previousHeadSha },
-        "Generated source already matches target; no commit created",
-      );
-      return { externalId: evidence.commitSha };
-    }
-
+  private async publishCommit(
+    ctx: BuildContext,
+    params: {
+      deployTarget: NonNullable<BuildContext["deployTarget"]>;
+      currentSource: ReturnType<typeof digestDirectory>;
+      headers: Headers;
+      refUrl: string;
+      previousHeadSha: string;
+      baseTreeSha: string;
+      localFiles: Map<string, Buffer>;
+      diff: { changedPaths: string[]; deletedPaths: string[] };
+    },
+  ): Promise<{ commitSha: string; treeSha: string }> {
+    const { githubRepo, sourceBranch } = params.deployTarget;
     const entries: TreeEntry[] = [];
-    for (const path of changedPaths) {
-      const content = localFiles.get(path);
+    for (const path of params.diff.changedPaths) {
+      const content = params.localFiles.get(path);
       if (!content)
         throw new BuildError(
           "SOURCE_PUBLISH_FAILED",
@@ -249,7 +317,7 @@ export class ClientSourcePublishStage implements Stage {
         `${API}/repos/${githubRepo}/git/blobs`,
         {
           method: "POST",
-          headers,
+          headers: params.headers,
           body: JSON.stringify({ content: content.toString("base64"), encoding: "base64" }),
         },
         `Blob upload failed for ${path}`,
@@ -261,69 +329,136 @@ export class ClientSourcePublishStage implements Stage {
         sha: this.requireSha(blob.sha, `blob ${path}`),
       });
     }
-    for (const path of deletedPaths)
+    for (const path of params.diff.deletedPaths)
       entries.push({ path, mode: "100644", type: "blob", sha: null });
 
     const tree = await this.requestJson<{ sha?: string }>(
       `${API}/repos/${githubRepo}/git/trees`,
-      { method: "POST", headers, body: JSON.stringify({ base_tree: baseTreeSha, tree: entries }) },
+      {
+        method: "POST",
+        headers: params.headers,
+        body: JSON.stringify({ base_tree: params.baseTreeSha, tree: entries }),
+      },
       "Git tree creation failed",
     );
     const treeSha = this.requireSha(tree.sha, "new Git tree");
-    const message = `chore(site): publish generated site for ${ctx.clientId}\n\nBuild-ID: ${ctx.buildId}\nSource-Digest: ${currentSource.digest}\nGenerator: Website-Bot`;
+    const message = `chore(site): publish generated site for ${ctx.clientId}\n\nBuild-ID: ${ctx.buildId}\nSource-Digest: ${params.currentSource.digest}\nGenerator: Website-Bot`;
     const commit = await this.requestJson<{ sha?: string }>(
       `${API}/repos/${githubRepo}/git/commits`,
       {
         method: "POST",
-        headers,
-        body: JSON.stringify({ message, tree: treeSha, parents: [previousHeadSha] }),
+        headers: params.headers,
+        body: JSON.stringify({ message, tree: treeSha, parents: [params.previousHeadSha] }),
       },
       "Git commit creation failed",
     );
     const commitSha = this.requireSha(commit.sha, "new Git commit");
 
     const latestRef = await this.requestJson<{ object?: { sha?: string } }>(
-      refUrl,
-      { headers },
+      params.refUrl,
+      { headers: params.headers },
       "Cannot re-read target branch",
     );
     const latestHeadSha = this.requireSha(latestRef.object?.sha, "latest GitHub branch head");
-    if (latestHeadSha !== previousHeadSha) {
+    if (latestHeadSha !== params.previousHeadSha) {
       throw new BuildError(
         "SOURCE_PUBLISH_CONFLICT",
         "Target branch changed during publication; refusing non-fast-forward update",
         false,
         {
-          expectedHeadSha: previousHeadSha,
+          expectedHeadSha: params.previousHeadSha,
           actualHeadSha: latestHeadSha,
         },
       );
     }
     await this.requestJson<unknown>(
       `${API}/repos/${githubRepo}/git/refs/heads/${encodeURIComponent(sourceBranch)}`,
-      { method: "PATCH", headers, body: JSON.stringify({ sha: commitSha, force: false }) },
+      {
+        method: "PATCH",
+        headers: params.headers,
+        body: JSON.stringify({ sha: commitSha, force: false }),
+      },
       "Branch update failed",
     );
+    return { commitSha, treeSha };
+  }
 
-    const publicationSeed = `${ctx.buildId}\0${commitSha}\0${currentSource.digest}`;
+  private async recordNoOpEvidence(
+    ctx: BuildContext,
+    params: {
+      deployTarget: NonNullable<BuildContext["deployTarget"]>;
+      storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
+      currentSource: ReturnType<typeof digestDirectory>;
+      managedManifestDigest: string;
+      previousHeadSha: string;
+      baseTreeSha: string;
+    },
+  ): Promise<StageRunResult> {
+    const { githubRepo, sourceBranch } = params.deployTarget;
+    const publicationSeed = `${ctx.buildId}\0${params.previousHeadSha}\0${params.currentSource.digest}`;
     const evidence: PublicationEvidence = {
       schema: "website-bot.publication-evidence/v2",
       publicationId: `pub_${sha256Text(publicationSeed).slice(0, 32)}`,
       buildId: ctx.buildId,
       clientId: ctx.clientId,
-      buildProofId: storedBuild.value.proofId,
-      buildProofSha256: storedBuild.record.sha256,
+      buildProofId: params.storedBuild.value.proofId,
+      buildProofSha256: params.storedBuild.record.sha256,
       repository: githubRepo,
-      repositoryId: ctx.deployTarget.githubRepoId,
+      repositoryId: params.deployTarget.githubRepoId,
       branch: sourceBranch,
-      previousHeadSha,
-      commitSha,
-      treeSha,
-      verifiedBranchHeadSha: commitSha,
-      sourceDigest: currentSource.digest,
-      managedManifestDigest,
-      changedPaths,
-      deletedPaths,
+      previousHeadSha: params.previousHeadSha,
+      commitSha: params.previousHeadSha,
+      treeSha: params.baseTreeSha,
+      verifiedBranchHeadSha: params.previousHeadSha,
+      sourceDigest: params.currentSource.digest,
+      managedManifestDigest: params.managedManifestDigest,
+      changedPaths: [],
+      deletedPaths: [],
+      noOp: true,
+      publishedAt: this.now().toISOString(),
+      status: "passed",
+    };
+    await this.recordEvidence(ctx, evidence);
+    logger.info(
+      { repository: githubRepo, branch: sourceBranch, commitSha: params.previousHeadSha },
+      "Generated source already matches target; no commit created",
+    );
+    return { externalId: evidence.commitSha };
+  }
+
+  private async recordPublicationEvidence(
+    ctx: BuildContext,
+    params: {
+      deployTarget: NonNullable<BuildContext["deployTarget"]>;
+      storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
+      currentSource: ReturnType<typeof digestDirectory>;
+      managedManifestDigest: string;
+      previousHeadSha: string;
+      commitSha: string;
+      treeSha: string;
+      diff: { changedPaths: string[]; deletedPaths: string[] };
+    },
+  ): Promise<StageRunResult> {
+    const { githubRepo, sourceBranch } = params.deployTarget;
+    const publicationSeed = `${ctx.buildId}\0${params.commitSha}\0${params.currentSource.digest}`;
+    const evidence: PublicationEvidence = {
+      schema: "website-bot.publication-evidence/v2",
+      publicationId: `pub_${sha256Text(publicationSeed).slice(0, 32)}`,
+      buildId: ctx.buildId,
+      clientId: ctx.clientId,
+      buildProofId: params.storedBuild.value.proofId,
+      buildProofSha256: params.storedBuild.record.sha256,
+      repository: githubRepo,
+      repositoryId: params.deployTarget.githubRepoId,
+      branch: sourceBranch,
+      previousHeadSha: params.previousHeadSha,
+      commitSha: params.commitSha,
+      treeSha: params.treeSha,
+      verifiedBranchHeadSha: params.commitSha,
+      sourceDigest: params.currentSource.digest,
+      managedManifestDigest: params.managedManifestDigest,
+      changedPaths: params.diff.changedPaths,
+      deletedPaths: params.diff.deletedPaths,
       noOp: false,
       publishedAt: this.now().toISOString(),
       status: "passed",
@@ -333,9 +468,9 @@ export class ClientSourcePublishStage implements Stage {
       {
         repository: githubRepo,
         branch: sourceBranch,
-        commitSha,
-        changed: changedPaths.length,
-        deleted: deletedPaths.length,
+        commitSha: params.commitSha,
+        changed: params.diff.changedPaths.length,
+        deleted: params.diff.deletedPaths.length,
       },
       "Generated source published",
     );

@@ -99,7 +99,7 @@ input, textarea {
 }
 .hero--image .hero__content { position: relative; z-index: 1; max-width: 42rem; padding: 3.5rem 2rem; }
 .hero__image { width: 100%; height: auto; max-height: 28rem; object-fit: cover; border-radius: .6rem; }
-.hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
 .btn--ghost {
   background: transparent;
   border: 1px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
@@ -108,12 +108,13 @@ input, textarea {
 .btn--ghost:hover { background: color-mix(in srgb, var(--color-primary) 15%, transparent); }
 .btn:hover { filter: brightness(1.08); }
 /* trust badges */
-.trust-bar__badges { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.6rem; }
+.trust-bar__badges { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.5rem; }
 .trust-bar__badge {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  padding: 0.8rem 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
   border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
   border-radius: 0.6rem;
   background: color-mix(in srgb, var(--color-text) 4%, var(--color-background));
@@ -132,9 +133,9 @@ input, textarea {
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 .service-card:hover { border-color: color-mix(in srgb, var(--color-primary) 70%, transparent); transform: translateY(-2px); }
-.service-card__image { width: 100%; height: 9rem; object-fit: cover; }
-.service-card__title { padding: 0.9rem 1rem 0.3rem; font-weight: 700; color: var(--color-text); }
-.service-card__cta { padding: 0 1rem 1rem; color: var(--color-primary); font-weight: 600; font-size: 0.92rem; }
+.service-card__image { width: 100%; height: 8rem; object-fit: cover; }
+.service-card__title { padding: 0.7rem 0.8rem 0.2rem; font-weight: 700; color: var(--color-text); }
+.service-card__cta { padding: 0 0.8rem 0.8rem; color: var(--color-primary); font-weight: 600; font-size: 0.92rem; }
 /* faq */
 .faq { max-width: 46rem; }
 .faq p { padding: 0.9rem 1.1rem; margin: 0.5rem 0 0; border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); border-radius: 0.6rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); }
@@ -158,25 +159,19 @@ a:not(.btn, .btn-phone, .site-nav a, .service-card):hover { color: var(--color-p
   background: var(--color-primary);
   color: #fff;
   border-radius: .75rem;
-  padding: 2.5rem 1.5rem;
+  padding: 1.75rem 1.25rem;
 }
 .cta-banner h2 { color: inherit; margin: 0 0 .5rem; font-size: clamp(1.6rem, 3vw, 2.4rem); }
 .cta-banner p { margin: 0 0 1rem; max-width: 40rem; }
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 1rem; }
 .gallery-grid img { width: 100%; height: 12rem; object-fit: cover; border-radius: .5rem; }
 .lead-form__phone { font-size: 1.05rem; }
 footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); }
 .footer-phone { color: var(--color-primary); font-weight: 700; text-decoration: none; }
 /* ── visual-loop tightening ─────────────────────────────────────────────── */
-.cta-banner { padding: 1.75rem 1.25rem; }
 .cta-banner__link { color: inherit; text-decoration: none; display: block; }
 .cta-banner__link .btn { display: inline-block; margin-top: 0.75rem; background: color-mix(in srgb, #fff 18%, var(--color-primary)); }
 .cta-banner__phone { margin-top: 0.75rem; }
-.trust-bar__badge { padding: 0.5rem 0.75rem; font-size: 0.95rem; }
-.trust-bar__badges { gap: 0.5rem; }
-.service-card__title { padding: 0.7rem 0.8rem 0.2rem; }
-.service-card__cta { padding: 0 0.8rem 0.8rem; }
-.service-card__image { height: 8rem; }
 .faq__item { border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); border-radius: 0.6rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); margin-bottom: 0.6rem; }
 .faq__item summary { cursor: pointer; padding: 0.75rem 1rem; font-weight: 700; color: var(--color-primary); list-style: none; display: flex; justify-content: space-between; align-items: center; }
 .faq__item summary::after { content: "+"; font-size: 1.1rem; }
@@ -186,7 +181,5 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
 .process__step { display: flex; gap: 1rem; align-items: flex-start; border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); border-radius: 0.6rem; padding: 0.9rem 1rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); }
 .process__step p { margin: 0; }
 .process__number { font-family: var(--font-heading); font-weight: 800; color: var(--color-primary); font-size: 1.15rem; line-height: 1.4; }
-.gallery-grid { grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
 .gallery-cta { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-height: 12rem; border: 1px dashed color-mix(in srgb, var(--color-primary) 60%, transparent); border-radius: 0.5rem; text-decoration: none; color: var(--color-primary); font-weight: 700; }
 .gallery-cta:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
-.hero__actions { margin-top: 1.25rem; }

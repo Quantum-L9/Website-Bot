@@ -115,7 +115,7 @@ export function validateSourceSiteManifest(value: unknown): asserts value is Sou
     !Array.isArray(manifest.rejected) ||
     !Array.isArray(manifest.warnings)
   ) {
-    throw new Error("source site manifest collections must be arrays");
+    throw new TypeError("source site manifest collections must be arrays");
   }
   for (const image of manifest.images) {
     if (image.provenance !== "source-site")

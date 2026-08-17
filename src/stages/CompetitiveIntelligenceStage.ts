@@ -395,6 +395,76 @@ function conversionOf(value: unknown): WebsiteBuildBlueprintV1["conversion"] {
  * section structure; ImageAssetPlanning later selects WHICH eligible asset
  * satisfies each requirement. Never an LLM decision, never a planner default.
  */
+function pushHomeRequirement(
+  requirements: VisualRequirement[],
+  route: WebsiteBlueprintRoute,
+): void {
+  const isHome = route.path === "/" || route.route_id === "/";
+  if (!isHome) return;
+  requirements.push({
+    requirement_id: `vr-${route.route_id}-hero`,
+    route_id: route.route_id,
+    section_id: route.sections[0]?.section_id ?? "hero",
+    slot_id: `${route.route_id}:hero`,
+    role: "hero",
+    required: true,
+    min_count: 1,
+    preferred_provenance: ["source", "licensed", "generated"],
+    device_suitability: ["desktop", "mobile"],
+    composition_guidance: "above-fold hero establishing the trade and locality",
+  });
+}
+
+function pushSectionRequirements(
+  requirements: VisualRequirement[],
+  route: WebsiteBlueprintRoute,
+): void {
+  for (const section of route.sections) {
+    const slots = new Set(section.content_slots);
+    const component = section.component_class.toLowerCase();
+    if (slots.has("project_proof") || component.includes("gallery")) {
+      requirements.push({
+        requirement_id: `vr-${route.route_id}-${section.section_id}-proof`,
+        route_id: route.route_id,
+        section_id: section.section_id,
+        slot_id: `${route.route_id}:${section.section_id}:project_proof`,
+        role: component.includes("gallery") ? "gallery" : "project_proof",
+        required: false,
+        min_count: component.includes("gallery") ? 3 : 1,
+        preferred_provenance: ["source", "licensed", "generated"],
+        device_suitability: ["desktop", "mobile"],
+        composition_guidance: "authentic completed-work photography preferred",
+      });
+    }
+    if (slots.has("service_overview")) {
+      requirements.push({
+        requirement_id: `vr-${route.route_id}-${section.section_id}-service`,
+        route_id: route.route_id,
+        section_id: section.section_id,
+        slot_id: `${route.route_id}:${section.section_id}:service`,
+        role: "service",
+        required: false,
+        min_count: 1,
+        preferred_provenance: ["source", "licensed", "generated"],
+        device_suitability: ["desktop", "mobile"],
+      });
+    }
+    if (slots.has("trust")) {
+      requirements.push({
+        requirement_id: `vr-${route.route_id}-${section.section_id}-trust`,
+        route_id: route.route_id,
+        section_id: section.section_id,
+        slot_id: `${route.route_id}:${section.section_id}:trust`,
+        role: "trust",
+        required: false,
+        min_count: 1,
+        preferred_provenance: ["source", "licensed", "generated"],
+        device_suitability: ["desktop", "mobile"],
+      });
+    }
+  }
+}
+
 export function deriveVisualRequirements(routes: WebsiteBlueprintRoute[]): VisualRequirement[] {
   const requirements: VisualRequirement[] = [
     {
@@ -410,65 +480,8 @@ export function deriveVisualRequirements(routes: WebsiteBlueprintRoute[]): Visua
     },
   ];
   for (const route of routes) {
-    const isHome = route.path === "/" || route.route_id === "/";
-    if (isHome) {
-      requirements.push({
-        requirement_id: `vr-${route.route_id}-hero`,
-        route_id: route.route_id,
-        section_id: route.sections[0]?.section_id ?? "hero",
-        slot_id: `${route.route_id}:hero`,
-        role: "hero",
-        required: true,
-        min_count: 1,
-        preferred_provenance: ["source", "licensed", "generated"],
-        device_suitability: ["desktop", "mobile"],
-        composition_guidance: "above-fold hero establishing the trade and locality",
-      });
-    }
-    for (const section of route.sections) {
-      const slots = new Set(section.content_slots);
-      const component = section.component_class.toLowerCase();
-      if (slots.has("project_proof") || component.includes("gallery")) {
-        requirements.push({
-          requirement_id: `vr-${route.route_id}-${section.section_id}-proof`,
-          route_id: route.route_id,
-          section_id: section.section_id,
-          slot_id: `${route.route_id}:${section.section_id}:project_proof`,
-          role: component.includes("gallery") ? "gallery" : "project_proof",
-          required: false,
-          min_count: component.includes("gallery") ? 3 : 1,
-          preferred_provenance: ["source", "licensed", "generated"],
-          device_suitability: ["desktop", "mobile"],
-          composition_guidance: "authentic completed-work photography preferred",
-        });
-      }
-      if (slots.has("service_overview")) {
-        requirements.push({
-          requirement_id: `vr-${route.route_id}-${section.section_id}-service`,
-          route_id: route.route_id,
-          section_id: section.section_id,
-          slot_id: `${route.route_id}:${section.section_id}:service`,
-          role: "service",
-          required: false,
-          min_count: 1,
-          preferred_provenance: ["source", "licensed", "generated"],
-          device_suitability: ["desktop", "mobile"],
-        });
-      }
-      if (slots.has("trust")) {
-        requirements.push({
-          requirement_id: `vr-${route.route_id}-${section.section_id}-trust`,
-          route_id: route.route_id,
-          section_id: section.section_id,
-          slot_id: `${route.route_id}:${section.section_id}:trust`,
-          role: "trust",
-          required: false,
-          min_count: 1,
-          preferred_provenance: ["source", "licensed", "generated"],
-          device_suitability: ["desktop", "mobile"],
-        });
-      }
-    }
+    pushHomeRequirement(requirements, route);
+    pushSectionRequirements(requirements, route);
   }
   // Deterministic identity: one requirement per slot_id, stable order.
   const bySlot = new Map<string, VisualRequirement>();
@@ -479,13 +492,11 @@ export function deriveVisualRequirements(routes: WebsiteBlueprintRoute[]): Visua
 }
 
 /** ADR-0004 BLUEPRINT GATE: structural validation before any design/content generation. */
-function validateWebsiteBuildBlueprint(
-  blueprint: WebsiteBuildBlueprintArtifact,
+function assertBlueprintIdentity(
+  payload: WebsiteBuildBlueprintArtifact["payload"],
   landscape: CompetitiveLandscapeArtifact,
   portfolio: PatternPortfolio,
-  expectedRoutes: Array<{ route_id: string; path: string; purpose: string }>,
 ): void {
-  const payload = blueprint.payload;
   if (payload.build_intent !== "REDESIGN_IMPROVE") {
     throw new BuildError(
       "BLUEPRINT_GATE_FAILED",
@@ -501,6 +512,12 @@ function validateWebsiteBuildBlueprint(
   if (payload.pattern_portfolio_digest !== digestOf(portfolio)) {
     throw new BuildError("BLUEPRINT_GATE_FAILED", "blueprint pattern portfolio digest mismatch");
   }
+}
+
+function assertBlueprintRouteSet(
+  payload: WebsiteBuildBlueprintArtifact["payload"],
+  expectedRoutes: Array<{ route_id: string; path: string; purpose: string }>,
+): void {
   const expectedIds = new Set(expectedRoutes.map((route) => route.route_id));
   const actualIds = new Set(payload.routes.map((route) => route.route_id));
   if (actualIds.size !== expectedIds.size || [...expectedIds].some((id) => !actualIds.has(id))) {
@@ -509,6 +526,12 @@ function validateWebsiteBuildBlueprint(
       "blueprint route set must equal the spec route set",
     );
   }
+}
+
+function assertBlueprintPatternRefs(
+  payload: WebsiteBuildBlueprintArtifact["payload"],
+  portfolio: PatternPortfolio,
+): void {
   const patternIds = new Set(portfolio.patterns.map((pattern) => pattern.pattern_id));
   for (const route of payload.routes) {
     for (const section of route.sections) {
@@ -521,6 +544,9 @@ function validateWebsiteBuildBlueprint(
       }
     }
   }
+}
+
+function assertAdoptedPatternTests(portfolio: PatternPortfolio): void {
   const adopted = portfolio.patterns.filter(
     (pattern) => !["REJECT", "UNKNOWN"].includes(pattern.disposition),
   );
@@ -532,6 +558,19 @@ function validateWebsiteBuildBlueprint(
       );
     }
   }
+}
+
+function validateWebsiteBuildBlueprint(
+  blueprint: WebsiteBuildBlueprintArtifact,
+  landscape: CompetitiveLandscapeArtifact,
+  portfolio: PatternPortfolio,
+  expectedRoutes: Array<{ route_id: string; path: string; purpose: string }>,
+): void {
+  const payload = blueprint.payload;
+  assertBlueprintIdentity(payload, landscape, portfolio);
+  assertBlueprintRouteSet(payload, expectedRoutes);
+  assertBlueprintPatternRefs(payload, portfolio);
+  assertAdoptedPatternTests(portfolio);
 }
 
 export class CompetitiveIntelligenceStage implements Stage {

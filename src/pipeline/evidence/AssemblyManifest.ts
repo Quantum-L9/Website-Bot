@@ -32,9 +32,7 @@ export function computeAssemblySourceDigest(files: AssemblyManifestFile[]): stri
   return sha256Text(lines);
 }
 
-export function validateAssemblyManifest(value: unknown): asserts value is AssemblyManifest {
-  if (!value || typeof value !== "object") throw new Error("assembly manifest must be an object");
-  const manifest = value as Partial<AssemblyManifest>;
+function validateAssemblyIdentity(manifest: Partial<AssemblyManifest>): void {
   if (
     manifest.schema !== "website-bot.assembly-manifest/v2" ||
     !manifest.buildId ||
@@ -44,6 +42,9 @@ export function validateAssemblyManifest(value: unknown): asserts value is Assem
   ) {
     throw new Error("assembly manifest identity is invalid");
   }
+}
+
+function validateAssemblyRoutes(manifest: Partial<AssemblyManifest>): void {
   if (
     !Array.isArray(manifest.routes) ||
     manifest.routes.length === 0 ||
@@ -51,6 +52,9 @@ export function validateAssemblyManifest(value: unknown): asserts value is Assem
   ) {
     throw new Error("assembly manifest routes are invalid");
   }
+}
+
+function validateAssemblyFiles(manifest: Partial<AssemblyManifest>): void {
   if (!Array.isArray(manifest.files) || manifest.files.length === 0)
     throw new Error("assembly manifest files are missing");
   const paths = new Set<string>();
@@ -73,12 +77,24 @@ export function validateAssemblyManifest(value: unknown): asserts value is Assem
       throw new Error(`invalid assembly file: ${file.path}`);
     }
   }
+}
+
+function validateAssemblyDigests(manifest: Partial<AssemblyManifest>): void {
   if (!SHA256.test(String(manifest.templateDigest)))
     throw new Error("assembly template digest is invalid");
   if (!SHA256.test(String(manifest.sourceDigest)))
     throw new Error("assembly source digest is invalid");
-  if (computeAssemblySourceDigest(manifest.files) !== manifest.sourceDigest)
+  if (computeAssemblySourceDigest(manifest.files ?? []) !== manifest.sourceDigest)
     throw new Error("assembly source digest does not match files");
+}
+
+export function validateAssemblyManifest(value: unknown): asserts value is AssemblyManifest {
+  if (!value || typeof value !== "object") throw new Error("assembly manifest must be an object");
+  const manifest = value as Partial<AssemblyManifest>;
+  validateAssemblyIdentity(manifest);
+  validateAssemblyRoutes(manifest);
+  validateAssemblyFiles(manifest);
+  validateAssemblyDigests(manifest);
   if (manifest.generatedAt && Number.isNaN(Date.parse(manifest.generatedAt)))
     throw new Error("assembly generatedAt is invalid");
 }

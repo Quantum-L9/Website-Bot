@@ -49,12 +49,12 @@ const BODY_TEXT_CHARS = 8_000;
 
 function decodeEntities(value: string): string {
   return value
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&nbsp;", " ")
     .trim();
 }
 
@@ -63,10 +63,13 @@ function stripTags(html: string): string {
 }
 
 function attr(tag: string, name: string): string | undefined {
-  const match = new RegExp(`\\b${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i").exec(tag);
-  if (!match) return undefined;
-  const raw = match[2] ?? match[3] ?? match[4] ?? "";
-  return decodeEntities(raw);
+  // Quoted forms first, then a bare token — two linear regexes reproduce the
+  // original single-alternation matcher exactly without the quote/word overlap.
+  const quoted = new RegExp(`\\b${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i").exec(tag);
+  if (quoted) return decodeEntities(quoted[2] ?? quoted[3] ?? "");
+  const bare = new RegExp(`\\b${name}\\s*=\\s*([^\\s>]+)`, "i").exec(tag);
+  if (!bare) return undefined;
+  return decodeEntities(bare[1]);
 }
 
 function absolute(href: string | undefined, baseUrl: string): string | undefined {
@@ -165,6 +168,32 @@ function headingBefore(
   return found;
 }
 
+function collectImageNode(node: unknown, baseUrl: string, urls: string[]): void {
+  if (!node) return;
+  if (Array.isArray(node)) {
+    node.forEach((entry) => collectImageNode(entry, baseUrl, urls));
+    return;
+  }
+  if (typeof node !== "object") return;
+  for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+    if (key === "image") {
+      if (typeof value === "string") {
+        const abs = absolute(value, baseUrl);
+        if (abs) urls.push(abs);
+      } else if (Array.isArray(value))
+        value.forEach((entry) => {
+          if (typeof entry === "string") {
+            const abs = absolute(entry, baseUrl);
+            if (abs) urls.push(abs);
+          } else collectImageNode(entry, baseUrl, urls);
+        });
+      else collectImageNode(value, baseUrl, urls);
+    } else {
+      collectImageNode(value, baseUrl, urls);
+    }
+  }
+}
+
 function collectStructuredDataImages(html: string, baseUrl: string): string[] {
   const urls: string[] = [];
   const blocks = html.matchAll(
@@ -172,33 +201,7 @@ function collectStructuredDataImages(html: string, baseUrl: string): string[] {
   );
   for (const block of blocks) {
     try {
-      const walk = (node: unknown): void => {
-        if (!node) return;
-        if (Array.isArray(node)) {
-          node.forEach(walk);
-          return;
-        }
-        if (typeof node === "object") {
-          for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
-            if (key === "image") {
-              if (typeof value === "string") {
-                const abs = absolute(value, baseUrl);
-                if (abs) urls.push(abs);
-              } else if (Array.isArray(value))
-                value.forEach((v) => {
-                  if (typeof v === "string") {
-                    const abs = absolute(v, baseUrl);
-                    if (abs) urls.push(abs);
-                  } else walk(v);
-                });
-              else walk(value);
-            } else {
-              walk(value);
-            }
-          }
-        }
-      };
-      walk(JSON.parse(block[1].trim()));
+      collectImageNode(JSON.parse(block[1].trim()), baseUrl, urls);
     } catch {
       // Malformed JSON-LD is ignored rather than failing the crawl.
     }
@@ -206,10 +209,13 @@ function collectStructuredDataImages(html: string, baseUrl: string): string[] {
   return urls;
 }
 
-export function extractPage(html: string, baseUrl: string): ExtractedPage {
+function extractHeadMetadata(html: string): { title?: string; metaTags: string[] } {
   const title = stripTags(/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? "") || undefined;
-
   const metaTags = [...html.matchAll(/<meta\b[^>]*>/gi)].map((match) => match[0]);
+  return { title, metaTags };
+}
+
+function extractMetaDescription(metaTags: string[]): { description?: string; ogImage?: string } {
   let description: string | undefined;
   let ogImage: string | undefined;
   for (const tag of metaTags) {
@@ -222,7 +228,13 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
     )
       ogImage = attr(tag, "content");
   }
+  return { description, ogImage };
+}
 
+function extractCanonicalAndStylesheets(
+  html: string,
+  baseUrl: string,
+): { canonicalUrl?: string; stylesheets: string[] } {
   let canonicalUrl: string | undefined;
   const stylesheets: string[] = [];
   for (const tag of [...html.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0])) {
@@ -233,31 +245,28 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
       if (href) stylesheets.push(href);
     }
   }
+  return { canonicalUrl, stylesheets };
+}
 
+function extractHeadings(html: string): {
+  headingPositions: Array<{ index: number; text: string }>;
+  headings: string[];
+} {
   const headingPositions: Array<{ index: number; text: string }> = [];
   for (const match of html.matchAll(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi)) {
     const text = stripTags(match[1]);
     if (text) headingPositions.push({ index: match.index ?? 0, text });
   }
   const headings = headingPositions.map((heading) => heading.text);
+  return { headingPositions, headings };
+}
 
-  const stripped = html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<header[\s\S]*?<\/header>/gi, " ")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, " ");
-  const bodyText = stripTags(stripped).slice(0, BODY_TEXT_CHARS) || undefined;
-  const textExcerpt = bodyText ? bodyText.slice(0, 500) : undefined;
-  const phones = extractPhones(html);
-  const nav = extractNav(html, baseUrl);
-
-  const links: string[] = [];
-  for (const match of html.matchAll(/<a\b[^>]*>/gi)) {
-    const href = absolute(attr(match[0], "href"), baseUrl);
-    if (href) links.push(href);
-  }
-
+function collectImages(
+  html: string,
+  baseUrl: string,
+  headingPositions: Array<{ index: number; text: string }>,
+  ogImage: string | undefined,
+): RawImageCandidate[] {
   const images: RawImageCandidate[] = [];
   const seen = new Set<string>();
   const push = (
@@ -300,6 +309,32 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
 
   if (ogImage) push(absolute(ogImage, baseUrl), "og", { isAboveFold: true });
   for (const url of collectStructuredDataImages(html, baseUrl)) push(url, "structured-data");
+  return images;
+}
+
+export function extractPage(html: string, baseUrl: string): ExtractedPage {
+  const { title, metaTags } = extractHeadMetadata(html);
+  const { description, ogImage } = extractMetaDescription(metaTags);
+  const { canonicalUrl, stylesheets } = extractCanonicalAndStylesheets(html, baseUrl);
+  const { headingPositions, headings } = extractHeadings(html);
+  const images = collectImages(html, baseUrl, headingPositions, ogImage);
+
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<header[\s\S]*?<\/header>/gi, " ")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, " ");
+  const bodyText = stripTags(stripped).slice(0, BODY_TEXT_CHARS) || undefined;
+  const textExcerpt = bodyText ? bodyText.slice(0, 500) : undefined;
+  const phones = extractPhones(html);
+  const nav = extractNav(html, baseUrl);
+
+  const links: string[] = [];
+  for (const match of html.matchAll(/<a\b[^>]*>/gi)) {
+    const href = absolute(attr(match[0], "href"), baseUrl);
+    if (href) links.push(href);
+  }
 
   return {
     title,

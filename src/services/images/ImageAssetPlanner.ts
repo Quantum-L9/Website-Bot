@@ -120,30 +120,58 @@ function isGalleryCandidate(candidate: IngestedImage): boolean {
   );
 }
 
-export function scoreSourceCandidate(slot: ImageSlotSpec, candidate: IngestedImage): number {
-  let score = 0;
-  if (aspectMatches(slot, candidate.width, candidate.height)) score += 20;
+function routeScore(slot: ImageSlotSpec, candidate: IngestedImage): number {
   // Prefer a candidate discovered on the same route the slot renders on; for a
   // global placement, prefer an image found on the home page.
   const routeSlug = routeSlugFromPlacement(slot.placement);
   const pagePath = candidatePagePath(candidate);
-  if (routeSlug && pagePath === routeSlug) score += 20;
-  else if (!routeSlug && pagePath === "/") score += 8;
-  const heroLike = isHeroSlot(slot);
+  if (routeSlug && pagePath === routeSlug) return 20;
+  if (!routeSlug && pagePath === "/") return 8;
+  return 0;
+}
+
+function signalScore(
+  slot: ImageSlotSpec,
+  heroLike: boolean,
+  logoLike: boolean,
+  brandMark: boolean,
+  candidate: IngestedImage,
+): number {
+  let score = 0;
   if (heroLike && candidate.domContext?.isAboveFold) score += 15;
-  const logoLike = isLogoSlot(slot);
-  const brandMark = isBrandMarkCandidate(candidate);
   if (logoLike && /\/logo\./i.test(candidate.sourceUrl)) score += 40;
   if (logoLike && brandMark) score += 25;
   if (heroLike && brandMark) score -= 80;
   if (logoLike && !brandMark) score -= 40;
   if (heroLike && isGalleryCandidate(candidate)) score += 12;
-  if (candidate.width >= 1600) score += 10;
-  else if (candidate.width >= 960) score += 5;
   if (altKeywordMatch(slot, candidate.altText)) score += 5;
+  return score;
+}
+
+function sizeScore(candidate: IngestedImage): number {
+  if (candidate.width >= 1600) return 10;
+  if (candidate.width >= 960) return 5;
+  return 0;
+}
+
+function penaltyScore(logoLike: boolean, candidate: IngestedImage): number {
+  let score = 0;
   if (!logoLike && candidate.byteLength < 10_000) score -= 40;
   if (!logoLike && (candidate.width < 320 || candidate.height < 180)) score -= 40;
   return score;
+}
+
+export function scoreSourceCandidate(slot: ImageSlotSpec, candidate: IngestedImage): number {
+  const heroLike = isHeroSlot(slot);
+  const logoLike = isLogoSlot(slot);
+  const brandMark = isBrandMarkCandidate(candidate);
+  return (
+    (aspectMatches(slot, candidate.width, candidate.height) ? 20 : 0) +
+    routeScore(slot, candidate) +
+    signalScore(slot, heroLike, logoLike, brandMark, candidate) +
+    sizeScore(candidate) +
+    penaltyScore(logoLike, candidate)
+  );
 }
 
 function briefFromSlot(slot: ImageSlotSpec): ImageGenerationBrief {

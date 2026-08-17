@@ -39,9 +39,9 @@ export interface LadderProbeInput {
   index: QualityDeltaIndex | null;
 }
 
-export interface LadderProbeProvider {
-  (input: LadderProbeInput): Promise<{ passed: boolean; notes: string[] }>;
-}
+export type LadderProbeProvider = (
+  input: LadderProbeInput,
+) => Promise<{ passed: boolean; notes: string[] }>;
 
 export interface RunTestLadderInput {
   plan: CandidateMutationPlan;

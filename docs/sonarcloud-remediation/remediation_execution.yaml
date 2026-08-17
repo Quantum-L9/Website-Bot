@@ -1,0 +1,63 @@
+# Remediation Execution Record — Quantum-L9/Website-Bot
+# Generated 2026-08-17 by the full-repository quality remediation run.
+repository: Quantum-L9/Website-Bot
+base_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+final_SHA: 89acbbca187d4a5b479090dcf6a4c2a8d5e23ddc
+branch: fix/full-quality-remediation
+total_historical_findings: 213
+deduplicated_issue_count: 213
+active_issue_count_initial: 170
+already_resolved_count: 31
+fixes_by_severity:
+  CRITICAL: 5
+  HIGH: 42
+  MEDIUM: 46
+  LOW: 46
+commit_batches:
+  - sha: b6a8a3c
+    scope: "S2699 assertions made statically visible (5)"
+  - sha: 981d126
+    scope: "evidence-chain validators (6)"
+  - sha: 434a7e1
+    scope: "pipeline + asset modules (6)"
+  - sha: 3359420
+    scope: "stage implementations (6)"
+  - sha: 46f53fa
+    scope: "schema validators + spec normalizer (5)"
+  - sha: b64db5c
+    scope: "campaign + secret scripts (6)"
+  - sha: f933e03
+    scope: "recursive + interop + extraction (7)"
+  - sha: 4d2657f
+    scope: "crawl/provisioning/redesign (6)"
+  - sha: 7473638
+    scope: "verdict ternaries + top-level await (17)"
+  - sha: 124121d
+    scope: "cluster scoring + harvest observation (12)"
+  - sha: 1d5c70e
+    scope: "remaining ternaries + signatures + regex split (9)"
+  - sha: 5d14287
+    scope: "duplicate css selectors (8)"
+  - sha: 89acbbc
+    scope: "LOW class (46)"
+validation_runs:
+  - command: "npm run typecheck"
+    result: PASS
+  - command: "node scripts/run-site-factory-tests.mjs --scope=local"
+    result: "352/352 PASS"
+  - command: "node scripts/run-site-factory-tests.mjs --scope=evidence"
+    result: "23/23 PASS"
+  - command: "node scripts/validate-evidence-schemas.mjs"
+    result: "13/13 PASS"
+  - command: "node scripts/run-recursive-tests.mjs"
+    result: PASS
+  - command: "npx biome check <pr-check scope>"
+    result: PASS
+  - command: "npm run llm:wiring / alignment:boundaries / evidence:contract-parity / normalize-spec:check"
+    result: PASS
+CI_runs: []
+bot_comments: []
+PR_number: null
+PR_status: null
+merge_status: null
+unresolved_UNKNOWNs: []

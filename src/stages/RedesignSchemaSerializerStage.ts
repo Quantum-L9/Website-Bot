@@ -40,6 +40,25 @@ export class RedesignSchemaSerializerStage implements Stage {
       redesignSchemaLlmCalls: 0,
     };
 
+    this.buildCoreSchemas(ctx);
+    this.buildFaqSchema(ctx, contentPackage);
+    // Runtime proof for the receipt: this path performed zero LLM calls.
+    if (ctx.redesignCounters.redesignSchemaLlmCalls !== 0) {
+      throw new BuildError(
+        "FORBIDDEN_LLM_OPERATION",
+        `redesign schema serialization performed ${ctx.redesignCounters.redesignSchemaLlmCalls} LLM call(s); required count is 0`,
+      );
+    }
+    logger.info(
+      {
+        schemas: [...ctx.generatedSchemas.keys()],
+        llmCalls: ctx.redesignCounters.redesignSchemaLlmCalls,
+      },
+      "Deterministic schema serialization complete (0 LLM calls)",
+    );
+  }
+
+  private buildCoreSchemas(ctx: BuildContext): void {
     const { business_name, vertical, geography } = ctx.domainSpec;
     const seo = ctx.domainSpec.seo_contract ?? {};
     const siteUrl =
@@ -82,7 +101,22 @@ export class RedesignSchemaSerializerStage implements Stage {
       serviceType: vertical,
       areaServed: geography.states.map((state) => ({ "@type": "AdministrativeArea", name: state })),
     });
+    ctx.generatedSchemas.set("BreadcrumbList", {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: ctx.domainSpec.routes.map((route, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: route.title,
+        item: `${siteUrl}${route.slug}`,
+      })),
+    });
+  }
 
+  private buildFaqSchema(
+    ctx: BuildContext,
+    contentPackage: NonNullable<BuildContext["structuredContentPackage"]>,
+  ): void {
     // FAQPage from the StructuredContentPackage — SEO-Bot content authority,
     // deterministic serialization here. Stable route order, stable dedupe.
     const faqs: Array<{ question: string; answer: string }> = [];
@@ -96,41 +130,15 @@ export class RedesignSchemaSerializerStage implements Stage {
         faqs.push({ question: faq.question, answer: faq.answer });
       }
     }
-    if (faqs.length > 0) {
-      ctx.generatedSchemas.set("FAQPage", {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
-      });
-    }
-    ctx.generatedSchemas.set("BreadcrumbList", {
+    if (faqs.length === 0) return;
+    ctx.generatedSchemas.set("FAQPage", {
       "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: ctx.domainSpec.routes.map((route, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: route.title,
-        item: `${siteUrl}${route.slug}`,
+      "@type": "FAQPage",
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: { "@type": "Answer", text: faq.answer },
       })),
     });
-
-    // Runtime proof for the receipt: this path performed zero LLM calls.
-    if (ctx.redesignCounters.redesignSchemaLlmCalls !== 0) {
-      throw new BuildError(
-        "FORBIDDEN_LLM_OPERATION",
-        `redesign schema serialization performed ${ctx.redesignCounters.redesignSchemaLlmCalls} LLM call(s); required count is 0`,
-      );
-    }
-    logger.info(
-      {
-        schemas: [...ctx.generatedSchemas.keys()],
-        llmCalls: ctx.redesignCounters.redesignSchemaLlmCalls,
-      },
-      "Deterministic schema serialization complete (0 LLM calls)",
-    );
   }
 }
