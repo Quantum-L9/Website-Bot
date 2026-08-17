@@ -14,6 +14,8 @@ updates:
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
+      # Biome version is Core-owned (presets/typescript/biome.json $schema).
+      - dependency-name: '@biomejs/biome'
 
   # GitHub Actions used by workflows
   - package-ecosystem: github-actions
