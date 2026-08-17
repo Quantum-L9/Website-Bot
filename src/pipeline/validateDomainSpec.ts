@@ -279,6 +279,71 @@ function validateProvidedImages(
   });
 }
 
+function validateImageSlot(
+  slot: unknown,
+  index: number,
+  errors: string[],
+  check: (condition: boolean, message: string) => void,
+  seenIds: Set<string>,
+  seenPlacements: Set<string>,
+): void {
+  if (!isObject(slot)) {
+    errors.push(`assets.imageSlots[${index}] must be an object`);
+    return;
+  }
+  check(
+    typeof slot.id === "string" && slot.id.trim().length > 0,
+    `assets.imageSlots[${index}].id must be a non-empty string`,
+  );
+  check(
+    typeof slot.placement === "string" && slot.placement.trim().length > 0,
+    `assets.imageSlots[${index}].placement must be a non-empty string`,
+  );
+  check(
+    typeof slot.required === "boolean",
+    `assets.imageSlots[${index}].required must be a boolean`,
+  );
+  check(
+    slot.preferredSources === undefined ||
+      (Array.isArray(slot.preferredSources) &&
+        slot.preferredSources.length > 0 &&
+        slot.preferredSources.every((source) => IMAGE_SOURCES.has(String(source)))),
+    `assets.imageSlots[${index}].preferredSources must contain only provided|source-site|generated`,
+  );
+  check(
+    slot.altText === undefined ||
+      (typeof slot.altText === "string" && slot.altText.trim().length > 0),
+    `assets.imageSlots[${index}].altText, when present, must be a non-empty string`,
+  );
+  check(
+    slot.aspectRatio === undefined ||
+      (typeof slot.aspectRatio === "string" && ASPECT_RATIO.test(slot.aspectRatio)),
+    `assets.imageSlots[${index}].aspectRatio must look like "16:9"`,
+  );
+  check(
+    slot.imageSize === undefined || IMAGE_SIZES.has(String(slot.imageSize)),
+    `assets.imageSlots[${index}].imageSize must be 1K|2K|4K`,
+  );
+  if (slot.generation !== undefined) {
+    if (!isObject(slot.generation))
+      errors.push(`assets.imageSlots[${index}].generation must be an object`);
+    else
+      check(
+        typeof slot.generation.intent === "string" && slot.generation.intent.trim().length > 0,
+        `assets.imageSlots[${index}].generation.intent must be a non-empty string`,
+      );
+  }
+  if (typeof slot.id === "string") {
+    if (seenIds.has(slot.id)) errors.push(`assets.imageSlots contains duplicate id ${slot.id}`);
+    seenIds.add(slot.id);
+  }
+  if (typeof slot.placement === "string") {
+    if (seenPlacements.has(slot.placement))
+      errors.push(`assets.imageSlots contains duplicate placement ${slot.placement}`);
+    seenPlacements.add(slot.placement);
+  }
+}
+
 function validateImageSlots(
   imageSlots: unknown,
   errors: string[],
@@ -290,63 +355,9 @@ function validateImageSlots(
   }
   const seenIds = new Set<string>();
   const seenPlacements = new Set<string>();
-  imageSlots.forEach((slot, index) => {
-    if (!isObject(slot)) {
-      errors.push(`assets.imageSlots[${index}] must be an object`);
-      return;
-    }
-    check(
-      typeof slot.id === "string" && slot.id.trim().length > 0,
-      `assets.imageSlots[${index}].id must be a non-empty string`,
-    );
-    check(
-      typeof slot.placement === "string" && slot.placement.trim().length > 0,
-      `assets.imageSlots[${index}].placement must be a non-empty string`,
-    );
-    check(
-      typeof slot.required === "boolean",
-      `assets.imageSlots[${index}].required must be a boolean`,
-    );
-    check(
-      slot.preferredSources === undefined ||
-        (Array.isArray(slot.preferredSources) &&
-          slot.preferredSources.length > 0 &&
-          slot.preferredSources.every((source) => IMAGE_SOURCES.has(String(source)))),
-      `assets.imageSlots[${index}].preferredSources must contain only provided|source-site|generated`,
-    );
-    check(
-      slot.altText === undefined ||
-        (typeof slot.altText === "string" && slot.altText.trim().length > 0),
-      `assets.imageSlots[${index}].altText, when present, must be a non-empty string`,
-    );
-    check(
-      slot.aspectRatio === undefined ||
-        (typeof slot.aspectRatio === "string" && ASPECT_RATIO.test(slot.aspectRatio)),
-      `assets.imageSlots[${index}].aspectRatio must look like "16:9"`,
-    );
-    check(
-      slot.imageSize === undefined || IMAGE_SIZES.has(String(slot.imageSize)),
-      `assets.imageSlots[${index}].imageSize must be 1K|2K|4K`,
-    );
-    if (slot.generation !== undefined) {
-      if (!isObject(slot.generation))
-        errors.push(`assets.imageSlots[${index}].generation must be an object`);
-      else
-        check(
-          typeof slot.generation.intent === "string" && slot.generation.intent.trim().length > 0,
-          `assets.imageSlots[${index}].generation.intent must be a non-empty string`,
-        );
-    }
-    if (typeof slot.id === "string") {
-      if (seenIds.has(slot.id)) errors.push(`assets.imageSlots contains duplicate id ${slot.id}`);
-      seenIds.add(slot.id);
-    }
-    if (typeof slot.placement === "string") {
-      if (seenPlacements.has(slot.placement))
-        errors.push(`assets.imageSlots contains duplicate placement ${slot.placement}`);
-      seenPlacements.add(slot.placement);
-    }
-  });
+  imageSlots.forEach((slot, index) =>
+    validateImageSlot(slot, index, errors, check, seenIds, seenPlacements),
+  );
 }
 
 function validateGeneration(

@@ -128,6 +128,20 @@ export class TerminalConvergenceStage implements Stage {
     private readonly requiredEvidence: string[],
   ) {}
   async run(ctx: BuildContext): Promise<void> {
+    this.requireMandatoryConvergence(ctx);
+    if (this.mode === "plan") return;
+    await this.requireBaseEvidence(ctx);
+    // Conditional visual-asset evidence, additive to the base gates: a site with
+    // image slots must have persisted its delivered manifest, and an enabled source
+    // site must have persisted its crawl evidence.
+    await this.requireVisualAssetEvidence(ctx);
+    if (this.mode === "end-to-end") await this.requireEndToEndEvidence(ctx);
+    // The chain-status transition happens in PipelineRunner AFTER this stage's
+    // success is recorded (transitionStageSucceeded clears the prior active
+    // failure); calling transitionRunConverged here dead-ended every resume.
+  }
+
+  private requireMandatoryConvergence(ctx: BuildContext): void {
     for (const stage of this.mandatory) {
       const result = ctx.stageResults.get(stage);
       // A skipped mandatory stage can only come from a resume whose checkpoint was
@@ -141,7 +155,9 @@ export class TerminalConvergenceStage implements Stage {
           `Mandatory stage did not converge: ${stage}`,
         );
     }
-    if (this.mode === "plan") return;
+  }
+
+  private async requireBaseEvidence(ctx: BuildContext): Promise<void> {
     for (const kind of this.requiredEvidence) {
       if (!(await ctx.evidenceStore.referenceFor(kind as never)))
         throw new BuildError(
@@ -149,9 +165,9 @@ export class TerminalConvergenceStage implements Stage {
           `Terminal convergence requires ${kind} evidence`,
         );
     }
-    // Conditional visual-asset evidence, additive to the base gates: a site with
-    // image slots must have persisted its delivered manifest, and an enabled source
-    // site must have persisted its crawl evidence.
+  }
+
+  private async requireVisualAssetEvidence(ctx: BuildContext): Promise<void> {
     const assets = ctx.domainSpec.assets;
     if (
       (assets?.imageSlots ?? []).length > 0 &&
@@ -171,25 +187,23 @@ export class TerminalConvergenceStage implements Stage {
         "Terminal convergence requires source_site evidence when source-site ingestion is enabled",
       );
     }
-    if (this.mode === "end-to-end") {
-      await ctx.evidenceStore.loadValidatedReleaseBundle({
-        requireStatus: "succeeded",
-        requireMode: "end-to-end",
-      });
-      if (!(await ctx.evidenceStore.readHandoff()))
-        throw new BuildError(
-          "RELEASE_EVIDENCE_INCOMPLETE",
-          "End-to-end convergence requires persisted handoff evidence",
-        );
-      if (ctx.autoRegisterSeoBot && !(await ctx.evidenceStore.readRegistrationAck()))
-        throw new BuildError(
-          "RELEASE_EVIDENCE_INCOMPLETE",
-          "Auto-registration requires a verified SEO-Bot acknowledgement",
-        );
-    }
-    // The chain-status transition happens in PipelineRunner AFTER this stage's
-    // success is recorded (transitionStageSucceeded clears the prior active
-    // failure); calling transitionRunConverged here dead-ended every resume.
+  }
+
+  private async requireEndToEndEvidence(ctx: BuildContext): Promise<void> {
+    await ctx.evidenceStore.loadValidatedReleaseBundle({
+      requireStatus: "succeeded",
+      requireMode: "end-to-end",
+    });
+    if (!(await ctx.evidenceStore.readHandoff()))
+      throw new BuildError(
+        "RELEASE_EVIDENCE_INCOMPLETE",
+        "End-to-end convergence requires persisted handoff evidence",
+      );
+    if (ctx.autoRegisterSeoBot && !(await ctx.evidenceStore.readRegistrationAck()))
+      throw new BuildError(
+        "RELEASE_EVIDENCE_INCOMPLETE",
+        "Auto-registration requires a verified SEO-Bot acknowledgement",
+      );
   }
 }
 
