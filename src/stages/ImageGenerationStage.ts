@@ -57,7 +57,6 @@ type ResolveAssetParams = {
   slot: ImageSlotSpec;
   brief: ImageGenerationBrief;
   prompt: string;
-  model: string;
   fingerprint: string;
 };
 
@@ -157,7 +156,6 @@ export class ImageGenerationStage implements Stage {
         slot,
         brief,
         prompt: compiled.prompt,
-        model,
         fingerprint,
       });
       ctx.resolvedImages.set(slot.placement, resolved);
@@ -193,7 +191,7 @@ export class ImageGenerationStage implements Stage {
     const metaPath = resolve(cacheRoot, `${fingerprint}.json`);
     const cached = this.readCache(cacheRoot, fingerprint, metaPath);
     const materialized = cached ?? (await this.generateAndCache(params));
-    const { bytes, mimeType, model: usedModel, estimatedCostUsd: cost } = materialized;
+    const { bytes, model: usedModel, estimatedCostUsd: cost } = materialized;
 
     const inspected = inspectImage(bytes);
     const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? "png";
@@ -219,7 +217,7 @@ export class ImageGenerationStage implements Stage {
   }
 
   private async generateAndCache(params: ResolveAssetParams): Promise<CacheMetadata & { bytes: Buffer }> {
-    const { generator, budget, cacheRoot, slot, brief, prompt, model, fingerprint } = params;
+    const { generator, budget, cacheRoot, slot, brief, prompt, fingerprint } = params;
     const metaPath = resolve(cacheRoot, `${fingerprint}.json`);
     let result: Awaited<ReturnType<typeof generator.generate>> | undefined;
     try {
