@@ -144,44 +144,65 @@ export function emitRedesignExecutionIntegrityReceipt(
  * Campaign 7 §16/§17: receipt validation. A receipt that fails ANY invariant
  * is a failed redesign run regardless of how healthy the site looks.
  */
-export function validateRedesignExecutionIntegrityReceipt(
-  receipt: RedesignExecutionIntegrityReceipt,
-  options: { requireVisualQa: boolean },
-): void {
-  const fail = (message: string): never => {
-    throw new BuildError("REDESIGN_PIPELINE_INCOMPLETE", `integrity receipt invalid: ${message}`);
-  };
-  if (receipt.build_intent !== "REDESIGN_IMPROVE") fail("build_intent must be REDESIGN_IMPROVE");
-  if (receipt.qualified_donor_count !== 10)
-    fail(`qualified_donor_count must be exactly 10, got ${receipt.qualified_donor_count}`);
-  if (receipt.donors.length !== 10) fail(`donor evidence list must carry 10 donors`);
+function receiptFail(message: string): never {
+  throw new BuildError("REDESIGN_PIPELINE_INCOMPLETE", `integrity receipt invalid: ${message}`);
+}
+
+function validateDonorEvidence(receipt: RedesignExecutionIntegrityReceipt): void {
   for (const donor of receipt.donors) {
-    if (donor.pages < 1) fail(`donor ${donor.domain} lacks crawl evidence`);
-    if (donor.screenshots < 1) fail(`donor ${donor.domain} lacks screenshot evidence`);
+    if (donor.pages < 1) receiptFail(`donor ${donor.domain} lacks crawl evidence`);
+    if (donor.screenshots < 1) receiptFail(`donor ${donor.domain} lacks screenshot evidence`);
     if (donor.disposition !== "DONOR_REFERENCE_ONLY")
-      fail(`donor ${donor.domain} has illegal disposition ${donor.disposition}`);
-    if (!donor.evidence_digest) fail(`donor ${donor.domain} lacks an evidence digest`);
+      receiptFail(`donor ${donor.domain} has illegal disposition ${donor.disposition}`);
+    if (!donor.evidence_digest) receiptFail(`donor ${donor.domain} lacks an evidence digest`);
   }
+}
+
+function validateZeroLlmCalls(receipt: RedesignExecutionIntegrityReceipt): void {
   if (receipt.counters.page_content_contract_llm_calls !== 0)
-    fail("page_content_contract_llm_calls must be 0");
+    receiptFail("page_content_contract_llm_calls must be 0");
   if (receipt.counters.legacy_content_generation_calls !== 0)
-    fail("legacy_content_generation_calls must be 0");
+    receiptFail("legacy_content_generation_calls must be 0");
   if (receipt.counters.redesign_schema_llm_calls !== 0)
-    fail("redesign_schema_llm_calls must be 0");
+    receiptFail("redesign_schema_llm_calls must be 0");
+}
+
+function validateArtifactRefs(receipt: RedesignExecutionIntegrityReceipt): void {
   for (const [field, ref] of [
     ["competitive_landscape", receipt.competitive_landscape],
     ["seo_content_blueprint", receipt.seo_content_blueprint],
     ["page_content_contract", receipt.page_content_contract],
     ["structured_content_package", receipt.structured_content_package],
   ] as const) {
-    if (!ref.artifact_id || !ref.payload_digest) fail(`${field} identity is incomplete`);
+    if (!ref.artifact_id || !ref.payload_digest) receiptFail(`${field} identity is incomplete`);
   }
+}
+
+function validateVisualState(
+  receipt: RedesignExecutionIntegrityReceipt,
+  requireVisualQa: boolean,
+): void {
   if (receipt.visual.required_visual_slots_filled_pct !== 100)
-    fail(
+    receiptFail(
       `required_visual_slots_filled must be 100%, got ${receipt.visual.required_visual_slots_filled_pct}%`,
     );
   if (receipt.visual.unexplained_asset_loss !== 0)
-    fail(`unexplained_asset_loss must be 0, got ${receipt.visual.unexplained_asset_loss}`);
-  if (options.requireVisualQa && receipt.visual_qa.status !== "verified")
-    fail(`visual_qa must be verified for end-to-end convergence, got ${receipt.visual_qa.status}`);
+    receiptFail(`unexplained_asset_loss must be 0, got ${receipt.visual.unexplained_asset_loss}`);
+  if (requireVisualQa && receipt.visual_qa.status !== "verified")
+    receiptFail(`visual_qa must be verified for end-to-end convergence, got ${receipt.visual_qa.status}`);
+}
+
+export function validateRedesignExecutionIntegrityReceipt(
+  receipt: RedesignExecutionIntegrityReceipt,
+  options: { requireVisualQa: boolean },
+): void {
+  if (receipt.build_intent !== "REDESIGN_IMPROVE")
+    receiptFail("build_intent must be REDESIGN_IMPROVE");
+  if (receipt.qualified_donor_count !== 10)
+    receiptFail(`qualified_donor_count must be exactly 10, got ${receipt.qualified_donor_count}`);
+  if (receipt.donors.length !== 10) receiptFail(`donor evidence list must carry 10 donors`);
+  validateDonorEvidence(receipt);
+  validateZeroLlmCalls(receipt);
+  validateArtifactRefs(receipt);
+  validateVisualState(receipt, options.requireVisualQa);
 }
