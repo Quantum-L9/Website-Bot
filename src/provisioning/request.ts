@@ -17,8 +17,23 @@ import { assertEnvRef } from "./secret-ref.js";
 
 const OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]{1,100}$/;
-const BRANCH = /^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._/-]{1,255}$/;
+const BRANCH_CHARS = /^[A-Za-z0-9._/-]{1,255}$/;
 const ENV_KEY = /^[A-Z][A-Z0-9_]*$/;
+
+/**
+ * Equivalent to the previous `^(?!\/)(?!.*\.\.)(?!.*\/\/)[A-Za-z0-9._/-]{1,255}$`
+ * but without lookahead dot-star scans (S8786): the same three negative
+ * conditions are checked as plain string predicates after the character-class
+ * test. Every step is linear in the input length.
+ */
+function isValidSourceBranch(value: string): boolean {
+  return (
+    BRANCH_CHARS.test(value) &&
+    !value.startsWith("/") &&
+    !value.includes("..") &&
+    !value.includes("//")
+  );
+}
 
 export function slugifyProvisioningName(value: string): string {
   const slug = value
@@ -66,7 +81,8 @@ export function buildProvisioningRequest(
   const repository = (provision.github.repository?.trim() || `${normalized}-site`).slice(0, 100);
   if (!REPOSITORY.test(repository)) throw new Error("provision.github.repository is invalid");
   const sourceBranch = provision.github.source_branch?.trim() || "main";
-  if (!BRANCH.test(sourceBranch)) throw new Error("provision.github.source_branch is invalid");
+  if (!isValidSourceBranch(sourceBranch))
+    throw new Error("provision.github.source_branch is invalid");
   const project = (provision.vercel?.project?.trim() || repository).slice(0, 100);
   if (!REPOSITORY.test(project)) throw new Error("provision.vercel.project is invalid");
 

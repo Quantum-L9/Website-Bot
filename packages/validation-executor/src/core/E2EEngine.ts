@@ -194,14 +194,17 @@ export class E2EEngine {
     // Analyze output for specific failure types
     const combinedOutput = (stdout + "\n" + stderr).toLowerCase();
 
-    // Look for assertion failures first
+    // Look for assertion failures first. Spans between keywords are bounded
+    // (S8786): assertion diagnostics pair their keywords within a few
+    // hundred characters, so a 2000-character window is equivalent to `.*`
+    // for every realistic test output while keeping matching linear.
     const assertionPatterns = [
-      /expected.*but.*received/i,
-      /assertion.*failed/i,
-      /test.*failed/i,
-      /expected:.*actual:/i,
-      /✕.*expect/i,
-      /error:.*expect/i,
+      /expected.{0,2000}but.{0,2000}received/i,
+      /assertion.{0,2000}failed/i,
+      /test.{0,2000}failed/i,
+      /expected:.{0,2000}actual:/i,
+      /✕.{0,2000}expect/i,
+      /error:.{0,2000}expect/i,
     ];
 
     for (const pattern of assertionPatterns) {
