@@ -4,9 +4,12 @@ import { exists, result, writeJsonl, statusFromRows } from './lib.mjs';
 const checks = [];
 
 // Try to build the site
-const buildResult = spawnSync('npm', ['run', 'build'], { 
+// Use npm_execpath if available (set by npm), otherwise fallback to PATH
+const npmPath = process.env.npm_execpath || 'npm';
+const buildResult = spawnSync(npmPath, ['run', 'build'], { 
   encoding: 'utf8',
-  stdio: ['inherit', 'pipe', 'pipe']
+  stdio: ['inherit', 'pipe', 'pipe'],
+  shell: process.platform === 'win32'
 });
 
 checks.push(result(
@@ -22,28 +25,28 @@ checks.push(result(
 
 // Check if dist directory was created
 if (buildResult.status === 0) {
-  checks.push(result(
-    'dist-directory-created',
-    'build_output',
-    'dist/',
-    'Build output directory exists',
-    exists('dist') ? 'dist/ directory exists' : 'dist/ directory missing',
-    exists('dist') ? 'PASS' : 'FAIL',
-    'high',
-    'Verify build process creates dist/ directory'
-  ));
-
-  // Check for index.html in output
-  checks.push(result(
-    'index-html-generated',
-    'build_output',
-    'dist/index.html',
-    'Index HTML file generated',
-    exists('dist/index.html') ? 'index.html found' : 'index.html missing',
-    exists('dist/index.html') ? 'PASS' : 'FAIL',
-    'high',
-    'Ensure pages generate HTML output'
-  ));
+  checks.push(
+    result(
+      'dist-directory-created',
+      'build_output',
+      'dist/',
+      'Build output directory exists',
+      exists('dist') ? 'dist/ directory exists' : 'dist/ directory missing',
+      exists('dist') ? 'PASS' : 'FAIL',
+      'high',
+      'Verify build process creates dist/ directory'
+    ),
+    result(
+      'index-html-generated',
+      'build_output',
+      'dist/index.html',
+      'Index HTML file generated',
+      exists('dist/index.html') ? 'index.html found' : 'index.html missing',
+      exists('dist/index.html') ? 'PASS' : 'FAIL',
+      'high',
+      'Ensure pages generate HTML output'
+    )
+  );
 }
 
 writeJsonl('validation/build_checks.jsonl', checks);

@@ -50,82 +50,78 @@ function checkHtmlFile(file) {
   const hasOgUrl = hasProperty(html, 'og:url');
   const hasCanonical = hasRelCanonical(html);
 
-  checks.push(result(
-    `html-title-present:${file}`,
-    'seo_meta',
-    `${file} <title>`,
-    'Page title is present and not empty',
-    hasTitle ? 'Title found' : 'Title missing or empty',
-    hasTitle ? 'PASS' : 'FAIL',
-    'high',
-    'Add meaningful <title> tag to pages'
-  ));
-
-  checks.push(result(
-    `meta-description-present:${file}`,
-    'seo_meta',
-    `${file} meta[name="description"]`,
-    'Meta description present',
-    hasDescription ? 'Description meta tag found' : 'Description meta tag missing',
-    hasDescription ? 'PASS' : 'FAIL',
-    'high',
-    'Add meta description to pages'
-  ));
-
-  checks.push(result(
-    `viewport-meta-present:${file}`,
-    'seo_meta',
-    `${file} meta[name="viewport"]`,
-    'Viewport meta tag present',
-    hasViewport ? 'Viewport meta tag found' : 'Viewport meta tag missing',
-    hasViewport ? 'PASS' : 'FAIL',
-    'medium',
-    'Add viewport meta tag for mobile responsiveness'
-  ));
-
-  checks.push(result(
-    `charset-declared:${file}`,
-    'seo_meta',
-    `${file} charset`,
-    'Character encoding declared',
-    hasCharset ? 'Charset declaration found' : 'Charset declaration missing',
-    hasCharset ? 'PASS' : 'FAIL',
-    'medium',
-    'Add charset declaration to HTML'
-  ));
-
-  checks.push(result(
-    `open-graph-tags:${file}`,
-    'seo_social',
-    `${file} Open Graph`,
-    'Open Graph meta tags present',
-    (hasOgTitle && hasOgDescription) ? 'OG tags found' : 'OG tags incomplete',
-    (hasOgTitle && hasOgDescription) ? 'PASS' : 'FAIL',
-    'high',
-    'Add Open Graph meta tags for social media sharing'
-  ));
-
-  checks.push(result(
-    `canonical-link:${file}`,
-    'seo_canonical',
-    `${file} link[rel=canonical]`,
-    'Canonical link present',
-    hasCanonical ? 'Canonical link found' : 'Canonical link missing',
-    hasCanonical ? 'PASS' : 'FAIL',
-    'high',
-    'Add <link rel="canonical"> to pages'
-  ));
-
-  checks.push(result(
-    `og-url:${file}`,
-    'seo_social',
-    `${file} meta[property="og:url"]`,
-    'Open Graph URL present',
-    hasOgUrl ? 'og:url found' : 'og:url missing',
-    hasOgUrl ? 'PASS' : 'FAIL',
-    'high',
-    'Add meta property="og:url" to pages'
-  ));
+  checks.push(
+    result(
+      `html-title-present:${file}`,
+      'seo_meta',
+      `${file} <title>`,
+      'Page title is present and not empty',
+      hasTitle ? 'Title found' : 'Title missing or empty',
+      hasTitle ? 'PASS' : 'FAIL',
+      'high',
+      'Add meaningful <title> tag to pages'
+    ),
+    result(
+      `meta-description-present:${file}`,
+      'seo_meta',
+      `${file} meta[name="description"]`,
+      'Meta description present',
+      hasDescription ? 'Description meta tag found' : 'Description meta tag missing',
+      hasDescription ? 'PASS' : 'FAIL',
+      'high',
+      'Add meta description to pages'
+    ),
+    result(
+      `viewport-meta-present:${file}`,
+      'seo_meta',
+      `${file} meta[name="viewport"]`,
+      'Viewport meta tag present',
+      hasViewport ? 'Viewport meta tag found' : 'Viewport meta tag missing',
+      hasViewport ? 'PASS' : 'FAIL',
+      'medium',
+      'Add viewport meta tag for mobile responsiveness'
+    ),
+    result(
+      `charset-declared:${file}`,
+      'seo_meta',
+      `${file} charset`,
+      'Character encoding declared',
+      hasCharset ? 'Charset declaration found' : 'Charset declaration missing',
+      hasCharset ? 'PASS' : 'FAIL',
+      'medium',
+      'Add charset declaration to HTML'
+    ),
+    result(
+      `open-graph-tags:${file}`,
+      'seo_social',
+      `${file} Open Graph`,
+      'Open Graph meta tags present',
+      (hasOgTitle && hasOgDescription) ? 'OG tags found' : 'OG tags incomplete',
+      (hasOgTitle && hasOgDescription) ? 'PASS' : 'FAIL',
+      'high',
+      'Add Open Graph meta tags for social media sharing'
+    ),
+    result(
+      `canonical-link:${file}`,
+      'seo_canonical',
+      `${file} link[rel=canonical]`,
+      'Canonical link present',
+      hasCanonical ? 'Canonical link found' : 'Canonical link missing',
+      hasCanonical ? 'PASS' : 'FAIL',
+      'high',
+      'Add <link rel="canonical"> to pages'
+    ),
+    result(
+      `og-url:${file}`,
+      'seo_social',
+      `${file} meta[property="og:url"]`,
+      'Open Graph URL present',
+      hasOgUrl ? 'og:url found' : 'og:url missing',
+      hasOgUrl ? 'PASS' : 'FAIL',
+      'high',
+      'Add meta property="og:url" to pages'
+    )
+  );
 }
 
 // Check HTML meta tags in built output

@@ -5,10 +5,14 @@ const checks = [];
 
 // Check if we can start the preview server
 if (exists('dist/index.html')) {
-  // Try to start preview server for smoke test
-  const previewProc = spawnSync('timeout', ['5', 'npm', 'run', 'preview'], {
+  // Use npm_execpath if available (set by npm), otherwise fallback to PATH
+  // Use Node's timeout mechanism instead of external timeout command
+  const npmPath = process.env.npm_execpath || 'npm';
+  const previewProc = spawnSync(npmPath, ['run', 'preview'], {
     encoding: 'utf8',
-    stdio: ['inherit', 'pipe', 'pipe']
+    stdio: ['inherit', 'pipe', 'pipe'],
+    timeout: 5000,
+    shell: process.platform === 'win32'
   });
 
   checks.push(result(
@@ -16,8 +20,8 @@ if (exists('dist/index.html')) {
     'server_startup',
     'npm run preview',
     'Preview server starts without immediate errors',
-    previewProc.status === 124 ? 'Server started (timeout reached)' : `Exit code ${previewProc.status}`,
-    previewProc.status === 124 || previewProc.status === 0 ? 'PASS' : 'FAIL',
+    previewProc.signal === 'SIGTERM' || previewProc.status === null ? 'Server started (timeout reached)' : `Exit code ${previewProc.status}`,
+    previewProc.signal === 'SIGTERM' || previewProc.status === null || previewProc.status === 0 ? 'PASS' : 'FAIL',
     'medium',
     'Fix server startup issues'
   ));

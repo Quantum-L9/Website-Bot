@@ -32,7 +32,8 @@ export async function requestJson<T>(
   if (!expected.includes(response.status)) {
     let detail: string;
     if (typeof body === 'object' && body !== null && 'message' in body) {
-      detail = String((body as { message?: unknown }).message);
+      const messageValue = (body as { message?: unknown }).message;
+      detail = typeof messageValue === 'string' ? messageValue : messageValue != null ? messageValue.toString() : 'unknown';
     } else if (typeof body === 'object' && body !== null && 'error' in body) {
       detail = JSON.stringify((body as { error?: unknown }).error);
     } else {

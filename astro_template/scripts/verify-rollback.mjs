@@ -88,7 +88,7 @@ for (const docFile of docFiles) {
       break;
     }
   } catch (error) {
-    // Ignore read errors
+    console.warn(`[verify-rollback] Unable to read documentation file ${docFile}:`, error instanceof Error ? error.message : String(error));
   }
 }
 

@@ -394,6 +394,7 @@ export class AuditReporter {
       // For system/external configs, return version info if available
       return 'current';
     } catch (error) {
+      console.warn(`[AuditReporter] Unable to determine version for config file ${configFile}:`, error instanceof Error ? error.message : String(error));
       return 'unknown';
     }
   }

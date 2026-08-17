@@ -461,9 +461,10 @@ export class FileEvidenceStore implements EvidenceStore {
 
   private recordFor(kind: EvidenceKind, relativePath: string, value: object, writtenAt: string): EvidenceRecord {
     const path = this.safeResolve(relativePath);
+    const schemaValue = (value as Record<string, unknown>).schema ?? SCHEMAS[kind];
     return {
       kind,
-      schema: String((value as Record<string, unknown>).schema ?? SCHEMAS[kind]),
+      schema: typeof schemaValue === 'string' ? schemaValue : schemaValue.toString(),
       logicalId: this.logicalId(kind, value),
       relativePath,
       sha256: sha256File(path),
@@ -491,14 +492,13 @@ export class FileEvidenceStore implements EvidenceStore {
     if (kind === 'handoff' && typeof record.contract_id === 'string' && record.contract_id) {
       return record.contract_id;
     }
-    return String(
-      record.proofId
+    const idValue = record.proofId
       ?? record.publicationId
       ?? record.deploymentEvidenceId
       ?? record.receipt_id
       ?? record.contract_id
-      ?? `${this.options.buildId}:${kind}`,
-    );
+      ?? `${this.options.buildId}:${kind}`;
+    return typeof idValue === 'string' ? idValue : idValue.toString();
   }
 
 

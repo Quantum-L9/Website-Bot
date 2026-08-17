@@ -275,14 +275,14 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
           if (seen.has(normalized)) errors.push(`routes[${index}].slug normalizes to duplicate route ${normalized}`);
           seen.add(normalized);
         } catch (error) {
-          errors.push(error instanceof Error ? error.message : String(error));
+          errors.push(error instanceof Error ? error.message : (error != null ? error.toString() : 'unknown error'));
         }
       }
       if (Array.isArray(route.components)) {
         for (const component of route.components) {
           if (typeof component !== 'string') continue;
           try { normalizeComponentName(component); }
-          catch (error) { errors.push(error instanceof Error ? error.message : String(error)); }
+          catch (error) { errors.push(error instanceof Error ? error.message : (error != null ? error.toString() : 'unknown error')); }
         }
       }
     });
