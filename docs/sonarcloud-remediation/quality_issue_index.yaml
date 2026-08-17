@@ -1383,9 +1383,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".cta-banner\", first used at line 157"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-008
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:175
   source: SONARCLOUD
@@ -1403,9 +1403,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".trust-bar__badge\", first used at line 112"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-009
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:176
   source: SONARCLOUD
@@ -1423,9 +1423,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".trust-bar__badges\", first used at line 111"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-010
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:177
   source: SONARCLOUD
@@ -1443,9 +1443,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".service-card__title\", first used at line 136"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-011
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:178
   source: SONARCLOUD
@@ -1463,9 +1463,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".service-card__cta\", first used at line 137"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-012
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:179
   source: SONARCLOUD
@@ -1483,9 +1483,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".service-card__image\", first used at line 135"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-013
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:189
   source: SONARCLOUD
@@ -1503,9 +1503,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".gallery-grid\", first used at line 165"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-014
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:192
   source: SONARCLOUD
@@ -1523,9 +1523,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Duplicate selector \".hero__actions\", first used at line 102"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a4-pending
 - issue_id: WB-015
   canonical_fingerprint: Web:InputWithoutLabelCheck:docs/reports_and_test_results/08-15-2026/baseline/home.html:3
   source: SONARCLOUD
