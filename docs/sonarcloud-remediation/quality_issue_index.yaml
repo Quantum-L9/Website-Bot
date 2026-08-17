@@ -2603,9 +2603,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this code to not use nested template literals."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-130
   canonical_fingerprint: typescript:S3358:src/recursive/harvest/compiler.ts:219
   source: SONARCLOUD
@@ -2623,9 +2623,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-089
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:67
   source: SONARCLOUD
@@ -2643,9 +2643,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-090
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
   source: SONARCLOUD
@@ -2663,9 +2663,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-091
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
   source: SONARCLOUD
@@ -2683,9 +2683,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-092
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:82
   source: SONARCLOUD
@@ -2703,9 +2703,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-093
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
   source: SONARCLOUD
@@ -2723,9 +2723,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-094
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
   source: SONARCLOUD
@@ -2743,9 +2743,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-095
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:84
   source: SONARCLOUD
@@ -2763,9 +2763,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-096
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:85
   source: SONARCLOUD
@@ -2783,9 +2783,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-097
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
   source: SONARCLOUD
@@ -2803,9 +2803,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-098
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
   source: SONARCLOUD
@@ -2823,9 +2823,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a2-pending
 - issue_id: WB-132
   canonical_fingerprint: typescript:S4030:src/recursive/simulation/simulate.ts:117
   source: SONARCLOUD

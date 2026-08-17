@@ -42,6 +42,24 @@ function equivalent(signal: EngineeringSignal, other: EngineeringSignal): boolea
   return true;
 }
 
+function weightedScore(weights: Record<string, number>, value: string | undefined, fallback: number): number {
+  if (value === undefined) return fallback;
+  return weights[value] ?? fallback;
+}
+
+function confidenceOf(value: EngineeringSignal["confidence"]): SignalCluster["confidence"] {
+  if (value === "HIGH") return "HIGH";
+  if (value === "MEDIUM") return "MEDIUM";
+  return "LOW";
+}
+
+function priorityFor(score: number): SignalCluster["leverage"]["priority"] {
+  if (score >= 10) return "P0";
+  if (score >= 7) return "P1";
+  if (score >= 4) return "P2";
+  return "P3";
+}
+
 function buildCluster(signals: EngineeringSignal[], signal: EngineeringSignal, index: number): SignalCluster {
   const dimensions = [
     ...new Set(
@@ -56,8 +74,7 @@ function buildCluster(signals: EngineeringSignal[], signal: EngineeringSignal, i
     signalClass: signal.classification,
     signals: [signal],
     dimensions,
-    confidence:
-      signal.confidence === "HIGH" ? "HIGH" : signal.confidence === "MEDIUM" ? "MEDIUM" : "LOW",
+    confidence: confidenceOf(signal.confidence),
     leverage: {
       severity: signal.severity,
       recurrence: signal.leverage.recurrence,
@@ -72,12 +89,12 @@ function buildCluster(signals: EngineeringSignal[], signal: EngineeringSignal, i
 function scoreCluster(cluster: SignalCluster): void {
   const { severity, recurrence, reach, humanReviewImpact, implementationRisk } = cluster.leverage;
   const score =
-    (severity === "BLOCKING" ? 4 : severity === "HIGH" ? 3 : severity === "MEDIUM" ? 2 : 1) +
-    (recurrence === "HIGH" ? 2 : recurrence === "MEDIUM" ? 1 : 0) +
-    (reach === "GLOBAL" ? 3 : reach === "CROSS_VERTICAL" ? 2 : reach === "VERTICAL" ? 1 : 0) +
-    (humanReviewImpact === "HIGH" ? 2 : humanReviewImpact === "MEDIUM" ? 1 : 0) +
-    (implementationRisk === "LOW" ? 2 : implementationRisk === "MEDIUM" ? 1 : 0);
-  cluster.leverage.priority = score >= 10 ? "P0" : score >= 7 ? "P1" : score >= 4 ? "P2" : "P3";
+    weightedScore({ BLOCKING: 4, HIGH: 3, MEDIUM: 2 }, severity, 1) +
+    weightedScore({ HIGH: 2, MEDIUM: 1 }, recurrence, 0) +
+    weightedScore({ GLOBAL: 3, CROSS_VERTICAL: 2, VERTICAL: 1 }, reach, 0) +
+    weightedScore({ HIGH: 2, MEDIUM: 1 }, humanReviewImpact, 0) +
+    weightedScore({ LOW: 2, MEDIUM: 1 }, implementationRisk, 0);
+  cluster.leverage.priority = priorityFor(score);
 }
 
 export function clusterSignals(signals: EngineeringSignal[]): SignalCluster[] {

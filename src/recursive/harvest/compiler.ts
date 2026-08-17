@@ -107,6 +107,20 @@ function observedGates(receipt: ReleaseReceipt): string[] {
   return [...new Set(failing)];
 }
 
+function recommendedActionFor(
+  controlPlaneSignal: EngineeringSignal | undefined,
+  materialSignals: EngineeringSignal[],
+): EngineeringHarvest["recommendedNextAction"] {
+  if (controlPlaneSignal) return "CONTROL_PLANE_CHANGE_REQUIRED";
+  if (materialSignals.length > 0) return "MODIFY_CODE";
+  return "NO_MATERIAL_ENGINEERING_SIGNAL";
+}
+
+function stageFailureObservation(failure: { stage: string; errorCode?: string }): string {
+  const errorSuffix = failure.errorCode ? ` (${failure.errorCode})` : "";
+  return `stage ${failure.stage} failed${errorSuffix} in the source E2E`;
+}
+
 export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarvest {
   const signals: EngineeringSignal[] = [];
   const candidates: EngineeringHarvest["regressionCaseCandidates"] = [];
@@ -145,7 +159,7 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
         input,
         signalId: `ES-${input.recursiveRunId}-${input.wave}-${failure.stage}`,
         classification: "CORRECTNESS_DEFECT",
-        observation: `stage ${failure.stage} failed${failure.errorCode ? ` (${failure.errorCode})` : ""} in the source E2E`,
+        observation: stageFailureObservation(failure),
         suspectedSubsystem: STAGE_OWNER_MAP[failure.stage] ?? failure.stage,
         e2eRef,
         dimension: failure.stage,
@@ -214,11 +228,7 @@ export function compileEngineeringHarvest(input: HarvestInput): EngineeringHarve
     (signal) => signal.classification === "CONTROL_PLANE_CHANGE_REQUIRED",
   );
   const materialSignals = signals.filter((signal) => signal.confidence !== "LOW");
-  const recommended: EngineeringHarvest["recommendedNextAction"] = controlPlaneSignal
-    ? "CONTROL_PLANE_CHANGE_REQUIRED"
-    : materialSignals.length > 0
-      ? "MODIFY_CODE"
-      : "NO_MATERIAL_ENGINEERING_SIGNAL";
+  const recommended = recommendedActionFor(controlPlaneSignal, materialSignals);
 
   const harvest: EngineeringHarvest = {
     schema: ENGINEERING_HARVEST_SCHEMA,
