@@ -1,15 +1,10 @@
-import { exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { envVarsMatching, exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
 // Check for deployment configuration that enables rollback
 const envVars = parseEnvExample();
-const deploymentEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("vercel") ||
-    key.toLowerCase().includes("deploy") ||
-    key.toLowerCase().includes("github"),
-);
+const deploymentEnvVars = envVarsMatching("vercel", "deploy", "github");
 
 const deploymentSuffix = deploymentEnvVars.length > 3 ? "..." : "";
 checks.push(

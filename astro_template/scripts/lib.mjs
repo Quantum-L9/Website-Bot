@@ -110,6 +110,58 @@ export function result(optionsOrCheckId, ...legacyArgs) {
   };
 }
 
+/**
+ * Standard "dist/ build output is required before this check" row.
+ * Shared by the verify-*.mjs scripts instead of repeated result() blocks.
+ */
+export function buildRequiredResult(checkId, expectedResult, actualResult, status = "BLOCKED") {
+  return result({
+    check_id: checkId,
+    check_class: "prerequisite",
+    target_artifact: "dist/",
+    expected_result: expectedResult,
+    actual_result: actualResult,
+    status,
+    severity: "medium",
+    remediation_if_failed: "Run npm run build first",
+  });
+}
+
+/** Standard "could not read a built file" row for check-file catch blocks. */
+export function fileReadErrorResult(checkId, targetArtifact, checkLabel, error) {
+  return result({
+    check_id: checkId,
+    check_class: "file_access",
+    target_artifact: targetArtifact,
+    expected_result: `${checkLabel} check completed`,
+    actual_result: `Error reading file: ${error.message}`,
+    status: "UNKNOWN",
+    severity: "low",
+    remediation_if_failed: "Ensure build output is readable",
+  });
+}
+
+/** Standard build-output existence row (dist/ and dist/index.html checks). */
+export function fileExistenceResult(
+  checkId,
+  targetArtifact,
+  expectedResult,
+  foundText,
+  missingText,
+  remediationIfFailed,
+) {
+  return result({
+    check_id: checkId,
+    check_class: "build_output",
+    target_artifact: targetArtifact,
+    expected_result: expectedResult,
+    actual_result: exists(targetArtifact) ? foundText : missingText,
+    status: exists(targetArtifact) ? "PASS" : "FAIL",
+    severity: "high",
+    remediation_if_failed: remediationIfFailed,
+  });
+}
+
 export function writeJsonl(relativePath, rows) {
   fs.mkdirSync(path.dirname(path.join(root, relativePath)), { recursive: true });
   fs.writeFileSync(

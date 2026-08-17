@@ -1,4 +1,13 @@
-import { envVarsMatching, exists, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import {
+  buildRequiredResult,
+  envVarsMatching,
+  exists,
+  fileReadErrorResult,
+  readText,
+  result,
+  statusFromRows,
+  writeJsonl,
+} from "./lib.mjs";
 
 const checks = [];
 
@@ -60,31 +69,15 @@ if (exists("dist/index.html")) {
       }),
     );
   } catch (error) {
-    checks.push(
-      result({
-        check_id: "analytics-check-failed",
-        check_class: "file_access",
-        target_artifact: "dist/index.html",
-        expected_result: "Analytics check completed",
-        actual_result: `Error reading file: ${error.message}`,
-        status: "UNKNOWN",
-        severity: "low",
-        remediation_if_failed: "Ensure build output is readable",
-      }),
-    );
+    checks.push(fileReadErrorResult("analytics-check-failed", "dist/index.html", "Analytics", error));
   }
 } else {
   checks.push(
-    result({
-      check_id: "build-required-for-analytics",
-      check_class: "prerequisite",
-      target_artifact: "dist/",
-      expected_result: "Build output exists for analytics checking",
-      actual_result: "Build output missing",
-      status: "BLOCKED",
-      severity: "medium",
-      remediation_if_failed: "Run npm run build first",
-    }),
+    buildRequiredResult(
+      "build-required-for-analytics",
+      "Build output exists for analytics checking",
+      "Build output missing",
+    ),
   );
 }
 

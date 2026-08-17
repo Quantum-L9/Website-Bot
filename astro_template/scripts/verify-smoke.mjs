@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { buildRequiredResult, exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
@@ -34,16 +34,11 @@ if (exists("dist/index.html")) {
   );
 } else {
   checks.push(
-    result({
-      check_id: "build-required-for-smoke",
-      check_class: "prerequisite",
-      target_artifact: "dist/",
-      expected_result: "Build output exists for smoke testing",
-      actual_result: "Build output missing",
-      status: "BLOCKED",
-      severity: "medium",
-      remediation_if_failed: "Run npm run build first",
-    }),
+    buildRequiredResult(
+      "build-required-for-smoke",
+      "Build output exists for smoke testing",
+      "Build output missing",
+    ),
   );
 }
 

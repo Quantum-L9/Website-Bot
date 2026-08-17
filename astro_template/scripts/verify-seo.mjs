@@ -1,4 +1,13 @@
-import { exists, listFiles, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import {
+  buildRequiredResult,
+  exists,
+  fileReadErrorResult,
+  listFiles,
+  readText,
+  result,
+  statusFromRows,
+  writeJsonl,
+} from "./lib.mjs";
 
 const checks = [];
 
@@ -133,49 +142,29 @@ if (exists("dist")) {
   const htmlFiles = listFiles("dist", (file) => file.endsWith(".html"));
   if (htmlFiles.length === 0) {
     checks.push(
-      result({
-        check_id: "build-required-for-seo",
-        check_class: "prerequisite",
-        target_artifact: "dist/",
-        expected_result: "Build output contains HTML for SEO checking",
-        actual_result: "No HTML files in dist/",
-        status: "FAIL",
-        severity: "medium",
-        remediation_if_failed: "Run npm run build first",
-      }),
+      buildRequiredResult(
+        "build-required-for-seo",
+        "Build output contains HTML for SEO checking",
+        "No HTML files in dist/",
+        "FAIL",
+      ),
     );
   } else {
     for (const file of htmlFiles) {
       try {
         checkHtmlFile(file);
       } catch (error) {
-        checks.push(
-          result({
-            check_id: `seo-meta-check-failed:${file}`,
-            check_class: "file_access",
-            target_artifact: file,
-            expected_result: "SEO meta tag check completed",
-            actual_result: `Error reading file: ${error.message}`,
-            status: "UNKNOWN",
-            severity: "low",
-            remediation_if_failed: "Ensure build output is readable",
-          }),
-        );
+        checks.push(fileReadErrorResult(`seo-meta-check-failed:${file}`, file, "SEO meta tag", error));
       }
     }
   }
 } else {
   checks.push(
-    result({
-      check_id: "build-required-for-seo",
-      check_class: "prerequisite",
-      target_artifact: "dist/",
-      expected_result: "Build output exists for SEO checking",
-      actual_result: "Build output missing",
-      status: "BLOCKED",
-      severity: "medium",
-      remediation_if_failed: "Run npm run build first",
-    }),
+    buildRequiredResult(
+      "build-required-for-seo",
+      "Build output exists for SEO checking",
+      "Build output missing",
+    ),
   );
 }
 

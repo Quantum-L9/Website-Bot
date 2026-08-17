@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { exists, fileExistenceResult, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
@@ -28,28 +28,24 @@ checks.push(
 // Check if dist directory was created
 if (buildResult.status === 0) {
   checks.push(
-    result({
-      check_id: "dist-directory-created",
-      check_class: "build_output",
-      target_artifact: "dist/",
-      expected_result: "Build output directory exists",
-      actual_result: exists("dist") ? "dist/ directory exists" : "dist/ directory missing",
-      status: exists("dist") ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: "Verify build process creates dist/ directory",
-    }),
+    fileExistenceResult(
+      "dist-directory-created",
+      "dist/",
+      "Build output directory exists",
+      "dist/ directory exists",
+      "dist/ directory missing",
+      "Verify build process creates dist/ directory",
+    ),
 
     // Check for index.html in output
-    result({
-      check_id: "index-html-generated",
-      check_class: "build_output",
-      target_artifact: "dist/index.html",
-      expected_result: "Index HTML file generated",
-      actual_result: exists("dist/index.html") ? "index.html found" : "index.html missing",
-      status: exists("dist/index.html") ? "PASS" : "FAIL",
-      severity: "high",
-      remediation_if_failed: "Ensure pages generate HTML output",
-    }),
+    fileExistenceResult(
+      "index-html-generated",
+      "dist/index.html",
+      "Index HTML file generated",
+      "index.html found",
+      "index.html missing",
+      "Ensure pages generate HTML output",
+    ),
   );
 }
 

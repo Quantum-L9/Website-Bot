@@ -1,7 +1,7 @@
 import {
+  envVarsMatching,
   exists,
   listFiles,
-  parseEnvExample,
   readText,
   result,
   statusFromRows,
@@ -11,13 +11,7 @@ import {
 const checks = [];
 
 // Check for form-related environment variables
-const envVars = parseEnvExample();
-const formEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("form") ||
-    key.toLowerCase().includes("webhook") ||
-    key.toLowerCase().includes("lead"),
-);
+const formEnvVars = envVarsMatching("form", "webhook", "lead");
 
 checks.push(
   result({
