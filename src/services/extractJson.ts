@@ -34,30 +34,54 @@ function stripCodeFences(raw: string): string | undefined {
   return candidate.length > 0 ? candidate : undefined;
 }
 
+interface ScanState {
+  depth: number;
+  inString: boolean;
+  escaped: boolean;
+}
+
+/** Advance the scanner past one character while inside a string literal. */
+function consumeStringChar(state: ScanState, char: string): void {
+  if (state.escaped) {
+    state.escaped = false;
+  } else if (char === "\\") {
+    state.escaped = true;
+  } else if (char === '"') {
+    state.inString = false;
+  }
+}
+
+/**
+ * Advance the scanner past one character outside a string literal.
+ * Returns true when the top-level value just closed (balanced JSON found).
+ */
+function consumeScannerChar(state: ScanState, char: string, open: string, close: string): boolean {
+  if (state.inString) {
+    consumeStringChar(state, char);
+    return false;
+  }
+  if (char === '"') {
+    state.inString = true;
+    return false;
+  }
+  if (char === open) {
+    state.depth += 1;
+    return false;
+  }
+  if (char !== close) return false;
+  state.depth -= 1;
+  return state.depth === 0;
+}
+
 function scanBalancedJson(raw: string): string | undefined {
   const start = raw.search(/[[{]/);
   if (start === -1) return undefined;
   const open = raw[start];
   const close = open === "{" ? "}" : "]";
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
+  const state: ScanState = { depth: 0, inString: false, escaped: false };
   for (let index = start; index < raw.length; index += 1) {
-    const char = raw[index];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (char === "\\") escaped = true;
-      else if (char === '"') inString = false;
-      continue;
-    }
-    if (char === '"') {
-      inString = true;
-      continue;
-    }
-    if (char === open) depth += 1;
-    else if (char === close) {
-      depth -= 1;
-      if (depth === 0) return raw.slice(start, index + 1);
+    if (consumeScannerChar(state, raw[index], open, close)) {
+      return raw.slice(start, index + 1);
     }
   }
   return undefined;
