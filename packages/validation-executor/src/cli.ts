@@ -3,6 +3,7 @@
 import { parseArgs } from "node:util";
 import { AuditReporter } from "./core/AuditReporter.js";
 import { ValidationExecutor } from "./core/ValidationExecutor.js";
+import { buildValidationCliOptions } from "./utils/cliOptions.js";
 
 async function tryLoadAdapter(
   modulePath: string,
@@ -139,49 +140,11 @@ async function main() {
     const { values, positionals } = parseArgs({
       args: process.argv.slice(2),
       allowPositionals: true,
-      options: {
-        profile: {
-          type: "string",
-          short: "p",
-          default: "default",
-        },
-        environment: {
-          type: "string",
-          short: "e",
-        },
-        "evidence-root": {
-          type: "string",
-          default: "validation",
-        },
-        output: {
-          type: "string",
-          short: "o",
-          default: "validation_report.yaml",
-        },
-        timeout: {
-          type: "string",
-          default: "300000", // 5 minutes
-        },
-        "fail-fast": {
-          type: "boolean",
-          default: false,
-        },
-        verbose: {
-          type: "boolean",
-          short: "v",
-          default: false,
-        },
-        help: {
-          type: "boolean",
-          short: "h",
-          default: false,
-        },
-        "repository-type": {
-          type: "string",
-          default: "auto",
-          description: "Repository type (auto, website-bot, seo-bot, default)",
-        },
-      },
+      options: buildValidationCliOptions({
+        evidenceRoot: "validation",
+        output: "validation_report.yaml",
+        repositoryType: "auto",
+      }),
     });
 
     if (values.help) {
