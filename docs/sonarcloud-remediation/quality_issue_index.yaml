@@ -1,0 +1,4413 @@
+# Quality Issue Index — Quantum-L9/Website-Bot
+# Generated 2026-08-17 from SonarCloud /issues/search (branch=main) + GitHub CI/bot history.
+# base_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+# total_open_sonar_issues: 213
+# severity_distribution: {'CRITICAL': 5, 'HIGH': 42, 'LOW': 62, 'MEDIUM': 104}
+# classification: {'ACTIVE': 170, 'CI_PIPELINE': 21, 'OBSOLETE_CODE_PATH': 22}
+
+issues:
+- issue_id: WB-042
+  canonical_fingerprint: typescript:S2699:packages/validation-executor/test/unit/E2EEngine.test.ts:199
+  source: SONARCLOUD
+  source_issue_id: AaAND5ArYEZf7TajLcQG
+  source_PR: None
+  rule_id: typescript:S2699
+  severity: CRITICAL
+  issue_type: CODE_SMELL
+  path: packages/validation-executor/test/unit/E2EEngine.test.ts
+  line_or_range: 199
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add at least one assertion to this test case."
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+- issue_id: WB-043
+  canonical_fingerprint: typescript:S2699:packages/validation-executor/test/unit/E2EEngine.test.ts:254
+  source: SONARCLOUD
+  source_issue_id: AaAND5ArYEZf7TajLcQH
+  source_PR: None
+  rule_id: typescript:S2699
+  severity: CRITICAL
+  issue_type: CODE_SMELL
+  path: packages/validation-executor/test/unit/E2EEngine.test.ts
+  line_or_range: 254
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add at least one assertion to this test case."
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+- issue_id: WB-122
+  canonical_fingerprint: typescript:S2699:tests/unit/factory-execution-plan.test.ts:11
+  source: SONARCLOUD
+  source_issue_id: AaAND5z1YEZf7TajLcRf
+  source_PR: None
+  rule_id: typescript:S2699
+  severity: CRITICAL
+  issue_type: CODE_SMELL
+  path: tests/unit/factory-execution-plan.test.ts
+  line_or_range: 11
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add at least one assertion to this test case."
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+- issue_id: WB-123
+  canonical_fingerprint: typescript:S2699:tests/unit/image-evidence-integration.test.ts:237
+  source: SONARCLOUD
+  source_issue_id: AaAND5v7YEZf7TajLcRd
+  source_PR: None
+  rule_id: typescript:S2699
+  severity: CRITICAL
+  issue_type: CODE_SMELL
+  path: tests/unit/image-evidence-integration.test.ts
+  line_or_range: 237
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add at least one assertion to this test case."
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+- issue_id: WB-124
+  canonical_fingerprint: typescript:S2699:tests/unit/recursive/contract-shape.test.ts:407
+  source: SONARCLOUD
+  source_issue_id: AaAND5w3YEZf7TajLcRe
+  source_PR: None
+  rule_id: typescript:S2699
+  severity: CRITICAL
+  issue_type: CODE_SMELL
+  path: tests/unit/recursive/contract-shape.test.ts
+  line_or_range: 407
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add at least one assertion to this test case."
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+- issue_id: WB-158
+  canonical_fingerprint: javascript:S3776:astro_template/scripts/verify-seo.mjs:54
+  source: SONARCLOUD
+  source_issue_id: AZ_8_NJtr8kWpJfaczLj
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: astro_template/scripts/verify-seo.mjs
+  line_or_range: 54
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-040
+  canonical_fingerprint: typescript:S3776:packages/bot-interop/src/handoff.ts:113
+  source: SONARCLOUD
+  source_issue_id: AaAND5KVYEZf7TajLcQL
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: packages/bot-interop/src/handoff.ts
+  line_or_range: 113
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-181
+  canonical_fingerprint: typescript:S3776:packages/validation-executor/src/cli.ts:45
+  source: SONARCLOUD
+  source_issue_id: AZ-VjqzFnYiN_t-pafkM
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: packages/validation-executor/src/cli.ts
+  line_or_range: 45
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-174
+  canonical_fingerprint: typescript:S3776:scripts/normalize-spec.ts:69
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0nvnhynfjhWVFgu
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/normalize-spec.ts
+  line_or_range: 69
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-051
+  canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:32
+  source: SONARCLOUD
+  source_issue_id: AaAND5sCYEZf7TajLcRF
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/validate-evidence-schemas.mjs
+  line_or_range: 32
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-202
+  canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:88
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCe1knU9eNQbsGbt
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/validate-evidence-schemas.mjs
+  line_or_range: 88
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 28 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-052
+  canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:29
+  source: SONARCLOUD
+  source_issue_id: AaAND5ssYEZf7TajLcRG
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/validate-recursive-schemas.mjs
+  line_or_range: 29
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-125
+  canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:85
+  source: SONARCLOUD
+  source_issue_id: AaAH6pkBNHe142DXVbaB
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/validate-recursive-schemas.mjs
+  line_or_range: 85
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-160
+  canonical_fingerprint: javascript:S3776:scripts/verify-secrets-live.mjs:153
+  source: SONARCLOUD
+  source_issue_id: AZ_sv5_VrBC9JuFxiRFm
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 153
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-161
+  canonical_fingerprint: javascript:S3776:scripts/verify-secrets-live.mjs:270
+  source: SONARCLOUD
+  source_issue_id: AZ_sv5_VrBC9JuFxiRFv
+  source_PR: None
+  rule_id: javascript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 270
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-143
+  canonical_fingerprint: typescript:S3776:src/campaigns/quality-delta-index.ts:16
+  source: SONARCLOUD
+  source_issue_id: AaAHIA9QRXPx87p88WLF
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/campaigns/quality-delta-index.ts
+  line_or_range: 16
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-145
+  canonical_fingerprint: typescript:S3776:src/campaigns/reviewable.ts:31
+  source: SONARCLOUD
+  source_issue_id: AaAHIA68RXPx87p88WLA
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/campaigns/reviewable.ts
+  line_or_range: 31
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-146
+  canonical_fingerprint: typescript:S3776:src/campaigns/runner.ts:49
+  source: SONARCLOUD
+  source_issue_id: AaAHIA-KRXPx87p88WLH
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/campaigns/runner.ts
+  line_or_range: 49
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 41 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-169
+  canonical_fingerprint: typescript:S3776:src/ingestion/PageExtractor.ts:175
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0jnnhynfjhWVFgs
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 175
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-170
+  canonical_fingerprint: typescript:S3776:src/ingestion/PageExtractor.ts:209
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0jnnhynfjhWVFgt
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 209
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 37 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-172
+  canonical_fingerprint: typescript:S3776:src/ingestion/SourceCrawler.ts:134
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0itnhynfjhWVFgh
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/ingestion/SourceCrawler.ts
+  line_or_range: 134
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 44 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-150
+  canonical_fingerprint: typescript:S2871:src/intelligence/compile-page-content-contract.ts:41
+  source: SONARCLOUD
+  source_issue_id: AaABXjd3vMKEkdkiCg1Y
+  source_PR: None
+  rule_id: typescript:S2871
+  severity: HIGH
+  issue_type: BUG
+  path: src/intelligence/compile-page-content-contract.ts
+  line_or_range: 41
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Provide a compare function that depends on \"String.localeCompare\", to reliably sort elements alphabetically."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-163
+  canonical_fingerprint: typescript:S3776:src/pipeline/FactoryExecutionPlan.ts:130
+  source: SONARCLOUD
+  source_issue_id: AZ_jNwDQLlJq96xpkanp
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/FactoryExecutionPlan.ts
+  line_or_range: 130
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-212
+  canonical_fingerprint: typescript:S3776:src/pipeline/PipelineRunner.ts:49
+  source: SONARCLOUD
+  source_issue_id: AZ8fyj-1_e3XSiHU_WKK
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/PipelineRunner.ts
+  line_or_range: 49
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 31 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-152
+  canonical_fingerprint: typescript:S3776:src/pipeline/PipelineRunner.ts:258
+  source: SONARCLOUD
+  source_issue_id: AZ_9A8uefHkNYAeYZw35
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/PipelineRunner.ts
+  line_or_range: 258
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 35 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-203
+  canonical_fingerprint: typescript:S3776:src/pipeline/evidence/AssemblyManifest.ts:35
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCWyknU9eNQbsGaa
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/AssemblyManifest.ts
+  line_or_range: 35
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-204
+  canonical_fingerprint: typescript:S3776:src/pipeline/evidence/EvidenceChainValidator.ts:37
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCVeknU9eNQbsGaQ
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/EvidenceChainValidator.ts
+  line_or_range: 37
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 79 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-205
+  canonical_fingerprint: typescript:S3776:src/pipeline/evidence/EvidenceIndex.ts:59
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCXBknU9eNQbsGad
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/EvidenceIndex.ts
+  line_or_range: 59
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-003
+  canonical_fingerprint: typescript:S3776:src/pipeline/evidence/RedesignExecutionIntegrityReceipt.ts:147
+  source: SONARCLOUD
+  source_issue_id: AaAREat-_Vw1g7vCg8qH
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/RedesignExecutionIntegrityReceipt.ts
+  line_or_range: 147
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-206
+  canonical_fingerprint: typescript:S3776:src/pipeline/evidence/ReleaseReceipt.ts:57
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCWjknU9eNQbsGaZ
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/ReleaseReceipt.ts
+  line_or_range: 57
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 32 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-175
+  canonical_fingerprint: typescript:S3776:src/pipeline/validateDomainSpec.ts:293
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0e4nhynfjhWVFga
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/pipeline/validateDomainSpec.ts
+  line_or_range: 293
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-207
+  canonical_fingerprint: typescript:S3776:src/provisioning/ProvisioningCoordinator.ts:76
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCYKknU9eNQbsGaj
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/provisioning/ProvisioningCoordinator.ts
+  line_or_range: 76
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 48 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-127
+  canonical_fingerprint: typescript:S3776:src/recursive/contracts/validate.ts:46
+  source: SONARCLOUD
+  source_issue_id: AaAH6pbcNHe142DXVbZ8
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/recursive/contracts/validate.ts
+  line_or_range: 46
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-131
+  canonical_fingerprint: typescript:S3776:src/recursive/signals/registry.ts:45
+  source: SONARCLOUD
+  source_issue_id: AaAH6pbANHe142DXVbZv
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 45
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 51 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-099
+  canonical_fingerprint: typescript:S3776:src/recursive/state/transitions.ts:86
+  source: SONARCLOUD
+  source_issue_id: AaAND5WzYEZf7TajLcQh
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/recursive/state/transitions.ts
+  line_or_range: 86
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 38 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-208
+  canonical_fingerprint: typescript:S3776:src/services/hashing.ts:124
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCc7knU9eNQbsGbZ
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/services/hashing.ts
+  line_or_range: 124
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-155
+  canonical_fingerprint: typescript:S3776:src/services/images/ImageAssetPlanner.ts:123
+  source: SONARCLOUD
+  source_issue_id: AZ_9A8vjfHkNYAeYZw38
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/services/images/ImageAssetPlanner.ts
+  line_or_range: 123
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-209
+  canonical_fingerprint: typescript:S3776:src/stages/ClientSourcePublishStage.ts:71
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCb3knU9eNQbsGbH
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/ClientSourcePublishStage.ts
+  line_or_range: 71
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-004
+  canonical_fingerprint: typescript:S3776:src/stages/CompetitiveIntelligenceStage.ts:398
+  source: SONARCLOUD
+  source_issue_id: AaAREafD_Vw1g7vCg8qE
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 398
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-107
+  canonical_fingerprint: typescript:S3776:src/stages/CompetitiveIntelligenceStage.ts:482
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQU
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 482
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-213
+  canonical_fingerprint: typescript:S3776:src/stages/ContentGenerationStage.ts:135
+  source: SONARCLOUD
+  source_issue_id: AZ8fyj9Q_e3XSiHU_WJ5
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/ContentGenerationStage.ts
+  line_or_range: 135
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 41 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-211
+  canonical_fingerprint: typescript:S3776:src/stages/HandoffEmitterStage.ts:94
+  source: SONARCLOUD
+  source_issue_id: AZ8fyj9X_e3XSiHU_WJ9
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/HandoffEmitterStage.ts
+  line_or_range: 94
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-180
+  canonical_fingerprint: typescript:S3776:src/stages/ImageAssetPlanningStage.ts:116
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0a7nhynfjhWVFgT
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/ImageAssetPlanningStage.ts
+  line_or_range: 116
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 43 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-164
+  canonical_fingerprint: typescript:S3776:src/stages/ImageValidationStage.ts:32
+  source: SONARCLOUD
+  source_issue_id: AZ_jNwAoLlJq96xpkank
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/ImageValidationStage.ts
+  line_or_range: 32
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 36 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-005
+  canonical_fingerprint: typescript:S3776:src/stages/RedesignContentAuthorityStage.ts:94
+  source: SONARCLOUD
+  source_issue_id: AaAREalN_Vw1g7vCg8qF
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/RedesignContentAuthorityStage.ts
+  line_or_range: 94
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-006
+  canonical_fingerprint: typescript:S3776:src/stages/RedesignSchemaSerializerStage.ts:21
+  source: SONARCLOUD
+  source_issue_id: AaAREalw_Vw1g7vCg8qG
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/RedesignSchemaSerializerStage.ts
+  line_or_range: 21
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-210
+  canonical_fingerprint: typescript:S3776:src/stages/SiteAssemblerStage.ts:204
+  source: SONARCLOUD
+  source_issue_id: AZ-SCCbQknU9eNQbsGa_
+  source_PR: None
+  rule_id: typescript:S3776
+  severity: HIGH
+  issue_type: CODE_SMELL
+  path: src/stages/SiteAssemblerStage.ts
+  line_or_range: 204
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-182
+  canonical_fingerprint: githubactions:S8233:.github/workflows/l9-analysis.yml:26
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuM3PCyclghWYfSl
+  source_PR: None
+  rule_id: githubactions:S8233
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-analysis.yml
+  line_or_range: 26
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Move this write permission from workflow level to job level."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-001
+  canonical_fingerprint: githubactions:S8233:.github/workflows/l9-analysis.yml:29
+  source: SONARCLOUD
+  source_issue_id: AaARKrZ48oxCzwUiejse
+  source_PR: None
+  rule_id: githubactions:S8233
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-analysis.yml
+  line_or_range: 29
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Move this write permission from workflow level to job level."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-183
+  canonical_fingerprint: githubactions:S8541:.github/workflows/l9-analysis.yml:87
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuM3PCyclghWYfSj
+  source_PR: None
+  rule_id: githubactions:S8541
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-analysis.yml
+  line_or_range: 87
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--only-binary :all:\" can lead to the execution of setup scripts. Make sure it is safe here."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-184
+  canonical_fingerprint: githubactions:S8544:.github/workflows/l9-analysis.yml:87
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuM3PCyclghWYfSk
+  source_PR: None
+  rule_id: githubactions:S8544
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-analysis.yml
+  line_or_range: 87
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Using dependencies without locking resolved versions is security-sensitive."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-185
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:66
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSm
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 66
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-186
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:66
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSn
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 66
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-187
+  canonical_fingerprint: githubactions:S8543:.github/workflows/l9-lint-test.yml:66
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSo
+  source_PR: None
+  rule_id: githubactions:S8543
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 66
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Using dependencies without locking resolved versions is security-sensitive."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-188
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:67
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSp
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 67
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-189
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:67
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSq
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 67
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-190
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:68
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSr
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 68
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Lifecycle scripts are enabled by default in Yarn v2+."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-191
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:68
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSs
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 68
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Lifecycle scripts are enabled by default in Yarn v2+."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-192
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:80
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSt
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 80
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "\"npx\" can install packages on-demand and run their lifecycle scripts."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-193
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:88
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSu
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 88
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "\"npx\" can install packages on-demand and run their lifecycle scripts."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-194
+  canonical_fingerprint: githubactions:S8543:.github/workflows/l9-lint-test.yml:88
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSv
+  source_PR: None
+  rule_id: githubactions:S8543
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 88
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Define exact package version to avoid installing unverified releases."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-195
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:127
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSw
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 127
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-196
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:127
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSx
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 127
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-197
+  canonical_fingerprint: githubactions:S8543:.github/workflows/l9-lint-test.yml:127
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSy
+  source_PR: None
+  rule_id: githubactions:S8543
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 127
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Using dependencies without locking resolved versions is security-sensitive."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-198
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:128
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfS0
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 128
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-199
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:128
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfSz
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 128
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-200
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:129
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfS1
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 129
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Lifecycle scripts are enabled by default in Yarn v2+."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-201
+  canonical_fingerprint: githubactions:S6505:.github/workflows/l9-lint-test.yml:129
+  source: SONARCLOUD
+  source_issue_id: AZ-UWuOwPCyclghWYfS2
+  source_PR: None
+  rule_id: githubactions:S6505
+  severity: MEDIUM
+  issue_type: VULNERABILITY
+  path: .github/workflows/l9-lint-test.yml
+  line_or_range: 129
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: CI_PIPELINE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Lifecycle scripts are enabled by default in Yarn v2+."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-007
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:171
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRq
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 171
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".cta-banner\", first used at line 157"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-008
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:175
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRr
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 175
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".trust-bar__badge\", first used at line 112"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-009
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:176
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRs
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 176
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".trust-bar__badges\", first used at line 111"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-010
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:177
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRt
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 177
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".service-card__title\", first used at line 136"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-011
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:178
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRu
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 178
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".service-card__cta\", first used at line 137"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-012
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:179
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRv
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 179
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".service-card__image\", first used at line 135"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-013
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:189
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRw
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 189
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".gallery-grid\", first used at line 165"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-014
+  canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:192
+  source: SONARCLOUD
+  source_issue_id: AaAND56JYEZf7TajLcRx
+  source_PR: None
+  rule_id: css:S4666
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: astro_template/src/styles/global.css
+  line_or_range: 192
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Duplicate selector \".hero__actions\", first used at line 102"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-015
+  canonical_fingerprint: Web:InputWithoutLabelCheck:docs/reports_and_test_results/08-15-2026/baseline/home.html:3
+  source: SONARCLOUD
+  source_issue_id: AaAND6G1YEZf7TajLcSL
+  source_PR: None
+  rule_id: Web:InputWithoutLabelCheck
+  severity: MEDIUM
+  issue_type: BUG
+  path: docs/reports_and_test_results/08-15-2026/baseline/home.html
+  line_or_range: 3
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add an \"id\" attribute to this input field and associate it with a label."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-016
+  canonical_fingerprint: Web:InputWithoutLabelCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_contact_.html:3
+  source: SONARCLOUD
+  source_issue_id: AaAND6DAYEZf7TajLcSD
+  source_PR: None
+  rule_id: Web:InputWithoutLabelCheck
+  severity: MEDIUM
+  issue_type: BUG
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_contact_.html
+  line_or_range: 3
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add an \"id\" attribute to this input field and associate it with a label."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-017
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_how-long-roof-replacement-takes-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6CgYEZf7TajLcSC
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_how-long-roof-replacement-takes-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-018
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_how-to-choose-roofing-contractor-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6BPYEZf7TajLcR_
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_how-to-choose-roofing-contractor-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-019
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_metal-roof-vs-shingles-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6AvYEZf7TajLcR-
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_metal-roof-vs-shingles-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-020
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_repair-or-replace-roof-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6D9YEZf7TajLcSF
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_repair-or-replace-roof-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-021
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_roof-replacement-cost-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6GQYEZf7TajLcSK
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_roof-replacement-cost-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-022
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_storm-damage-roof-repair-charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6DiYEZf7TajLcSE
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_guides_storm-damage-roof-repair-charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-023
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_service-areas_charlotte_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6EXYEZf7TajLcSG
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_service-areas_charlotte_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-024
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_asphalt-shingles_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND59uYEZf7TajLcR3
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_asphalt-shingles_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-025
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_flat-roofing_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6F1YEZf7TajLcSJ
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_flat-roofing_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-026
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_gutters_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6CFYEZf7TajLcSB
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_gutters_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-027
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_interior-renovations_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND5_cYEZf7TajLcR7
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_interior-renovations_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-028
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_metal-roofing_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND5_3YEZf7TajLcR8
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_metal-roofing_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-029
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_outdoor-living_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND5-_YEZf7TajLcR6
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_outdoor-living_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-030
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-inspection_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND5-hYEZf7TajLcR5
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-inspection_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-031
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-installation_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6E6YEZf7TajLcSH
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-installation_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-032
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-repair_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND59UYEZf7TajLcR2
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-repair_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-033
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-replacement_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND5-HYEZf7TajLcR4
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_roof-replacement_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-034
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_siding-fascia-soffit_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6AUYEZf7TajLcR9
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_siding-fascia-soffit_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-035
+  canonical_fingerprint: Web:LinksIdenticalTextsDifferentTargetsCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/_services_storm-damage_.html:1
+  source: SONARCLOUD
+  source_issue_id: AaAND6FVYEZf7TajLcSI
+  source_PR: None
+  rule_id: Web:LinksIdenticalTextsDifferentTargetsCheck
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/_services_storm-damage_.html
+  line_or_range: 1
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use distinct texts or point to the same target for this link and the one at line 1."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-036
+  canonical_fingerprint: Web:InputWithoutLabelCheck:docs/reports_and_test_results/08-15-2026/baseline/pages/home.html:3
+  source: SONARCLOUD
+  source_issue_id: AaAND6BqYEZf7TajLcSA
+  source_PR: None
+  rule_id: Web:InputWithoutLabelCheck
+  severity: MEDIUM
+  issue_type: BUG
+  path: docs/reports_and_test_results/08-15-2026/baseline/pages/home.html
+  line_or_range: 3
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: OBSOLETE_CODE_PATH
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Add an \"id\" attribute to this input field and associate it with a label."
+  remediation_status: excluded
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-041
+  canonical_fingerprint: typescript:S3358:packages/validation-executor/src/utils/secureExecution.ts:289
+  source: SONARCLOUD
+  source_issue_id: AaAND5I3YEZf7TajLcQK
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: packages/validation-executor/src/utils/secureExecution.ts
+  line_or_range: 289
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-136
+  canonical_fingerprint: typescript:S7785:scripts/campaign.ts:221
+  source: SONARCLOUD
+  source_issue_id: AaAHIBH5RXPx87p88WLK
+  source_PR: None
+  rule_id: typescript:S7785
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/campaign.ts
+  line_or_range: 221
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer top-level await over using a promise chain."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-050
+  canonical_fingerprint: typescript:S7785:scripts/recursive/recursive-cli.ts:220
+  source: SONARCLOUD
+  source_issue_id: AaAND5p_YEZf7TajLcRE
+  source_PR: None
+  rule_id: typescript:S7785
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/recursive/recursive-cli.ts
+  line_or_range: 220
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer top-level await over using a promise chain."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-054
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:104
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRO
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 104
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-055
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:106
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRP
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 106
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-056
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:122
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRQ
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 122
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-057
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:124
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRR
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 124
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-058
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:144
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRS
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 144
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-059
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:146
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRT
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 146
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-060
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:148
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRU
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 148
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-061
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:166
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRV
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 166
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-062
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:168
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRW
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 168
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-063
+  canonical_fingerprint: javascript:S4624:scripts/verify-secrets-live.mjs:174
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRX
+  source_PR: None
+  rule_id: javascript:S4624
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 174
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this code to not use nested template literals."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-064
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:201
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRY
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 201
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-065
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:203
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRZ
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 203
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-066
+  canonical_fingerprint: javascript:S8786:scripts/verify-secrets-live.mjs:212
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRa
+  source_PR: None
+  rule_id: javascript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 212
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-067
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:219
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRb
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 219
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-068
+  canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:259
+  source: SONARCLOUD
+  source_issue_id: AaAND5utYEZf7TajLcRc
+  source_PR: None
+  rule_id: javascript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 259
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-162
+  canonical_fingerprint: javascript:S7785:scripts/verify-secrets-live.mjs:346
+  source: SONARCLOUD
+  source_issue_id: AZ_sv5_VrBC9JuFxiRFw
+  source_PR: None
+  rule_id: javascript:S7785
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: scripts/verify-secrets-live.mjs
+  line_or_range: 346
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer top-level await over an async function `main` call."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-140
+  canonical_fingerprint: typescript:S7760:src/campaigns/candidate-evaluation.ts:110
+  source: SONARCLOUD
+  source_issue_id: AaAHIA6LRXPx87p88WK9
+  source_PR: None
+  rule_id: typescript:S7760
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/campaigns/candidate-evaluation.ts
+  line_or_range: 110
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer default parameters over reassignment."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-147
+  canonical_fingerprint: typescript:S6660:src/campaigns/runner.ts:203
+  source: SONARCLOUD
+  source_issue_id: AaAHIA-KRXPx87p88WLI
+  source_PR: None
+  rule_id: typescript:S6660
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/campaigns/runner.ts
+  line_or_range: 203
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'If' statement should not be the only statement in 'else' block"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-073
+  canonical_fingerprint: typescript:S8786:src/ingestion/PageExtractor.ts:62
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcRA
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 62
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-171
+  canonical_fingerprint: typescript:S2933:src/ingestion/SourceCrawler.ts:71
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0itnhynfjhWVFgg
+  source_PR: None
+  rule_id: typescript:S2933
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/ingestion/SourceCrawler.ts
+  line_or_range: 71
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Mark these members as `readonly`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-075
+  canonical_fingerprint: typescript:S8786:src/ingestion/SourceImagePolicy.ts:95
+  source: SONARCLOUD
+  source_issue_id: AaAND5nuYEZf7TajLcRC
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/ingestion/SourceImagePolicy.ts
+  line_or_range: 95
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-076
+  canonical_fingerprint: typescript:S5843:src/ingestion/SourceImagePolicy.ts:101
+  source: SONARCLOUD
+  source_issue_id: AaAND5nuYEZf7TajLcRD
+  source_PR: None
+  rule_id: typescript:S5843
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/ingestion/SourceImagePolicy.ts
+  line_or_range: 101
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its complexity from 21 to the 20 allowed."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-077
+  canonical_fingerprint: typescript:S8786:src/intelligence/SeoBuildIntelligenceHttpClient.ts:29
+  source: SONARCLOUD
+  source_issue_id: AaAND5ljYEZf7TajLcQ7
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/intelligence/SeoBuildIntelligenceHttpClient.ts
+  line_or_range: 29
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-078
+  canonical_fingerprint: typescript:S3358:src/pipeline/PipelineRunner.ts:287
+  source: SONARCLOUD
+  source_issue_id: AaAND5gkYEZf7TajLcQ3
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/pipeline/PipelineRunner.ts
+  line_or_range: 287
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-079
+  canonical_fingerprint: typescript:S3358:src/pipeline/PipelineRunner.ts:294
+  source: SONARCLOUD
+  source_issue_id: AaAND5gkYEZf7TajLcQ4
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/pipeline/PipelineRunner.ts
+  line_or_range: 294
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-083
+  canonical_fingerprint: typescript:S8786:src/provisioning/request.ts:42
+  source: SONARCLOUD
+  source_issue_id: AaAND5jvYEZf7TajLcQ5
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/provisioning/request.ts
+  line_or_range: 42
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-128
+  canonical_fingerprint: typescript:S4782:src/recursive/events/envelope.ts:41
+  source: SONARCLOUD
+  source_issue_id: AaAH6pRkNHe142DXVbZl
+  source_PR: None
+  rule_id: typescript:S4782
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/events/envelope.ts
+  line_or_range: 41
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Consider removing 'undefined' type or '?' specifier, one of them is redundant."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-129
+  canonical_fingerprint: typescript:S8786:src/recursive/executor/envelope.ts:20
+  source: SONARCLOUD
+  source_issue_id: AaAH6pb8NHe142DXVbZ-
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/executor/envelope.ts
+  line_or_range: 20
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-086
+  canonical_fingerprint: typescript:S4624:src/recursive/harvest/compiler.ts:148
+  source: SONARCLOUD
+  source_issue_id: AaAND5X1YEZf7TajLcQi
+  source_PR: None
+  rule_id: typescript:S4624
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/harvest/compiler.ts
+  line_or_range: 148
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Refactor this code to not use nested template literals."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-130
+  canonical_fingerprint: typescript:S3358:src/recursive/harvest/compiler.ts:219
+  source: SONARCLOUD
+  source_issue_id: AaAH6palNHe142DXVbZs
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/harvest/compiler.ts
+  line_or_range: 219
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-089
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:67
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQm
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 67
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-090
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQn
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 81
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-091
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQo
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 81
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-092
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:82
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQp
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 82
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-093
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQq
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 83
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-094
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQr
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 83
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-095
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:84
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQs
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 84
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-096
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:85
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQt
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 85
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-097
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQu
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 86
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-098
+  canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQv
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 86
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-132
+  canonical_fingerprint: typescript:S4030:src/recursive/simulation/simulate.ts:117
+  source: SONARCLOUD
+  source_issue_id: AaAH6pbsNHe142DXVbZ9
+  source_PR: None
+  rule_id: typescript:S4030
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/recursive/simulation/simulate.ts
+  line_or_range: 117
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Either use this collection's contents or remove the collection."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-177
+  canonical_fingerprint: typescript:S8786:src/services/images/ImageInspector.ts:109
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0gunhynfjhWVFgd
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/services/images/ImageInspector.ts
+  line_or_range: 109
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-178
+  canonical_fingerprint: typescript:S8786:src/services/images/ImageInspector.ts:110
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0gunhynfjhWVFge
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/services/images/ImageInspector.ts
+  line_or_range: 110
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-111
+  canonical_fingerprint: typescript:S8786:src/stages/ContentGenerationStage.ts:24
+  source: SONARCLOUD
+  source_issue_id: AaAND5OhYEZf7TajLcQc
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/ContentGenerationStage.ts
+  line_or_range: 24
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-112
+  canonical_fingerprint: typescript:S8786:src/stages/ContentGenerationStage.ts:32
+  source: SONARCLOUD
+  source_issue_id: AaAND5OhYEZf7TajLcQd
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/ContentGenerationStage.ts
+  line_or_range: 32
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-114
+  canonical_fingerprint: typescript:S8786:src/stages/HandoffEmitterStage.ts:168
+  source: SONARCLOUD
+  source_issue_id: AaAND5Q9YEZf7TajLcQf
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/HandoffEmitterStage.ts
+  line_or_range: 168
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-115
+  canonical_fingerprint: typescript:S3358:src/stages/ImageGenerationStage.ts:57
+  source: SONARCLOUD
+  source_issue_id: AaAND5NMYEZf7TajLcQb
+  source_PR: None
+  rule_id: typescript:S3358
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/ImageGenerationStage.ts
+  line_or_range: 57
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Extract this nested ternary operation into an independent statement."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-165
+  canonical_fingerprint: typescript:S107:src/stages/ImageGenerationStage.ts:172
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0btnhynfjhWVFgW
+  source_PR: None
+  rule_id: typescript:S107
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/ImageGenerationStage.ts
+  line_or_range: 172
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Async method 'resolveAsset' has too many parameters (9). Maximum allowed is 7."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-166
+  canonical_fingerprint: typescript:S1854:src/stages/ImageGenerationStage.ts:191
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0btnhynfjhWVFgX
+  source_PR: None
+  rule_id: typescript:S1854
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/stages/ImageGenerationStage.ts
+  line_or_range: 191
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Remove this useless assignment to variable \"mimeType\"."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-120
+  canonical_fingerprint: typescript:S8786:src/validation/validate-generated-site.ts:83
+  source: SONARCLOUD
+  source_issue_id: AaAND5knYEZf7TajLcQ6
+  source_PR: None
+  rule_id: typescript:S8786
+  severity: MEDIUM
+  issue_type: CODE_SMELL
+  path: src/validation/validate-generated-site.ts
+  line_or_range: 83
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-156
+  canonical_fingerprint: javascript:S7780:astro_template/scripts/verify-seo.mjs:19
+  source: SONARCLOUD
+  source_issue_id: AZ_8_NJtr8kWpJfaczLh
+  source_PR: None
+  rule_id: javascript:S7780
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: astro_template/scripts/verify-seo.mjs
+  line_or_range: 19
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`String.raw` should be used to avoid escaping `\\`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-157
+  canonical_fingerprint: javascript:S7780:astro_template/scripts/verify-seo.mjs:20
+  source: SONARCLOUD
+  source_issue_id: AZ_8_NJtr8kWpJfaczLi
+  source_PR: None
+  rule_id: javascript:S7780
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: astro_template/scripts/verify-seo.mjs
+  line_or_range: 20
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`String.raw` should be used to avoid escaping `\\`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-037
+  canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs:12
+  source: SONARCLOUD
+  source_issue_id: AaAND58hYEZf7TajLcR0
+  source_PR: None
+  rule_id: javascript:S4036
+  severity: LOW
+  issue_type: VULNERABILITY
+  path: examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs
+  line_or_range: 12
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-038
+  canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs:20
+  source: SONARCLOUD
+  source_issue_id: AaAND58hYEZf7TajLcR1
+  source_PR: None
+  rule_id: javascript:S4036
+  severity: LOW
+  issue_type: VULNERABILITY
+  path: examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs
+  line_or_range: 20
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-039
+  canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/verify-build.mjs:21
+  source: SONARCLOUD
+  source_issue_id: AaAND572YEZf7TajLcRy
+  source_PR: None
+  rule_id: javascript:S4036
+  severity: LOW
+  issue_type: VULNERABILITY
+  path: examples/supplemental-insurance-pros/astro_site/scripts/verify-build.mjs
+  line_or_range: 21
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Make sure the \"PATH\" variable only contains fixed, unwriteable directories."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-134
+  canonical_fingerprint: typescript:S7781:scripts/campaign-cli-args.ts:62
+  source: SONARCLOUD
+  source_issue_id: AaAHIBKARXPx87p88WLL
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/campaign-cli-args.ts
+  line_or_range: 62
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-135
+  canonical_fingerprint: typescript:S6582:scripts/campaign.ts:218
+  source: SONARCLOUD
+  source_issue_id: AaAHIBH5RXPx87p88WLJ
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/campaign.ts
+  line_or_range: 218
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-159
+  canonical_fingerprint: typescript:S7750:scripts/generate-spec.ts:31
+  source: SONARCLOUD
+  source_issue_id: AZ_s4DEQ37GjHCTKfW2X
+  source_PR: None
+  rule_id: typescript:S7750
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 31
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `.find(\u2026)` over `.filter(\u2026)`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-044
+  canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:181
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRI
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 181
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-045
+  canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:192
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRJ
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 192
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-046
+  canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:203
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRK
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 203
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'(parsed as Record<string, unknown>).vertical ?? \"business\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-047
+  canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:217
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRL
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 217
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-048
+  canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:254
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRM
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 254
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-049
+  canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:255
+  source: SONARCLOUD
+  source_issue_id: AaAND5tiYEZf7TajLcRN
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/generate-spec.ts
+  line_or_range: 255
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-053
+  canonical_fingerprint: javascript:S7780:scripts/validate-recursive-schemas.mjs:104
+  source: SONARCLOUD
+  source_issue_id: AaAND5ssYEZf7TajLcRH
+  source_PR: None
+  rule_id: javascript:S7780
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: scripts/validate-recursive-schemas.mjs
+  line_or_range: 104
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`String.raw` should be used to avoid escaping `\\`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-137
+  canonical_fingerprint: typescript:S7763:src/campaigns/campaign-budget.ts:9
+  source: SONARCLOUD
+  source_issue_id: AaAHIA7YRXPx87p88WLB
+  source_PR: None
+  rule_id: typescript:S7763
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/campaign-budget.ts
+  line_or_range: 9
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use `export\u2026from` to re-export `DEFAULT_CAMPAIGN_BUDGET`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-138
+  canonical_fingerprint: typescript:S7754:src/campaigns/campaign-files.ts:26
+  source: SONARCLOUD
+  source_issue_id: AaAHIA6jRXPx87p88WK_
+  source_PR: None
+  rule_id: typescript:S7754
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/campaign-files.ts
+  line_or_range: 26
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-139
+  canonical_fingerprint: typescript:S7744:src/campaigns/campaign-manifest.ts:28
+  source: SONARCLOUD
+  source_issue_id: AaAHIA9rRXPx87p88WLG
+  source_PR: None
+  rule_id: typescript:S7744
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/campaign-manifest.ts
+  line_or_range: 28
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "The empty object is useless."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-141
+  canonical_fingerprint: typescript:S6582:src/campaigns/candidate-evaluation.ts:149
+  source: SONARCLOUD
+  source_issue_id: AaAHIA6LRXPx87p88WK-
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/candidate-evaluation.ts
+  line_or_range: 149
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-142
+  canonical_fingerprint: typescript:S6582:src/campaigns/learning-registry.ts:44
+  source: SONARCLOUD
+  source_issue_id: AaAHIA8QRXPx87p88WLD
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/learning-registry.ts
+  line_or_range: 44
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-144
+  canonical_fingerprint: typescript:S7786:src/campaigns/quality-dimension-result.ts:41
+  source: SONARCLOUD
+  source_issue_id: AaAHIA5jRXPx87p88WK8
+  source_PR: None
+  rule_id: typescript:S7786
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/quality-dimension-result.ts
+  line_or_range: 41
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-148
+  canonical_fingerprint: typescript:S6598:src/campaigns/test-ladder.ts:43
+  source: SONARCLOUD
+  source_issue_id: AaAHIA72RXPx87p88WLC
+  source_PR: None
+  rule_id: typescript:S6598
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/test-ladder.ts
+  line_or_range: 43
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Interface has only a call signature, you should use a function type instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-149
+  canonical_fingerprint: typescript:S6598:src/campaigns/types.ts:379
+  source: SONARCLOUD
+  source_issue_id: AaAHIA8qRXPx87p88WLE
+  source_PR: None
+  rule_id: typescript:S6598
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/campaigns/types.ts
+  line_or_range: 379
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Interface has only a call signature, you should use a function type instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-069
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:52
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcQ8
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 52
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-070
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:53
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcQ9
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 53
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-071
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:54
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcQ-
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 54
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-167
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:55
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0jnnhynfjhWVFgn
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 55
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-168
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:56
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0jnnhynfjhWVFgo
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 56
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-072
+  canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:57
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcQ_
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 57
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-074
+  canonical_fingerprint: typescript:S7780:src/ingestion/PageExtractor.ts:66
+  source: SONARCLOUD
+  source_issue_id: AaAND5mfYEZf7TajLcRB
+  source_PR: None
+  rule_id: typescript:S7780
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/PageExtractor.ts
+  line_or_range: 66
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`String.raw` should be used to avoid escaping `\\`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-151
+  canonical_fingerprint: typescript:S7755:src/ingestion/SourcePalette.ts:87
+  source: SONARCLOUD
+  source_issue_id: AZ_9A80PfHkNYAeYZw3_
+  source_PR: None
+  rule_id: typescript:S7755
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/ingestion/SourcePalette.ts
+  line_or_range: 87
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `.at(\u2026)` over `[\u2026.length - index]`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-002
+  canonical_fingerprint: typescript:S7763:src/intelligence/DonorIngestion.ts:146
+  source: SONARCLOUD
+  source_issue_id: AaAREayR_Vw1g7vCg8qI
+  source_PR: None
+  rule_id: typescript:S7763
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/intelligence/DonorIngestion.ts
+  line_or_range: 146
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use `export\u2026from` to re-export `NoopScreenshotCapturer`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-080
+  canonical_fingerprint: typescript:S6551:src/pipeline/evidence/FileEvidenceStore.ts:552
+  source: SONARCLOUD
+  source_issue_id: AaAND5cFYEZf7TajLcQx
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/FileEvidenceStore.ts
+  line_or_range: 552
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'record.proofId ??\n        record.publicationId ??\n        record.deploymentEvidenceId ??\n        record.receipt_id ??\n        record.contract_id ??\n        `${this.options.buildId}:${kind}`' will use"
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-081
+  canonical_fingerprint: typescript:S7786:src/pipeline/evidence/SourceSiteManifest.ts:118
+  source: SONARCLOUD
+  source_issue_id: AaAND5dTYEZf7TajLcQy
+  source_PR: None
+  rule_id: typescript:S7786
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/pipeline/evidence/SourceSiteManifest.ts
+  line_or_range: 118
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-082
+  canonical_fingerprint: typescript:S6551:src/pipeline/validateDomainSpec.ts:328
+  source: SONARCLOUD
+  source_issue_id: AaAND5fMYEZf7TajLcQ1
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/pipeline/validateDomainSpec.ts
+  line_or_range: 328
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'slot.imageSize' may use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-126
+  canonical_fingerprint: typescript:S4323:src/recursive/contracts/types.ts:102
+  source: SONARCLOUD
+  source_issue_id: AaAH6pbPNHe142DXVbZ6
+  source_PR: None
+  rule_id: typescript:S4323
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/contracts/types.ts
+  line_or_range: 102
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Replace this union type with a type alias."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-084
+  canonical_fingerprint: typescript:S6582:src/recursive/contracts/validate.ts:34
+  source: SONARCLOUD
+  source_issue_id: AaAND5aRYEZf7TajLcQw
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/contracts/validate.ts
+  line_or_range: 34
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-085
+  canonical_fingerprint: typescript:S7737:src/recursive/exec.ts:35
+  source: SONARCLOUD
+  source_issue_id: AaAND5YhYEZf7TajLcQk
+  source_PR: None
+  rule_id: typescript:S7737
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/exec.ts
+  line_or_range: 35
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Do not use an object literal as default for parameter `options`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-087
+  canonical_fingerprint: typescript:S7754:src/recursive/harvest/compiler.ts:213
+  source: SONARCLOUD
+  source_issue_id: AaAND5X1YEZf7TajLcQj
+  source_PR: None
+  rule_id: typescript:S7754
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/harvest/compiler.ts
+  line_or_range: 213
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-088
+  canonical_fingerprint: typescript:S4323:src/recursive/signals/registry.ts:19
+  source: SONARCLOUD
+  source_issue_id: AaAND5ZFYEZf7TajLcQl
+  source_PR: None
+  rule_id: typescript:S4323
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/signals/registry.ts
+  line_or_range: 19
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Replace this union type with a type alias."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-133
+  canonical_fingerprint: typescript:S6582:src/recursive/state/run-manifest.ts:147
+  source: SONARCLOUD
+  source_issue_id: AaAH6paWNHe142DXVbZp
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/recursive/state/run-manifest.ts
+  line_or_range: 147
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-153
+  canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:7
+  source: SONARCLOUD
+  source_issue_id: AZ_9A8wCfHkNYAeYZw39
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/services/content/plainText.ts
+  line_or_range: 7
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-154
+  canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:13
+  source: SONARCLOUD
+  source_issue_id: AZ_9A8wCfHkNYAeYZw3-
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/services/content/plainText.ts
+  line_or_range: 13
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-176
+  canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:86
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0gunhynfjhWVFgc
+  source_PR: None
+  rule_id: typescript:S7758
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/services/images/ImageInspector.ts
+  line_or_range: 86
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-179
+  canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:130
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0gunhynfjhWVFgf
+  source_PR: None
+  rule_id: typescript:S7758
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/services/images/ImageInspector.ts
+  line_or_range: 130
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-100
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:99
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQM
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 99
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.disposition ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-101
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:107
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQN
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 107
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.pattern_id ?? `p-${index}`' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-102
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:108
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQO
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 108
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.evidence ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-103
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:109
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQP
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 109
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.invariant ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-104
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:111
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQQ
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 111
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.beneficiary_destination ?? entry.beneficiary ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-105
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:112
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQR
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 112
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.risk ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-106
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:113
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQS
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 113
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'entry.acceptance_test ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-108
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:711
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQV
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 711
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'row.section_id ?? `s-${index}`' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-109
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:712
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQW
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 712
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'row.component_class ?? \"prose\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-110
+  canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:713
+  source: SONARCLOUD
+  source_issue_id: AaAND5LNYEZf7TajLcQX
+  source_PR: None
+  rule_id: typescript:S6551
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/CompetitiveIntelligenceStage.ts
+  line_or_range: 713
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "'row.objective ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-113
+  canonical_fingerprint: typescript:S7781:src/stages/ContentGenerationStage.ts:37
+  source: SONARCLOUD
+  source_issue_id: AaAND5OhYEZf7TajLcQe
+  source_PR: None
+  rule_id: typescript:S7781
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/ContentGenerationStage.ts
+  line_or_range: 37
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-116
+  canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
+  source: SONARCLOUD
+  source_issue_id: AaAND5LwYEZf7TajLcQY
+  source_PR: None
+  rule_id: typescript:S1940
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/ImageValidationStage.ts
+  line_or_range: 92
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use the opposite operator (<=) instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-117
+  canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
+  source: SONARCLOUD
+  source_issue_id: AaAND5LwYEZf7TajLcQZ
+  source_PR: None
+  rule_id: typescript:S1940
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/ImageValidationStage.ts
+  line_or_range: 92
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use the opposite operator (<=) instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-118
+  canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
+  source: SONARCLOUD
+  source_issue_id: AaAND5LwYEZf7TajLcQa
+  source_PR: None
+  rule_id: typescript:S1940
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/ImageValidationStage.ts
+  line_or_range: 92
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Use the opposite operator (<=) instead."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-119
+  canonical_fingerprint: typescript:S6582:src/stages/ReleaseReceiptStage.ts:68
+  source: SONARCLOUD
+  source_issue_id: AaAND5RjYEZf7TajLcQg
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/ReleaseReceiptStage.ts
+  line_or_range: 68
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-173
+  canonical_fingerprint: typescript:S6582:src/stages/SourceSiteIngestionStage.ts:48
+  source: SONARCLOUD
+  source_issue_id: AZ_ZJ0cLnhynfjhWVFgY
+  source_PR: None
+  rule_id: typescript:S6582
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: src/stages/SourceSiteIngestionStage.ts
+  line_or_range: 48
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+- issue_id: WB-121
+  canonical_fingerprint: typescript:S1128:tests/helpers/siteFactoryFixture.ts:7
+  source: SONARCLOUD
+  source_issue_id: AaAND52TYEZf7TajLcRg
+  source_PR: None
+  rule_id: typescript:S1128
+  severity: LOW
+  issue_type: CODE_SMELL
+  path: tests/helpers/siteFactoryFixture.ts
+  line_or_range: 7
+  first_seen: unknown
+  last_seen: 2026-08-17T20:17:24.911817+00:00
+  historical_status: OPEN
+  current_HEAD_status: ACTIVE
+  duplicate_of: None
+  evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
+  root_cause: "Remove this unused import of 'BuildIntent'."
+  remediation_status: pending
+  validation_status: not_run
+  commit_SHA: None
+
+github_ci_history:
+- issue_id: GH-CI-ci
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T01:04:07Z
+  last_seen: 2026-08-17T20:17:22Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "52 failed workflow runs (CI) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-l9-analysis
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T01:04:07Z
+  last_seen: 2026-08-17T20:17:22Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "52 failed workflow runs (L9 Analysis) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-memory-stack-dependency-gate
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T01:04:06Z
+  last_seen: 2026-08-17T20:17:21Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "52 failed workflow runs (Memory stack dependency gate) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-l9-lint-and-test
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T17:28:15Z
+  last_seen: 2026-08-17T20:17:21Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "51 failed workflow runs (L9 Lint and Test) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-build-and-validate
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T17:30:30Z
+  last_seen: 2026-08-17T20:14:52Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "37 failed workflow runs (Build and Validate) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-push-on-main
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T17:28:15Z
+  last_seen: 2026-08-17T20:17:21Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "14 failed workflow runs (Code Quality: Push on main) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-pr-#133
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-17T12:33:20Z
+  last_seen: 2026-08-17T18:32:02Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "11 failed workflow runs (Code Quality: PR #133) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-bot-interop-package
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-16T23:57:47Z
+  last_seen: 2026-08-17T18:51:56Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "5 failed workflow runs (Bot interop package) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-pr-#125
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-16T23:00:07Z
+  last_seen: 2026-08-16T23:57:46Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "5 failed workflow runs (Code Quality: PR #125) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-pr-#119
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T20:27:31Z
+  last_seen: 2026-08-15T23:51:47Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "4 failed workflow runs (Code Quality: PR #119) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-pr-#118
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-15T19:54:27Z
+  last_seen: 2026-08-15T20:31:28Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "3 failed workflow runs (Code Quality: PR #118) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-CI-code-quality:-pr-#138
+  source: GITHUB_CI
+  rule_id: workflow-run-failure
+  severity: INFO
+  first_seen: 2026-08-17T19:02:22Z
+  last_seen: 2026-08-17T19:10:36Z
+  historical_status: FAILED
+  current_HEAD_status: UNKNOWN
+  evidence: "2 failed workflow runs (Code Quality: PR #138) across all branches; see failed-workflow-runs.json"
+  root_cause: "historical CI failures \u2014 merged PR / gate history"
+  remediation_status: investigate
+- issue_id: GH-BOT-SONARCLOUD
+  source: PR_REVIEW_BOT
+  rule_id: sonarqubecloud-quality-gate-comment
+  severity: INFO
+  first_seen: 2026-07-01T22:26:36Z
+  last_seen: 2026-07-29T16:30:27Z
+  historical_status: 5 QUALITY GATE FAILED comments (2026-07-21..24); 38 passed
+  current_HEAD_status: HISTORICAL
+  evidence: "43 sonarqubecloud[bot] issue comments fetched via GitHub API"
+  root_cause: "SonarCloud quality gate failed on 5 PR analyses in July 2026"
+  remediation_status: excluded

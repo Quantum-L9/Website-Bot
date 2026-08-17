@@ -405,12 +405,20 @@ test("bound contract field sets are pinned exactly as the pack requires", () => 
 });
 
 test("every sample artifact passes its bound schema exactly as emitted", () => {
-  assertSchemaConformance("engineering-signal", sampleSignal());
-  assertSchemaConformance("pe-pack", samplePack());
-  assertSchemaConformance("code-change-outcome", sampleOutcome());
-  assertSchemaConformance("recursive-engineering-event", sampleEvent());
-  assertSchemaConformance("recursive-engineering-wave", sampleWave());
-  assertSchemaConformance("recursive-engineering-run", sampleRunReceipt());
+  const samples: Array<[Parameters<typeof assertSchemaConformance>[0], unknown]> = [
+    ["engineering-signal", sampleSignal()],
+    ["pe-pack", samplePack()],
+    ["code-change-outcome", sampleOutcome()],
+    ["recursive-engineering-event", sampleEvent()],
+    ["recursive-engineering-wave", sampleWave()],
+    ["recursive-engineering-run", sampleRunReceipt()],
+  ];
+  for (const [schemaId, sample] of samples) {
+    assert.doesNotThrow(
+      () => assertSchemaConformance(schemaId, sample),
+      `${schemaId} sample must conform to its bound schema`,
+    );
+  }
 });
 
 test("refs are content-addressed and byte-verifiable", () => {
