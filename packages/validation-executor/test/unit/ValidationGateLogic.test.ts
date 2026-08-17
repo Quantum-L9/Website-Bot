@@ -27,7 +27,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate passes with mixed blocking/non-blocking results - all blocking pass", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       const checks: PreflightCheck[] = [
@@ -82,7 +82,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate fails with single blocking failure among multiple checks", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       const checks: PreflightCheck[] = [
@@ -155,7 +155,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate evaluates all failure statuses as blocking failures", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       // Test all failure statuses that should block
@@ -212,7 +212,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate handles Unknown status as blocking unknown", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       const checks: PreflightCheck[] = [
@@ -251,7 +251,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate ignores non-blocking checks in authorization decision", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       const checks: PreflightCheck[] = [
@@ -328,7 +328,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate handles empty check list", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       try {
@@ -347,7 +347,7 @@ describe("Validation Gate Logic Edge Cases", () => {
     test("gate provides comprehensive evidence references", async () => {
       const env = await createTestEnvironment();
       const adapter = new MockRepositoryAdapter();
-      const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+      const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
       const engine = new PreflightEngine(adapter, evidenceCollector);
 
       const checks: PreflightCheck[] = [

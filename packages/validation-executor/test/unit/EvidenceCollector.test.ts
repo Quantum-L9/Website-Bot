@@ -14,7 +14,7 @@ describe("EvidenceCollector", () => {
   test("stores evidence with proper integrity validation", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const testData = {
       test_id: "integrity-test",
@@ -43,7 +43,7 @@ describe("EvidenceCollector", () => {
   test("generates checksums for evidence integrity", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const testData = { content: "test data for checksum" };
 
@@ -65,7 +65,7 @@ describe("EvidenceCollector", () => {
   test("redacts sensitive data from evidence", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const sensitiveData = {
       command: "deploy --api-key=secret123",
@@ -111,26 +111,21 @@ describe("EvidenceCollector", () => {
   test("stores execution traces with proper metadata", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const traceData = {
       command: "npm test",
+      workingDirectory: process.cwd(),
       exitCode: 0,
       stdout: "All tests passed",
       stderr: "",
+      duration: 1234,
       startedAt: new Date().toISOString(),
       endedAt: new Date().toISOString(),
     };
 
     try {
-      const traceId = await collector.storeExecutionTrace(
-        traceData.command,
-        traceData.exitCode,
-        traceData.stdout,
-        traceData.stderr,
-        traceData.startedAt,
-        traceData.endedAt,
-      );
+      const traceId = await collector.storeExecutionTrace(traceData);
 
       ok(traceId, "Should return trace ID");
       ok(traceId.includes("execution_trace"), "Trace ID should indicate type");
@@ -152,7 +147,7 @@ describe("EvidenceCollector", () => {
   test("validates evidence integrity after storage", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const testData = { validation: "test data" };
 
@@ -178,7 +173,7 @@ describe("EvidenceCollector", () => {
   test("handles concurrent evidence storage safely", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const concurrentOperations = Array.from({ length: 5 }, (_, i) =>
       collector.storeEvidence(`concurrent-test-${i}`, { index: i, data: `test data ${i}` }),
@@ -204,7 +199,7 @@ describe("EvidenceCollector", () => {
   test("classifies evidence types correctly", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const collector = new EvidenceCollector(adapter, env.evidenceDir);
+    const collector = await EvidenceCollector.create(adapter, env.evidenceDir);
 
     const testCases = [
       {
@@ -256,7 +251,7 @@ describe("EvidenceCollector", () => {
     const nonExistentDir = join(env.tempDir, "non-existent", "evidence");
 
     // Collector should create the directory
-    const collector = new EvidenceCollector(adapter, nonExistentDir);
+    const collector = await EvidenceCollector.create(adapter, nonExistentDir);
 
     try {
       await collector.storeEvidence("directory-test", { test: "data" });

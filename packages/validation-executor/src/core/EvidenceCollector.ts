@@ -4,6 +4,21 @@ import { dirname, join } from "node:path";
 import type { RepositoryAdapter } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
 
+/**
+ * Options for {@link EvidenceCollector.storeExecutionTrace} (S107: options
+ * object instead of 8 positional parameters).
+ */
+export interface ExecutionTraceOptions {
+  command: string;
+  workingDirectory: string;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  duration: number;
+  startedAt: string;
+  endedAt: string;
+}
+
 export class EvidenceCollectorError extends Error {
   constructor(
     message: string,
@@ -25,18 +40,28 @@ export class EvidenceCollector {
   private readonly logger = createLogger("EvidenceCollector");
   private readonly evidenceStore = new Map<string, any>();
 
-  constructor(
+  private constructor(
     private readonly adapter: RepositoryAdapter,
     private readonly evidenceRoot: string,
   ) {
+    // S7059: constructors must not perform asynchronous work. Creation goes
+    // through the static async factory below, which initializes the evidence
+    // directory synchronously in the caller's control flow.
     this.logger.info({ evidenceRoot }, "Evidence collector initialized");
-    // Ensure evidence directory exists
-    this.ensureEvidenceDirectory().catch((error) => {
-      this.logger.warn(
-        { error, evidenceRoot },
-        "Could not create evidence directory during initialization",
-      );
-    });
+  }
+
+  /**
+   * Create an EvidenceCollector with its evidence directory ensured.
+   * Replaces the former async fire-and-forget in the constructor (S7059).
+   */
+  static async create(adapter: RepositoryAdapter, evidenceRoot: string): Promise<EvidenceCollector> {
+    const instance = new EvidenceCollector(adapter, evidenceRoot);
+    await instance.initializeAsync();
+    return instance;
+  }
+
+  private async initializeAsync(): Promise<void> {
+    await this.ensureEvidenceDirectory();
   }
 
   /**
@@ -95,16 +120,17 @@ export class EvidenceCollector {
   /**
    * Store execution trace evidence
    */
-  async storeExecutionTrace(
-    command: string,
-    workingDirectory: string,
-    exitCode: number,
-    stdout: string,
-    stderr: string,
-    duration: number,
-    startedAt: string,
-    endedAt: string,
-  ): Promise<string> {
+  async storeExecutionTrace(options: ExecutionTraceOptions): Promise<string> {
+    const {
+      command,
+      workingDirectory,
+      exitCode,
+      stdout,
+      stderr,
+      duration,
+      startedAt,
+      endedAt,
+    } = options;
     const traceId = `execution_trace_${randomUUID()}`;
 
     const trace = {

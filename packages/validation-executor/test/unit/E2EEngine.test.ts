@@ -19,7 +19,7 @@ describe("E2EEngine", () => {
   test("executes E2E tests successfully and evaluates results", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     // Configure successful test executions
@@ -81,7 +81,7 @@ describe("E2EEngine", () => {
   test("properly classifies test failures vs assertion failures", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     // Configure assertion failure
@@ -148,7 +148,7 @@ describe("E2EEngine", () => {
   test("marks tests as blocked by preflight gate correctly", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     const testDefinitions = createMockE2ETests();
@@ -199,7 +199,7 @@ describe("E2EEngine", () => {
   test("evaluates E2E gate as Failed when tests fail", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     const tests: E2ETestResult[] = [
@@ -254,7 +254,7 @@ describe("E2EEngine", () => {
   test("evaluates E2E gate as Passed when all tests pass", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     const tests: E2ETestResult[] = [
@@ -309,7 +309,7 @@ describe("E2EEngine", () => {
   test("generates comprehensive summary with correct metrics", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new E2EEngine(adapter, evidenceCollector);
 
     const tests: E2ETestResult[] = [

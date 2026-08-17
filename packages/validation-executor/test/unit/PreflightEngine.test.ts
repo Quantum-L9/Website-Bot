@@ -19,7 +19,7 @@ describe("PreflightEngine", () => {
   test("evaluates gate as Passed when all blocking checks pass", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     // Create checks with all blocking checks passing
@@ -53,7 +53,7 @@ describe("PreflightEngine", () => {
   test("evaluates gate as Failed when blocking check fails", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     const checks: PreflightCheck[] = createMockPreflightChecks().map((def) => ({
@@ -85,7 +85,7 @@ describe("PreflightEngine", () => {
   test("evaluates gate as Passed when non-blocking checks fail", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     const checks: PreflightCheck[] = createMockPreflightChecks().map((def) => ({
@@ -120,7 +120,7 @@ describe("PreflightEngine", () => {
   test("evaluates gate as Failed when blocking check has Unknown status", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     const checks: PreflightCheck[] = createMockPreflightChecks().map((def) => ({
@@ -157,7 +157,7 @@ describe("PreflightEngine", () => {
   test("executes preflight checks and classifies results correctly", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     // Configure different command results
@@ -221,7 +221,7 @@ describe("PreflightEngine", () => {
   test("handles timeout scenarios correctly", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     // Configure long-running command that would timeout
@@ -274,7 +274,7 @@ describe("PreflightEngine", () => {
   test("generates comprehensive summary with correct counts", async () => {
     const env = await createTestEnvironment();
     const adapter = new MockRepositoryAdapter();
-    const evidenceCollector = new EvidenceCollector(adapter, env.evidenceDir);
+    const evidenceCollector = await EvidenceCollector.create(adapter, env.evidenceDir);
     const engine = new PreflightEngine(adapter, evidenceCollector);
 
     const checks: PreflightCheck[] = [
