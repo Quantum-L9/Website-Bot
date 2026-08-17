@@ -25,7 +25,7 @@ issues:
   root_cause: "Add at least one assertion to this test case."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+  commit_SHA: b6a8a3c
 - issue_id: WB-043
   canonical_fingerprint: typescript:S2699:packages/validation-executor/test/unit/E2EEngine.test.ts:254
   source: SONARCLOUD
@@ -45,7 +45,7 @@ issues:
   root_cause: "Add at least one assertion to this test case."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+  commit_SHA: b6a8a3c
 - issue_id: WB-122
   canonical_fingerprint: typescript:S2699:tests/unit/factory-execution-plan.test.ts:11
   source: SONARCLOUD
@@ -65,7 +65,7 @@ issues:
   root_cause: "Add at least one assertion to this test case."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+  commit_SHA: b6a8a3c
 - issue_id: WB-123
   canonical_fingerprint: typescript:S2699:tests/unit/image-evidence-integration.test.ts:237
   source: SONARCLOUD
@@ -85,7 +85,7 @@ issues:
   root_cause: "Add at least one assertion to this test case."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+  commit_SHA: b6a8a3c
 - issue_id: WB-124
   canonical_fingerprint: typescript:S2699:tests/unit/recursive/contract-shape.test.ts:407
   source: SONARCLOUD
@@ -105,7 +105,7 @@ issues:
   root_cause: "Add at least one assertion to this test case."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 1c4fc77b0811fe56f940951ddbab6f22f7723c7e
+  commit_SHA: b6a8a3c
 - issue_id: WB-158
   canonical_fingerprint: javascript:S3776:astro_template/scripts/verify-seo.mjs:54
   source: SONARCLOUD
@@ -125,7 +125,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-040
   canonical_fingerprint: typescript:S3776:packages/bot-interop/src/handoff.ts:113
   source: SONARCLOUD
@@ -145,7 +145,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-181
   canonical_fingerprint: typescript:S3776:packages/validation-executor/src/cli.ts:45
   source: SONARCLOUD
@@ -165,7 +165,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-174
   canonical_fingerprint: typescript:S3776:scripts/normalize-spec.ts:69
   source: SONARCLOUD
@@ -185,7 +185,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
+  commit_SHA: 46f53fa
 - issue_id: WB-051
   canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:32
   source: SONARCLOUD
@@ -205,7 +205,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
+  commit_SHA: 46f53fa
 - issue_id: WB-202
   canonical_fingerprint: javascript:S3776:scripts/validate-evidence-schemas.mjs:88
   source: SONARCLOUD
@@ -225,7 +225,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 28 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
+  commit_SHA: 46f53fa
 - issue_id: WB-052
   canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:29
   source: SONARCLOUD
@@ -245,7 +245,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
+  commit_SHA: 46f53fa
 - issue_id: WB-125
   canonical_fingerprint: javascript:S3776:scripts/validate-recursive-schemas.mjs:85
   source: SONARCLOUD
@@ -265,7 +265,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 33594208e6456716ecb1beaedcbf35b96cb78f0a
+  commit_SHA: 46f53fa
 - issue_id: WB-160
   canonical_fingerprint: javascript:S3776:scripts/verify-secrets-live.mjs:153
   source: SONARCLOUD
@@ -285,7 +285,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-161
   canonical_fingerprint: javascript:S3776:scripts/verify-secrets-live.mjs:270
   source: SONARCLOUD
@@ -305,7 +305,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-143
   canonical_fingerprint: typescript:S3776:src/campaigns/quality-delta-index.ts:16
   source: SONARCLOUD
@@ -325,7 +325,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-145
   canonical_fingerprint: typescript:S3776:src/campaigns/reviewable.ts:31
   source: SONARCLOUD
@@ -345,7 +345,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-146
   canonical_fingerprint: typescript:S3776:src/campaigns/runner.ts:49
   source: SONARCLOUD
@@ -365,7 +365,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 41 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 46f53fa3345d1df8576d5dd60e5709557fdfe692
+  commit_SHA: b64db5c
 - issue_id: WB-169
   canonical_fingerprint: typescript:S3776:src/ingestion/PageExtractor.ts:175
   source: SONARCLOUD
@@ -385,7 +385,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-170
   canonical_fingerprint: typescript:S3776:src/ingestion/PageExtractor.ts:209
   source: SONARCLOUD
@@ -405,7 +405,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 37 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-172
   canonical_fingerprint: typescript:S3776:src/ingestion/SourceCrawler.ts:134
   source: SONARCLOUD
@@ -425,7 +425,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 44 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-150
   canonical_fingerprint: typescript:S2871:src/intelligence/compile-page-content-contract.ts:41
   source: SONARCLOUD
@@ -445,7 +445,7 @@ issues:
   root_cause: "Provide a compare function that depends on \"String.localeCompare\", to reliably sort elements alphabetically."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-163
   canonical_fingerprint: typescript:S3776:src/pipeline/FactoryExecutionPlan.ts:130
   source: SONARCLOUD
@@ -465,7 +465,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-212
   canonical_fingerprint: typescript:S3776:src/pipeline/PipelineRunner.ts:49
   source: SONARCLOUD
@@ -485,7 +485,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 31 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-152
   canonical_fingerprint: typescript:S3776:src/pipeline/PipelineRunner.ts:258
   source: SONARCLOUD
@@ -505,7 +505,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 35 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-203
   canonical_fingerprint: typescript:S3776:src/pipeline/evidence/AssemblyManifest.ts:35
   source: SONARCLOUD
@@ -525,7 +525,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-204
   canonical_fingerprint: typescript:S3776:src/pipeline/evidence/EvidenceChainValidator.ts:37
   source: SONARCLOUD
@@ -545,7 +545,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 79 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-205
   canonical_fingerprint: typescript:S3776:src/pipeline/evidence/EvidenceIndex.ts:59
   source: SONARCLOUD
@@ -565,7 +565,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-003
   canonical_fingerprint: typescript:S3776:src/pipeline/evidence/RedesignExecutionIntegrityReceipt.ts:147
   source: SONARCLOUD
@@ -585,7 +585,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-206
   canonical_fingerprint: typescript:S3776:src/pipeline/evidence/ReleaseReceipt.ts:57
   source: SONARCLOUD
@@ -605,7 +605,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 32 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b6a8a3c23f9f7c5af807b4f5b080d1a38ad7001c
+  commit_SHA: 981d126
 - issue_id: WB-175
   canonical_fingerprint: typescript:S3776:src/pipeline/validateDomainSpec.ts:293
   source: SONARCLOUD
@@ -625,7 +625,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-207
   canonical_fingerprint: typescript:S3776:src/provisioning/ProvisioningCoordinator.ts:76
   source: SONARCLOUD
@@ -645,7 +645,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 48 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-127
   canonical_fingerprint: typescript:S3776:src/recursive/contracts/validate.ts:46
   source: SONARCLOUD
@@ -665,7 +665,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 58 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-131
   canonical_fingerprint: typescript:S3776:src/recursive/signals/registry.ts:45
   source: SONARCLOUD
@@ -685,7 +685,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 51 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-099
   canonical_fingerprint: typescript:S3776:src/recursive/state/transitions.ts:86
   source: SONARCLOUD
@@ -705,7 +705,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 38 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: b64db5c460dcf6c2ead036bef2a3e6b02fd680f3
+  commit_SHA: f933e03
 - issue_id: WB-208
   canonical_fingerprint: typescript:S3776:src/services/hashing.ts:124
   source: SONARCLOUD
@@ -725,7 +725,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-155
   canonical_fingerprint: typescript:S3776:src/services/images/ImageAssetPlanner.ts:123
   source: SONARCLOUD
@@ -745,7 +745,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 981d126fed54147bbe358f547e0aa15617a51068
+  commit_SHA: 434a7e1
 - issue_id: WB-209
   canonical_fingerprint: typescript:S3776:src/stages/ClientSourcePublishStage.ts:71
   source: SONARCLOUD
@@ -765,7 +765,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-004
   canonical_fingerprint: typescript:S3776:src/stages/CompetitiveIntelligenceStage.ts:398
   source: SONARCLOUD
@@ -785,7 +785,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-107
   canonical_fingerprint: typescript:S3776:src/stages/CompetitiveIntelligenceStage.ts:482
   source: SONARCLOUD
@@ -805,7 +805,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-213
   canonical_fingerprint: typescript:S3776:src/stages/ContentGenerationStage.ts:135
   source: SONARCLOUD
@@ -825,7 +825,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 41 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-211
   canonical_fingerprint: typescript:S3776:src/stages/HandoffEmitterStage.ts:94
   source: SONARCLOUD
@@ -845,7 +845,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-180
   canonical_fingerprint: typescript:S3776:src/stages/ImageAssetPlanningStage.ts:116
   source: SONARCLOUD
@@ -865,7 +865,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 43 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-164
   canonical_fingerprint: typescript:S3776:src/stages/ImageValidationStage.ts:32
   source: SONARCLOUD
@@ -885,7 +885,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 36 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-005
   canonical_fingerprint: typescript:S3776:src/stages/RedesignContentAuthorityStage.ts:94
   source: SONARCLOUD
@@ -905,7 +905,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-006
   canonical_fingerprint: typescript:S3776:src/stages/RedesignSchemaSerializerStage.ts:21
   source: SONARCLOUD
@@ -925,7 +925,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
+  commit_SHA: 4d2657f
 - issue_id: WB-210
   canonical_fingerprint: typescript:S3776:src/stages/SiteAssemblerStage.ts:204
   source: SONARCLOUD
@@ -945,7 +945,7 @@ issues:
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: 434a7e1c38b17c784f4557a984af4faa76a2b5dd
+  commit_SHA: 3359420
 - issue_id: WB-182
   canonical_fingerprint: githubactions:S8233:.github/workflows/l9-analysis.yml:26
   source: SONARCLOUD
@@ -1385,7 +1385,7 @@ issues:
   root_cause: "Duplicate selector \".cta-banner\", first used at line 157"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-008
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:175
   source: SONARCLOUD
@@ -1405,7 +1405,7 @@ issues:
   root_cause: "Duplicate selector \".trust-bar__badge\", first used at line 112"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-009
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:176
   source: SONARCLOUD
@@ -1425,7 +1425,7 @@ issues:
   root_cause: "Duplicate selector \".trust-bar__badges\", first used at line 111"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-010
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:177
   source: SONARCLOUD
@@ -1445,7 +1445,7 @@ issues:
   root_cause: "Duplicate selector \".service-card__title\", first used at line 136"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-011
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:178
   source: SONARCLOUD
@@ -1465,7 +1465,7 @@ issues:
   root_cause: "Duplicate selector \".service-card__cta\", first used at line 137"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-012
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:179
   source: SONARCLOUD
@@ -1485,7 +1485,7 @@ issues:
   root_cause: "Duplicate selector \".service-card__image\", first used at line 135"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-013
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:189
   source: SONARCLOUD
@@ -1505,7 +1505,7 @@ issues:
   root_cause: "Duplicate selector \".gallery-grid\", first used at line 165"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-014
   canonical_fingerprint: css:S4666:astro_template/src/styles/global.css:192
   source: SONARCLOUD
@@ -1525,7 +1525,7 @@ issues:
   root_cause: "Duplicate selector \".hero__actions\", first used at line 102"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a4-pending
+  commit_SHA: 5d14287
 - issue_id: WB-015
   canonical_fingerprint: Web:InputWithoutLabelCheck:docs/reports_and_test_results/08-15-2026/baseline/home.html:3
   source: SONARCLOUD
@@ -1985,7 +1985,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-136
   canonical_fingerprint: typescript:S7785:scripts/campaign.ts:221
   source: SONARCLOUD
@@ -2005,7 +2005,7 @@ issues:
   root_cause: "Prefer top-level await over using a promise chain."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-050
   canonical_fingerprint: typescript:S7785:scripts/recursive/recursive-cli.ts:220
   source: SONARCLOUD
@@ -2025,7 +2025,7 @@ issues:
   root_cause: "Prefer top-level await over using a promise chain."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-054
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:104
   source: SONARCLOUD
@@ -2045,7 +2045,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-055
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:106
   source: SONARCLOUD
@@ -2065,7 +2065,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-056
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:122
   source: SONARCLOUD
@@ -2085,7 +2085,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-057
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:124
   source: SONARCLOUD
@@ -2105,7 +2105,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-058
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:144
   source: SONARCLOUD
@@ -2125,7 +2125,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-059
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:146
   source: SONARCLOUD
@@ -2145,7 +2145,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-060
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:148
   source: SONARCLOUD
@@ -2165,7 +2165,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-061
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:166
   source: SONARCLOUD
@@ -2185,7 +2185,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-062
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:168
   source: SONARCLOUD
@@ -2205,7 +2205,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-063
   canonical_fingerprint: javascript:S4624:scripts/verify-secrets-live.mjs:174
   source: SONARCLOUD
@@ -2225,7 +2225,7 @@ issues:
   root_cause: "Refactor this code to not use nested template literals."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-064
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:201
   source: SONARCLOUD
@@ -2245,7 +2245,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-065
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:203
   source: SONARCLOUD
@@ -2265,7 +2265,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-066
   canonical_fingerprint: javascript:S8786:scripts/verify-secrets-live.mjs:212
   source: SONARCLOUD
@@ -2305,7 +2305,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-068
   canonical_fingerprint: javascript:S3358:scripts/verify-secrets-live.mjs:259
   source: SONARCLOUD
@@ -2325,7 +2325,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-162
   canonical_fingerprint: javascript:S7785:scripts/verify-secrets-live.mjs:346
   source: SONARCLOUD
@@ -2345,7 +2345,7 @@ issues:
   root_cause: "Prefer top-level await over an async function `main` call."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a1-pending
+  commit_SHA: 7473638
 - issue_id: WB-140
   canonical_fingerprint: typescript:S7760:src/campaigns/candidate-evaluation.ts:110
   source: SONARCLOUD
@@ -2385,7 +2385,7 @@ issues:
   root_cause: "'If' statement should not be the only statement in 'else' block"
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-073
   canonical_fingerprint: typescript:S8786:src/ingestion/PageExtractor.ts:62
   source: SONARCLOUD
@@ -2405,7 +2405,7 @@ issues:
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-171
   canonical_fingerprint: typescript:S2933:src/ingestion/SourceCrawler.ts:71
   source: SONARCLOUD
@@ -2465,7 +2465,7 @@ issues:
   root_cause: "Simplify this regular expression to reduce its complexity from 21 to the 20 allowed."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-077
   canonical_fingerprint: typescript:S8786:src/intelligence/SeoBuildIntelligenceHttpClient.ts:29
   source: SONARCLOUD
@@ -2505,7 +2505,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-079
   canonical_fingerprint: typescript:S3358:src/pipeline/PipelineRunner.ts:294
   source: SONARCLOUD
@@ -2525,7 +2525,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-083
   canonical_fingerprint: typescript:S8786:src/provisioning/request.ts:42
   source: SONARCLOUD
@@ -2605,7 +2605,7 @@ issues:
   root_cause: "Refactor this code to not use nested template literals."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-130
   canonical_fingerprint: typescript:S3358:src/recursive/harvest/compiler.ts:219
   source: SONARCLOUD
@@ -2625,7 +2625,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-089
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:67
   source: SONARCLOUD
@@ -2645,7 +2645,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-090
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
   source: SONARCLOUD
@@ -2665,7 +2665,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-091
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:81
   source: SONARCLOUD
@@ -2685,7 +2685,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-092
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:82
   source: SONARCLOUD
@@ -2705,7 +2705,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-093
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
   source: SONARCLOUD
@@ -2725,7 +2725,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-094
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:83
   source: SONARCLOUD
@@ -2745,7 +2745,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-095
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:84
   source: SONARCLOUD
@@ -2765,7 +2765,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-096
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:85
   source: SONARCLOUD
@@ -2785,7 +2785,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-097
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
   source: SONARCLOUD
@@ -2805,7 +2805,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-098
   canonical_fingerprint: typescript:S3358:src/recursive/signals/registry.ts:86
   source: SONARCLOUD
@@ -2825,7 +2825,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a2-pending
+  commit_SHA: 124121d
 - issue_id: WB-132
   canonical_fingerprint: typescript:S4030:src/recursive/simulation/simulate.ts:117
   source: SONARCLOUD
@@ -2965,7 +2965,7 @@ issues:
   root_cause: "Extract this nested ternary operation into an independent statement."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-165
   canonical_fingerprint: typescript:S107:src/stages/ImageGenerationStage.ts:172
   source: SONARCLOUD
@@ -2985,7 +2985,7 @@ issues:
   root_cause: "Async method 'resolveAsset' has too many parameters (9). Maximum allowed is 7."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-166
   canonical_fingerprint: typescript:S1854:src/stages/ImageGenerationStage.ts:191
   source: SONARCLOUD
@@ -3005,7 +3005,7 @@ issues:
   root_cause: "Remove this useless assignment to variable \"mimeType\"."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: a3-pending
+  commit_SHA: 1d5c70e
 - issue_id: WB-120
   canonical_fingerprint: typescript:S8786:src/validation/validate-generated-site.ts:83
   source: SONARCLOUD
@@ -3045,7 +3045,7 @@ issues:
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-157
   canonical_fingerprint: javascript:S7780:astro_template/scripts/verify-seo.mjs:20
   source: SONARCLOUD
@@ -3065,7 +3065,7 @@ issues:
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-037
   canonical_fingerprint: javascript:S4036:examples/supplemental-insurance-pros/astro_site/scripts/deploy.mjs:12
   source: SONARCLOUD
@@ -3145,7 +3145,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-135
   canonical_fingerprint: typescript:S6582:scripts/campaign.ts:218
   source: SONARCLOUD
@@ -3165,7 +3165,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-159
   canonical_fingerprint: typescript:S7750:scripts/generate-spec.ts:31
   source: SONARCLOUD
@@ -3185,7 +3185,7 @@ issues:
   root_cause: "Prefer `.find(\u2026)` over `.filter(\u2026)`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-044
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:181
   source: SONARCLOUD
@@ -3205,7 +3205,7 @@ issues:
   root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-045
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:192
   source: SONARCLOUD
@@ -3225,7 +3225,7 @@ issues:
   root_cause: "'(parsed as Record<string, unknown>).business_name ?? clientId' will use Object's default stringification format ('[object Object]') when stringified."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-046
   canonical_fingerprint: typescript:S6551:scripts/generate-spec.ts:203
   source: SONARCLOUD
@@ -3245,7 +3245,7 @@ issues:
   root_cause: "'(parsed as Record<string, unknown>).vertical ?? \"business\"' will use Object's default stringification format ('[object Object]') when stringified."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-047
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:217
   source: SONARCLOUD
@@ -3265,7 +3265,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-048
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:254
   source: SONARCLOUD
@@ -3285,7 +3285,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-049
   canonical_fingerprint: typescript:S7781:scripts/generate-spec.ts:255
   source: SONARCLOUD
@@ -3305,7 +3305,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-053
   canonical_fingerprint: javascript:S7780:scripts/validate-recursive-schemas.mjs:104
   source: SONARCLOUD
@@ -3345,7 +3345,7 @@ issues:
   root_cause: "Use `export\u2026from` to re-export `DEFAULT_CAMPAIGN_BUDGET`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-138
   canonical_fingerprint: typescript:S7754:src/campaigns/campaign-files.ts:26
   source: SONARCLOUD
@@ -3365,7 +3365,7 @@ issues:
   root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-139
   canonical_fingerprint: typescript:S7744:src/campaigns/campaign-manifest.ts:28
   source: SONARCLOUD
@@ -3385,7 +3385,7 @@ issues:
   root_cause: "The empty object is useless."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-141
   canonical_fingerprint: typescript:S6582:src/campaigns/candidate-evaluation.ts:149
   source: SONARCLOUD
@@ -3405,7 +3405,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-142
   canonical_fingerprint: typescript:S6582:src/campaigns/learning-registry.ts:44
   source: SONARCLOUD
@@ -3425,7 +3425,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-144
   canonical_fingerprint: typescript:S7786:src/campaigns/quality-dimension-result.ts:41
   source: SONARCLOUD
@@ -3445,7 +3445,7 @@ issues:
   root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-148
   canonical_fingerprint: typescript:S6598:src/campaigns/test-ladder.ts:43
   source: SONARCLOUD
@@ -3465,7 +3465,7 @@ issues:
   root_cause: "Interface has only a call signature, you should use a function type instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-149
   canonical_fingerprint: typescript:S6598:src/campaigns/types.ts:379
   source: SONARCLOUD
@@ -3485,7 +3485,7 @@ issues:
   root_cause: "Interface has only a call signature, you should use a function type instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-069
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:52
   source: SONARCLOUD
@@ -3505,7 +3505,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-070
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:53
   source: SONARCLOUD
@@ -3525,7 +3525,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-071
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:54
   source: SONARCLOUD
@@ -3545,7 +3545,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-167
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:55
   source: SONARCLOUD
@@ -3565,7 +3565,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-168
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:56
   source: SONARCLOUD
@@ -3585,7 +3585,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-072
   canonical_fingerprint: typescript:S7781:src/ingestion/PageExtractor.ts:57
   source: SONARCLOUD
@@ -3605,7 +3605,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-074
   canonical_fingerprint: typescript:S7780:src/ingestion/PageExtractor.ts:66
   source: SONARCLOUD
@@ -3625,7 +3625,7 @@ issues:
   root_cause: "`String.raw` should be used to avoid escaping `\\`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-151
   canonical_fingerprint: typescript:S7755:src/ingestion/SourcePalette.ts:87
   source: SONARCLOUD
@@ -3645,7 +3645,7 @@ issues:
   root_cause: "Prefer `.at(\u2026)` over `[\u2026.length - index]`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-002
   canonical_fingerprint: typescript:S7763:src/intelligence/DonorIngestion.ts:146
   source: SONARCLOUD
@@ -3665,7 +3665,7 @@ issues:
   root_cause: "Use `export\u2026from` to re-export `NoopScreenshotCapturer`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-080
   canonical_fingerprint: typescript:S6551:src/pipeline/evidence/FileEvidenceStore.ts:552
   source: SONARCLOUD
@@ -3705,7 +3705,7 @@ issues:
   root_cause: "`new Error()` is too unspecific for a type check. Use `new TypeError()` instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-082
   canonical_fingerprint: typescript:S6551:src/pipeline/validateDomainSpec.ts:328
   source: SONARCLOUD
@@ -3745,7 +3745,7 @@ issues:
   root_cause: "Replace this union type with a type alias."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-084
   canonical_fingerprint: typescript:S6582:src/recursive/contracts/validate.ts:34
   source: SONARCLOUD
@@ -3765,7 +3765,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-085
   canonical_fingerprint: typescript:S7737:src/recursive/exec.ts:35
   source: SONARCLOUD
@@ -3785,7 +3785,7 @@ issues:
   root_cause: "Do not use an object literal as default for parameter `options`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-087
   canonical_fingerprint: typescript:S7754:src/recursive/harvest/compiler.ts:213
   source: SONARCLOUD
@@ -3805,7 +3805,7 @@ issues:
   root_cause: "Prefer `.some(\u2026)` over `.find(\u2026)`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-088
   canonical_fingerprint: typescript:S4323:src/recursive/signals/registry.ts:19
   source: SONARCLOUD
@@ -3825,7 +3825,7 @@ issues:
   root_cause: "Replace this union type with a type alias."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-133
   canonical_fingerprint: typescript:S6582:src/recursive/state/run-manifest.ts:147
   source: SONARCLOUD
@@ -3845,7 +3845,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-153
   canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:7
   source: SONARCLOUD
@@ -3865,7 +3865,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-154
   canonical_fingerprint: typescript:S7781:src/services/content/plainText.ts:13
   source: SONARCLOUD
@@ -3885,7 +3885,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-176
   canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:86
   source: SONARCLOUD
@@ -3905,7 +3905,7 @@ issues:
   root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-179
   canonical_fingerprint: typescript:S7758:src/services/images/ImageInspector.ts:130
   source: SONARCLOUD
@@ -3925,7 +3925,7 @@ issues:
   root_cause: "Prefer `String.fromCodePoint()` over `String.fromCharCode()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-100
   canonical_fingerprint: typescript:S6551:src/stages/CompetitiveIntelligenceStage.ts:99
   source: SONARCLOUD
@@ -4145,7 +4145,7 @@ issues:
   root_cause: "Prefer `String#replaceAll()` over `String#replace()`."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-116
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4165,7 +4165,7 @@ issues:
   root_cause: "Use the opposite operator (<=) instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-117
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4185,7 +4185,7 @@ issues:
   root_cause: "Use the opposite operator (<=) instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-118
   canonical_fingerprint: typescript:S1940:src/stages/ImageValidationStage.ts:92
   source: SONARCLOUD
@@ -4205,7 +4205,7 @@ issues:
   root_cause: "Use the opposite operator (<=) instead."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-119
   canonical_fingerprint: typescript:S6582:src/stages/ReleaseReceiptStage.ts:68
   source: SONARCLOUD
@@ -4225,7 +4225,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-173
   canonical_fingerprint: typescript:S6582:src/stages/SourceSiteIngestionStage.ts:48
   source: SONARCLOUD
@@ -4245,7 +4245,7 @@ issues:
   root_cause: "Prefer using an optional chain expression instead, as it's more concise and easier to read."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 - issue_id: WB-121
   canonical_fingerprint: typescript:S1128:tests/helpers/siteFactoryFixture.ts:7
   source: SONARCLOUD
@@ -4265,7 +4265,7 @@ issues:
   root_cause: "Remove this unused import of 'BuildIntent'."
   remediation_status: fixed
   validation_status: tests_pass
-  commit_SHA: low-pending
+  commit_SHA: 89acbbc
 
 github_ci_history:
 - issue_id: GH-CI-ci
