@@ -29,16 +29,11 @@ function resolveAssetAbsolutePath(
   const hashedBuild = asset.promptHash
     ? resolve(buildGeneratedRoot, `${asset.promptHash}.png`)
     : undefined;
-  const hashed =
-    hashedPersistent && existsSync(hashedPersistent)
-      ? hashedPersistent
-      : hashedBuild && existsSync(hashedBuild)
-        ? hashedBuild
-        : hashedPersistent;
-  if (hashed && existsSync(hashed)) return hashed;
+  if (hashedPersistent && existsSync(hashedPersistent)) return hashedPersistent;
+  if (hashedBuild && existsSync(hashedBuild)) return hashedBuild;
   const original = asset.originalPath;
   if (original && existsSync(original)) return original;
-  return hashed ?? original ?? "";
+  return hashedPersistent ?? original ?? "";
 }
 
 export interface StageEvidenceDeclaration {

@@ -97,8 +97,9 @@ export function normalizeUrl(rawUrl: string): string {
   return url.toString();
 }
 
-const SKIP_PATH =
-  /(\/(login|logout|signin|signout|register|account|cart|checkout|basket|search|wishlist)(\/|$|\?))|(\/(tag|tags|page|category)\/\d+)/i;
+const SKIP_WORD_PATH =
+  /\/(login|logout|signin|signout|register|account|cart|checkout|basket|search|wishlist)(\/|$|\?)/i;
+const SKIP_INDEXED_PATH = /\/(tag|tags|page|category)\/\d+/i;
 
 /** True when a link should not be crawled (auth, commerce, search, pagination). */
 export function shouldSkipUrl(rawUrl: string, options: { allowPdf?: boolean } = {}): boolean {
@@ -111,6 +112,10 @@ export function shouldSkipUrl(rawUrl: string, options: { allowPdf?: boolean } = 
   const path = url.pathname.toLowerCase();
   if (!options.allowPdf && /\.(pdf|zip|dmg|exe|mp4|mov|avi|woff2?|ttf|eot)$/i.test(path))
     return true;
-  if (SKIP_PATH.test(url.pathname + url.search)) return true;
+  if (
+    SKIP_WORD_PATH.test(url.pathname + url.search) ||
+    SKIP_INDEXED_PATH.test(url.pathname + url.search)
+  )
+    return true;
   return false;
 }

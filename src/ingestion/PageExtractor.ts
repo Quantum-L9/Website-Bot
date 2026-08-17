@@ -63,10 +63,13 @@ function stripTags(html: string): string {
 }
 
 function attr(tag: string, name: string): string | undefined {
-  const match = new RegExp(`\\b${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i").exec(tag);
-  if (!match) return undefined;
-  const raw = match[2] ?? match[3] ?? match[4] ?? "";
-  return decodeEntities(raw);
+  // Quoted forms first, then a bare token — two linear regexes reproduce the
+  // original single-alternation matcher exactly without the quote/word overlap.
+  const quoted = new RegExp(`\\b${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i").exec(tag);
+  if (quoted) return decodeEntities(quoted[2] ?? quoted[3] ?? "");
+  const bare = new RegExp(`\\b${name}\\s*=\\s*([^\\s>]+)`, "i").exec(tag);
+  if (!bare) return undefined;
+  return decodeEntities(bare[1]);
 }
 
 function absolute(href: string | undefined, baseUrl: string): string | undefined {

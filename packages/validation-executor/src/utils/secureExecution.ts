@@ -286,7 +286,9 @@ function spawnSyncOptions(options: ExecutionOptions) {
 
 function toCommandResult(result: SpawnSyncReturns<string>, startTime: number): CommandResult {
   const duration = Date.now() - startTime;
-  const exitCode = result.status !== null ? result.status : result.error ? 127 : 0;
+  let exitCode = 0;
+  if (result.status !== null) exitCode = result.status;
+  else if (result.error) exitCode = 127;
   return {
     exitCode,
     stdout: result.stdout || "",

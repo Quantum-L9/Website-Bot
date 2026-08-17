@@ -1983,9 +1983,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-136
   canonical_fingerprint: typescript:S7785:scripts/campaign.ts:221
   source: SONARCLOUD
@@ -2383,9 +2383,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "'If' statement should not be the only statement in 'else' block"
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-073
   canonical_fingerprint: typescript:S8786:src/ingestion/PageExtractor.ts:62
   source: SONARCLOUD
@@ -2403,9 +2403,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-171
   canonical_fingerprint: typescript:S2933:src/ingestion/SourceCrawler.ts:71
   source: SONARCLOUD
@@ -2463,9 +2463,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Simplify this regular expression to reduce its complexity from 21 to the 20 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-077
   canonical_fingerprint: typescript:S8786:src/intelligence/SeoBuildIntelligenceHttpClient.ts:29
   source: SONARCLOUD
@@ -2503,9 +2503,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-079
   canonical_fingerprint: typescript:S3358:src/pipeline/PipelineRunner.ts:294
   source: SONARCLOUD
@@ -2523,9 +2523,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-083
   canonical_fingerprint: typescript:S8786:src/provisioning/request.ts:42
   source: SONARCLOUD
@@ -2963,9 +2963,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Extract this nested ternary operation into an independent statement."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-165
   canonical_fingerprint: typescript:S107:src/stages/ImageGenerationStage.ts:172
   source: SONARCLOUD
@@ -2983,9 +2983,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Async method 'resolveAsset' has too many parameters (9). Maximum allowed is 7."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-166
   canonical_fingerprint: typescript:S1854:src/stages/ImageGenerationStage.ts:191
   source: SONARCLOUD
@@ -3003,9 +3003,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Remove this useless assignment to variable \"mimeType\"."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: a3-pending
 - issue_id: WB-120
   canonical_fingerprint: typescript:S8786:src/validation/validate-generated-site.ts:83
   source: SONARCLOUD
