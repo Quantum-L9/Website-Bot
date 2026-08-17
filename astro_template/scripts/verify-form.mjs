@@ -66,7 +66,7 @@ if (exists("dist")) {
     const indexHtml = exists("dist/index.html") ? readText("dist/index.html") : "";
     hasFormValidation = indexHtml.includes("required") || indexHtml.includes("validation");
   } catch (error) {
-    // Ignore read errors
+    console.warn(`[verify-form] Unable to read form validation from dist/index.html:`, error instanceof Error ? error.message : String(error));
   }
 
   checks.push(

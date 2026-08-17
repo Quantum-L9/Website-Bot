@@ -448,7 +448,7 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
             errors.push(`routes[${index}].slug normalizes to duplicate route ${normalized}`);
           seen.add(normalized);
         } catch (error) {
-          errors.push(error instanceof Error ? error.message : String(error));
+          errors.push(error instanceof Error ? error.message : (error != null ? error.toString() : 'unknown error'));
         }
       }
       if (Array.isArray(route.components)) {
