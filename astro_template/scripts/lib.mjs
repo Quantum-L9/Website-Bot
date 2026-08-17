@@ -51,6 +51,18 @@ export function parseEnvExample() {
 }
 
 /**
+ * Keys from .env.example whose lowercased name contains any of the given
+ * keywords (e.g. ["analytics", "gtag"]). Shared by the verify-*.mjs scripts.
+ */
+export function envVarsMatching(...keywords) {
+  const envVars = parseEnvExample();
+  return Object.keys(envVars).filter((key) => {
+    const lowered = key.toLowerCase();
+    return keywords.some((keyword) => lowered.includes(keyword));
+  });
+}
+
+/**
  * Build a check-result row (S107: options object instead of 8 params).
  *
  * Preferred form: result({ check_id, check_class, target_artifact,

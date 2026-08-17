@@ -1,16 +1,9 @@
-import { exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { envVarsMatching, exists, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
 // Check for analytics environment variables
-const envVars = parseEnvExample();
-const analyticsEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("analytics") ||
-    key.toLowerCase().includes("gtag") ||
-    key.toLowerCase().includes("measurement") ||
-    key.toLowerCase().includes("posthog"),
-);
+const analyticsEnvVars = envVarsMatching("analytics", "gtag", "measurement", "posthog");
 
 checks.push(
   result({

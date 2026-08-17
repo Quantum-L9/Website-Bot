@@ -229,7 +229,7 @@ function validateTimeoutOption(options: any, errors: string[]): void {
 
 function stringifyOptionValue(value: unknown): string {
   if (typeof value === "string") return value;
-  return JSON.stringify(value) ?? String(value);
+  return JSON.stringify(value) ?? "unstringifiable option value";
 }
 
 function validateWhitelistOption(

@@ -1,16 +1,10 @@
-import { parseEnvExample, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { envVarsMatching, parseEnvExample, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
 
 // Check for CRM environment variables
 const envVars = parseEnvExample();
-const crmEnvVars = Object.keys(envVars).filter(
-  (key) =>
-    key.toLowerCase().includes("crm") ||
-    key.toLowerCase().includes("hubspot") ||
-    key.toLowerCase().includes("salesforce") ||
-    key.toLowerCase().includes("acculynx"),
-);
+const crmEnvVars = envVarsMatching("crm", "hubspot", "salesforce", "acculynx");
 
 checks.push(
   result({
