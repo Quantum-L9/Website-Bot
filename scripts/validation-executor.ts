@@ -14,6 +14,7 @@ import { WebsiteBotAdapter } from "../packages/validation-executor/src/adapters/
 import { AuditReporter } from "../packages/validation-executor/src/core/AuditReporter.js";
 import { ValidationExecutor } from "../packages/validation-executor/src/core/ValidationExecutor.js";
 import type { ValidationConfig } from "../packages/validation-executor/src/types/index.js";
+import { buildValidationCliOptions } from "../packages/validation-executor/src/utils/cliOptions.js";
 import { createLogger } from "../packages/validation-executor/src/utils/logger.js";
 import {
   collectWebsiteBotConfigErrors,
@@ -61,44 +62,10 @@ async function main() {
     const { values, positionals } = parseArgs({
       args: process.argv.slice(2),
       allowPositionals: true,
-      options: {
-        profile: {
-          type: "string",
-          short: "p",
-          default: "default",
-        },
-        environment: {
-          type: "string",
-          short: "e",
-        },
-        "evidence-root": {
-          type: "string",
-          default: "build/evidence",
-        },
-        output: {
-          type: "string",
-          short: "o",
-          default: "validation/validation_report.yaml",
-        },
-        timeout: {
-          type: "string",
-          default: "300000", // 5 minutes
-        },
-        "fail-fast": {
-          type: "boolean",
-          default: false,
-        },
-        verbose: {
-          type: "boolean",
-          short: "v",
-          default: false,
-        },
-        help: {
-          type: "boolean",
-          short: "h",
-          default: false,
-        },
-      },
+      options: buildValidationCliOptions({
+        evidenceRoot: "build/evidence",
+        output: "validation/validation_report.yaml",
+      }),
     });
 
     if (values.help) {
