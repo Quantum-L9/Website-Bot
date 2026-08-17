@@ -122,20 +122,10 @@
     "check": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "status",
-        "duration_ms"
-      ],
+      "required": ["name", "status", "duration_ms"],
       "properties": {
         "name": {
-          "enum": [
-            "install",
-            "astro-check",
-            "astro-build",
-            "route-assertion",
-            "sitemap-assertion"
-          ]
+          "enum": ["install", "astro-check", "astro-build", "route-assertion", "sitemap-assertion"]
         },
         "status": {
           "const": "passed"

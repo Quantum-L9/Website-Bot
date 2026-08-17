@@ -1,21 +1,43 @@
 <!-- L9_META: layer=template, role=lead_form, status=active, version=1.1.0 -->
 ---
-import { siteConfig } from '../lib/siteConfig';
-interface Props { content?: string; }
-const { content = '' } = Astro.props;
-if (!siteConfig.leadFormAction) throw new Error('Lead form action is not configured');
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
-const heading = paragraphs[0] || 'Free Roof Inspection Within 24 Hours';
+import { siteConfig } from "../lib/siteConfig";
+
+interface Props {
+  content?: string;
+}
+const { content = "" } = Astro.props;
+if (!siteConfig.leadFormAction) throw new Error("Lead form action is not configured");
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim().replace(/\*\*/g, ""))
+  .filter(Boolean);
+const heading = paragraphs[0] || "Free Roof Inspection Within 24 Hours";
 const phone = siteConfig.phone;
+const allRoutes: Array<{ href: string; title: string }> =
+  (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
+const serviceOptions = allRoutes.filter(
+  (route) => route.href.startsWith("/services/") && route.href !== "/services/",
+);
 ---
-<section class="lead-form" data-section="contact_form">
+<section id="quote" class="lead-form" data-section="contact_form">
   <h2>{heading}</h2>
   {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
   {phone && <p class="lead-form__phone">Call or text <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
   <form method="post" action={siteConfig.leadFormAction} data-lead-form>
-    <label>Name <input name="name" autocomplete="name" required /></label>
-    <label>Email <input type="email" name="email" autocomplete="email" required /></label>
-    <label>Message <textarea name="message" rows="5" required></textarea></label>
+    <div class="lead-form__grid">
+      <label>Name <input name="name" autocomplete="name" required /></label>
+      <label>Phone <input type="tel" name="phone" autocomplete="tel" required /></label>
+      <label>Email <input type="email" name="email" autocomplete="email" required /></label>
+      <label>Service needed
+        <select name="service" required>
+          <option value="">Select a service</option>
+          {serviceOptions.map(service => <option value={service.href}>{service.title}</option>)}
+          <option value="other">Something else</option>
+        </select>
+      </label>
+    </div>
+    <label>Project details <textarea name="message" rows="5" required></textarea></label>
+    <p class="lead-form__consent">By submitting, you agree to be contacted by phone, text, or email about your project.</p>
     <button class="btn" type="submit" data-cta>Request Inspection</button>
   </form>
 </section>

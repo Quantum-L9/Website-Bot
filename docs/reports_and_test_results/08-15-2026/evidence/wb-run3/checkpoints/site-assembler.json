@@ -1,0 +1,23 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786872462750",
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T09:33:46.730Z",
+  "input_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "input_evidence": [],
+  "output_digest": "e297e64eaa464becfc92aff3101b46d5f5f0841e9764601efb2f9cd8a9733fc2",
+  "output_evidence": [
+    {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872462750:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "0ff42694e361035bea6dd071af4d553c4f774abf8c025ccf04627d4f7e496636"
+    }
+  ],
+  "schema": "website-bot.stage-checkpoint/v2",
+  "stage": "site-assembler",
+  "stage_version": "3.0.0",
+  "started_at": "2026-08-16T09:33:45.046Z",
+  "status": "passed"
+}

@@ -1,14 +1,18 @@
 // L9_META: layer=provisioning, role=transaction_coordinator, status=active, version=1.0.0
-import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { canonicalJson, comparePaths, sha256Text } from '../services/hashing.js';
-import { GitHubProvisioner, GitHubProvisioningError } from './GitHubProvisioner.js';
-import { VercelProvisioner, VercelProvisioningError } from './VercelProvisioner.js';
-import { ProvisioningHttpError } from './http.js';
-import { resolveEnvRef } from './secret-ref.js';
-import { SpecDeploymentWriter, type SpecWriteResult } from './SpecDeploymentWriter.js';
-import type { GitHubProvisioningResult, ProvisioningReceipt, ProvisioningRequest, VercelProvisioningResult } from './types.js';
-
+import { mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { canonicalJson, comparePaths, sha256Text } from "../services/hashing.js";
+import { GitHubProvisioner, GitHubProvisioningError } from "./GitHubProvisioner.js";
+import { ProvisioningHttpError } from "./http.js";
+import { SpecDeploymentWriter, type SpecWriteResult } from "./SpecDeploymentWriter.js";
+import { resolveEnvRef } from "./secret-ref.js";
+import type {
+  GitHubProvisioningResult,
+  ProvisioningReceipt,
+  ProvisioningRequest,
+  VercelProvisioningResult,
+} from "./types.js";
+import { VercelProvisioner, VercelProvisioningError } from "./VercelProvisioner.js";
 
 function persistedReceipt(receipt: ProvisioningReceipt): object {
   return {
@@ -16,22 +20,44 @@ function persistedReceipt(receipt: ProvisioningReceipt): object {
     status: receipt.status,
     client_id: receipt.clientId,
     idempotency_key: receipt.idempotencyKey,
-    ...(receipt.github ? { github: {
-      provider: receipt.github.provider, created: receipt.github.created,
-      repository_id: receipt.github.repositoryId, full_name: receipt.github.fullName,
-      source_branch: receipt.github.sourceBranch, html_url: receipt.github.htmlUrl,
-    } } : {}),
-    ...(receipt.vercel ? { vercel: {
-      provider: receipt.vercel.provider, created: receipt.vercel.created,
-      project_id: receipt.vercel.projectId, project_name: receipt.vercel.projectName,
-      ...(receipt.vercel.teamId ? { team_id: receipt.vercel.teamId } : {}),
-      linked_repository: receipt.vercel.linkedRepository,
-      production_branch: receipt.vercel.productionBranch,
-      environment_keys: receipt.vercel.environmentKeys,
-      deployment_trigger: receipt.vercel.deploymentTrigger,
-    } } : {}),
-    spec: { path: receipt.spec.path, persisted: receipt.spec.persisted, ...(receipt.spec.backupPath ? { backup_path: receipt.spec.backupPath } : {}) },
-    maintenance: { github_credential_ref: receipt.maintenance.githubCredentialRef, ...(receipt.maintenance.vercelDeployHookRef ? { vercel_deploy_hook_ref: receipt.maintenance.vercelDeployHookRef } : {}) },
+    ...(receipt.github
+      ? {
+          github: {
+            provider: receipt.github.provider,
+            created: receipt.github.created,
+            repository_id: receipt.github.repositoryId,
+            full_name: receipt.github.fullName,
+            source_branch: receipt.github.sourceBranch,
+            html_url: receipt.github.htmlUrl,
+          },
+        }
+      : {}),
+    ...(receipt.vercel
+      ? {
+          vercel: {
+            provider: receipt.vercel.provider,
+            created: receipt.vercel.created,
+            project_id: receipt.vercel.projectId,
+            project_name: receipt.vercel.projectName,
+            ...(receipt.vercel.teamId ? { team_id: receipt.vercel.teamId } : {}),
+            linked_repository: receipt.vercel.linkedRepository,
+            production_branch: receipt.vercel.productionBranch,
+            environment_keys: receipt.vercel.environmentKeys,
+            deployment_trigger: receipt.vercel.deploymentTrigger,
+          },
+        }
+      : {}),
+    spec: {
+      path: receipt.spec.path,
+      persisted: receipt.spec.persisted,
+      ...(receipt.spec.backupPath ? { backup_path: receipt.spec.backupPath } : {}),
+    },
+    maintenance: {
+      github_credential_ref: receipt.maintenance.githubCredentialRef,
+      ...(receipt.maintenance.vercelDeployHookRef
+        ? { vercel_deploy_hook_ref: receipt.maintenance.vercelDeployHookRef }
+        : {}),
+    },
     errors: receipt.errors,
     rollback: receipt.rollback,
     created_at: receipt.createdAt,
@@ -44,23 +70,30 @@ export class ProvisioningCoordinator {
     private readonly vercel = new VercelProvisioner(),
     private readonly specWriter = new SpecDeploymentWriter(),
     private readonly now: () => Date = () => new Date(),
-    private readonly receiptRoot = 'build/provisioning',
+    private readonly receiptRoot = "build/provisioning",
   ) {}
 
   async provision(request: ProvisioningRequest): Promise<ProvisioningReceipt> {
-    const idempotencyKey = sha256Text(canonicalJson({
-      clientId: request.clientId,
-      github: request.github,
-      vercel: {
-        project: request.vercel.project,
-        teamId: request.vercel.teamId,
-        environment: request.vercel.environment.map(item => ({ key: item.key, valueRef: item.valueRef, type: item.type, targets: item.targets })),
-      },
-      maintenance: request.maintenance,
-    }));
+    const idempotencyKey = sha256Text(
+      canonicalJson({
+        clientId: request.clientId,
+        github: request.github,
+        vercel: {
+          project: request.vercel.project,
+          teamId: request.vercel.teamId,
+          environment: request.vercel.environment.map((item) => ({
+            key: item.key,
+            valueRef: item.valueRef,
+            type: item.type,
+            targets: item.targets,
+          })),
+        },
+        maintenance: request.maintenance,
+      }),
+    );
     const baseReceipt: ProvisioningReceipt = {
-      schema: 'website-bot.provisioning-receipt/v1',
-      status: request.planOnly ? 'planned' : 'failed',
+      schema: "website-bot.provisioning-receipt/v1",
+      status: request.planOnly ? "planned" : "failed",
       clientId: request.clientId,
       idempotencyKey,
       spec: { path: resolve(request.specPath), persisted: false },
@@ -72,26 +105,31 @@ export class ProvisioningCoordinator {
 
     if (request.planOnly) {
       const github: GitHubProvisioningResult = {
-        provider: 'github', created: false, repositoryId: 'planned',
+        provider: "github",
+        created: false,
+        repositoryId: "planned",
         fullName: `${request.github.owner}/${request.github.repository}`,
         sourceBranch: request.github.sourceBranch,
         htmlUrl: `https://github.com/${request.github.owner}/${request.github.repository}`,
       };
       const vercel: VercelProvisioningResult = {
-        provider: 'vercel', created: false, projectId: 'planned', projectName: request.vercel.project,
+        provider: "vercel",
+        created: false,
+        projectId: "planned",
+        projectName: request.vercel.project,
         ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
         linkedRepository: github.fullName,
         productionBranch: github.sourceBranch,
-        environmentKeys: request.vercel.environment.map(item => item.key).sort(comparePaths),
-        deploymentTrigger: 'git-push',
+        environmentKeys: request.vercel.environment.map((item) => item.key).sort(comparePaths),
+        deploymentTrigger: "git-push",
       };
       return { ...baseReceipt, github, vercel };
     }
 
-    let githubProvisionToken = '';
-    let vercelToken = '';
-    let publishToken = '';
-    let maintenanceToken = '';
+    let githubProvisionToken = "";
+    let vercelToken = "";
+    let publishToken = "";
+    let maintenanceToken = "";
     let githubResult: GitHubProvisioningResult | undefined;
     let vercelResult: VercelProvisioningResult | undefined;
     let specResult: SpecWriteResult | undefined;
@@ -99,18 +137,32 @@ export class ProvisioningCoordinator {
     try {
       // Resolve every credential before the first provider mutation. This keeps a
       // missing reference side-effect free while still producing a failed receipt.
-      githubProvisionToken = this.requireEnv('GITHUB_PROVISION_TOKEN');
-      vercelToken = this.requireEnv('VERCEL_TOKEN');
-      publishToken = resolveEnvRef(request.github.publishCredentialRef, 'provision.github.publish_credential_ref');
-      maintenanceToken = resolveEnvRef(request.maintenance.githubCredentialRef, 'provision.maintenance.github_credential_ref');
+      githubProvisionToken = this.requireEnv("GITHUB_PROVISION_TOKEN");
+      vercelToken = this.requireEnv("VERCEL_TOKEN");
+      publishToken = resolveEnvRef(
+        request.github.publishCredentialRef,
+        "provision.github.publish_credential_ref",
+      );
+      maintenanceToken = resolveEnvRef(
+        request.maintenance.githubCredentialRef,
+        "provision.maintenance.github_credential_ref",
+      );
       githubResult = await this.github.provision(request, githubProvisionToken);
-      await this.github.verifyAccess(githubResult.fullName, publishToken, request.github.publishCredentialRef);
-      await this.github.verifyAccess(githubResult.fullName, maintenanceToken, request.maintenance.githubCredentialRef);
+      await this.github.verifyAccess(
+        githubResult.fullName,
+        publishToken,
+        request.github.publishCredentialRef,
+      );
+      await this.github.verifyAccess(
+        githubResult.fullName,
+        maintenanceToken,
+        request.maintenance.githubCredentialRef,
+      );
       vercelResult = await this.vercel.provision(request, githubResult, vercelToken);
       specResult = this.specWriter.write(request, githubResult, vercelResult);
       const receipt: ProvisioningReceipt = {
         ...baseReceipt,
-        status: 'succeeded',
+        status: "succeeded",
         github: githubResult,
         vercel: vercelResult,
         spec: specResult,
@@ -120,27 +172,46 @@ export class ProvisioningCoordinator {
     } catch (error) {
       if (!githubResult && error instanceof GitHubProvisioningError) githubResult = error.result;
       if (!vercelResult && error instanceof VercelProvisioningError) vercelResult = error.result;
-      const rollback = { attempted: false, completed: false, actions: [] as string[], errors: [] as string[] };
-      const hasCompensableState = Boolean(specResult?.persisted || vercelResult?.created || githubResult?.created);
+      const rollback = {
+        attempted: false,
+        completed: false,
+        actions: [] as string[],
+        errors: [] as string[],
+      };
+      const hasCompensableState = Boolean(
+        specResult?.persisted || vercelResult?.created || githubResult?.created,
+      );
       if (request.rollbackCreatedResources && hasCompensableState) {
         rollback.attempted = true;
         if (specResult?.persisted) {
-          try { this.specWriter.restore(specResult); rollback.actions.push('restored-domain-spec'); }
-          catch (rollbackError) { rollback.errors.push(`spec: ${this.receiptMessage(rollbackError)}`); }
+          try {
+            this.specWriter.restore(specResult);
+            rollback.actions.push("restored-domain-spec");
+          } catch (rollbackError) {
+            rollback.errors.push(`spec: ${this.receiptMessage(rollbackError)}`);
+          }
         }
         if (vercelResult?.created && vercelToken) {
-          try { await this.vercel.remove(vercelResult, vercelToken); rollback.actions.push('deleted-created-vercel-project'); }
-          catch (rollbackError) { rollback.errors.push(`vercel: ${this.receiptMessage(rollbackError)}`); }
+          try {
+            await this.vercel.remove(vercelResult, vercelToken);
+            rollback.actions.push("deleted-created-vercel-project");
+          } catch (rollbackError) {
+            rollback.errors.push(`vercel: ${this.receiptMessage(rollbackError)}`);
+          }
         }
         if (githubResult?.created && githubProvisionToken) {
-          try { await this.github.remove(githubResult, githubProvisionToken); rollback.actions.push('deleted-created-github-repository'); }
-          catch (rollbackError) { rollback.errors.push(`github: ${this.receiptMessage(rollbackError)}`); }
+          try {
+            await this.github.remove(githubResult, githubProvisionToken);
+            rollback.actions.push("deleted-created-github-repository");
+          } catch (rollbackError) {
+            rollback.errors.push(`github: ${this.receiptMessage(rollbackError)}`);
+          }
         }
         rollback.completed = rollback.errors.length === 0;
       }
       const receipt: ProvisioningReceipt = {
         ...baseReceipt,
-        status: rollback.attempted && rollback.completed ? 'rolled_back' : 'failed',
+        status: rollback.attempted && rollback.completed ? "rolled_back" : "failed",
         ...(githubResult ? { github: githubResult } : {}),
         ...(vercelResult ? { vercel: vercelResult } : {}),
         ...(specResult ? { spec: specResult } : {}),
@@ -148,7 +219,9 @@ export class ProvisioningCoordinator {
         rollback,
       };
       this.writeReceipt(receipt);
-      const suffix = rollback.errors.length ? ` Rollback errors: ${rollback.errors.join('; ')}` : '';
+      const suffix = rollback.errors.length
+        ? ` Rollback errors: ${rollback.errors.join("; ")}`
+        : "";
       throw new Error(`Client provisioning failed: ${this.message(error)}.${suffix}`);
     }
   }
@@ -168,8 +241,11 @@ export class ProvisioningCoordinator {
       return `${error.provider} request failed (${error.status})`;
     }
     return this.message(error)
-      .replace(/(?:ghp_|github_pat_|sk-|pplx-)[A-Za-z0-9_-]+/g, '[REDACTED]')
-      .replace(/https:\/\/api\.vercel\.com\/v1\/integrations\/deploy\/[^\s]+/g, '[REDACTED_DEPLOY_HOOK]');
+      .replace(/(?:ghp_|github_pat_|sk-|pplx-)[A-Za-z0-9_-]+/g, "[REDACTED]")
+      .replace(
+        /https:\/\/api\.vercel\.com\/v1\/integrations\/deploy\/[^\s]+/g,
+        "[REDACTED_DEPLOY_HOOK]",
+      );
   }
 
   private writeReceipt(receipt: ProvisioningReceipt): void {
@@ -177,7 +253,7 @@ export class ProvisioningCoordinator {
     const temporary = `${path}.${process.pid}.tmp`;
     mkdirSync(dirname(path), { recursive: true });
     try {
-      writeFileSync(temporary, `${JSON.stringify(persistedReceipt(receipt), null, 2)}\n`, 'utf-8');
+      writeFileSync(temporary, `${JSON.stringify(persistedReceipt(receipt), null, 2)}\n`, "utf-8");
       renameSync(temporary, path);
     } finally {
       rmSync(temporary, { force: true });

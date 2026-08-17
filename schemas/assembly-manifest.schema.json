@@ -70,12 +70,7 @@
     "file": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "path",
-        "sha256",
-        "owner",
-        "bytes"
-      ],
+      "required": ["path", "sha256", "owner", "bytes"],
       "properties": {
         "path": {
           "type": "string",

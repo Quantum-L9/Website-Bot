@@ -1,4 +1,4 @@
-export type SourceMode = 'process_env_only' | 'infisical_hydrated' | 'infisical_unavailable';
+export type SourceMode = "process_env_only" | "infisical_hydrated" | "infisical_unavailable";
 
 export interface HydrateSecretsMetadata {
   bootstrap_present: boolean;

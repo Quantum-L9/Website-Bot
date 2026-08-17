@@ -1,16 +1,16 @@
 // L9_META: layer=pipeline, role=evidence_reference_contract, status=active, version=1.1.0
 export type EvidenceKind =
-  | 'assembly'
-  | 'build'
-  | 'publication'
-  | 'deployment'
-  | 'release'
-  | 'handoff'
-  | 'registration_ack'
-  | 'source_site'
-  | 'image_plan'
-  | 'image_assets'
-  | 'failure';
+  | "assembly"
+  | "build"
+  | "publication"
+  | "deployment"
+  | "release"
+  | "handoff"
+  | "registration_ack"
+  | "source_site"
+  | "image_plan"
+  | "image_assets"
+  | "failure";
 
 export interface EvidenceRecord {
   kind: EvidenceKind;
@@ -32,15 +32,19 @@ export interface EvidenceReference {
 const SHA256 = /^[a-f0-9]{64}$/;
 
 export function validateEvidenceReference(value: unknown): asserts value is EvidenceReference {
-  if (!value || typeof value !== 'object') throw new Error('evidence reference must be an object');
+  if (!value || typeof value !== "object") throw new Error("evidence reference must be an object");
   const reference = value as Partial<EvidenceReference>;
   if (!reference.kind || !reference.schema || !reference.logical_id || !reference.relative_path) {
-    throw new Error('evidence reference identity is incomplete');
+    throw new Error("evidence reference identity is incomplete");
   }
-  if (reference.relative_path.startsWith('/') || reference.relative_path.split('/').includes('..')) {
-    throw new Error('evidence reference path is unsafe');
+  if (
+    reference.relative_path.startsWith("/") ||
+    reference.relative_path.split("/").includes("..")
+  ) {
+    throw new Error("evidence reference path is unsafe");
   }
-  if (!SHA256.test(String(reference.sha256))) throw new Error('evidence reference digest is invalid');
+  if (!SHA256.test(String(reference.sha256)))
+    throw new Error("evidence reference digest is invalid");
 }
 
 export function recordToReference(record: EvidenceRecord): EvidenceReference {

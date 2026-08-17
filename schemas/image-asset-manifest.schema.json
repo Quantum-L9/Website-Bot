@@ -17,7 +17,19 @@
     "asset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["slot_id", "placement", "source", "output_path", "mime_type", "width", "height", "byte_length", "sha256", "disposition", "provenance_warnings"],
+      "required": [
+        "slot_id",
+        "placement",
+        "source",
+        "output_path",
+        "mime_type",
+        "width",
+        "height",
+        "byte_length",
+        "sha256",
+        "disposition",
+        "provenance_warnings"
+      ],
       "properties": {
         "slot_id": { "type": "string", "minLength": 1 },
         "placement": { "type": "string", "minLength": 1 },
@@ -33,7 +45,9 @@
         "prompt_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "model": { "type": "string" },
         "estimated_cost_usd": { "type": "number", "minimum": 0 },
-        "disposition": { "enum": ["approved-client-owned", "reference-only", "unknown-rights", "rejected"] },
+        "disposition": {
+          "enum": ["approved-client-owned", "reference-only", "unknown-rights", "rejected"]
+        },
         "provenance_warnings": { "type": "array", "items": { "type": "string" } }
       }
     }

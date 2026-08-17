@@ -1,34 +1,30 @@
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 import {
-  canonicalJson,
-  refForArtifact,
-  sameArtifactRef,
   type ContentSlot,
+  canonicalJson,
   type PageContentContractV1,
+  refForArtifact,
   type SEOContentBlueprintArtifact,
   type SEOContentRequirement,
+  sameArtifactRef,
   type VerifiedBusinessFact,
-  type WebsiteBuildBlueprintArtifact,
   type WebsiteBlueprintSection,
-} from '@quantum-l9/bot-interop';
+  type WebsiteBuildBlueprintArtifact,
+} from "@quantum-l9/bot-interop";
 
 export type ContractCompileErrorCode =
-  | 'COMPETITIVE_LANDSCAPE_MISMATCH'
-  | 'ROUTE_SET_MISMATCH'
-  | 'ROUTE_PATH_MISMATCH'
-  | 'CONTENT_REQUIREMENT_UNPLACED'
-  | 'INVALID_BUSINESS_FACT';
+  | "COMPETITIVE_LANDSCAPE_MISMATCH"
+  | "ROUTE_SET_MISMATCH"
+  | "ROUTE_PATH_MISMATCH"
+  | "CONTENT_REQUIREMENT_UNPLACED"
+  | "INVALID_BUSINESS_FACT";
 
 export class PageContentContractCompileError extends Error {
   readonly code: ContractCompileErrorCode;
   readonly details?: Record<string, unknown>;
-  constructor(
-    code: ContractCompileErrorCode,
-    message: string,
-    details?: Record<string, unknown>,
-  ) {
+  constructor(code: ContractCompileErrorCode, message: string, details?: Record<string, unknown>) {
     super(`${code}: ${message}`);
-    this.name = 'PageContentContractCompileError';
+    this.name = "PageContentContractCompileError";
     this.code = code;
     this.details = details;
   }
@@ -47,12 +43,12 @@ function uniq(values: string[]): string[] {
 
 function intersects(a: ContentSlot[], b: ContentSlot[]): boolean {
   const bSet = new Set<ContentSlot>(b);
-  return a.some(value => bSet.has(value));
+  return a.some((value) => bSet.has(value));
 }
 
 function digestBusinessFacts(facts: VerifiedBusinessFact[]): string {
   const sorted = [...facts].sort((a, b) => a.fact_id.localeCompare(b.fact_id));
-  return createHash('sha256').update(canonicalJson(sorted)).digest('hex');
+  return createHash("sha256").update(canonicalJson(sorted)).digest("hex");
 }
 
 function validateFacts(facts: VerifiedBusinessFact[]): void {
@@ -60,14 +56,14 @@ function validateFacts(facts: VerifiedBusinessFact[]): void {
   for (const fact of facts) {
     if (!fact.fact_id || !fact.key || fact.verified !== true) {
       throw new PageContentContractCompileError(
-        'INVALID_BUSINESS_FACT',
-        'All facts must have fact_id, key, and verified=true.',
+        "INVALID_BUSINESS_FACT",
+        "All facts must have fact_id, key, and verified=true.",
         { fact },
       );
     }
     if (seen.has(fact.fact_id)) {
       throw new PageContentContractCompileError(
-        'INVALID_BUSINESS_FACT',
+        "INVALID_BUSINESS_FACT",
         `Duplicate fact_id ${fact.fact_id}`,
       );
     }
@@ -75,15 +71,9 @@ function validateFacts(facts: VerifiedBusinessFact[]): void {
   }
 }
 
-function factsForRoute(
-  facts: VerifiedBusinessFact[],
-  routeId: string,
-): VerifiedBusinessFact[] {
+function factsForRoute(facts: VerifiedBusinessFact[], routeId: string): VerifiedBusinessFact[] {
   return facts.filter(
-    fact =>
-      !fact.route_ids ||
-      fact.route_ids.length === 0 ||
-      fact.route_ids.includes(routeId),
+    (fact) => !fact.route_ids || fact.route_ids.length === 0 || fact.route_ids.includes(routeId),
   );
 }
 
@@ -101,13 +91,13 @@ function sectionsForRequirement(
   sections: WebsiteBlueprintSection[],
   requirement: SEOContentRequirement,
 ): WebsiteBlueprintSection[] {
-  const matches = sections.filter(section =>
+  const matches = sections.filter((section) =>
     intersects(section.content_slots, requirement.target_slots),
   );
   if (matches.length === 0) {
     return [];
   }
-  if (requirement.placement === 'FIRST_MATCH') {
+  if (requirement.placement === "FIRST_MATCH") {
     // slice avoids an index access that static analysis reads as possibly-undefined
     return matches.slice(0, 1);
   }
@@ -122,15 +112,10 @@ export function compilePageContentContract(
 
   validateFacts(input.businessFacts);
 
-  if (
-    !sameArtifactRef(
-      website.competitive_landscape_ref,
-      seo.competitive_landscape_ref,
-    )
-  ) {
+  if (!sameArtifactRef(website.competitive_landscape_ref, seo.competitive_landscape_ref)) {
     throw new PageContentContractCompileError(
-      'COMPETITIVE_LANDSCAPE_MISMATCH',
-      'Website and SEO blueprints were produced from different CompetitiveLandscape artifacts.',
+      "COMPETITIVE_LANDSCAPE_MISMATCH",
+      "Website and SEO blueprints were produced from different CompetitiveLandscape artifacts.",
       {
         website: website.competitive_landscape_ref,
         seo: seo.competitive_landscape_ref,
@@ -138,31 +123,29 @@ export function compilePageContentContract(
     );
   }
 
-  const websiteRouteIds = uniq(website.routes.map(route => route.route_id));
-  const seoRouteIds = uniq(seo.routes.map(route => route.route_id));
+  const websiteRouteIds = uniq(website.routes.map((route) => route.route_id));
+  const seoRouteIds = uniq(seo.routes.map((route) => route.route_id));
   if (canonicalJson(websiteRouteIds) !== canonicalJson(seoRouteIds)) {
     throw new PageContentContractCompileError(
-      'ROUTE_SET_MISMATCH',
-      'WebsiteBuildBlueprint and SEOContentBlueprint must describe the same route set.',
+      "ROUTE_SET_MISMATCH",
+      "WebsiteBuildBlueprint and SEOContentBlueprint must describe the same route set.",
       { websiteRouteIds, seoRouteIds },
     );
   }
 
   const warnings: string[] = [];
 
-  const routes = website.routes.map(websiteRoute => {
-    const seoRoute = seo.routes.find(
-      candidate => candidate.route_id === websiteRoute.route_id,
-    );
+  const routes = website.routes.map((websiteRoute) => {
+    const seoRoute = seo.routes.find((candidate) => candidate.route_id === websiteRoute.route_id);
     if (!seoRoute) {
       throw new PageContentContractCompileError(
-        'ROUTE_SET_MISMATCH',
+        "ROUTE_SET_MISMATCH",
         `Missing SEO route ${websiteRoute.route_id}`,
       );
     }
     if (seoRoute.path !== websiteRoute.path) {
       throw new PageContentContractCompileError(
-        'ROUTE_PATH_MISMATCH',
+        "ROUTE_PATH_MISMATCH",
         `Route ${websiteRoute.route_id} has conflicting paths.`,
         { websitePath: websiteRoute.path, seoPath: seoRoute.path },
       );
@@ -176,14 +159,11 @@ export function compilePageContentContract(
     }
 
     for (const requirement of seoRoute.requirements) {
-      const destinations = sectionsForRequirement(
-        websiteRoute.sections,
-        requirement,
-      );
+      const destinations = sectionsForRequirement(websiteRoute.sections, requirement);
       if (destinations.length === 0) {
         if (requirement.required) {
           throw new PageContentContractCompileError(
-            'CONTENT_REQUIREMENT_UNPLACED',
+            "CONTENT_REQUIREMENT_UNPLACED",
             `Required SEO content requirement ${requirement.requirement_id} has no compatible WebsiteBuildBlueprint content slot.`,
             {
               route_id: websiteRoute.route_id,
@@ -208,38 +188,26 @@ export function compilePageContentContract(
       }
     }
 
-    const sections = websiteRoute.sections.map(section => {
+    const sections = websiteRoute.sections.map((section) => {
       const requirements = requirementPlacement.get(section.section_id) ?? [];
-      const allowedFacts = routeFacts.filter(fact =>
-        factAllowedForSection(fact, section),
-      );
+      const allowedFacts = routeFacts.filter((fact) => factAllowedForSection(fact, section));
       return {
         section_id: section.section_id,
         component_class: section.component_class,
         objective: section.objective,
         slots: [...section.content_slots],
         content_requirements: {
-          requirement_ids: uniq(
-            requirements.map(requirement => requirement.requirement_id),
-          ),
-          topics: uniq(
-            requirements.flatMap(requirement => requirement.required_topics),
-          ),
-          entities: uniq(
-            requirements.flatMap(requirement => requirement.required_entities),
-          ),
-          questions: uniq(
-            requirements.flatMap(requirement => requirement.questions),
-          ),
+          requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
+          topics: uniq(requirements.flatMap((requirement) => requirement.required_topics)),
+          entities: uniq(requirements.flatMap((requirement) => requirement.required_entities)),
+          questions: uniq(requirements.flatMap((requirement) => requirement.questions)),
         },
-        allowed_fact_ids: uniq(allowedFacts.map(fact => fact.fact_id)),
+        allowed_fact_ids: uniq(allowedFacts.map((fact) => fact.fact_id)),
         proof_requirements: uniq([
           ...section.proof_requirements,
-          ...requirements.flatMap(requirement => requirement.proof_needed),
+          ...requirements.flatMap((requirement) => requirement.proof_needed),
         ]),
-        ...(section.conversion_action
-          ? { conversion_action: section.conversion_action }
-          : {}),
+        ...(section.conversion_action ? { conversion_action: section.conversion_action } : {}),
         acceptance_tests: uniq(section.acceptance_tests ?? []),
       };
     });
@@ -263,25 +231,20 @@ export function compilePageContentContract(
       business_facts: routeFacts,
       sections,
       internal_link_requirements: [...seoRoute.internal_links].sort((a, b) =>
-        `${a.target_route_id}:${a.purpose}`.localeCompare(
-          `${b.target_route_id}:${b.purpose}`,
-        ),
+        `${a.target_route_id}:${a.purpose}`.localeCompare(`${b.target_route_id}:${b.purpose}`),
       ),
       forbidden_claims: uniq([
         ...website.content_guardrails.forbidden_claims,
         ...seoRoute.forbidden_claims,
       ]),
-      acceptance_tests: uniq([
-        ...website.acceptance_tests,
-        ...seoRoute.acceptance_tests,
-      ]),
+      acceptance_tests: uniq([...website.acceptance_tests, ...seoRoute.acceptance_tests]),
     };
   });
 
   return {
-    schema: 'l9://website-intelligence/page-content-contract/v1',
+    schema: "l9://website-intelligence/page-content-contract/v1",
     compiler: {
-      name: 'website-content-contract-compiler',
+      name: "website-content-contract-compiler",
       version: input.compilerVersion,
       warnings: uniq(warnings),
     },

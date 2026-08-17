@@ -1,0 +1,23 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786872462750",
+  "client_id": "safehavenrr",
+  "code": "BUILD_FAILED",
+  "failed_at": "2026-08-16T09:34:06.425Z",
+  "input_evidence": [
+    {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872462750:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "0ff42694e361035bea6dd071af4d553c4f774abf8c025ccf04627d4f7e496636"
+    }
+  ],
+  "message": "npm run check failed (code=1, signal=null)",
+  "recoverable": false,
+  "sanitized_details": {
+    "stderr": "npm warn Unknown env config \"always-auth\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\n"
+  },
+  "schema": "website-bot.stage-failure/v2",
+  "stage": "site-build"
+}

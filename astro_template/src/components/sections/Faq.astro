@@ -1,10 +1,31 @@
 <!-- L9_META: layer=template, role=faq_section, status=active, version=1.0.0 -->
 ---
-interface Props { name?: string; content: string; }
-const { name = 'faq', content } = Astro.props;
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+interface Props {
+  name?: string;
+  content: string;
+}
+const { name = "faq", content } = Astro.props;
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim())
+  .filter(Boolean);
+const heading = paragraphs[0] || "Frequently asked questions";
+// Heuristic: a paragraph whose first sentence ends with "?" is a question; the
+// remainder (if any) is its answer. Non-question paragraphs render as plain rows.
+const qa = paragraphs.slice(1).map((paragraph) => {
+  const match = paragraph.match(/^(.+?\?)\s+(.+)$/s);
+  if (match && match[1].includes("?")) {
+    return { question: match[1], answer: match[2] };
+  }
+  return { question: paragraph, answer: "" };
+});
 ---
 <section class="faq" data-section={name}>
-  <h2>Frequently asked questions</h2>
-  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+  <h2>{heading}</h2>
+  {qa.map((item) => (
+    <details class="faq__item">
+      <summary>{item.question}</summary>
+      {item.answer && <p>{item.answer}</p>}
+    </details>
+  ))}
 </section>

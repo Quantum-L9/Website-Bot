@@ -1,0 +1,190 @@
+# E2E Integration Map — Quantum-L9 Website-Bot / SEO-Bot / LLM-Router
+# Test run: 2026-08-16, FULL_E2E_EXECUTION (local; push/PR/deploy forbidden)
+# Rule: every material fact is verifiable from repository state or runtime
+# evidence; otherwise UNKNOWN.
+
+test_baseline:
+  date: "2026-08-16"
+  target_website: https://www.safehavenrr.com
+  target_role: reference_and_test_input
+  target_mutation: forbidden
+  environment:
+    os: darwin
+    os_version: macOS 24.5.0
+    node: v25.7.0
+    docker: 29.7.2
+    docker_compose: v5.3.1
+    shell: zsh
+
+repositories:
+  website_bot:
+    url: https://github.com/Quantum-L9/Website-Bot
+    local_path: /Users/macm2/Website-Bot
+    branch: main
+    head_sha: 2ebb6be41a43ec4fcefab9672b1ff571912a9e1e
+    version: 3.1.0
+    runtime: "Node >=20.19.0"
+    working_tree: >
+      dirty (uncommitted edits in package.json, package-lock.json,
+      .github/workflows/l9-lint-test.yml, packages/validation-executor/*;
+      untracked .claude/ .cursor/ biome.json etc. — pre-existing, not from this run)
+    role: >
+      website_factory — transaction orchestrator and mutation authority. Consumes
+      DomainSpec, generates Astro sites, publishes, deploys, emits handoff.
+    entrypoints:
+      - "npm run pipeline -- --spec=<path> --mode=<plan|local-proof|publish-proof|end-to-end> [--output-dir] [--evidence-dir] [--skip] [--resume --build-id] [--auto-register-seo-bot]"
+      - "npm run generate-spec -- <url> [--out] [--client-id] [--with-assets]" # URL -> DomainSpec
+      - "npm run normalize-spec" # rich source spec -> flat spec
+      - "npm run verify:all" # plus verify:preflight|source|build|smoke|form|analytics|crm|seo|rollback
+      - "make help" # canonical operator surface
+  seo_bot:
+    url: https://github.com/Quantum-L9/SEO-Bot
+    local_path: /Users/macm2/e2e-safehaven/SEO-Bot
+    branch: main
+    head_sha: 519879e6c4151c719c94264057ce11bcc7cebe9b
+    version: 2.1.0
+    runtime: "Node >=22"
+    role: >
+      seo_bot — headless SEO authority: build-time intelligence producer,
+      post-launch client maintenance daemon. NOT a site builder; must not mutate
+      Website-Bot source or choose visual layouts.
+    entrypoints:
+      - "npm start" # Fastify API, BOT_PORT default 3100
+      - "POST /api/clients/register" # WebsiteFactoryHandoffV3 ingress; Bearer SEO_BOT_API_KEY; Idempotency-Key; requires Postgres
+      - "POST /api/build-intelligence/competitive-landscape"
+      - "POST /api/build-intelligence/seo-content-blueprint"
+      - "POST /api/build-intelligence/structured-content"
+      - "npm run request-site-build -- <clientId> [specPath]" # repository_dispatch -> Website-Bot build-site workflow; needs GITHUB_TOKEN + WEBSITE_BOT_REPO
+      - "npm test" # vitest incl. register tests
+      - "npm run verify:all"
+    infrastructure: docker-compose.yml provides postgres:16, redis:7, clickhouse, self-hosted posthog
+  llm_router:
+    url: https://github.com/Quantum-L9/LLM-Router
+    local_path: /Users/macm2/e2e-safehaven/LLM-Router
+    branch: main
+    head_sha: 56e2f48e8995721b6b7a679e6d4fe0884d7dbe28
+    version: 1.1.3
+    published: true
+    role: >
+      llm_router — shared routing library (@quantum-l9/llm-router, GitHub
+      Packages): task validation, deterministic provider/model selection, budget
+      reservation, circuit breaking, timeouts, retries, typed provider clients.
+    entrypoints:
+      - npm package consumed by Website-Bot (pinned 1.1.2) and SEO-Bot (1.1.2)
+      - "npm test" # vitest
+    providers: >
+      OpenRouter (general) + Perplexity (search-grounded); OPENROUTER_BASE_URL
+      override for OpenAI-compatible gateways (config > env > cloud default).
+
+discovered_runtime_chain:
+  # Actual chain replacing the conceptual chain in the task packet:
+  # TARGET_WEBSITE -> SPEC_GENERATION -> PIPELINE(local-proof) -> GENERATED_SITE -> VALIDATION
+  leg_a_spec_generation: >
+    scripts/generate-spec.ts <target-url> crawls the live target (SourceCrawler:
+    maxPages=40, maxDepth=2), builds DomainSpec identity (routes, phone, palette,
+    site_url), optional LLM fill of vertical/geography/keywords, validates via
+    validateDomainSpec, writes build/specs/<client_id>.yaml
+  leg_b_pipeline_local_proof:
+    stages:
+      - domain-spec-loader
+      - unknown-resolver
+      - source-site-ingestion # re-crawls target when spec.assets.sourceSite.enabled (images/screenshots optional)
+      - design-intelligence # LLM via llm-router
+      - content-generation # LLM via llm-router (credential-gated, ADR-0017)
+      - schema-generator # JSON-LD schemas
+      - image-asset-planning
+      - image-generation
+      - placeholder-scan # mandatory gate: PLACEHOLDER_CONTENT_DETECTED fails build
+      - site-assembler # copies astro_template + generated content
+      - image-validation
+      - posthog-snippet
+      - site-build # Astro build -> dist (only in non-plan modes)
+      - release-receipt
+      - terminal-convergence # mandatory-stage/evidence gate
+  leg_c_seo_bot_intelligence:
+    wired: >
+      SEO-Bot HTTP endpoints produce sealed artifacts (CompetitiveLandscape,
+      SEOContentBlueprint, StructuredContentPackage) under protocol
+      l9.website-intelligence/v1 (bot-interop schemas). Auth: operator key; strict
+      request schemas (provider/model never leak). Persistence best-effort.
+    website_bot_consumer: >
+      PARTIALLY UNWIRED — Website-Bot defines SeoBuildIntelligencePort (interface
+      only, src/intelligence/SeoBuildIntelligencePort.ts). No HTTP client and no
+      pipeline stage consumes it. No stage in FactoryExecutionPlan calls the
+      intelligence endpoints.
+  leg_d_registration:
+    wired: >
+      HandoffEmitterStage (end-to-end mode ONLY, requires deployTarget +
+      publication/deployment evidence) builds WebsiteFactoryHandoffV3 and, with
+      --auto-register-seo-bot + SEO_BOT_URL + SEO_BOT_API_KEY, POSTs
+      /api/clients/register and validates SeoBotRegistrationAck (contract_id,
+      digest, receipt, repo/branch/sha).
+    local_scope: >
+      NOT EXERCISABLE in this run without external GitHub publish + Vercel deploy
+      (forbidden by execution authority). Contract proven instead via SEO-Bot's own
+      register test suite and live fail-closed checks.
+  leg_e_seo_bot_trigger_back:
+    wired: >
+      SEO-Bot scripts/request-site-build.ts fires GitHub repository_dispatch
+      build-site at the Website-Bot repo (needs GITHUB_TOKEN + WEBSITE_BOT_REPO).
+      External GitHub action path — out of local scope.
+
+inter_repo_contracts:
+  - name: "@quantum-l9/bot-interop"
+    role: >
+      shared schema package. Website-Bot consumes via file:packages/bot-interop
+      (local workspace, version 1.1.0); SEO-Bot consumes ^1.1.0 from registry.
+    schemas:
+      - WebsiteFactoryHandoffV3 (schema_version 3.0, protocol l9.website-factory.handoff)
+      - SeoBotRegistrationAck
+      - "WebsiteIntelligenceArtifact family (l9.website-intelligence/v1): CompetitiveLandscapeArtifact, SEOContentBlueprintArtifact, StructuredContentPackageArtifact, PageContentContractArtifact, WebsiteBuildBlueprintArtifact, VerifiedBusinessFact"
+  - name: contracts/WEBSITE_INTELLIGENCE_LOCK.json
+    status: ACCEPTED (locked 2026-08-14), IDENTICAL in both repos
+    notes:
+      - mode_scope: REDESIGN_IMPROVE
+      - "llm-router target 1.1.3 PENDING_IMPLEMENTATION_AND_PUBLICATION at lock time; Website-Bot pinned 1.1.2"
+      - bot-interop 1.1.0 consumed locally by Website-Bot as file: workspace dep
+  - name: contracts/website_factory_integration.yaml
+    status: >
+      convenience copies; bodies DIFFER (Website-Bot copy holds a real safehavenrr
+      handoff v3 emitted 2026-08-13 by a prior end-to-end run; SEO-Bot copy holds an
+      archival 2.0 body). Both repos document that the canonical form is bot-interop's
+      WebsiteFactoryHandoffV3.
+
+configuration_resolution:
+  website_bot:
+    secrets_plane: >
+      Infisical via hydrateSecretsIfConfigured() (run-pipeline startup). Bootstrap
+      env: INFISICAL_CLIENT_ID, INFISICAL_CLIENT_SECRET, INFISICAL_PROJECT_ID
+      (values resolved from AWS Secrets Manager refs
+      openclaw-igorbot/infisical-website-bot#..., per AGENTS.md).
+    runtime_env: >
+      OPENROUTER_API_KEY, PERPLEXITY_API_KEY (llm-router); SEO_BOT_URL,
+      SEO_BOT_API_KEY (registration); DATAFORSEO_LOGIN/PASSWORD (optional SEO
+      baseline); GITHUB_SITE_TOKEN, VERCEL_* (publish/deploy — out of local scope).
+  seo_bot:
+    secrets_plane: >
+      Infisical via hydrateSecretsIfConfigured() (openclaw-igorbot/infisical-seo-bot refs).
+    env_schema: >
+      (src/core/config.ts, zod) DATABASE_URL, REDIS_URL, POSTHOG_API_URL,
+      POSTHOG_PERSONAL_API_KEY, DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD,
+      PAGESPEED_API_KEY, OPENROUTER_API_KEY, PERPLEXITY_API_KEY (all required);
+      SEO_BOT_API_KEY (register auth, fail-closed 503 when unset); OPERATOR_API_KEY
+      (operator routes incl. build-intelligence, fail-closed 401 when unset);
+      BOT_PORT default 3100.
+  llm_router: >
+    explicit config > OPENROUTER_BASE_URL > https://openrouter.ai/api/v1. Keys via
+    consuming app env.
+
+error_and_retry_behavior:
+  - "llm-router: pre-dispatch budget reservation; per-provider circuit breaker with one half-open probe; timeout/cancel/retry/fallback; BudgetExhaustedError/CircuitOpenError/ProviderRequestError typed."
+  - "website_bot: BuildError codes (VALIDATION_FAILED, HANDOFF_EMIT_FAILED, HANDOFF_ACK_MISMATCH, PLACEHOLDER_CONTENT_DETECTED, EVIDENCE_CHAIN_INVALID, RELEASE_EVIDENCE_INCOMPLETE, LLM_CALL_FAILED). PipelineRunner stage checkpoints; resume via --resume --build-id."
+  - "seo_bot: strict zod request schemas (400 on unknown fields incl. provider/model); auth fail-closed; artifact digest conflict fail-closed; persistence best-effort."
+
+proven_or_unknown:
+  - "PROVEN: Website-Bot pipeline consumes @quantum-l9/llm-router for design-intelligence, content-generation, schema-generator (src/services/llm.ts)."
+  - "PROVEN: SEO-Bot consumes @quantum-l9/llm-router (src/services/llm.ts, persistent per-client budgets)."
+  - "PROVEN: Website-Bot -> SEO-Bot registration leg is wired in end-to-end mode (HandoffEmitterStage)."
+  - "PROVEN: SEO-Bot -> Website-Bot build trigger is wired via GitHub repository_dispatch (request-site-build.ts)."
+  - "UNWIRED (discovered fact): Website-Bot has no consumer of SEO-Bot's build-intelligence endpoints (port interface only)."
+  - "UNKNOWN: exact LLM model names selected per TaskType at runtime (llm-router internal mapping) — captured from stage logs in Phase 5: openrouter + anthropic/claude-sonnet-4 observed for the exercised task types."

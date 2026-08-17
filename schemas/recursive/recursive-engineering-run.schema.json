@@ -5,9 +5,19 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "recursiveRunId", "sourceUrl", "mode", "policy", "initialCode",
-    "waves", "executionCounts", "trajectory", "finalVersion", "terminalState",
-    "nextAction", "invariants"
+    "schema",
+    "recursiveRunId",
+    "sourceUrl",
+    "mode",
+    "policy",
+    "initialCode",
+    "waves",
+    "executionCounts",
+    "trajectory",
+    "finalVersion",
+    "terminalState",
+    "nextAction",
+    "invariants"
   ],
   "$defs": {
     "artifactRef": {
@@ -24,8 +34,15 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "schema", "recursiveRunId", "wave", "inputCode", "e2e",
-        "engineeringHarvest", "reviewability", "status", "next"
+        "schema",
+        "recursiveRunId",
+        "wave",
+        "inputCode",
+        "e2e",
+        "engineeringHarvest",
+        "reviewability",
+        "status",
+        "next"
       ],
       "properties": {
         "schema": { "const": "l9.recursive-engineering-wave/v1" },
@@ -44,7 +61,13 @@
         "e2e": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["receiptRef", "artifactManifestRef", "sourceUrl", "candidateReviewable", "qualitySummaryRef"],
+          "required": [
+            "receiptRef",
+            "artifactManifestRef",
+            "sourceUrl",
+            "candidateReviewable",
+            "qualitySummaryRef"
+          ],
           "properties": {
             "receiptRef": { "$ref": "#/$defs/artifactRef" },
             "artifactManifestRef": { "$ref": "#/$defs/artifactRef" },
@@ -81,7 +104,9 @@
             "outcomeRef": { "$ref": "#/$defs/artifactRef" },
             "beforeSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
             "afterSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
-            "causalVerdict": { "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+            "causalVerdict": {
+              "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"]
+            }
           }
         },
         "promotion": {
@@ -104,8 +129,11 @@
         },
         "status": {
           "enum": [
-            "WAVE_COMPLETE", "NO_ACTIONABLE_SIGNAL", "PATCH_VALIDATION_FAILED",
-            "DEPLOYMENT_FAILED", "CONTROL_PLANE_CHANGE_REQUIRED"
+            "WAVE_COMPLETE",
+            "NO_ACTIONABLE_SIGNAL",
+            "PATCH_VALIDATION_FAILED",
+            "DEPLOYMENT_FAILED",
+            "CONTROL_PLANE_CHANGE_REQUIRED"
           ]
         },
         "next": { "enum": ["NEXT_WAVE", "STOP"] }
@@ -130,8 +158,11 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "websiteBotFullSha", "seoBotFullSha", "llmRouterVersion",
-        "botInteropVersion", "controlPlaneFullSha"
+        "websiteBotFullSha",
+        "seoBotFullSha",
+        "llmRouterVersion",
+        "botInteropVersion",
+        "controlPlaneFullSha"
       ],
       "properties": {
         "websiteBotFullSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
@@ -148,7 +179,13 @@
     "executionCounts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["fullE2Es", "codeImprovementLoops", "autonomousMerges", "deployments", "rollbacks"],
+      "required": [
+        "fullE2Es",
+        "codeImprovementLoops",
+        "autonomousMerges",
+        "deployments",
+        "rollbacks"
+      ],
       "properties": {
         "fullE2Es": { "type": "integer", "minimum": 0 },
         "codeImprovementLoops": { "type": "integer", "minimum": 0 },
@@ -160,10 +197,22 @@
     "trajectory": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["testedVersions", "producedVersions", "reviewabilityByE2E", "codeChangeOutcomes", "unresolvedEngineeringSignals"],
+      "required": [
+        "testedVersions",
+        "producedVersions",
+        "reviewabilityByE2E",
+        "codeChangeOutcomes",
+        "unresolvedEngineeringSignals"
+      ],
       "properties": {
-        "testedVersions": { "type": "array", "items": { "type": "string", "pattern": "^[a-f0-9]{40}$" } },
-        "producedVersions": { "type": "array", "items": { "type": "string", "pattern": "^[a-f0-9]{40}$" } },
+        "testedVersions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+        },
+        "producedVersions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+        },
         "reviewabilityByE2E": {
           "type": "array",
           "items": {
@@ -185,11 +234,16 @@
             "required": ["wave", "verdict"],
             "properties": {
               "wave": { "type": "integer", "minimum": 1, "maximum": 3 },
-              "verdict": { "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"] }
+              "verdict": {
+                "enum": ["CONFIRMED", "PARTIALLY_CONFIRMED", "DISCONFIRMED", "INCONCLUSIVE"]
+              }
             }
           }
         },
-        "unresolvedEngineeringSignals": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } }
+        "unresolvedEngineeringSignals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifactRef" }
+        }
       }
     },
     "finalVersion": {
@@ -205,25 +259,37 @@
     },
     "terminalState": {
       "enum": [
-        "WAVE_LIMIT_REACHED", "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL",
-        "NO_ACTIONABLE_SIGNAL", "NO_MATERIAL_IMPROVEMENT",
-        "CONTROL_PLANE_CHANGE_REQUIRED", "PATCH_VALIDATION_FAILED",
-        "DEPLOYMENT_FAILED", "BLOCKED", "FATAL"
+        "WAVE_LIMIT_REACHED",
+        "REVIEWABLE_NO_MATERIAL_ENGINEERING_SIGNAL",
+        "NO_ACTIONABLE_SIGNAL",
+        "NO_MATERIAL_IMPROVEMENT",
+        "CONTROL_PLANE_CHANGE_REQUIRED",
+        "PATCH_VALIDATION_FAILED",
+        "DEPLOYMENT_FAILED",
+        "BLOCKED",
+        "FATAL"
       ]
     },
     "nextAction": {
       "enum": [
-        "START_NEXT_RUN_WITH_FINAL_SHA", "HUMAN_REVIEW",
-        "REMEDIATE_CONTROL_PLANE", "REMEDIATE_FAILED_PATCH",
-        "REMEDIATE_DEPLOYMENT", "INVESTIGATE_BLOCKER"
+        "START_NEXT_RUN_WITH_FINAL_SHA",
+        "HUMAN_REVIEW",
+        "REMEDIATE_CONTROL_PLANE",
+        "REMEDIATE_FAILED_PATCH",
+        "REMEDIATE_DEPLOYMENT",
+        "INVESTIGATE_BLOCKER"
       ]
     },
     "invariants": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "waveFourExecuted", "controlPlaneMutated", "acceptanceContractMutatedAfterFreeze",
-        "coderSelfCertified", "unverifiedCodeMerged", "wrongShaTested"
+        "waveFourExecuted",
+        "controlPlaneMutated",
+        "acceptanceContractMutatedAfterFreeze",
+        "coderSelfCertified",
+        "unverifiedCodeMerged",
+        "wrongShaTested"
       ],
       "properties": {
         "waveFourExecuted": { "const": false },

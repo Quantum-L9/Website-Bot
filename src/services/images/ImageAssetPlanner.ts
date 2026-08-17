@@ -8,17 +8,21 @@
 // Ambiguous semantic ranking is a later, optional refinement — never basic
 // filtering.
 
-import type { ImageSlotSpec } from '../../pipeline/BuildContext.js';
-import type { IngestedImage } from '../../pipeline/evidence/SourceSiteManifest.js';
+import type { ImageSlotSpec } from "../../pipeline/BuildContext.js";
 import type {
   ImageAssetPlan,
-  ImageGenerationBrief,
   ImageAssetResolution,
+  ImageGenerationBrief,
   PlannedImageAsset,
-} from '../../pipeline/evidence/ImageAssetPlan.js';
+} from "../../pipeline/evidence/ImageAssetPlan.js";
+import type { IngestedImage } from "../../pipeline/evidence/SourceSiteManifest.js";
 
-export const IMAGE_ASSET_PLAN_VERSION = '1.0.0';
-const DEFAULT_PRECEDENCE: Array<'provided' | 'source-site' | 'generated'> = ['provided', 'source-site', 'generated'];
+export const IMAGE_ASSET_PLAN_VERSION = "1.0.0";
+const DEFAULT_PRECEDENCE: Array<"provided" | "source-site" | "generated"> = [
+  "provided",
+  "source-site",
+  "generated",
+];
 const MIN_ACCEPTABLE_SCORE = 1;
 
 /** A provided image after inspection, ready to be scored against slots. */
@@ -51,16 +55,20 @@ export function aspectMatches(slot: ImageSlotSpec, width: number, height: number
 
 function altKeywordMatch(slot: ImageSlotSpec, altText: string | undefined): boolean {
   if (!altText || !slot.altText) return false;
-  const wanted = slot.altText.toLowerCase().split(/\W+/).filter(word => word.length > 3);
+  const wanted = slot.altText
+    .toLowerCase()
+    .split(/\W+/)
+    .filter((word) => word.length > 3);
   if (wanted.length === 0) return false;
   const haystack = altText.toLowerCase();
-  return wanted.some(word => haystack.includes(word));
+  return wanted.some((word) => haystack.includes(word));
 }
 
 export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate): number {
   let score = 0;
   if (candidate.intendedPlacement === slot.placement) score += 60;
-  else if (candidate.intendedPlacement && candidate.intendedPlacement !== slot.placement) return Number.NEGATIVE_INFINITY;
+  else if (candidate.intendedPlacement && candidate.intendedPlacement !== slot.placement)
+    return Number.NEGATIVE_INFINITY;
   else if (candidate.id === slot.id) score += 40;
   if (aspectMatches(slot, candidate.width, candidate.height)) score += 20;
   if (candidate.width >= 1600) score += 10;
@@ -72,25 +80,30 @@ export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate)
 /** The route slug a placement targets ("/:hero" → "/", "/services:hero" →
  *  "/services"); undefined for global placements ("global:logo"). */
 export function routeSlugFromPlacement(placement: string): string | undefined {
-  if (placement.startsWith('global:')) return undefined;
-  const separator = placement.lastIndexOf(':');
+  if (placement.startsWith("global:")) return undefined;
+  const separator = placement.lastIndexOf(":");
   const route = separator > 0 ? placement.slice(0, separator) : placement;
-  return route || '/';
+  return route || "/";
 }
 
 function candidatePagePath(candidate: IngestedImage): string | undefined {
   try {
-    const path = new URL(candidate.referringPageUrl).pathname.replace(/\/$/, '');
-    return path || '/';
+    const path = new URL(candidate.referringPageUrl).pathname.replace(/\/$/, "");
+    return path || "/";
   } catch {
     return undefined;
   }
 }
 
 /** True when the candidate is a brand mark (logo, favicon, OG card) rather than a photo. */
-export function isBrandMarkCandidate(candidate: Pick<IngestedImage, 'sourceUrl' | 'altText' | 'surroundingText'>): boolean {
-  const hay = `${candidate.sourceUrl} ${candidate.altText ?? ''} ${candidate.surroundingText ?? ''}`.toLowerCase();
-  return /logo|favicon|apple-touch|opengraph|\bog\.(png|jpe?g|webp|gif)|\/og[-_/]|social.?card|icon[-_/]/.test(hay);
+export function isBrandMarkCandidate(
+  candidate: Pick<IngestedImage, "sourceUrl" | "altText" | "surroundingText">,
+): boolean {
+  const hay =
+    `${candidate.sourceUrl} ${candidate.altText ?? ""} ${candidate.surroundingText ?? ""}`.toLowerCase();
+  return /logo|favicon|apple-touch|opengraph|\bog\.(png|jpe?g|webp|gif)|\/og[-_/]|social.?card|icon[-_/]/.test(
+    hay,
+  );
 }
 
 function isHeroSlot(slot: ImageSlotSpec): boolean {
@@ -102,7 +115,9 @@ function isLogoSlot(slot: ImageSlotSpec): boolean {
 }
 
 function isGalleryCandidate(candidate: IngestedImage): boolean {
-  return /\/(gallery|portfolio|our-work|projects|photos)\b/i.test(`${candidate.sourceUrl} ${candidate.referringPageUrl}`);
+  return /\/(gallery|portfolio|our-work|projects|photos)\b/i.test(
+    `${candidate.sourceUrl} ${candidate.referringPageUrl}`,
+  );
 }
 
 export function scoreSourceCandidate(slot: ImageSlotSpec, candidate: IngestedImage): number {
@@ -113,7 +128,7 @@ export function scoreSourceCandidate(slot: ImageSlotSpec, candidate: IngestedIma
   const routeSlug = routeSlugFromPlacement(slot.placement);
   const pagePath = candidatePagePath(candidate);
   if (routeSlug && pagePath === routeSlug) score += 20;
-  else if (!routeSlug && pagePath === '/') score += 8;
+  else if (!routeSlug && pagePath === "/") score += 8;
   const heroLike = isHeroSlot(slot);
   if (heroLike && candidate.domContext?.isAboveFold) score += 15;
   const logoLike = isLogoSlot(slot);
@@ -194,22 +209,22 @@ function resolveSlot(
   usedSource: Set<string>,
 ): ImageAssetResolution {
   const precedence = (slot.preferredSources ?? DEFAULT_PRECEDENCE).filter(
-    source => source !== 'generated' || inputs.generationEnabled,
+    (source) => source !== "generated" || inputs.generationEnabled,
   );
   for (const source of precedence) {
-    if (source === 'provided') {
+    if (source === "provided") {
       const hit = bestProvided(slot, inputs.provided, usedProvided);
-      if (hit) return { source: 'provided', candidateId: hit.candidate.id, score: hit.score };
-    } else if (source === 'source-site') {
+      if (hit) return { source: "provided", candidateId: hit.candidate.id, score: hit.score };
+    } else if (source === "source-site") {
       const hit = bestSource(slot, inputs.sourceCandidates, usedSource);
-      if (hit) return { source: 'source-site', candidateId: hit.candidate.id, score: hit.score };
-    } else if (source === 'generated') {
-      return { source: 'generated', compiledBrief: briefFromSlot(slot) };
+      if (hit) return { source: "source-site", candidateId: hit.candidate.id, score: hit.score };
+    } else if (source === "generated") {
+      return { source: "generated", compiledBrief: briefFromSlot(slot) };
     }
   }
   return {
-    source: 'unresolved',
-    reason: `No candidate satisfied slot ${slot.id} from sources [${precedence.join(', ')}]`,
+    source: "unresolved",
+    reason: `No candidate satisfied slot ${slot.id} from sources [${precedence.join(", ")}]`,
   };
 }
 
@@ -220,8 +235,10 @@ export function planImageAssets(inputs: PlanInputs): ImageAssetPlan {
   const ordered = [...inputs.slots].sort((a, b) => slotAssignPriority(a) - slotAssignPriority(b));
   for (const slot of ordered) {
     const resolution = resolveSlot(slot, inputs, usedProvided, usedSource);
-    if (resolution.source === 'provided' && resolution.candidateId) usedProvided.add(resolution.candidateId);
-    if (resolution.source === 'source-site' && resolution.candidateId) usedSource.add(resolution.candidateId);
+    if (resolution.source === "provided" && resolution.candidateId)
+      usedProvided.add(resolution.candidateId);
+    if (resolution.source === "source-site" && resolution.candidateId)
+      usedSource.add(resolution.candidateId);
     resolved.set(slot.id, {
       slotId: slot.id,
       placement: slot.placement,
@@ -229,6 +246,6 @@ export function planImageAssets(inputs: PlanInputs): ImageAssetPlan {
       resolution,
     });
   }
-  const assets: PlannedImageAsset[] = inputs.slots.map(slot => resolved.get(slot.id)!);
-  return { schema: 'website-bot.image-asset-plan/v1', version: IMAGE_ASSET_PLAN_VERSION, assets };
+  const assets: PlannedImageAsset[] = inputs.slots.map((slot) => resolved.get(slot.id)!);
+  return { schema: "website-bot.image-asset-plan/v1", version: IMAGE_ASSET_PLAN_VERSION, assets };
 }

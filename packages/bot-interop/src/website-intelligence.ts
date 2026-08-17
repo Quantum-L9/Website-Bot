@@ -1,47 +1,38 @@
-import { createHash } from 'node:crypto';
-import { canonicalJson } from './handoff.js';
+import { createHash } from "node:crypto";
+import { canonicalJson } from "./handoff.js";
 
-export const WEBSITE_INTELLIGENCE_PROTOCOL =
-  'l9.website-intelligence' as const;
-export const WEBSITE_INTELLIGENCE_PROTOCOL_VERSION =
-  '1.0' as const;
+export const WEBSITE_INTELLIGENCE_PROTOCOL = "l9.website-intelligence" as const;
+export const WEBSITE_INTELLIGENCE_PROTOCOL_VERSION = "1.0" as const;
 
 export const WEBSITE_INTELLIGENCE_SCHEMAS = {
-  competitiveLandscape:
-    'l9://website-intelligence/competitive-landscape/v1',
-  websiteBuildBlueprint:
-    'l9://website-intelligence/website-build-blueprint/v1',
-  seoContentBlueprint:
-    'l9://website-intelligence/seo-content-blueprint/v1',
-  pageContentContract:
-    'l9://website-intelligence/page-content-contract/v1',
-  structuredContentPackage:
-    'l9://website-intelligence/structured-content-package/v1',
+  competitiveLandscape: "l9://website-intelligence/competitive-landscape/v1",
+  websiteBuildBlueprint: "l9://website-intelligence/website-build-blueprint/v1",
+  seoContentBlueprint: "l9://website-intelligence/seo-content-blueprint/v1",
+  pageContentContract: "l9://website-intelligence/page-content-contract/v1",
+  structuredContentPackage: "l9://website-intelligence/structured-content-package/v1",
 } as const;
 
 export type IntelligenceArtifactType =
-  | 'competitive_landscape'
-  | 'website_build_blueprint'
-  | 'seo_content_blueprint'
-  | 'page_content_contract'
-  | 'structured_content_package';
+  | "competitive_landscape"
+  | "website_build_blueprint"
+  | "seo_content_blueprint"
+  | "page_content_contract"
+  | "structured_content_package";
 
-export type IntelligenceProducer =
-  | 'Website-Bot'
-  | 'SEO-Bot';
+export type IntelligenceProducer = "Website-Bot" | "SEO-Bot";
 
 export type ContentSlot =
-  | 'primary_offer'
-  | 'service_overview'
-  | 'differentiation'
-  | 'trust'
-  | 'process'
-  | 'project_proof'
-  | 'local_relevance'
-  | 'objection_handling'
-  | 'faq'
-  | 'conversion'
-  | 'metadata';
+  | "primary_offer"
+  | "service_overview"
+  | "differentiation"
+  | "trust"
+  | "process"
+  | "project_proof"
+  | "local_relevance"
+  | "objection_handling"
+  | "faq"
+  | "conversion"
+  | "metadata";
 
 export interface ArtifactRef {
   artifact_type: IntelligenceArtifactType;
@@ -49,13 +40,9 @@ export interface ArtifactRef {
   payload_digest: string;
 }
 
-export interface IntelligenceArtifact<
-  TType extends IntelligenceArtifactType,
-  TPayload,
-> {
+export interface IntelligenceArtifact<TType extends IntelligenceArtifactType, TPayload> {
   protocol: typeof WEBSITE_INTELLIGENCE_PROTOCOL;
-  protocol_version:
-    typeof WEBSITE_INTELLIGENCE_PROTOCOL_VERSION;
+  protocol_version: typeof WEBSITE_INTELLIGENCE_PROTOCOL_VERSION;
   artifact_type: TType;
   /**
    * Content-addressed identity:
@@ -76,7 +63,7 @@ export interface IntelligenceArtifact<
   input_refs: ArtifactRef[];
   payload: TPayload;
   integrity: {
-    algorithm: 'sha256';
+    algorithm: "sha256";
     payload_digest: string;
   };
 }
@@ -85,23 +72,18 @@ export interface IntelligenceArtifact<
 /* CompetitiveLandscape                                               */
 /* ------------------------------------------------------------------ */
 export interface CompetitiveLandscapeV1 {
-  schema:
-    typeof WEBSITE_INTELLIGENCE_SCHEMAS.competitiveLandscape;
+  schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.competitiveLandscape;
   market: {
     niche: string;
     country: string;
     language: string;
-    device: 'desktop' | 'mobile';
+    device: "desktop" | "mobile";
     location_name?: string;
   };
   query_portfolio: Array<{
     query_id: string;
     query: string;
-    intent:
-      | 'informational'
-      | 'commercial'
-      | 'transactional'
-      | 'local';
+    intent: "informational" | "commercial" | "transactional" | "local";
     weight: number;
   }>;
   observations: Array<{
@@ -115,7 +97,7 @@ export interface CompetitiveLandscapeV1 {
      * Ranking truth is deterministic SERP evidence.
      * Additional sources require a protocol revision/extension.
      */
-    source: 'dataforseo';
+    source: "dataforseo";
   }>;
   domains: Array<{
     domain: string;
@@ -131,13 +113,13 @@ export interface CompetitiveLandscapeV1 {
   exclusions: Array<{
     domain: string;
     reason:
-      | 'directory'
-      | 'social'
-      | 'marketplace'
-      | 'publisher'
-      | 'aggregator'
-      | 'irrelevant'
-      | 'operator_exclusion';
+      | "directory"
+      | "social"
+      | "marketplace"
+      | "publisher"
+      | "aggregator"
+      | "irrelevant"
+      | "operator_exclusion";
   }>;
   evidence_complete: boolean;
 }
@@ -146,9 +128,8 @@ export interface CompetitiveLandscapeV1 {
 /* WebsiteBuildBlueprint                                              */
 /* ------------------------------------------------------------------ */
 export interface WebsiteBuildBlueprintV1 {
-  schema:
-    typeof WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint;
-  build_intent: 'REDESIGN_IMPROVE';
+  schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint;
+  build_intent: "REDESIGN_IMPROVE";
   competitive_landscape_ref: ArtifactRef;
   baseline_digest: string;
   pattern_portfolio_digest: string;
@@ -195,13 +176,10 @@ export interface WebsiteBlueprintSection {
 /* ------------------------------------------------------------------ */
 /* SEOContentBlueprint                                                */
 /* ------------------------------------------------------------------ */
-export type RequirementPlacement =
-  | 'FIRST_MATCH'
-  | 'ALL_MATCHES';
+export type RequirementPlacement = "FIRST_MATCH" | "ALL_MATCHES";
 
 export interface SEOContentBlueprintV1 {
-  schema:
-    typeof WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint;
+  schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint;
   competitive_landscape_ref: ArtifactRef;
   routes: SEOContentBlueprintRoute[];
 }
@@ -212,10 +190,7 @@ export interface SEOContentBlueprintRoute {
   search_intent: {
     primary: string;
     secondary: string[];
-    journey_stage:
-      | 'informational'
-      | 'commercial'
-      | 'transactional';
+    journey_stage: "informational" | "commercial" | "transactional";
   };
   targets: {
     primary_query: string;
@@ -260,11 +235,7 @@ export interface SEOContentRequirement {
 /* ------------------------------------------------------------------ */
 /* Verified business facts                                            */
 /* ------------------------------------------------------------------ */
-export type VerifiedFactValue =
-  | string
-  | number
-  | boolean
-  | string[];
+export type VerifiedFactValue = string | number | boolean | string[];
 
 export interface VerifiedBusinessFact {
   fact_id: string;
@@ -286,10 +257,9 @@ export interface VerifiedBusinessFact {
 /* PageContentContract                                                */
 /* ------------------------------------------------------------------ */
 export interface PageContentContractV1 {
-  schema:
-    typeof WEBSITE_INTELLIGENCE_SCHEMAS.pageContentContract;
+  schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.pageContentContract;
   compiler: {
-    name: 'website-content-contract-compiler';
+    name: "website-content-contract-compiler";
     version: string;
     warnings: string[];
   };
@@ -349,26 +319,25 @@ export interface PageContentContractSection {
 /* ------------------------------------------------------------------ */
 export type ContentBlock =
   | {
-      kind: 'paragraph';
+      kind: "paragraph";
       text: string;
     }
   | {
-      kind: 'bullets';
+      kind: "bullets";
       items: string[];
     }
   | {
-      kind: 'steps';
+      kind: "steps";
       items: string[];
     }
   | {
-      kind: 'quote';
+      kind: "quote";
       text: string;
       attribution?: string;
     };
 
 export interface StructuredContentPackageV1 {
-  schema:
-    typeof WEBSITE_INTELLIGENCE_SCHEMAS.structuredContentPackage;
+  schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.structuredContentPackage;
   page_content_contract_ref: ArtifactRef;
   routes: StructuredContentRoute[];
   validation: {
@@ -419,31 +388,26 @@ export interface StructuredContentRoute {
 /* ------------------------------------------------------------------ */
 /* Artifact aliases                                                   */
 /* ------------------------------------------------------------------ */
-export type CompetitiveLandscapeArtifact =
-  IntelligenceArtifact<
-    'competitive_landscape',
-    CompetitiveLandscapeV1
-  >;
-export type WebsiteBuildBlueprintArtifact =
-  IntelligenceArtifact<
-    'website_build_blueprint',
-    WebsiteBuildBlueprintV1
-  >;
-export type SEOContentBlueprintArtifact =
-  IntelligenceArtifact<
-    'seo_content_blueprint',
-    SEOContentBlueprintV1
-  >;
-export type PageContentContractArtifact =
-  IntelligenceArtifact<
-    'page_content_contract',
-    PageContentContractV1
-  >;
-export type StructuredContentPackageArtifact =
-  IntelligenceArtifact<
-    'structured_content_package',
-    StructuredContentPackageV1
-  >;
+export type CompetitiveLandscapeArtifact = IntelligenceArtifact<
+  "competitive_landscape",
+  CompetitiveLandscapeV1
+>;
+export type WebsiteBuildBlueprintArtifact = IntelligenceArtifact<
+  "website_build_blueprint",
+  WebsiteBuildBlueprintV1
+>;
+export type SEOContentBlueprintArtifact = IntelligenceArtifact<
+  "seo_content_blueprint",
+  SEOContentBlueprintV1
+>;
+export type PageContentContractArtifact = IntelligenceArtifact<
+  "page_content_contract",
+  PageContentContractV1
+>;
+export type StructuredContentPackageArtifact = IntelligenceArtifact<
+  "structured_content_package",
+  StructuredContentPackageV1
+>;
 
 export type WebsiteIntelligenceArtifact =
   | CompetitiveLandscapeArtifact
@@ -456,27 +420,18 @@ export type WebsiteIntelligenceArtifact =
 /* Integrity                                                          */
 /* ------------------------------------------------------------------ */
 function sha256(value: string): string {
-  return createHash('sha256')
-    .update(value)
-    .digest('hex');
+  return createHash("sha256").update(value).digest("hex");
 }
 
-function normalizeRefs(
-  refs: ArtifactRef[],
-): ArtifactRef[] {
+function normalizeRefs(refs: ArtifactRef[]): ArtifactRef[] {
   return [...refs].sort((a, b) => {
-    const ak =
-      `${a.artifact_type}:${a.artifact_id}:${a.payload_digest}`;
-    const bk =
-      `${b.artifact_type}:${b.artifact_id}:${b.payload_digest}`;
+    const ak = `${a.artifact_type}:${a.artifact_id}:${a.payload_digest}`;
+    const bk = `${b.artifact_type}:${b.artifact_id}:${b.payload_digest}`;
     return ak.localeCompare(bk);
   });
 }
 
-function semanticBody<
-  TType extends IntelligenceArtifactType,
-  TPayload,
->(input: {
+function semanticBody<TType extends IntelligenceArtifactType, TPayload>(input: {
   artifact_type: TType;
   client_id: string;
   input_refs: ArtifactRef[];
@@ -484,8 +439,7 @@ function semanticBody<
 }): unknown {
   return {
     protocol: WEBSITE_INTELLIGENCE_PROTOCOL,
-    protocol_version:
-      WEBSITE_INTELLIGENCE_PROTOCOL_VERSION,
+    protocol_version: WEBSITE_INTELLIGENCE_PROTOCOL_VERSION,
     artifact_type: input.artifact_type,
     client_id: input.client_id,
     input_refs: normalizeRefs(input.input_refs),
@@ -493,26 +447,16 @@ function semanticBody<
   };
 }
 
-export function digestIntelligencePayload<
-  TType extends IntelligenceArtifactType,
-  TPayload,
->(input: {
+export function digestIntelligencePayload<TType extends IntelligenceArtifactType, TPayload>(input: {
   artifact_type: TType;
   client_id: string;
   input_refs: ArtifactRef[];
   payload: TPayload;
 }): string {
-  return sha256(
-    canonicalJson(
-      semanticBody(input),
-    ),
-  );
+  return sha256(canonicalJson(semanticBody(input)));
 }
 
-export function sealIntelligenceArtifact<
-  TType extends IntelligenceArtifactType,
-  TPayload,
->(input: {
+export function sealIntelligenceArtifact<TType extends IntelligenceArtifactType, TPayload>(input: {
   artifact_type: TType;
   client_id: string;
   build_id: string;
@@ -524,52 +468,40 @@ export function sealIntelligenceArtifact<
   input_refs?: ArtifactRef[];
   payload: TPayload;
 }): IntelligenceArtifact<TType, TPayload> {
-  const inputRefs =
-    normalizeRefs(input.input_refs ?? []);
-  const payloadDigest =
-    digestIntelligencePayload({
-      artifact_type: input.artifact_type,
-      client_id: input.client_id,
-      input_refs: inputRefs,
-      payload: input.payload,
-    });
+  const inputRefs = normalizeRefs(input.input_refs ?? []);
+  const payloadDigest = digestIntelligencePayload({
+    artifact_type: input.artifact_type,
+    client_id: input.client_id,
+    input_refs: inputRefs,
+    payload: input.payload,
+  });
   return {
     protocol: WEBSITE_INTELLIGENCE_PROTOCOL,
-    protocol_version:
-      WEBSITE_INTELLIGENCE_PROTOCOL_VERSION,
+    protocol_version: WEBSITE_INTELLIGENCE_PROTOCOL_VERSION,
     artifact_type: input.artifact_type,
-    artifact_id:
-      `${input.artifact_type}:${payloadDigest}`,
+    artifact_id: `${input.artifact_type}:${payloadDigest}`,
     client_id: input.client_id,
     build_id: input.build_id,
     producer: input.producer,
-    produced_at:
-      input.produced_at ??
-      new Date().toISOString(),
+    produced_at: input.produced_at ?? new Date().toISOString(),
     input_refs: inputRefs,
     payload: input.payload,
     integrity: {
-      algorithm: 'sha256',
+      algorithm: "sha256",
       payload_digest: payloadDigest,
     },
   };
 }
 
-export function refForArtifact(
-  artifact: WebsiteIntelligenceArtifact,
-): ArtifactRef {
+export function refForArtifact(artifact: WebsiteIntelligenceArtifact): ArtifactRef {
   return {
     artifact_type: artifact.artifact_type,
     artifact_id: artifact.artifact_id,
-    payload_digest:
-      artifact.integrity.payload_digest,
+    payload_digest: artifact.integrity.payload_digest,
   };
 }
 
-export function sameArtifactRef(
-  a: ArtifactRef,
-  b: ArtifactRef,
-): boolean {
+export function sameArtifactRef(a: ArtifactRef, b: ArtifactRef): boolean {
   return (
     a.artifact_type === b.artifact_type &&
     a.artifact_id === b.artifact_id &&
@@ -577,60 +509,31 @@ export function sameArtifactRef(
   );
 }
 
-export function assertIntelligenceArtifactIntegrity(
-  artifact: WebsiteIntelligenceArtifact,
-): void {
-  if (
-    artifact.protocol !==
-    WEBSITE_INTELLIGENCE_PROTOCOL
-  ) {
-    throw new Error(
-      `INTEL_ARTIFACT_SCHEMA_MISMATCH: unexpected protocol ${artifact.protocol}`,
-    );
+export function assertIntelligenceArtifactIntegrity(artifact: WebsiteIntelligenceArtifact): void {
+  if (artifact.protocol !== WEBSITE_INTELLIGENCE_PROTOCOL) {
+    throw new Error(`INTEL_ARTIFACT_SCHEMA_MISMATCH: unexpected protocol ${artifact.protocol}`);
   }
-  if (
-    artifact.protocol_version !==
-    WEBSITE_INTELLIGENCE_PROTOCOL_VERSION
-  ) {
+  if (artifact.protocol_version !== WEBSITE_INTELLIGENCE_PROTOCOL_VERSION) {
     throw new Error(
       `INTEL_ARTIFACT_SCHEMA_MISMATCH: unsupported protocol version ${artifact.protocol_version}`,
     );
   }
-  if (
-    artifact.integrity.algorithm !==
-    'sha256'
-  ) {
+  if (artifact.integrity.algorithm !== "sha256") {
+    throw new Error("INTEL_ARTIFACT_HASH_MISMATCH: unsupported integrity algorithm");
+  }
+  const expectedDigest = digestIntelligencePayload({
+    artifact_type: artifact.artifact_type,
+    client_id: artifact.client_id,
+    input_refs: artifact.input_refs,
+    payload: artifact.payload,
+  });
+  if (artifact.integrity.payload_digest !== expectedDigest) {
     throw new Error(
-      'INTEL_ARTIFACT_HASH_MISMATCH: unsupported integrity algorithm',
+      "INTEL_ARTIFACT_HASH_MISMATCH: payload digest does not match canonical artifact content",
     );
   }
-  const expectedDigest =
-    digestIntelligencePayload({
-      artifact_type:
-        artifact.artifact_type,
-      client_id:
-        artifact.client_id,
-      input_refs:
-        artifact.input_refs,
-      payload:
-        artifact.payload,
-    });
-  if (
-    artifact.integrity.payload_digest !==
-    expectedDigest
-  ) {
-    throw new Error(
-      'INTEL_ARTIFACT_HASH_MISMATCH: payload digest does not match canonical artifact content',
-    );
-  }
-  const expectedArtifactId =
-    `${artifact.artifact_type}:${expectedDigest}`;
-  if (
-    artifact.artifact_id !==
-    expectedArtifactId
-  ) {
-    throw new Error(
-      'INTEL_ARTIFACT_HASH_MISMATCH: artifact_id does not match payload digest',
-    );
+  const expectedArtifactId = `${artifact.artifact_type}:${expectedDigest}`;
+  if (artifact.artifact_id !== expectedArtifactId) {
+    throw new Error("INTEL_ARTIFACT_HASH_MISMATCH: artifact_id does not match payload digest");
   }
 }

@@ -3,24 +3,24 @@
 // NOT decide that its own work passes: every verdict below is produced by this
 // module under a bound verifier identity, and the pack's requiredVerifier must
 // match this identity for any promotion to proceed.
-import { existsSync } from 'node:fs';
-import { sha256Text } from '../../services/hashing.js';
-import { execTrusted } from '../exec.js';
+import { existsSync } from "node:fs";
+import { sha256Text } from "../../services/hashing.js";
 import type {
   CodeChangeOutcome,
   CodeChangeVerdict,
   PEPack,
   RegressionCaseRef,
   ValidationSetResult,
-} from '../contracts/types.js';
-import { evaluateMutationEnvelope } from '../executor/envelope.js';
-import { computeBlastRadius, snapshotFiles, type ArtifactSnapshot } from './blast-radius.js';
+} from "../contracts/types.js";
+import { execTrusted } from "../exec.js";
+import { evaluateMutationEnvelope } from "../executor/envelope.js";
+import { type ArtifactSnapshot, computeBlastRadius, snapshotFiles } from "./blast-radius.js";
 
 export interface ReplayCaseInput {
   caseRef: RegressionCaseRef;
   beforeResult: string;
   afterResult: string;
-  expectedDirection: 'IMPROVE' | 'UNCHANGED';
+  expectedDirection: "IMPROVE" | "UNCHANGED";
 }
 
 export interface VerifierInput {
@@ -45,38 +45,42 @@ export interface VerifierInput {
 }
 
 export interface VerifierReceipt {
-  schema: 'l9.recursive.verifier-receipt/v1';
+  schema: "l9.recursive.verifier-receipt/v1";
   verifierIdentity: string;
   pePackId: string;
   verifiedPatchSha: string;
   verdict: CodeChangeVerdict;
-  validation: CodeChangeOutcome['validation'];
-  causalResult: CodeChangeOutcome['causalResult'];
+  validation: CodeChangeOutcome["validation"];
+  causalResult: CodeChangeOutcome["causalResult"];
   producedAt: string;
 }
 
-export const VERIFIER_RECEIPT_SCHEMA = 'l9.recursive.verifier-receipt/v1';
+export const VERIFIER_RECEIPT_SCHEMA = "l9.recursive.verifier-receipt/v1";
 
 /** Reject shell metacharacters so repository checks never go through `bash -lc`. */
 function argvFromSimpleCommand(command: string): [string, ...string[]] {
   const parts = command.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) throw new Error('empty repository check command');
-  if (parts.some(part => /[;&|`$<>(){}\\*?[~]/.test(part))) {
-    throw new Error('repository check command must be a simple argv');
+  if (parts.length === 0) throw new Error("empty repository check command");
+  if (parts.some((part) => /[;&|`$<>(){}\\*?[~]/.test(part))) {
+    throw new Error("repository check command must be a simple argv");
   }
   return parts as [string, ...string[]];
 }
 
 function replaySet(cases: ReplayCaseInput[]): ValidationSetResult {
-  const failures = cases.filter(item => {
-    const improved = item.expectedDirection === 'IMPROVE' && item.afterResult !== item.beforeResult;
-    const unchanged = item.expectedDirection === 'UNCHANGED' && item.afterResult === item.beforeResult;
+  const failures = cases.filter((item) => {
+    const improved = item.expectedDirection === "IMPROVE" && item.afterResult !== item.beforeResult;
+    const unchanged =
+      item.expectedDirection === "UNCHANGED" && item.afterResult === item.beforeResult;
     return !(improved || unchanged);
   });
   return {
-    verdict: failures.length === 0 ? 'PASS' : 'FAIL',
-    caseRefs: cases.map(item => item.caseRef.ref),
-    summary: failures.length === 0 ? 'all cases met their expected direction' : `${failures.length} cases failed their expected direction`,
+    verdict: failures.length === 0 ? "PASS" : "FAIL",
+    caseRefs: cases.map((item) => item.caseRef.ref),
+    summary:
+      failures.length === 0
+        ? "all cases met their expected direction"
+        : `${failures.length} cases failed their expected direction`,
   };
 }
 
@@ -101,17 +105,27 @@ export class IndependentVerifier {
     const originating = replaySet(input.originating);
     const controls = replaySet(input.controls);
     const disconfirm = replaySet(input.disconfirm);
-    const holdoutFailures = input.holdoutCases.filter(holdout => !holdout.passed);
+    const holdoutFailures = input.holdoutCases.filter((holdout) => !holdout.passed);
     const protectedHoldout: ValidationSetResult = {
-      verdict: holdoutFailures.length === 0 ? 'PASS' : 'FAIL',
-      caseRefs: input.holdoutCases.map(holdout => ({ refKind: 'holdout-case', refId: holdout.caseId, digest: sha256Text(holdout.caseId) })),
-      summary: holdoutFailures.length === 0 ? 'all hidden holdout cases passed' : `${holdoutFailures.length} hidden holdout cases failed`,
+      verdict: holdoutFailures.length === 0 ? "PASS" : "FAIL",
+      caseRefs: input.holdoutCases.map((holdout) => ({
+        refKind: "holdout-case",
+        refId: holdout.caseId,
+        digest: sha256Text(holdout.caseId),
+      })),
+      summary:
+        holdoutFailures.length === 0
+          ? "all hidden holdout cases passed"
+          : `${holdoutFailures.length} hidden holdout cases failed`,
     };
-    const failedChecks = input.repositoryChecks.filter(check => !check.passed);
+    const failedChecks = input.repositoryChecks.filter((check) => !check.passed);
     const repositoryCI: ValidationSetResult = {
-      verdict: failedChecks.length === 0 ? 'PASS' : 'FAIL',
+      verdict: failedChecks.length === 0 ? "PASS" : "FAIL",
       caseRefs: [],
-      summary: failedChecks.length === 0 ? 'all repository checks passed' : `failed repository checks: ${failedChecks.map(check => check.name).join(', ')}`,
+      summary:
+        failedChecks.length === 0
+          ? "all repository checks passed"
+          : `failed repository checks: ${failedChecks.map((check) => check.name).join(", ")}`,
     };
 
     const blastRadius = computeBlastRadius({
@@ -128,22 +142,22 @@ export class IndependentVerifier {
     const scopeOk = envelopeVerdict.allowed;
 
     let verdict: CodeChangeVerdict;
-    if (!scopeOk) verdict = 'FAIL_SCOPE';
-    else if (originating.verdict === 'FAIL') verdict = 'FAIL_TARGET';
-    else if (controls.verdict === 'FAIL') verdict = 'FAIL_CONTROL';
-    else if (disconfirm.verdict === 'FAIL') verdict = 'FAIL_DISCONFIRM';
-    else if (protectedHoldout.verdict === 'FAIL') verdict = 'FAIL_HOLDOUT';
-    else if (blastRadius.verdict === 'FAIL') verdict = 'FAIL_BLAST_RADIUS';
-    else if (repositoryCI.verdict === 'FAIL') verdict = 'FAIL_CI';
-    else verdict = 'PASS';
+    if (!scopeOk) verdict = "FAIL_SCOPE";
+    else if (originating.verdict === "FAIL") verdict = "FAIL_TARGET";
+    else if (controls.verdict === "FAIL") verdict = "FAIL_CONTROL";
+    else if (disconfirm.verdict === "FAIL") verdict = "FAIL_DISCONFIRM";
+    else if (protectedHoldout.verdict === "FAIL") verdict = "FAIL_HOLDOUT";
+    else if (blastRadius.verdict === "FAIL") verdict = "FAIL_BLAST_RADIUS";
+    else if (repositoryCI.verdict === "FAIL") verdict = "FAIL_CI";
+    else verdict = "PASS";
 
-    const causalResult: CodeChangeOutcome['causalResult'] = {
+    const causalResult: CodeChangeOutcome["causalResult"] = {
       expectedSystemEffect: input.pack.hypothesis.expectedSystemEffect,
       observedSystemEffect:
-        verdict === 'PASS'
-          ? 'target properties improved and guardrails held under independent replay'
+        verdict === "PASS"
+          ? "target properties improved and guardrails held under independent replay"
           : `verification failed with ${verdict}`,
-      verdict: verdict === 'PASS' ? 'CONFIRMED' : 'INCONCLUSIVE',
+      verdict: verdict === "PASS" ? "CONFIRMED" : "INCONCLUSIVE",
     };
 
     return {
@@ -166,11 +180,16 @@ export class IndependentVerifier {
   }
 
   /** Typecheck + unit test gates for a patched workdir, per repositoryChecks. */
-  runRepositoryCheck(checkName: string, workdir: string, command: string): { name: string; passed: boolean } {
-    if (checkName !== 'typecheck' && checkName !== 'unit') throw new Error(`unknown repository check: ${checkName}`);
+  runRepositoryCheck(
+    checkName: string,
+    workdir: string,
+    command: string,
+  ): { name: string; passed: boolean } {
+    if (checkName !== "typecheck" && checkName !== "unit")
+      throw new Error(`unknown repository check: ${checkName}`);
     try {
       const argv = argvFromSimpleCommand(command);
-      execTrusted(argv[0], argv.slice(1), { encoding: 'utf-8', cwd: workdir, stdio: 'ignore' });
+      execTrusted(argv[0], argv.slice(1), { encoding: "utf-8", cwd: workdir, stdio: "ignore" });
       return { name: checkName, passed: true };
     } catch {
       return { name: checkName, passed: false };
@@ -180,5 +199,8 @@ export class IndependentVerifier {
 
 export function snapshotArtifacts(root: string, paths: string[]): ArtifactSnapshot[] {
   if (!existsSync(root)) throw new Error(`artifact root does not exist: ${root}`);
-  return snapshotFiles({ root, paths }).map(snapshot => ({ ...snapshot, artifactId: snapshot.relativePath }));
+  return snapshotFiles({ root, paths }).map((snapshot) => ({
+    ...snapshot,
+    artifactId: snapshot.relativePath,
+  }));
 }

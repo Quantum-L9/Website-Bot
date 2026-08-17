@@ -67,10 +67,7 @@
       "minLength": 1
     },
     "status": {
-      "enum": [
-        "passed",
-        "failed"
-      ]
+      "enum": ["passed", "failed"]
     },
     "started_at": {
       "type": "string",
@@ -85,13 +82,7 @@
     "reference": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "kind",
-        "schema",
-        "logical_id",
-        "relative_path",
-        "sha256"
-      ],
+      "required": ["kind", "schema", "logical_id", "relative_path", "sha256"],
       "properties": {
         "kind": {
           "type": "string",

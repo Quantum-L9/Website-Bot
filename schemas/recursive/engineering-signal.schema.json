@@ -5,10 +5,23 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "signalId", "recursiveRunId", "wave", "sourceCode", "origin",
-    "classification", "severity", "reach", "confidence", "observation",
-    "causalTrace", "primaryDiagnosis", "recurrence", "engineeringImplication",
-    "regressionCaseCandidate", "leverage"
+    "schema",
+    "signalId",
+    "recursiveRunId",
+    "wave",
+    "sourceCode",
+    "origin",
+    "classification",
+    "severity",
+    "reach",
+    "confidence",
+    "observation",
+    "causalTrace",
+    "primaryDiagnosis",
+    "recurrence",
+    "engineeringImplication",
+    "regressionCaseCandidate",
+    "leverage"
   ],
   "$defs": {
     "artifactRef": {
@@ -49,8 +62,12 @@
     },
     "classification": {
       "enum": [
-        "CORRECTNESS_DEFECT", "QUALITY_MODEL_DEFECT", "GENERATION_CAPABILITY_DEFECT",
-        "ATTRIBUTION_DEFECT", "EFFICIENCY_DEFECT", "CONTROL_PLANE_CHANGE_REQUIRED"
+        "CORRECTNESS_DEFECT",
+        "QUALITY_MODEL_DEFECT",
+        "GENERATION_CAPABILITY_DEFECT",
+        "ATTRIBUTION_DEFECT",
+        "EFFICIENCY_DEFECT",
+        "CONTROL_PLANE_CHANGE_REQUIRED"
       ]
     },
     "severity": { "enum": ["BLOCKING", "HIGH", "MEDIUM", "LOW"] },
@@ -75,7 +92,10 @@
       "required": ["upstreamArtifactsInspected", "unchangedControls", "suspectedOwner"],
       "properties": {
         "earliestObservedBadArtifact": { "$ref": "#/$defs/artifactRef" },
-        "upstreamArtifactsInspected": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "upstreamArtifactsInspected": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifactRef" }
+        },
         "unchangedControls": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
         "suspectedOwner": {
           "type": "object",

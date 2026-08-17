@@ -4,10 +4,10 @@
 // deployment receipts, artifact refs) and computes the next legal transition
 // from that truth. Lost hooks are recovered by periodic reconciliation, which
 // re-reads the same truth sources directly.
-import type { RecursiveEngineeringEvent } from '../contracts/types.js';
-import type { CampaignManifest } from '../state/run-manifest.js';
-import type { EventLedger } from './ledger.js';
-import type { LeaseManager } from './leases.js';
+import type { RecursiveEngineeringEvent } from "../contracts/types.js";
+import type { CampaignManifest } from "../state/run-manifest.js";
+import type { LeaseManager } from "./leases.js";
+import type { EventLedger } from "./ledger.js";
 
 export interface PromotionTruth {
   prId?: string;
@@ -62,15 +62,15 @@ export function reconcile(input: ReconciliationInput): ReconciliationOutcome {
   }
   const allRecords = input.ledger.readAll();
   for (const record of allRecords) {
-    if (record.disposition === 'DUPLICATE') duplicates += 1;
-    if (record.disposition === 'STALE') stale += 1;
+    if (record.disposition === "DUPLICATE") duplicates += 1;
+    if (record.disposition === "STALE") stale += 1;
   }
   const currentWave = input.manifest.state.currentWave;
   const lease = input.leases.acquire({
     campaign: input.manifest.campaignId,
     wave: currentWave,
-    operation: 'RECONCILE',
-    owner: 'controller',
+    operation: "RECONCILE",
+    owner: "controller",
     ttlMs: 60_000,
     now: input.now,
   });
@@ -78,7 +78,7 @@ export function reconcile(input: ReconciliationInput): ReconciliationOutcome {
     replayed: replayed.length,
     duplicates,
     stale,
-    recoveredLostEvents: replayed.map(event => event.eventId),
-    leaseOwner: lease ? lease.owner : 'none',
+    recoveredLostEvents: replayed.map((event) => event.eventId),
+    leaseOwner: lease ? lease.owner : "none",
   };
 }

@@ -1,0 +1,23 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786876760654",
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T10:44:49.195Z",
+  "input_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "input_evidence": [],
+  "output_digest": "4ba8b408f94d66b75f0e6d03a7c5158e90a166a8ffa89804930ca89469bf2d68",
+  "output_evidence": [
+    {
+      "kind": "image_assets",
+      "logical_id": "safehavenrr-1786876760654:image_assets",
+      "relative_path": "image-asset-manifest.json",
+      "schema": "website-bot.image-asset-manifest/v1",
+      "sha256": "d00c9514289037c8ee5be97d1f7faa60f2cb971d0b5b964c7172ee0bc5bf2553"
+    }
+  ],
+  "schema": "website-bot.stage-checkpoint/v2",
+  "stage": "image-generation",
+  "stage_version": "2.0.0",
+  "started_at": "2026-08-16T10:44:49.165Z",
+  "status": "passed"
+}

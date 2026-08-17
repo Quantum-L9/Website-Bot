@@ -4,35 +4,45 @@
 // store as snake_case JSON while staying camelCase in memory; source-site ingestion
 // reuses verified evidence without re-crawling; and deterministic image QA blocks
 // unauthorized republication and evidence/site drift. No network or provider calls.
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { clientAssetRoot, type SiteConfig } from '../../src/pipeline/BuildContext.js';
-import type { SourceSiteManifest } from '../../src/pipeline/evidence/SourceSiteManifest.js';
-import type { ImageAssetPlan } from '../../src/pipeline/evidence/ImageAssetPlan.js';
-import { buildImageAssetManifest, type ResolvedImageAsset } from '../../src/pipeline/evidence/ImageAssetManifest.js';
-import { sha256File } from '../../src/pipeline/evidence/EvidenceCanonicalizer.js';
-import { SourceSiteIngestionStage } from '../../src/stages/SourceSiteIngestionStage.js';
-import { ImageValidationStage } from '../../src/stages/ImageValidationStage.js';
-import { cleanupContext, fixtureContext } from '../helpers/siteFactoryFixture.js';
+
+import assert from "node:assert/strict";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import test from "node:test";
+import { clientAssetRoot, type SiteConfig } from "../../src/pipeline/BuildContext.js";
+import { sha256File } from "../../src/pipeline/evidence/EvidenceCanonicalizer.js";
+import {
+  buildImageAssetManifest,
+  type ResolvedImageAsset,
+} from "../../src/pipeline/evidence/ImageAssetManifest.js";
+import type { ImageAssetPlan } from "../../src/pipeline/evidence/ImageAssetPlan.js";
+import type { SourceSiteManifest } from "../../src/pipeline/evidence/SourceSiteManifest.js";
+import { ImageValidationStage } from "../../src/stages/ImageValidationStage.js";
+import { SourceSiteIngestionStage } from "../../src/stages/SourceSiteIngestionStage.js";
+import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
 const PNG_1x1 = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64",
 );
 
-function resolvedAsset(over: Partial<ResolvedImageAsset> & { slotId: string; placement: string; source: ResolvedImageAsset['source'] }): ResolvedImageAsset {
+function resolvedAsset(
+  over: Partial<ResolvedImageAsset> & {
+    slotId: string;
+    placement: string;
+    source: ResolvedImageAsset["source"];
+  },
+): ResolvedImageAsset {
   return {
-    absolutePath: '/staged/x.png',
+    absolutePath: "/staged/x.png",
     outputFileName: `${over.slotId}.png`,
     altText: `${over.slotId} alt`,
-    mimeType: 'image/png',
+    mimeType: "image/png",
     width: 1920,
     height: 1080,
     byteLength: PNG_1x1.length,
-    sha256: 'a'.repeat(64),
-    disposition: 'approved-client-owned',
+    sha256: "a".repeat(64),
+    disposition: "approved-client-owned",
     provenanceWarnings: [],
     ...over,
   };
@@ -40,34 +50,73 @@ function resolvedAsset(over: Partial<ResolvedImageAsset> & { slotId: string; pla
 
 // ── Evidence round-trip ──────────────────────────────────────────────────────────
 
-void test('image evidence round-trips as snake_case on disk and camelCase in memory', async () => {
-  const ctx = fixtureContext({ client_id: 'evi-roundtrip' });
+void test("image evidence round-trips as snake_case on disk and camelCase in memory", async () => {
+  const ctx = fixtureContext({ client_id: "evi-roundtrip" });
   try {
     const sourceManifest: SourceSiteManifest = {
-      schema: 'website-bot.source-site-manifest/v1',
-      sourceUrl: 'https://acme.example/',
-      crawledAt: '2026-07-20T00:00:00.000Z',
-      crawlerVersion: '1.0.0',
-      pages: [{ url: 'https://acme.example/', headings: ['Welcome'], depth: 0 }],
-      images: [{
-        id: 'src-1', sourceUrl: 'https://acme.example/a.png', referringPageUrl: 'https://acme.example/',
-        localPath: '/tmp/a.png', mimeType: 'image/png', width: 800, height: 600, byteLength: 1234,
-        sha256: 'b'.repeat(64), provenance: 'source-site', domContext: { tagName: 'img', cssClasses: ['hero'], isAboveFold: true, renderedWidth: 800, renderedHeight: 600 },
-      }],
+      schema: "website-bot.source-site-manifest/v1",
+      sourceUrl: "https://acme.example/",
+      crawledAt: "2026-07-20T00:00:00.000Z",
+      crawlerVersion: "1.0.0",
+      pages: [{ url: "https://acme.example/", headings: ["Welcome"], depth: 0 }],
+      images: [
+        {
+          id: "src-1",
+          sourceUrl: "https://acme.example/a.png",
+          referringPageUrl: "https://acme.example/",
+          localPath: "/tmp/a.png",
+          mimeType: "image/png",
+          width: 800,
+          height: 600,
+          byteLength: 1234,
+          sha256: "b".repeat(64),
+          provenance: "source-site",
+          domContext: {
+            tagName: "img",
+            cssClasses: ["hero"],
+            isAboveFold: true,
+            renderedWidth: 800,
+            renderedHeight: 600,
+          },
+        },
+      ],
       rejected: [],
       warnings: [],
     };
     const plan: ImageAssetPlan = {
-      schema: 'website-bot.image-asset-plan/v1',
-      version: '1.0.0',
+      schema: "website-bot.image-asset-plan/v1",
+      version: "1.0.0",
       assets: [
-        { slotId: 'hero', placement: '/:hero', required: true, resolution: { source: 'source-site', candidateId: 'src-1', score: 42 } },
-        { slotId: 'og', placement: '/:og-image', required: false, resolution: { source: 'generated', compiledBrief: { slotId: 'og', intent: 'social', subject: 'roof' } } },
+        {
+          slotId: "hero",
+          placement: "/:hero",
+          required: true,
+          resolution: { source: "source-site", candidateId: "src-1", score: 42 },
+        },
+        {
+          slotId: "og",
+          placement: "/:og-image",
+          required: false,
+          resolution: {
+            source: "generated",
+            compiledBrief: { slotId: "og", intent: "social", subject: "roof" },
+          },
+        },
       ],
     };
-    const manifest = buildImageAssetManifest(ctx.buildId, ctx.clientId, '2026-07-20T00:00:00.000Z', [
-      resolvedAsset({ slotId: 'hero', placement: '/:hero', source: 'source-site', sourceUrl: 'https://acme.example/a.png' }),
-    ]);
+    const manifest = buildImageAssetManifest(
+      ctx.buildId,
+      ctx.clientId,
+      "2026-07-20T00:00:00.000Z",
+      [
+        resolvedAsset({
+          slotId: "hero",
+          placement: "/:hero",
+          source: "source-site",
+          sourceUrl: "https://acme.example/a.png",
+        }),
+      ],
+    );
 
     await ctx.evidenceStore.writeSourceSite(sourceManifest);
     await ctx.evidenceStore.writeImagePlan(plan);
@@ -81,13 +130,13 @@ void test('image evidence round-trips as snake_case on disk and camelCase in mem
     assert.deepEqual((await ctx.evidenceStore.readImageAssets())?.value, normalize(manifest));
 
     // On disk: snake_case keys, never camelCase.
-    const raw = readFileSync(join(ctx.evidenceStore.rootDir, 'source-site-manifest.json'), 'utf-8');
+    const raw = readFileSync(join(ctx.evidenceStore.rootDir, "source-site-manifest.json"), "utf-8");
     assert.match(raw, /"source_url"/);
     assert.match(raw, /"crawled_at"/);
     assert.match(raw, /"byte_length"/);
     assert.match(raw, /"is_above_fold"/);
     assert.doesNotMatch(raw, /"sourceUrl"|"byteLength"|"isAboveFold"/);
-    const planRaw = readFileSync(join(ctx.evidenceStore.rootDir, 'image-asset-plan.json'), 'utf-8');
+    const planRaw = readFileSync(join(ctx.evidenceStore.rootDir, "image-asset-plan.json"), "utf-8");
     assert.match(planRaw, /"slot_id"/);
     assert.match(planRaw, /"compiled_brief"/);
     assert.doesNotMatch(planRaw, /"slotId"|"compiledBrief"/);
@@ -98,35 +147,50 @@ void test('image evidence round-trips as snake_case on disk and camelCase in mem
 
 // ── Source-site ingestion resume ─────────────────────────────────────────────────
 
-void test('ingestion reuses verified source_site evidence without crawling', async () => {
-  const clientId = 'ingest-reuse';
+void test("ingestion reuses verified source_site evidence without crawling", async () => {
+  const clientId = "ingest-reuse";
   const ctx = fixtureContext({
     client_id: clientId,
-    assets: { sourceSite: { url: 'https://acme.example/', enabled: true } },
+    assets: { sourceSite: { url: "https://acme.example/", enabled: true } },
   });
-  const downloadDir = resolve(clientAssetRoot(ctx), 'source-site', 'downloads');
+  const downloadDir = resolve(clientAssetRoot(ctx), "source-site", "downloads");
   try {
     mkdirSync(downloadDir, { recursive: true });
-    const localPath = join(downloadDir, 'a.png');
+    const localPath = join(downloadDir, "a.png");
     writeFileSync(localPath, PNG_1x1);
     const manifest: SourceSiteManifest = {
-      schema: 'website-bot.source-site-manifest/v1',
-      sourceUrl: 'https://acme.example/',
-      crawledAt: '2026-07-20T00:00:00.000Z',
-      crawlerVersion: '1.0.0',
-      pages: [{
-        url: 'https://acme.example/gallery',
-        headings: ['Our Work'],
-        bodyText: 'Completed roofing projects across the metro with before and after photos from recent jobs.',
-        phones: ['(704) 555-0100'],
-        nav: [{ href: '/gallery', label: 'Gallery' }, { href: '/services', label: 'Services' }],
-        depth: 0,
-      }],
-      images: [{
-        id: 'src-1', sourceUrl: 'https://acme.example/a.png', referringPageUrl: 'https://acme.example/',
-        localPath, mimeType: 'image/png', width: 1, height: 1, byteLength: PNG_1x1.length,
-        sha256: sha256File(localPath), provenance: 'source-site',
-      }],
+      schema: "website-bot.source-site-manifest/v1",
+      sourceUrl: "https://acme.example/",
+      crawledAt: "2026-07-20T00:00:00.000Z",
+      crawlerVersion: "1.0.0",
+      pages: [
+        {
+          url: "https://acme.example/gallery",
+          headings: ["Our Work"],
+          bodyText:
+            "Completed roofing projects across the metro with before and after photos from recent jobs.",
+          phones: ["(704) 555-0100"],
+          nav: [
+            { href: "/gallery", label: "Gallery" },
+            { href: "/services", label: "Services" },
+          ],
+          depth: 0,
+        },
+      ],
+      images: [
+        {
+          id: "src-1",
+          sourceUrl: "https://acme.example/a.png",
+          referringPageUrl: "https://acme.example/",
+          localPath,
+          mimeType: "image/png",
+          width: 1,
+          height: 1,
+          byteLength: PNG_1x1.length,
+          sha256: sha256File(localPath),
+          provenance: "source-site",
+        },
+      ],
       rejected: [],
       warnings: [],
     };
@@ -135,57 +199,104 @@ void test('ingestion reuses verified source_site evidence without crawling', asy
     // If the stage ignored the verified cache it would construct a real crawler and
     // hit the network; a clean return with the manifest hydrated proves reuse.
     await new SourceSiteIngestionStage().run(ctx);
-    assert.equal(ctx.sourceSiteManifest?.images[0].id, 'src-1');
+    assert.equal(ctx.sourceSiteManifest?.images[0].id, "src-1");
     assert.equal(ctx.sourceSiteManifest?.images[0].sha256, manifest.images[0].sha256);
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', clientId, ctx.buildId), { recursive: true, force: true });
+    rmSync(resolve("build", "assets", clientId, ctx.buildId), { recursive: true, force: true });
   }
 });
 
 // ── Deterministic image QA ───────────────────────────────────────────────────────
 
-async function runQa(clientId: string, assets: ResolvedImageAsset[], siteImages: NonNullable<SiteConfig['images']>): Promise<void> {
-  const ctx = fixtureContext({ client_id: clientId, assets: { imageSlots: [{ id: 'hero', placement: '/:hero', required: true }] } });
+async function runQa(
+  clientId: string,
+  assets: ResolvedImageAsset[],
+  siteImages: NonNullable<SiteConfig["images"]>,
+): Promise<void> {
+  const ctx = fixtureContext({
+    client_id: clientId,
+    assets: { imageSlots: [{ id: "hero", placement: "/:hero", required: true }] },
+  });
   try {
     ctx.siteConfig = { images: siteImages } as SiteConfig;
-    await ctx.evidenceStore.writeImageAssets(buildImageAssetManifest(ctx.buildId, ctx.clientId, '2026-07-20T00:00:00.000Z', assets));
-    mkdirSync(join(ctx.outputDir, 'public', 'images'), { recursive: true });
+    await ctx.evidenceStore.writeImageAssets(
+      buildImageAssetManifest(ctx.buildId, ctx.clientId, "2026-07-20T00:00:00.000Z", assets),
+    );
+    mkdirSync(join(ctx.outputDir, "public", "images"), { recursive: true });
     for (const image of Object.values(siteImages)) {
-      writeFileSync(join(ctx.outputDir, 'public', image.src.replace(/^\//, '')), PNG_1x1);
+      writeFileSync(join(ctx.outputDir, "public", image.src.replace(/^\//, "")), PNG_1x1);
     }
     await new ImageValidationStage().run(ctx);
   } finally {
     cleanupContext(ctx);
-    rmSync(resolve('build', 'assets', clientId, ctx.buildId), { recursive: true, force: true });
+    rmSync(resolve("build", "assets", clientId, ctx.buildId), { recursive: true, force: true });
   }
 }
 
-void test('QA passes for a delivered source-site asset with republishable disposition', async () => {
+void test("QA passes for a delivered source-site asset with republishable disposition", async () => {
   await runQa(
-    'qa-ok',
-    [resolvedAsset({ slotId: 'hero', placement: '/:hero', source: 'source-site', disposition: 'approved-client-owned' })],
-    { '/:hero': { src: '/images/hero.png', alt: 'Hero', width: 1920, height: 1080, source: 'source-site' } },
+    "qa-ok",
+    [
+      resolvedAsset({
+        slotId: "hero",
+        placement: "/:hero",
+        source: "source-site",
+        disposition: "approved-client-owned",
+      }),
+    ],
+    {
+      "/:hero": {
+        src: "/images/hero.png",
+        alt: "Hero",
+        width: 1920,
+        height: 1080,
+        source: "source-site",
+      },
+    },
   );
 });
 
-void test('QA blocks unauthorized republication of a crawled asset', async () => {
+void test("QA blocks unauthorized republication of a crawled asset", async () => {
   await assert.rejects(
     runQa(
-      'qa-rights',
-      [resolvedAsset({ slotId: 'hero', placement: '/:hero', source: 'source-site', disposition: 'unknown-rights' })],
-      { '/:hero': { src: '/images/hero.png', alt: 'Hero', width: 1920, height: 1080, source: 'source-site' } },
+      "qa-rights",
+      [
+        resolvedAsset({
+          slotId: "hero",
+          placement: "/:hero",
+          source: "source-site",
+          disposition: "unknown-rights",
+        }),
+      ],
+      {
+        "/:hero": {
+          src: "/images/hero.png",
+          alt: "Hero",
+          width: 1920,
+          height: 1080,
+          source: "source-site",
+        },
+      },
     ),
     /unauthorized republication/,
   );
 });
 
-void test('QA fails on evidence/site source drift', async () => {
+void test("QA fails on evidence/site source drift", async () => {
   await assert.rejects(
     runQa(
-      'qa-drift',
-      [resolvedAsset({ slotId: 'hero', placement: '/:hero', source: 'generated' })],
-      { '/:hero': { src: '/images/hero.png', alt: 'Hero', width: 1920, height: 1080, source: 'provided' } },
+      "qa-drift",
+      [resolvedAsset({ slotId: "hero", placement: "/:hero", source: "generated" })],
+      {
+        "/:hero": {
+          src: "/images/hero.png",
+          alt: "Hero",
+          width: 1920,
+          height: 1080,
+          source: "provided",
+        },
+      },
     ),
     /source mismatch/,
   );

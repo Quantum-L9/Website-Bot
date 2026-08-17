@@ -17,20 +17,20 @@
  * Requires: OPENROUTER_API_KEY, SITE_URL (or local dev server)
  */
 
-import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-const SCREENSHOTS_DIR = join(process.cwd(), 'validation', 'screenshots');
-const REPORT_PATH = join(process.cwd(), 'validation', 'visual_qa_report.json');
+const SCREENSHOTS_DIR = join(process.cwd(), "validation", "screenshots");
+const REPORT_PATH = join(process.cwd(), "validation", "visual_qa_report.json");
 
 // Viewports to test (matches @quantum-l9/llm-router VIEWPORTS)
 const VIEWPORTS = [
-  { name: 'desktop_1920', width: 1920, height: 1080 },
-  { name: 'desktop_1440', width: 1440, height: 900 },
-  { name: 'ipad', width: 1024, height: 768 },
-  { name: 'iphone_14', width: 390, height: 844 },
-  { name: 'pixel_7', width: 412, height: 915 },
+  { name: "desktop_1920", width: 1920, height: 1080 },
+  { name: "desktop_1440", width: 1440, height: 900 },
+  { name: "ipad", width: 1024, height: 768 },
+  { name: "iphone_14", width: 390, height: 844 },
+  { name: "pixel_7", width: 412, height: 915 },
 ];
 
 // Pages to validate — derived from the DomainSpec, never hardcoded to one
@@ -39,22 +39,29 @@ const VIEWPORTS = [
 async function resolvePages() {
   // Normalize to a leading-slash path so later `${siteUrl}${pagePath}` builds a
   // valid URL for both env-supplied and spec-derived values (e.g. 'about' → '/about').
-  const toPath = (p) => (p.startsWith('/') ? p : `/${p}`);
+  const toPath = (p) => (p.startsWith("/") ? p : `/${p}`);
   if (process.env.QA_PAGES) {
-    return process.env.QA_PAGES.split(',').map((s) => s.trim()).filter(Boolean).map(toPath);
+    return process.env.QA_PAGES.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map(toPath);
   }
-  const specPath = process.env.SPEC_PATH || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml';
+  const specPath =
+    process.env.SPEC_PATH || "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
   try {
-    const { parse } = await import('yaml');
-    const spec = parse(readFileSync(specPath, 'utf-8'));
+    const { parse } = await import("yaml");
+    const spec = parse(readFileSync(specPath, "utf-8"));
     const root = spec?.domain_spec ?? spec;
-    const slugs = (root?.routes ?? []).map((r) => r.slug).filter(Boolean).map(toPath);
+    const slugs = (root?.routes ?? [])
+      .map((r) => r.slug)
+      .filter(Boolean)
+      .map(toPath);
     if (slugs.length) return slugs;
   } catch {
     // fall through to the safe default
   }
-  console.log('⚠️  Could not derive pages from a DomainSpec — defaulting to home page only.');
-  return ['/'];
+  console.log("⚠️  Could not derive pages from a DomainSpec — defaulting to home page only.");
+  return ["/"];
 }
 
 // Client id for budget tracking in @quantum-l9/llm-router. Precedence: CLIENT_ID env →
@@ -62,37 +69,38 @@ async function resolvePages() {
 // an empty client id at initClient).
 async function resolveClientId() {
   if (process.env.CLIENT_ID) return process.env.CLIENT_ID;
-  const specPath = process.env.SPEC_PATH || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml';
+  const specPath =
+    process.env.SPEC_PATH || "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
   try {
-    const { parse } = await import('yaml');
-    const spec = parse(readFileSync(specPath, 'utf-8'));
+    const { parse } = await import("yaml");
+    const spec = parse(readFileSync(specPath, "utf-8"));
     const root = spec?.domain_spec ?? spec;
     const id = root?.client_id ?? root?.metadata?.spec_id;
     if (id) return String(id);
   } catch {
     // fall through to the safe default
   }
-  return 'visual-qa';
+  return "visual-qa";
 }
 
 const PAGES = await resolvePages();
 
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  L9 Website Factory — Visual QA Verification');
-  console.log('═══════════════════════════════════════════════════');
+  console.log("═══════════════════════════════════════════════════");
+  console.log("  L9 Website Factory — Visual QA Verification");
+  console.log("═══════════════════════════════════════════════════");
 
   // Check prerequisites
   if (!process.env.OPENROUTER_API_KEY) {
-    console.log('⚠️  OPENROUTER_API_KEY not set — skipping vision analysis');
-    console.log('   Screenshots will still be captured for manual review');
+    console.log("⚠️  OPENROUTER_API_KEY not set — skipping vision analysis");
+    console.log("   Screenshots will still be captured for manual review");
   }
 
   // The visual-qa pipeline stage invokes this script as `--url <deployUrl>`; honor that
   // first, then SITE_URL, then a local dev-server default.
-  const urlFlagIndex = process.argv.indexOf('--url');
+  const urlFlagIndex = process.argv.indexOf("--url");
   const urlArg = urlFlagIndex !== -1 ? process.argv[urlFlagIndex + 1] : undefined;
-  const siteUrl = urlArg || process.env.SITE_URL || 'http://localhost:4321';
+  const siteUrl = urlArg || process.env.SITE_URL || "http://localhost:4321";
   console.log(`\n📸 Target: ${siteUrl}`);
   console.log(`📐 Viewports: ${VIEWPORTS.length}`);
   console.log(`📄 Pages: ${PAGES.length}`);
@@ -105,50 +113,50 @@ async function main() {
 
   // Check if site is reachable
   try {
-    execSync(`curl -s -o /dev/null -w "%{http_code}" ${siteUrl}`, { encoding: 'utf-8' });
+    execSync(`curl -s -o /dev/null -w "%{http_code}" ${siteUrl}`, { encoding: "utf-8" });
   } catch {
-    console.error('❌ Site not reachable at', siteUrl);
-    console.error('   Start the dev server with: npm run dev');
-    console.error('   Or set SITE_URL to a deployed URL');
+    console.error("❌ Site not reachable at", siteUrl);
+    console.error("   Start the dev server with: npm run dev");
+    console.error("   Or set SITE_URL to a deployed URL");
     process.exit(1);
   }
 
-  console.log('✅ Site reachable\n');
+  console.log("✅ Site reachable\n");
 
   // Capture screenshots (requires Playwright or Puppeteer)
-  const hasPlaywright = checkDependency('playwright');
+  const hasPlaywright = checkDependency("playwright");
   if (!hasPlaywright) {
-    console.log('⚠️  Playwright not installed — generating screenshot plan only');
-    console.log('   Install with: npx playwright install chromium');
-    console.log('');
+    console.log("⚠️  Playwright not installed — generating screenshot plan only");
+    console.log("   Install with: npx playwright install chromium");
+    console.log("");
 
     // Output the plan for manual execution or future automation
     const plan = {
-      status: 'PLAN_ONLY',
-      reason: 'Playwright not installed for automated screenshot capture',
+      status: "PLAN_ONLY",
+      reason: "Playwright not installed for automated screenshot capture",
       siteUrl,
       viewports: VIEWPORTS,
       pages: PAGES,
       totalScreenshots: VIEWPORTS.length * PAGES.length,
-      instruction: 'Install Playwright and re-run, or capture screenshots manually',
+      instruction: "Install Playwright and re-run, or capture screenshots manually",
       screenshotsDir: SCREENSHOTS_DIR,
     };
 
     writeFileSync(REPORT_PATH, JSON.stringify(plan, null, 2));
     console.log(`📋 Plan written to: ${REPORT_PATH}`);
-    console.log('');
-    console.log('STATUS: DEFERRED (missing dependency)');
+    console.log("");
+    console.log("STATUS: DEFERRED (missing dependency)");
     return;
   }
 
   // If we have Playwright, capture and analyze
-  console.log('📸 Capturing screenshots...\n');
+  console.log("📸 Capturing screenshots...\n");
   const screenshots = await captureScreenshots(siteUrl);
 
   if (process.env.OPENROUTER_API_KEY) {
-    console.log('\n🤖 Running vision analysis...\n');
+    console.log("\n🤖 Running vision analysis...\n");
     // Dynamic import of the LLM service
-    const { createWebsiteFactoryLLM } = await import('../dist/services/llm.js');
+    const { createWebsiteFactoryLLM } = await import("../dist/services/llm.js");
     const llm = createWebsiteFactoryLLM(await resolveClientId());
 
     const issues = [];
@@ -164,9 +172,9 @@ async function main() {
       });
     }
 
-    const hasCritical = issues.some(i => /critical/i.test(i.analysis));
+    const hasCritical = issues.some((i) => /critical/i.test(i.analysis));
     const report = {
-      status: hasCritical ? 'FAIL' : 'PASS',
+      status: hasCritical ? "FAIL" : "PASS",
       timestamp: new Date().toISOString(),
       siteUrl,
       totalScreenshots: screenshots.length,
@@ -177,16 +185,16 @@ async function main() {
     console.log(`\n📋 Report written to: ${REPORT_PATH}`);
     // Emit a CRITICAL marker on stdout so the visual-qa pipeline stage (which scans this
     // script's output for "CRITICAL") can fail the gate on severe defects.
-    if (hasCritical) console.log('CRITICAL: visual QA detected critical layout issues');
+    if (hasCritical) console.log("CRITICAL: visual QA detected critical layout issues");
     console.log(`STATUS: ${report.status}`);
   } else {
-    console.log('📋 Screenshots captured. Run with OPENROUTER_API_KEY for AI analysis.');
+    console.log("📋 Screenshots captured. Run with OPENROUTER_API_KEY for AI analysis.");
   }
 }
 
 function checkDependency(name) {
   try {
-    execSync(`npx ${name} --version`, { stdio: 'ignore' });
+    execSync(`npx ${name} --version`, { stdio: "ignore" });
     return true;
   } catch {
     return false;
@@ -194,7 +202,7 @@ function checkDependency(name) {
 }
 
 async function captureScreenshots(siteUrl) {
-  const { chromium } = await import('playwright');
+  const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   const screenshots = [];
 
@@ -206,11 +214,11 @@ async function captureScreenshots(siteUrl) {
 
     for (const pagePath of PAGES) {
       const url = `${siteUrl}${pagePath}`;
-      const filename = `${pagePath.replaceAll('/', '_') || '_index'}_${viewport.name}.png`;
+      const filename = `${pagePath.replaceAll("/", "_") || "_index"}_${viewport.name}.png`;
       const filepath = join(SCREENSHOTS_DIR, filename);
 
       try {
-        await page.goto(url, { waitUntil: 'networkidle' });
+        await page.goto(url, { waitUntil: "networkidle" });
         await page.screenshot({ path: filepath, fullPage: true });
         screenshots.push({ page: pagePath, viewport, path: filepath });
         console.log(`  ✅ ${pagePath} @ ${viewport.name}`);

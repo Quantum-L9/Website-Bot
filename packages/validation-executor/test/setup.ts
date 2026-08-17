@@ -2,11 +2,16 @@
  * Test setup and utilities for validation executor tests
  */
 
-import { randomUUID } from 'node:crypto';
-import { mkdir, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import type { ValidationConfig, ExecutionContext, PreflightCheckDefinition, E2ETestDefinition } from '../src/types/index.js';
+import { randomUUID } from "node:crypto";
+import { mkdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import type {
+  E2ETestDefinition,
+  ExecutionContext,
+  PreflightCheckDefinition,
+  ValidationConfig,
+} from "../src/types/index.js";
 
 /**
  * Unique, unpredictable default evidence root for mock config/context factories.
@@ -26,12 +31,12 @@ export interface TestEnvironment {
  * Create isolated test environment with temporary directories
  */
 export async function createTestEnvironment(): Promise<TestEnvironment> {
-  const tempDir = join('/tmp', `validation-test-${randomUUID()}`);
-  const evidenceDir = join(tempDir, 'evidence');
-  
+  const tempDir = join("/tmp", `validation-test-${randomUUID()}`);
+  const evidenceDir = join(tempDir, "evidence");
+
   await mkdir(tempDir, { recursive: true });
   await mkdir(evidenceDir, { recursive: true });
-  
+
   return {
     tempDir,
     evidenceDir,
@@ -41,7 +46,7 @@ export async function createTestEnvironment(): Promise<TestEnvironment> {
       } catch (error) {
         // Ignore cleanup errors in tests
       }
-    }
+    },
   };
 }
 
@@ -50,41 +55,43 @@ export async function createTestEnvironment(): Promise<TestEnvironment> {
  */
 export function createMockConfig(overrides: Partial<ValidationConfig> = {}): ValidationConfig {
   return {
-    target: 'test-target',
-    environment: 'test',
-    profile: 'test',
+    target: "test-target",
+    environment: "test",
+    profile: "test",
     preflight_commands: ['echo "preflight test"'],
     e2e_commands: ['echo "e2e test"'],
     evidence_root: defaultMockEvidenceRoot(),
     timeout: 5000,
     fail_fast: false,
     skip_patterns: [],
-    ...overrides
+    ...overrides,
   };
 }
 
 /**
  * Create mock execution context for testing
  */
-export function createMockExecutionContext(overrides: Partial<ExecutionContext> = {}): ExecutionContext {
+export function createMockExecutionContext(
+  overrides: Partial<ExecutionContext> = {},
+): ExecutionContext {
   return {
-    target_roots: ['/test/root'],
-    source_revision: 'test-commit-123',
+    target_roots: ["/test/root"],
+    source_revision: "test-commit-123",
     running_revision: null,
-    target_environment: 'test',
-    environment_type: 'isolated_test',
-    active_identity: 'test@example.com',
-    preflight_commands: ['npm run typecheck'],
-    e2e_commands: ['npm run test:e2e'],
-    test_runner: 'node:test',
-    test_runner_version: 'v20.0.0',
-    configuration_sources: ['package.json', 'tsconfig.json'],
-    required_services: ['test-service'],
-    target_endpoints: ['http://localhost:3000'],
-    required_dependencies: ['typescript', 'node'],
+    target_environment: "test",
+    environment_type: "isolated_test",
+    active_identity: "test@example.com",
+    preflight_commands: ["npm run typecheck"],
+    e2e_commands: ["npm run test:e2e"],
+    test_runner: "node:test",
+    test_runner_version: "v20.0.0",
+    configuration_sources: ["package.json", "tsconfig.json"],
+    required_services: ["test-service"],
+    target_endpoints: ["http://localhost:3000"],
+    required_dependencies: ["typescript", "node"],
     required_credentials: [],
     evidence_root: defaultMockEvidenceRoot(),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -94,19 +101,19 @@ export function createMockExecutionContext(overrides: Partial<ExecutionContext> 
 export function createMockPreflightChecks(): PreflightCheckDefinition[] {
   return [
     {
-      check_id: 'typecheck',
-      check_name: 'TypeScript Type Check',
+      check_id: "typecheck",
+      check_name: "TypeScript Type Check",
       blocking: true,
-      command: 'npm run typecheck',
-      working_directory: '/test/root'
+      command: "npm run typecheck",
+      working_directory: "/test/root",
     },
     {
-      check_id: 'lint',
-      check_name: 'ESLint Check',
+      check_id: "lint",
+      check_name: "ESLint Check",
       blocking: false,
-      command: 'npm run lint',
-      working_directory: '/test/root'
-    }
+      command: "npm run lint",
+      working_directory: "/test/root",
+    },
   ];
 }
 
@@ -116,21 +123,21 @@ export function createMockPreflightChecks(): PreflightCheckDefinition[] {
 export function createMockE2ETests(): E2ETestDefinition[] {
   return [
     {
-      suite_id: 'integration-tests',
-      suite_name: 'Integration Test Suite',
-      test_id: 'api-test',
-      test_name: 'API Integration Test',
+      suite_id: "integration-tests",
+      suite_name: "Integration Test Suite",
+      test_id: "api-test",
+      test_name: "API Integration Test",
       attempt: 1,
-      command_or_invocation: 'npm run test:api'
+      command_or_invocation: "npm run test:api",
     },
     {
-      suite_id: 'e2e-tests',
-      suite_name: 'End-to-End Test Suite', 
-      test_id: 'user-flow',
-      test_name: 'User Flow Test',
+      suite_id: "e2e-tests",
+      suite_name: "End-to-End Test Suite",
+      test_id: "user-flow",
+      test_name: "User Flow Test",
       attempt: 1,
-      command_or_invocation: 'npm run test:e2e'
-    }
+      command_or_invocation: "npm run test:e2e",
+    },
   ];
 }
 
@@ -140,12 +147,12 @@ export function createMockE2ETests(): E2ETestDefinition[] {
 export class MockRepositoryAdapter {
   private readonly mockPreflightChecks: PreflightCheckDefinition[];
   private readonly mockE2ETests: E2ETestDefinition[];
-  private readonly mockExecutionResults: Map<string, { exitCode: number; stdout: string; stderr: string; duration: number }>;
+  private readonly mockExecutionResults: Map<
+    string,
+    { exitCode: number; stdout: string; stderr: string; duration: number }
+  >;
 
-  constructor(
-    preflightChecks = createMockPreflightChecks(),
-    e2eTests = createMockE2ETests()
-  ) {
+  constructor(preflightChecks = createMockPreflightChecks(), e2eTests = createMockE2ETests()) {
     this.mockPreflightChecks = preflightChecks;
     this.mockE2ETests = e2eTests;
     this.mockExecutionResults = new Map();
@@ -154,7 +161,7 @@ export class MockRepositoryAdapter {
   async resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext> {
     return createMockExecutionContext({
       evidence_root: config.evidence_root,
-      target_environment: config.environment || 'test'
+      target_environment: config.environment || "test",
     });
   }
 
@@ -166,7 +173,10 @@ export class MockRepositoryAdapter {
     return this.mockE2ETests;
   }
 
-  async executeCommand(command: string, workingDir: string): Promise<{
+  async executeCommand(
+    command: string,
+    workingDir: string,
+  ): Promise<{
     exitCode: number;
     stdout: string;
     stderr: string;
@@ -174,17 +184,17 @@ export class MockRepositoryAdapter {
   }> {
     const key = `${command}:${workingDir}`;
     const result = this.mockExecutionResults.get(key);
-    
+
     if (result) {
       return result;
     }
-    
+
     // Default success response for unknown commands
     return {
       exitCode: 0,
       stdout: `Mock execution of: ${command}`,
-      stderr: '',
-      duration: 100
+      stderr: "",
+      duration: 100,
     };
   }
 
@@ -195,12 +205,16 @@ export class MockRepositoryAdapter {
   /**
    * Configure mock command execution results for testing
    */
-  setCommandResult(command: string, workingDir: string, result: {
-    exitCode: number;
-    stdout: string;
-    stderr: string;
-    duration: number;
-  }): void {
+  setCommandResult(
+    command: string,
+    workingDir: string,
+    result: {
+      exitCode: number;
+      stdout: string;
+      stderr: string;
+      duration: number;
+    },
+  ): void {
     const key = `${command}:${workingDir}`;
     this.mockExecutionResults.set(key, result);
   }
@@ -224,13 +238,15 @@ export const assertions = {
    */
   evidenceReferences(references: string[], minCount = 1): void {
     if (references.length < minCount) {
-      throw new Error(`Expected at least ${minCount} evidence references, got ${references.length}`);
+      throw new Error(
+        `Expected at least ${minCount} evidence references, got ${references.length}`,
+      );
     }
-    
+
     for (const ref of references) {
-      if (typeof ref !== 'string' || ref.length === 0) {
+      if (typeof ref !== "string" || ref.length === 0) {
         throw new Error(`Invalid evidence reference: ${ref}`);
       }
     }
-  }
+  },
 };

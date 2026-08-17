@@ -1,0 +1,30 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786876760654",
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T10:44:49.147Z",
+  "input_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "input_evidence": [],
+  "output_digest": "4177ec000ffdc96a1edaf7147a183d897519fcf113c964179e75ba621f07f64b",
+  "output_evidence": [
+    {
+      "kind": "image_plan",
+      "logical_id": "safehavenrr-1786876760654:image_plan",
+      "relative_path": "image-asset-plan.json",
+      "schema": "website-bot.image-asset-plan/v1",
+      "sha256": "20bfd3509d60ee98a3411575dda6c41b11db59a9224b79063fa2067a97f8b2f3"
+    },
+    {
+      "kind": "image_assets",
+      "logical_id": "safehavenrr-1786876760654:image_assets",
+      "relative_path": "image-asset-manifest.json",
+      "schema": "website-bot.image-asset-manifest/v1",
+      "sha256": "7bd7a30e40a7f5a00480e252b5dcffaa67046e584f4577a4c4adc9534cf4e537"
+    }
+  ],
+  "schema": "website-bot.stage-checkpoint/v2",
+  "stage": "image-asset-planning",
+  "stage_version": "2.0.0",
+  "started_at": "2026-08-16T10:44:49.113Z",
+  "status": "passed"
+}

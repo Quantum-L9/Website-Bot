@@ -72,10 +72,7 @@
     "probe": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "ok"
-      ],
+      "required": ["name", "ok"],
       "properties": {
         "name": {
           "type": "string",

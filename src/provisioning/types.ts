@@ -1,8 +1,8 @@
 // L9_META: layer=provisioning, role=contracts, status=active, version=1.0.0
 
-export type RepositoryVisibility = 'private' | 'public';
-export type VercelEnvironmentTarget = 'production' | 'preview' | 'development';
-export type VercelEnvironmentType = 'plain' | 'encrypted' | 'sensitive';
+export type RepositoryVisibility = "private" | "public";
+export type VercelEnvironmentTarget = "production" | "preview" | "development";
+export type VercelEnvironmentType = "plain" | "encrypted" | "sensitive";
 
 export interface ProvisioningSpec {
   enabled?: boolean;
@@ -66,7 +66,7 @@ export interface ProvisioningRequest {
 }
 
 export interface GitHubProvisioningResult {
-  provider: 'github';
+  provider: "github";
   created: boolean;
   repositoryId: string;
   fullName: string;
@@ -75,7 +75,7 @@ export interface GitHubProvisioningResult {
 }
 
 export interface VercelProvisioningResult {
-  provider: 'vercel';
+  provider: "vercel";
   created: boolean;
   projectId: string;
   projectName: string;
@@ -83,12 +83,12 @@ export interface VercelProvisioningResult {
   linkedRepository: string;
   productionBranch: string;
   environmentKeys: string[];
-  deploymentTrigger: 'git-push';
+  deploymentTrigger: "git-push";
 }
 
 export interface ProvisioningReceipt {
-  schema: 'website-bot.provisioning-receipt/v1';
-  status: 'planned' | 'succeeded' | 'rolled_back' | 'failed';
+  schema: "website-bot.provisioning-receipt/v1";
+  status: "planned" | "succeeded" | "rolled_back" | "failed";
   clientId: string;
   idempotencyKey: string;
   github?: GitHubProvisioningResult;

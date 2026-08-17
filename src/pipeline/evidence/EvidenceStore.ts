@@ -1,25 +1,26 @@
 // L9_META: layer=pipeline, role=evidence_store_port, status=active, version=2.0.0
-import type { ExecutionMode } from '../BuildContext.js';
-import type { WebsiteFactoryHandoffV3 } from '../../contracts/WebsiteFactoryHandoffV3.js';
-import type { SeoBotRegistrationAck } from '../../contracts/SeoBotRegistrationAck.js';
-import type { StageCheckpoint } from '../StageCheckpoint.js';
-import type { AssemblyManifest } from './AssemblyManifest.js';
-import type { BuildProof } from './BuildProof.js';
-import type { DeploymentEvidence } from './DeploymentEvidence.js';
-import type { SourceSiteManifest } from './SourceSiteManifest.js';
-import type { ImageAssetPlan } from './ImageAssetPlan.js';
-import type { ImageAssetManifest } from './ImageAssetManifest.js';
-import type { EvidenceIndex } from './EvidenceIndex.js';
-import type { EvidenceKind, EvidenceRecord, EvidenceReference } from './EvidenceReference.js';
-import type { PublicationEvidence } from './PublicationEvidence.js';
-import type { ReleaseReceipt } from './ReleaseReceipt.js';
-import type { StageFailureEvidence } from './StageFailureEvidence.js';
+
+import type { SeoBotRegistrationAck } from "../../contracts/SeoBotRegistrationAck.js";
+import type { WebsiteFactoryHandoffV3 } from "../../contracts/WebsiteFactoryHandoffV3.js";
+import type { ExecutionMode } from "../BuildContext.js";
+import type { StageCheckpoint } from "../StageCheckpoint.js";
+import type { AssemblyManifest } from "./AssemblyManifest.js";
+import type { BuildProof } from "./BuildProof.js";
+import type { DeploymentEvidence } from "./DeploymentEvidence.js";
+import type { EvidenceIndex } from "./EvidenceIndex.js";
+import type { EvidenceKind, EvidenceRecord, EvidenceReference } from "./EvidenceReference.js";
+import type { ImageAssetManifest } from "./ImageAssetManifest.js";
+import type { ImageAssetPlan } from "./ImageAssetPlan.js";
+import type { PublicationEvidence } from "./PublicationEvidence.js";
+import type { ReleaseReceipt } from "./ReleaseReceipt.js";
+import type { SourceSiteManifest } from "./SourceSiteManifest.js";
+import type { StageFailureEvidence } from "./StageFailureEvidence.js";
 import type {
   EvidenceChainValidation,
   LoadReleaseBundleOptions,
   StoredEvidence,
   ValidatedReleaseBundle,
-} from './ValidatedReleaseBundle.js';
+} from "./ValidatedReleaseBundle.js";
 
 export interface EvidenceStore {
   readonly rootDir: string;

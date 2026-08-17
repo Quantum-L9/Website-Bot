@@ -9,7 +9,7 @@
     "working_directory",
     "exit_code",
     "stdout",
-    "stderr", 
+    "stderr",
     "duration_ms",
     "started_at",
     "ended_at"
@@ -32,7 +32,7 @@
       "description": "Standard output from the command (may be truncated)"
     },
     "stderr": {
-      "type": "string", 
+      "type": "string",
       "description": "Standard error output from the command (may be truncated)"
     },
     "duration_ms": {
@@ -46,7 +46,7 @@
       "description": "ISO timestamp when command execution started"
     },
     "ended_at": {
-      "type": "string", 
+      "type": "string",
       "format": "date-time",
       "description": "ISO timestamp when command execution ended"
     },

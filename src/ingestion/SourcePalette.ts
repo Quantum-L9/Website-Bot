@@ -25,7 +25,7 @@ interface Rgb {
 const HEX = /#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})\b/gi;
 
 function expandHex(raw: string): string | undefined {
-  const value = raw.replace('#', '').toLowerCase();
+  const value = raw.replace("#", "").toLowerCase();
   if (value.length === 3 || value.length === 4) {
     const [r, g, b] = value;
     return `#${r}${r}${g}${g}${b}${b}`;
@@ -60,14 +60,20 @@ export function extractHexColors(css: string): string[] {
   for (const match of css.matchAll(HEX)) {
     const parsed = parseRgb(match[0]);
     if (!parsed) continue;
-    if (parsed.hex === '#000000' && match[0].length <= 5) continue;
+    if (parsed.hex === "#000000" && match[0].length <= 5) continue;
     seen.add(parsed.hex);
   }
   return [...seen];
 }
 
 function isBlueAccent(color: Rgb): boolean {
-  return color.saturation >= 0.25 && color.hue >= 170 && color.hue <= 250 && color.luminance > 0.15 && color.luminance < 0.75;
+  return (
+    color.saturation >= 0.25 &&
+    color.hue >= 170 &&
+    color.hue <= 250 &&
+    color.luminance > 0.15 &&
+    color.luminance < 0.75
+  );
 }
 
 /** Pick background / text / primary from observed hexes. Returns undefined when
@@ -85,11 +91,11 @@ export function inferPalette(hexes: readonly string[]): SourcePaletteHint | unde
 
   const blues = colors.filter(isBlueAccent).sort((a, b) => b.saturation - a.saturation);
   const chromatic = [...colors]
-    .filter(color => color.saturation >= 0.2 && color.hex !== background && color.hex !== text)
+    .filter((color) => color.saturation >= 0.2 && color.hex !== background && color.hex !== text)
     .sort((a, b) => b.saturation - a.saturation);
   const primary = (blues[0] ?? chromatic[0])?.hex;
   if (!primary) return undefined;
 
-  const secondary = darkSite ? '#171717' : '#eef4f8';
+  const secondary = darkSite ? "#171717" : "#eef4f8";
   return { primary, secondary, accent: primary, background, text };
 }

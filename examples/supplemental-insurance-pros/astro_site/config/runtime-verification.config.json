@@ -33,13 +33,27 @@
   ],
   "form": {
     "component": "src/components/LeadForm.astro",
-    "requiredFields": ["full_name", "phone", "email", "customer_type", "property_state", "claim_status", "message", "consent_contact"],
+    "requiredFields": [
+      "full_name",
+      "phone",
+      "email",
+      "customer_type",
+      "property_state",
+      "claim_status",
+      "message",
+      "consent_contact"
+    ],
     "uploadField": "estimate_upload",
     "successRoute": "/thank-you/"
   },
   "seo": {
     "requiredPublicFiles": ["robots.txt", "llms.txt"],
-    "requiredHeadMarkers": ["<title>", "name=\"description\"", "rel=\"canonical\"", "application/ld+json"],
+    "requiredHeadMarkers": [
+      "<title>",
+      "name=\"description\"",
+      "rel=\"canonical\"",
+      "application/ld+json"
+    ],
     "sitemapExpectedAfterBuild": "sitemap-index.xml"
   }
 }

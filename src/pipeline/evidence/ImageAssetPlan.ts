@@ -15,14 +15,14 @@ export interface ImageGenerationBrief {
   style?: string;
   exclusions?: string[];
   aspectRatio?: string;
-  imageSize?: '1K' | '2K' | '4K';
+  imageSize?: "1K" | "2K" | "4K";
 }
 
 export type ImageAssetResolution =
-  | { source: 'provided'; candidateId: string; score: number }
-  | { source: 'source-site'; candidateId: string; score: number }
-  | { source: 'generated'; compiledBrief: ImageGenerationBrief }
-  | { source: 'unresolved'; reason: string };
+  | { source: "provided"; candidateId: string; score: number }
+  | { source: "source-site"; candidateId: string; score: number }
+  | { source: "generated"; compiledBrief: ImageGenerationBrief }
+  | { source: "unresolved"; reason: string };
 
 export interface PlannedImageAsset {
   slotId: string;
@@ -32,26 +32,28 @@ export interface PlannedImageAsset {
 }
 
 export interface ImageAssetPlan {
-  schema: 'website-bot.image-asset-plan/v1';
+  schema: "website-bot.image-asset-plan/v1";
   version: string;
   assets: PlannedImageAsset[];
 }
 
 /** Required slots the plan could not satisfy from any allowed source. */
 export function unresolvedRequiredSlots(plan: ImageAssetPlan): PlannedImageAsset[] {
-  return plan.assets.filter(asset => asset.required && asset.resolution.source === 'unresolved');
+  return plan.assets.filter((asset) => asset.required && asset.resolution.source === "unresolved");
 }
 
-const RESOLUTION_SOURCES = new Set(['provided', 'source-site', 'generated', 'unresolved']);
+const RESOLUTION_SOURCES = new Set(["provided", "source-site", "generated", "unresolved"]);
 
 /** Assert an object is a structurally valid image asset plan (persisted evidence). */
 export function validateImageAssetPlan(value: unknown): asserts value is ImageAssetPlan {
-  if (!value || typeof value !== 'object') throw new Error('image asset plan must be an object');
+  if (!value || typeof value !== "object") throw new Error("image asset plan must be an object");
   const plan = value as Partial<ImageAssetPlan>;
-  if (plan.schema !== 'website-bot.image-asset-plan/v1' || !plan.version) throw new Error('image asset plan identity is invalid');
-  if (!Array.isArray(plan.assets)) throw new Error('image asset plan assets must be an array');
+  if (plan.schema !== "website-bot.image-asset-plan/v1" || !plan.version)
+    throw new Error("image asset plan identity is invalid");
+  if (!Array.isArray(plan.assets)) throw new Error("image asset plan assets must be an array");
   for (const asset of plan.assets) {
-    if (!asset.slotId || !asset.placement) throw new Error('image asset plan entry identity is invalid');
+    if (!asset.slotId || !asset.placement)
+      throw new Error("image asset plan entry identity is invalid");
     if (!asset.resolution || !RESOLUTION_SOURCES.has(asset.resolution.source)) {
       throw new Error(`invalid resolution source for ${asset.slotId}`);
     }

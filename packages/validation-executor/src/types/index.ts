@@ -3,47 +3,47 @@
  * Based on the comprehensive validation specification
  */
 
-export type PreflightStatus = 
-  | 'Passed' 
-  | 'Failed' 
-  | 'Error' 
-  | 'Timeout' 
-  | 'Blocked' 
-  | 'AuthoritativelySkipped' 
-  | 'NotExecuted' 
-  | 'Unknown';
+export type PreflightStatus =
+  | "Passed"
+  | "Failed"
+  | "Error"
+  | "Timeout"
+  | "Blocked"
+  | "AuthoritativelySkipped"
+  | "NotExecuted"
+  | "Unknown";
 
-export type E2EStatus = 
-  | 'Passed' 
-  | 'Failed' 
-  | 'Error' 
-  | 'Timeout' 
-  | 'BlockedByPreflightGate' 
-  | 'BlockedByAuthoritativeFailFast' 
-  | 'Blocked' 
-  | 'AuthoritativelySkipped' 
-  | 'NotExecuted' 
-  | 'Unknown';
+export type E2EStatus =
+  | "Passed"
+  | "Failed"
+  | "Error"
+  | "Timeout"
+  | "BlockedByPreflightGate"
+  | "BlockedByAuthoritativeFailFast"
+  | "Blocked"
+  | "AuthoritativelySkipped"
+  | "NotExecuted"
+  | "Unknown";
 
-export type FinalVerdict = 'PASS' | 'FAIL' | 'INCOMPLETE';
+export type FinalVerdict = "PASS" | "FAIL" | "INCOMPLETE";
 
-export type ValidationGateStatus = 'Passed' | 'Failed' | 'Unknown';
+export type ValidationGateStatus = "Passed" | "Failed" | "Unknown";
 
-export type PrimaryFailureClassification = 
-  | 'PreflightFailure'
-  | 'AssertionFailure'
-  | 'ApplicationRuntimeFailure'
-  | 'RunnerFailure'
-  | 'DependencyFailure'
-  | 'CredentialFailure'
-  | 'ConfigurationDefect'
-  | 'EnvironmentFailure'
-  | 'AccessFailure'
-  | 'Timeout'
-  | 'Regression'
-  | 'Blocked'
-  | 'AuthoritativelySkipped'
-  | 'Unknown';
+export type PrimaryFailureClassification =
+  | "PreflightFailure"
+  | "AssertionFailure"
+  | "ApplicationRuntimeFailure"
+  | "RunnerFailure"
+  | "DependencyFailure"
+  | "CredentialFailure"
+  | "ConfigurationDefect"
+  | "EnvironmentFailure"
+  | "AccessFailure"
+  | "Timeout"
+  | "Regression"
+  | "Blocked"
+  | "AuthoritativelySkipped"
+  | "Unknown";
 
 export interface ExecutionContext {
   target_roots: string[];
@@ -121,9 +121,9 @@ export interface ValidationExecutionReport {
     duration: number;
     last_completed_stage: string;
   };
-  
+
   execution_context: ExecutionContext;
-  
+
   authority_sources: Array<{
     source: string;
     revision_or_version: string;
@@ -131,7 +131,7 @@ export interface ValidationExecutionReport {
     precedence: number;
     verification_status: string;
   }>;
-  
+
   discovery_inventory: {
     preflight_checks: PreflightCheck[];
     e2e_suites: string[];
@@ -141,7 +141,7 @@ export interface ValidationExecutionReport {
     inventory_sources: string[];
     inventory_status: string;
   };
-  
+
   preflight_summary: {
     discovered: number;
     executable: number;
@@ -158,9 +158,9 @@ export interface ValidationExecutionReport {
     blocking_passed: number;
     gate_status: ValidationGateStatus;
   };
-  
+
   preflight_results: PreflightCheck[];
-  
+
   preflight_gate: {
     status: ValidationGateStatus;
     blocking_failures: string[];
@@ -168,7 +168,7 @@ export interface ValidationExecutionReport {
     e2e_authorized: boolean;
     decision_evidence: string[];
   };
-  
+
   e2e_summary: {
     discovered_suites: number;
     discovered_required_tests: number;
@@ -187,9 +187,9 @@ export interface ValidationExecutionReport {
     runner_crashes: number;
     gate_status: ValidationGateStatus;
   };
-  
+
   e2e_results: E2ETestResult[];
-  
+
   coverage_reconciliation: {
     preflight_discovered_total: number;
     preflight_accounted_total: number;
@@ -202,7 +202,7 @@ export interface ValidationExecutionReport {
     unaccounted_items: string[];
     status: string;
   };
-  
+
   root_cause_groups: Array<{
     group_id: string;
     primary_cause: string;
@@ -210,7 +210,7 @@ export interface ValidationExecutionReport {
     affected_result_ids: string[];
     evidence_references: string[];
   }>;
-  
+
   defects: Array<{
     defect_id: string;
     category: string;
@@ -223,7 +223,7 @@ export interface ValidationExecutionReport {
     contributing_causes: string[];
     evidence_references: string[];
   }>;
-  
+
   regressions: Array<{
     regression_id: string;
     affected_component: string;
@@ -235,7 +235,7 @@ export interface ValidationExecutionReport {
     confidence: string;
     evidence_references: string[];
   }>;
-  
+
   unknowns: Array<{
     unknown_id: string;
     item: string;
@@ -244,7 +244,7 @@ export interface ValidationExecutionReport {
     affected_results: string[];
     minimum_resolution_evidence: string;
   }>;
-  
+
   evidence_manifest: Array<{
     evidence_id: string;
     evidence_type: string;
@@ -253,7 +253,7 @@ export interface ValidationExecutionReport {
     redaction_status: string;
     availability_status: string;
   }>;
-  
+
   validation_gates: {
     execution_context_resolved: ValidationGate;
     authoritative_inventory_resolved: ValidationGate;
@@ -273,7 +273,7 @@ export interface ValidationExecutionReport {
     report_schema_valid: ValidationGate;
     overall_validation_run: ValidationGate;
   };
-  
+
   final_verdict: {
     status: FinalVerdict;
     preflight_status: string;
@@ -285,7 +285,7 @@ export interface ValidationExecutionReport {
     unknown_count: number;
     verdict_reason: string;
   };
-  
+
   minimum_safe_next_action: {
     action: string;
     blocker_or_failure: string;
@@ -310,7 +310,10 @@ export interface RepositoryAdapter {
   resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext>;
   discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]>;
   discoverE2ETests(profile?: string): Promise<E2ETestDefinition[]>;
-  executeCommand(command: string, workingDir: string): Promise<{
+  executeCommand(
+    command: string,
+    workingDir: string,
+  ): Promise<{
     exitCode: number;
     stdout: string;
     stderr: string;

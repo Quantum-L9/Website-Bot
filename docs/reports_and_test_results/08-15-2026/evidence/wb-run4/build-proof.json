@@ -1,0 +1,77 @@
+{
+  "assembly_manifest_sha256": "3f05ef5f8504d04046ab4d172ffb31162c3574670d2bc18c9f3d47165eb9e352",
+  "build_command": ["npm", "run", "build"],
+  "build_id": "safehavenrr-1786876188151",
+  "built_routes": [
+    "/",
+    "/about",
+    "/contact",
+    "/faq",
+    "/gallery",
+    "/guides",
+    "/insurance-claims",
+    "/privacy",
+    "/service-areas",
+    "/services",
+    "/services/asphalt-shingles",
+    "/services/flat-roofing",
+    "/services/gutters",
+    "/services/interior-renovations",
+    "/services/metal-roofing",
+    "/services/outdoor-living",
+    "/services/roof-inspection",
+    "/services/roof-installation",
+    "/services/roof-repair",
+    "/services/roof-replacement",
+    "/services/siding-fascia-soffit",
+    "/services/storm-damage",
+    "/guides/how-long-roof-replacement-takes-charlotte",
+    "/guides/how-to-choose-roofing-contractor-charlotte",
+    "/guides/metal-roof-vs-shingles-charlotte",
+    "/guides/repair-or-replace-roof-charlotte",
+    "/guides/roof-replacement-cost-charlotte",
+    "/guides/storm-damage-roof-repair-charlotte",
+    "/service-areas/charlotte"
+  ],
+  "check_command": ["npm", "run", "check"],
+  "checks": [
+    {
+      "duration_ms": 15805,
+      "name": "install",
+      "status": "passed"
+    },
+    {
+      "duration_ms": 3903,
+      "name": "astro-check",
+      "status": "passed"
+    },
+    {
+      "duration_ms": 1214,
+      "name": "astro-build",
+      "status": "passed"
+    },
+    {
+      "duration_ms": 0,
+      "name": "route-assertion",
+      "status": "passed"
+    },
+    {
+      "duration_ms": 0,
+      "name": "sitemap-assertion",
+      "status": "passed"
+    }
+  ],
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T10:36:40.748Z",
+  "dist_digest": "fda43251b8da17c2f228086b597b0fc44c32733d9022e3c32357595c0c34456c",
+  "dist_dir": "/Users/macm2/Website-Bot/build/sites/safehavenrr/dist",
+  "install_command": ["npm", "install", "--no-audit", "--no-fund"],
+  "package_manager": "npm",
+  "package_manager_version": "11.10.1",
+  "proof_id": "build_f79717d1d9651115ca5652cd581d8b7a",
+  "schema": "website-bot.build-proof/v2",
+  "source_digest": "6c596b785b6fe1ba506526716301c36fe126a99ca0ee3b05662086f2d6301e60",
+  "source_dir": "/Users/macm2/Website-Bot/build/sites/safehavenrr",
+  "started_at": "2026-08-16T10:36:19.671Z",
+  "status": "passed"
+}

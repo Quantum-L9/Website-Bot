@@ -1,7 +1,9 @@
 <!-- L9_META: layer=documentation, role=tracked_file, status=active, version=1.0.0 -->
 # Website-Bot Change Summary
 
-This overlay consolidates P-A through P-F and adds the Release Evidence Spine required by handoff v3.
+This overlay consolidates the factory spine (template, assemble, local `astro build`
+gate, per-client publish/deploy, handoff) and the Release Evidence Spine required
+by handoff v3. Automated per-client provisioning (P-F) remains deferred (ADR-0007).
 
 ## Material changes
 

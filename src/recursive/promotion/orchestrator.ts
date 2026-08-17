@@ -5,10 +5,11 @@
 // SHA. A single merge limit and the exact merge-SHA receipt are enforced.
 // NOTE: this program run never executes these remote operations (DEC-001);
 // the simulation drives the same code against a local bare repository.
-import { execTrusted } from '../exec.js';
-import { sha256Text } from '../../services/hashing.js';
-import type { PEPack } from '../contracts/types.js';
-import type { VerifierReceipt } from '../verifier/verifier.js';
+
+import { sha256Text } from "../../services/hashing.js";
+import type { PEPack } from "../contracts/types.js";
+import { execTrusted } from "../exec.js";
+import type { VerifierReceipt } from "../verifier/verifier.js";
 
 export interface PromotionAdapter {
   branchExists(branch: string): boolean;
@@ -22,7 +23,7 @@ export interface PromotionAdapter {
 }
 
 export interface MergeReceipt {
-  schema: 'l9.recursive.merge-receipt/v1';
+  schema: "l9.recursive.merge-receipt/v1";
   pePackId: string;
   prId: string;
   branch: string;
@@ -34,7 +35,7 @@ export interface MergeReceipt {
   mergedAt: string;
 }
 
-export const MERGE_RECEIPT_SCHEMA = 'l9.recursive.merge-receipt/v1';
+export const MERGE_RECEIPT_SCHEMA = "l9.recursive.merge-receipt/v1";
 
 export class PromotionOrchestrator {
   constructor(private readonly adapter: PromotionAdapter) {}
@@ -70,11 +71,11 @@ export class PromotionOrchestrator {
     verifierReceipt: VerifierReceipt;
     prId: string;
   }): MergeReceipt {
-    if (input.verifierReceipt.verdict !== 'PASS') {
+    if (input.verifierReceipt.verdict !== "PASS") {
       throw new Error(`merge refused: verifier verdict is ${input.verifierReceipt.verdict}`);
     }
     if (!this.adapter.checksPassed(input.prId)) {
-      throw new Error('merge refused: required checks have not passed');
+      throw new Error("merge refused: required checks have not passed");
     }
     const mergeHeadSha = this.adapter.mergeHeadSha(input.prId);
     if (mergeHeadSha !== input.verifierReceipt.verifiedPatchSha) {
@@ -84,7 +85,9 @@ export class PromotionOrchestrator {
     }
     const mergedSha = this.adapter.merge(input.prId);
     if (mergedSha !== mergeHeadSha) {
-      throw new Error(`merge result ${mergedSha} does not match verified merge head ${mergeHeadSha}`);
+      throw new Error(
+        `merge result ${mergedSha} does not match verified merge head ${mergeHeadSha}`,
+      );
     }
     return {
       schema: MERGE_RECEIPT_SCHEMA,
@@ -106,12 +109,12 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
   constructor(private readonly remoteUrl: string) {}
 
   private run(args: string[]): string {
-    return execTrusted('git', args).trim();
+    return execTrusted("git", args).trim();
   }
 
   branchExists(branch: string): boolean {
     try {
-      const output = this.run(['ls-remote', '--heads', this.remoteUrl, branch]);
+      const output = this.run(["ls-remote", "--heads", this.remoteUrl, branch]);
       return output.length > 0;
     } catch {
       return false;
@@ -127,7 +130,7 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
   }
 
   createBranch(branch: string, base: string): void {
-    this.run(['-C', this.remoteUrl.replace(/^file:\/\//, ''), 'branch', branch, base]);
+    this.run(["-C", this.remoteUrl.replace(/^file:\/\//, ""), "branch", branch, base]);
   }
 
   createPr(branch: string, _base: string, _title: string, _body: string): string {
@@ -139,25 +142,28 @@ export class LocalGitPromotionAdapter implements PromotionAdapter {
   }
 
   mergeHeadSha(prId: string): string {
-    const branch = prId.replace(/^pr:/, '');
-    return this.run(['ls-remote', this.remoteUrl, `refs/heads/${branch}`]).split(/\s+/)[0];
+    const branch = prId.replace(/^pr:/, "");
+    return this.run(["ls-remote", this.remoteUrl, `refs/heads/${branch}`]).split(/\s+/)[0];
   }
 
   merge(prId: string): string {
     // A bare repository has no work tree, so the merge is performed the way a
     // hosting service does: prove the verified head is a fast-forward of main
     // and advance the ref. Any other shape is refused.
-    const remotePath = this.remoteUrl.replace(/^file:\/\//, '');
+    const remotePath = this.remoteUrl.replace(/^file:\/\//, "");
     const verified = this.mergeHeadSha(prId);
-    if (!verified) throw new Error('merge refused: branch head missing');
-    const mainHead = this.run(['ls-remote', this.remoteUrl, 'refs/heads/main']).split(/\s+/)[0];
+    if (!verified) throw new Error("merge refused: branch head missing");
+    const mainHead = this.run(["ls-remote", this.remoteUrl, "refs/heads/main"]).split(/\s+/)[0];
     try {
       // merge-base --is-ancestor exits 0 when mainHead is an ancestor of verified.
-      execTrusted('git', ['-C', remotePath, 'merge-base', '--is-ancestor', mainHead, verified], { encoding: 'utf-8', stdio: 'ignore' });
+      execTrusted("git", ["-C", remotePath, "merge-base", "--is-ancestor", mainHead, verified], {
+        encoding: "utf-8",
+        stdio: "ignore",
+      });
     } catch {
-      throw new Error('merge refused: verified head is not a fast-forward of main');
+      throw new Error("merge refused: verified head is not a fast-forward of main");
     }
-    this.run(['-C', remotePath, 'update-ref', 'refs/heads/main', verified]);
-    return this.run(['-C', remotePath, 'rev-parse', 'refs/heads/main']);
+    this.run(["-C", remotePath, "update-ref", "refs/heads/main", verified]);
+    return this.run(["-C", remotePath, "rev-parse", "refs/heads/main"]);
   }
 }

@@ -1,25 +1,32 @@
 // L9_META: layer=stage, role=release_receipt_emitter, stage_index=12, status=active, version=2.1.0
-import { createModuleLogger } from '../core/logger.js';
-import { BuildError } from '../pipeline/BuildError.js';
-import type { BuildContext } from '../pipeline/BuildContext.js';
-import type { Stage } from '../pipeline/PipelineRunner.js';
-import { sha256Text } from '../pipeline/evidence/EvidenceCanonicalizer.js';
-import { recordToReference } from '../pipeline/evidence/EvidenceReference.js';
-import type { ReleaseGate, ReleaseReceipt } from '../pipeline/evidence/ReleaseReceipt.js';
+import { createModuleLogger } from "../core/logger.js";
+import type { BuildContext } from "../pipeline/BuildContext.js";
+import { BuildError } from "../pipeline/BuildError.js";
+import { sha256Text } from "../pipeline/evidence/EvidenceCanonicalizer.js";
+import { recordToReference } from "../pipeline/evidence/EvidenceReference.js";
+import type { ReleaseGate, ReleaseReceipt } from "../pipeline/evidence/ReleaseReceipt.js";
+import type { Stage } from "../pipeline/PipelineRunner.js";
 
-const logger = createModuleLogger('stage:release-receipt');
+const logger = createModuleLogger("stage:release-receipt");
 
 export class ReleaseReceiptStage implements Stage {
-  name = 'release-receipt';
-  version = '2.1.0';
+  name = "release-receipt";
+  version = "2.1.0";
   evidence = {
     inputs: (ctx: BuildContext) => {
-      if (ctx.mode === 'end-to-end') return ['assembly' as const, 'build' as const, 'publication' as const, 'deployment' as const];
-      if (ctx.mode === 'publish-proof') return ['assembly' as const, 'build' as const, 'publication' as const];
-      if (ctx.mode === 'local-proof') return ['assembly' as const, 'build' as const];
+      if (ctx.mode === "end-to-end")
+        return [
+          "assembly" as const,
+          "build" as const,
+          "publication" as const,
+          "deployment" as const,
+        ];
+      if (ctx.mode === "publish-proof")
+        return ["assembly" as const, "build" as const, "publication" as const];
+      if (ctx.mode === "local-proof") return ["assembly" as const, "build" as const];
       return [];
     },
-    outputs: (ctx: BuildContext) => ctx.mode === 'plan' ? [] : ['release' as const],
+    outputs: (ctx: BuildContext) => (ctx.mode === "plan" ? [] : ["release" as const]),
     resumable: true,
     externalMutation: false,
   };
@@ -27,51 +34,58 @@ export class ReleaseReceiptStage implements Stage {
   constructor(private readonly now: () => Date = () => new Date()) {}
 
   async run(ctx: BuildContext): Promise<void> {
-    if (ctx.mode === 'plan' || ctx.dryRun) {
-      logger.info('[plan] Release receipt is not persisted because no release evidence exists');
+    if (ctx.mode === "plan" || ctx.dryRun) {
+      logger.info("[plan] Release receipt is not persisted because no release evidence exists");
       return;
     }
 
     const assembly = await ctx.evidenceStore.readAssembly();
-    if (!assembly) throw new BuildError('EVIDENCE_REFERENCE_MISSING', 'Release receipt requires assembly evidence');
+    if (!assembly)
+      throw new BuildError(
+        "EVIDENCE_REFERENCE_MISSING",
+        "Release receipt requires assembly evidence",
+      );
     const build = await ctx.evidenceStore.readBuild();
     const publication = await ctx.evidenceStore.readPublication();
     const deployment = await ctx.evidenceStore.readDeployment();
 
     const missingGates: ReleaseGate[] = [];
-    if (!build) missingGates.push('local_build');
-    if (ctx.mode === 'local-proof') missingGates.push('github_publication', 'vercel_deployment');
-    if (ctx.mode === 'publish-proof') missingGates.push('vercel_deployment');
-    if (ctx.mode === 'end-to-end') missingGates.push('visual_qa');
+    if (!build) missingGates.push("local_build");
+    if (ctx.mode === "local-proof") missingGates.push("github_publication", "vercel_deployment");
+    if (ctx.mode === "publish-proof") missingGates.push("vercel_deployment");
+    if (ctx.mode === "end-to-end") missingGates.push("visual_qa");
 
     const identitiesMatch = Boolean(
-      build?.value.buildId === assembly.value.buildId
-      && build.value.clientId === assembly.value.clientId
-      && build.value.sourceDigest === assembly.value.sourceDigest
-      && build.value.assemblyManifestSha256 === assembly.record.sha256
-      && (!publication || (
-        publication.value.buildProofId === build.value.proofId
-        && publication.value.buildProofSha256 === build.record.sha256
-        && publication.value.sourceDigest === build.value.sourceDigest
-      ))
-      && (!deployment || (
-        publication
-        && deployment.value.publicationId === publication.value.publicationId
-        && deployment.value.publicationSha256 === publication.record.sha256
-        && deployment.value.requestedCommitSha === publication.value.commitSha
-        && deployment.value.observedCommitSha === publication.value.commitSha
-      )),
+      build?.value.buildId === assembly.value.buildId &&
+        build.value.clientId === assembly.value.clientId &&
+        build.value.sourceDigest === assembly.value.sourceDigest &&
+        build.value.assemblyManifestSha256 === assembly.record.sha256 &&
+        (!publication ||
+          (publication.value.buildProofId === build.value.proofId &&
+            publication.value.buildProofSha256 === build.record.sha256 &&
+            publication.value.sourceDigest === build.value.sourceDigest)) &&
+        (!deployment ||
+          (publication &&
+            deployment.value.publicationId === publication.value.publicationId &&
+            deployment.value.publicationSha256 === publication.record.sha256 &&
+            deployment.value.requestedCommitSha === publication.value.commitSha &&
+            deployment.value.observedCommitSha === publication.value.commitSha)),
     );
 
-    const seed = [ctx.buildId, assembly.value.sourceDigest, publication?.value.commitSha ?? '', deployment?.value.deploymentId ?? ''].join('\0');
+    const seed = [
+      ctx.buildId,
+      assembly.value.sourceDigest,
+      publication?.value.commitSha ?? "",
+      deployment?.value.deploymentId ?? "",
+    ].join("\0");
     const createdAt = this.now().toISOString();
     const receipt: ReleaseReceipt = {
-      schema: 'website-bot.release-receipt/v2',
+      schema: "website-bot.release-receipt/v2",
       receipt_id: `receipt_${sha256Text(seed).slice(0, 32)}`,
       build_id: ctx.buildId,
       client_id: ctx.clientId,
       mode: ctx.mode,
-      status: 'partial',
+      status: "partial",
       missing_gates: [...new Set(missingGates)],
       evidence: {
         assembly: recordToReference(assembly.record),
@@ -96,6 +110,9 @@ export class ReleaseReceiptStage implements Stage {
     const record = await ctx.evidenceStore.writeReleaseReceipt(receipt);
     ctx.releaseReceipt = receipt;
     ctx.releaseReceiptPath = `${ctx.evidenceStore.rootDir}/${record.relativePath}`;
-    logger.info({ receiptId: receipt.receipt_id, missingGates: receipt.missing_gates }, 'Partial release receipt persisted');
+    logger.info(
+      { receiptId: receipt.receipt_id, missingGates: receipt.missing_gates },
+      "Partial release receipt persisted",
+    );
   }
 }

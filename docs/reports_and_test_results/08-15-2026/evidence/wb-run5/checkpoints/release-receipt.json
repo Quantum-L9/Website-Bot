@@ -1,0 +1,38 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786876760654",
+  "client_id": "safehavenrr",
+  "completed_at": "2026-08-16T10:45:08.948Z",
+  "input_digest": "eb1585785bab2bc956a6fd2c6ef8148d0fde0693bab8cc72c7884f4da93e58c2",
+  "input_evidence": [
+    {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786876760654:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "ff4496fa490a9f9b0574c391b356b626ce20de475bda0f051599fe8fce9efb36"
+    },
+    {
+      "kind": "build",
+      "logical_id": "build_2ec25daf5c34e291fb1f91646c7644f5",
+      "relative_path": "build-proof.json",
+      "schema": "website-bot.build-proof/v2",
+      "sha256": "d504bf6b5bf059a181443d77d8c58892e93b28b7740c82046806e7b9862080a3"
+    }
+  ],
+  "output_digest": "65af84344a168e87c62f2cc83df6e330bcaf925df347fc4b0afa3f292a00d4ae",
+  "output_evidence": [
+    {
+      "kind": "release",
+      "logical_id": "receipt_e652cc2f226e0ac2c6d5602703fb4ae9",
+      "relative_path": "release-receipt.json",
+      "schema": "website-bot.release-receipt/v2",
+      "sha256": "50975f7c8d89def96bf56942b4fb4c5d075befb46ef985c751e9691c94f1d268"
+    }
+  ],
+  "schema": "website-bot.stage-checkpoint/v2",
+  "stage": "release-receipt",
+  "stage_version": "2.1.0",
+  "started_at": "2026-08-16T10:45:08.930Z",
+  "status": "passed"
+}

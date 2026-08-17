@@ -1,0 +1,1702 @@
+[
+  {
+    "url": "https://www.safehavenrr.com/",
+    "finalUrl": "https://www.safehavenrr.com/",
+    "status": 200,
+    "error": null,
+    "title": "Safe Haven Roofing &amp; Renovations — Charlotte, NC Roofing Contractor",
+    "metaDescription": "Fully insured roofing contractor serving Charlotte, NC and nearby towns. Roof replacement, repair, storm damage, and insurance-claim documentation. Free inspection.",
+    "canonical": "https://www.safehavenrr.com/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Safe Haven Roofing &amp; Renovations"],
+    "h2": [
+      "Services",
+      "Hail and wind damage is often invisible from the ground.",
+      "Your roof is covered two ways",
+      "Service Areas",
+      "FAQ",
+      "Get a Quote"
+    ],
+    "h3": [
+      "Roof Replacement",
+      "Roof Repair",
+      "Roof Installation",
+      "Roof Inspection",
+      "Asphalt Shingle Roofing",
+      "Metal Roofing",
+      "Flat Roofing",
+      "Storm Damage &amp; Insurance Documentation",
+      "Gutters &amp; Downspouts",
+      "Siding, Fascia &amp; Soffit",
+      "Interior Renovations",
+      "Outdoor Living &amp; Hardscape",
+      "Manufacturer material warranty",
+      "5-year workmanship warranty",
+      "What you need",
+      "Roof details",
+      "Photos (optional)",
+      "Your info"
+    ],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 48,
+    "forms": 1,
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "website",
+        "required": false
+      },
+      {
+        "tag": "select",
+        "type": "select",
+        "name": null,
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "active-leak",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "active-leak",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "property-type",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "property-type",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "name": "photos",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "name",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "tel",
+        "name": "phone",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "email",
+        "name": "email",
+        "required": false
+      },
+      {
+        "tag": "select",
+        "type": "select",
+        "name": null,
+        "required": false
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "name": "description",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "name": "consent",
+        "required": false
+      }
+    ],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Services",
+      "Hail and wind damage is often invisible from the ground.",
+      "Your roof is covered two ways",
+      "Service Areas",
+      "FAQ",
+      "Get a Quote"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services",
+    "finalUrl": "https://www.safehavenrr.com/services/",
+    "status": 200,
+    "error": null,
+    "title": "Our Services | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Roofing, gutters, siding, storm damage, and renovation services in Charlotte, NC and surrounding towns. Fully insured, free inspection.",
+    "canonical": "https://www.safehavenrr.com/services/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Our Services"],
+    "h2": [
+      "Roof Replacement",
+      "Roof Repair",
+      "Roof Installation",
+      "Roof Inspection",
+      "Asphalt Shingle Roofing",
+      "Metal Roofing",
+      "Flat Roofing",
+      "Storm Damage &amp; Insurance Documentation",
+      "Gutters &amp; Downspouts",
+      "Siding, Fascia &amp; Soffit",
+      "Interior Renovations",
+      "Outdoor Living &amp; Hardscape",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 44,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Roof Replacement",
+      "Roof Repair",
+      "Roof Installation",
+      "Roof Inspection",
+      "Asphalt Shingle Roofing",
+      "Metal Roofing",
+      "Flat Roofing",
+      "Storm Damage &amp; Insurance Documentation",
+      "Gutters &amp; Downspouts",
+      "Siding, Fascia &amp; Soffit",
+      "Interior Renovations",
+      "Outdoor Living &amp; Hardscape",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/roof-replacement",
+    "finalUrl": "https://www.safehavenrr.com/services/roof-replacement/",
+    "status": 200,
+    "error": null,
+    "title": "Roof Replacement in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Full roof replacement in Charlotte, NC and surrounding towns. Durable materials, fully insured crews, 5-year workmanship warranty, free inspection. Call Safe Haven Roofing.",
+    "canonical": "https://www.safehavenrr.com/services/roof-replacement/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roof Replacement in Charlotte, NC"],
+    "h2": [
+      "A stronger roof, installed right the first time",
+      "What a Safe Haven replacement includes",
+      "How it works",
+      "Roof Replacement — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/roof-replacement.jpg",
+        "alt": "Roof Replacement in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "A stronger roof, installed right the first time",
+      "What a Safe Haven replacement includes",
+      "How it works",
+      "Roof Replacement — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/roof-repair",
+    "finalUrl": "https://www.safehavenrr.com/services/roof-repair/",
+    "status": 200,
+    "error": null,
+    "title": "Roof Repair in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Roof repair services in Charlotte, NC — leaks, shingles, flashing, and emergency repairs. Fully insured, honest assessments, free inspection. Call Safe Haven Roofing.",
+    "canonical": "https://www.safehavenrr.com/services/roof-repair/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roof Repair in Charlotte, NC"],
+    "h2": [
+      "Repairs that fix the actual problem",
+      "When repairs can’t wait",
+      "How it works",
+      "Roof Repair — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/roof-repair.jpg",
+        "alt": "Roof Repair in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Repairs that fix the actual problem",
+      "When repairs can’t wait",
+      "How it works",
+      "Roof Repair — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/roof-installation",
+    "finalUrl": "https://www.safehavenrr.com/services/roof-installation/",
+    "status": 200,
+    "error": null,
+    "title": "Roof Installation in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Roof installation services in Charlotte, NC. Asphalt, metal, or flat roofing, fully insured crews, 5-year workmanship warranty, free inspection. Call Safe Haven Roofing.",
+    "canonical": "https://www.safehavenrr.com/services/roof-installation/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roof Installation in Charlotte, NC"],
+    "h2": [
+      "A new roofing system, built for Charlotte weather",
+      "Material options and what’s included",
+      "How it works",
+      "Roof Installation — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/roof-installation.jpg",
+        "alt": "Roof Installation in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "A new roofing system, built for Charlotte weather",
+      "Material options and what’s included",
+      "How it works",
+      "Roof Installation — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/roof-inspection",
+    "finalUrl": "https://www.safehavenrr.com/services/roof-inspection/",
+    "status": 200,
+    "error": null,
+    "title": "Roof Inspection in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Roof inspection services in Charlotte, NC for home purchases, storm damage, and annual maintenance. Clear photo reports, free inspection. Call Safe Haven Roofing.",
+    "canonical": "https://www.safehavenrr.com/services/roof-inspection/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roof Inspection in Charlotte, NC"],
+    "h2": [
+      "A clear picture of your roof’s condition",
+      "When to schedule an inspection",
+      "How it works",
+      "Roof Inspection — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/roof-inspection.jpg",
+        "alt": "Roof Inspection in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "A clear picture of your roof’s condition",
+      "When to schedule an inspection",
+      "How it works",
+      "Roof Inspection — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/storm-damage",
+    "finalUrl": "https://www.safehavenrr.com/services/storm-damage/",
+    "status": 200,
+    "error": null,
+    "title": "Storm Damage Repair in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Storm damage roof repair in Charlotte, NC. Fast response, emergency tarping, free inspection, and photo-documented reports for your insurance. Call Safe Haven Roofing.",
+    "canonical": "https://www.safehavenrr.com/services/storm-damage/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Storm Damage Roof Repair in Charlotte, NC"],
+    "h2": [
+      "Fast help after the storm",
+      "Our role in your insurance claim",
+      "How it works",
+      "Storm Damage &amp; Insurance Documentation — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 37,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/storm-damage.jpg",
+        "alt": "Storm Damage Roof Repair in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Fast help after the storm",
+      "Our role in your insurance claim",
+      "How it works",
+      "Storm Damage &amp; Insurance Documentation — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/asphalt-shingles",
+    "finalUrl": "https://www.safehavenrr.com/services/asphalt-shingles/",
+    "status": 200,
+    "error": null,
+    "title": "Asphalt Shingles in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Asphalt shingle roofing in Charlotte, NC. GAF, CertainTeed, and Atlas shingles, fully insured installation, 5-year workmanship warranty, free inspection.",
+    "canonical": "https://www.safehavenrr.com/services/asphalt-shingles/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Asphalt Shingle Roofing in Charlotte, NC"],
+    "h2": [
+      "Shingles built for Carolina weather",
+      "What’s included",
+      "How it works",
+      "Asphalt Shingle Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/services/asphalt-shingles.jpg",
+        "alt": "Asphalt Shingle Roofing in Charlotte, NC"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Shingles built for Carolina weather",
+      "What’s included",
+      "How it works",
+      "Asphalt Shingle Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/metal-roofing",
+    "finalUrl": "https://www.safehavenrr.com/services/metal-roofing/",
+    "status": 200,
+    "error": null,
+    "title": "Metal Roofing in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Metal roofing in Charlotte, NC — standing seam and corrugated panels. Fully insured crews, 5-year workmanship warranty, free inspection.",
+    "canonical": "https://www.safehavenrr.com/services/metal-roofing/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Metal Roofing in Charlotte, NC"],
+    "h2": [
+      "Metal roofing built to last decades",
+      "What’s included",
+      "How it works",
+      "Metal Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Metal roofing built to last decades",
+      "What’s included",
+      "How it works",
+      "Metal Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/flat-roofing",
+    "finalUrl": "https://www.safehavenrr.com/services/flat-roofing/",
+    "status": 200,
+    "error": null,
+    "title": "Flat Roofing in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Flat roofing in Charlotte, NC — TPO, EPDM, and modified bitumen systems. Fully insured installation, 5-year workmanship warranty, free inspection.",
+    "canonical": "https://www.safehavenrr.com/services/flat-roofing/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Flat Roofing in Charlotte, NC"],
+    "h2": [
+      "Flat roofing systems that manage water and last",
+      "What’s included",
+      "How it works",
+      "Flat Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Flat roofing systems that manage water and last",
+      "What’s included",
+      "How it works",
+      "Flat Roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/gutters",
+    "finalUrl": "https://www.safehavenrr.com/services/gutters/",
+    "status": 200,
+    "error": null,
+    "title": "Gutters &amp; Downspouts in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Seamless gutter installation, repair, and gutter guards in Charlotte, NC. Protect your foundation from water damage. Fully insured, free inspection. Call today.",
+    "canonical": "https://www.safehavenrr.com/services/gutters/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Gutter Installation &amp; Repair in Charlotte, NC"],
+    "h2": [
+      "Water management that actually protects your home",
+      "Protecting your foundation and landscaping",
+      "How it works",
+      "Gutters &amp; Downspouts — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Water management that actually protects your home",
+      "Protecting your foundation and landscaping",
+      "How it works",
+      "Gutters &amp; Downspouts — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/siding-fascia-soffit",
+    "finalUrl": "https://www.safehavenrr.com/services/siding-fascia-soffit/",
+    "status": 200,
+    "error": null,
+    "title": "Siding, Fascia &amp; Soffit in Charlotte, NC | Safe Haven",
+    "metaDescription": "Siding repair, fascia and soffit repair, and ventilation fixes in Charlotte, NC. Fully insured crews, free inspection. Call Safe Haven Roofing &amp; Renovations.",
+    "canonical": "https://www.safehavenrr.com/services/siding-fascia-soffit/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Siding, Fascia &amp; Soffit Repair in Charlotte, NC"],
+    "h2": [
+      "Siding, fascia, and soffit that protect the whole exterior",
+      "Protecting your home’s exterior, and what’s behind it",
+      "How it works",
+      "Siding, Fascia &amp; Soffit — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Siding, fascia, and soffit that protect the whole exterior",
+      "Protecting your home’s exterior, and what’s behind it",
+      "How it works",
+      "Siding, Fascia &amp; Soffit — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/interior-renovations",
+    "finalUrl": "https://www.safehavenrr.com/services/interior-renovations/",
+    "status": 200,
+    "error": null,
+    "title": "Interior Renovations in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Drywall repair, painting, flooring, and water-damage restoration in Charlotte, NC. Fully insured crews, free inspection. Call Safe Haven Roofing &amp; Renovations.",
+    "canonical": "https://www.safehavenrr.com/services/interior-renovations/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Interior Renovations in Charlotte, NC"],
+    "h2": [
+      "Interior repairs and updates done right",
+      "When interior damage started outside",
+      "How it works",
+      "Interior Renovations — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Interior repairs and updates done right",
+      "When interior damage started outside",
+      "How it works",
+      "Interior Renovations — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/services/outdoor-living",
+    "finalUrl": "https://www.safehavenrr.com/services/outdoor-living/",
+    "status": 200,
+    "error": null,
+    "title": "Outdoor Living &amp; Hardscape in Charlotte, NC | Safe Haven",
+    "metaDescription": "Deck, patio, fence, and retaining wall construction in Charlotte, NC. Custom outdoor living spaces built to last. Fully insured, free inspection. Call today.",
+    "canonical": "https://www.safehavenrr.com/services/outdoor-living/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Outdoor Living &amp; Hardscape in Charlotte, NC"],
+    "h2": [
+      "Outdoor spaces built to actually get used",
+      "Built for how you’ll use it",
+      "How it works",
+      "Outdoor Living &amp; Hardscape — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 36,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Outdoor spaces built to actually get used",
+      "Built for how you’ll use it",
+      "How it works",
+      "Outdoor Living &amp; Hardscape — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/service-areas",
+    "finalUrl": "https://www.safehavenrr.com/service-areas/",
+    "status": 200,
+    "error": null,
+    "title": "Service Areas — Charlotte, NC &amp; Nearby | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Safe Haven Roofing serves Charlotte, NC and surrounding towns: Charlotte, Gastonia, Belmont, Lake Wylie, Mount Holly, Huntersville, Lowell, Weddington, and more. Fully insured, free inspection.",
+    "canonical": "https://www.safehavenrr.com/service-areas/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Serving Charlotte, NC & the surrounding towns"],
+    "h2": ["Get your free inspection"],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 33,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["Get your free inspection"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/insurance-claims",
+    "finalUrl": "https://www.safehavenrr.com/insurance-claims/",
+    "status": 200,
+    "error": null,
+    "title": "Insurance Claims Help — Storm Damage | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "How Safe Haven Roofing documents storm damage for your insurance claim in Charlotte, NC: free inspection, photo documentation, a detailed estimate, and meeting your adjuster on-site. Free inspection.",
+    "canonical": "https://www.safehavenrr.com/insurance-claims/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Insurance claims, made clearer"],
+    "h2": ["How it works", "Storm damage? Start with a free inspection."],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 33,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["How it works", "Storm damage? Start with a free inspection."]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides",
+    "finalUrl": "https://www.safehavenrr.com/guides/",
+    "status": 200,
+    "error": null,
+    "title": "Roofing Guides — Charlotte, NC | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Straight answers on roof replacement, storm damage, and repairs for Charlotte, NC homeowners. Free inspections, fully insured.",
+    "canonical": "https://www.safehavenrr.com/guides/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Charlotte roofing, explained"],
+    "h2": ["Get your free inspection"],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 38,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["Get your free inspection"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/gallery",
+    "finalUrl": "https://www.safehavenrr.com/gallery/",
+    "status": 200,
+    "error": null,
+    "title": "Our Work — Roofing Photos | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Photos of completed roofing and renovation work by Safe Haven Roofing in Charlotte, NC.",
+    "canonical": "https://www.safehavenrr.com/gallery/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Our Work"],
+    "h2": ["Before &amp; After", "Get your free inspection"],
+    "h3": ["Recent work"],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 32,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/gallery/job-1.jpg",
+        "alt": "Safe Haven Roofing crew replacing a roof, old shingles torn off to the decking"
+      },
+      {
+        "src": "/images/gallery/job-2.jpg",
+        "alt": "Aerial view of a roof replacement in progress with new underlayment and the landscaping tarped"
+      },
+      {
+        "src": "/images/gallery/job-3.jpg",
+        "alt": "Completed gray shingle roof on a large tan-brick home in the Charlotte, NC area"
+      },
+      {
+        "src": "/images/gallery/job-4.jpg",
+        "alt": "New roof on a brick two-story home with front columns near Charlotte, NC"
+      },
+      {
+        "src": "/images/gallery/job-5.jpg",
+        "alt": "Fresh gray asphalt shingle roof on a brick home with a manicured lawn"
+      },
+      {
+        "src": "/images/gallery/job-6.jpg",
+        "alt": "Completed shingle roof on a brick two-story home on an autumn day"
+      },
+      {
+        "src": "/images/gallery/job-7.jpg",
+        "alt": "Gray shingle roof on a single-story brick ranch home with a red maple in front"
+      },
+      {
+        "src": "/images/gallery/job-8.jpg",
+        "alt": "Completed roof on a light-colored ranch-style home in the Charlotte, NC area"
+      },
+      {
+        "src": "/images/gallery/job-9.jpg",
+        "alt": "Safe Haven Roofing yard sign in front of a completed brick-home roofing project"
+      },
+      {
+        "src": "/images/gallery/job-10.jpg",
+        "alt": "Rear view of a brick home with a completed gray roof overlooking a pool patio"
+      },
+      {
+        "src": "",
+        "alt": ""
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["Before &amp; After", "Get your free inspection"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/about",
+    "finalUrl": "https://www.safehavenrr.com/about/",
+    "status": 200,
+    "error": null,
+    "title": "About — Charlotte, NC Roofing Contractor | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Safe Haven Roofing &amp; Renovations — a local, fully insured roofing and renovation team serving Charlotte, NC for six years. Roofing, storm damage, gutters, siding, and more.",
+    "canonical": "https://www.safehavenrr.com/about/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Who We Are"],
+    "h2": ["What we do", "Get your free inspection"],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 32,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["What we do", "Get your free inspection"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/faq",
+    "finalUrl": "https://www.safehavenrr.com/faq/",
+    "status": 200,
+    "error": null,
+    "title": "FAQ — Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Answers to common questions about Safe Haven Roofing: free inspections, insurance, shingle brands, service areas, and warranty. Charlotte, NC.",
+    "canonical": "https://www.safehavenrr.com/faq/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Frequently Asked Questions"],
+    "h2": ["Get your free inspection"],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "FAQPage"],
+    "internalLinkCount": 32,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["Get your free inspection"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/contact",
+    "finalUrl": "https://www.safehavenrr.com/contact/",
+    "status": 200,
+    "error": null,
+    "title": "Contact &amp; Free Inspection | Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "Contact Safe Haven Roofing in Charlotte, NC for a free inspection. Call, text, or request your inspection online.",
+    "canonical": "https://www.safehavenrr.com/contact/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Free Inspection"],
+    "h2": ["Get a Quote"],
+    "h3": ["What you need", "Roof details", "Photos (optional)", "Your info"],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 33,
+    "forms": 1,
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "website",
+        "required": false
+      },
+      {
+        "tag": "select",
+        "type": "select",
+        "name": null,
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "storm-claim",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "active-leak",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "active-leak",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "property-type",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "property-type",
+        "required": true
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-age",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "roof-type",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "timeframe",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "name": "photos",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "name": "name",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "tel",
+        "name": "phone",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "email",
+        "name": "email",
+        "required": false
+      },
+      {
+        "tag": "select",
+        "type": "select",
+        "name": null,
+        "required": false
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "name": "description",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "contact",
+        "required": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "name": "consent",
+        "required": false
+      }
+    ],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": ["Get a Quote"]
+  },
+  {
+    "url": "https://www.safehavenrr.com/privacy",
+    "finalUrl": "https://www.safehavenrr.com/privacy/",
+    "status": 200,
+    "error": null,
+    "title": "Privacy Policy — Safe Haven Roofing &amp; Renovations",
+    "metaDescription": "How Safe Haven Roofing &amp; Renovations collects, uses, and protects the information you share through our website and quote form.",
+    "canonical": "https://www.safehavenrr.com/privacy/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Privacy Policy"],
+    "h2": [
+      "Information we collect",
+      "How we use it",
+      "Service providers",
+      "How long we keep it",
+      "Your choices",
+      "Children's privacy",
+      "Changes to this policy",
+      "Contact us"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor"],
+    "internalLinkCount": 32,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Information we collect",
+      "How we use it",
+      "Service providers",
+      "How long we keep it",
+      "Your choices",
+      "Children's privacy",
+      "Changes to this policy",
+      "Contact us"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/service-areas/charlotte",
+    "finalUrl": "https://www.safehavenrr.com/service-areas/charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "Roofing in Charlotte, NC | Safe Haven Roofing",
+    "metaDescription": "Charlotte, NC roofing: storm &amp; hail damage repair, full replacements, and free inspections. Fully insured, six years local. Call for a free inspection.",
+    "canonical": "https://www.safehavenrr.com/service-areas/charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roofing in Charlotte, NC"],
+    "h2": [
+      "Your Charlotte roofing company",
+      "Storm and hail damage in Charlotte",
+      "Roof replacement and repair for Charlotte homes",
+      "Working with your insurance after a storm",
+      "Permits and building code in Charlotte",
+      "The towns around Charlotte we serve",
+      "Storm season in Charlotte",
+      "Recent work near Charlotte",
+      "Permits & code in Charlotte",
+      "Charlotte roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 39,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/gallery/job-3.jpg",
+        "alt": "Roofing in Charlotte, NC"
+      },
+      {
+        "src": "/images/gallery/job-4.jpg",
+        "alt": "New roof on a brick two-story home with front columns near Charlotte, NC"
+      },
+      {
+        "src": "/images/gallery/job-8.jpg",
+        "alt": "Completed roof on a light-colored ranch-style home in the Charlotte, NC area"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Your Charlotte roofing company",
+      "Storm and hail damage in Charlotte",
+      "Roof replacement and repair for Charlotte homes",
+      "Working with your insurance after a storm",
+      "Permits and building code in Charlotte",
+      "The towns around Charlotte we serve",
+      "Storm season in Charlotte",
+      "Recent work near Charlotte",
+      "Permits & code in Charlotte",
+      "Charlotte roofing — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/repair-or-replace-roof-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/repair-or-replace-roof-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "Repair or Replace Your Roof? | Charlotte, NC",
+    "metaDescription": "Not sure whether to repair or replace your Charlotte roof? The signs that point to each — age, damage, leaks — and how to decide. Free inspection.",
+    "canonical": "https://www.safehavenrr.com/guides/repair-or-replace-roof-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Repair or Replace Your Roof? A Charlotte Guide"],
+    "h2": [
+      "The repair-or-replace question",
+      "When a repair makes sense",
+      "When it’s time to replace",
+      "Roof age and what it means",
+      "How we help you decide",
+      "Get a free Charlotte roof inspection",
+      "Do I Need a New Roof or a Repair? — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 42,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "The repair-or-replace question",
+      "When a repair makes sense",
+      "When it’s time to replace",
+      "Roof age and what it means",
+      "How we help you decide",
+      "Get a free Charlotte roof inspection",
+      "Do I Need a New Roof or a Repair? — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/how-long-roof-replacement-takes-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/how-long-roof-replacement-takes-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "How Long Does a Roof Replacement Take? | Charlotte",
+    "metaDescription": "What decides how long a Charlotte roof replacement takes — size, pitch, tear-off, decking, weather, permits — and how to get a real timeline.",
+    "canonical": "https://www.safehavenrr.com/guides/how-long-roof-replacement-takes-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["How Long Does a Roof Replacement Take?"],
+    "h2": [
+      "Why a day count is the wrong question",
+      "Roof size and complexity",
+      "Tear-off and what’s underneath",
+      "Weather and permits in Charlotte",
+      "Getting a real timeline for your roof",
+      "Get a free Charlotte roof inspection",
+      "How Long Does a Roof Replacement Take? — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 41,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Why a day count is the wrong question",
+      "Roof size and complexity",
+      "Tear-off and what’s underneath",
+      "Weather and permits in Charlotte",
+      "Getting a real timeline for your roof",
+      "Get a free Charlotte roof inspection",
+      "How Long Does a Roof Replacement Take? — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/how-to-choose-roofing-contractor-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/how-to-choose-roofing-contractor-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "How to Choose a Roofing Contractor | Charlotte NC",
+    "metaDescription": "What to ask before hiring a Charlotte roofer — proof of insurance, a written scope, real warranty terms, and the storm-chaser red flags to watch.",
+    "canonical": "https://www.safehavenrr.com/guides/how-to-choose-roofing-contractor-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["How to Choose a Roofing Contractor in Charlotte"],
+    "h2": [
+      "Ask for proof of insurance",
+      "Get the scope in writing",
+      "Ask what the warranty actually covers",
+      "Watch out for storm chasers",
+      "Local track record matters",
+      "Get a free Charlotte roof inspection",
+      "How to Choose a Roofing Contractor — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 41,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Ask for proof of insurance",
+      "Get the scope in writing",
+      "Ask what the warranty actually covers",
+      "Watch out for storm chasers",
+      "Local track record matters",
+      "Get a free Charlotte roof inspection",
+      "How to Choose a Roofing Contractor — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/metal-roof-vs-shingles-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/metal-roof-vs-shingles-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "Metal Roof vs. Shingles in Charlotte, NC",
+    "metaDescription": "Metal or asphalt shingles for your Charlotte roof? How each handles our hail, heat, and storms — lifespan, looks, upkeep. Free inspection.",
+    "canonical": "https://www.safehavenrr.com/guides/metal-roof-vs-shingles-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Metal Roof vs. Asphalt Shingles in Charlotte"],
+    "h2": [
+      "What actually separates the two",
+      "How long each lasts in our climate",
+      "How each handles hail and wind",
+      "Noise, looks, and the myths",
+      "Which one makes sense for your home",
+      "Get a free Charlotte roof inspection",
+      "Metal Roof vs. Asphalt Shingles — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 42,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "What actually separates the two",
+      "How long each lasts in our climate",
+      "How each handles hail and wind",
+      "Noise, looks, and the myths",
+      "Which one makes sense for your home",
+      "Get a free Charlotte roof inspection",
+      "Metal Roof vs. Asphalt Shingles — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/roof-replacement-cost-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/roof-replacement-cost-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "Roof Replacement Cost in Charlotte, NC | Safe Haven",
+    "metaDescription": "What drives roof replacement cost in Charlotte, NC — roof size, pitch, material, tear-off, and permits — plus how to get one clear, free quote.",
+    "canonical": "https://www.safehavenrr.com/guides/roof-replacement-cost-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Roof Replacement Cost in Charlotte, NC"],
+    "h2": [
+      "What goes into a roof replacement price",
+      "What we find underneath",
+      "Repair or replace?",
+      "If a storm caused the damage",
+      "Why we don’t post a price",
+      "Get your free Charlotte roof quote",
+      "Roof Replacement Cost in Charlotte, NC — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 45,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "What goes into a roof replacement price",
+      "What we find underneath",
+      "Repair or replace?",
+      "If a storm caused the damage",
+      "Why we don’t post a price",
+      "Get your free Charlotte roof quote",
+      "Roof Replacement Cost in Charlotte, NC — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  },
+  {
+    "url": "https://www.safehavenrr.com/guides/storm-damage-roof-repair-charlotte",
+    "finalUrl": "https://www.safehavenrr.com/guides/storm-damage-roof-repair-charlotte/",
+    "status": 200,
+    "error": null,
+    "title": "Storm &amp; Hail Damage Roof Repair | Charlotte, NC",
+    "metaDescription": "Hail or wind damage your Charlotte roof? We inspect, document the damage, and can meet your adjuster on-site. Fully insured, free inspection.",
+    "canonical": "https://www.safehavenrr.com/guides/storm-damage-roof-repair-charlotte/",
+    "robots": null,
+    "lang": "en",
+    "h1": ["Storm &amp; Hail Damage Roof Repair in Charlotte"],
+    "h2": [
+      "Hail and wind damage in Charlotte",
+      "What storm damage actually looks like",
+      "What to do right after a storm",
+      "How we help with your insurance",
+      "Repair or replace after a storm?",
+      "Get a free storm inspection in Charlotte",
+      "Storm &amp; Hail Damage Roof Repair in Charlotte — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ],
+    "h3": [],
+    "jsonLdTypes": ["RoofingContractor", "?"],
+    "internalLinkCount": 43,
+    "forms": 0,
+    "inputs": [],
+    "images": [
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      },
+      {
+        "src": "/images/logo.webp",
+        "alt": "Safe Haven Roofing &amp; Renovations"
+      }
+    ],
+    "h2s": [
+      "Hail and wind damage in Charlotte",
+      "What storm damage actually looks like",
+      "What to do right after a storm",
+      "How we help with your insurance",
+      "Repair or replace after a storm?",
+      "Get a free storm inspection in Charlotte",
+      "Storm &amp; Hail Damage Roof Repair in Charlotte — FAQ",
+      "Related services",
+      "Get your free inspection"
+    ]
+  }
+]

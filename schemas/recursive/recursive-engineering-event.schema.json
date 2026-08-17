@@ -5,8 +5,16 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "eventId", "eventType", "recursiveRunId", "wave",
-    "correlationId", "causationId", "source", "occurredAt", "evidenceRefs"
+    "schema",
+    "eventId",
+    "eventType",
+    "recursiveRunId",
+    "wave",
+    "correlationId",
+    "causationId",
+    "source",
+    "occurredAt",
+    "evidenceRefs"
   ],
   "$defs": {
     "artifactRef": {
@@ -25,9 +33,15 @@
     "eventId": { "type": "string", "minLength": 1 },
     "eventType": {
       "enum": [
-        "e2e.completed", "engineering_harvest.completed", "pe_pack.ready",
-        "verification.completed", "pr.merged", "deployment.succeeded",
-        "deployment.failed", "rollback.completed", "wave.completed"
+        "e2e.completed",
+        "engineering_harvest.completed",
+        "pe_pack.ready",
+        "verification.completed",
+        "pr.merged",
+        "deployment.succeeded",
+        "deployment.failed",
+        "rollback.completed",
+        "wave.completed"
       ]
     },
     "recursiveRunId": { "type": "string", "minLength": 1 },

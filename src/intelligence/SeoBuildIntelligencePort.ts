@@ -5,7 +5,7 @@ import type {
   StructuredContentPackageArtifact,
   VerifiedBusinessFact,
   WebsiteBuildBlueprintArtifact,
-} from '@quantum-l9/bot-interop';
+} from "@quantum-l9/bot-interop";
 
 export interface CompetitiveLandscapeRequest {
   client_id: string;
@@ -14,7 +14,7 @@ export interface CompetitiveLandscapeRequest {
     niche: string;
     country: string;
     language: string;
-    device: 'desktop' | 'mobile';
+    device: "desktop" | "mobile";
     location_name?: string;
   };
   seed_queries: string[];
@@ -71,7 +71,7 @@ export function assertWebsiteBlueprintLandscape(
   const actual = websiteBlueprint.payload.competitive_landscape_ref.artifact_id;
   if (actual !== expected) {
     throw new Error(
-      'INTEL_INPUT_HASH_MISMATCH: WebsiteBuildBlueprint references a different CompetitiveLandscape.',
+      "INTEL_INPUT_HASH_MISMATCH: WebsiteBuildBlueprint references a different CompetitiveLandscape.",
     );
   }
 }

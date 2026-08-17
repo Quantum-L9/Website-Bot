@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "assembly": {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872912633:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "531abfd53d179c60847d93b906c0490bcf8f4e6986d0b28bb61220cd001160bf",
+      "written_at": "2026-08-16T10:28:20.764Z"
+    },
+    "build": {
+      "kind": "build",
+      "logical_id": "build_d7f42a6da5fb0083bc047c4c7e228351",
+      "relative_path": "build-proof.json",
+      "schema": "website-bot.build-proof/v2",
+      "sha256": "94c3770041adc447dda4a2d05663f00085706913a2f204b6e591eb16596c4de4",
+      "written_at": "2026-08-16T10:28:25.853Z"
+    },
+    "release": {
+      "kind": "release",
+      "logical_id": "receipt_a4acadd3abb43fad27418ee2d5780c84",
+      "relative_path": "release-receipt.json",
+      "schema": "website-bot.release-receipt/v2",
+      "sha256": "d8a5f2069fc7c36cbcdd593b297d2ea5a0df338e6116f8584ef2c60d0eb3f4a8",
+      "written_at": "2026-08-16T10:28:25.895Z"
+    }
+  },
+  "build_id": "safehavenrr-1786872912633",
+  "chain_status": "released",
+  "client_id": "safehavenrr",
+  "created_at": "2026-08-16T09:35:12.633Z",
+  "failure_history": [
+    {
+      "kind": "failure",
+      "logical_id": "safehavenrr-1786872912633:failure",
+      "relative_path": "failures/content-generation-1-20260816T102115810Z.json",
+      "schema": "website-bot.stage-failure/v2",
+      "sha256": "a00c97c4ed0280d781b6bbad2427480b36ccfa503ff770a0c6a7158ccea7e515",
+      "written_at": "2026-08-16T10:21:15.837Z"
+    }
+  ],
+  "last_successful_stage": "terminal-convergence",
+  "mode": "local-proof",
+  "revision": 30,
+  "schema": "website-bot.evidence-index/v2",
+  "updated_at": "2026-08-16T10:28:25.935Z"
+}

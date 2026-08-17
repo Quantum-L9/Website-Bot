@@ -8,7 +8,7 @@ export function assertEnvRef(value: string, field: string): void {
 
 export function resolveEnvRef(value: string, field: string): string {
   assertEnvRef(value, field);
-  const key = value.slice('env://'.length);
+  const key = value.slice("env://".length);
   const resolved = process.env[key];
   if (!resolved) throw new Error(`${field} references unset environment variable ${key}`);
   return resolved;

@@ -1,0 +1,40 @@
+{
+  "artifacts": {
+    "assembly": {
+      "kind": "assembly",
+      "logical_id": "safehavenrr-1786872462750:assembly",
+      "relative_path": "assembly-manifest.json",
+      "schema": "website-bot.assembly-manifest/v2",
+      "sha256": "28f83e4acd7a8f257fbe3fe8627528e49f505263d4649f249c6f9e6ec15353b7",
+      "written_at": "2026-08-16T09:34:02.565Z"
+    },
+    "failure": {
+      "kind": "failure",
+      "logical_id": "safehavenrr-1786872462750:failure",
+      "relative_path": "failures/site-build-1-20260816T093406425Z.json",
+      "schema": "website-bot.stage-failure/v2",
+      "sha256": "7d135f2c2d1ac1172e978588293b8161c389d5b2c483d0bbf80c58fb662529c5",
+      "written_at": "2026-08-16T09:34:06.444Z"
+    }
+  },
+  "build_id": "safehavenrr-1786872462750",
+  "chain_status": "failed",
+  "client_id": "safehavenrr",
+  "created_at": "2026-08-16T09:27:42.751Z",
+  "failed_stage": "site-build",
+  "failure_history": [
+    {
+      "kind": "failure",
+      "logical_id": "safehavenrr-1786872462750:failure",
+      "relative_path": "failures/site-build-1-20260816T093406425Z.json",
+      "schema": "website-bot.stage-failure/v2",
+      "sha256": "7d135f2c2d1ac1172e978588293b8161c389d5b2c483d0bbf80c58fb662529c5",
+      "written_at": "2026-08-16T09:34:06.444Z"
+    }
+  ],
+  "last_successful_stage": "posthog-snippet",
+  "mode": "local-proof",
+  "revision": 16,
+  "schema": "website-bot.evidence-index/v2",
+  "updated_at": "2026-08-16T09:34:06.444Z"
+}

@@ -1,19 +1,33 @@
 <!-- L9_META: layer=template, role=gallery_section, status=active, version=1.0.0 -->
 ---
-import { siteConfig } from '../../lib/siteConfig';
-interface Props { name?: string; content?: string; }
-const { name = 'gallery', content = '' } = Astro.props;
-const gallery = siteConfig.galleryImages ?? [];
-const paragraphs = content.split(/\n{2,}/).map(value => value.trim().replace(/\*\*/g, '')).filter(Boolean);
+import { siteConfig } from "../../lib/siteConfig";
+
+interface Props {
+  name?: string;
+  content?: string;
+}
+const { name = "gallery", content = "" } = Astro.props;
+// siteConfig is emitted `as const`, so an empty galleryImages becomes `never[]`
+// in text-only builds; the explicit element type keeps .map() well-typed.
+type GalleryImage = { src: string; alt: string; width: number; height: number; source?: string };
+const gallery: readonly GalleryImage[] = siteConfig.galleryImages ?? [];
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim().replace(/\*\*/g, ""))
+  .filter(Boolean);
 ---
 {gallery.length > 0 && (
   <section class="gallery" data-section={name}>
     <h2>{paragraphs[0] || 'Our Work'}</h2>
     {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
     <div class="gallery-grid">
-      {gallery.map(image => (
+      {gallery.slice(0, 7).map(image => (
         <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
       ))}
+      <a class="gallery-cta" href="/gallery">
+        <span>See all our work</span>
+        <span aria-hidden="true">→</span>
+      </a>
     </div>
   </section>
 )}

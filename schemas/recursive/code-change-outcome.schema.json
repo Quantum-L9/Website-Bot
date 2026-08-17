@@ -5,7 +5,14 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "outcomeId", "pePackRef", "code", "diff", "validation", "causalResult", "verdict"
+    "schema",
+    "outcomeId",
+    "pePackRef",
+    "code",
+    "diff",
+    "validation",
+    "causalResult",
+    "verdict"
   ],
   "$defs": {
     "artifactRef": {
@@ -57,7 +64,14 @@
     "validation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["originating", "controls", "disconfirm", "protectedHoldout", "repositoryCI", "semanticArtifactDiff"],
+      "required": [
+        "originating",
+        "controls",
+        "disconfirm",
+        "protectedHoldout",
+        "repositoryCI",
+        "semanticArtifactDiff"
+      ],
       "properties": {
         "originating": { "$ref": "#/$defs/validationSetResult" },
         "controls": { "$ref": "#/$defs/validationSetResult" },
@@ -68,8 +82,11 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "expectedChangedArtifacts", "observedChangedArtifacts",
-            "expectedUnchangedArtifacts", "unexpectedlyChangedArtifacts", "verdict"
+            "expectedChangedArtifacts",
+            "observedChangedArtifacts",
+            "expectedUnchangedArtifacts",
+            "unexpectedlyChangedArtifacts",
+            "verdict"
           ],
           "properties": {
             "expectedChangedArtifacts": { "type": "array", "items": { "type": "string" } },
@@ -113,8 +130,14 @@
     },
     "verdict": {
       "enum": [
-        "PASS", "FAIL_TARGET", "FAIL_CONTROL", "FAIL_DISCONFIRM",
-        "FAIL_HOLDOUT", "FAIL_BLAST_RADIUS", "FAIL_CI", "FAIL_SCOPE"
+        "PASS",
+        "FAIL_TARGET",
+        "FAIL_CONTROL",
+        "FAIL_DISCONFIRM",
+        "FAIL_HOLDOUT",
+        "FAIL_BLAST_RADIUS",
+        "FAIL_CI",
+        "FAIL_SCOPE"
       ]
     }
   }

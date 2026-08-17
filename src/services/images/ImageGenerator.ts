@@ -6,7 +6,7 @@
 // a specific provider. The future router migration swaps the implementation
 // behind this interface without touching any consumer.
 
-export type ImageSizeHint = '1K' | '2K' | '4K';
+export type ImageSizeHint = "1K" | "2K" | "4K";
 
 export interface ReferenceImage {
   mimeType: string;
@@ -42,12 +42,12 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
  * be exercised without external services or credentials.
  */
 export class FakeImageGenerator implements ImageGenerator {
-  constructor(private readonly model = 'fake-image-generator') {}
+  constructor(private readonly model = "fake-image-generator") {}
 
   async generate(request: ImageGenerationRequest): Promise<ImageGenerationResult> {
     return {
       bytes: this.encodePng(),
-      mimeType: 'image/png',
+      mimeType: "image/png",
       model: this.model,
       estimatedCostUsd: 0,
     };
@@ -56,10 +56,10 @@ export class FakeImageGenerator implements ImageGenerator {
   private encodePng(): Buffer {
     // Minimal valid 1x1 opaque PNG. Static content keeps fake generations stable.
     const base64 =
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-    const buffer = Buffer.from(base64, 'base64');
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const buffer = Buffer.from(base64, "base64");
     if (!PNG_SIGNATURE.every((value, index) => buffer[index] === value)) {
-      throw new Error('FakeImageGenerator produced an invalid PNG');
+      throw new Error("FakeImageGenerator produced an invalid PNG");
     }
     return buffer;
   }

@@ -22,3 +22,9 @@ coverage/
 
 # L9 governance runtime state (memory receipts/locks) — not source
 .l9/
+
+# Local secrets and Claude Code machine overrides — never commit
+.env
+.env.local
+.env.*.local
+.claude/settings.local.json

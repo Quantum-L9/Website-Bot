@@ -1,0 +1,87 @@
+// L9_META: layer=intelligence, role=seo_bot_http_client, status=active, version=1.0.0
+import {
+  assertIntelligenceArtifactIntegrity,
+  type CompetitiveLandscapeArtifact,
+  type SEOContentBlueprintArtifact,
+  type StructuredContentPackageArtifact,
+} from "@quantum-l9/bot-interop";
+import type {
+  CompetitiveLandscapeRequest,
+  SEOContentBlueprintRequest,
+  SeoBuildIntelligencePort,
+  StructuredContentRequest,
+} from "./SeoBuildIntelligencePort.js";
+
+/**
+ * HTTP transport for the SEO-Bot build-time intelligence seam
+ * (l9.website-intelligence/v1). Authenticates with the shared machine secret
+ * (SEO_BOT_API_KEY), which SEO-Bot accepts on /api/build-intelligence/*.
+ * Every response is re-validated against the sealed-artifact integrity contract.
+ */
+export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort {
+  constructor(
+    private readonly baseUrl: string,
+    private readonly apiKey: string,
+    private readonly fetchImpl: typeof fetch = fetch,
+  ) {}
+
+  private async post<T>(path: string, body: unknown): Promise<T> {
+    const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(120_000),
+    });
+    const raw = await response.text();
+    if (!response.ok) {
+      throw new Error(
+        `SEO-Bot intelligence ${path} failed (${response.status}): ${raw.slice(0, 500)}`,
+      );
+    }
+    return JSON.parse(raw) as T;
+  }
+
+  async createCompetitiveLandscape(
+    request: CompetitiveLandscapeRequest,
+  ): Promise<CompetitiveLandscapeArtifact> {
+    // Port carries plain seed queries; the API schema wants {query, intent} per
+    // seed. Default intent is commercial (lead-gen factory context).
+    const artifact = await this.post<CompetitiveLandscapeArtifact>(
+      "/api/build-intelligence/competitive-landscape",
+      {
+        client_id: request.client_id,
+        build_id: request.build_id,
+        market: request.market,
+        seed_queries: request.seed_queries.map((query) => ({ query, intent: "commercial" })),
+        desired_donor_count: request.desired_donor_count,
+      },
+    );
+    assertIntelligenceArtifactIntegrity(artifact);
+    return artifact;
+  }
+
+  async createSEOContentBlueprint(
+    request: SEOContentBlueprintRequest,
+  ): Promise<SEOContentBlueprintArtifact> {
+    const artifact = await this.post<SEOContentBlueprintArtifact>(
+      "/api/build-intelligence/seo-content-blueprint",
+      request,
+    );
+    assertIntelligenceArtifactIntegrity(artifact);
+    return artifact;
+  }
+
+  async createStructuredContent(
+    request: StructuredContentRequest,
+  ): Promise<StructuredContentPackageArtifact> {
+    const artifact = await this.post<StructuredContentPackageArtifact>(
+      "/api/build-intelligence/structured-content",
+      request,
+    );
+    assertIntelligenceArtifactIntegrity(artifact);
+    return artifact;
+  }
+}
