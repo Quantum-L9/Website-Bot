@@ -149,7 +149,50 @@ export interface WebsiteBuildBlueprintV1 {
     persistent_mobile_action: boolean;
   };
   routes: WebsiteBlueprintRoute[];
+  /**
+   * Blueprint-owned visual requirement intent (Campaign 7 R11).
+   * The blueprint defines WHY and WHERE imagery is needed; asset planning
+   * only selects WHICH eligible asset satisfies each requirement.
+   */
+  visual_requirements: VisualRequirement[];
   acceptance_tests: string[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Visual requirements (blueprint-owned imagery intent)               */
+/* ------------------------------------------------------------------ */
+export const VISUAL_ROLES = [
+  "hero",
+  "project_proof",
+  "gallery",
+  "service",
+  "team",
+  "trust",
+  "process",
+  "material",
+  "background",
+  "logo",
+  "badge",
+  "decorative",
+] as const;
+export type VisualRole = (typeof VISUAL_ROLES)[number];
+
+export type VisualProvenance = "source" | "licensed" | "generated";
+
+export interface VisualRequirement {
+  requirement_id: string;
+  /** Route the imagery serves; "global" for site-wide assets such as the logo. */
+  route_id: string;
+  /** Blueprint section the imagery belongs to; "global" for site-wide assets. */
+  section_id: string;
+  slot_id: string;
+  role: VisualRole;
+  required: boolean;
+  min_count: number;
+  /** Ordered asset-source preference; authorized source assets outrank generation. */
+  preferred_provenance: VisualProvenance[];
+  device_suitability: Array<"desktop" | "mobile">;
+  composition_guidance?: string;
 }
 
 export interface WebsiteBlueprintRoute {

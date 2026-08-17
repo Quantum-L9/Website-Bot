@@ -43,20 +43,28 @@ function statePath(runId: string, relative: string): string {
 
 async function writeSourceSpec(runId: string, sourceUrl: string): Promise<string> {
   const { parse, stringify } = await import("yaml");
-  const fixture = readFileSync(resolve("fixtures/ci-test-spec.yaml"), "utf-8");
-  const spec = parse(fixture) as Record<string, unknown>;
-  const assets = (spec.assets ?? {}) as Record<string, unknown>;
-  const sourceSite = (assets.sourceSite ?? {}) as Record<string, unknown>;
-  spec.client_id = process.env.CLIENT_ID ?? "recursive-client";
-  spec.seo_contract = {
-    ...(spec.seo_contract as Record<string, unknown>),
-    site_url: new URL(sourceUrl).hostname,
-  };
-  assets.sourceSite = { ...sourceSite, url: sourceUrl, enabled: true, maxPages: 3, maxDepth: 1 };
-  spec.assets = assets;
+  // Campaign 7 R1: recursive:improve IS the redesign product path. The
+  // builder binds build_intent=REDESIGN_IMPROVE explicitly, before any
+  // FactoryExecutionPlan construction, and fails closed if the intent is lost.
+  const { buildRedesignRunSpec, redesignDeployTargetFromEnv } = await import(
+    "../../src/recursive/redesign-spec.js"
+  );
+  // The base spec is selectable so a real client seam run (e.g. Safe Haven)
+  // carries its true market keywords/routes instead of CI placeholders.
+  const fixturePath = process.env.REDESIGN_SPEC_FIXTURE ?? "fixtures/ci-test-spec.yaml";
+  const spec = buildRedesignRunSpec({
+    fixtureYaml: readFileSync(resolve(fixturePath), "utf-8"),
+    sourceUrl,
+    clientId: process.env.CLIENT_ID ?? "recursive-client",
+    deploy: redesignDeployTargetFromEnv(process.env),
+  });
   const path = statePath(runId, "domain-spec.yaml");
   mkdirSync(resolve(path, ".."), { recursive: true });
   writeFileSync(path, stringify(spec), "utf-8");
+  // Re-read proof: the sealed on-disk run spec must still carry the intent.
+  const { requireRedesignIntent } = await import("../../src/pipeline/BuildIntent.js");
+  const sealed = parse(readFileSync(path, "utf-8")) as Record<string, unknown>;
+  requireRedesignIntent(sealed.build_intent, "recursive:improve sealed run spec");
   return path;
 }
 
@@ -64,7 +72,14 @@ async function runRealE2E(specPath: string, runId: string): Promise<void> {
   console.error(`[recursive] running real E2E with spec ${specPath}`);
   const result = spawnSync(
     process.execPath,
-    ["--import", "tsx", "scripts/run-pipeline.ts", "--mode=end-to-end", `--spec=${specPath}`],
+    [
+      "--import",
+      "tsx",
+      "scripts/run-pipeline.ts",
+      "--mode=end-to-end",
+      "--redesign",
+      `--spec=${specPath}`,
+    ],
     { stdio: "inherit", env: { ...process.env, PATH: TRUSTED_PATH } },
   );
   const report = {

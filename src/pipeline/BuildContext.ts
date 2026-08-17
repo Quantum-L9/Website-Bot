@@ -1,6 +1,13 @@
 // L9_META: layer=pipeline, role=context_carrier, status=active, version=3.0.0
 import { resolve } from "node:path";
-import type { WebsiteBuildBlueprintArtifact } from "@quantum-l9/bot-interop";
+import type {
+  CompetitiveLandscapeArtifact,
+  PageContentContractArtifact,
+  SEOContentBlueprintArtifact,
+  StructuredContentPackageArtifact,
+  WebsiteBuildBlueprintArtifact,
+} from "@quantum-l9/bot-interop";
+import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import type { BuildIntent } from "./BuildIntent.js";
@@ -177,6 +184,28 @@ export interface BuildContext {
   qualityEvidence: QualityEvidence;
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
+  /**
+   * Redesign authority chain (Campaign 7). Populated only under
+   * REDESIGN_IMPROVE; every artifact is lineage-checked before use and the
+   * counters prove the deterministic/zero-LLM invariants at runtime.
+   */
+  competitiveLandscape?: CompetitiveLandscapeArtifact;
+  acceptedDonors?: AcceptedDonorEvidence[];
+  seoContentBlueprint?: SEOContentBlueprintArtifact;
+  pageContentContract?: PageContentContractArtifact;
+  structuredContentPackage?: StructuredContentPackageArtifact;
+  redesignCounters?: {
+    pageContentContractLlmCalls: number;
+    legacyContentGenerationCalls: number;
+    redesignSchemaLlmCalls: number;
+  };
+  /** SELECTED / REJECTED ledger for every discovered reusable source asset (R12). */
+  sourceAssetDecisions?: Array<{
+    assetPath: string;
+    decision: "SELECTED" | "REJECTED";
+    reason: string;
+    slotId?: string;
+  }>;
   distDir?: string;
   deployTarget?: DeployTarget;
   deploymentUrl?: string;

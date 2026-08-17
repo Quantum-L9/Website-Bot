@@ -12,6 +12,9 @@ import { ImageValidationStage } from "../stages/ImageValidationStage.js";
 import { PlaceholderScanStage } from "../stages/PlaceholderScanStage.js";
 import { PostHogSnippetStage } from "../stages/PostHogSnippetStage.js";
 import { ProvisionClientStage } from "../stages/ProvisionClientStage.js";
+import { RedesignContentAuthorityStage } from "../stages/RedesignContentAuthorityStage.js";
+import { RedesignIntegrityReceiptStage } from "../stages/RedesignIntegrityReceiptStage.js";
+import { RedesignSchemaSerializerStage } from "../stages/RedesignSchemaSerializerStage.js";
 import { ReleaseReceiptFinalizerStage } from "../stages/ReleaseReceiptFinalizerStage.js";
 import { ReleaseReceiptStage } from "../stages/ReleaseReceiptStage.js";
 import { SchemaGeneratorStage } from "../stages/SchemaGeneratorStage.js";
@@ -19,6 +22,7 @@ import { SEOBaselineStage } from "../stages/SEOBaselineStage.js";
 import { SiteAssemblerStage } from "../stages/SiteAssemblerStage.js";
 import { SiteBuildStage } from "../stages/SiteBuildStage.js";
 import { SourceSiteIngestionStage } from "../stages/SourceSiteIngestionStage.js";
+import { StructuredContentProjectionStage } from "../stages/StructuredContentProjectionStage.js";
 import { UnknownResolverStage } from "../stages/UnknownResolverStage.js";
 import { VercelDeployStage } from "../stages/VercelDeployStage.js";
 import { VisualQAStage } from "../stages/VisualQAStage.js";
@@ -189,11 +193,37 @@ export class TerminalConvergenceStage implements Stage {
   }
 }
 
+/**
+ * Campaign 7: under REDESIGN_IMPROVE the legacy content/schema authorities
+ * are replaced (not merely asked to "do less") and the redesign intelligence
+ * stages become mandatory — skipping them or falling back to the COPY
+ * topology cannot satisfy redesign convergence.
+ */
+const REDESIGN_ADDED_MANDATORY = [
+  "competitive-intelligence",
+  "redesign-content-authority",
+  "structured-content-projection",
+  "redesign-schema-serializer",
+  "redesign-integrity-receipt",
+] as const;
+const REDESIGN_REPLACED_LEGACY: Record<string, string> = {
+  "content-generation": "structured-content-projection",
+  "schema-generator": "redesign-schema-serializer",
+};
+
+export function mandatoryStagesFor(mode: ExecutionMode, buildIntent?: BuildIntent): string[] {
+  const base = MANDATORY[mode];
+  if (buildIntent !== "REDESIGN_IMPROVE") return [...base];
+  const replaced = base.map((stage) => REDESIGN_REPLACED_LEGACY[stage] ?? stage);
+  return [...new Set([...replaced, ...REDESIGN_ADDED_MANDATORY])];
+}
+
 export function buildFactoryExecutionPlan(
   options: FactoryExecutionPlanOptions,
 ): FactoryExecutionPlan {
+  const redesign = options.buildIntent === "REDESIGN_IMPROVE";
   const skips = [...new Set(options.skipStages ?? [])];
-  const mandatory = MANDATORY[options.mode];
+  const mandatory = mandatoryStagesFor(options.mode, options.buildIntent);
   const illegal = skips.filter((stage) => mandatory.includes(stage));
   if (illegal.length)
     throw new BuildError(
@@ -209,12 +239,20 @@ export function buildFactoryExecutionPlan(
       }),
     );
   stages.push(new UnknownResolverStage());
-  if (options.buildIntent === "REDESIGN_IMPROVE") stages.push(new CompetitiveIntelligenceStage());
+  if (redesign) stages.push(new CompetitiveIntelligenceStage());
+  stages.push(new SourceSiteIngestionStage(), new DesignIntelligenceStage());
+  if (redesign) {
+    // Redesign content/schema authority chain: legacy ContentGenerationStage
+    // and SchemaGeneratorStage are ABSENT from this plan, not downgraded.
+    stages.push(
+      new RedesignContentAuthorityStage(),
+      new StructuredContentProjectionStage(),
+      new RedesignSchemaSerializerStage(),
+    );
+  } else {
+    stages.push(new ContentGenerationStage(), new SchemaGeneratorStage());
+  }
   stages.push(
-    new SourceSiteIngestionStage(),
-    new DesignIntelligenceStage(),
-    new ContentGenerationStage(),
-    new SchemaGeneratorStage(),
     new ImageAssetPlanningStage(),
     new ImageGenerationStage(),
     new PlaceholderScanStage(),
@@ -234,6 +272,7 @@ export function buildFactoryExecutionPlan(
       new ReleaseReceiptFinalizerStage(),
       new HandoffEmitterStage(),
     );
+  if (redesign) stages.push(new RedesignIntegrityReceiptStage());
   stages.push(
     new TerminalConvergenceStage(options.mode, mandatory, REQUIRED_EVIDENCE[options.mode]),
   );

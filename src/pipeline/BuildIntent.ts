@@ -8,6 +8,8 @@
  * BuildIntent answers:
  *   "What kind of website transformation are we performing?"
  */
+import { BuildError } from "./BuildError.js";
+
 export const BUILD_INTENTS = ["COPY", "REDESIGN_IMPROVE"] as const;
 export type BuildIntent = (typeof BUILD_INTENTS)[number];
 
@@ -29,6 +31,39 @@ export function parseBuildIntent(value: unknown): BuildIntent {
   throw new Error(
     `INVALID_BUILD_INTENT: expected COPY or REDESIGN_IMPROVE; received ${JSON.stringify(value)}`,
   );
+}
+
+/**
+ * Fail-closed parser for redesign product surfaces (Campaign 7, R2).
+ *
+ * On these surfaces an absent intent MUST NOT silently resolve to COPY.
+ * Only the explicitly separate legacy compatibility path may use
+ * parseBuildIntent's COPY default.
+ */
+export function requireBuildIntent(value: unknown, surface: string): BuildIntent {
+  if (value === undefined || value === null || value === "") {
+    throw new BuildError(
+      "BUILD_INTENT_REQUIRED",
+      `${surface} requires an explicit build_intent; the legacy COPY default is not available on redesign surfaces`,
+    );
+  }
+  return parseBuildIntent(value);
+}
+
+/**
+ * Surfaces that semantically ARE redesign (recursive:improve, the redesign
+ * execution plan) must carry REDESIGN_IMPROVE — an explicit COPY is as
+ * illegal there as a missing intent.
+ */
+export function requireRedesignIntent(value: unknown, surface: string): "REDESIGN_IMPROVE" {
+  const intent = requireBuildIntent(value, surface);
+  if (intent !== "REDESIGN_IMPROVE") {
+    throw new BuildError(
+      "BUILD_INTENT_REQUIRED",
+      `${surface} is a redesign surface; build_intent must be REDESIGN_IMPROVE (received ${intent})`,
+    );
+  }
+  return intent;
 }
 
 export function isCopyIntent(intent: BuildIntent): intent is "COPY" {

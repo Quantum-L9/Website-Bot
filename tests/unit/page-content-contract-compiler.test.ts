@@ -77,6 +77,7 @@ function websitePayload(landscape: ArtifactRef): WebsiteBuildBlueprintV1 {
         ],
       },
     ],
+    visual_requirements: [],
     acceptance_tests: ["site-builds"],
   };
 }
