@@ -20,7 +20,7 @@ import type {
 } from "../pipeline/evidence/SourceSiteManifest.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
 import { crawlPagePriority } from "./CrawlPriority.js";
-import { extractPage } from "./PageExtractor.js";
+import { extractPage, type ExtractedPage } from "./PageExtractor.js";
 import { FetchedResource, HttpPageFetcher } from "./PageFetcher.js";
 import { NoopScreenshotCapturer, type ScreenshotCapturer } from "./ScreenshotCapturer.js";
 import {
@@ -176,39 +176,11 @@ export class SourceCrawler {
       if (visited.has(url)) continue;
       visited.add(url);
 
-      let fetched: FetchedResource | undefined;
-      try {
-        fetched = await pageFetcher.fetch(url);
-      } catch (error) {
-        warnings.push(`page fetch failed ${url}: ${String(error)}`);
-        continue;
-      }
-      if (fetched.status >= 400 || !isHtml(fetched.contentType)) {
-        warnings.push(`skipped non-HTML or error page ${url} (status ${fetched.status})`);
-        continue;
-      }
+      const fetched = await this.fetchPage(url, pageFetcher, warnings);
+      if (!fetched) continue;
 
       const extracted = extractPage(fetched.body.toString("utf8"), fetched.finalUrl);
-      const page: IngestedPage = {
-        url: fetched.finalUrl,
-        canonicalUrl: extracted.canonicalUrl,
-        title: extracted.title,
-        description: extracted.description,
-        headings: extracted.headings,
-        textExcerpt: extracted.textExcerpt,
-        bodyText: extracted.bodyText,
-        phones: extracted.phones,
-        nav: extracted.nav,
-        depth,
-      };
-      if (this.opts.captureScreenshots) {
-        const shotPath = resolve(this.outputDir, "screenshots", `${sha12(url)}.png`);
-        mkdirSync(resolve(this.outputDir, "screenshots"), { recursive: true });
-        page.screenshotPath = await this.screenshots.capture({
-          url: fetched.finalUrl,
-          outputPath: shotPath,
-        });
-      }
+      const page = await this.buildIngestedPage(fetched, extracted, url, depth);
       pages.push(page);
 
       if (depth === 0) {
@@ -221,94 +193,18 @@ export class SourceCrawler {
         );
       }
 
-      if (depth < maxDepth) {
-        for (const link of extracted.links) {
-          const normalized = normalizeUrl(link);
-          if (
-            visited.has(normalized) ||
-            !this.inScope(normalized) ||
-            shouldSkipUrl(normalized, { allowPdf: this.opts.allowPdf })
-          )
-            continue;
-          queue.push({ url: normalized, depth: depth + 1 });
-        }
-      }
+      if (depth < maxDepth) this.enqueueLinks(extracted, depth, visited, queue);
 
-      if (this.opts.downloadImages === false) continue;
-      for (const candidate of extracted.images) {
-        if (imageUrlsSeen.has(candidate.url)) continue;
-        imageUrlsSeen.add(candidate.url);
-        try {
-          const download = await imageFetcher.fetch(candidate.url);
-          if (download.status >= 400) {
-            rejected.push({
-              sourceUrl: candidate.url,
-              referringPageUrl: fetched.finalUrl,
-              reason: `status ${download.status}`,
-            });
-            continue;
-          }
-          const inspected = inspectImage(download.body);
-          const decision = evaluateSourceImage(inspected, this.policy, {
-            sourceUrl: candidate.url,
-            altText: candidate.altText,
-          });
-          if (!decision.accepted) {
-            rejected.push({
-              sourceUrl: candidate.url,
-              referringPageUrl: fetched.finalUrl,
-              reason: decision.reason ?? "rejected",
-            });
-            continue;
-          }
-          if (imageHashes.has(inspected.sha256)) {
-            rejected.push({
-              sourceUrl: candidate.url,
-              referringPageUrl: fetched.finalUrl,
-              reason: "duplicate content hash",
-            });
-            continue;
-          }
-          imageHashes.add(inspected.sha256);
-          const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? "img";
-          const localPath = resolve(
-            this.outputDir,
-            "downloads",
-            `${inspected.sha256}.${extension}`,
-          );
-          mkdirSync(resolve(this.outputDir, "downloads"), { recursive: true });
-          writeFileSync(localPath, download.body);
-          images.push({
-            id: `src-${inspected.sha256.slice(0, 12)}`,
-            sourceUrl: candidate.url,
-            referringPageUrl: fetched.finalUrl,
-            localPath,
-            altText: candidate.altText,
-            title: candidate.title,
-            surroundingText: candidate.nearestHeading,
-            domContext: {
-              tagName: candidate.origin,
-              nearestHeading: candidate.nearestHeading,
-              cssClasses: candidate.cssClasses,
-              isAboveFold: candidate.isAboveFold,
-              renderedWidth: inspected.width,
-              renderedHeight: inspected.height,
-            },
-            mimeType: inspected.mimeType,
-            width: inspected.width,
-            height: inspected.height,
-            byteLength: inspected.byteLength,
-            sha256: inspected.sha256,
-            provenance: "source-site",
-          });
-        } catch (error) {
-          rejected.push({
-            sourceUrl: candidate.url,
-            referringPageUrl: fetched.finalUrl,
-            reason: `download failed: ${String(error)}`,
-          });
-        }
-      }
+      if (this.opts.downloadImages !== false)
+        await this.downloadPageImages(
+          extracted,
+          fetched.finalUrl,
+          imageFetcher,
+          images,
+          rejected,
+          imageHashes,
+          imageUrlsSeen,
+        );
     }
 
     await this.screenshots.close();
@@ -334,6 +230,153 @@ export class SourceCrawler {
       warnings,
       ...(palette ? { palette } : {}),
     };
+  }
+
+  private async fetchPage(
+    url: string,
+    pageFetcher: HttpPageFetcher,
+    warnings: string[],
+  ): Promise<FetchedResource | null> {
+    let fetched: FetchedResource | undefined;
+    try {
+      fetched = await pageFetcher.fetch(url);
+    } catch (error) {
+      warnings.push(`page fetch failed ${url}: ${String(error)}`);
+      return null;
+    }
+    if (fetched.status >= 400 || !isHtml(fetched.contentType)) {
+      warnings.push(`skipped non-HTML or error page ${url} (status ${fetched.status})`);
+      return null;
+    }
+    return fetched;
+  }
+
+  private async buildIngestedPage(
+    fetched: FetchedResource,
+    extracted: ExtractedPage,
+    url: string,
+    depth: number,
+  ): Promise<IngestedPage> {
+    const page: IngestedPage = {
+      url: fetched.finalUrl,
+      canonicalUrl: extracted.canonicalUrl,
+      title: extracted.title,
+      description: extracted.description,
+      headings: extracted.headings,
+      textExcerpt: extracted.textExcerpt,
+      bodyText: extracted.bodyText,
+      phones: extracted.phones,
+      nav: extracted.nav,
+      depth,
+    };
+    if (this.opts.captureScreenshots) {
+      const shotPath = resolve(this.outputDir, "screenshots", `${sha12(url)}.png`);
+      mkdirSync(resolve(this.outputDir, "screenshots"), { recursive: true });
+      page.screenshotPath = await this.screenshots.capture({
+        url: fetched.finalUrl,
+        outputPath: shotPath,
+      });
+    }
+    return page;
+  }
+
+  private enqueueLinks(
+    extracted: ExtractedPage,
+    depth: number,
+    visited: Set<string>,
+    queue: Array<{ url: string; depth: number }>,
+  ): void {
+    for (const link of extracted.links) {
+      const normalized = normalizeUrl(link);
+      if (
+        visited.has(normalized) ||
+        !this.inScope(normalized) ||
+        shouldSkipUrl(normalized, { allowPdf: this.opts.allowPdf })
+      )
+        continue;
+      queue.push({ url: normalized, depth: depth + 1 });
+    }
+  }
+
+  private async downloadPageImages(
+    extracted: ExtractedPage,
+    finalUrl: string,
+    imageFetcher: HttpPageFetcher,
+    images: IngestedImage[],
+    rejected: RejectedImage[],
+    imageHashes: Set<string>,
+    imageUrlsSeen: Set<string>,
+  ): Promise<void> {
+    for (const candidate of extracted.images) {
+      if (imageUrlsSeen.has(candidate.url)) continue;
+      imageUrlsSeen.add(candidate.url);
+      try {
+        const download = await imageFetcher.fetch(candidate.url);
+        if (download.status >= 400) {
+          rejected.push({
+            sourceUrl: candidate.url,
+            referringPageUrl: finalUrl,
+            reason: `status ${download.status}`,
+          });
+          continue;
+        }
+        const inspected = inspectImage(download.body);
+        const decision = evaluateSourceImage(inspected, this.policy, {
+          sourceUrl: candidate.url,
+          altText: candidate.altText,
+        });
+        if (!decision.accepted) {
+          rejected.push({
+            sourceUrl: candidate.url,
+            referringPageUrl: finalUrl,
+            reason: decision.reason ?? "rejected",
+          });
+          continue;
+        }
+        if (imageHashes.has(inspected.sha256)) {
+          rejected.push({
+            sourceUrl: candidate.url,
+            referringPageUrl: finalUrl,
+            reason: "duplicate content hash",
+          });
+          continue;
+        }
+        imageHashes.add(inspected.sha256);
+        const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? "img";
+        const localPath = resolve(this.outputDir, "downloads", `${inspected.sha256}.${extension}`);
+        mkdirSync(resolve(this.outputDir, "downloads"), { recursive: true });
+        writeFileSync(localPath, download.body);
+        images.push({
+          id: `src-${inspected.sha256.slice(0, 12)}`,
+          sourceUrl: candidate.url,
+          referringPageUrl: finalUrl,
+          localPath,
+          altText: candidate.altText,
+          title: candidate.title,
+          surroundingText: candidate.nearestHeading,
+          domContext: {
+            tagName: candidate.origin,
+            nearestHeading: candidate.nearestHeading,
+            cssClasses: candidate.cssClasses,
+            isAboveFold: candidate.isAboveFold,
+            renderedWidth: inspected.width,
+            renderedHeight: inspected.height,
+          },
+          mimeType: inspected.mimeType,
+          width: inspected.width,
+          height: inspected.height,
+          byteLength: inspected.byteLength,
+          sha256: inspected.sha256,
+          provenance: "source-site",
+        });
+      } catch (error) {
+        rejected.push({
+          sourceUrl: candidate.url,
+          referringPageUrl: finalUrl,
+          reason: `download failed: ${String(error)}`,
+        });
+      }
+    }
   }
 
   private async collectStylesheets(

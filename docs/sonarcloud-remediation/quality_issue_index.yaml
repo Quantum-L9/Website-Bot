@@ -423,9 +423,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 44 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-150
   canonical_fingerprint: typescript:S2871:src/intelligence/compile-page-content-contract.ts:41
   source: SONARCLOUD
@@ -643,9 +643,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 48 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-127
   canonical_fingerprint: typescript:S3776:src/recursive/contracts/validate.ts:46
   source: SONARCLOUD
@@ -783,9 +783,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-107
   canonical_fingerprint: typescript:S3776:src/stages/CompetitiveIntelligenceStage.ts:482
   source: SONARCLOUD
@@ -803,9 +803,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-213
   canonical_fingerprint: typescript:S3776:src/stages/ContentGenerationStage.ts:135
   source: SONARCLOUD
@@ -903,9 +903,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-006
   canonical_fingerprint: typescript:S3776:src/stages/RedesignSchemaSerializerStage.ts:21
   source: SONARCLOUD
@@ -923,9 +923,9 @@ issues:
   duplicate_of: None
   evidence: "sonarcloud /issues/search snapshot (branch=main, 5967 issues retrieved)"
   root_cause: "Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed."
-  remediation_status: pending
-  validation_status: not_run
-  commit_SHA: None
+  remediation_status: fixed
+  validation_status: tests_pass
+  commit_SHA: f933e03e154066c616b9aa0238c0d00f0824dca5
 - issue_id: WB-210
   canonical_fingerprint: typescript:S3776:src/stages/SiteAssemblerStage.ts:204
   source: SONARCLOUD

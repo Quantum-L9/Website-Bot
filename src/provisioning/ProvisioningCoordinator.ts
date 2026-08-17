@@ -64,6 +64,52 @@ function persistedReceipt(receipt: ProvisioningReceipt): object {
   };
 }
 
+function buildIdempotencyKey(request: ProvisioningRequest): string {
+  return sha256Text(
+    canonicalJson({
+      clientId: request.clientId,
+      github: request.github,
+      vercel: {
+        project: request.vercel.project,
+        teamId: request.vercel.teamId,
+        environment: request.vercel.environment.map((item) => ({
+          key: item.key,
+          valueRef: item.valueRef,
+          type: item.type,
+          targets: item.targets,
+        })),
+      },
+      maintenance: request.maintenance,
+    }),
+  );
+}
+
+function buildPlannedReceipt(
+  request: ProvisioningRequest,
+  baseReceipt: ProvisioningReceipt,
+): ProvisioningReceipt {
+  const github: GitHubProvisioningResult = {
+    provider: "github",
+    created: false,
+    repositoryId: "planned",
+    fullName: `${request.github.owner}/${request.github.repository}`,
+    sourceBranch: request.github.sourceBranch,
+    htmlUrl: `https://github.com/${request.github.owner}/${request.github.repository}`,
+  };
+  const vercel: VercelProvisioningResult = {
+    provider: "vercel",
+    created: false,
+    projectId: "planned",
+    projectName: request.vercel.project,
+    ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
+    linkedRepository: github.fullName,
+    productionBranch: github.sourceBranch,
+    environmentKeys: request.vercel.environment.map((item) => item.key).sort(comparePaths),
+    deploymentTrigger: "git-push",
+  };
+  return { ...baseReceipt, github, vercel };
+}
+
 export class ProvisioningCoordinator {
   constructor(
     private readonly github = new GitHubProvisioner(),
@@ -74,28 +120,11 @@ export class ProvisioningCoordinator {
   ) {}
 
   async provision(request: ProvisioningRequest): Promise<ProvisioningReceipt> {
-    const idempotencyKey = sha256Text(
-      canonicalJson({
-        clientId: request.clientId,
-        github: request.github,
-        vercel: {
-          project: request.vercel.project,
-          teamId: request.vercel.teamId,
-          environment: request.vercel.environment.map((item) => ({
-            key: item.key,
-            valueRef: item.valueRef,
-            type: item.type,
-            targets: item.targets,
-          })),
-        },
-        maintenance: request.maintenance,
-      }),
-    );
     const baseReceipt: ProvisioningReceipt = {
       schema: "website-bot.provisioning-receipt/v1",
       status: request.planOnly ? "planned" : "failed",
       clientId: request.clientId,
-      idempotencyKey,
+      idempotencyKey: buildIdempotencyKey(request),
       spec: { path: resolve(request.specPath), persisted: false },
       maintenance: request.maintenance,
       errors: [],
@@ -103,33 +132,10 @@ export class ProvisioningCoordinator {
       createdAt: this.now().toISOString(),
     };
 
-    if (request.planOnly) {
-      const github: GitHubProvisioningResult = {
-        provider: "github",
-        created: false,
-        repositoryId: "planned",
-        fullName: `${request.github.owner}/${request.github.repository}`,
-        sourceBranch: request.github.sourceBranch,
-        htmlUrl: `https://github.com/${request.github.owner}/${request.github.repository}`,
-      };
-      const vercel: VercelProvisioningResult = {
-        provider: "vercel",
-        created: false,
-        projectId: "planned",
-        projectName: request.vercel.project,
-        ...(request.vercel.teamId ? { teamId: request.vercel.teamId } : {}),
-        linkedRepository: github.fullName,
-        productionBranch: github.sourceBranch,
-        environmentKeys: request.vercel.environment.map((item) => item.key).sort(comparePaths),
-        deploymentTrigger: "git-push",
-      };
-      return { ...baseReceipt, github, vercel };
-    }
+    if (request.planOnly) return buildPlannedReceipt(request, baseReceipt);
 
     let githubProvisionToken = "";
     let vercelToken = "";
-    let publishToken = "";
-    let maintenanceToken = "";
     let githubResult: GitHubProvisioningResult | undefined;
     let vercelResult: VercelProvisioningResult | undefined;
     let specResult: SpecWriteResult | undefined;
@@ -137,25 +143,19 @@ export class ProvisioningCoordinator {
     try {
       // Resolve every credential before the first provider mutation. This keeps a
       // missing reference side-effect free while still producing a failed receipt.
-      githubProvisionToken = this.requireEnv("GITHUB_PROVISION_TOKEN");
-      vercelToken = this.requireEnv("VERCEL_TOKEN");
-      publishToken = resolveEnvRef(
-        request.github.publishCredentialRef,
-        "provision.github.publish_credential_ref",
-      );
-      maintenanceToken = resolveEnvRef(
-        request.maintenance.githubCredentialRef,
-        "provision.maintenance.github_credential_ref",
-      );
+      const credentials = this.resolveCredentials(request);
+      githubProvisionToken = credentials.githubProvisionToken;
+      vercelToken = credentials.vercelToken;
+
       githubResult = await this.github.provision(request, githubProvisionToken);
       await this.github.verifyAccess(
         githubResult.fullName,
-        publishToken,
+        credentials.publishToken,
         request.github.publishCredentialRef,
       );
       await this.github.verifyAccess(
         githubResult.fullName,
-        maintenanceToken,
+        credentials.maintenanceToken,
         request.maintenance.githubCredentialRef,
       );
       vercelResult = await this.vercel.provision(request, githubResult, vercelToken);
@@ -172,43 +172,13 @@ export class ProvisioningCoordinator {
     } catch (error) {
       if (!githubResult && error instanceof GitHubProvisioningError) githubResult = error.result;
       if (!vercelResult && error instanceof VercelProvisioningError) vercelResult = error.result;
-      const rollback = {
-        attempted: false,
-        completed: false,
-        actions: [] as string[],
-        errors: [] as string[],
-      };
-      const hasCompensableState = Boolean(
-        specResult?.persisted || vercelResult?.created || githubResult?.created,
-      );
-      if (request.rollbackCreatedResources && hasCompensableState) {
-        rollback.attempted = true;
-        if (specResult?.persisted) {
-          try {
-            this.specWriter.restore(specResult);
-            rollback.actions.push("restored-domain-spec");
-          } catch (rollbackError) {
-            rollback.errors.push(`spec: ${this.receiptMessage(rollbackError)}`);
-          }
-        }
-        if (vercelResult?.created && vercelToken) {
-          try {
-            await this.vercel.remove(vercelResult, vercelToken);
-            rollback.actions.push("deleted-created-vercel-project");
-          } catch (rollbackError) {
-            rollback.errors.push(`vercel: ${this.receiptMessage(rollbackError)}`);
-          }
-        }
-        if (githubResult?.created && githubProvisionToken) {
-          try {
-            await this.github.remove(githubResult, githubProvisionToken);
-            rollback.actions.push("deleted-created-github-repository");
-          } catch (rollbackError) {
-            rollback.errors.push(`github: ${this.receiptMessage(rollbackError)}`);
-          }
-        }
-        rollback.completed = rollback.errors.length === 0;
-      }
+      const rollback = await this.rollbackCreatedResources(request, {
+        specResult,
+        vercelResult,
+        githubResult,
+        vercelToken,
+        githubProvisionToken,
+      });
       const receipt: ProvisioningReceipt = {
         ...baseReceipt,
         status: rollback.attempted && rollback.completed ? "rolled_back" : "failed",
@@ -224,6 +194,75 @@ export class ProvisioningCoordinator {
         : "";
       throw new Error(`Client provisioning failed: ${this.message(error)}.${suffix}`);
     }
+  }
+
+  private resolveCredentials(request: ProvisioningRequest): {
+    githubProvisionToken: string;
+    vercelToken: string;
+    publishToken: string;
+    maintenanceToken: string;
+  } {
+    return {
+      githubProvisionToken: this.requireEnv("GITHUB_PROVISION_TOKEN"),
+      vercelToken: this.requireEnv("VERCEL_TOKEN"),
+      publishToken: resolveEnvRef(
+        request.github.publishCredentialRef,
+        "provision.github.publish_credential_ref",
+      ),
+      maintenanceToken: resolveEnvRef(
+        request.maintenance.githubCredentialRef,
+        "provision.maintenance.github_credential_ref",
+      ),
+    };
+  }
+
+  private async rollbackCreatedResources(
+    request: ProvisioningRequest,
+    state: {
+      specResult: SpecWriteResult | undefined;
+      vercelResult: VercelProvisioningResult | undefined;
+      githubResult: GitHubProvisioningResult | undefined;
+      vercelToken: string;
+      githubProvisionToken: string;
+    },
+  ): Promise<ProvisioningReceipt["rollback"]> {
+    const rollback = {
+      attempted: false,
+      completed: false,
+      actions: [] as string[],
+      errors: [] as string[],
+    };
+    const hasCompensableState = Boolean(
+      state.specResult?.persisted || state.vercelResult?.created || state.githubResult?.created,
+    );
+    if (!request.rollbackCreatedResources || !hasCompensableState) return rollback;
+    rollback.attempted = true;
+    if (state.specResult?.persisted) {
+      try {
+        this.specWriter.restore(state.specResult);
+        rollback.actions.push("restored-domain-spec");
+      } catch (rollbackError) {
+        rollback.errors.push(`spec: ${this.receiptMessage(rollbackError)}`);
+      }
+    }
+    if (state.vercelResult?.created && state.vercelToken) {
+      try {
+        await this.vercel.remove(state.vercelResult, state.vercelToken);
+        rollback.actions.push("deleted-created-vercel-project");
+      } catch (rollbackError) {
+        rollback.errors.push(`vercel: ${this.receiptMessage(rollbackError)}`);
+      }
+    }
+    if (state.githubResult?.created && state.githubProvisionToken) {
+      try {
+        await this.github.remove(state.githubResult, state.githubProvisionToken);
+        rollback.actions.push("deleted-created-github-repository");
+      } catch (rollbackError) {
+        rollback.errors.push(`github: ${this.receiptMessage(rollbackError)}`);
+      }
+    }
+    rollback.completed = rollback.errors.length === 0;
+    return rollback;
   }
 
   private requireEnv(key: string): string {
