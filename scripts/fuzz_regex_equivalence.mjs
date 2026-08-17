@@ -102,13 +102,14 @@ function pairEnvAssignments() {
   const newEnv = /^[A-Za-z_]\w*=\S+\s+/;
   const oldMatcher = (s) => s.replace(oldEnv, "");
   const newMatcher = (s) => {
-    let rest = s;
-    for (;;) {
-      const next = rest.replace(newEnv, "");
-      if (next === rest) break;
-      rest = next;
-    }
-    return rest;
+    // Fixpoint strip: repeat one assignment-strip until no progress.
+    let stripped = s;
+    let previous;
+    do {
+      previous = stripped;
+      stripped = previous.replace(newEnv, "");
+    } while (stripped !== previous);
+    return stripped;
   };
   return {
     oldMatcher,
@@ -169,13 +170,15 @@ function pairRedirectStrip() {
 }
 
 function pairAssertionPatterns() {
+  // All oldPatterns entries are the pre-fix vulnerable forms, kept
+  // intentionally as reference matchers for the fuzz comparison.
   const oldPatterns = [
-    /expected.*but.*received/i,
-    /assertion.*failed/i,
-    /test.*failed/i,
-    /expected:.*actual:/i,
-    /✕.*expect/i,
-    /error:.*expect/i,
+    /expected.*but.*received/i, // NOSONAR: reference pattern under test
+    /assertion.*failed/i, // NOSONAR: reference pattern under test
+    /test.*failed/i, // NOSONAR: reference pattern under test
+    /expected:.*actual:/i, // NOSONAR: reference pattern under test
+    /✕.*expect/i, // NOSONAR: reference pattern under test
+    /error:.*expect/i, // NOSONAR: reference pattern under test
   ];
   const newPatterns = [
     /expected.{0,2000}but.{0,2000}received/i,
@@ -236,11 +239,11 @@ function pairBranch() {
 function pairDenylist() {
   // $(...rm...) and `...rm...` families: lookahead rewrite must agree exactly.
   const oldPatterns = DENYLIST_WORDS.flatMap((word) => [
-    new RegExp(`\\$\\([^)]*${word}[^)]*\\)`, "gi"),
+    new RegExp(String.raw`\$\([^)]*${word}[^)]*\)`, "gi"),
     new RegExp(String.raw`\`[^\`]*${word}[^\`]*\``, "gi"),
   ]);
   const newPatterns = DENYLIST_WORDS.flatMap((word) => [
-    new RegExp(`\\$\\((?=[^)]*${word})[^)]*\\)`, "gi"),
+    new RegExp(String.raw`\$\((?=[^)]*${word})[^)]*\)`, "gi"),
     new RegExp(String.raw`\`(?=[^\`]*${word})[^\`]*\``, "gi"),
   ]);
   const matchSet = (patterns, s) => patterns.map((p) => Boolean(p.exec(s))).join(",");

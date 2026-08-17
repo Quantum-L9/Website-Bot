@@ -227,6 +227,11 @@ function validateTimeoutOption(options: any, errors: string[]): void {
   }
 }
 
+function stringifyOptionValue(value: unknown): string {
+  if (typeof value === "string") return value;
+  return JSON.stringify(value) ?? String(value);
+}
+
 function validateWhitelistOption(
   value: unknown,
   allowed: string[],
@@ -236,7 +241,7 @@ function validateWhitelistOption(
 ): void {
   if (value && !allowed.includes(String(value))) {
     errors.push(
-      `Unknown ${optionLabel} '${String(value)}': valid ${pluralLabel} are ${allowed.join(", ")}`,
+      `Unknown ${optionLabel} '${stringifyOptionValue(value)}': valid ${pluralLabel} are ${allowed.join(", ")}`,
     );
   }
 }

@@ -419,7 +419,8 @@ function validateGeography(
 
 function describeError(error: unknown): string {
   if (error instanceof Error) return error.message;
-  if (error != null) return String(error);
+  if (typeof error === "string") return error;
+  if (error != null) return JSON.stringify(error) ?? String(error);
   return "unknown error";
 }
 
@@ -666,7 +667,9 @@ function validateVercelEnvironment(
       `provision.vercel.environment[${index}].value_ref must be env://NAME`,
     );
     check(
-      entry.type === undefined || ["plain", "encrypted", "sensitive"].includes(String(entry.type)),
+      entry.type === undefined ||
+        (typeof entry.type === "string" &&
+          ["plain", "encrypted", "sensitive"].includes(entry.type)),
       `provision.vercel.environment[${index}].type is invalid`,
     );
     check(
