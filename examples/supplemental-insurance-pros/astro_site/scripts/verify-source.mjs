@@ -16,16 +16,16 @@ for (const route of cfg.routes) {
   const page =
     route === "/" ? "src/pages/index.astro" : `src/pages${route.replace(/\/$/, "")}.astro`;
   rows.push(
-    result(
-      `ROUTE-SOURCE-${route}`,
-      "structural_validation",
-      page,
-      "route source exists",
-      exists(page) ? "exists" : "missing",
-      exists(page) ? "PASS" : "FAIL",
-      "critical",
-      "Create or restore the route source file.",
-    ),
+    result({
+      check_id: `ROUTE-SOURCE-${route}`,
+      check_class: "structural_validation",
+      target_artifact: page,
+      expected_result: "route source exists",
+      actual_result: exists(page) ? "exists" : "missing",
+      status: exists(page) ? "PASS" : "FAIL",
+      severity: "critical",
+      remediation_if_failed: "Create or restore the route source file.",
+    }),
   );
 }
 for (const file of [
@@ -37,16 +37,16 @@ for (const file of [
   "public/llms.txt",
 ]) {
   rows.push(
-    result(
-      `FILE-${file}`,
-      "structural_validation",
-      file,
-      "required file exists",
-      exists(file) ? "exists" : "missing",
-      exists(file) ? "PASS" : "FAIL",
-      "critical",
-      "Restore required project file.",
-    ),
+    result({
+      check_id: `FILE-${file}`,
+      check_class: "structural_validation",
+      target_artifact: file,
+      expected_result: "required file exists",
+      actual_result: exists(file) ? "exists" : "missing",
+      status: exists(file) ? "PASS" : "FAIL",
+      severity: "critical",
+      remediation_if_failed: "Restore required project file.",
+    }),
   );
 }
 const files = listFiles(
@@ -61,16 +61,16 @@ for (const rel of files) {
   const text = readText(rel);
   const bad = /FIXME|stub-only|pass-only|throw new Error\(['"]not implemented/i.test(text);
   rows.push(
-    result(
-      `NOSTUB-${rel}`,
-      "no_stub_validation",
-      rel,
-      "no empty implementation or not-implemented markers",
-      bad ? "disallowed implementation marker found" : "clean",
-      bad ? "FAIL" : "PASS",
-      bad ? "high" : "low",
-      "Replace disallowed marker with complete implementation or documented Unknown.",
-    ),
+    result({
+      check_id: `NOSTUB-${rel}`,
+      check_class: "no_stub_validation",
+      target_artifact: rel,
+      expected_result: "no empty implementation or not-implemented markers",
+      actual_result: bad ? "disallowed implementation marker found" : "clean",
+      status: bad ? "FAIL" : "PASS",
+      severity: bad ? "high" : "low",
+      remediation_if_failed: "Replace disallowed marker with complete implementation or documented Unknown.",
+    }),
   );
 }
 writeJsonl("validation/source_checks.jsonl", rows);

@@ -13,43 +13,43 @@ const buildResult = spawnSync(npmCommand, ["run", "build"], {
 });
 
 checks.push(
-  result(
-    "astro-build",
-    "build_process",
-    "npm run build",
-    "Build succeeds (exit code 0)",
-    `Exit code ${buildResult.status}, stderr: ${buildResult.stderr?.slice(0, 200) || "none"}`,
-    buildResult.status === 0 ? "PASS" : "FAIL",
-    "high",
-    "Fix build errors shown in output",
-  ),
+  result({
+    check_id: "astro-build",
+    check_class: "build_process",
+    target_artifact: "npm run build",
+    expected_result: "Build succeeds (exit code 0)",
+    actual_result: `Exit code ${buildResult.status}, stderr: ${buildResult.stderr?.slice(0, 200) || "none"}`,
+    status: buildResult.status === 0 ? "PASS" : "FAIL",
+    severity: "high",
+    remediation_if_failed: "Fix build errors shown in output",
+  }),
 );
 
 // Check if dist directory was created
 if (buildResult.status === 0) {
   checks.push(
-    result(
-      "dist-directory-created",
-      "build_output",
-      "dist/",
-      "Build output directory exists",
-      exists("dist") ? "dist/ directory exists" : "dist/ directory missing",
-      exists("dist") ? "PASS" : "FAIL",
-      "high",
-      "Verify build process creates dist/ directory",
-    ),
+    result({
+      check_id: "dist-directory-created",
+      check_class: "build_output",
+      target_artifact: "dist/",
+      expected_result: "Build output directory exists",
+      actual_result: exists("dist") ? "dist/ directory exists" : "dist/ directory missing",
+      status: exists("dist") ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: "Verify build process creates dist/ directory",
+    }),
 
     // Check for index.html in output
-    result(
-      "index-html-generated",
-      "build_output",
-      "dist/index.html",
-      "Index HTML file generated",
-      exists("dist/index.html") ? "index.html found" : "index.html missing",
-      exists("dist/index.html") ? "PASS" : "FAIL",
-      "high",
-      "Ensure pages generate HTML output",
-    ),
+    result({
+      check_id: "index-html-generated",
+      check_class: "build_output",
+      target_artifact: "dist/index.html",
+      expected_result: "Index HTML file generated",
+      actual_result: exists("dist/index.html") ? "index.html found" : "index.html missing",
+      status: exists("dist/index.html") ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: "Ensure pages generate HTML output",
+    }),
   );
 }
 

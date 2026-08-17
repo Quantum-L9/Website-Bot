@@ -21,16 +21,16 @@ for (const key of cfg.requiredPublicEnv) {
   let envStatus = "FAIL";
   if (isPresent) envStatus = isUnknown ? "UNKNOWN" : "PASS";
   rows.push(
-    result(
-      `ENV-${key}`,
-      "operator_configuration",
-      ".env.example",
-      `${key} declared and not hardcoded as a secret`,
-      isPresent ? `${key}=${presenceLabel}` : "MISSING",
-      envStatus,
-      isUnknown ? "high" : "critical",
-      `Set ${key} before production launch.`,
-    ),
+    result({
+      check_id: `ENV-${key}`,
+      check_class: "operator_configuration",
+      target_artifact: ".env.example",
+      expected_result: `${key} declared and not hardcoded as a secret`,
+      actual_result: isPresent ? `${key}=${presenceLabel}` : "MISSING",
+      status: envStatus,
+      severity: isUnknown ? "high" : "critical",
+      remediation_if_failed: `Set ${key} before production launch.`,
+    }),
   );
 }
 
@@ -49,16 +49,16 @@ const requiredScripts = [
 ];
 for (const scriptName of requiredScripts) {
   rows.push(
-    result(
-      `SCRIPT-${scriptName}`,
-      "command_wiring",
-      "package.json",
-      `${scriptName} command wired`,
-      packageJson.scripts?.[scriptName] ? packageJson.scripts[scriptName] : "MISSING",
-      packageJson.scripts?.[scriptName] ? "PASS" : "FAIL",
-      "critical",
-      `Add package.json script ${scriptName}.`,
-    ),
+    result({
+      check_id: `SCRIPT-${scriptName}`,
+      check_class: "command_wiring",
+      target_artifact: "package.json",
+      expected_result: `${scriptName} command wired`,
+      actual_result: packageJson.scripts?.[scriptName] ? packageJson.scripts[scriptName] : "MISSING",
+      status: packageJson.scripts?.[scriptName] ? "PASS" : "FAIL",
+      severity: "critical",
+      remediation_if_failed: `Add package.json script ${scriptName}.`,
+    }),
   );
 }
 

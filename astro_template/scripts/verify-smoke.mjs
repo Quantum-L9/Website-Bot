@@ -17,31 +17,31 @@ if (exists("dist/index.html")) {
   const timedOut = previewProc.error?.code === "ETIMEDOUT";
 
   checks.push(
-    result(
-      "preview-server-start",
-      "server_startup",
-      "npm run preview",
-      "Preview server starts without immediate errors",
-      timedOut
+    result({
+      check_id: "preview-server-start",
+      check_class: "server_startup",
+      target_artifact: "npm run preview",
+      expected_result: "Preview server starts without immediate errors",
+      actual_result: timedOut
         ? "Server started (timeout reached)"
         : `Exit code ${previewProc.status}`,
-      timedOut || previewProc.status === 0 ? "PASS" : "FAIL",
-      "medium",
-      "Fix server startup issues",
-    ),
+      status: timedOut || previewProc.status === 0 ? "PASS" : "FAIL",
+      severity: "medium",
+      remediation_if_failed: "Fix server startup issues",
+    }),
   );
 } else {
   checks.push(
-    result(
-      "build-required-for-smoke",
-      "prerequisite",
-      "dist/",
-      "Build output exists for smoke testing",
-      "Build output missing",
-      "BLOCKED",
-      "medium",
-      "Run npm run build first",
-    ),
+    result({
+      check_id: "build-required-for-smoke",
+      check_class: "prerequisite",
+      target_artifact: "dist/",
+      expected_result: "Build output exists for smoke testing",
+      actual_result: "Build output missing",
+      status: "BLOCKED",
+      severity: "medium",
+      remediation_if_failed: "Run npm run build first",
+    }),
   );
 }
 
@@ -49,16 +49,16 @@ if (exists("dist/index.html")) {
 if (exists("dist")) {
   const staticFiles = ["favicon.ico", "robots.txt"].filter((file) => exists(`dist/${file}`));
   checks.push(
-    result(
-      "static-files-present",
-      "static_assets",
-      "dist/ static files",
-      "Common static files present",
-      staticFiles.length > 0 ? `Found: ${staticFiles.join(", ")}` : "No common static files found",
-      staticFiles.length > 0 ? "PASS" : "UNKNOWN",
-      "low",
-      "Consider adding favicon.ico, robots.txt",
-    ),
+    result({
+      check_id: "static-files-present",
+      check_class: "static_assets",
+      target_artifact: "dist/ static files",
+      expected_result: "Common static files present",
+      actual_result: staticFiles.length > 0 ? `Found: ${staticFiles.join(", ")}` : "No common static files found",
+      status: staticFiles.length > 0 ? "PASS" : "UNKNOWN",
+      severity: "low",
+      remediation_if_failed: "Consider adding favicon.ico, robots.txt",
+    }),
   );
 }
 

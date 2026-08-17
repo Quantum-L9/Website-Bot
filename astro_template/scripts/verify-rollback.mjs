@@ -13,33 +13,33 @@ const deploymentEnvVars = Object.keys(envVars).filter(
 
 const deploymentSuffix = deploymentEnvVars.length > 3 ? "..." : "";
 checks.push(
-  result(
-    "deployment-config-present",
-    "deployment_config",
-    ".env.example",
-    "Deployment configuration variables defined",
-    deploymentEnvVars.length > 0
+  result({
+    check_id: "deployment-config-present",
+    check_class: "deployment_config",
+    target_artifact: ".env.example",
+    expected_result: "Deployment configuration variables defined",
+    actual_result: deploymentEnvVars.length > 0
       ? `Found: ${deploymentEnvVars.slice(0, 3).join(", ")}${deploymentSuffix}`
       : "No deployment variables found",
-    deploymentEnvVars.length > 0 ? "PASS" : "UNKNOWN",
-    "medium",
-    "Define deployment configuration for rollback capability",
-  ),
+    status: deploymentEnvVars.length > 0 ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Define deployment configuration for rollback capability",
+  }),
 );
 
 // Check for version control (Git)
 const hasGitDir = exists(".git");
 checks.push(
-  result(
-    "version-control-present",
-    "rollback_capability",
-    ".git/",
-    "Git repository initialized",
-    hasGitDir ? "Git repository found" : "Git repository missing",
-    hasGitDir ? "PASS" : "FAIL",
-    "high",
-    "Initialize Git repository with: git init",
-  ),
+  result({
+    check_id: "version-control-present",
+    check_class: "rollback_capability",
+    target_artifact: ".git/",
+    expected_result: "Git repository initialized",
+    actual_result: hasGitDir ? "Git repository found" : "Git repository missing",
+    status: hasGitDir ? "PASS" : "FAIL",
+    severity: "high",
+    remediation_if_failed: "Initialize Git repository with: git init",
+  }),
 );
 
 // Check for package.json scripts that support rollback
@@ -58,29 +58,29 @@ if (exists("package.json")) {
     hasRollbackScripts = deployScripts.length > 0;
 
     checks.push(
-      result(
-        "deployment-scripts-present",
-        "rollback_scripts",
-        "package.json scripts",
-        "Deployment scripts available",
-        hasRollbackScripts ? `Scripts: ${deployScripts.join(", ")}` : "No deployment scripts found",
-        hasRollbackScripts ? "PASS" : "UNKNOWN",
-        "medium",
-        "Add deployment scripts to package.json",
-      ),
+      result({
+        check_id: "deployment-scripts-present",
+        check_class: "rollback_scripts",
+        target_artifact: "package.json scripts",
+        expected_result: "Deployment scripts available",
+        actual_result: hasRollbackScripts ? `Scripts: ${deployScripts.join(", ")}` : "No deployment scripts found",
+        status: hasRollbackScripts ? "PASS" : "UNKNOWN",
+        severity: "medium",
+        remediation_if_failed: "Add deployment scripts to package.json",
+      }),
     );
   } catch (error) {
     checks.push(
-      result(
-        "package-json-readable",
-        "file_access",
-        "package.json",
-        "Package.json is readable",
-        `Error: ${error.message}`,
-        "FAIL",
-        "medium",
-        "Fix package.json syntax",
-      ),
+      result({
+        check_id: "package-json-readable",
+        check_class: "file_access",
+        target_artifact: "package.json",
+        expected_result: "Package.json is readable",
+        actual_result: `Error: ${error.message}`,
+        status: "FAIL",
+        severity: "medium",
+        remediation_if_failed: "Fix package.json syntax",
+      }),
     );
   }
 }
@@ -102,16 +102,16 @@ for (const docFile of docFiles) {
 }
 
 checks.push(
-  result(
-    "rollback-documentation",
-    "rollback_docs",
-    "Documentation files",
-    "Rollback procedure documented",
-    hasRollbackDocs ? "Rollback documentation found" : "No rollback documentation found",
-    hasRollbackDocs ? "PASS" : "UNKNOWN",
-    "low",
-    "Document rollback procedures in README.md or DEPLOYMENT.md",
-  ),
+  result({
+    check_id: "rollback-documentation",
+    check_class: "rollback_docs",
+    target_artifact: "Documentation files",
+    expected_result: "Rollback procedure documented",
+    actual_result: hasRollbackDocs ? "Rollback documentation found" : "No rollback documentation found",
+    status: hasRollbackDocs ? "PASS" : "UNKNOWN",
+    severity: "low",
+    remediation_if_failed: "Document rollback procedures in README.md or DEPLOYMENT.md",
+  }),
 );
 
 // Check for environment safety (test mode configurations)
@@ -124,18 +124,18 @@ const testModeVars = Object.keys(envVars).filter(
 
 const testModeSuffix = testModeVars.length > 2 ? "..." : "";
 checks.push(
-  result(
-    "test-mode-config",
-    "rollback_safety",
-    "Test mode configuration",
-    "Test/staging environment variables defined",
-    testModeVars.length > 0
+  result({
+    check_id: "test-mode-config",
+    check_class: "rollback_safety",
+    target_artifact: "Test mode configuration",
+    expected_result: "Test/staging environment variables defined",
+    actual_result: testModeVars.length > 0
       ? `Test vars: ${testModeVars.slice(0, 2).join(", ")}${testModeSuffix}`
       : "No test mode configuration found",
-    testModeVars.length > 0 ? "PASS" : "UNKNOWN",
-    "medium",
-    "Define test/staging environment configuration for safe rollback testing",
-  ),
+    status: testModeVars.length > 0 ? "PASS" : "UNKNOWN",
+    severity: "medium",
+    remediation_if_failed: "Define test/staging environment configuration for safe rollback testing",
+  }),
 );
 
 writeJsonl("validation/rollback_checks.jsonl", checks);

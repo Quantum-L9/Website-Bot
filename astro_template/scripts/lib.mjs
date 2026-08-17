@@ -50,16 +50,40 @@ export function parseEnvExample() {
   return values;
 }
 
-export function result(
-  check_id,
-  check_class,
-  target_artifact,
-  expected_result,
-  actual_result,
-  status,
-  severity = "medium",
-  remediation_if_failed = "",
-) {
+/**
+ * Build a check-result row (S107: options object instead of 8 params).
+ *
+ * Preferred form: result({ check_id, check_class, target_artifact,
+ *   expected_result, actual_result, status, severity, remediation_if_failed })
+ *
+ * Positional calls are still accepted for backward compatibility with
+ * generated sites that copy this script verbatim; the shim maps the legacy
+ * argument order onto the options object.
+ */
+export function result(optionsOrCheckId, ...legacyArgs) {
+  const {
+    check_id,
+    check_class,
+    target_artifact,
+    expected_result,
+    actual_result,
+    status,
+    severity = "medium",
+    remediation_if_failed = "",
+  } =
+    typeof optionsOrCheckId === "object" && optionsOrCheckId !== null
+      ? optionsOrCheckId
+      : {
+          check_id: optionsOrCheckId,
+          check_class: legacyArgs[0],
+          target_artifact: legacyArgs[1],
+          expected_result: legacyArgs[2],
+          actual_result: legacyArgs[3],
+          status: legacyArgs[4],
+          severity: legacyArgs[5] ?? "medium",
+          remediation_if_failed: legacyArgs[6] ?? "",
+        };
+
   return {
     check_id,
     check_class,

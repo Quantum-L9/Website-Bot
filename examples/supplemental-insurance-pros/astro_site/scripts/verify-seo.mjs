@@ -14,16 +14,16 @@ const cfg = readJson(configPath);
 const rows = [];
 for (const pub of cfg.seo.requiredPublicFiles) {
   rows.push(
-    result(
-      `SEO-PUBLIC-${pub}`,
-      "seo_runtime_validation",
-      `public/${pub}`,
-      `${pub} exists`,
-      exists(`public/${pub}`) ? "exists" : "missing",
-      exists(`public/${pub}`) ? "PASS" : "FAIL",
-      "high",
-      `Add public/${pub}.`,
-    ),
+    result({
+      check_id: `SEO-PUBLIC-${pub}`,
+      check_class: "seo_runtime_validation",
+      target_artifact: `public/${pub}`,
+      expected_result: `${pub} exists`,
+      actual_result: exists(`public/${pub}`) ? "exists" : "missing",
+      status: exists(`public/${pub}`) ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: `Add public/${pub}.`,
+    }),
   );
 }
 const layout = readText("src/layouts/BaseLayout.astro");
@@ -33,16 +33,16 @@ for (const marker of cfg.seo.requiredHeadMarkers) {
     (fs.existsSync("dist/index.html") &&
       fs.readFileSync("dist/index.html", "utf8").includes(marker));
   rows.push(
-    result(
-      `SEO-HEAD-${marker}`,
-      "seo_runtime_validation",
-      "src/layouts/BaseLayout.astro",
-      `head includes ${marker}`,
-      found ? "found" : "missing",
-      found ? "PASS" : "FAIL",
-      "high",
-      `Add ${marker} support to BaseLayout.`,
-    ),
+    result({
+      check_id: `SEO-HEAD-${marker}`,
+      check_class: "seo_runtime_validation",
+      target_artifact: "src/layouts/BaseLayout.astro",
+      expected_result: `head includes ${marker}`,
+      actual_result: found ? "found" : "missing",
+      status: found ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: `Add ${marker} support to BaseLayout.`,
+    }),
   );
 }
 const pages = listFiles("src/pages", (rel) => rel.endsWith(".astro"));
@@ -51,16 +51,16 @@ for (const page of pages) {
   const hasTitle = /<BaseLayout[^>]*title=/.test(text);
   const hasDescription = /<BaseLayout[^>]*description=/.test(text);
   rows.push(
-    result(
-      `SEO-META-${page}`,
-      "seo_runtime_validation",
-      page,
-      "page passes title and description",
-      hasTitle && hasDescription ? "title+description" : "missing title or description",
-      hasTitle && hasDescription ? "PASS" : "FAIL",
-      "high",
-      "Pass title and description into BaseLayout.",
-    ),
+    result({
+      check_id: `SEO-META-${page}`,
+      check_class: "seo_runtime_validation",
+      target_artifact: page,
+      expected_result: "page passes title and description",
+      actual_result: hasTitle && hasDescription ? "title+description" : "missing title or description",
+      status: hasTitle && hasDescription ? "PASS" : "FAIL",
+      severity: "high",
+      remediation_if_failed: "Pass title and description into BaseLayout.",
+    }),
   );
 }
 writeJsonl("validation/seo_checks.jsonl", rows);
