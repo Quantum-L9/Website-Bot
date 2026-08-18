@@ -84,3 +84,54 @@ test("assertWebsiteBlueprintLandscape fails closed on a different landscape", ()
     /INTEL_INPUT_HASH_MISMATCH/,
   );
 });
+
+/* ── Machine-auth client contract (SEO_BOT_API_KEY seam) ───────────────────── */
+
+import { SeoBuildIntelligenceHttpClient } from "../../src/intelligence/SeoBuildIntelligenceHttpClient.js";
+
+test("client sends the machine credential on build-intelligence routes only", async () => {
+  const seen: Array<{ url: string; headers: Record<string, string> }> = [];
+  const client = new SeoBuildIntelligenceHttpClient(
+    "https://seo-bot.example",
+    "machine-key-123",
+    async (url, init) => {
+      seen.push({
+        url: String(url),
+        headers: (init?.headers ?? {}) as Record<string, string>,
+      });
+      return new Response(JSON.stringify(landscapeArtifact()), { status: 200 });
+    },
+  );
+
+  await client.createCompetitiveLandscape({
+    client_id: "client-1",
+    build_id: "build-1",
+    market: { niche: "scrap-metal", country: "US", language: "en", device: "desktop" },
+    seed_queries: ["metal recycling"],
+    desired_donor_count: 10,
+  });
+
+  assert.equal(seen.length, 1);
+  assert.equal(
+    seen[0]!.url,
+    "https://seo-bot.example/api/build-intelligence/competitive-landscape",
+  );
+  assert.equal(seen[0]!.headers.Authorization, "Bearer machine-key-123");
+  // The machine key is the ONLY credential this client ever consults — the
+  // operator dashboard key has no code path into the request.
+  assert.equal(Object.keys(seen[0]!.headers).filter((h) => /auth/i.test(h)).length, 1);
+});
+
+test("client fails closed when the machine key is absent", () => {
+  assert.throws(
+    () => new SeoBuildIntelligenceHttpClient("https://seo-bot.example", ""),
+    /SEO_BOT_API_KEY is required.*fail-closed/,
+  );
+});
+
+test("client fails closed when the SEO-Bot URL is absent", () => {
+  assert.throws(
+    () => new SeoBuildIntelligenceHttpClient("", "machine-key-123"),
+    /SEO_BOT_URL is required.*fail-closed/,
+  );
+});
