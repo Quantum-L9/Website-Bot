@@ -29,7 +29,10 @@ import {
   PageContentContractCompileError,
 } from "../intelligence/compile-page-content-contract.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
+import {
+  SeoBotPreflightError,
+  type SeoBuildIntelligencePort,
+} from "../intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../intelligence/verified-business-facts.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
@@ -106,6 +109,23 @@ export class RedesignContentAuthorityStage implements Stage {
     const counters = ctx.redesignCounters;
 
     const port = this.portFactory(ctx);
+
+    // ---- Authenticated preflight: health + build-intelligence readiness.
+    //      Fails closed with a mapped SEO_BOT_* BuildError code before the
+    //      expensive pipeline (R6+) begins.
+    try {
+      await port.preflight();
+    } catch (error) {
+      if (error instanceof SeoBotPreflightError) {
+        throw new BuildError(
+          error.code,
+          `REDESIGN preflight failed: ${error.message}`,
+        );
+      }
+      throw error;
+    }
+    logger.info({ clientId: ctx.clientId }, "SEO-Bot preflight passed");
+
     const routes = ctx.domainSpec.routes.map((route) => ({
       route_id: route.slug,
       path: route.slug,

@@ -44,6 +44,41 @@ export interface StructuredContentRequest {
   page_content_contract: PageContentContractArtifact;
 }
 
+/** Machine-authenticated readiness snapshot returned by the SEO-Bot preflight. */
+export interface SeoBotPreflightResult {
+  status: string;
+  service: string;
+  version: string;
+  bot_interop_version: string;
+  llm_router_version: string;
+  capabilities: {
+    competitive_landscape: boolean;
+    seo_content_blueprint: boolean;
+    structured_content: boolean;
+  };
+  configuration: {
+    dataforseo_configured: boolean;
+    llm_provider_configured: boolean;
+  };
+}
+
+/** Typed preflight failure carrying the mapped SEO_BOT_* failure code. */
+export class SeoBotPreflightError extends Error {
+  readonly code:
+    | "SEO_BOT_UNREACHABLE"
+    | "SEO_BOT_AUTH_FAILED"
+    | "SEO_BOT_CAPABILITY_MISMATCH"
+    | "SEO_BOT_ROUTER_VERSION_MISMATCH";
+  constructor(
+    code: SeoBotPreflightError["code"],
+    message: string,
+  ) {
+    super(message);
+    this.name = "SeoBotPreflightError";
+    this.code = code;
+  }
+}
+
 export interface SeoBuildIntelligencePort {
   createCompetitiveLandscape(
     request: CompetitiveLandscapeRequest,
@@ -56,6 +91,13 @@ export interface SeoBuildIntelligencePort {
   createStructuredContent(
     request: StructuredContentRequest,
   ): Promise<StructuredContentPackageArtifact>;
+
+  /**
+   * Machine-authenticated REDESIGN preflight: health reachability plus the
+   * build-intelligence readiness snapshot. Throws {@link SeoBotPreflightError}
+   * with one of the four SEO_BOT_* failure codes on any failure.
+   */
+  preflight(): Promise<SeoBotPreflightResult>;
 }
 
 /**
