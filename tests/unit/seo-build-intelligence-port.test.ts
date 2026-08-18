@@ -135,3 +135,156 @@ test("client fails closed when the SEO-Bot URL is absent", () => {
     /SEO_BOT_URL is required.*fail-closed/,
   );
 });
+
+/* ── Authenticated REDESIGN preflight (health + build-intelligence readiness) ── */
+
+import {
+  SeoBotPreflightError,
+  type SeoBotPreflightResult,
+} from "../../src/intelligence/SeoBuildIntelligencePort.js";
+
+/** Local pinned versions the client parity-checks against. */
+const LOCAL_BOT_INTEROP_VERSION = "1.1.0";
+const LOCAL_ROUTER_VERSION = "1.3.0";
+
+function preflightSnapshot(overrides?: Partial<SeoBotPreflightResult>): SeoBotPreflightResult {
+  return {
+    status: "ready",
+    service: "SEO-Bot",
+    version: "2.1.0",
+    bot_interop_version: LOCAL_BOT_INTEROP_VERSION,
+    llm_router_version: LOCAL_ROUTER_VERSION,
+    capabilities: {
+      competitive_landscape: true,
+      seo_content_blueprint: true,
+      structured_content: true,
+    },
+    configuration: { dataforseo_configured: true, llm_provider_configured: true },
+    ...overrides,
+  } as SeoBotPreflightResult;
+}
+
+function preflightClient(behavior: (url: string) => Response | Promise<Response>) {
+  return new SeoBuildIntelligenceHttpClient(
+    "https://seo-bot.example",
+    "machine-key-123",
+    async (url) => behavior(String(url)),
+  );
+}
+
+const healthOk = () => new Response(JSON.stringify({ status: "ok" }), { status: 200 });
+
+test("preflight passes when health and the readiness snapshot are clean", async () => {
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    if (url.endsWith("/api/build-intelligence/preflight")) {
+      return new Response(JSON.stringify(preflightSnapshot()), { status: 200 });
+    }
+    throw new Error(`unexpected url ${url}`);
+  });
+  const snapshot = await client.preflight();
+  assert.equal(snapshot.llm_router_version, LOCAL_ROUTER_VERSION);
+  assert.deepEqual(snapshot.capabilities, {
+    competitive_landscape: true,
+    seo_content_blueprint: true,
+    structured_content: true,
+  });
+});
+
+test("preflight maps a network failure to SEO_BOT_UNREACHABLE", async () => {
+  const client = preflightClient(() => {
+    throw new Error("connection refused");
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_UNREACHABLE",
+  );
+});
+
+test("preflight maps an unhealthy service to SEO_BOT_UNREACHABLE", async () => {
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return new Response("down", { status: 503 });
+    throw new Error(`unexpected url ${url}`);
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_UNREACHABLE",
+  );
+});
+
+test("preflight maps 401 to SEO_BOT_AUTH_FAILED", async () => {
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response("unauthorized", { status: 401 });
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_AUTH_FAILED",
+  );
+});
+
+test("preflight maps a missing capability to SEO_BOT_CAPABILITY_MISMATCH", async () => {
+  const snapshot = preflightSnapshot({
+    capabilities: {
+      competitive_landscape: true,
+      seo_content_blueprint: true,
+      structured_content: false,
+    },
+  });
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response(JSON.stringify(snapshot), { status: 200 });
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError &&
+      error.code === "SEO_BOT_CAPABILITY_MISMATCH" &&
+      /structured_content/.test(error.message),
+  );
+});
+
+test("preflight maps incomplete provider configuration to SEO_BOT_CAPABILITY_MISMATCH", async () => {
+  const snapshot = preflightSnapshot({
+    configuration: { dataforseo_configured: false, llm_provider_configured: true },
+  });
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response(JSON.stringify(snapshot), { status: 200 });
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_CAPABILITY_MISMATCH",
+  );
+});
+
+test("preflight maps a bot-interop mismatch to SEO_BOT_CAPABILITY_MISMATCH", async () => {
+  const snapshot = preflightSnapshot({ bot_interop_version: "0.9.0" });
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response(JSON.stringify(snapshot), { status: 200 });
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_CAPABILITY_MISMATCH",
+  );
+});
+
+test("preflight maps a Router patch mismatch to SEO_BOT_ROUTER_VERSION_MISMATCH", async () => {
+  const snapshot = preflightSnapshot({ llm_router_version: "9.9.9" });
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response(JSON.stringify(snapshot), { status: 200 });
+  });
+  await assert.rejects(
+    () => client.preflight(),
+    (error: unknown) =>
+      error instanceof SeoBotPreflightError &&
+      error.code === "SEO_BOT_ROUTER_VERSION_MISMATCH",
+  );
+});

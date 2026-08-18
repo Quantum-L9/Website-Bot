@@ -16,10 +16,12 @@ import {
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
 import { compilePageContentContract } from "../../src/intelligence/compile-page-content-contract.js";
-import type {
-  SeoBuildIntelligencePort,
-  SEOContentBlueprintRequest,
-  StructuredContentRequest,
+import {
+  SeoBotPreflightError,
+  type SeoBotPreflightResult,
+  type SeoBuildIntelligencePort,
+  type SEOContentBlueprintRequest,
+  type StructuredContentRequest,
 } from "../../src/intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../../src/intelligence/verified-business-facts.js";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
@@ -85,9 +87,14 @@ class FakePort implements SeoBuildIntelligencePort {
     private readonly scpMutator?: (
       payload: StructuredContentPackageV1,
     ) => StructuredContentPackageV1,
+    private readonly preflightImpl?: () => Promise<SeoBotPreflightResult>,
   ) {}
   async createCompetitiveLandscape(): Promise<never> {
     throw new Error("not used in this test");
+  }
+  async preflight(): Promise<SeoBotPreflightResult> {
+    if (this.preflightImpl) return this.preflightImpl();
+    return makePreflightSnapshot();
   }
   async createSEOContentBlueprint(
     _request: SEOContentBlueprintRequest,
@@ -381,3 +388,77 @@ void test("projection fails closed when the SCP is missing a spec route", async 
     (error: unknown) => error instanceof BuildError && error.code === "ROUTE_SET_MISMATCH",
   );
 });
+
+/* ── Authenticated REDESIGN preflight: ordering + failure-code mapping ──────── */
+
+function makePreflightSnapshot(): SeoBotPreflightResult {
+  return {
+    status: "ready",
+    service: "SEO-Bot",
+    version: "2.1.0",
+    bot_interop_version: "1.1.0",
+    llm_router_version: "1.3.0",
+    capabilities: {
+      competitive_landscape: true,
+      seo_content_blueprint: true,
+      structured_content: true,
+    },
+    configuration: { dataforseo_configured: true, llm_provider_configured: true },
+  };
+}
+
+class RecordingPort implements SeoBuildIntelligencePort {
+  calls: string[] = [];
+  constructor(private readonly inner: FakePort) {}
+  async createCompetitiveLandscape(): Promise<never> {
+    throw new Error("not used in this test");
+  }
+  async createSEOContentBlueprint(
+    request: SEOContentBlueprintRequest,
+  ): Promise<import("@quantum-l9/bot-interop").SEOContentBlueprintArtifact> {
+    this.calls.push("createSEOContentBlueprint");
+    return this.inner.createSEOContentBlueprint(request);
+  }
+  async createStructuredContent(
+    request: StructuredContentRequest,
+  ): Promise<import("@quantum-l9/bot-interop").StructuredContentPackageArtifact> {
+    this.calls.push("createStructuredContent");
+    return this.inner.createStructuredContent(request);
+  }
+  async preflight(): Promise<SeoBotPreflightResult> {
+    this.calls.push("preflight");
+    return makePreflightSnapshot();
+  }
+}
+
+void test("the preflight runs BEFORE any expensive SEO-Bot call", async () => {
+  const landscape = makeLandscape();
+  const blueprint = makeWebsiteBlueprint(landscape);
+  const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
+  const recording = new RecordingPort(new FakePort(makeSeoBlueprint(landscape)));
+  const stage = new RedesignContentAuthorityStage(() => recording);
+  await stage.run(ctx);
+  assert.ok(recording.calls.indexOf("preflight") === 0, `expected preflight first, got ${recording.calls.join(", ")}`);
+  assert.ok(recording.calls.includes("createSEOContentBlueprint"));
+});
+
+for (const code of [
+  "SEO_BOT_UNREACHABLE",
+  "SEO_BOT_AUTH_FAILED",
+  "SEO_BOT_CAPABILITY_MISMATCH",
+  "SEO_BOT_ROUTER_VERSION_MISMATCH",
+] as const) {
+  void test(`preflight failure ${code} fails the build closed with that code`, async () => {
+    const landscape = makeLandscape();
+    const blueprint = makeWebsiteBlueprint(landscape);
+    const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
+    const failingPort = new FakePort(makeSeoBlueprint(landscape), undefined, () => {
+      throw new SeoBotPreflightError(code, `simulated ${code}`);
+    });
+    const stage = new RedesignContentAuthorityStage(() => failingPort);
+    await assert.rejects(
+      () => stage.run(ctx),
+      (error: unknown) => error instanceof BuildError && error.code === code,
+    );
+  });
+}
