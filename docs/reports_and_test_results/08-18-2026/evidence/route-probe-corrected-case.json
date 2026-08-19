@@ -1,0 +1,160 @@
+{
+  "schema": "l9.route-probe/v1",
+  "probed_at": "2026-08-19T03:42:01.224219+00:00",
+  "case": "corrected (operator-authorized /services/* correction)",
+  "count": 29,
+  "matches_real_source_inventory": true,
+  "summary": {
+    "http_200": 29,
+    "non_200": 0,
+    "redirected": 0
+  },
+  "probes": [
+    {
+      "route": "/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/roof-replacement/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/roof-repair/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/roof-installation/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/roof-inspection/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/storm-damage/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/asphalt-shingles/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/metal-roofing/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/flat-roofing/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/gutters/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/siding-fascia-soffit/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/interior-renovations/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/outdoor-living/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/service-areas/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/service-areas/charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/insurance-claims/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/repair-or-replace-roof-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/how-long-roof-replacement-takes-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/metal-roof-vs-shingles-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/roof-replacement-cost-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/storm-damage-roof-repair-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/about/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/gallery/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/faq/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/contact/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/privacy/",
+      "http_status": 200,
+      "num_redirects": 0
+    }
+  ],
+  "verdict": "SAFE_HAVEN_BASELINE_ROUTE_DRIFT_CLEARED"
+}

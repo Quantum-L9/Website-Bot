@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "build_id": "safehavenrr-1786991794769",
+  "client_id": "safehavenrr",
+  "code": "UNKNOWN",
+  "failed_at": "2026-08-17T18:40:20.124Z",
+  "input_evidence": [],
+  "message": "SEO-Bot intelligence /api/build-intelligence/structured-content failed (500): {\"error\":\"build_intelligence_failed\",\"message\":\"[\\n  {\\n    \\\"code\\\": \\\"invalid_type\\\",\\n    \\\"expected\\\": \\\"array\\\",\\n    \\\"received\\\": \\\"undefined\\\",\\n    \\\"path\\\": [\\n      \\\"sections\\\",\\n      0,\\n      \\\"blocks\\\"\\n    ],\\n    \\\"message\\\": \\\"Required\\\"\\n  },\\n  {\\n    \\\"code\\\": \\\"unrecognized_keys\\\",\\n    \\\"keys\\\": [\\n      \\\"content\\\"\\n    ],\\n    \\\"path\\\": [\\n      \\\"sections\\\",\\n      0\\n    ],\\n    \\\"message\\\": \\\"Unrecognized key(s) in object: 'content'\\\"\\n  },\\n  {\\n    \\\"code\\\": \\\"inva",
+  "recoverable": false,
+  "schema": "website-bot.stage-failure/v2",
+  "stage": "redesign-content-authority"
+}
