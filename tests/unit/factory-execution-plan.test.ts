@@ -100,6 +100,41 @@ test("REDESIGN_IMPROVE inserts competitive-intelligence before design generation
   );
 });
 
+test("REDESIGN preflight precedes competitive intelligence", () => {
+  // Regression: the readiness proof used to live INSIDE
+  // redesign-content-authority, which runs after competitive-intelligence —
+  // so the first paid build-intelligence call happened before any preflight.
+  const plan = buildFactoryExecutionPlan({
+    mode: "end-to-end",
+    specPath: "fixtures/ci-test-spec.yaml",
+    buildIntent: "REDESIGN_IMPROVE",
+  });
+  const names = plan.stages.map((stage) => stage.name);
+  assert.ok(names.includes("seo-build-intelligence-preflight"));
+  assert.ok(
+    names.indexOf("seo-build-intelligence-preflight") < names.indexOf("competitive-intelligence"),
+    "preflight must precede the first paid SEO-Bot call",
+  );
+  assert.ok(
+    names.indexOf("competitive-intelligence") < names.indexOf("redesign-content-authority"),
+  );
+  assert.ok(
+    names.indexOf("unknown-resolver") < names.indexOf("seo-build-intelligence-preflight"),
+  );
+  assert.ok(
+    plan.mandatoryStages.includes("seo-build-intelligence-preflight"),
+    "seo-build-intelligence-preflight must be mandatory under REDESIGN_IMPROVE",
+  );
+  assert.throws(() =>
+    buildFactoryExecutionPlan({
+      mode: "end-to-end",
+      specPath: "fixtures/ci-test-spec.yaml",
+      buildIntent: "REDESIGN_IMPROVE",
+      skipStages: ["seo-build-intelligence-preflight"],
+    }),
+  );
+});
+
 test("COPY intent (legacy default) keeps the original stage topology", () => {
   const plan = buildFactoryExecutionPlan({
     mode: "local-proof",
@@ -107,4 +142,5 @@ test("COPY intent (legacy default) keeps the original stage topology", () => {
   });
   const names = plan.stages.map((stage) => stage.name);
   assert.equal(names.includes("competitive-intelligence"), false);
+  assert.equal(names.includes("seo-build-intelligence-preflight"), false);
 });

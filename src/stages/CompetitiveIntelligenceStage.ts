@@ -596,6 +596,15 @@ export class CompetitiveIntelligenceStage implements Stage {
       );
       return;
     }
+    // Topology guard: the seo-build-intelligence-preflight stage must already
+    // have proved readiness. Without that evidence this stage would make the
+    // first PAID SEO-Bot call on an unproven service, so it fails closed.
+    if (!ctx.seoBuildIntelligencePreflight) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "competitive intelligence requires a successful seo-build-intelligence-preflight",
+      );
+    }
     const seoBotUrl = process.env.SEO_BOT_URL?.trim();
     const seoBotKey = process.env.SEO_BOT_API_KEY?.trim();
     if (!seoBotUrl || !seoBotKey) {

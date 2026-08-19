@@ -29,10 +29,7 @@ import {
   PageContentContractCompileError,
 } from "../intelligence/compile-page-content-contract.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import {
-  SeoBotPreflightError,
-  type SeoBuildIntelligencePort,
-} from "../intelligence/SeoBuildIntelligencePort.js";
+import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../intelligence/verified-business-facts.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
@@ -101,6 +98,15 @@ export class RedesignContentAuthorityStage implements Stage {
       return;
     }
     const { blueprint, landscape } = this.assertPrerequisites(ctx);
+    // The readiness proof is produced by the seo-build-intelligence-preflight
+    // stage, which runs before ANY paid SEO-Bot call. Here we require that
+    // evidence rather than repeating the probe.
+    if (!ctx.seoBuildIntelligencePreflight) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "redesign content authority requires successful SEO-Bot preflight evidence",
+      );
+    }
     ctx.redesignCounters ??= {
       pageContentContractLlmCalls: 0,
       legacyContentGenerationCalls: 0,
@@ -109,22 +115,6 @@ export class RedesignContentAuthorityStage implements Stage {
     const counters = ctx.redesignCounters;
 
     const port = this.portFactory(ctx);
-
-    // ---- Authenticated preflight: health + build-intelligence readiness.
-    //      Fails closed with a mapped SEO_BOT_* BuildError code before the
-    //      expensive pipeline (R6+) begins.
-    try {
-      await port.preflight();
-    } catch (error) {
-      if (error instanceof SeoBotPreflightError) {
-        throw new BuildError(
-          error.code,
-          `REDESIGN preflight failed: ${error.message}`,
-        );
-      }
-      throw error;
-    }
-    logger.info({ clientId: ctx.clientId }, "SEO-Bot preflight passed");
 
     const routes = ctx.domainSpec.routes.map((route) => ({
       route_id: route.slug,

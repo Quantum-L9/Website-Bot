@@ -6,6 +6,7 @@
 
 import type { BuildContext } from "../BuildContext.js";
 import { BuildError } from "../BuildError.js";
+import type { EvidenceGateStatus } from "./ReleaseReceipt.js";
 
 export const REDESIGN_INTEGRITY_RECEIPT_SCHEMA =
   "website-bot.redesign-execution-integrity-receipt/v1" as const;
@@ -44,7 +45,7 @@ export interface RedesignExecutionIntegrityReceipt {
     source_assets_rejected: number;
     unexplained_asset_loss: number;
   };
-  visual_qa: { status: string };
+  visual_qa: { status: EvidenceGateStatus };
   emitted_at: string;
 }
 
@@ -188,8 +189,13 @@ function validateVisualState(
     );
   if (receipt.visual.unexplained_asset_loss !== 0)
     receiptFail(`unexplained_asset_loss must be 0, got ${receipt.visual.unexplained_asset_loss}`);
-  if (requireVisualQa && receipt.visual_qa.status !== "verified")
-    receiptFail(`visual_qa must be verified for end-to-end convergence, got ${receipt.visual_qa.status}`);
+  // "passed" is the canonical EvidenceGateStatus success value emitted by
+  // VisualQAStage and required by the release receipt; nothing ever produces
+  // "verified", so demanding it here failed every end-to-end redesign run.
+  if (requireVisualQa && receipt.visual_qa.status !== "passed")
+    receiptFail(
+      `visual_qa must be passed for end-to-end convergence, got ${receipt.visual_qa.status}`,
+    );
 }
 
 export function validateRedesignExecutionIntegrityReceipt(
