@@ -15,10 +15,18 @@
  * occur in a real run - reserved-TLD hostnames guaranteed never to resolve,
  * git SHAs with no plausible entropy - and those values sit in fields the
  * oracle requires, dozens of times over. Removing them is not editing a flag;
- * it is fabricating an entire receipt, which is a different threat that no
- * marker scheme can address and that the oracle's real-evidence requirements
- * (real DataForSEO observations, full git SHAs, evidence digests, timestamps)
- * already price in.
+ * it is fabricating an entire receipt.
+ *
+ * Fabrication is a different threat, and no marker scheme can address it. Nor,
+ * today, does anything else: the oracle's "real evidence" requirements are
+ * currently self-assertions. donor.real_dataforseo_observation is checked with
+ * requireTrue against a boolean the receipt states about itself, and no code
+ * under src/ emits an l9.golden-run-receipt/v1 at all - the receipt is
+ * assembled by hand. Closing fabrication needs production-side attestation
+ * (a machine-emitted receipt derived from a content-addressed evidence bundle,
+ * asserted over by a CI run identity the author cannot mint locally). That is
+ * a pipeline change, not a harness change. Do not read the checks in this
+ * module as protection against a fabricated receipt; they are not.
  *
  * This module holds the shared vocabulary. Detection lives in the verifier;
  * stamping lives in the builder. Both import from here so they cannot drift.
