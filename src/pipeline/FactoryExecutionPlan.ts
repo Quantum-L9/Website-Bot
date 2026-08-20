@@ -19,6 +19,7 @@ import { ReleaseReceiptFinalizerStage } from "../stages/ReleaseReceiptFinalizerS
 import { ReleaseReceiptStage } from "../stages/ReleaseReceiptStage.js";
 import { SchemaGeneratorStage } from "../stages/SchemaGeneratorStage.js";
 import { SEOBaselineStage } from "../stages/SEOBaselineStage.js";
+import { SeoBuildIntelligencePreflightStage } from "../stages/SeoBuildIntelligencePreflightStage.js";
 import { SiteAssemblerStage } from "../stages/SiteAssemblerStage.js";
 import { SiteBuildStage } from "../stages/SiteBuildStage.js";
 import { SourceSiteIngestionStage } from "../stages/SourceSiteIngestionStage.js";
@@ -33,7 +34,10 @@ import { PipelineRunner, type Stage } from "./PipelineRunner.js";
 
 export interface FactoryExecutionPlanOptions {
   mode: ExecutionMode;
-  /** Transformation intent; REDESIGN_IMPROVE inserts the competitive-intelligence stage. */
+  /**
+   * Transformation intent; REDESIGN_IMPROVE inserts the
+   * seo-build-intelligence-preflight and competitive-intelligence stages.
+   */
   buildIntent?: BuildIntent;
   specPath: string;
   skipStages?: string[];
@@ -214,6 +218,7 @@ export class TerminalConvergenceStage implements Stage {
  * topology cannot satisfy redesign convergence.
  */
 const REDESIGN_ADDED_MANDATORY = [
+  "seo-build-intelligence-preflight",
   "competitive-intelligence",
   "redesign-content-authority",
   "structured-content-projection",
@@ -253,7 +258,12 @@ export function buildFactoryExecutionPlan(
       }),
     );
   stages.push(new UnknownResolverStage());
-  if (redesign) stages.push(new CompetitiveIntelligenceStage());
+  if (redesign) {
+    // The readiness proof precedes the first paid build-intelligence call;
+    // ordering here IS the guarantee, and CompetitiveIntelligenceStage
+    // fails closed if it ever runs without the resulting evidence.
+    stages.push(new SeoBuildIntelligencePreflightStage(), new CompetitiveIntelligenceStage());
+  }
   stages.push(new SourceSiteIngestionStage(), new DesignIntelligenceStage());
   if (redesign) {
     // Redesign content/schema authority chain: legacy ContentGenerationStage

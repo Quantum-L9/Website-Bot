@@ -180,6 +180,10 @@ function createFileInspector(contextRoot, violations) {
     // PageContentContract → StructuredContentPackage) consumes the same seam.
     "Website-Bot/src/stages/RedesignContentAuthorityStage.ts",
     "src/stages/RedesignContentAuthorityStage.ts",
+    // The readiness proof for that seam: it runs before the first paid
+    // build-intelligence call and owns the SEO_BOT_* credential preconditions.
+    "Website-Bot/src/stages/SeoBuildIntelligencePreflightStage.ts",
+    "src/stages/SeoBuildIntelligencePreflightStage.ts",
     "Website-Bot/src/intelligence/SeoBuildIntelligenceHttpClient.ts",
     "src/intelligence/SeoBuildIntelligenceHttpClient.ts",
   ]);

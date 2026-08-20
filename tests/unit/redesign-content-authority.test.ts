@@ -17,7 +17,6 @@ import {
 } from "@quantum-l9/bot-interop";
 import { compilePageContentContract } from "../../src/intelligence/compile-page-content-contract.js";
 import {
-  SeoBotPreflightError,
   type SeoBotPreflightResult,
   type SeoBuildIntelligencePort,
   type SEOContentBlueprintRequest,
@@ -148,6 +147,7 @@ function makeCtx(overrides?: Partial<BuildContext>): BuildContext {
     generatedSchemas: new Map<string, object>(),
     stageResults: new Map(),
     qualityEvidence: { seoBaseline: "pending", visualQa: "pending" },
+    seoBuildIntelligencePreflight: makePreflightSnapshot(),
     ...overrides,
   } as unknown as BuildContext;
 }
@@ -431,34 +431,37 @@ class RecordingPort implements SeoBuildIntelligencePort {
   }
 }
 
-void test("the preflight runs BEFORE any expensive SEO-Bot call", async () => {
+// Preflight EXECUTION (probe + SEO_BOT_* failure-code mapping) belongs to the
+// seo-build-intelligence-preflight stage and is covered by its own suite; this
+// stage only consumes the resulting evidence.
+void test("this stage consumes preflight evidence instead of re-probing SEO-Bot", async () => {
   const landscape = makeLandscape();
   const blueprint = makeWebsiteBlueprint(landscape);
   const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
   const recording = new RecordingPort(new FakePort(makeSeoBlueprint(landscape)));
   const stage = new RedesignContentAuthorityStage(() => recording);
   await stage.run(ctx);
-  assert.ok(recording.calls.indexOf("preflight") === 0, `expected preflight first, got ${recording.calls.join(", ")}`);
+  assert.ok(
+    !recording.calls.includes("preflight"),
+    `preflight must not be repeated here, got ${recording.calls.join(", ")}`,
+  );
   assert.ok(recording.calls.includes("createSEOContentBlueprint"));
 });
 
-for (const code of [
-  "SEO_BOT_UNREACHABLE",
-  "SEO_BOT_AUTH_FAILED",
-  "SEO_BOT_CAPABILITY_MISMATCH",
-  "SEO_BOT_ROUTER_VERSION_MISMATCH",
-] as const) {
-  void test(`preflight failure ${code} fails the build closed with that code`, async () => {
-    const landscape = makeLandscape();
-    const blueprint = makeWebsiteBlueprint(landscape);
-    const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
-    const failingPort = new FakePort(makeSeoBlueprint(landscape), undefined, () => {
-      throw new SeoBotPreflightError(code, `simulated ${code}`);
-    });
-    const stage = new RedesignContentAuthorityStage(() => failingPort);
-    await assert.rejects(
-      () => stage.run(ctx),
-      (error: unknown) => error instanceof BuildError && error.code === code,
-    );
+void test("missing preflight evidence fails closed before any SEO-Bot call", async () => {
+  const landscape = makeLandscape();
+  const blueprint = makeWebsiteBlueprint(landscape);
+  const ctx = makeCtx({
+    websiteBlueprint: blueprint,
+    competitiveLandscape: landscape,
+    seoBuildIntelligencePreflight: undefined,
   });
-}
+  const recording = new RecordingPort(new FakePort(makeSeoBlueprint(landscape)));
+  const stage = new RedesignContentAuthorityStage(() => recording);
+  await assert.rejects(
+    () => stage.run(ctx),
+    (error: unknown) =>
+      error instanceof BuildError && error.code === "REDESIGN_PIPELINE_INCOMPLETE",
+  );
+  assert.deepEqual(recording.calls, []);
+});

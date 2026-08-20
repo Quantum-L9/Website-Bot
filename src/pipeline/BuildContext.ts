@@ -8,6 +8,7 @@ import type {
   WebsiteBuildBlueprintArtifact,
 } from "@quantum-l9/bot-interop";
 import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
+import type { SeoBotPreflightResult } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import type { BuildIntent } from "./BuildIntent.js";
@@ -184,6 +185,12 @@ export interface BuildContext {
   qualityEvidence: QualityEvidence;
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
+  /**
+   * Successful machine-authenticated SEO-Bot readiness proof for this run,
+   * produced by the seo-build-intelligence-preflight stage before the first
+   * paid build-intelligence call. Its absence is a hard failure downstream.
+   */
+  seoBuildIntelligencePreflight?: SeoBotPreflightResult;
   /**
    * Redesign authority chain (Campaign 7). Populated only under
    * REDESIGN_IMPROVE; every artifact is lineage-checked before use and the
