@@ -66,8 +66,15 @@ export function canonicalize(value) {
   if (Array.isArray(value)) {
     return `[${value.map(canonicalize).join(",")}]`;
   }
+  /*
+   * Sort with an explicit code-unit comparator, never String.localeCompare:
+   * a canonical form must produce the same bytes on every machine, and
+   * locale-aware collation varies with the runtime's ICU data. This ordering
+   * is identical to the default sort for string keys, and Object.keys only
+   * ever yields strings.
+   */
   return `{${Object.keys(value)
-    .sort()
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
     .map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`)
     .join(",")}}`;
 }

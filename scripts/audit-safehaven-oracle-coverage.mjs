@@ -3,6 +3,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 const ROOT = process.cwd();
+
+/*
+ * This auditor is fail-closed by design, so every top-level throw - a corrupt
+ * inventory, the wrong oracle, a path pointing outside the repository - must
+ * end the process nonzero. Report it as a legible refusal rather than a stack
+ * trace, and never as a pass.
+ */
+process.on("uncaughtException", (error) => {
+  console.error(
+    `SAFEHAVEN_AUDIT_FAILED: ${
+      error instanceof Error ? error.message : String(error)
+    }`
+  );
+  process.exit(2);
+});
 const oraclePath =
   process.argv[2] ?? "tests/golden/safehaven/oracle.json";
 const verifierPath =
@@ -275,7 +290,7 @@ const SOUNDNESS_SENTINELS = new Map([
 ]);
 
 function readJson(p) {
-  return JSON.parse(fs.readFileSync(path.resolve(ROOT, p), "utf8"));
+  return JSON.parse(fs.readFileSync(resolveInsideRepo(p), "utf8"));
 }
 
 function compact(value) {
@@ -350,7 +365,7 @@ function deriveHardcodedOracleFindings(source, oracle) {
 
 const oracle = readJson(oraclePath);
 const verifierSource =
-  fs.readFileSync(path.resolve(ROOT, verifierPath), "utf8");
+  fs.readFileSync(resolveInsideRepo(verifierPath), "utf8");
 
 /*
  * Synthetic-evidence detection spans the verifier and the shared provenance
@@ -359,9 +374,24 @@ const verifierSource =
  * unreadable module is not an error to swallow: it reads as empty source, the
  * sentinels go missing, and the audit fails closed.
  */
+function resolveInsideRepo(candidate) {
+  const resolved = path.resolve(ROOT, candidate);
+  const relative = path.relative(ROOT, resolved);
+  if (
+    relative === "" ||
+    relative.startsWith("..") ||
+    path.isAbsolute(relative)
+  ) {
+    throw new Error(
+      `refusing to read outside the repository: ${candidate}`
+    );
+  }
+  return resolved;
+}
+
 function readSourceOrEmpty(sourcePath) {
   try {
-    return fs.readFileSync(path.resolve(ROOT, sourcePath), "utf8");
+    return fs.readFileSync(resolveInsideRepo(sourcePath), "utf8");
   } catch {
     return "";
   }
@@ -433,7 +463,7 @@ function normalizeSoundnessSpec(spec) {
 
 function countOccurrences(source, identifier) {
   const matches = source.match(
-    new RegExp(`\\b${identifier}\\b`, "g")
+    new RegExp(String.raw`\b${identifier}\b`, "g")
   );
   return matches ? matches.length : 0;
 }
@@ -498,7 +528,7 @@ async function runDetectionProbes(modulePath) {
   let provenance;
   try {
     provenance = await import(
-      pathToFileURL(path.resolve(ROOT, modulePath)).href
+      pathToFileURL(resolveInsideRepo(modulePath)).href
     );
   } catch (error) {
     return [
@@ -554,9 +584,25 @@ async function runDetectionProbes(modulePath) {
   probe("real_looking_sha_not_flagged", () =>
     provenance.degenerateShaReason(REAL_LOOKING_SHA) === null
   );
-  probe("provenance_seal_is_stable", () => {
-    const body = { calibration: { synthetic: true }, run: { run_id: "a" } };
-    return provenance.provenanceSeal(body) === provenance.provenanceSeal(body);
+  /*
+   * Sealing the same object twice would only prove sha256 is a function. The
+   * property that actually matters is that canonicalization is insensitive to
+   * key insertion order, so two structurally equal receipts assembled in
+   * different orders seal identically on any machine.
+   */
+  probe("provenance_seal_is_key_order_stable", () => {
+    const forward = {
+      calibration: { synthetic: true, purpose: "p" },
+      run: { run_id: "a" }
+    };
+    const reordered = {
+      run: { run_id: "a" },
+      calibration: { purpose: "p", synthetic: true }
+    };
+    return (
+      provenance.provenanceSeal(forward) ===
+      provenance.provenanceSeal(reordered)
+    );
   });
   probe("provenance_seal_covers_body", () => {
     const a = { calibration: { synthetic: true }, run: { run_id: "a" } };
@@ -635,11 +681,11 @@ const result = {
 };
 
 fs.mkdirSync(
-  path.dirname(path.resolve(ROOT, outputPath)),
+  path.dirname(resolveInsideRepo(outputPath)),
   { recursive: true }
 );
 fs.writeFileSync(
-  path.resolve(ROOT, outputPath),
+  resolveInsideRepo(outputPath),
   JSON.stringify(result, null, 2) + "\n"
 );
 console.log(JSON.stringify(result, null, 2));

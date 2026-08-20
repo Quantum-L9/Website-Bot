@@ -856,6 +856,13 @@ function positiveDimensionDeltas() {
 function orientationCoin(seed) {
   let hash = 2166136261;
   for (let index = 0; index < seed.length; index++) {
+    /*
+     * charCodeAt, not codePointAt: this is an FNV-1a mix over UTF-16 code
+     * units, and the index advances one unit at a time. Seeds are ASCII route
+     * and viewport identifiers, so the two agree here anyway - but switching
+     * the primitive without also changing the stride would silently alter
+     * every orientation and rewrite the committed fixture.
+     */
     hash ^= seed.charCodeAt(index);
     hash = Math.imul(hash, 16777619) >>> 0;
   }

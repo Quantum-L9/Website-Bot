@@ -335,7 +335,7 @@
       "pass": true
     },
     {
-      "id": "provenance_seal_is_stable",
+      "id": "provenance_seal_is_key_order_stable",
       "pass": true
     },
     {
