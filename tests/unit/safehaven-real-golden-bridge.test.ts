@@ -8,10 +8,10 @@
 // from reaching the sealed verifier.
 
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
 import { parse } from "yaml";
 import {
   refForArtifact,
@@ -67,8 +67,24 @@ const oracle = JSON.parse(readFileSync(ORACLE_PATH, "utf-8")) as Record<string, 
 const LOCAL_ROUTER_VERSION = installedPackageVersion("@quantum-l9", "llm-router", REPO_ROOT);
 const LOCAL_INTEROP_VERSION = installedPackageVersion("@quantum-l9", "bot-interop", REPO_ROOT);
 
+/**
+ * Every scratch directory this suite creates lives under one root that is
+ * removed when the file finishes. The fixtures below deliberately write real
+ * bytes to disk — donor screenshots must be hashable for the donor-reuse gate
+ * to mean anything — but a test run must not leave that litter behind.
+ */
+const TEMP_ROOT = mkdtempSync(join(tmpdir(), "safehaven-bridge-"));
+let temporaryDirCounter = 0;
+
+after(() => {
+  rmSync(TEMP_ROOT, { recursive: true, force: true });
+});
+
 function temporaryDir(prefix: string): string {
-  return mkdtempSync(join(tmpdir(), `safehaven-${prefix}-`));
+  temporaryDirCounter += 1;
+  const path = join(TEMP_ROOT, `${prefix}-${temporaryDirCounter}`);
+  mkdirSync(path, { recursive: true });
+  return path;
 }
 
 /* =========================================================
