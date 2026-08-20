@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import {
+  SYNTHETIC_NAMESPACE,
+  provenanceSeal
+} from "./lib/safehaven-synthetic-provenance.mjs";
 const ROOT = process.cwd();
 const casePath =
   process.argv[2] ??
@@ -14,7 +18,7 @@ const outputPath =
 const CALIBRATION_TIMESTAMP =
   "2026-08-19T00:00:00.000Z";
 const RUN_ID =
-  "safehaven-positive-control-v1";
+  `${SYNTHETIC_NAMESPACE}/safehaven-positive-control-v1`;
 const ROUTER_VERSION =
   process.env.GOLDEN_CALIBRATION_ROUTER_VERSION ??
   "1.3.0";
@@ -1116,7 +1120,17 @@ const receipt = {
     source_case:
       casePath,
     source_oracle:
-      oraclePath
+      oraclePath,
+    /*
+     * Declaration and seal are the deletable layers. They exist for honest
+     * use and for precise diagnostics. What actually holds this fixture out
+     * of a real Golden run is the evidence it is made of: reserved-TLD hosts
+     * and placeholder identity SHAs sitting in fields the oracle requires.
+     */
+    provenance_namespace:
+      SYNTHETIC_NAMESPACE,
+    provenance_seal:
+      null
   },
   identity,
   run: {
@@ -1174,6 +1188,17 @@ fs.mkdirSync(
   {
     recursive: true
   }
+);
+/*
+ * Seal last: it covers the finished body with the seal field excluded, so
+ * stamping is idempotent and any later edit to the receipt invalidates it.
+ */
+receipt.calibration.provenance_seal =
+  provenanceSeal(receipt);
+requireEq(
+  provenanceSeal(receipt),
+  receipt.calibration.provenance_seal,
+  "Provenance seal must be stable over the sealed body"
 );
 fs.writeFileSync(
   absoluteOutput,

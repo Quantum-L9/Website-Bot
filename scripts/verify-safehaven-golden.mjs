@@ -2,6 +2,14 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import {
+  SYNTHETIC_NAMESPACE,
+  degenerateShaReason,
+  hostOf,
+  provenanceSeal,
+  reservedHostReason,
+  walkStrings
+} from "./lib/safehaven-synthetic-provenance.mjs";
 
 const ROOT = process.cwd();
 
@@ -34,14 +42,126 @@ const hardFailures = [];
 const inconclusive = [];
 const evaluatedOracleProperties = new Set();
 const EXPECTED_ORACLE_EVALUATION_COUNT = 101;
+/* =========================================================
+ * SYNTHETIC EVIDENCE DETECTION
+ *
+ * A synthetic fixture must never certify a real Golden run. That boundary
+ * cannot rest on the fixture declaring itself synthetic, because a
+ * declaration is one field and one field can be deleted. Detection is
+ * therefore a union of independent signals, and the load-bearing ones are
+ * properties of the evidence rather than labels attached to it:
+ *
+ *   declared_synthetic       the honest declaration            (deletable)
+ *   builder_provenance_seal  labelled digest over the body     (deletable)
+ *   reserved_namespace       builder-stamped identifiers       (editable)
+ *   reserved_host            RFC 2606 / 6761 names that can
+ *                            never resolve, in required
+ *                            donor and site evidence           (not removable)
+ *   degenerate_git_sha       placeholder SHAs in required
+ *                            identity evidence                 (not removable)
+ *
+ * The last two cannot be stripped, only replaced with fabrications: the
+ * fields are mandatory, so a receipt without them fails other gates outright.
+ * Scrubbing them means inventing plausible donor domains and git SHAs for
+ * observations that never happened - whole-cloth fabrication, which no marker
+ * scheme can detect and which the oracle's real-evidence requirements are
+ * what actually price in.
+ *
+ * Any signal in real mode is fatal. No signal in calibration mode is fatal.
+ * Calibration mode still only authorizes; it never changes what is detected.
+ * ======================================================= */
+
+function detectSyntheticEvidence(receipt) {
+  const signals = [];
+
+  if (receipt.calibration?.synthetic === true) {
+    signals.push({
+      signal: "declared_synthetic",
+      detail: "receipt declares calibration.synthetic"
+    });
+  }
+
+  const seal = receipt.calibration?.provenance_seal;
+  if (
+    typeof seal === "string" &&
+    seal.length > 0 &&
+    seal === provenanceSeal(receipt)
+  ) {
+    signals.push({
+      signal: "builder_provenance_seal",
+      detail: "receipt body carries a valid calibration-builder provenance seal"
+    });
+  }
+
+  const namespaceHits = [];
+  const reservedHosts = [];
+  walkStrings(receipt, (value, location) => {
+    if (value.toLowerCase().includes(SYNTHETIC_NAMESPACE)) {
+      namespaceHits.push({ location, value });
+    }
+    const reason = reservedHostReason(hostOf(value));
+    if (reason) {
+      reservedHosts.push({ location, value, reason });
+    }
+  });
+
+  if (namespaceHits.length > 0) {
+    signals.push({
+      signal: "reserved_namespace",
+      detail: `${namespaceHits.length} identifier(s) carry the reserved synthetic namespace`,
+      occurrences: namespaceHits.length,
+      examples: namespaceHits.slice(0, 5)
+    });
+  }
+
+  if (reservedHosts.length > 0) {
+    signals.push({
+      signal: "reserved_host",
+      detail:
+        `${reservedHosts.length} host value(s) use names reserved by RFC 2606/6761, ` +
+        "which can never resolve and so can never be observed by a real crawl",
+      occurrences: reservedHosts.length,
+      examples: reservedHosts.slice(0, 5)
+    });
+  }
+
+  const degenerateShas = [];
+  for (const [repoName, identity] of Object.entries(
+    receipt.identity ?? {}
+  )) {
+    const reason = degenerateShaReason(identity?.sha);
+    if (reason) {
+      degenerateShas.push({
+        location: `identity.${repoName}.sha`,
+        value: identity.sha,
+        reason
+      });
+    }
+  }
+
+  if (degenerateShas.length > 0) {
+    signals.push({
+      signal: "degenerate_git_sha",
+      detail: `${degenerateShas.length} identity SHA(s) carry placeholder entropy`,
+      occurrences: degenerateShas.length,
+      examples: degenerateShas
+    });
+  }
+
+  return signals;
+}
+
+const syntheticEvidenceSignals =
+  detectSyntheticEvidence(receipt);
 const syntheticReceipt =
-  receipt.calibration?.synthetic === true;
+  syntheticEvidenceSignals.length > 0;
 const calibrationMode =
   process.env.GOLDEN_CALIBRATION_MODE === "1";
 if (syntheticReceipt && !calibrationMode) {
   fail(
     "SYNTHETIC_RECEIPT_FORBIDDEN",
-    "Synthetic calibration receipt cannot certify a real Golden run"
+    "Synthetic calibration receipt cannot certify a real Golden run",
+    syntheticEvidenceSignals
   );
 }
 if (calibrationMode && !syntheticReceipt) {
@@ -2289,7 +2409,10 @@ const result = {
   calibration: {
       synthetic: syntheticCalibration,
       synthetic_receipt: syntheticReceipt,
-      calibration_mode: calibrationMode
+      calibration_mode: calibrationMode,
+      synthetic_evidence_signals:
+        syntheticEvidenceSignals.map((s) => s.signal),
+      synthetic_evidence_detail: syntheticEvidenceSignals
     },
 
   metrics: {

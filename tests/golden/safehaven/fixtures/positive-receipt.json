@@ -6,7 +6,9 @@
     "purpose": "verifier-positive-control-only",
     "must_not_be_used_as_real_golden_evidence": true,
     "source_case": "tests/golden/safehaven/case.json",
-    "source_oracle": "tests/golden/safehaven/oracle.json"
+    "source_oracle": "tests/golden/safehaven/oracle.json",
+    "provenance_namespace": "l9-synthetic-calibration",
+    "provenance_seal": "c48952660307a199d5584278ab4a06e4f2e7c308d74b9efae5d0689e4d3fc6e1"
   },
   "identity": {
     "website_bot": {
@@ -31,7 +33,7 @@
     }
   },
   "run": {
-    "run_id": "safehaven-positive-control-v1",
+    "run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
     "build_intent": "REDESIGN_IMPROVE",
     "copy_fallback_used": false,
     "generic_fallback_used": false,
@@ -1166,8 +1168,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/::desktop::trial-1",
@@ -1340,8 +1342,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/::mobile::trial-1",
@@ -1514,8 +1516,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/services/roof-replacement::desktop::trial-1",
@@ -1688,8 +1690,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/services/roof-replacement::mobile::trial-1",
@@ -1862,8 +1864,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/services/storm-damage::desktop::trial-1",
@@ -2036,8 +2038,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/services/storm-damage::mobile::trial-1",
@@ -2210,8 +2212,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/gallery::desktop::trial-1",
@@ -2384,8 +2386,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/gallery::mobile::trial-1",
@@ -2558,8 +2560,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/contact::desktop::trial-1",
@@ -2732,8 +2734,8 @@
         "baseline_blank": false,
         "route_match": true,
         "viewport_match": true,
-        "candidate_run_id": "safehaven-positive-control-v1",
-        "captured_run_id": "safehaven-positive-control-v1",
+        "candidate_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
+        "captured_run_id": "l9-synthetic-calibration/safehaven-positive-control-v1",
         "trials": [
           {
             "trial_id": "/contact::mobile::trial-1",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 const ROOT = process.cwd();
 const oraclePath =
   process.argv[2] ?? "tests/golden/safehaven/oracle.json";
@@ -8,6 +9,8 @@ const verifierPath =
   process.argv[3] ?? "scripts/verify-safehaven-golden.mjs";
 const outputPath =
   process.argv[4] ?? "evidence/oracle-coverage.json";
+const provenancePath =
+  process.argv[5] ?? "scripts/lib/safehaven-synthetic-provenance.mjs";
 const EXPECTED = [
   "identity.require_full_git_shas",
   "identity.router_version_rule",
@@ -204,6 +207,41 @@ const SOUNDNESS_SENTINELS = new Map([
    * reported calibration payload — so any new calibration-conditional
    * reference anywhere in the verifier fails this audit.
    */
+  /*
+   * Synthetic evidence must be detectable from the evidence itself, not only
+   * from a field the fixture volunteers. The regression this guards against is
+   * narrow and specific: collapsing detection back to
+   * `receipt.calibration?.synthetic === true`, which one deleted field
+   * defeats. The required sentinels pin the content-derived signals that
+   * cannot be deleted - reserved-name hosts in required donor and site
+   * evidence, and placeholder entropy in required identity SHAs - and the
+   * forbidden pattern catches the collapse directly.
+   */
+  ["synthetic_evidence_detection", {
+    required: [
+      "SYNTHETIC_RECEIPT_FORBIDDEN",
+      "detectSyntheticEvidence(receipt)",
+      "reservedHostReason(hostOf(value))",
+      "degenerateShaReason(identity?.sha)",
+      "provenanceSeal(receipt)",
+      "RESERVED_TLDS",
+      "RESERVED_DOMAINS",
+      "MINIMUM_DISTINCT_SHA_NIBBLES",
+      "reserved_host",
+      "degenerate_git_sha"
+    ],
+    forbidden: [
+      [
+        "detection_collapsed_to_declaration",
+        /constsyntheticReceipt=receipt\.calibration\?\.synthetic===true/
+      ],
+      [
+        "detection_collapsed_to_seal_only",
+        /constsyntheticReceipt=[^;]*provenanceSeal\(receipt\);/
+      ]
+    ],
+    max_occurrences: []
+  }],
   ["calibration_semantic_parity", {
     required: [
       "validateVisualOrientation(trial.orientation, label)",
@@ -314,6 +352,23 @@ const oracle = readJson(oraclePath);
 const verifierSource =
   fs.readFileSync(path.resolve(ROOT, verifierPath), "utf8");
 
+/*
+ * Synthetic-evidence detection spans the verifier and the shared provenance
+ * module. Auditing only the verifier would leave a bypass free to hide one
+ * import away, so soundness sentinels are matched against both. A missing or
+ * unreadable module is not an error to swallow: it reads as empty source, the
+ * sentinels go missing, and the audit fails closed.
+ */
+function readSourceOrEmpty(sourcePath) {
+  try {
+    return fs.readFileSync(path.resolve(ROOT, sourcePath), "utf8");
+  } catch {
+    return "";
+  }
+}
+const provenanceSource = readSourceOrEmpty(provenancePath);
+const implementationSource = `${verifierSource}\n${provenanceSource}`;
+
 if (oracle.oracle_id !== "safehaven-redesign-oracle-v1") {
   throw new Error(`wrong oracle: ${oracle.oracle_id ?? "<missing>"}`);
 }
@@ -387,9 +442,9 @@ const soundnessChecks = [...SOUNDNESS_SENTINELS.entries()].map(
   ([id, spec]) => {
     const { required, forbidden, max_occurrences } =
       normalizeSoundnessSpec(spec);
-    const compactSource = compact(verifierSource);
+    const compactSource = compact(implementationSource);
     const missing = required.filter(
-      (needle) => !sourceContains(verifierSource, needle)
+      (needle) => !sourceContains(implementationSource, needle)
     );
     const forbiddenMatches = forbidden
       .filter(([, regex]) => regex.test(compactSource))
@@ -401,7 +456,7 @@ const soundnessChecks = [...SOUNDNESS_SENTINELS.entries()].map(
       .map(([identifier, limit]) => ({
         identifier,
         limit,
-        actual: countOccurrences(verifierSource, identifier)
+        actual: countOccurrences(implementationSource, identifier)
       }))
       .filter((entry) => entry.actual > entry.limit);
     return {
@@ -420,12 +475,115 @@ const soundnessChecks = [...SOUNDNESS_SENTINELS.entries()].map(
       occurrence_limits: max_occurrences.map(([identifier, limit]) => ({
         identifier,
         limit,
-        actual: countOccurrences(verifierSource, identifier)
+        actual: countOccurrences(implementationSource, identifier)
       })),
       occurrence_violations: occurrenceViolations
     };
   }
 );
+/*
+ * Source sentinels prove a mechanism is written down. They cannot prove it
+ * still works: renaming an export or gutting a lookup table leaves every
+ * required string in place while the detector throws or silently returns
+ * nothing. These probes therefore execute the real provenance module and
+ * assert its behaviour on known inputs - both directions, so a detector that
+ * "detects" everything fails just as loudly as one that detects nothing.
+ *
+ * The probes assert only what the module actually does; nothing here stands
+ * in for evidence the implementation does not provide.
+ */
+const REAL_LOOKING_SHA = "bdabe8512c4f7a9e03d1b6c8f4e2a7d09b5c3e16";
+
+async function runDetectionProbes(modulePath) {
+  let provenance;
+  try {
+    provenance = await import(
+      pathToFileURL(path.resolve(ROOT, modulePath)).href
+    );
+  } catch (error) {
+    return [
+      {
+        id: "provenance_module_loadable",
+        pass: false,
+        detail: error instanceof Error ? error.message : String(error)
+      }
+    ];
+  }
+
+  const probes = [];
+  const probe = (id, assertion) => {
+    try {
+      probes.push({ id, pass: assertion() === true });
+    } catch (error) {
+      probes.push({
+        id,
+        pass: false,
+        detail: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  probe("reserved_tld_host_detected", () =>
+    Boolean(
+      provenance.reservedHostReason(
+        provenance.hostOf("donor01.golden.invalid")
+      )
+    )
+  );
+  probe("reserved_documentation_domain_detected", () =>
+    Boolean(
+      provenance.reservedHostReason(provenance.hostOf("https://example.com/a"))
+    )
+  );
+  probe("registrable_host_not_flagged", () =>
+    provenance.reservedHostReason(
+      provenance.hostOf("https://www.safehavenrr.com/services/")
+    ) === null
+  );
+  probe("non_host_value_not_flagged", () =>
+    provenance.hostOf("tests/golden/safehaven/case.json") === null &&
+    provenance.hostOf("2026-08-19T00:00:00.000Z") === null
+  );
+  probe("placeholder_sha_detected", () =>
+    Boolean(
+      provenance.degenerateShaReason(
+        "1111111111111111111111111111111111111111"
+      )
+    )
+  );
+  probe("real_looking_sha_not_flagged", () =>
+    provenance.degenerateShaReason(REAL_LOOKING_SHA) === null
+  );
+  probe("provenance_seal_is_stable", () => {
+    const body = { calibration: { synthetic: true }, run: { run_id: "a" } };
+    return provenance.provenanceSeal(body) === provenance.provenanceSeal(body);
+  });
+  probe("provenance_seal_covers_body", () => {
+    const a = { calibration: { synthetic: true }, run: { run_id: "a" } };
+    const b = { calibration: { synthetic: true }, run: { run_id: "b" } };
+    return provenance.provenanceSeal(a) !== provenance.provenanceSeal(b);
+  });
+  probe("provenance_seal_excludes_itself", () => {
+    const body = { calibration: { synthetic: true }, run: { run_id: "a" } };
+    const seal = provenance.provenanceSeal(body);
+    return (
+      provenance.provenanceSeal({
+        ...body,
+        calibration: { ...body.calibration, provenance_seal: seal }
+      }) === seal
+    );
+  });
+  probe("synthetic_namespace_declared", () =>
+    typeof provenance.SYNTHETIC_NAMESPACE === "string" &&
+    provenance.SYNTHETIC_NAMESPACE.length > 0
+  );
+
+  return probes;
+}
+
+const detectionProbes = await runDetectionProbes(provenancePath);
+const detectionProbeFailures = detectionProbes.filter((x) => !x.pass);
+
 const soundnessFailures = soundnessChecks.filter((x) => !x.pass);
 
 const hardcodedOracleValueFindings =
@@ -443,13 +601,15 @@ const result = {
   oracle_id: oracle.oracle_id,
   generated_from: {
     oracle: oraclePath,
-    verifier: verifierPath
+    verifier: verifierPath,
+    provenance_module: provenancePath
   },
   methodology: {
     fail_closed_on_missing_evaluation_id: true,
     oracle_path_existence_alone_is_implementation_evidence: false,
     explicit_runtime_evaluation_ids_required: true,
     soundness_sentinels_required: true,
+    detection_behaviour_probed_not_only_grepped: true,
     hardcoded_oracle_value_scan_derived: true
   },
   blocking_properties_total: EXPECTED.length,
@@ -459,6 +619,8 @@ const result = {
   unenforced_properties: unenforced,
   soundness_checks: soundnessChecks,
   soundness_failure_count: soundnessFailures.length,
+  detection_probes: detectionProbes,
+  detection_probe_failure_count: detectionProbeFailures.length,
   hardcoded_oracle_values_remaining: hardcodedOracleValueFindings.length,
   hardcoded_oracle_value_findings: hardcodedOracleValueFindings,
   properties,
@@ -466,6 +628,7 @@ const result = {
     enforced === EXPECTED.length &&
     staleCitations.length === 0 &&
     soundnessFailures.length === 0 &&
+    detectionProbeFailures.length === 0 &&
     hardcodedOracleValueFindings.length === 0
       ? "ORACLE_IMPLEMENTATION_COMPLETE"
       : "ORACLE_IMPLEMENTATION_INCOMPLETE"
