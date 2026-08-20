@@ -1,0 +1,173 @@
+{
+  "schema": "l9.golden-site-case/v1",
+  "case_id": "safehaven-redesign-golden-v1",
+  "source_url": "https://www.safehavenrr.com",
+  "baseline": {
+    "captured_at": "2026-08-16",
+    "authority": "frozen-baseline",
+    "expected_route_count": 29,
+    "live_drift_policy": "REPORT_AND_STOP_ON_ROUTE_DRIFT",
+    "route_inventory_correction": {
+      "authorized_at": "2026-08-18",
+      "authority": "operator-authorized",
+      "reason": "The supplied frozen inventory placed 11 service-detail routes at root; the 2026-08-16 baseline and source inventory place them under /services/.",
+      "evidence": {
+        "route_count": 29,
+        "unique_routes": 29,
+        "matches_real_source_inventory": true,
+        "http_200": 29,
+        "redirects": 0
+      },
+      "mapping": {
+        "/roof-repair/": "/services/roof-repair/",
+        "/roof-installation/": "/services/roof-installation/",
+        "/roof-inspection/": "/services/roof-inspection/",
+        "/storm-damage/": "/services/storm-damage/",
+        "/asphalt-shingles/": "/services/asphalt-shingles/",
+        "/metal-roofing/": "/services/metal-roofing/",
+        "/flat-roofing/": "/services/flat-roofing/",
+        "/gutters/": "/services/gutters/",
+        "/siding-fascia-soffit/": "/services/siding-fascia-soffit/",
+        "/interior-renovations/": "/services/interior-renovations/",
+        "/outdoor-living/": "/services/outdoor-living/"
+      },
+      "visual_sentinel_mapping": {
+        "/storm-damage/": "/services/storm-damage/"
+      }
+    }
+  },
+  "run": {
+    "build_intent": "REDESIGN_IMPROVE",
+    "mode": "end-to-end",
+    "recursive_engineering": false,
+    "copy_fallback_allowed": false,
+    "generic_fallback_allowed": false
+  },
+  "source_assets": {
+    "harvest": true,
+    "reuse_policy": "client_owned_authorized",
+    "donor_asset_policy": "DONOR_REFERENCE_ONLY",
+    "require_source_asset_selection_when_eligible": true
+  },
+  "routes": [
+    "/",
+    "/services/",
+    "/services/roof-replacement/",
+    "/services/roof-repair/",
+    "/services/roof-installation/",
+    "/services/roof-inspection/",
+    "/services/storm-damage/",
+    "/services/asphalt-shingles/",
+    "/services/metal-roofing/",
+    "/services/flat-roofing/",
+    "/services/gutters/",
+    "/services/siding-fascia-soffit/",
+    "/services/interior-renovations/",
+    "/services/outdoor-living/",
+    "/service-areas/",
+    "/service-areas/charlotte/",
+    "/insurance-claims/",
+    "/guides/",
+    "/guides/repair-or-replace-roof-charlotte/",
+    "/guides/how-long-roof-replacement-takes-charlotte/",
+    "/guides/how-to-choose-roofing-contractor-charlotte/",
+    "/guides/metal-roof-vs-shingles-charlotte/",
+    "/guides/roof-replacement-cost-charlotte/",
+    "/guides/storm-damage-roof-repair-charlotte/",
+    "/about/",
+    "/gallery/",
+    "/faq/",
+    "/contact/",
+    "/privacy/"
+  ],
+  "verified_business_facts": {
+    "business_name": "Safe Haven Roofing & Renovations",
+    "phone_display": "(704) 648-7252",
+    "phone_e164": "+17046487252",
+    "email": "info@safehavenrr.com",
+    "locality": "Charlotte, NC",
+    "hours": "24/7",
+    "years_local_experience": 6,
+    "fully_insured": true,
+    "free_inspections": true,
+    "workmanship_warranty_years": 5,
+    "roofing_brands": [
+      "GAF",
+      "CertainTeed",
+      "Atlas"
+    ],
+    "service_areas": [
+      "Charlotte",
+      "Gastonia",
+      "Belmont",
+      "Lake Wylie",
+      "Mount Holly",
+      "Huntersville",
+      "Lowell",
+      "Weddington",
+      "Matthews",
+      "Waxhaw",
+      "Ballantyne",
+      "Indian Trail",
+      "Mooresville",
+      "Concord",
+      "Pineville"
+    ]
+  },
+  "fact_guardrails": {
+    "unsupported_claim_count": 0,
+    "forbidden_patterns": [
+      "\\bdecades? of (combined )?experience\\b",
+      "\\b20\\+ years? of experience\\b",
+      "\\bguaranteed lowest price\\b",
+      "\\bcheapest roofer\\b"
+    ],
+    "claims_requiring_explicit_verified_fact": [
+      "license status",
+      "certification status",
+      "years of experience",
+      "warranty duration",
+      "response-time guarantee",
+      "price guarantee",
+      "project count",
+      "award",
+      "insurance relationship"
+    ]
+  },
+  "visual_sentinels": [
+    {
+      "route": "/",
+      "critical": true
+    },
+    {
+      "route": "/services/roof-replacement/",
+      "critical": true
+    },
+    {
+      "route": "/services/storm-damage/",
+      "critical": false
+    },
+    {
+      "route": "/gallery/",
+      "critical": true
+    },
+    {
+      "route": "/contact/",
+      "critical": true
+    }
+  ],
+  "viewports": [
+    {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900,
+      "device_scale_factor": 1
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844,
+      "device_scale_factor": 1
+    }
+  ]
+}
