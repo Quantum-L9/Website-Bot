@@ -93,6 +93,75 @@ function removeVolatile(result) {
   delete copy.evaluated_at;
   return copy;
 }
+/*
+ * The verifier applies one visual semantic path to every receipt: it
+ * recomputes normalized preference and normalized dimension deltas from
+ * raw_judge + orientation, and treats the stored normalized values as
+ * evidence to compare against, not as authority. A negative control that
+ * rewrote only the stored normalized value would therefore be rejected for
+ * VISUAL_NORMALIZATION_MISMATCH and never reach the downstream defect it
+ * exists to prove. These helpers mutate the raw judge evidence and the
+ * stored normalized evidence together, so each control lands on its intended
+ * gate.
+ */
+function orientationOf(trial, label) {
+  const orientation = trial?.orientation;
+  const valid =
+    (orientation?.A === "CANDIDATE" &&
+      orientation?.B === "BASELINE") ||
+    (orientation?.A === "BASELINE" &&
+      orientation?.B === "CANDIDATE");
+  if (!valid) {
+    throw new Error(
+      `${label} requires a valid A/B orientation to mutate coherently`
+    );
+  }
+  return orientation;
+}
+function rawJudgeOf(trial, label) {
+  const rawJudge = trial?.raw_judge;
+  if (!rawJudge || typeof rawJudge !== "object") {
+    throw new Error(
+      `${label} requires raw judge evidence to mutate coherently`
+    );
+  }
+  return rawJudge;
+}
+function rawPreferenceFor(normalizedPreference, orientation) {
+  if (normalizedPreference === "TIE") return "TIE";
+  return orientation.A === normalizedPreference ? "A" : "B";
+}
+function rawDeltaFor(normalizedDelta, orientation) {
+  return orientation.B === "CANDIDATE"
+    ? normalizedDelta
+    : -normalizedDelta;
+}
+function setTrialPreference(trial, normalizedPreference, label) {
+  const orientation = orientationOf(trial, label);
+  const rawJudge = rawJudgeOf(trial, label);
+  rawJudge.preference =
+    rawPreferenceFor(normalizedPreference, orientation);
+  trial.normalized_preference = normalizedPreference;
+}
+function setTrialDimension(trial, dimension, normalizedDelta, label) {
+  const orientation = orientationOf(trial, label);
+  const rawJudge = rawJudgeOf(trial, label);
+  if (
+    !rawJudge.dimensions ||
+    typeof rawJudge.dimensions !== "object"
+  ) {
+    throw new Error(
+      `${label} requires raw judge dimensions to mutate coherently`
+    );
+  }
+  rawJudge.dimensions[dimension] =
+    rawDeltaFor(normalizedDelta, orientation);
+  trial.normalized_candidate_delta ??= {};
+  trial.normalized_candidate_delta[dimension] = normalizedDelta;
+}
+function pairLabel(pair) {
+  return `${normalizeRoute(pair?.route)}::${pair?.viewport}`;
+}
 function setPairVotes(pair, candidateVotes) {
   const trials = ensureArray(
     pair.trials,
@@ -104,10 +173,11 @@ function setPairVotes(pair, candidateVotes) {
     );
   }
   for (let i = 0; i < trials.length; i++) {
-    trials[i].normalized_preference =
-      i < candidateVotes
-        ? "CANDIDATE"
-        : "BASELINE";
+    setTrialPreference(
+      trials[i],
+      i < candidateVotes ? "CANDIDATE" : "BASELINE",
+      `${pairLabel(pair)}::trial-${i + 1}`
+    );
   }
 }
 const CONTROLS = [
@@ -366,14 +436,17 @@ const CONTROLS = [
           "visual pairs"
         );
       for (const pair of pairs) {
-        for (const trial of ensureArray(
+        ensureArray(
           pair.trials,
           "visual trials"
-        )) {
-          trial.normalized_candidate_delta ??= {};
-          trial.normalized_candidate_delta
-            .visual_hierarchy = -1;
-        }
+        ).forEach((trial, index) => {
+          setTrialDimension(
+            trial,
+            "visual_hierarchy",
+            -1,
+            `${pairLabel(pair)}::trial-${index + 1}`
+          );
+        });
       }
     }
   },

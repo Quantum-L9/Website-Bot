@@ -841,41 +841,164 @@ function positiveDimensionDeltas() {
     )
   );
 }
+/*
+ * Orientation selection must be reproducible so the fixture is byte-stable,
+ * but it must still exercise BOTH A/B assignments across the trial set so the
+ * verifier's raw-orientation normalization is genuinely exercised in both
+ * directions. A deterministic digest over the trial identity stands in for the
+ * live randomizer; the receipt is explicitly synthetic and records the
+ * anti-bias protocol flags demanded by the judge protocol.
+ */
+function orientationCoin(seed) {
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index++) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return (hash & 1) === 1;
+}
+function orientationFor(seed, flags) {
+  const candidateIsB = orientationCoin(seed);
+  return {
+    A: candidateIsB ? "BASELINE" : "CANDIDATE",
+    B: candidateIsB ? "CANDIDATE" : "BASELINE",
+    ...flags
+  };
+}
+function invertOrientation(orientation, flags) {
+  return {
+    A: orientation.B,
+    B: orientation.A,
+    ...flags
+  };
+}
+/*
+ * The verifier recomputes normalized evidence from raw judge output using the
+ * same helpers a real receipt traverses:
+ *   preference: orientation[raw_preference]
+ *   delta:      orientation.B === "CANDIDATE" ? raw : -raw
+ * The raw side is therefore authored to reduce to the intended positive
+ * result (CANDIDATE preference, +1 normalized delta per dimension) under that
+ * recomputation rather than being asserted independently.
+ */
+function rawPreferenceForCandidate(orientation) {
+  return orientation.A === "CANDIDATE" ? "A" : "B";
+}
+function rawDeltaForNormalized(normalizedDelta, orientation) {
+  return orientation.B === "CANDIDATE"
+    ? normalizedDelta
+    : -normalizedDelta;
+}
+function rawDimensionsFor(normalizedDeltas, orientation) {
+  return Object.fromEntries(
+    dimensionNames.map(
+      (dimension) => [
+        dimension,
+        rawDeltaForNormalized(
+          normalizedDeltas[dimension],
+          orientation
+        )
+      ]
+    )
+  );
+}
+function buildTrial(trialId, orientation) {
+  const normalizedDeltas =
+    positiveDimensionDeltas();
+  return {
+    trial_id:
+      trialId,
+    blind: true,
+    judge_input_manifest: {
+      candidate_identity_exposed:
+        false,
+      baseline_identity_exposed:
+        false,
+      repository_identity_exposed:
+        false,
+      quality_delta_exposed:
+        false,
+      previous_verdict_exposed:
+        false
+    },
+    orientation,
+    raw_judge: {
+      preference:
+        rawPreferenceForCandidate(orientation),
+      confidence:
+        0.9,
+      dimensions:
+        rawDimensionsFor(
+          normalizedDeltas,
+          orientation
+        ),
+      critical_defects_a: [
+        "NONE"
+      ],
+      critical_defects_b: [
+        "NONE"
+      ],
+      short_reason:
+        "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+    },
+    normalized_preference:
+      "CANDIDATE",
+    normalized_candidate_delta:
+      normalizedDeltas
+  };
+}
 const visualPairs = [];
 for (const sentinel of sentinels) {
   for (const viewport of viewports) {
-    const trials =
-      Array.from(
+    const pairKey =
+      `${normalizeRoute(
+        sentinel.route
+      )}::${viewport.id}`;
+    const trialOneOrientation =
+      orientationFor(
+        `${pairKey}::trial-1`,
         {
-          length:
-            oracle.visual_oracle
-              .trials_per_pair
-        },
-        (_, index) => ({
-          trial_id:
-            `${normalizeRoute(
-              sentinel.route
-            )}::${viewport.id}::trial-${
-              index + 1
-            }`,
-          blind: true,
-          judge_input_manifest: {
-            candidate_identity_exposed:
-              false,
-            baseline_identity_exposed:
-              false,
-            repository_identity_exposed:
-              false,
-            quality_delta_exposed:
-              false,
-            previous_verdict_exposed:
-              false
-          },
-          normalized_preference:
-            "CANDIDATE",
-          normalized_candidate_delta:
-            positiveDimensionDeltas()
-        })
+          randomized: true,
+          reversed_from_trial_1: false,
+          independent: false
+        }
+      );
+    const trialTwoOrientation =
+      invertOrientation(
+        trialOneOrientation,
+        {
+          randomized: false,
+          reversed_from_trial_1: true,
+          independent: false
+        }
+      );
+    const trialThreeOrientation =
+      orientationFor(
+        `${pairKey}::trial-3`,
+        {
+          randomized: true,
+          reversed_from_trial_1: false,
+          independent: true
+        }
+      );
+    const orientations = [
+      trialOneOrientation,
+      trialTwoOrientation,
+      trialThreeOrientation
+    ];
+    requireEq(
+      orientations.length,
+      oracle.visual_oracle
+        .trials_per_pair,
+      "Synthetic orientation plan must cover every oracle trial"
+    );
+    const trials =
+      orientations.map(
+        (orientation, index) =>
+          buildTrial(
+            `${pairKey}::trial-${index + 1}`,
+            orientation
+          )
       );
     visualPairs.push({
       route:
@@ -897,6 +1020,66 @@ for (const sentinel of sentinels) {
       trials
     });
   }
+}
+/*
+ * Self-check: the fixture must be internally coherent before it is written,
+ * so a builder regression cannot silently ship raw evidence that contradicts
+ * its own stored normalized evidence.
+ */
+for (const pair of visualPairs) {
+  const pairKey =
+    `${normalizeRoute(pair.route)}::${pair.viewport}`;
+  pair.trials.forEach((trial, index) => {
+    const orientation =
+      trial.orientation;
+    const valid =
+      (orientation?.A === "CANDIDATE" &&
+        orientation?.B === "BASELINE") ||
+      (orientation?.A === "BASELINE" &&
+        orientation?.B === "CANDIDATE");
+    requireTrue(
+      valid,
+      "Synthetic orientation must map A/B to candidate/baseline exactly once",
+      { pair: pairKey, trial: index + 1, orientation }
+    );
+    requireEq(
+      orientation[trial.raw_judge.preference],
+      trial.normalized_preference,
+      `Synthetic raw preference must normalize to stored preference (${pairKey} trial-${index + 1})`
+    );
+    for (const dimension of dimensionNames) {
+      const rawDelta =
+        trial.raw_judge.dimensions[dimension];
+      requireTrue(
+        typeof rawDelta === "number" &&
+          Number.isFinite(rawDelta) &&
+          rawDelta >=
+            oracle.visual_oracle.score_scale.minimum &&
+          rawDelta <=
+            oracle.visual_oracle.score_scale.maximum,
+        `Synthetic raw dimension must sit inside the oracle score scale (${pairKey} trial-${index + 1} ${dimension})`,
+        rawDelta
+      );
+      requireEq(
+        rawDeltaForNormalized(
+          trial.normalized_candidate_delta[dimension],
+          orientation
+        ),
+        rawDelta,
+        `Synthetic raw dimension must normalize to stored delta (${pairKey} trial-${index + 1} ${dimension})`
+      );
+    }
+  });
+  requireEq(
+    pair.trials[1].orientation.A,
+    pair.trials[0].orientation.B,
+    `Trial 2 must invert trial 1 orientation (${pairKey})`
+  );
+  requireEq(
+    pair.trials[1].orientation.B,
+    pair.trials[0].orientation.A,
+    `Trial 2 must invert trial 1 orientation (${pairKey})`
+  );
 }
 requireEq(
   visualPairs.length,

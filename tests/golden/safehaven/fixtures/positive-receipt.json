@@ -1,0 +1,2904 @@
+{
+  "schema": "l9.golden-run-receipt/v1",
+  "case_id": "safehaven-redesign-golden-v1",
+  "calibration": {
+    "synthetic": true,
+    "purpose": "verifier-positive-control-only",
+    "must_not_be_used_as_real_golden_evidence": true,
+    "source_case": "tests/golden/safehaven/case.json",
+    "source_oracle": "tests/golden/safehaven/oracle.json"
+  },
+  "identity": {
+    "website_bot": {
+      "sha": "1111111111111111111111111111111111111111",
+      "worktree_state": "CLEAN",
+      "llm_router_version": "1.3.0"
+    },
+    "seo_bot": {
+      "sha": "2222222222222222222222222222222222222222",
+      "worktree_state": "CLEAN",
+      "llm_router_version": "1.3.0"
+    },
+    "llm_router": {
+      "sha": "3333333333333333333333333333333333333333",
+      "worktree_state": "CLEAN",
+      "package_version": "1.3.0"
+    },
+    "bot_interop": {
+      "compatible": true,
+      "website_bot_version": "1.1.0",
+      "seo_bot_version": "1.1.0"
+    }
+  },
+  "run": {
+    "run_id": "safehaven-positive-control-v1",
+    "build_intent": "REDESIGN_IMPROVE",
+    "copy_fallback_used": false,
+    "generic_fallback_used": false,
+    "pipeline_exit_code": 0
+  },
+  "preflight": {
+    "status": "PASS",
+    "checks": [
+      {
+        "name": "seo_bot_reachable",
+        "status": "PASS"
+      },
+      {
+        "name": "seo_bot_machine_auth",
+        "status": "PASS"
+      },
+      {
+        "name": "competitive_landscape_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "seo_content_blueprint_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "structured_content_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "dataforseo_configured",
+        "status": "PASS"
+      },
+      {
+        "name": "llm_provider_configured",
+        "status": "PASS"
+      },
+      {
+        "name": "bot_interop_compatible",
+        "status": "PASS"
+      },
+      {
+        "name": "llm_router_compatible",
+        "status": "PASS"
+      }
+    ]
+  },
+  "events": [
+    {
+      "name": "domain-spec-loader"
+    },
+    {
+      "name": "unknown-resolver"
+    },
+    {
+      "name": "seo-build-intelligence-preflight"
+    },
+    {
+      "name": "seo-build-intelligence-preflight:PASS"
+    },
+    {
+      "name": "competitive-intelligence"
+    },
+    {
+      "name": "seo:createCompetitiveLandscape"
+    },
+    {
+      "name": "source-site-ingestion"
+    },
+    {
+      "name": "design-intelligence"
+    },
+    {
+      "name": "redesign-content-authority"
+    },
+    {
+      "name": "structured-content-projection"
+    },
+    {
+      "name": "redesign-schema-serializer"
+    },
+    {
+      "name": "image-asset-planning"
+    },
+    {
+      "name": "site-assembler"
+    },
+    {
+      "name": "site-build"
+    },
+    {
+      "name": "visual-qa"
+    },
+    {
+      "name": "redesign-integrity-receipt"
+    },
+    {
+      "name": "terminal-convergence"
+    }
+  ],
+  "competitive_landscape": {
+    "artifact_ref": "artifact:competitive-landscape:positive-control-v1",
+    "selected_donors": [
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-01",
+        "rank": 1,
+        "url": "https://donor01.golden.invalid/landing/",
+        "domain": "donor01.golden.invalid",
+        "normalized_domain": "donor01.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 1,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-02",
+        "rank": 2,
+        "url": "https://donor02.golden.invalid/landing/",
+        "domain": "donor02.golden.invalid",
+        "normalized_domain": "donor02.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.5,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-03",
+        "rank": 3,
+        "url": "https://donor03.golden.invalid/landing/",
+        "domain": "donor03.golden.invalid",
+        "normalized_domain": "donor03.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.333333,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-04",
+        "rank": 4,
+        "url": "https://donor04.golden.invalid/landing/",
+        "domain": "donor04.golden.invalid",
+        "normalized_domain": "donor04.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.25,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-05",
+        "rank": 5,
+        "url": "https://donor05.golden.invalid/landing/",
+        "domain": "donor05.golden.invalid",
+        "normalized_domain": "donor05.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.2,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-06",
+        "rank": 6,
+        "url": "https://donor06.golden.invalid/landing/",
+        "domain": "donor06.golden.invalid",
+        "normalized_domain": "donor06.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.166667,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-07",
+        "rank": 7,
+        "url": "https://donor07.golden.invalid/landing/",
+        "domain": "donor07.golden.invalid",
+        "normalized_domain": "donor07.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.142857,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-08",
+        "rank": 8,
+        "url": "https://donor08.golden.invalid/landing/",
+        "domain": "donor08.golden.invalid",
+        "normalized_domain": "donor08.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.125,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-09",
+        "rank": 9,
+        "url": "https://donor09.golden.invalid/landing/",
+        "domain": "donor09.golden.invalid",
+        "normalized_domain": "donor09.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.111111,
+        "class": "operating_company"
+      },
+      {
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "golden-query-10",
+        "rank": 10,
+        "url": "https://donor10.golden.invalid/landing/",
+        "domain": "donor10.golden.invalid",
+        "normalized_domain": "donor10.golden.invalid",
+        "observed_at": "2026-08-19T00:00:00.000Z",
+        "visibility_contribution": 0.1,
+        "class": "operating_company"
+      }
+    ],
+    "evidence_complete": true,
+    "ranking_llm_calls": 0
+  },
+  "donor_evidence": [
+    {
+      "domain": "donor01.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-01",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor02.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-02",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor03.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-03",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor04.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-04",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor05.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-05",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor06.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-06",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor07.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-07",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor08.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-08",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor09.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-09",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "domain": "donor10.golden.invalid",
+      "successful_pages": 1,
+      "screenshots": 1,
+      "evidence_digest": "calibration-digest-10",
+      "crawled_at": "2026-08-19T00:00:00.000Z"
+    }
+  ],
+  "website_build_blueprint": {
+    "artifact_ref": "artifact:website-build-blueprint:positive-control-v1",
+    "competitive_landscape_ref": "artifact:competitive-landscape:positive-control-v1",
+    "visual_requirements": [
+      {
+        "slot": "hero",
+        "required": true
+      },
+      {
+        "slot": "project_proof",
+        "required": true
+      },
+      {
+        "slot": "gallery",
+        "required": true
+      }
+    ],
+    "project_proof_required": true,
+    "gallery_required": true
+  },
+  "seo_content_blueprint": {
+    "artifact_ref": "artifact:seo-content-blueprint:positive-control-v1",
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "produced_routes": 29,
+    "missing_routes": 0,
+    "extra_routes": 0,
+    "duplicate_routes": 0,
+    "batch_size": 4,
+    "batch_count": 8,
+    "competitive_landscape_ref": "artifact:competitive-landscape:positive-control-v1",
+    "unknown_content_slots": 0,
+    "invalid_internal_link_targets": 0
+  },
+  "page_content_contract": {
+    "artifact_ref": "artifact:page-content-contract:positive-control-v1",
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "produced_routes": 29,
+    "llm_calls": 0,
+    "unplaced_requirements": 0,
+    "invalid_business_facts": 0,
+    "determinism": {
+      "required": true,
+      "same_semantic_input_same_digest": true,
+      "digest_run_1": "sha256:positive-control-pcc-deterministic-v1",
+      "digest_run_2": "sha256:positive-control-pcc-deterministic-v1"
+    }
+  },
+  "structured_content": {
+    "artifact_ref": "artifact:structured-content-package:positive-control-v1",
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "produced_routes": 29,
+    "page_content_contract_ref": "artifact:page-content-contract:positive-control-v1",
+    "route_results": [
+      {
+        "route_id": "route-001",
+        "path": "/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-002",
+        "path": "/services/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-003",
+        "path": "/services/roof-replacement/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-004",
+        "path": "/services/roof-repair/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-005",
+        "path": "/services/roof-installation/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-006",
+        "path": "/services/roof-inspection/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-007",
+        "path": "/services/storm-damage/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-008",
+        "path": "/services/asphalt-shingles/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-009",
+        "path": "/services/metal-roofing/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-010",
+        "path": "/services/flat-roofing/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-011",
+        "path": "/services/gutters/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-012",
+        "path": "/services/siding-fascia-soffit/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-013",
+        "path": "/services/interior-renovations/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-014",
+        "path": "/services/outdoor-living/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-015",
+        "path": "/service-areas/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-016",
+        "path": "/service-areas/charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-017",
+        "path": "/insurance-claims/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-018",
+        "path": "/guides/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-019",
+        "path": "/guides/repair-or-replace-roof-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-020",
+        "path": "/guides/how-long-roof-replacement-takes-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-021",
+        "path": "/guides/how-to-choose-roofing-contractor-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-022",
+        "path": "/guides/metal-roof-vs-shingles-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-023",
+        "path": "/guides/roof-replacement-cost-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-024",
+        "path": "/guides/storm-damage-roof-repair-charlotte/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-025",
+        "path": "/about/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-026",
+        "path": "/gallery/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-027",
+        "path": "/faq/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-028",
+        "path": "/contact/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      },
+      {
+        "route_id": "route-029",
+        "path": "/privacy/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "section_alias_fields": [],
+        "prose_without_blocks": 0
+      }
+    ]
+  },
+  "legacy": {
+    "content_generation_calls": 0,
+    "schema_llm_calls": 0,
+    "schema_generation_calls": 0,
+    "page_content_contract_llm_calls": 0,
+    "redesign_schema_llm_calls": 0
+  },
+  "assets": {
+    "source_corpus_completed": true,
+    "raw_source_images": 1,
+    "authorized_reusable_images": 1,
+    "selected_source_images": 1,
+    "unexplained_reusable_asset_loss": 0,
+    "required_visual_slots_filled_fraction": 1,
+    "donor_asset_hash_matches": 0,
+    "candidate_dispositions": [
+      "SOURCE_CLIENT_OWNED"
+    ],
+    "eligible_source_project_proof_count": 1,
+    "selected_source_project_proof_count": 1,
+    "eligible_source_gallery_count": 1,
+    "selected_source_gallery_count": 1
+  },
+  "site": {
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "built_routes": 29,
+    "reachable_routes": 29,
+    "broken_internal_links": 0,
+    "placeholder_count": 0,
+    "per_route": [
+      {
+        "route": "/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 01",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 01.",
+        "canonical": "https://candidate.golden.invalid/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 02",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 02.",
+        "canonical": "https://candidate.golden.invalid/services/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/roof-replacement/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 03",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 03.",
+        "canonical": "https://candidate.golden.invalid/services/roof-replacement/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/roof-repair/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 04",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 04.",
+        "canonical": "https://candidate.golden.invalid/services/roof-repair/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/roof-installation/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 05",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 05.",
+        "canonical": "https://candidate.golden.invalid/services/roof-installation/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/roof-inspection/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 06",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 06.",
+        "canonical": "https://candidate.golden.invalid/services/roof-inspection/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/storm-damage/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 07",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 07.",
+        "canonical": "https://candidate.golden.invalid/services/storm-damage/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/asphalt-shingles/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 08",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 08.",
+        "canonical": "https://candidate.golden.invalid/services/asphalt-shingles/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/metal-roofing/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 09",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 09.",
+        "canonical": "https://candidate.golden.invalid/services/metal-roofing/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/flat-roofing/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 10",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 10.",
+        "canonical": "https://candidate.golden.invalid/services/flat-roofing/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/gutters/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 11",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 11.",
+        "canonical": "https://candidate.golden.invalid/services/gutters/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/siding-fascia-soffit/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 12",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 12.",
+        "canonical": "https://candidate.golden.invalid/services/siding-fascia-soffit/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/interior-renovations/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 13",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 13.",
+        "canonical": "https://candidate.golden.invalid/services/interior-renovations/",
+        "lang": "en"
+      },
+      {
+        "route": "/services/outdoor-living/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 14",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 14.",
+        "canonical": "https://candidate.golden.invalid/services/outdoor-living/",
+        "lang": "en"
+      },
+      {
+        "route": "/service-areas/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 15",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 15.",
+        "canonical": "https://candidate.golden.invalid/service-areas/",
+        "lang": "en"
+      },
+      {
+        "route": "/service-areas/charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 16",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 16.",
+        "canonical": "https://candidate.golden.invalid/service-areas/charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/insurance-claims/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 17",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 17.",
+        "canonical": "https://candidate.golden.invalid/insurance-claims/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 18",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 18.",
+        "canonical": "https://candidate.golden.invalid/guides/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/repair-or-replace-roof-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 19",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 19.",
+        "canonical": "https://candidate.golden.invalid/guides/repair-or-replace-roof-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/how-long-roof-replacement-takes-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 20",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 20.",
+        "canonical": "https://candidate.golden.invalid/guides/how-long-roof-replacement-takes-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/how-to-choose-roofing-contractor-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 21",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 21.",
+        "canonical": "https://candidate.golden.invalid/guides/how-to-choose-roofing-contractor-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/metal-roof-vs-shingles-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 22",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 22.",
+        "canonical": "https://candidate.golden.invalid/guides/metal-roof-vs-shingles-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/roof-replacement-cost-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 23",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 23.",
+        "canonical": "https://candidate.golden.invalid/guides/roof-replacement-cost-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/guides/storm-damage-roof-repair-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 24",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 24.",
+        "canonical": "https://candidate.golden.invalid/guides/storm-damage-roof-repair-charlotte/",
+        "lang": "en"
+      },
+      {
+        "route": "/about/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 25",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 25.",
+        "canonical": "https://candidate.golden.invalid/about/",
+        "lang": "en"
+      },
+      {
+        "route": "/gallery/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 26",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 26.",
+        "canonical": "https://candidate.golden.invalid/gallery/",
+        "lang": "en"
+      },
+      {
+        "route": "/faq/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 27",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 27.",
+        "canonical": "https://candidate.golden.invalid/faq/",
+        "lang": "en"
+      },
+      {
+        "route": "/contact/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 28",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 28.",
+        "canonical": "https://candidate.golden.invalid/contact/",
+        "lang": "en"
+      },
+      {
+        "route": "/privacy/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title": "Safe Haven Golden Route 29",
+        "meta_description": "Synthetic positive-control metadata for frozen Safe Haven route 29.",
+        "canonical": "https://candidate.golden.invalid/privacy/",
+        "lang": "en"
+      }
+    ]
+  },
+  "business_truth": {
+    "unsupported_claim_count": 0,
+    "phone_mismatch_count": 0,
+    "email_mismatch_count": 0,
+    "prohibition_violations": 0
+  },
+  "llm_audit": {
+    "direct_provider_bypass_count": 0,
+    "unsupported_capability_combination_count": 0,
+    "operations": {
+      "SEO_CONTENT_BLUEPRINT": [
+        {
+          "audit_id": "calibration-llm-01",
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "STRUCTURED_CONTENT_GENERATION": [
+        {
+          "audit_id": "calibration-llm-02",
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "CONTENT_VALIDATION": [
+        {
+          "audit_id": "calibration-llm-03",
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "VISUAL_QA": [
+        {
+          "audit_id": "calibration-llm-04",
+          "searchRequired": false
+        }
+      ]
+    }
+  },
+  "visual": {
+    "rendered_visual_qa_executed": true,
+    "pairs": [
+      {
+        "route": "/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/::desktop::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/::desktop::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/::desktop::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/::mobile::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/::mobile::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/::mobile::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/roof-replacement/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/services/roof-replacement::desktop::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/roof-replacement::desktop::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/roof-replacement::desktop::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/roof-replacement/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/services/roof-replacement::mobile::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/roof-replacement::mobile::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/roof-replacement::mobile::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/storm-damage/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/services/storm-damage::desktop::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/storm-damage::desktop::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/storm-damage::desktop::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/storm-damage/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/services/storm-damage::mobile::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/storm-damage::mobile::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/services/storm-damage::mobile::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/gallery/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/gallery::desktop::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/gallery::desktop::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/gallery::desktop::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/gallery/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/gallery::mobile::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/gallery::mobile::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/gallery::mobile::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/contact/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/contact::desktop::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/contact::desktop::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/contact::desktop::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      },
+      {
+        "route": "/contact/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "candidate_run_id": "safehaven-positive-control-v1",
+        "captured_run_id": "safehaven-positive-control-v1",
+        "trials": [
+          {
+            "trial_id": "/contact::mobile::trial-1",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/contact::mobile::trial-2",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "BASELINE",
+              "B": "CANDIDATE",
+              "randomized": false,
+              "reversed_from_trial_1": true,
+              "independent": false
+            },
+            "raw_judge": {
+              "preference": "B",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": 1,
+                "brand_coherence": 1,
+                "conversion_clarity": 1,
+                "trust_and_credibility": 1,
+                "authentic_imagery": 1,
+                "content_readability": 1,
+                "information_density": 1,
+                "spacing_and_rhythm": 1,
+                "mobile_usability": 1,
+                "professional_polish": 1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          },
+          {
+            "trial_id": "/contact::mobile::trial-3",
+            "blind": true,
+            "judge_input_manifest": {
+              "candidate_identity_exposed": false,
+              "baseline_identity_exposed": false,
+              "repository_identity_exposed": false,
+              "quality_delta_exposed": false,
+              "previous_verdict_exposed": false
+            },
+            "orientation": {
+              "A": "CANDIDATE",
+              "B": "BASELINE",
+              "randomized": true,
+              "reversed_from_trial_1": false,
+              "independent": true
+            },
+            "raw_judge": {
+              "preference": "A",
+              "confidence": 0.9,
+              "dimensions": {
+                "visual_hierarchy": -1,
+                "brand_coherence": -1,
+                "conversion_clarity": -1,
+                "trust_and_credibility": -1,
+                "authentic_imagery": -1,
+                "content_readability": -1,
+                "information_density": -1,
+                "spacing_and_rhythm": -1,
+                "mobile_usability": -1,
+                "professional_polish": -1
+              },
+              "critical_defects_a": [
+                "NONE"
+              ],
+              "critical_defects_b": [
+                "NONE"
+              ],
+              "short_reason": "Synthetic calibration trial: raw evidence authored to normalize to a candidate preference."
+            },
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 1,
+              "brand_coherence": 1,
+              "conversion_clarity": 1,
+              "trust_and_credibility": 1,
+              "authentic_imagery": 1,
+              "content_readability": 1,
+              "information_density": 1,
+              "spacing_and_rhythm": 1,
+              "mobile_usability": 1,
+              "professional_polish": 1
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -190,7 +190,50 @@ const SOUNDNESS_SENTINELS = new Map([
   ["rendered_visual_qa_proof", [
     "RENDERED_VISUAL_QA_NOT_EXECUTED",
     "receipt.visual?.rendered_visual_qa_executed"
-  ]]
+  ]],
+  /*
+   * Calibration is an authorization boundary, not a semantic one. A verifier
+   * that reconstructs raw visual evidence only for real receipts can emit a
+   * Golden PASS for a synthetic fixture that was never subjected to the
+   * orientation and normalization logic the oracle depends on. This check is
+   * therefore two-sided: the shared raw normalization path must be present
+   * AND no calibration-state branch may guard it. `forbidden` patterns are
+   * matched against the whitespace-compacted verifier source, so reformatting
+   * cannot hide a reintroduced bypass, and `max_occurrences` caps the
+   * calibration flags at their two legitimate uses — the declaration and the
+   * reported calibration payload — so any new calibration-conditional
+   * reference anywhere in the verifier fails this audit.
+   */
+  ["calibration_semantic_parity", {
+    required: [
+      "validateVisualOrientation(trial.orientation, label)",
+      "normalizePreferenceFromRaw(rawJudge.preference, orientation)",
+      "normalizeDeltaFromRaw(rawDelta, orientation)",
+      "VISUAL_RAW_DIMENSION_SCORE_OUT_OF_RANGE",
+      "VISUAL_NORMALIZATION_MISMATCH"
+    ],
+    forbidden: [
+      ["calibration_guarded_raw_path", /if\(!?syntheticCalibration[)&|]/],
+      ["calibration_ternary_raw_path", /syntheticCalibration\?/],
+      ["calibration_conjunctive_guard", /(?:&&|\|\|)\s*!?syntheticCalibration/],
+      ["calibration_mode_bare_branch", /if\(!?calibrationMode\)/],
+      ["calibration_mode_ternary", /calibrationMode\?/],
+      ["synthetic_receipt_bare_branch", /if\(!?syntheticReceipt\)/]
+    ],
+    /*
+     * Legitimate calibration-flag references, and nothing beyond them:
+     *   syntheticReceipt      declaration, two authorization branches,
+     *                         the derived flag, the reported payload  = 5
+     *   calibrationMode       the same five                           = 5
+     *   syntheticCalibration  declaration and reported payload        = 2
+     * Any further reference is a new calibration-conditional code path.
+     */
+    max_occurrences: [
+      ["syntheticCalibration", 2],
+      ["calibrationMode", 5],
+      ["syntheticReceipt", 5]
+    ]
+  }]
 ]);
 
 function readJson(p) {
@@ -314,16 +357,72 @@ const staleCitations = properties
     missing_sentinels: p.missing_sentinels
   }));
 
+/*
+ * A soundness sentinel is either a plain list of required needles or a
+ * two-sided specification. The two-sided form additionally proves the ABSENCE
+ * of a bypass: `forbidden` regexes must not match the compacted source, and
+ * `max_occurrences` caps how many times an identifier may appear at all.
+ * Absence checks are evaluated against the real verifier source only — no
+ * check invents evidence that the source does not contain.
+ */
+function normalizeSoundnessSpec(spec) {
+  if (Array.isArray(spec)) {
+    return { required: spec, forbidden: [], max_occurrences: [] };
+  }
+  return {
+    required: spec.required ?? [],
+    forbidden: spec.forbidden ?? [],
+    max_occurrences: spec.max_occurrences ?? []
+  };
+}
+
+function countOccurrences(source, identifier) {
+  const matches = source.match(
+    new RegExp(`\\b${identifier}\\b`, "g")
+  );
+  return matches ? matches.length : 0;
+}
+
 const soundnessChecks = [...SOUNDNESS_SENTINELS.entries()].map(
-  ([id, sentinels]) => {
-    const missing = sentinels.filter(
+  ([id, spec]) => {
+    const { required, forbidden, max_occurrences } =
+      normalizeSoundnessSpec(spec);
+    const compactSource = compact(verifierSource);
+    const missing = required.filter(
       (needle) => !sourceContains(verifierSource, needle)
     );
+    const forbiddenMatches = forbidden
+      .filter(([, regex]) => regex.test(compactSource))
+      .map(([bypassId, regex]) => ({
+        id: bypassId,
+        pattern: String(regex)
+      }));
+    const occurrenceViolations = max_occurrences
+      .map(([identifier, limit]) => ({
+        identifier,
+        limit,
+        actual: countOccurrences(verifierSource, identifier)
+      }))
+      .filter((entry) => entry.actual > entry.limit);
     return {
       id,
-      pass: missing.length === 0,
-      required_sentinels: sentinels,
-      missing_sentinels: missing
+      pass:
+        missing.length === 0 &&
+        forbiddenMatches.length === 0 &&
+        occurrenceViolations.length === 0,
+      required_sentinels: required,
+      missing_sentinels: missing,
+      forbidden_patterns: forbidden.map(([bypassId, regex]) => ({
+        id: bypassId,
+        pattern: String(regex)
+      })),
+      forbidden_matches: forbiddenMatches,
+      occurrence_limits: max_occurrences.map(([identifier, limit]) => ({
+        identifier,
+        limit,
+        actual: countOccurrences(verifierSource, identifier)
+      })),
+      occurrence_violations: occurrenceViolations
     };
   }
 );

@@ -1837,138 +1837,146 @@ for (const pair of visualPairs) {
     let deltas =
       trial.normalized_candidate_delta;
 
-    if (!syntheticCalibration) {
-      const label =
-        `${pair.route}/${pair.viewport}/trial-${trialIndex + 1}`;
-      const orientation =
-        validateVisualOrientation(trial.orientation, label);
-      const rawJudge = trial.raw_judge;
+    /*
+     * SEMANTIC PARITY: raw visual reconstruction runs for every receipt.
+     * GOLDEN_CALIBRATION_MODE authorizes an explicitly synthetic receipt; it
+     * never changes visual verification semantics. A synthetic calibration
+     * receipt therefore traverses the identical orientation validation, raw
+     * preference normalization, raw dimension normalization, score-range and
+     * stored-vs-recomputed comparison path that a real receipt traverses.
+     * Stored normalized values are compared evidence, never authority: the
+     * recomputed values below replace them for all downstream aggregation.
+     */
+    const label =
+      `${pair.route}/${pair.viewport}/trial-${trialIndex + 1}`;
+    const orientation =
+      validateVisualOrientation(trial.orientation, label);
+    const rawJudge = trial.raw_judge;
 
-      if (!rawJudge || typeof rawJudge !== "object") {
+    if (!rawJudge || typeof rawJudge !== "object") {
+      fail(
+        "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
+        `${label} raw judge evidence missing`
+      );
+    }
+
+    if (trialIndex === 0) {
+      if (trial.orientation?.randomized !== true) {
         fail(
-          "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
-          `${label} raw judge evidence missing`
+          "VISUAL_ORIENTATION_RANDOMIZATION_EVIDENCE_MISSING",
+          `${label} must record randomized orientation selection`
         );
       }
+      trialOneOrientation = orientation;
+    } else if (trialIndex === 1) {
+      if (trial.orientation?.reversed_from_trial_1 !== true) {
+        fail(
+          "VISUAL_ORIENTATION_REVERSAL_EVIDENCE_MISSING",
+          `${label} must record reversal from trial 1`
+        );
+      }
+      if (
+        orientation &&
+        trialOneOrientation &&
+        !(
+          orientation.A === trialOneOrientation.B &&
+          orientation.B === trialOneOrientation.A
+        )
+      ) {
+        fail(
+          "VISUAL_ORIENTATION_REVERSAL_INVALID",
+          `${label} is not the reverse of trial 1`,
+          { trial_1: trialOneOrientation, trial_2: orientation }
+        );
+      }
+    } else if (trialIndex === 2) {
+      if (
+        trial.orientation?.randomized !== true ||
+        trial.orientation?.independent !== true
+      ) {
+        fail(
+          "VISUAL_ORIENTATION_RANDOMIZATION_EVIDENCE_MISSING",
+          `${label} must record independent randomized orientation selection`
+        );
+      }
+    }
 
-      if (trialIndex === 0) {
-        if (trial.orientation?.randomized !== true) {
-          fail(
-            "VISUAL_ORIENTATION_RANDOMIZATION_EVIDENCE_MISSING",
-            `${label} must record randomized orientation selection`
-          );
-        }
-        trialOneOrientation = orientation;
-      } else if (trialIndex === 1) {
-        if (trial.orientation?.reversed_from_trial_1 !== true) {
-          fail(
-            "VISUAL_ORIENTATION_REVERSAL_EVIDENCE_MISSING",
-            `${label} must record reversal from trial 1`
-          );
-        }
-        if (
-          orientation &&
-          trialOneOrientation &&
-          !(
-            orientation.A === trialOneOrientation.B &&
-            orientation.B === trialOneOrientation.A
-          )
-        ) {
-          fail(
-            "VISUAL_ORIENTATION_REVERSAL_INVALID",
-            `${label} is not the reverse of trial 1`,
-            { trial_1: trialOneOrientation, trial_2: orientation }
-          );
-        }
-      } else if (trialIndex === 2) {
-        if (
-          trial.orientation?.randomized !== true ||
-          trial.orientation?.independent !== true
-        ) {
-          fail(
-            "VISUAL_ORIENTATION_RANDOMIZATION_EVIDENCE_MISSING",
-            `${label} must record independent randomized orientation selection`
-          );
-        }
+    if (orientation && rawJudge && typeof rawJudge === "object") {
+      const recomputedPreference =
+        normalizePreferenceFromRaw(rawJudge.preference, orientation);
+
+      if (recomputedPreference === null) {
+        markInconclusive(
+          "VISUAL_RAW_PREFERENCE_INVALID",
+          `${label} raw preference missing/invalid`,
+          rawJudge.preference
+        );
+      } else {
+        requireEq(
+          normalizedPreference,
+          recomputedPreference,
+          "VISUAL_NORMALIZATION_MISMATCH",
+          `${label} normalized preference does not match raw A/B orientation`
+        );
+        normalizedPreference = recomputedPreference;
       }
 
-      if (orientation && rawJudge && typeof rawJudge === "object") {
-        const recomputedPreference =
-          normalizePreferenceFromRaw(rawJudge.preference, orientation);
-
-        if (recomputedPreference === null) {
-          markInconclusive(
-            "VISUAL_RAW_PREFERENCE_INVALID",
-            `${label} raw preference missing/invalid`,
-            rawJudge.preference
-          );
-        } else {
-          requireEq(
-            normalizedPreference,
-            recomputedPreference,
-            "VISUAL_NORMALIZATION_MISMATCH",
-            `${label} normalized preference does not match raw A/B orientation`
-          );
-          normalizedPreference = recomputedPreference;
-        }
-
-        const rawDimensions = rawJudge.dimensions;
-        if (!rawDimensions || typeof rawDimensions !== "object") {
-          markInconclusive(
-            "VISUAL_RAW_DIMENSIONS_MISSING",
-            `${label} raw judge dimensions missing`
-          );
-        } else {
-          const recomputedDeltas = {};
-          for (const dimension of dimensionNames) {
-            const rawDelta = rawDimensions[dimension];
-            if (
-              typeof rawDelta !== "number" ||
-              !Number.isFinite(rawDelta)
-            ) {
-              markInconclusive(
-                "VISUAL_RAW_DIMENSION_MISSING",
-                `${label} raw visual dimension missing: ${dimension}`
-              );
-              continue;
-            }
-            if (
-              rawDelta < oracle.visual_oracle.score_scale.minimum ||
-              rawDelta > oracle.visual_oracle.score_scale.maximum
-            ) {
-              fail(
-                "VISUAL_RAW_DIMENSION_SCORE_OUT_OF_RANGE",
-                `${label} raw visual dimension outside oracle score scale: ${dimension}`,
-                {
-                  value: rawDelta,
-                  minimum: oracle.visual_oracle.score_scale.minimum,
-                  maximum: oracle.visual_oracle.score_scale.maximum,
-                }
-              );
-              continue;
-            }
-            recomputedDeltas[dimension] =
-              normalizeDeltaFromRaw(rawDelta, orientation);
-          }
-
-          if (!deltas || typeof deltas !== "object") {
+      const rawDimensions = rawJudge.dimensions;
+      if (!rawDimensions || typeof rawDimensions !== "object") {
+        markInconclusive(
+          "VISUAL_RAW_DIMENSIONS_MISSING",
+          `${label} raw judge dimensions missing`
+        );
+      } else {
+        const recomputedDeltas = {};
+        for (const dimension of dimensionNames) {
+          const rawDelta = rawDimensions[dimension];
+          if (
+            typeof rawDelta !== "number" ||
+            !Number.isFinite(rawDelta)
+          ) {
             markInconclusive(
-              "VISUAL_DIMENSIONS_MISSING",
-              `${label} normalized visual dimensions missing`
+              "VISUAL_RAW_DIMENSION_MISSING",
+              `${label} raw visual dimension missing: ${dimension}`
             );
-          } else {
-            for (const [dimension, recomputedDelta] of
-              Object.entries(recomputedDeltas)) {
-              requireEq(
-                deltas[dimension],
-                recomputedDelta,
-                "VISUAL_NORMALIZATION_MISMATCH",
-                `${label} normalized dimension does not match raw A/B orientation: ${dimension}`
-              );
-            }
+            continue;
           }
-          deltas = recomputedDeltas;
+          if (
+            rawDelta < oracle.visual_oracle.score_scale.minimum ||
+            rawDelta > oracle.visual_oracle.score_scale.maximum
+          ) {
+            fail(
+              "VISUAL_RAW_DIMENSION_SCORE_OUT_OF_RANGE",
+              `${label} raw visual dimension outside oracle score scale: ${dimension}`,
+              {
+                value: rawDelta,
+                minimum: oracle.visual_oracle.score_scale.minimum,
+                maximum: oracle.visual_oracle.score_scale.maximum,
+              }
+            );
+            continue;
+          }
+          recomputedDeltas[dimension] =
+            normalizeDeltaFromRaw(rawDelta, orientation);
         }
+
+        if (!deltas || typeof deltas !== "object") {
+          markInconclusive(
+            "VISUAL_DIMENSIONS_MISSING",
+            `${label} normalized visual dimensions missing`
+          );
+        } else {
+          for (const [dimension, recomputedDelta] of
+            Object.entries(recomputedDeltas)) {
+            requireEq(
+              deltas[dimension],
+              recomputedDelta,
+              "VISUAL_NORMALIZATION_MISMATCH",
+              `${label} normalized dimension does not match raw A/B orientation: ${dimension}`
+            );
+          }
+        }
+        deltas = recomputedDeltas;
       }
     }
 
