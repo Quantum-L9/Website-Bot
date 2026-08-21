@@ -2,7 +2,7 @@
   "schema": "l9.golden-oracle-result/v2",
   "oracle_id": "safehaven-redesign-oracle-v1",
   "case_id": "safehaven-redesign-golden-v1",
-  "evaluated_at": "2026-08-21T02:25:07.575Z",
+  "evaluated_at": "2026-08-20T20:20:38.029Z",
   "hard_gate_failures": [],
   "blocking_inconclusive_states": [],
   "oracle_evaluation_coverage": {

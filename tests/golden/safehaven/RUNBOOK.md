@@ -63,6 +63,23 @@ The synthetic receipt is intentionally marked:
 calibration.synthetic = true
 The verifier must reject a synthetic receipt if calibration mode is NOT explicitly
 enabled.
+That rejection does NOT depend on the mark. A declaration can be deleted, so the
+verifier detects synthetic evidence from the evidence itself and treats any of
+these signals as disqualifying in real mode:
+  declared_synthetic       calibration.synthetic = true
+  builder_provenance_seal  a valid calibration-builder seal over the receipt body
+  reserved_namespace       identifiers carrying the l9-synthetic-calibration prefix
+  reserved_host            RFC 2606 / 6761 names (.invalid, .test, .example,
+                           .localhost, example.com/net/org) in donor or site
+                           evidence, which can never resolve and so can never be
+                           observed by a real crawl
+  degenerate_git_sha       identity SHAs with fewer than 8 distinct hex digits
+The last two cannot be removed, only replaced with fabrications: the fields are
+required, so a receipt without them fails other gates outright. Deleting
+calibration.synthetic no longer produces a real-mode PASS.
+Detection reports which signals fired in result.calibration.synthetic_evidence_detail.
+Detection is mode-independent: calibration mode authorizes synthetic evidence, it
+never changes what is detected.
 ## B. Real Golden mode
 Real Golden validates an actual Website-Bot redesign run.
 Real Golden MUST NOT set:
@@ -289,6 +306,9 @@ Worktrees must either be:
 CLEAN
 or explicitly recorded dirty states with an identifying diff identity.
 Do not use synthetic SHAs such as repeated "1", "2", or "3" values in a real receipt.
+This is now machine-enforced: an identity SHA with fewer than 8 distinct hex digits
+is treated as synthetic evidence and rejected in real mode with
+SYNTHETIC_RECEIPT_FORBIDDEN.
 ---
 # 13. Real preflight ordering
 The receipt must prove:

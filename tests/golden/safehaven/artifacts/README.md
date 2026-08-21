@@ -21,9 +21,9 @@ synthetic (`calibration.synthetic: true`) and the verifier refuses it outside
 | `negative-controls-report.json` | `scripts/verify-safehaven-negative-controls.mjs` | 25/25 canonical negative controls REJECTED, 0 false acceptances, 0 harness errors, deterministic replay PASS. |
 | `bridge-unit-test-run.tap` | `node --import tsx --test tests/unit/safehaven-real-golden-bridge.test.ts` | The Safe Haven bridge contract suite: 64/64 passing. |
 
-The bridge suite and the runtime-evidence code it exercises are not on this
-branch; that TAP output comes from the Safe Haven real-Golden bridge change and
-is included here so the whole gate reads as one record.
+The bridge suite and the runtime-evidence code it exercises now live on `main`,
+so that TAP output is reproducible from this tree along with the rest of the
+record.
 
 ## Regenerating
 

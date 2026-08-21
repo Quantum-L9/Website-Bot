@@ -2,8 +2,104 @@
   "schema": "l9.golden-oracle-result/v2",
   "oracle_id": "safehaven-redesign-oracle-v1",
   "case_id": "safehaven-redesign-golden-v1",
-  "evaluated_at": "2026-08-21T02:25:07.575Z",
-  "hard_gate_failures": [],
+  "evaluated_at": "2026-08-20T20:10:17.374Z",
+  "hard_gate_failures": [
+    {
+      "code": "SYNTHETIC_RECEIPT_FORBIDDEN",
+      "message": "Synthetic calibration receipt cannot certify a real Golden run",
+      "evidence": [
+        {
+          "signal": "declared_synthetic",
+          "detail": "receipt declares calibration.synthetic"
+        },
+        {
+          "signal": "builder_provenance_seal",
+          "detail": "receipt body carries a valid calibration-builder provenance seal"
+        },
+        {
+          "signal": "reserved_namespace",
+          "detail": "22 identifier(s) carry the reserved synthetic namespace",
+          "occurrences": 22,
+          "examples": [
+            {
+              "location": "calibration.provenance_namespace",
+              "value": "l9-synthetic-calibration"
+            },
+            {
+              "location": "run.run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[0].candidate_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[0].captured_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[1].candidate_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            }
+          ]
+        },
+        {
+          "signal": "reserved_host",
+          "detail": "69 host value(s) use names reserved by RFC 2606/6761, which can never resolve and so can never be observed by a real crawl",
+          "occurrences": 69,
+          "examples": [
+            {
+              "location": "competitive_landscape.selected_donors.[0].url",
+              "value": "https://donor01.golden.invalid/landing/",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[0].domain",
+              "value": "donor01.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[0].normalized_domain",
+              "value": "donor01.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[1].url",
+              "value": "https://donor02.golden.invalid/landing/",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[1].domain",
+              "value": "donor02.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            }
+          ]
+        },
+        {
+          "signal": "degenerate_git_sha",
+          "detail": "3 identity SHA(s) carry placeholder entropy",
+          "occurrences": 3,
+          "examples": [
+            {
+              "location": "identity.website_bot.sha",
+              "value": "1111111111111111111111111111111111111111",
+              "reason": "only 1 distinct hex digits"
+            },
+            {
+              "location": "identity.seo_bot.sha",
+              "value": "2222222222222222222222222222222222222222",
+              "reason": "only 1 distinct hex digits"
+            },
+            {
+              "location": "identity.llm_router.sha",
+              "value": "3333333333333333333333333333333333333333",
+              "reason": "only 1 distinct hex digits"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "blocking_inconclusive_states": [],
   "oracle_evaluation_coverage": {
     "expected": 101,
@@ -113,9 +209,9 @@
     ]
   },
   "calibration": {
-    "synthetic": true,
+    "synthetic": false,
     "synthetic_receipt": true,
-    "calibration_mode": true,
+    "calibration_mode": false,
     "synthetic_evidence_signals": [
       "declared_synthetic",
       "builder_provenance_seal",
@@ -236,5 +332,5 @@
     },
     "visual_weighted_mean_delta": 1
   },
-  "verdict": "GOLDEN_E2E_PASS_IMPROVED"
+  "verdict": "GOLDEN_E2E_FAIL"
 }
