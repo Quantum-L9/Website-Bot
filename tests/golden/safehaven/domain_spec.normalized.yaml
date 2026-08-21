@@ -1,0 +1,328 @@
+# Safe Haven Golden DomainSpec (normalized).
+#
+# Routes, business facts, and source-asset policy are derived from the SEALED
+# Golden case at tests/golden/safehaven/case.json and must not be edited to
+# make generation easier.
+#
+# UNKNOWN / BLOCKING: no `deploy:` or `provision:` block is present. Safe
+# Haven's canonical publish/deployment target is not established, and a real
+# end-to-end Golden run is blocked until verified values exist. A placeholder
+# GitHub repository or Vercel project must never be substituted here.
+client_id: safehavenrr_com
+business_name: Safe Haven Roofing & Renovations
+vertical: roofing_renovations
+geography:
+  primary_state: NC
+  states:
+    - NC
+    - SC
+design:
+  status: pending
+build_intent: REDESIGN_IMPROVE
+routes:
+  - slug: /
+    title: "Charlotte Roofing & Renovations"
+    components:
+      - hero
+      - trust_bar
+      - service_summary
+      - project_proof
+      - service_area
+      - process
+      - testimonials
+      - faq_preview
+      - final_cta
+  - slug: /services/
+    title: "Roofing & Renovation Services"
+    components:
+      - hero
+      - service_grid
+      - differentiation
+      - process
+      - project_proof
+      - cta
+  - slug: /services/roof-replacement/
+    title: "Roof Replacement"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/roof-repair/
+    title: "Roof Repair"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/roof-installation/
+    title: "Roof Installation"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/roof-inspection/
+    title: "Free Roof Inspection"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/storm-damage/
+    title: "Storm Damage Roof Repair"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/asphalt-shingles/
+    title: "Asphalt Shingle Roofing"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/metal-roofing/
+    title: "Metal Roofing"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/flat-roofing/
+    title: "Flat Roofing"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/gutters/
+    title: "Gutters"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/siding-fascia-soffit/
+    title: "Siding, Fascia & Soffit"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/interior-renovations/
+    title: "Interior Renovations"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /services/outdoor-living/
+    title: "Outdoor Living"
+    components:
+      - hero
+      - problem
+      - service_detail
+      - materials
+      - process
+      - project_proof
+      - objection_handling
+      - faq
+      - cta
+  - slug: /service-areas/
+    title: "Service Areas"
+    components:
+      - hero
+      - service_area_grid
+      - local_relevance
+      - cta
+  - slug: /service-areas/charlotte/
+    title: "Charlotte, NC Roofing"
+    components:
+      - hero
+      - local_relevance
+      - service_summary
+      - project_proof
+      - faq
+      - cta
+  - slug: /insurance-claims/
+    title: "Insurance Claims Support"
+    components:
+      - hero
+      - problem
+      - process
+      - documents_needed
+      - objection_handling
+      - faq
+      - cta
+  - slug: /guides/
+    title: "Roofing Guides"
+    components:
+      - hero
+      - guide_index
+      - cta
+  - slug: /guides/repair-or-replace-roof-charlotte/
+    title: "Repair or Replace Your Roof in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /guides/how-long-roof-replacement-takes-charlotte/
+    title: "How Long a Roof Replacement Takes in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /guides/how-to-choose-roofing-contractor-charlotte/
+    title: "How to Choose a Roofing Contractor in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /guides/metal-roof-vs-shingles-charlotte/
+    title: "Metal Roof vs Shingles in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /guides/roof-replacement-cost-charlotte/
+    title: "Roof Replacement Cost in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /guides/storm-damage-roof-repair-charlotte/
+    title: "Storm Damage Roof Repair in Charlotte"
+    components:
+      - hero
+      - guide_body
+      - comparison
+      - faq
+      - cta
+  - slug: /about/
+    title: "About Safe Haven"
+    components:
+      - hero
+      - story
+      - trust
+      - team
+      - service_area
+      - cta
+  - slug: /gallery/
+    title: "Project Gallery"
+    components:
+      - hero
+      - project_gallery
+      - project_proof
+      - cta
+  - slug: /faq/
+    title: "Frequently Asked Questions"
+    components:
+      - hero
+      - faq
+      - cta
+  - slug: /contact/
+    title: "Contact Safe Haven"
+    components:
+      - hero
+      - contact_details
+      - contact_form
+      - service_area
+      - cta
+  - slug: /privacy/
+    title: "Privacy Policy"
+    components:
+      - hero
+      - legal_body
+seo_contract:
+  site_url: https://www.safehavenrr.com
+  phone: "(704) 648-7252"
+  target_keywords:
+    - roofing charlotte nc
+    - roof replacement charlotte
+    - storm damage roof repair charlotte
+    - metal roofing charlotte
+    - roof inspection charlotte
+assets:
+  sourceSite:
+    url: https://www.safehavenrr.com
+    enabled: true
+    maxPages: 40
+    maxDepth: 3
+    captureScreenshots: true
+    downloadImages: true
+  generation:
+    enabled: true
+wom_flags:
+  - key: conversion.lead_capture.form_action
+    value: unresolved
+    severity: error
+  - key: deploy.target
+    value: unresolved
+    severity: error

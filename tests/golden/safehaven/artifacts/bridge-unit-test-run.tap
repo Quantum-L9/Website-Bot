@@ -1,0 +1,394 @@
+TAP version 13
+# Subtest: Safe Haven DomainSpec validates and declares the redesign intent
+ok 1 - Safe Haven DomainSpec validates and declares the redesign intent
+  ---
+  duration_ms: 1.37742
+  type: 'test'
+  ...
+# Subtest: Safe Haven DomainSpec carries the exact frozen 29-route set in case order
+ok 2 - Safe Haven DomainSpec carries the exact frozen 29-route set in case order
+  ---
+  duration_ms: 1.367976
+  type: 'test'
+  ...
+# Subtest: Safe Haven DomainSpec enables source-site harvesting for asset reuse
+ok 3 - Safe Haven DomainSpec enables source-site harvesting for asset reuse
+  ---
+  duration_ms: 0.256266
+  type: 'test'
+  ...
+# Subtest: the sealed case still forbids donor asset reuse
+ok 4 - the sealed case still forbids donor asset reuse
+  ---
+  duration_ms: 0.120542
+  type: 'test'
+  ...
+# Subtest: the Safe Haven DomainSpec declares no unverified deployment target
+ok 5 - the Safe Haven DomainSpec declares no unverified deployment target
+  ---
+  duration_ms: 0.093351
+  type: 'test'
+  ...
+# Subtest: two compiler passes over the same semantic input produce equal PCC digests
+ok 6 - two compiler passes over the same semantic input produce equal PCC digests
+  ---
+  duration_ms: 10.994724
+  type: 'test'
+  ...
+# Subtest: a changed semantic input produces a different PCC digest
+ok 7 - a changed semantic input produces a different PCC digest
+  ---
+  duration_ms: 1.312651
+  type: 'test'
+  ...
+# Subtest: a complete redesign run produces valid Safe Haven runtime evidence
+ok 8 - a complete redesign run produces valid Safe Haven runtime evidence
+  ---
+  duration_ms: 21.29048
+  type: 'test'
+  ...
+# Subtest: SEO-owned execution counters are reported as unresolved, never invented
+ok 9 - SEO-owned execution counters are reported as unresolved, never invented
+  ---
+  duration_ms: 17.161121
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a missing external identity manifest
+ok 10 - runtime evidence rejects a missing external identity manifest
+  ---
+  duration_ms: 4.809794
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a short/invalid external SHA
+ok 11 - runtime evidence rejects a short/invalid external SHA
+  ---
+  duration_ms: 3.529452
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a dirty external worktree that was not explicitly recorded
+ok 12 - runtime evidence rejects a dirty external worktree that was not explicitly recorded
+  ---
+  duration_ms: 5.640772
+  type: 'test'
+  ...
+# Subtest: runtime evidence accepts a dirty external worktree recorded with a diff identity
+ok 13 - runtime evidence accepts a dirty external worktree recorded with a diff identity
+  ---
+  duration_ms: 18.770748
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a run without preflight evidence
+ok 14 - runtime evidence rejects a run without preflight evidence
+  ---
+  duration_ms: 13.673164
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a preflight whose capability is not proven
+ok 15 - runtime evidence rejects a preflight whose capability is not proven
+  ---
+  duration_ms: 14.939337
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a run with no donor evidence
+ok 16 - runtime evidence rejects a run with no donor evidence
+  ---
+  duration_ms: 14.678519
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a donor evidence/landscape domain mismatch
+ok 17 - runtime evidence rejects a donor evidence/landscape domain mismatch
+  ---
+  duration_ms: 14.31452
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a run with no WebsiteBuildBlueprint
+ok 18 - runtime evidence rejects a run with no WebsiteBuildBlueprint
+  ---
+  duration_ms: 14.679163
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects a missing PCC determinism proof
+ok 19 - runtime evidence rejects a missing PCC determinism proof
+  ---
+  duration_ms: 15.140625
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects two unequal PCC digests
+ok 20 - runtime evidence rejects two unequal PCC digests
+  ---
+  duration_ms: 13.948991
+  type: 'test'
+  ...
+# Subtest: runtime evidence rejects an SCP that is missing a contract route
+ok 21 - runtime evidence rejects an SCP that is missing a contract route
+  ---
+  duration_ms: 18.297133
+  type: 'test'
+  ...
+# Subtest: runtime evidence refuses a run that did not reach terminal convergence
+ok 22 - runtime evidence refuses a run that did not reach terminal convergence
+  ---
+  duration_ms: 5.267119
+  type: 'test'
+  ...
+# Subtest: runtime evidence refuses a non-redesign or non-end-to-end run
+ok 23 - runtime evidence refuses a non-redesign or non-end-to-end run
+  ---
+  duration_ms: 8.056941
+  type: 'test'
+  ...
+# Subtest: runtime evidence refuses to emit when a legacy authority stage executed
+ok 24 - runtime evidence refuses to emit when a legacy authority stage executed
+  ---
+  duration_ms: 13.962806
+  type: 'test'
+  ...
+# Subtest: runtime evidence refuses to emit when the placeholder scan did not run
+ok 25 - runtime evidence refuses to emit when the placeholder scan did not run
+  ---
+  duration_ms: 14.871384
+  type: 'test'
+  ...
+# Subtest: semantic events are emitted only when the runtime fact behind them exists
+ok 26 - semantic events are emitted only when the runtime fact behind them exists
+  ---
+  duration_ms: 14.842154
+  type: 'test'
+  ...
+# Subtest: orientation follows the anti-bias schedule: randomized, reversed, independent
+ok 27 - orientation follows the anti-bias schedule: randomized, reversed, independent
+  ---
+  duration_ms: 0.497038
+  type: 'test'
+  ...
+# Subtest: normalization maps raw A/B judgements back to candidate orientation
+ok 28 - normalization maps raw A/B judgements back to candidate orientation
+  ---
+  duration_ms: 0.234558
+  type: 'test'
+  ...
+# Subtest: a judge score outside the oracle scale is rejected, never clamped
+ok 29 - a judge score outside the oracle scale is rejected, never clamped
+  ---
+  duration_ms: 0.798589
+  type: 'test'
+  ...
+# Subtest: a judge response missing a dimension is rejected, never defaulted
+ok 30 - a judge response missing a dimension is rejected, never defaulted
+  ---
+  duration_ms: 0.421943
+  type: 'test'
+  ...
+# Subtest: an unusable judge preference is rejected
+ok 31 - an unusable judge preference is rejected
+  ---
+  duration_ms: 0.245043
+  type: 'test'
+  ...
+# Subtest: 29 healthy routes are all reachable with unique titles and canonicals
+ok 32 - 29 healthy routes are all reachable with unique titles and canonicals
+  ---
+  duration_ms: 1.027916
+  type: 'test'
+  ...
+# Subtest: a 404 route is not counted as reachable
+ok 33 - a 404 route is not counted as reachable
+  ---
+  duration_ms: 0.455428
+  type: 'test'
+  ...
+# Subtest: a redirected route is not counted as reachable
+ok 34 - a redirected route is not counted as reachable
+  ---
+  duration_ms: 0.263204
+  type: 'test'
+  ...
+# Subtest: a route with zero or two H1s is not counted as reachable
+ok 35 - a route with zero or two H1s is not counted as reachable
+  ---
+  duration_ms: 0.425886
+  type: 'test'
+  ...
+# Subtest: duplicate titles and duplicate canonicals are visible in the summary
+ok 36 - duplicate titles and duplicate canonicals are visible in the summary
+  ---
+  duration_ms: 0.388558
+  type: 'test'
+  ...
+# Subtest: a link to a route outside the frozen set counts as a broken internal link
+ok 37 - a link to a route outside the frozen set counts as a broken internal link
+  ---
+  duration_ms: 0.285967
+  type: 'test'
+  ...
+# Subtest: mailto, tel, javascript and fragment links are never treated as internal targets
+ok 38 - mailto, tel, javascript and fragment links are never treated as internal targets
+  ---
+  duration_ms: 0.444924
+  type: 'test'
+  ...
+# Subtest: a clean rendered page produces zero business-truth violations
+ok 39 - a clean rendered page produces zero business-truth violations
+  ---
+  duration_ms: 2.014475
+  type: 'test'
+  ...
+# Subtest: a wrong phone number increments the phone mismatch count
+ok 40 - a wrong phone number increments the phone mismatch count
+  ---
+  duration_ms: 0.448229
+  type: 'test'
+  ...
+# Subtest: a wrong email increments the email mismatch count
+ok 41 - a wrong email increments the email mismatch count
+  ---
+  duration_ms: 0.174143
+  type: 'test'
+  ...
+# Subtest: a forbidden claim pattern is recorded as a prohibition violation
+ok 42 - a forbidden claim pattern is recorded as a prohibition violation
+  ---
+  duration_ms: 0.304127
+  type: 'test'
+  ...
+# Subtest: supplying real SEO execution metadata resolves every external dependency
+ok 43 - supplying real SEO execution metadata resolves every external dependency
+  ---
+  duration_ms: 17.042704
+  type: 'test'
+  ...
+# Subtest: matching runtime, rendered and SEO audit records assemble a Golden receipt
+ok 44 - matching runtime, rendered and SEO audit records assemble a Golden receipt
+  ---
+  duration_ms: 14.449963
+  type: 'test'
+  ...
+# Subtest: a run id mismatch between runtime and rendered evidence is rejected
+ok 45 - a run id mismatch between runtime and rendered evidence is rejected
+  ---
+  duration_ms: 13.99675
+  type: 'test'
+  ...
+# Subtest: a case id mismatch is rejected
+ok 46 - a case id mismatch is rejected
+  ---
+  duration_ms: 16.278853
+  type: 'test'
+  ...
+# Subtest: a missing SEO audit operation is rejected
+ok 47 - a missing SEO audit operation is rejected
+  ---
+  duration_ms: 17.103645
+  type: 'test'
+  ...
+# Subtest: an SEO call that allowed search is rejected
+ok 48 - an SEO call that allowed search is rejected
+  ---
+  duration_ms: 19.138459
+  type: 'test'
+  ...
+# Subtest: missing VISUAL_QA audit records are rejected
+ok 49 - missing VISUAL_QA audit records are rejected
+  ---
+  duration_ms: 20.369754
+  type: 'test'
+  ...
+# Subtest: a synthetic calibration artefact can never be merged into a real receipt
+ok 50 - a synthetic calibration artefact can never be merged into a real receipt
+  ---
+  duration_ms: 20.87201
+  type: 'test'
+  ...
+# Subtest: an unresolved external dependency blocks receipt assembly
+ok 51 - an unresolved external dependency blocks receipt assembly
+  ---
+  duration_ms: 24.095235
+  type: 'test'
+  ...
+# Subtest: rendered evidence without an executed visual QA pass is rejected
+ok 52 - rendered evidence without an executed visual QA pass is rejected
+  ---
+  duration_ms: 21.234615
+  type: 'test'
+  ...
+# Subtest: a duplicated visual pair is rejected
+ok 53 - a duplicated visual pair is rejected
+  ---
+  duration_ms: 20.344427
+  type: 'test'
+  ...
+# Subtest: a missing visual pair is rejected
+ok 54 - a missing visual pair is rejected
+  ---
+  duration_ms: 18.682875
+  type: 'test'
+  ...
+# Subtest: a pair captured at an unknown viewport is rejected
+ok 55 - a pair captured at an unknown viewport is rejected
+  ---
+  duration_ms: 18.892855
+  type: 'test'
+  ...
+# Subtest: a wrong trial count is rejected
+ok 56 - a wrong trial count is rejected
+  ---
+  duration_ms: 17.189011
+  type: 'test'
+  ...
+# Subtest: a trial without orientation or raw judge evidence is rejected
+ok 57 - a trial without orientation or raw judge evidence is rejected
+  ---
+  duration_ms: 30.781798
+  type: 'test'
+  ...
+# Subtest: a stale visual capture from another run is rejected
+ok 58 - a stale visual capture from another run is rejected
+  ---
+  duration_ms: 14.939584
+  type: 'test'
+  ...
+# Subtest: a missing rendered site route is rejected
+ok 59 - a missing rendered site route is rejected
+  ---
+  duration_ms: 15.475968
+  type: 'test'
+  ...
+# Subtest: unequal PCC digests block receipt assembly
+ok 60 - unequal PCC digests block receipt assembly
+  ---
+  duration_ms: 14.562983
+  type: 'test'
+  ...
+# Subtest: a malformed identity SHA blocks receipt assembly
+ok 61 - a malformed identity SHA blocks receipt assembly
+  ---
+  duration_ms: 13.50743
+  type: 'test'
+  ...
+# Subtest: business truth is composed from its producers and cannot be overridden by a caller
+ok 62 - business truth is composed from its producers and cannot be overridden by a caller
+  ---
+  duration_ms: 14.555894
+  type: 'test'
+  ...
+# Subtest: the standalone SEO audit gate rejects an audit produced for another run
+ok 63 - the standalone SEO audit gate rejects an audit produced for another run
+  ---
+  duration_ms: 0.807075
+  type: 'test'
+  ...
+# Subtest: the standalone visual gate accepts the exact sentinel x viewport set
+ok 64 - the standalone visual gate accepts the exact sentinel x viewport set
+  ---
+  duration_ms: 14.663964
+  type: 'test'
+  ...
+1..64
+# tests 64
+# suites 0
+# pass 64
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1079.653338

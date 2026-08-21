@@ -29,3 +29,7 @@ coverage/
 .env.*.local
 .claude/settings.local.json
 .l9-worktrees/
+
+# Safe Haven Golden run evidence and calibration fixtures (generated per run)
+evidence/
+tests/golden/safehaven/fixtures/
