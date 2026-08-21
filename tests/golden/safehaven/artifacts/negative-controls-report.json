@@ -1,0 +1,349 @@
+{
+  "schema": "l9.golden-negative-control-report/v1",
+  "oracle_id": "safehaven-redesign-oracle-v1",
+  "positive_control": {
+    "expected": "GOLDEN_E2E_PASS_IMPROVED",
+    "actual": "GOLDEN_E2E_PASS_IMPROVED",
+    "pass": true
+  },
+  "negative_controls_total": 25,
+  "negative_controls_rejected": 25,
+  "false_acceptance_count": 0,
+  "harness_error_count": 0,
+  "deterministic_replay_pass": true,
+  "controls": [
+    {
+      "id": "NC-01",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "exact-10 donor invariant",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "COMPETITIVE_EVIDENCE_INCOMPLETE",
+        "DUPLICATE_DONOR_DOMAIN",
+        "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-02",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "10 rows are not 10 companies",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "DUPLICATE_DONOR_DOMAIN",
+        "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-03",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "excluded domain cannot occupy donor position",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "FORBIDDEN_DONOR_CLASS"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-04",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "donor visual evidence is required",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "DONOR_SCREENSHOT_INCOMPLETE"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-05",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "preflight must precede first SEO build-intelligence call",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "SEO_PREFLIGHT_TOO_LATE"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-06",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "partial SEO blueprint cannot seal",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "ROUTE_COUNT_MISMATCH",
+        "ROUTE_SET_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-07",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "unknown route violates route authority",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "ROUTE_SET_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-08",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "WBB and SCB landscape lineage must match",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "SEO_BLUEPRINT_LANDSCAPE_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-09",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "PCC must be deterministic and zero-LLM",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "PCC_LLM_USED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-10",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "SCP must reference exact PCC",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-11",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "section.content without blocks must not normalize silently",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS",
+        "STRUCTURED_CONTENT_BLOCKS_REQUIRED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-12",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "one-repair budget",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "CONTENT_REPAIR_BUDGET_EXCEEDED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-13",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "legacy content authority forbidden",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "LEGACY_CONTENT_AUTHORITY_USED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-14",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "redesign schema must remain deterministic",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-15",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "authorized required source photos cannot disappear",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-16",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "competitor assets are evidence only",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "DONOR_ASSET_REUSED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-17",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "Router policy plane must be version aligned",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "ROUTER_VERSION_MISMATCH"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-18",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "CONTENT_VALIDATION must not use fresh-search authority",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "CONTENT_VALIDATION_SEARCH_POLICY_VIOLATION"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-19",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "visual QA cannot be skipped",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "VISUAL_CAPTURE_INCOMPLETE",
+        "VISUAL_PAIR_SET_MISMATCH",
+        "VISUAL_IMPROVEMENT_INSUFFICIENT",
+        "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT",
+        "VISUAL_WEIGHTED_MEAN_DELTA_INSUFFICIENT",
+        "VISUAL_TOTAL_VOTE_COUNT_INCOMPLETE",
+        "VISUAL_WILSON_INTERVAL_INCONCLUSIVE",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "VISUAL_DIMENSION_MISSING",
+        "CRITICAL_VISUAL_DIMENSION_MISSING",
+        "CRITICAL_VISUAL_DIMENSION_MISSING",
+        "CRITICAL_VISUAL_DIMENSION_MISSING",
+        "CRITICAL_VISUAL_DIMENSION_MISSING",
+        "CRITICAL_VISUAL_DIMENSION_MISSING"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-20",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "candidate must win >=7 visual pair majorities",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "CRITICAL_VISUAL_PAIR_REGRESSED",
+        "CRITICAL_VISUAL_PAIR_REGRESSED",
+        "VISUAL_IMPROVEMENT_INSUFFICIENT",
+        "VISUAL_REGRESSION_TOO_BROAD",
+        "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT",
+        "VISUAL_WILSON_INTERVAL_INCONCLUSIVE"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-21",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "homepage mobile is a protected critical pair",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "CRITICAL_VISUAL_PAIR_REGRESSED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-22",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "visual hierarchy may not regress",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-23",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "unsupported/prohibited business claim",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "UNSUPPORTED_BUSINESS_CLAIM",
+        "BUSINESS_PROHIBITION_VIOLATION"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-24",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "all 29 output routes must be reachable",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "SITE_REACHABILITY_INCOMPLETE"
+      ],
+      "harness_error": null
+    },
+    {
+      "id": "NC-25",
+      "expected": "FAIL",
+      "rejected": true,
+      "reason": "command success cannot override a failed oracle property",
+      "verifier_exit_code": 1,
+      "verifier_verdict": "GOLDEN_E2E_FAIL",
+      "failure_codes": [
+        "UNSUPPORTED_BUSINESS_CLAIM"
+      ],
+      "harness_error": null
+    }
+  ],
+  "verdict": "GOLDEN_ORACLE_CALIBRATION_PASS"
+}
