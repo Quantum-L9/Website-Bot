@@ -914,7 +914,8 @@ if (imageAssetManifest.found) {
   // ORACLE-061 proof/gallery counts derived from the manifest's own slot
   // role classification (eligible = non-forbidden disposition; selected =
   // source-site assets that entered the final selection).
-  const roleOf = (a) => String(a.slot_role ?? a.placement ?? a.role ?? a.slot ?? "").toLowerCase();
+  const roleOf = (a) =>
+    String(a.role ?? a.slot_role ?? a.slot_id ?? a.slotId ?? a.placement ?? a.slot ?? "").toLowerCase();
   const isProof = (a) => roleOf(a).includes("project-proof") || roleOf(a).includes("project_proof") || roleOf(a).includes("proof");
   const isGallery = (a) => roleOf(a).includes("gallery");
   const eligibleAssets = assetsList.filter((a) => normalizeAssetDisposition(a) !== null);
