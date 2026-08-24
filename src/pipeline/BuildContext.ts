@@ -190,6 +190,12 @@ export interface BuildContext {
    * counters prove the deterministic/zero-LLM invariants at runtime.
    */
   competitiveLandscape?: CompetitiveLandscapeArtifact;
+  /** Server-side ordering stamps proving preflight preceded the first
+   * SEO build-intelligence call (oracle ORACLE-005). */
+  seoBotOrdering?: {
+    preflight_produced_at: string;
+    landscape_produced_at: string;
+  };
   acceptedDonors?: AcceptedDonorEvidence[];
   seoContentBlueprint?: SEOContentBlueprintArtifact;
   pageContentContract?: PageContentContractArtifact;

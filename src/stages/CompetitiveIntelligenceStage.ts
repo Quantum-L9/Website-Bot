@@ -606,6 +606,18 @@ export class CompetitiveIntelligenceStage implements Stage {
     }
 
     const port = this.portFactory(ctx);
+
+    // Preflight BEFORE the first SEO-Bot build-intelligence call (oracle
+    // ORACLE-005: seo-build-intelligence-preflight must precede
+    // seo:createCompetitiveLandscape). Ordering proof is server-side:
+    // SEO-Bot stamps the preflight report (produced_at) and the sealed
+    // landscape artifact (produced_at) — the receipt compares the two.
+    const preflightSnapshot = await port.preflight();
+    ctx.seoBotOrdering = {
+      preflight_produced_at: preflightSnapshot.produced_at ?? "",
+      landscape_produced_at: "",
+    };
+
     const keywords = (ctx.domainSpec.seo_contract?.target_keywords ?? []).filter((keyword) =>
       keyword.trim(),
     );
@@ -642,6 +654,9 @@ export class CompetitiveIntelligenceStage implements Stage {
       desired_donor_count: REQUIRED_DONOR_COUNT,
     });
     ctx.competitiveLandscape = landscape;
+    if (ctx.seoBotOrdering) {
+      ctx.seoBotOrdering.landscape_produced_at = landscape.produced_at;
+    }
     logger.info(
       {
         landscapeId: landscape.artifact_id,

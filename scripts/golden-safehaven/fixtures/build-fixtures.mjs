@@ -188,6 +188,10 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     unexplained_asset_loss: 0,
   },
   visual_qa: { status: "passed" },
+  seo_bot_ordering: {
+    preflight_produced_at: "2026-08-24T10:00:00.000Z",
+    landscape_produced_at: "2026-08-24T10:05:00.000Z",
+  },
   emitted_at: "2026-08-24T12:00:00.000Z",
 });
 

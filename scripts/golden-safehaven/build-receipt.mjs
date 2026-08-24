@@ -423,25 +423,60 @@ for (const cp of checkpoints) {
     note: "checkpoint-only stage",
   });
 }
-// Emission order is structural, matching the oracle's required subsequence:
-// the two front-loader stages, then the collector's sequence events (the
-// preflight alias must land between unknown-resolver and the
-// competitive-intelligence stage), then the remaining stage events in
-// evidence order. The preflight stage's bare event is never emitted — the
-// sequence entry owns the aliased name.
+// Emission order is RUNTIME-FAITHFUL, never structural. The oracle's
+// required subsequence is checked by the verifier, not manufactured here:
+// if the product ran preflight after the landscape call, the receipt says
+// so and the verifier fails SEO_PREFLIGHT_TOO_LATE honestly.
+//
+// Ordering proof (ORACLE-005): the redesign receipt carries the SEO-Bot
+// server stamps `seo_bot_ordering.{preflight_produced_at,
+// landscape_produced_at}`. Only when BOTH stamps exist and preflight
+// precedes landscape does the preflight alias land between
+// unknown-resolver and competitive-intelligence.
 const EARLY_STAGES = new Set(["domain-spec-loader", "unknown-resolver"]);
 for (const e of stageEventRecords) {
   if (EARLY_STAGES.has(e.stage)) pushEvent(e.name, e.src, e.digest, e.note);
 }
+
+const ordering = redesignReceipt?.seo_bot_ordering;
+const landscapeRan = Boolean(
+  typeof redesignReceipt?.competitive_landscape?.artifact_id === "string" &&
+    redesignReceipt.competitive_landscape.artifact_id.length > 0,
+);
+const orderingProven =
+  typeof ordering?.preflight_produced_at === "string" &&
+  ordering.preflight_produced_at.length > 0 &&
+  typeof ordering?.landscape_produced_at === "string" &&
+  ordering.landscape_produced_at.length > 0 &&
+  ordering.preflight_produced_at < ordering.landscape_produced_at;
+
+const collectorPreflight = sequence?.entries?.find((entry) => entry.endpoint === "preflight");
+const preflightPassed = collectorPreflight?.status === "PASS";
+
+if (orderingProven && preflightPassed) {
+  pushEvent("seo-build-intelligence-preflight:PASS", "redesign-integrity-receipt.json", redesignReceiptDigest(), `server stamps: preflight ${ordering.preflight_produced_at} < landscape ${ordering.landscape_produced_at}`);
+  if (landscapeRan) {
+    pushEvent("seo:createCompetitiveLandscape", "redesign-integrity-receipt.json", redesignReceiptDigest(), `landscape sealed at ${ordering.landscape_produced_at}`);
+  }
+}
+
+for (const e of stageEventRecords) {
+  if (EARLY_STAGES.has(e.stage)) continue;
+  // The preflight's true runtime position, when its precedence was not
+  // proven: emit it where the runtime actually called it (inside
+  // redesign-content-authority) so the verifier can fail honestly.
+  if (e.stage === "redesign-content-authority" && !orderingProven && preflightPassed && !seenEventNames.has("seo-build-intelligence-preflight:PASS")) {
+    pushEvent("seo-build-intelligence-preflight:PASS", "seo-bot/sequence.json", sequenceDigest(), "preflight ran during redesign-content-authority (ordering not proven before landscape)");
+  }
+  pushEvent(e.name, e.src, e.digest, e.note);
+  if (e.stage === "competitive-intelligence" && landscapeRan && !seenEventNames.has("seo:createCompetitiveLandscape")) {
+    pushEvent("seo:createCompetitiveLandscape", "redesign-integrity-receipt.json", redesignReceiptDigest(), "landscape produced during competitive-intelligence (ordering stamps unavailable)");
+  }
+}
+
 if (sequence?.entries) {
   for (const entry of sequence.entries) {
     if (entry.endpoint === "health") pushEvent("seo-bot:health:PASS", "seo-bot/sequence.json", sequenceDigest(), "collector health probe");
-    if (entry.endpoint === "preflight") {
-      pushEvent(`seo-build-intelligence-preflight:${entry.status ?? "SKIPPED"}`, "seo-bot/sequence.json", sequenceDigest(), "collector preflight");
-    }
-    if (entry.endpoint === "competitive-landscape" && (entry.status === "PASS" || entry.status === "FAIL")) {
-      pushEvent("seo:createCompetitiveLandscape", "seo-bot/sequence.json", sequenceDigest(), "collector landscape call");
-    }
     if (entry.endpoint === "seo-content-blueprint" && (entry.status === "PASS" || entry.status === "FAIL")) {
       pushEvent("seo:createSEOContentBlueprint", "seo-bot/sequence.json", sequenceDigest(), "collector blueprint call");
     }
@@ -449,10 +484,6 @@ if (sequence?.entries) {
       pushEvent("seo:createStructuredContent", "seo-bot/sequence.json", sequenceDigest(), "collector structured-content call");
     }
   }
-}
-for (const e of stageEventRecords) {
-  if (EARLY_STAGES.has(e.stage) || e.stage === "seo-build-intelligence-preflight") continue;
-  pushEvent(e.name, e.src, e.digest, e.note);
 }
 
 // ---------------------------------------------------------------------------

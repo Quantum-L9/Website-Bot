@@ -45,6 +45,12 @@ export interface RedesignExecutionIntegrityReceipt {
     unexplained_asset_loss: number;
   };
   visual_qa: { status: string };
+  /** Server-side ordering stamps proving the preflight preceded the first
+   * SEO build-intelligence call (oracle ORACLE-005). */
+  seo_bot_ordering?: {
+    preflight_produced_at: string;
+    landscape_produced_at: string;
+  };
   emitted_at: string;
 }
 
@@ -136,6 +142,9 @@ export function emitRedesignExecutionIntegrityReceipt(
       unexplained_asset_loss: Math.max(0, discovered - decisions.length),
     },
     visual_qa: { status: ctx.qualityEvidence.visualQa },
+    ...(ctx.seoBotOrdering?.preflight_produced_at
+      ? { seo_bot_ordering: ctx.seoBotOrdering }
+      : {}),
     emitted_at: new Date().toISOString(),
   };
 }
