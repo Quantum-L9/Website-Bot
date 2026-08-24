@@ -188,6 +188,27 @@ export function compilePageContentContract(
       }
     }
 
+    // Unverifiable credential topics: the oracle's fact_guardrails
+    // (claims_requiring_explicit_verified_fact) mark license/certification/
+    // award status as claims that need a verified fact. A topic in that set
+    // with no fact to back it can never be covered honestly — requiring it
+    // would force the generator to either invent the claim or write a
+    // disclaimer the semantic validator rejects (golden runs #19-#22).
+    // Drop such topics from the coverage contract; the claim itself remains
+    // covered by claim grounding on the prose.
+    const UNVERIFIABLE_TOPIC_MARKERS = [
+      "licens", "certif", "accredit", "award", "bond", "years in business",
+    ];
+    const factCorpus = routeFacts
+      .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
+      .join(" ")
+      .toLowerCase();
+    const isBacked = (topic: string): boolean =>
+      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => topic.toLowerCase().includes(marker)) ||
+      factCorpus.includes(topic.toLowerCase());
+    const filterTopics = (topics: string[]): string[] =>
+      uniq(topics).filter((topic) => topic.trim().length > 0 && isBacked(topic));
+
     const sections = websiteRoute.sections.map((section) => {
       const requirements = requirementPlacement.get(section.section_id) ?? [];
       const allowedFacts = routeFacts.filter((fact) => factAllowedForSection(fact, section));
@@ -198,7 +219,7 @@ export function compilePageContentContract(
         slots: [...section.content_slots],
         content_requirements: {
           requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
-          topics: uniq(requirements.flatMap((requirement) => requirement.required_topics)),
+          topics: filterTopics(requirements.flatMap((requirement) => requirement.required_topics)),
           entities: uniq(requirements.flatMap((requirement) => requirement.required_entities)),
           questions: uniq(requirements.flatMap((requirement) => requirement.questions)),
         },
