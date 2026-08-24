@@ -8,6 +8,7 @@ import {
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Agent } from "undici";
 import {
   SeoBotPreflightError,
   type SeoBotPreflightResult,
@@ -91,6 +92,11 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
+      // undici's default headersTimeout (300s) kills a request that is
+      // still waiting for response headers while the server computes —
+      // the heavy endpoints respond after ~5 minutes, so a heavy call
+      // needs a dispatcher that waits as long as the abort signal does.
+      ...(heavy ? { dispatcher: new Agent({ headersTimeout: timeoutMs }) } : {}),
     });
     const raw = await response.text();
     if (!response.ok) {
