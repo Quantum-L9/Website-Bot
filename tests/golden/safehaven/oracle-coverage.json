@@ -6,765 +6,725 @@
     "verifier": "scripts/verify-safehaven-golden.mjs"
   },
   "blocking_properties_total": 101,
-  "blocking_properties_enforced": 62,
-  "coverage_pct": 61.4,
+  "blocking_properties_enforced": 101,
+  "coverage_pct": 100,
   "stale_citations": [],
-  "unenforced_properties": [
-    "identity.require_clean_or_explicitly_recorded_worktrees",
-    "identity.require_bot_interop_compatibility",
-    "preflight.required",
-    "preflight.required_checks",
-    "execution_graph.required_ordered_subsequence",
-    "execution_graph.forbidden_stages_under_redesign",
-    "competitive_landscape.forbidden_selected_classes",
-    "donor_evidence.per_donor.require_timestamp",
-    "website_blueprint.required",
-    "website_blueprint.visual_asset_requirements_required",
-    "seo_content_blueprint.duplicate_routes",
-    "seo_content_blueprint.unknown_content_slots",
-    "seo_content_blueprint.invalid_internal_link_targets",
-    "page_content_contract.invalid_business_facts",
-    "page_content_contract.determinism.same_semantic_input_same_digest",
-    "structured_content.section_alias_fields_forbidden",
-    "structured_content.all_section_prose_must_use_blocks",
-    "legacy_authority.redesign_schema_llm_calls",
-    "source_assets.source_corpus_completed",
-    "source_assets.forbidden_candidate_dispositions",
-    "source_assets.conditional_rules",
-    "site_integrity.per_route",
-    "site_integrity.unique_titles",
-    "site_integrity.unique_canonical_urls",
-    "business_truth.prohibition_violations",
-    "llm_audit.required_policy.VISUAL_QA",
-    "llm_audit.unsupported_capability_combination_count",
-    "visual_capture.candidate_blank_capture_count",
-    "visual_capture.baseline_blank_capture_count",
-    "visual_capture.route_mismatch_count",
-    "visual_capture.viewport_mismatch_count",
-    "visual_capture.stale_capture_count",
-    "visual_oracle.pass.minimum_weighted_mean_delta",
-    "visual_oracle.dimensions",
-    "visual_oracle.reveal_candidate_identity_to_judge",
-    "visual_oracle.inconclusive.missing_trial",
-    "visual_oracle.inconclusive.judge_disagreement_without_majority",
-    "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
-    "final_verdict.pass_requires.no_inconclusive_blocking_dimension"
-  ],
+  "unenforced_properties": [],
   "properties": [
     {
       "oracle_path": "identity.require_full_git_shas",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:21",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:280",
       "evidence_source": "identity.*.sha",
       "negative_control": null
     },
     {
       "oracle_path": "identity.router_version_rule",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:26",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:286",
       "evidence_source": "identity.*.llm_router_version",
       "negative_control": "NC-17"
     },
     {
       "oracle_path": "identity.require_clean_or_explicitly_recorded_worktrees",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:291",
       "evidence_source": "identity.*.worktree_state",
       "negative_control": null
     },
     {
       "oracle_path": "identity.require_bot_interop_compatibility",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:309",
       "evidence_source": "identity.bot_interop",
       "negative_control": null
     },
     {
       "oracle_path": "preflight.must_precede_first_seo_build_intelligence_call",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:31",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:326",
       "evidence_source": "events[]",
       "negative_control": "NC-05"
     },
     {
       "oracle_path": "preflight.required",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:353",
       "evidence_source": "preflight.status",
       "negative_control": null
     },
     {
       "oracle_path": "preflight.required_checks",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:358",
       "evidence_source": "preflight.checks[]",
       "negative_control": null
     },
     {
       "oracle_path": "execution_graph.build_intent",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:27",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:318",
       "evidence_source": "run.build_intent",
       "negative_control": null
     },
     {
       "oracle_path": "execution_graph.copy_fallback_used",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:28",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:320",
       "evidence_source": "run.copy_fallback_used",
       "negative_control": null
     },
     {
       "oracle_path": "execution_graph.generic_fallback_used",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:29",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:322",
       "evidence_source": "run.generic_fallback_used",
       "negative_control": null
     },
     {
       "oracle_path": "execution_graph.required_ordered_subsequence",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:165",
       "evidence_source": "events[]",
       "negative_control": null
     },
     {
       "oracle_path": "execution_graph.forbidden_stages_under_redesign",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:337",
       "evidence_source": "events[]",
       "negative_control": null
     },
     {
       "oracle_path": "competitive_landscape.selected_donor_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:33",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:385",
       "evidence_source": "competitive_landscape.selected_donors",
       "negative_control": "NC-01"
     },
     {
       "oracle_path": "competitive_landscape.unique_normalized_domains",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:35",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:389",
       "evidence_source": "selected_donors[].normalized_domain",
       "negative_control": "NC-02"
     },
     {
       "oracle_path": "competitive_landscape.evidence_complete",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:36",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:390",
       "evidence_source": "competitive_landscape.evidence_complete",
       "negative_control": null
     },
     {
       "oracle_path": "competitive_landscape.ranking_llm_calls",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:37",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:391",
       "evidence_source": "competitive_landscape.ranking_llm_calls",
       "negative_control": null
     },
     {
       "oracle_path": "competitive_landscape.every_selected_donor_requires",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:38",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:393",
       "evidence_source": "selected_donors[]",
       "negative_control": null,
       "partial": "observed_at and real_dataforseo_observation unchecked"
     },
     {
       "oracle_path": "competitive_landscape.forbidden_selected_classes",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:386",
       "evidence_source": "selected_donors[].class",
       "negative_control": "NC-03"
     },
     {
       "oracle_path": "donor_evidence.accepted_donors",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:40",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:409",
       "evidence_source": "donor_evidence[]",
       "negative_control": null
     },
     {
       "oracle_path": "donor_evidence.per_donor.minimum_successful_pages",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:41",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:413",
       "evidence_source": "donor_evidence[].successful_pages",
       "negative_control": null
     },
     {
       "oracle_path": "donor_evidence.per_donor.minimum_screenshots",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:41",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:414",
       "evidence_source": "donor_evidence[].screenshots",
       "negative_control": "NC-04"
     },
     {
       "oracle_path": "donor_evidence.per_donor.require_evidence_digest",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:41",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:415",
       "evidence_source": "donor_evidence[].evidence_digest",
       "negative_control": null
     },
     {
       "oracle_path": "donor_evidence.per_donor.require_timestamp",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:416",
       "evidence_source": "donor_evidence[].crawled_at",
       "negative_control": null
     },
     {
       "oracle_path": "donor_evidence.candidate_donor_asset_hash_matches",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:64",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:546",
       "evidence_source": "assets.donor_asset_hash_matches",
       "negative_control": "NC-16"
     },
     {
       "oracle_path": "website_blueprint.must_reference_exact_competitive_landscape",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:47",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:454",
       "evidence_source": "website_build_blueprint.competitive_landscape_ref",
       "negative_control": "NC-08"
     },
     {
       "oracle_path": "website_blueprint.required",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:432",
       "evidence_source": "website_build_blueprint",
       "negative_control": null
     },
     {
       "oracle_path": "website_blueprint.visual_asset_requirements_required",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:439",
       "evidence_source": "website_build_blueprint.visual_requirements",
       "negative_control": null
     },
     {
       "oracle_path": "seo_content_blueprint.produced_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:43",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:446",
       "evidence_source": "seo_content_blueprint.routes",
       "negative_control": "NC-06"
     },
     {
       "oracle_path": "seo_content_blueprint.extra_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:43",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:446",
       "evidence_source": "seo_content_blueprint.routes",
       "negative_control": "NC-07"
     },
     {
       "oracle_path": "seo_content_blueprint.batch_size",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:44",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:448",
       "evidence_source": "seo_content_blueprint.batch_size",
       "negative_control": null
     },
     {
       "oracle_path": "seo_content_blueprint.expected_batch_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:45",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:450",
       "evidence_source": "seo_content_blueprint.batch_count",
       "negative_control": null
     },
     {
       "oracle_path": "seo_content_blueprint.must_reference_exact_competitive_landscape",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:48",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:455",
       "evidence_source": "seo_content_blueprint.competitive_landscape_ref",
       "negative_control": "NC-08"
     },
     {
       "oracle_path": "seo_content_blueprint.duplicate_routes",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:446",
       "evidence_source": "seo_content_blueprint.routes",
       "negative_control": null,
-      "note": "requireExactSet() dedupes via Set; duplicates cannot be detected"
+      "note": "multiset comparison preserves cardinality; a duplicated route fails"
     },
     {
       "oracle_path": "seo_content_blueprint.unknown_content_slots",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:458",
       "evidence_source": "seo_content_blueprint.unknown_content_slots",
       "negative_control": null
     },
     {
       "oracle_path": "seo_content_blueprint.invalid_internal_link_targets",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:460",
       "evidence_source": "seo_content_blueprint.invalid_internal_link_targets",
       "negative_control": null
     },
     {
       "oracle_path": "page_content_contract.produced_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:43",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:446",
       "evidence_source": "page_content_contract.routes",
       "negative_control": null
     },
     {
       "oracle_path": "page_content_contract.llm_calls",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:50",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:465",
       "evidence_source": "page_content_contract.llm_calls",
       "negative_control": "NC-09"
     },
     {
       "oracle_path": "page_content_contract.unplaced_content_requirements",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:53",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:466",
       "evidence_source": "page_content_contract.unplaced_requirements",
       "negative_control": null
     },
     {
       "oracle_path": "page_content_contract.invalid_business_facts",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:468",
       "evidence_source": "page_content_contract.invalid_business_facts",
       "negative_control": null
     },
     {
       "oracle_path": "page_content_contract.determinism.same_semantic_input_same_digest",
-      "implemented": false,
-      "verifier_location": null,
-      "evidence_source": "page_content_contract.determinism_digest",
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:472",
+      "evidence_source": "page_content_contract.determinism",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.produced_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:43",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:446",
       "evidence_source": "structured_content.routes",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.must_reference_exact_page_content_contract",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:49",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:487",
       "evidence_source": "structured_content.page_content_contract_ref",
       "negative_control": "NC-10"
     },
     {
       "oracle_path": "structured_content.schema_invalid_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:54",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:495",
       "evidence_source": "route_results[].schema_errors",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.unsupported_claims",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:54",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:496",
       "evidence_source": "route_results[].unsupported_claims",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.failed_requirements",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:54",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:497",
       "evidence_source": "route_results[].failed_requirements",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.maximum_repairs_per_route",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:54",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:491",
       "evidence_source": "route_results[].repair_attempts",
       "negative_control": "NC-12"
     },
     {
       "oracle_path": "structured_content.maximum_generation_calls_per_route",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:54",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:492",
       "evidence_source": "route_results[].generation_calls",
       "negative_control": null
     },
     {
       "oracle_path": "structured_content.section_alias_fields_forbidden",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:490",
       "evidence_source": "route_results[].section_alias_fields",
       "negative_control": "NC-11"
     },
     {
       "oracle_path": "structured_content.all_section_prose_must_use_blocks",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:501",
       "evidence_source": "route_results[].prose_without_blocks",
       "negative_control": "NC-11"
     },
     {
       "oracle_path": "legacy_authority.legacy_content_generation_calls",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:51",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:526",
       "evidence_source": "legacy.content_generation_calls",
       "negative_control": "NC-13"
     },
     {
       "oracle_path": "legacy_authority.legacy_schema_generation_calls",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:52",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:527",
       "evidence_source": "legacy.schema_llm_calls",
       "negative_control": null
     },
     {
       "oracle_path": "legacy_authority.page_content_contract_llm_calls",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:50",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:465",
       "evidence_source": "page_content_contract.llm_calls",
       "negative_control": "NC-09"
     },
     {
       "oracle_path": "legacy_authority.redesign_schema_llm_calls",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:529",
       "evidence_source": "legacy.redesign_schema_llm_calls",
       "negative_control": "NC-14"
     },
     {
       "oracle_path": "source_assets.minimum_raw_source_images",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:59",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:541",
       "evidence_source": "assets.raw_source_images",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.minimum_authorized_reusable_images",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:60",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:542",
       "evidence_source": "assets.authorized_reusable_images",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.minimum_selected_source_images",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:61",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:543",
       "evidence_source": "assets.selected_source_images",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.unexplained_reusable_asset_loss",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:62",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:544",
       "evidence_source": "assets.unexplained_reusable_asset_loss",
       "negative_control": "NC-15"
     },
     {
       "oracle_path": "source_assets.required_visual_slots_filled_fraction",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:63",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:545",
       "evidence_source": "assets.required_visual_slots_filled_fraction",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.source_corpus_completed",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:548",
       "evidence_source": "assets.source_corpus_completed",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.forbidden_candidate_dispositions",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:550",
       "evidence_source": "assets.candidate_dispositions[]",
       "negative_control": null
     },
     {
       "oracle_path": "source_assets.conditional_rules",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:564",
       "evidence_source": "assets.project_proof/gallery counts",
       "negative_control": "NC-15"
     },
     {
       "oracle_path": "site_integrity.built_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:65",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:578",
       "evidence_source": "site.routes",
       "negative_control": null
     },
     {
       "oracle_path": "site_integrity.reachable_routes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:66",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:579",
       "evidence_source": "site.reachable_routes",
       "negative_control": "NC-24"
     },
     {
       "oracle_path": "site_integrity.broken_internal_links",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:67",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:580",
       "evidence_source": "site.broken_internal_links",
       "negative_control": null
     },
     {
       "oracle_path": "site_integrity.placeholder_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:68",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:581",
       "evidence_source": "site.placeholder_count",
       "negative_control": null
     },
     {
       "oracle_path": "site_integrity.per_route",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:588",
       "evidence_source": "site.per_route[]",
       "negative_control": null
     },
     {
       "oracle_path": "site_integrity.unique_titles",
-      "implemented": false,
-      "verifier_location": null,
-      "evidence_source": "site.unique_titles",
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:603",
+      "evidence_source": "site.per_route[].title",
       "negative_control": null
     },
     {
       "oracle_path": "site_integrity.unique_canonical_urls",
-      "implemented": false,
-      "verifier_location": null,
-      "evidence_source": "site.unique_canonical_urls",
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:604",
+      "evidence_source": "site.per_route[].canonical",
       "negative_control": null
     },
     {
       "oracle_path": "business_truth.unsupported_claim_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:55",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:533",
       "evidence_source": "business_truth.unsupported_claim_count",
       "negative_control": "NC-23"
     },
     {
       "oracle_path": "business_truth.phone_mismatch_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:56",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:534",
       "evidence_source": "business_truth.phone_mismatch_count",
       "negative_control": null
     },
     {
       "oracle_path": "business_truth.email_mismatch_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:57",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:535",
       "evidence_source": "business_truth.email_mismatch_count",
       "negative_control": null
     },
     {
       "oracle_path": "business_truth.prohibition_violations",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:537",
       "evidence_source": "business_truth.prohibition_violations",
       "negative_control": "NC-23"
     },
     {
       "oracle_path": "llm_audit.direct_provider_bypass_count",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:69",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:644",
       "evidence_source": "llm_audit.direct_provider_bypass_count",
       "negative_control": null
     },
     {
       "oracle_path": "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:70",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:651",
       "evidence_source": "llm_audit.operations[]",
       "negative_control": null
     },
     {
       "oracle_path": "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:70",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:651",
       "evidence_source": "llm_audit.operations[]",
       "negative_control": null
     },
     {
       "oracle_path": "llm_audit.required_policy.CONTENT_VALIDATION",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:70",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:650",
       "evidence_source": "llm_audit.operations[]",
       "negative_control": "NC-18"
     },
     {
       "oracle_path": "llm_audit.required_policy.VISUAL_QA",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:652",
       "evidence_source": "llm_audit.operations.VISUAL_QA",
       "negative_control": null,
-      "note": "verifier loop covers only the three non-visual operations"
+      "note": "VISUAL_QA calls must suppress search; missing router audit fails"
     },
     {
       "oracle_path": "llm_audit.unsupported_capability_combination_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:646",
       "evidence_source": "llm_audit.unsupported_capability_combination_count",
       "negative_control": null
     },
     {
       "oracle_path": "visual_capture.required_pairs",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:72",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:677",
       "evidence_source": "visual.pairs[]",
       "negative_control": "NC-19"
     },
     {
       "oracle_path": "visual_capture.candidate_blank_capture_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:692",
       "evidence_source": "visual.pairs[].candidate_blank",
       "negative_control": null
     },
     {
       "oracle_path": "visual_capture.baseline_blank_capture_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:693",
       "evidence_source": "visual.pairs[].baseline_blank",
       "negative_control": null
     },
     {
       "oracle_path": "visual_capture.route_mismatch_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:694",
       "evidence_source": "visual.pairs[].route_match",
       "negative_control": null
     },
     {
       "oracle_path": "visual_capture.viewport_mismatch_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:695",
       "evidence_source": "visual.pairs[].viewport_match",
       "negative_control": null
     },
     {
       "oracle_path": "visual_capture.stale_capture_count",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:696",
       "evidence_source": "visual.pairs[].captured_run_id",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.trials_per_pair",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:74",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:691",
       "evidence_source": "visual.pairs[].trials",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.pass.minimum_pair_majority_wins",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:75",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:711",
       "evidence_source": "normalized_preference",
       "negative_control": "NC-20"
     },
     {
       "oracle_path": "visual_oracle.pass.maximum_pair_majority_losses",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:76",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:712",
       "evidence_source": "normalized_preference",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.pass.minimum_candidate_votes",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:77",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:713",
       "evidence_source": "normalized_preference",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.pass.wilson_lower_bound_must_exceed",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:79",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:795",
       "evidence_source": "normalized_preference",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.pass.critical_pairs_may_not_lose",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:74",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:776",
       "evidence_source": "visual.pairs[]",
       "negative_control": "NC-21",
-      "note": "critical pair set is hardcoded in the verifier, not read from oracle.json"
+      "note": "critical pair set read dynamically from oracle.json; missing config fails closed"
     },
     {
       "oracle_path": "visual_oracle.pass.critical_dimensions_may_not_regress",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:81",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:832",
       "evidence_source": "normalized_candidate_delta",
       "negative_control": "NC-22",
-      "note": "dimension list hardcoded, not read from oracle.json"
+      "note": "dimension list read dynamically from oracle.json; missing config fails closed"
     },
     {
       "oracle_path": "visual_oracle.pass.minimum_weighted_mean_delta",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:702",
       "evidence_source": "normalized_candidate_delta + oracle dimension weights",
       "negative_control": null,
-      "note": "§20 explicitly flags this as unimplemented; oracle.json weights are never read"
+      "note": "weighted mean delta computed from oracle.json dimension weights; threshold read dynamically"
     },
     {
       "oracle_path": "visual_oracle.dimensions",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:703",
       "evidence_source": "oracle.visual_oracle.dimensions",
       "negative_control": null,
-      "note": "weights declared but never used by the verifier"
+      "note": "weights consumed dynamically; weight sum validated == 1.0; every configured dimension required in every trial"
     },
     {
       "oracle_path": "visual_oracle.reveal_candidate_identity_to_judge",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:747",
       "evidence_source": "visual.trials[].blind",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.inconclusive.missing_trial",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:699",
       "evidence_source": "visual.pairs[].trials",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.inconclusive.judge_disagreement_without_majority",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:700",
       "evidence_source": "normalized_preference",
       "negative_control": null
     },
     {
       "oracle_path": "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:701",
       "evidence_source": "wilson bounds",
       "negative_control": null
     },
     {
       "oracle_path": "final_verdict.pass_requires.all_hard_gates_pass",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:82",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:19",
       "evidence_source": "failures[]",
       "negative_control": "NC-25"
     },
     {
       "oracle_path": "final_verdict.pass_requires.visual_oracle_pass",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:75",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:711",
       "evidence_source": "visual aggregate",
       "negative_control": null
     },
     {
       "oracle_path": "final_verdict.pass_requires.rendered_visual_qa_executed",
       "implemented": true,
-      "verifier_location": "scripts/verify-safehaven-golden.mjs:72",
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:677",
       "evidence_source": "visual.pairs[]",
       "negative_control": "NC-19"
     },
     {
       "oracle_path": "final_verdict.pass_requires.no_inconclusive_blocking_dimension",
-      "implemented": false,
-      "verifier_location": null,
+      "implemented": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:842",
       "evidence_source": "visual inconclusive rules",
       "negative_control": null
     }
   ],
-  "verdict": "ORACLE_IMPLEMENTATION_INCOMPLETE"
+  "verdict": "ORACLE_COVERAGE_COMPLETE"
 }

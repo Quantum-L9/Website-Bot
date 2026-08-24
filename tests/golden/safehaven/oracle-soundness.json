@@ -2,26 +2,12 @@
   "schema": "l9.golden-oracle-soundness/v1",
   "rule": "failure_behavior.missing_required_evidence.do_not_default_missing_numeric_values_to_zero",
   "probes_total": 41,
-  "sound": 29,
-  "vacuous_unguarded": 8,
-  "vacuous_guarded": 4,
+  "sound": 41,
+  "vacuous_unguarded": 0,
+  "vacuous_guarded": 0,
   "inert": 0,
-  "false_accept_paths": [
-    "ORACLE-043",
-    "ORACLE-044",
-    "ORACLE-045",
-    "ORACLE-046",
-    "ORACLE-047",
-    "ORACLE-074",
-    "ORACLE-075",
-    "ORACLE-076"
-  ],
-  "vacuous_but_backstopped": [
-    "ORACLE-020",
-    "ORACLE-021",
-    "ORACLE-022",
-    "ORACLE-085"
-  ],
+  "false_accept_paths": [],
+  "vacuous_but_backstopped": [],
   "inert_properties": [],
   "probes": [
     {
@@ -115,10 +101,10 @@
       "container_path": "donor_evidence",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": "DONOR_EVIDENCE_INCOMPLETE",
       "container_guard_fires": true,
-      "verdict": "VACUOUS_GUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-021",
@@ -127,10 +113,10 @@
       "container_path": "donor_evidence",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": "DONOR_EVIDENCE_INCOMPLETE",
       "container_guard_fires": true,
-      "verdict": "VACUOUS_GUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-022",
@@ -139,10 +125,10 @@
       "container_path": "donor_evidence",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": "DONOR_EVIDENCE_INCOMPLETE",
       "container_guard_fires": true,
-      "verdict": "VACUOUS_GUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-025",
@@ -234,11 +220,11 @@
       "evidence_path": "structured_content.route_results.0.schema_errors",
       "container_path": "structured_content.route_results",
       "fires_when_value_bad": true,
-      "fires_when_field_absent": false,
-      "fires_when_container_absent": false,
+      "fires_when_field_absent": true,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-044",
@@ -246,11 +232,11 @@
       "evidence_path": "structured_content.route_results.0.unsupported_claims",
       "container_path": "structured_content.route_results",
       "fires_when_value_bad": true,
-      "fires_when_field_absent": false,
-      "fires_when_container_absent": false,
+      "fires_when_field_absent": true,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-045",
@@ -258,11 +244,11 @@
       "evidence_path": "structured_content.route_results.0.failed_requirements",
       "container_path": "structured_content.route_results",
       "fires_when_value_bad": true,
-      "fires_when_field_absent": false,
-      "fires_when_container_absent": false,
+      "fires_when_field_absent": true,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-046",
@@ -270,11 +256,11 @@
       "evidence_path": "structured_content.route_results.0.repair_attempts",
       "container_path": "structured_content.route_results",
       "fires_when_value_bad": true,
-      "fires_when_field_absent": false,
-      "fires_when_container_absent": false,
+      "fires_when_field_absent": true,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-047",
@@ -282,11 +268,11 @@
       "evidence_path": "structured_content.route_results.0.generation_calls",
       "container_path": "structured_content.route_results",
       "fires_when_value_bad": true,
-      "fires_when_field_absent": false,
-      "fires_when_container_absent": false,
+      "fires_when_field_absent": true,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-050",
@@ -475,10 +461,10 @@
       "container_path": "llm_audit.operations",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-075",
@@ -487,10 +473,10 @@
       "container_path": "llm_audit.operations",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-076",
@@ -499,10 +485,10 @@
       "container_path": "llm_audit.operations",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": null,
       "container_guard_fires": null,
-      "verdict": "VACUOUS_UNGUARDED"
+      "verdict": "SOUND"
     },
     {
       "oracle_id": "ORACLE-085",
@@ -511,11 +497,11 @@
       "container_path": "visual.pairs",
       "fires_when_value_bad": true,
       "fires_when_field_absent": true,
-      "fires_when_container_absent": false,
+      "fires_when_container_absent": true,
       "container_guard_code": "VISUAL_CAPTURE_INCOMPLETE",
       "container_guard_fires": true,
-      "verdict": "VACUOUS_GUARDED"
+      "verdict": "SOUND"
     }
   ],
-  "verdict": "ORACLE_SOUNDNESS_INCOMPLETE"
+  "verdict": "ORACLE_SOUNDNESS_COMPLETE"
 }
