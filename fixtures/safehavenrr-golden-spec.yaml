@@ -417,8 +417,8 @@ verified_business_facts: &id001
   locality: Charlotte, NC
   hours: 24/7
   years_local_experience: 6
-  fully_insured: true
-  free_inspection: true
+  fully_insured: fully insured
+  free_inspection: free inspection
   workmanship_warranty_years: 5
   roofing_brands:
   - GAF
