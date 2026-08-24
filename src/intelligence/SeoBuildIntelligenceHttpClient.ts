@@ -74,11 +74,14 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
-    // Structured-content generates prose for every contract route in one
-    // request; a 29-route contract takes minutes (the legacy generator
-    // measured 327s). A blanket 120s cap aborts that call mid-generation.
-    const timeoutMs = path.includes("structured-content")
-      ? Number(process.env.SEO_BOT_STRUCTURED_CONTENT_TIMEOUT_MS ?? 900_000)
+    // The two heavyweight endpoints generate content for the whole contract
+    // in one request (blueprint: 8 batched strategy calls; structured
+    // content: prose for all 29 routes). Both take minutes — the legacy
+    // generator measured 327s for the same contract — so a blanket 120s cap
+    // aborts them mid-generation. Lightweight endpoints keep 120s.
+    const heavy = path.includes("structured-content") || path.includes("seo-content-blueprint");
+    const timeoutMs = heavy
+      ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 900_000)
       : 120_000;
     const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
       method: "POST",
