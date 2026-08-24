@@ -41,7 +41,10 @@ export const WEBSITE_IMPROVE_LLM_POLICY: Record<WebsiteImproveLlmOperation, Poli
   WEBSITE_BLUEPRINT: {
     type: TaskType.STRATEGIC_REASONING,
     complexity: TaskComplexity.CRITICAL,
-    expectedOutputTokens: 6000,
+    // A full 29-route blueprint JSON from a reasoning model routinely
+    // exceeds 6000 output tokens; truncation at the cap made the response
+    // unparseable (golden run 2026-08-24 failure at competitive-intelligence).
+    expectedOutputTokens: 12000,
     requiresReasoning: true,
     requiresSearch: false,
   },
