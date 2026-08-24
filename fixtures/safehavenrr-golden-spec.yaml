@@ -419,7 +419,8 @@ verified_business_facts: &id001
   years_local_experience: 6
   fully_insured: fully insured
   free_inspection: free inspection
-  workmanship_warranty_years: 5
+  workmanship_warranty_years: 5-year workmanship warranty; warranties cover workmanship
+    for 5 years
   roofing_brands:
   - GAF
   - CertainTeed
