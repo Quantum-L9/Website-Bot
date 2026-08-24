@@ -27,6 +27,12 @@ if [ "${VERCEL_TARGET:-}" = "production" ] || [ "${WEBSITE_BOT_ALLOW_PRODUCTION:
 fi
 export VERCEL_TARGET="preview"
 
+# Operator-provisioned secrets (gitignored). Exported for every child script;
+# values never logged. run-pipeline.ts also loads it itself.
+set -a
+[ -f .env.local ] && source .env.local
+set +a
+
 RUN_ID="${L9_GOLDEN_RUN_ID:?set L9_GOLDEN_RUN_ID}"
 CLIENT_ID="${L9_GOLDEN_CLIENT_ID:-safehavenrr}"
 SPEC="${L9_GOLDEN_SPEC:-fixtures/safehavenrr-golden-spec.yaml}"

@@ -18,6 +18,30 @@ import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
 
+// Load the operator-provisioned .env.local (gitignored) into process.env
+// before hydration so a local run can supply the Infisical bootstrap without
+// manual `export` ceremony. Real environment variables always win; values are
+// never logged. Absent file is a no-op.
+try {
+  for (const line of readFileSync(resolve(process.cwd(), ".env.local"), "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+} catch {
+  // .env.local is optional; fail-soft like the Infisical hydration below.
+}
+
 // Hydrate process.env from Infisical when INFISICAL_* bootstrap is present.
 // Fail-soft locally; CI supplies INFISICAL_CLIENT_ID/_SECRET/_PROJECT_ID.
 await hydrateSecretsIfConfigured();
