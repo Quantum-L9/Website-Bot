@@ -1,0 +1,442 @@
+vertical: roofing_construction
+geography:
+  states:
+  - NC
+  primary_state: NC
+seo_contract:
+  target_keywords:
+  - roof replacement
+  - roof repair
+  - storm damage repair
+  - roof installation
+  - roof inspection
+  - charlotte roofing
+  site_url: safehavenrr.com
+  phone: (704) 648-7252
+  lead_form_action: https://httpbin.org/post
+client_id: safehavenrr
+business_name: Safe Haven Roofing & Renovations
+design:
+  status: resolved
+  palette:
+    primary: '#1ca0e0'
+    secondary: '#171717'
+    accent: '#1ca0e0'
+    background: '#0a0a0a'
+    text: '#f5f5f5'
+  fonts:
+    heading: Inter
+    body: Inter
+routes:
+- slug: /
+  title: Safe Haven Roofing & Renovations
+  components:
+  - hero
+  - gallery
+  - trust-bar
+  - services-overview
+  - service-area
+  - faq
+  - cta
+  - contact-form
+- slug: /about
+  title: Who We Are
+  components:
+  - hero
+  - service-detail
+  - trust-bar
+  - contact-form
+- slug: /contact
+  title: Free Inspection
+  components:
+  - hero
+  - contact-form
+- slug: /faq
+  title: Frequently Asked Questions
+  components:
+  - hero
+  - faq
+  - cta
+  - contact-form
+- slug: /gallery
+  title: Our Work
+  components:
+  - hero
+  - gallery
+  - cta
+- slug: /guides
+  title: Charlotte roofing, explained
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /insurance-claims
+  title: Insurance claims, made clearer
+  components:
+  - hero
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /privacy
+  title: Privacy Policy
+  components:
+  - hero
+  - service-detail
+- slug: /service-areas
+  title: Serving Charlotte, NC & the surrounding towns
+  components:
+  - hero
+  - service-area
+  - cta
+  - contact-form
+- slug: /services
+  title: Our Services
+  components:
+  - hero
+  - services-overview
+  - cta
+  - contact-form
+- slug: /services/asphalt-shingles
+  title: Asphalt Shingle Roofing in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/flat-roofing
+  title: Flat Roofing in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/gutters
+  title: Gutter Installation & Repair in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/interior-renovations
+  title: Interior Renovations in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/metal-roofing
+  title: Metal Roofing in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/outdoor-living
+  title: Outdoor Living & Hardscape in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/roof-inspection
+  title: Roof Inspection in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/roof-installation
+  title: Roof Installation in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/roof-repair
+  title: Roof Repair in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/roof-replacement
+  title: Roof Replacement in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/siding-fascia-soffit
+  title: Siding, Fascia & Soffit Repair in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /services/storm-damage
+  title: Storm Damage Roof Repair in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - process
+  - faq
+  - trust-bar
+  - cta
+  - contact-form
+- slug: /guides/how-long-roof-replacement-takes-charlotte
+  title: How Long Does a Roof Replacement Take?
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /guides/how-to-choose-roofing-contractor-charlotte
+  title: How to Choose a Roofing Contractor in Charlotte
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /guides/metal-roof-vs-shingles-charlotte
+  title: Metal Roof vs. Asphalt Shingles in Charlotte
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /guides/repair-or-replace-roof-charlotte
+  title: Repair or Replace Your Roof? A Charlotte Guide
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /guides/roof-replacement-cost-charlotte
+  title: Roof Replacement Cost in Charlotte, NC
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /guides/storm-damage-roof-repair-charlotte
+  title: Storm & Hail Damage Roof Repair in Charlotte
+  components:
+  - hero
+  - service-detail
+  - contact-form
+- slug: /service-areas/charlotte
+  title: Roofing in Charlotte, NC
+  components:
+  - hero
+  - service-area
+  - process
+  - cta
+  - contact-form
+assets:
+  sourceSite:
+    url: https://www.safehavenrr.com/
+    enabled: true
+    maxPages: 40
+    maxDepth: 2
+    downloadImages: true
+    captureScreenshots: false
+  imageSlots:
+  - id: logo
+    placement: global:logo
+    required: false
+    preferredSources:
+    - source-site
+    - provided
+    - generated
+    aspectRatio: '1:1'
+    imageSize: 1K
+    generation:
+      intent: Company logo for a roofing contractor
+      subject: Safe Haven Roofing & Renovations
+      style: minimal, professional
+  - id: og-image
+    placement: global:og-image
+    required: false
+    preferredSources:
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Professional social preview image for a roofing contractor
+      subject: Safe Haven Roofing & Renovations
+      style: professional, modern, trustworthy
+  - id: hero-home
+    placement: /:hero
+    required: true
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Hero image for a roofing contractor homepage in Charlotte
+      subject: Safe Haven Roofing & Renovations
+      style: professional, modern, trustworthy
+  - id: hero-/services/roof-replacement
+    placement: /services/roof-replacement:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Roof Replacement
+      subject: Roof Replacement
+      style: professional, modern
+  - id: hero-/services/roof-repair
+    placement: /services/roof-repair:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Roof Repair
+      subject: Roof Repair
+      style: professional, modern
+  - id: hero-/services/roof-installation
+    placement: /services/roof-installation:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Roof Installation
+      subject: Roof Installation
+      style: professional, modern
+  - id: hero-/services/roof-inspection
+    placement: /services/roof-inspection:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Roof Inspection
+      subject: Roof Inspection
+      style: professional, modern
+  - id: hero-/services/storm-damage
+    placement: /services/storm-damage:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Storm Damage
+      subject: Storm Damage
+      style: professional, modern
+  - id: hero-/services/asphalt-shingles
+    placement: /services/asphalt-shingles:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Asphalt Shingles
+      subject: Asphalt Shingles
+      style: professional, modern
+  - id: hero-/services/metal-roofing
+    placement: /services/metal-roofing:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Metal Roofing
+      subject: Metal Roofing
+      style: professional, modern
+  - id: hero-/services/flat-roofing
+    placement: /services/flat-roofing:hero
+    required: false
+    preferredSources:
+    - source-site
+    - generated
+    aspectRatio: '16:9'
+    imageSize: 1K
+    generation:
+      intent: Service page hero image for Flat Roofing
+      subject: Flat Roofing
+      style: professional, modern
+  generation:
+    enabled: true
+    model: gemini-2.5-flash-image
+    budgetUsd: 5
+    promptCompiler: default
+build_intent: REDESIGN_IMPROVE
+verified_business_facts:
+  business_name: Safe Haven Roofing & Renovations
+  phone_display: (704) 648-7252
+  phone_e164: '+17046487252'
+  email: info@safehavenrr.com
+  locality: Charlotte, NC
+  hours: 24/7
+  years_local_experience: 6
+  fully_insured: true
+  free_inspections: true
+  workmanship_warranty_years: 5
+  roofing_brands:
+  - GAF
+  - CertainTeed
+  - Atlas
+  service_areas:
+  - Charlotte
+  - Gastonia
+  - Belmont
+  - Lake Wylie
+  - Mount Holly
+  - Huntersville
+  - Lowell
+  - Weddington
+  - Matthews
+  - Waxhaw
+  - Ballantyne
+  - Indian Trail
+  - Mooresville
+  - Concord
+  - Pineville
