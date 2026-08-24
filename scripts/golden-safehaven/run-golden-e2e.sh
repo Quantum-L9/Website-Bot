@@ -92,6 +92,12 @@ node scripts/golden-safehaven/build-receipt.mjs \
   --out "${RUN_ROOT}/receipt.json"
 
 # ---- 6. Blind visual oracle (§17-§20) ----
+# Serve the frozen build locally for candidate captures; kill on exit.
+npx serve "${SITE_DIR}" -l 4173 > "${RUN_ROOT}/candidate-serve.log" 2>&1 &
+SERVE_PID=$!
+trap 'kill $SERVE_PID 2>/dev/null || true' EXIT
+until curl -s -o /dev/null http://localhost:4173/; do sleep 2; done
+
 node scripts/golden-safehaven/capture-visual.mjs \
   --case tests/golden/safehaven/case.json \
   --baseline-url https://www.safehavenrr.com \
