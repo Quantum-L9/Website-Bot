@@ -74,6 +74,12 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
+    // Structured-content generates prose for every contract route in one
+    // request; a 29-route contract takes minutes (the legacy generator
+    // measured 327s). A blanket 120s cap aborts that call mid-generation.
+    const timeoutMs = path.includes("structured-content")
+      ? Number(process.env.SEO_BOT_STRUCTURED_CONTENT_TIMEOUT_MS ?? 900_000)
+      : 120_000;
     const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
       method: "POST",
       headers: {
@@ -81,7 +87,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(120_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     const raw = await response.text();
     if (!response.ok) {
