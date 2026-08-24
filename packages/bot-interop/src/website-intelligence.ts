@@ -122,6 +122,12 @@ export interface CompetitiveLandscapeV1 {
       | "operator_exclusion";
   }>;
   evidence_complete: boolean;
+  /**
+   * Measured LLM calls in the ranking/aggregation path. Must be 0: SERP ranking
+   * truth is deterministic DataForSEO evidence (golden oracle:
+   * competitive_landscape.ranking_llm_calls == 0).
+   */
+  ranking_llm_calls: 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -224,6 +230,13 @@ export type RequirementPlacement = "FIRST_MATCH" | "ALL_MATCHES";
 export interface SEOContentBlueprintV1 {
   schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint;
   competitive_landscape_ref: ArtifactRef;
+  /**
+   * Deterministic blueprint generation batching. Routes are produced in groups
+   * of `batch_size`; `batch_count` = ceil(route_count / batch_size). The golden
+   * oracle pins batch_size=4 and batch_count=8 for 29 routes.
+   */
+  batch_size: number;
+  batch_count: number;
   routes: SEOContentBlueprintRoute[];
 }
 
@@ -379,6 +392,20 @@ export type ContentBlock =
       attribution?: string;
     };
 
+/**
+ * Per-route runtime evidence for one structured-content route. Counted during
+ * production (never inferred from the sealed validation block): at most one
+ * repair per route, at most two generation calls, and zero schema errors for a
+ * sealed package (golden oracle: structured_content.*).
+ */
+export interface StructuredContentRouteEvidence {
+  route_id: string;
+  repair_attempts: number;
+  generation_calls: number;
+  validation_calls: number;
+  schema_errors: number;
+}
+
 export interface StructuredContentPackageV1 {
   schema: typeof WEBSITE_INTELLIGENCE_SCHEMAS.structuredContentPackage;
   page_content_contract_ref: ArtifactRef;
@@ -389,6 +416,12 @@ export interface StructuredContentPackageV1 {
     unsupported_claims: string[];
     failed_requirements: string[];
   };
+  /**
+   * Measured per-route runtime evidence, in contract route order. Present so
+   * the consumer can prove the one-bounded-repair budget without trusting the
+   * clean validation block.
+   */
+  route_evidence: StructuredContentRouteEvidence[];
 }
 
 export interface StructuredContentRoute {

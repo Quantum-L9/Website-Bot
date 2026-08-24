@@ -23,6 +23,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -155,6 +156,18 @@ for (const pair of pairs) {
       defects: {
         a: judge.critical_defects_a ?? [],
         b: judge.critical_defects_b ?? [],
+      },
+      // ORACLE-094 blinding evidence: the judge input carries no candidate
+      // identity, repository names, prior verdicts, or expected results.
+      blind: true,
+      judge_input_manifest: {
+        prompt: userPrompt,
+        judge_instruction_hash: crypto.createHash("sha256").update(judgeInstruction).digest("hex"),
+        image_a_hash: crypto.createHash("sha256").update(imageA, "base64").digest("hex"),
+        image_b_hash: crypto.createHash("sha256").update(imageB, "base64").digest("hex"),
+        no_candidate_identity: true,
+        no_repository_names: true,
+        no_prior_verdicts: true,
       },
     });
     console.log(`[trial] ${pair.pair_id} t${t + 1} orient=${orientation} pref=${normalizedPreference} conf=${judge.confidence ?? "-"}`);

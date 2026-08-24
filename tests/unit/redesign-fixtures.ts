@@ -62,6 +62,7 @@ export function makeLandscape(options?: {
       })),
       exclusions: excluded.map((domain) => ({ domain, reason: "directory" as const })),
       evidence_complete: true,
+      ranking_llm_calls: 0,
     },
   });
 }
@@ -197,6 +198,8 @@ export function makeSeoBlueprint(
     payload: {
       schema: WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint,
       competitive_landscape_ref: refForArtifact(landscape),
+      batch_size: 4,
+      batch_count: Math.ceil((routes?.length ?? 1) / 4),
       routes: routes ?? [makeSeoRoute("/", "/")],
     },
   });

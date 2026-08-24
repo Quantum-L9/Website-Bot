@@ -41,6 +41,7 @@ function landscape(niche: string): CompetitiveLandscapeV1 {
     selected_donors: [{ domain: "example.com", aggregate_visibility: 1, observation_ids: ["o1"] }],
     exclusions: [],
     evidence_complete: true,
+    ranking_llm_calls: 0,
   };
 }
 

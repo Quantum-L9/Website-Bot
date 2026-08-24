@@ -2,6 +2,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import fs from "node:fs";
 import {
   type ArtifactRef,
   type CompetitiveLandscapeV1,
@@ -22,6 +23,7 @@ function landscapeArtifact() {
     selected_donors: [],
     exclusions: [],
     evidence_complete: true,
+    ranking_llm_calls: 0,
   };
   return sealIntelligenceArtifact({
     artifact_type: "competitive_landscape",
@@ -143,9 +145,13 @@ import {
   type SeoBotPreflightResult,
 } from "../../src/intelligence/SeoBuildIntelligencePort.js";
 
-/** Local pinned versions the client parity-checks against. */
-const LOCAL_BOT_INTEROP_VERSION = "1.1.0";
-const LOCAL_ROUTER_VERSION = "1.3.0";
+/** Local pinned versions the client parity-checks against. Resolved from the
+ * installed packages so a dependency bump never silently stales the fixture. */
+function readPkgVersion(name: string): string {
+  return JSON.parse(fs.readFileSync(`node_modules/@quantum-l9/${name}/package.json`, "utf8")).version;
+}
+const LOCAL_BOT_INTEROP_VERSION = readPkgVersion("bot-interop");
+const LOCAL_ROUTER_VERSION = readPkgVersion("llm-router");
 
 function preflightSnapshot(overrides?: Partial<SeoBotPreflightResult>): SeoBotPreflightResult {
   return {

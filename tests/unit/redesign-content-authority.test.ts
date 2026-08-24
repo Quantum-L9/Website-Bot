@@ -77,6 +77,7 @@ function makeScpPayload(
       unsupported_claims: [],
       failed_requirements: [],
     },
+    route_evidence: [],
     ...overrides,
   };
 }

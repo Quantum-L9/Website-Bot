@@ -103,6 +103,8 @@ function seoPayload(
   return {
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint,
     competitive_landscape_ref: landscape,
+    batch_size: 4,
+    batch_count: 1,
     routes: [
       {
         route_id: "home",
