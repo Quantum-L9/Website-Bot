@@ -8,7 +8,7 @@ import {
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Agent } from "undici";
+import { Agent, fetch as undiciFetch } from "undici";
 import {
   SeoBotPreflightError,
   type SeoBotPreflightResult,
@@ -84,7 +84,14 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     const timeoutMs = heavy
       ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 900_000)
       : 120_000;
-    const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+    // undici's default headersTimeout (300s) kills a request that is still
+    // waiting for response headers while the server computes — the heavy
+    // endpoints respond after ~5 minutes. The heavy calls therefore use the
+    // npm-undici fetch with its OWN Agent: Node's built-in fetch cannot
+    // accept an npm-undici dispatcher (separate module instances; passing
+    // one fails instantly with "fetch failed" — golden run #13).
+    const fetchFn = heavy ? undiciFetch : this.fetchImpl;
+    const response = await fetchFn(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -92,10 +99,6 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
-      // undici's default headersTimeout (300s) kills a request that is
-      // still waiting for response headers while the server computes —
-      // the heavy endpoints respond after ~5 minutes, so a heavy call
-      // needs a dispatcher that waits as long as the abort signal does.
       ...(heavy ? { dispatcher: new Agent({ headersTimeout: timeoutMs }) } : {}),
     });
     const raw = await response.text();
