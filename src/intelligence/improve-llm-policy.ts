@@ -39,11 +39,16 @@ export const WEBSITE_IMPROVE_LLM_POLICY: Record<WebsiteImproveLlmOperation, Poli
     requiresSearch: false,
   },
   WEBSITE_BLUEPRINT: {
+    // HIGH (claude-sonnet-4) rather than CRITICAL (o3): this op must emit a
+    // large STRICT JSON schema under "JSON only" instructions. o3's long
+    // reasoning repeatedly produced unparseable output (golden runs #1 and
+    // #12: "No parseable JSON found" even at the raised token cap), while
+    // sonnet-4 reliably emits schema-shaped JSON (the same model the
+    // governed vision path already trusts for structured output).
     type: TaskType.STRATEGIC_REASONING,
-    complexity: TaskComplexity.CRITICAL,
-    // A full 29-route blueprint JSON from a reasoning model routinely
-    // exceeds 6000 output tokens; truncation at the cap made the response
-    // unparseable (golden run 2026-08-24 failure at competitive-intelligence).
+    complexity: TaskComplexity.HIGH,
+    // A full 29-route blueprint JSON routinely exceeds 6000 output tokens;
+    // truncation at the cap made the response unparseable (golden run #1).
     expectedOutputTokens: 12000,
     requiresReasoning: true,
     requiresSearch: false,
