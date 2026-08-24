@@ -1,0 +1,6 @@
+{
+  "schema": "l9.golden-oracle-determinism/v1",
+  "deterministic": true,
+  "run1_exit": 0,
+  "run2_exit": 0
+}
