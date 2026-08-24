@@ -440,3 +440,8 @@ verified_business_facts:
   - Mooresville
   - Concord
   - Pineville
+deploy:
+  github_repo: cryptoxdog/safehavenrr-site
+  github_repo_id: '1333449696'
+  source_branch: golden-safehaven-2026-08-24
+  vercel_project_id: prj_btQp1yoETe27lfYf6Xm817nooGyM
