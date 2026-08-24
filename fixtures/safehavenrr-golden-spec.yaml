@@ -409,7 +409,7 @@ assets:
     budgetUsd: 5
     promptCompiler: default
 build_intent: REDESIGN_IMPROVE
-verified_business_facts:
+verified_business_facts: &id001
   business_name: Safe Haven Roofing & Renovations
   phone_display: (704) 648-7252
   phone_e164: '+17046487252'
@@ -418,7 +418,7 @@ verified_business_facts:
   hours: 24/7
   years_local_experience: 6
   fully_insured: true
-  free_inspections: true
+  free_inspection: true
   workmanship_warranty_years: 5
   roofing_brands:
   - GAF
@@ -445,3 +445,4 @@ deploy:
   github_repo_id: '1333449696'
   source_branch: golden-safehaven-2026-08-24
   vercel_project_id: prj_btQp1yoETe27lfYf6Xm817nooGyM
+business_facts: *id001
