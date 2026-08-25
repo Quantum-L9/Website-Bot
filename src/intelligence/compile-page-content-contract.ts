@@ -188,18 +188,20 @@ export function compilePageContentContract(
       }
     }
 
-    // Unverifiable credential topics AND entities: the oracle's
+    // Unverifiable credential topics, entities, AND questions: the oracle's
     // fact_guardrails (claims_requiring_explicit_verified_fact) mark
-    // license/certification/award/availability status as claims that need a
-    // verified fact. A coverage requirement in that set with no fact to back
-    // it can never be satisfied honestly — requiring it forces the generator
-    // to either invent the claim or write a disclaimer the validator rejects
-    // (topics: golden runs #19-#22; entities: golden run #42, where a
-    // blueprint-invented "licensed contractor" entity forced the writer to
-    // choose between an ungrounded credential claim and literal entity
-    // coverage; topics again: golden run #43, where "no obligation" — a
-    // banned claim phrase — was simultaneously required by topic coverage
-    // and forbidden by claim grounding). Drop such requirements from the
+    // license/certification/award/availability/response-time status as
+    // claims that need a verified fact. A coverage requirement in that set
+    // with no fact to back it can never be satisfied honestly — requiring it
+    // forces the generator to either invent the claim or write a disclaimer
+    // the validator rejects (topics: golden runs #19-#22; entities: golden
+    // run #42, where a blueprint-invented "licensed contractor" entity
+    // forced the writer to choose between an ungrounded credential claim and
+    // literal entity coverage; topics again: golden run #43, where
+    // "no obligation" — a banned claim phrase — was simultaneously required
+    // by topic coverage and forbidden by claim grounding; questions: golden
+    // run #44, where "How quickly can you respond?" demanded a response-time
+    // commitment no verified fact asserts). Drop such requirements from the
     // coverage contract; the claim itself remains covered by claim grounding
     // on the prose.
     //
@@ -214,6 +216,10 @@ export function compilePageContentContract(
       "obligat", "financing", "free estimat", "free inspect", "money-back",
       "money back", "same-day", "same day", "24/7", "emergency servic",
       "guarantee", "warrant", "insured",
+      // Response-time commitments: an answer to "how quickly?" is a promise
+      // only a verified fact can make.
+      "respond", "response time", "how quickly", "how fast", "how soon",
+      "turnaround",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
@@ -224,6 +230,21 @@ export function compilePageContentContract(
       factCorpus.includes(value.toLowerCase());
     const filterBacked = (values: string[]): string[] =>
       uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
+    // Questions are phrased as questions, so the full-string corpus check
+    // above would drop every fact-answerable one ("Do you offer free
+    // inspections?" never equals the fact "free inspection"). A question is
+    // answerable when every unverifiable marker inside it is corpus-grounded
+    // ("free inspection" fact backs the "free inspect" marker; a "how
+    // quickly?" response-time marker has no fact anywhere in the corpus).
+    const isBackedQuestion = (question: string): boolean => {
+      const lower = question.toLowerCase();
+      const found = UNVERIFIABLE_TOPIC_MARKERS.filter((marker) => lower.includes(marker));
+      return found.every((marker) => factCorpus.includes(marker));
+    };
+    const filterQuestions = (questions: string[]): string[] =>
+      uniq(questions).filter(
+        (question) => question.trim().length > 0 && isBackedQuestion(question),
+      );
 
     const sections = websiteRoute.sections.map((section) => {
       const requirements = requirementPlacement.get(section.section_id) ?? [];
@@ -237,7 +258,7 @@ export function compilePageContentContract(
           requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
           topics: filterBacked(requirements.flatMap((requirement) => requirement.required_topics)),
           entities: filterBacked(requirements.flatMap((requirement) => requirement.required_entities)),
-          questions: uniq(requirements.flatMap((requirement) => requirement.questions)),
+          questions: filterQuestions(requirements.flatMap((requirement) => requirement.questions)),
         },
         allowed_fact_ids: uniq(allowedFacts.map((fact) => fact.fact_id)),
         proof_requirements: uniq([

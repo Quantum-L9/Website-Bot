@@ -270,6 +270,47 @@ test("unverifiable availability-claim topics are dropped unless corpus-backed (g
   assert.deepEqual(backedServices.content_requirements.topics, ["free inspection"]);
 });
 
+test("unverifiable response-time questions are dropped; fact-answerable questions stay (golden run #44)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        questions: [
+          "How quickly can you respond?",
+          "How can I contact you?",
+          "Do you offer free inspections?",
+        ],
+      }),
+    ]),
+  );
+  const factsWithInspection: VerifiedBusinessFact[] = [
+    ...facts,
+    {
+      fact_id: "f-insp",
+      key: "free_inspection",
+      value: "free inspection",
+      verified: true,
+      source_refs: ["crm"],
+    },
+  ];
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: factsWithInspection,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "How quickly can you respond?" demands a response-time commitment no
+  // verified fact asserts — it can never be answered honestly.
+  assert.ok(!services.content_requirements.questions.includes("How quickly can you respond?"));
+  assert.ok(services.content_requirements.questions.includes("How can I contact you?"));
+  // Corpus-backed ("free inspection" is a verified fact) — kept.
+  assert.ok(services.content_requirements.questions.includes("Do you offer free inspections?"));
+});
+
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(seoPayload(landscapeRef, [seoRequirement()]));
