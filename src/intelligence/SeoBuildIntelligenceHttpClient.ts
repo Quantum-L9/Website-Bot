@@ -60,6 +60,10 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     private readonly baseUrl: string,
     private readonly apiKey: string,
     private readonly fetchImpl: typeof fetch = fetch,
+    // Heavy calls need the npm-undici transport (own Agent; Node's built-in
+    // fetch cannot accept an npm-undici dispatcher). Injectable so tests can
+    // observe heavy calls with a mock.
+    private readonly heavyFetchImpl: typeof fetch = undiciFetch,
   ) {
     if (!this.baseUrl.trim()) {
       throw new Error(
@@ -96,7 +100,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // npm-undici fetch with its OWN Agent: Node's built-in fetch cannot
     // accept an npm-undici dispatcher (separate module instances; passing
     // one fails instantly with "fetch failed" — golden run #13).
-    const fetchFn = heavy ? undiciFetch : this.fetchImpl;
+    const fetchFn = heavy ? this.heavyFetchImpl : this.fetchImpl;
     const response = await fetchFn(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
       method: "POST",
       headers: {
