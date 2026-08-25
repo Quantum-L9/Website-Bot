@@ -2,6 +2,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import fs from "node:fs";
 import {
   type ArtifactRef,
   type CompetitiveLandscapeV1,
@@ -22,6 +23,7 @@ function landscapeArtifact() {
     selected_donors: [],
     exclusions: [],
     evidence_complete: true,
+    ranking_llm_calls: 0,
   };
   return sealIntelligenceArtifact({
     artifact_type: "competitive_landscape",
@@ -91,16 +93,20 @@ import { SeoBuildIntelligenceHttpClient } from "../../src/intelligence/SeoBuildI
 
 test("client sends the machine credential on build-intelligence routes only", async () => {
   const seen: Array<{ url: string; headers: Record<string, string> }> = [];
+  const mock = async (url: string | URL | Request, init?: RequestInit) => {
+    seen.push({
+      url: String(url),
+      headers: (init?.headers ?? {}) as Record<string, string>,
+    });
+    return new Response(JSON.stringify(landscapeArtifact()), { status: 200 });
+  };
   const client = new SeoBuildIntelligenceHttpClient(
     "https://seo-bot.example",
     "machine-key-123",
-    async (url, init) => {
-      seen.push({
-        url: String(url),
-        headers: (init?.headers ?? {}) as Record<string, string>,
-      });
-      return new Response(JSON.stringify(landscapeArtifact()), { status: 200 });
-    },
+    mock as typeof fetch,
+    // landscape is a HEAVY call; inject the same mock for the heavy
+    // transport so the assertion still observes the request.
+    mock as typeof fetch,
   );
 
   await client.createCompetitiveLandscape({
@@ -143,9 +149,13 @@ import {
   type SeoBotPreflightResult,
 } from "../../src/intelligence/SeoBuildIntelligencePort.js";
 
-/** Local pinned versions the client parity-checks against. */
-const LOCAL_BOT_INTEROP_VERSION = "1.1.0";
-const LOCAL_ROUTER_VERSION = "1.3.0";
+/** Local pinned versions the client parity-checks against. Resolved from the
+ * installed packages so a dependency bump never silently stales the fixture. */
+function readPkgVersion(name: string): string {
+  return JSON.parse(fs.readFileSync(`node_modules/@quantum-l9/${name}/package.json`, "utf8")).version;
+}
+const LOCAL_BOT_INTEROP_VERSION = readPkgVersion("bot-interop");
+const LOCAL_ROUTER_VERSION = readPkgVersion("llm-router");
 
 function preflightSnapshot(overrides?: Partial<SeoBotPreflightResult>): SeoBotPreflightResult {
   return {

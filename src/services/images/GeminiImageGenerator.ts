@@ -41,6 +41,23 @@ export class GeminiImageGenerator implements ImageGenerator {
   }
 
   async generate(request: ImageGenerationRequest): Promise<ImageGenerationResult> {
+    // One bounded retry for the transient no-inline-data class: the image
+    // endpoint intermittently returns a text-only candidate for a benign
+    // prompt (golden run #56: the identical prompt produced a valid PNG
+    // when replayed). HTTP failures and budget/refusal failures propagate
+    // immediately with full diagnostics.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const result = await this.generateOnce(request);
+      if (result) return result;
+    }
+    throw new Error(
+      "Gemini image generation returned no inline image data after one retry",
+    );
+  }
+
+  private async generateOnce(
+    request: ImageGenerationRequest,
+  ): Promise<ImageGenerationResult | undefined> {
     const url = `${this.endpointBase}/v1beta/models/${this.model}:generateContent`;
     const parts: Array<Record<string, unknown>> = [{ text: request.prompt }];
     for (const reference of request.referenceImages ?? []) {
@@ -58,13 +75,37 @@ export class GeminiImageGenerator implements ImageGenerator {
       throw new Error(`Gemini image generation failed: HTTP ${response.status}`);
     }
     const json = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: GeminiInlineData[] } }>;
+      candidates?: Array<{
+        content?: { parts?: GeminiInlineData[] };
+        finishReason?: string;
+      }>;
+      promptFeedback?: unknown;
     };
-    const inline = json.candidates?.[0]?.content?.parts?.find(
-      (part) => part.inlineData,
-    )?.inlineData;
+    const first = json.candidates?.[0];
+    const part = first?.content?.parts?.find((entry) => entry.inlineData);
+    const inline = part?.inlineData;
     if (!inline?.data) {
-      throw new Error("Gemini image generation returned no inline image data");
+      // Diagnosable failure: the response shape matters — a text-only
+      // response (safety refusal or transient) is indistinguishable from a
+      // malformed one without the parts/finishReason evidence (golden run
+      // #56). Log the shape and let the caller's bounded retry decide.
+      const shapes = (first?.content?.parts ?? []).map((entry) => Object.keys(entry));
+      const textSnippet = (first?.content?.parts ?? [])
+        .map((entry) => (entry as { text?: string }).text)
+        .filter((text): text is string => Boolean(text))
+        .join(" ")
+        .slice(0, 300);
+      logger.warn(
+        {
+          model: this.model,
+          finishReason: first?.finishReason ?? "none",
+          partShapes: shapes,
+          promptFeedback: json.promptFeedback ?? null,
+          textSnippet,
+        },
+        "Gemini image response carried no inline image data",
+      );
+      return undefined;
     }
     logger.info({ model: this.model }, "Generated image via Gemini");
     return {

@@ -103,6 +103,8 @@ function seoPayload(
   return {
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.seoContentBlueprint,
     competitive_landscape_ref: landscape,
+    batch_size: 4,
+    batch_count: 1,
     routes: [
       {
         route_id: "home",
@@ -197,6 +199,167 @@ test("compiler places a required SEO requirement onto a compatible website slot"
   if (!hero) throw new Error("expected a hero section");
   assert.ok(hero.allowed_fact_ids.includes("f-phone"));
   assert.ok(!services.allowed_fact_ids.includes("f-phone"));
+});
+
+test("unverifiable credential entities are dropped from the coverage contract (golden run #42)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({ required_entities: ["licensed contractor", "copper"] }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "licensed contractor" carries the unverifiable "licens" marker and no
+  // verified fact asserts it — requiring it would force an ungrounded claim.
+  assert.ok(!services.content_requirements.entities.includes("licensed contractor"));
+  assert.ok(services.content_requirements.entities.includes("copper"));
+});
+
+test("unverifiable availability-claim topics are dropped unless corpus-backed (golden run #43)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({ required_topics: ["no obligation", "free inspection"] }),
+    ]),
+  );
+  // No fact asserts either phrase: both are dropped — a coverage requirement
+  // can never demand a banned claim phrase the writer is forbidden to write.
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  assert.deepEqual(services.content_requirements.topics, []);
+
+  // With a verified fact asserting "free inspection", the corpus-backed
+  // phrase stays in the contract; the ungrounded one still drops.
+  const factsWithInspection: VerifiedBusinessFact[] = [
+    ...facts,
+    {
+      fact_id: "f-insp",
+      key: "free_inspection",
+      value: "free inspection",
+      verified: true,
+      source_refs: ["crm"],
+    },
+  ];
+  const backed = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: factsWithInspection,
+    compilerVersion: "1.0.0",
+  });
+  const backedHome = backed.routes.find((r) => r.route_id === "home");
+  if (!backedHome) throw new Error("expected a compiled home route");
+  const backedServices = backedHome.sections.find((s) => s.section_id === "services");
+  if (!backedServices) throw new Error("expected a services section");
+  assert.deepEqual(backedServices.content_requirements.topics, ["free inspection"]);
+});
+
+test("unverifiable response-time questions are dropped; fact-answerable questions stay (golden run #44)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        questions: [
+          "How quickly can you respond?",
+          "How can I contact you?",
+          "Do you offer free inspections?",
+        ],
+      }),
+    ]),
+  );
+  const factsWithInspection: VerifiedBusinessFact[] = [
+    ...facts,
+    {
+      fact_id: "f-insp",
+      key: "free_inspection",
+      value: "free inspection",
+      verified: true,
+      source_refs: ["crm"],
+    },
+  ];
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: factsWithInspection,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "How quickly can you respond?" demands a response-time commitment no
+  // verified fact asserts — it can never be answered honestly.
+  assert.ok(!services.content_requirements.questions.includes("How quickly can you respond?"));
+  assert.ok(services.content_requirements.questions.includes("How can I contact you?"));
+  // Corpus-backed ("free inspection" is a verified fact) — kept.
+  assert.ok(services.content_requirements.questions.includes("Do you offer free inspections?"));
+});
+
+test("quantity questions and statistical proofs are dropped unless corpus-backed (golden runs #45/#49)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        questions: ["How long do metal roofs last?", "What types of metal roofing do you install?"],
+        proof_needed: [
+          "durability statistics",
+          "energy savings",
+          "lifespan data",
+          "cost data",
+          "energy efficiency ratings",
+          "local weather data",
+          "damage thresholds",
+          "years of experience",
+          "material options",
+        ],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "How long do metal roofs last?" demands a lifespan number no fact
+  // asserts; "What types…" is answerable and stays.
+  assert.ok(!services.content_requirements.questions.includes("How long do metal roofs last?"));
+  assert.ok(services.content_requirements.questions.includes("What types of metal roofing do you install?"));
+  // Statistical/data proofs demand numbers the facts do not contain;
+  // qualitative proof classes stay.
+  for (const dropped of [
+    "durability statistics",
+    "energy savings",
+    "lifespan data",
+    "cost data",
+    "energy efficiency ratings",
+    "local weather data",
+    "damage thresholds",
+    "years of experience",
+  ]) {
+    assert.ok(!services.proof_requirements.includes(dropped), `proof should drop: ${dropped}`);
+  }
+  assert.ok(services.proof_requirements.includes("material options"));
 });
 
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {

@@ -76,7 +76,7 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
     licensed: ["provided"],
     generated: ["generated"],
   };
-  return requirements.map((requirement) => {
+  const slots: ImageSlotSpec[] = requirements.map((requirement) => {
     const sources: Array<"provided" | "source-site" | "generated"> = [];
     for (const provenance of requirement.preferred_provenance) {
       for (const source of provenanceToSources[provenance] ?? []) {
@@ -94,6 +94,41 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
       altText: requirement.composition_guidance,
     };
   });
+  // The manifest's uniqueness key is the placement; multiple blueprint
+  // sections on one route can share a role and therefore a placement
+  // (golden run #58: "/:service"). Required slots win ties; the first
+  // occurrence of equal priority wins.
+  const seen = new Set<string>();
+  const deduped: ImageSlotSpec[] = [];
+  for (const slot of [...slots].sort((a, b) => Number(b.required) - Number(a.required))) {
+    if (seen.has(slot.placement)) continue;
+    seen.add(slot.placement);
+    deduped.push(slot);
+  }
+  return deduped;
+}
+
+/**
+ * Merge blueprint-derived slots (the REDESIGN_IMPROVE visual authority, R11)
+ * with spec-declared slots. A spec slot is an operator addition only when
+ * the blueprint covers neither its id NOR its placement — the manifest's
+ * uniqueness key is the placement, so an id-only dedupe lets a blueprint
+ * slot and a spec slot with different ids but the same placement both
+ * resolve and the manifest validator then rejects the duplicate
+ * (golden run #54: "global:logo").
+ */
+export function mergeBlueprintAndSpecSlots(
+  blueprintSlots: ImageSlotSpec[],
+  specSlots: ImageSlotSpec[],
+): ImageSlotSpec[] {
+  const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
+  const blueprintPlacements = new Set(blueprintSlots.map((slot) => slot.placement));
+  return [
+    ...blueprintSlots,
+    ...specSlots.filter(
+      (slot) => !blueprintIds.has(slot.id) && !blueprintPlacements.has(slot.placement),
+    ),
+  ];
 }
 
 export class ImageAssetPlanningStage implements Stage {
@@ -194,8 +229,7 @@ export class ImageAssetPlanningStage implements Stage {
       );
     }
     const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
-    const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
-    return [...blueprintSlots, ...slots.filter((slot) => !blueprintIds.has(slot.id))];
+    return mergeBlueprintAndSpecSlots(blueprintSlots, slots);
   }
 
   private resolvePlannedAssets(

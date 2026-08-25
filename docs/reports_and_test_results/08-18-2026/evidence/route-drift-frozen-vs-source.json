@@ -1,0 +1,257 @@
+{
+  "schema": "l9.route-drift-analysis/v1",
+  "probed_at": "2026-08-19T03:42:01.224219+00:00",
+  "source_url": "https://www.safehavenrr.com",
+  "frozen_case_supplied": {
+    "count": 29,
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/roof-repair/",
+      "/roof-installation/",
+      "/roof-inspection/",
+      "/storm-damage/",
+      "/asphalt-shingles/",
+      "/metal-roofing/",
+      "/flat-roofing/",
+      "/gutters/",
+      "/siding-fascia-soffit/",
+      "/interior-renovations/",
+      "/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ]
+  },
+  "real_source_inventory": {
+    "count": 29,
+    "routes": [
+      "/",
+      "/about/",
+      "/contact/",
+      "/faq/",
+      "/gallery/",
+      "/guides/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/insurance-claims/",
+      "/privacy/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/services/",
+      "/services/asphalt-shingles/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/interior-renovations/",
+      "/services/metal-roofing/",
+      "/services/outdoor-living/",
+      "/services/roof-inspection/",
+      "/services/roof-installation/",
+      "/services/roof-repair/",
+      "/services/roof-replacement/",
+      "/services/siding-fascia-soffit/",
+      "/services/storm-damage/"
+    ],
+    "provenance": "docs/reports_and_test_results/08-15-2026/baseline/inventory.json (captured 2026-08-16)"
+  },
+  "set_comparison": {
+    "intersection": 18,
+    "missing_from_source": [
+      "/asphalt-shingles/",
+      "/flat-roofing/",
+      "/gutters/",
+      "/interior-renovations/",
+      "/metal-roofing/",
+      "/outdoor-living/",
+      "/roof-inspection/",
+      "/roof-installation/",
+      "/roof-repair/",
+      "/siding-fascia-soffit/",
+      "/storm-damage/"
+    ],
+    "added_in_source": [
+      "/services/asphalt-shingles/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/interior-renovations/",
+      "/services/metal-roofing/",
+      "/services/outdoor-living/",
+      "/services/roof-inspection/",
+      "/services/roof-installation/",
+      "/services/roof-repair/",
+      "/services/siding-fascia-soffit/",
+      "/services/storm-damage/"
+    ],
+    "redirects_reconciling": 0
+  },
+  "live_probe_supplied_frozen_routes": [
+    {
+      "route": "/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/services/roof-replacement/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/roof-repair/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/roof-installation/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/roof-inspection/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/storm-damage/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/asphalt-shingles/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/metal-roofing/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/flat-roofing/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/gutters/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/siding-fascia-soffit/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/interior-renovations/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/outdoor-living/",
+      "http_status": 404,
+      "num_redirects": 0
+    },
+    {
+      "route": "/service-areas/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/service-areas/charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/insurance-claims/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/repair-or-replace-roof-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/how-long-roof-replacement-takes-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/metal-roof-vs-shingles-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/roof-replacement-cost-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/guides/storm-damage-roof-repair-charlotte/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/about/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/gallery/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/faq/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/contact/",
+      "http_status": 200,
+      "num_redirects": 0
+    },
+    {
+      "route": "/privacy/",
+      "http_status": 200,
+      "num_redirects": 0
+    }
+  ],
+  "live_probe_summary": {
+    "http_200": 18,
+    "http_404": 11,
+    "redirected": 0
+  },
+  "verdict": "SAFE_HAVEN_BASELINE_ROUTE_DRIFT"
+}

@@ -80,37 +80,3 @@ Trial 3: randomize again independently.
 The adjudicator must normalize scores back to candidate-vs-baseline orientation BEFORE aggregation.
 The judge must never receive candidate/baseline labels, repository names, previous verdicts, engineering expectations, prior judge outputs, or QualityDelta status.
 The judge cannot self-certify the build.
-## Adjudicator evidence envelope
-The judge receives only IMAGE A / IMAGE B and emits the raw JSON defined above.
-The orchestration/adjudication layer, not the judge, must persist each trial as:
-{
-  "orientation": {
-    "A": "BASELINE|CANDIDATE",
-    "B": "CANDIDATE|BASELINE",
-    "randomized": true,
-    "reversed_from_trial_1": false,
-    "independent": false
-  },
-  "raw_judge": {
-    "preference": "A|B|TIE",
-    "confidence": 0.0,
-    "dimensions": {},
-    "critical_defects_a": [],
-    "critical_defects_b": [],
-    "short_reason": ""
-  },
-  "normalized_preference": "CANDIDATE|BASELINE|TIE",
-  "normalized_candidate_delta": {}
-}
-Trial 1:
-- randomized = true
-Trial 2:
-- A/B must be the exact inverse of Trial 1
-- reversed_from_trial_1 = true
-Trial 3:
-- randomized = true
-- independent = true
-The verifier must recompute normalized_preference and every
-normalized_candidate_delta from raw_judge + orientation.
-Stored normalized values are evidence to compare against the recomputation,
-not independent authority.

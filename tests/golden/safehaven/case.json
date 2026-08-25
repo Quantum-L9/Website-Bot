@@ -8,32 +8,31 @@
     "expected_route_count": 29,
     "live_drift_policy": "REPORT_AND_STOP_ON_ROUTE_DRIFT",
     "route_inventory_correction": {
-      "authorized_at": "2026-08-18",
-      "authority": "operator-authorized",
-      "reason": "The supplied frozen inventory placed 11 service-detail routes at root; the 2026-08-16 baseline and source inventory place them under /services/.",
-      "evidence": {
-        "route_count": 29,
-        "unique_routes": 29,
-        "matches_real_source_inventory": true,
-        "http_200": 29,
-        "redirects": 0
-      },
-      "mapping": {
-        "/roof-repair/": "/services/roof-repair/",
-        "/roof-installation/": "/services/roof-installation/",
-        "/roof-inspection/": "/services/roof-inspection/",
-        "/storm-damage/": "/services/storm-damage/",
-        "/asphalt-shingles/": "/services/asphalt-shingles/",
-        "/metal-roofing/": "/services/metal-roofing/",
-        "/flat-roofing/": "/services/flat-roofing/",
-        "/gutters/": "/services/gutters/",
-        "/siding-fascia-soffit/": "/services/siding-fascia-soffit/",
-        "/interior-renovations/": "/services/interior-renovations/",
-        "/outdoor-living/": "/services/outdoor-living/"
-      },
-      "visual_sentinel_mapping": {
-        "/storm-damage/": "/services/storm-damage/"
-      }
+      "applied_at": "2026-08-18",
+      "authorized_by": "operator",
+      "reason": "The originally supplied frozen route inventory listed eleven service pages at the site root. Those paths return HTTP 404 with zero redirects on the live source, and the 2026-08-16 frozen baseline capture (docs/reports_and_test_results/08-15-2026/baseline/pages/) records them under /services/. The supplied inventory therefore never matched the Safe Haven source site at any point, including at baseline-capture time.",
+      "evidence": [
+        "live probe 2026-08-18: 11/29 frozen routes returned 404 with num_redirects=0",
+        "frozen baseline inventory.json 2026-08-16: 29 routes, service pages nested under /services/",
+        "set comparison: 18 intersect, 11 missing, 11 added, 0 redirects reconciling"
+      ],
+      "corrected_routes": [
+        "/roof-repair/ -> /services/roof-repair/",
+        "/roof-installation/ -> /services/roof-installation/",
+        "/roof-inspection/ -> /services/roof-inspection/",
+        "/storm-damage/ -> /services/storm-damage/",
+        "/asphalt-shingles/ -> /services/asphalt-shingles/",
+        "/metal-roofing/ -> /services/metal-roofing/",
+        "/flat-roofing/ -> /services/flat-roofing/",
+        "/gutters/ -> /services/gutters/",
+        "/siding-fascia-soffit/ -> /services/siding-fascia-soffit/",
+        "/interior-renovations/ -> /services/interior-renovations/",
+        "/outdoor-living/ -> /services/outdoor-living/"
+      ],
+      "corrected_visual_sentinels": ["/storm-damage/ -> /services/storm-damage/"],
+      "route_count_before": 29,
+      "route_count_after": 29,
+      "semantic_requirements_weakened": "none"
     }
   },
   "run": {
@@ -91,83 +90,23 @@
     "fully_insured": true,
     "free_inspections": true,
     "workmanship_warranty_years": 5,
-    "roofing_brands": [
-      "GAF",
-      "CertainTeed",
-      "Atlas"
-    ],
-    "service_areas": [
-      "Charlotte",
-      "Gastonia",
-      "Belmont",
-      "Lake Wylie",
-      "Mount Holly",
-      "Huntersville",
-      "Lowell",
-      "Weddington",
-      "Matthews",
-      "Waxhaw",
-      "Ballantyne",
-      "Indian Trail",
-      "Mooresville",
-      "Concord",
-      "Pineville"
-    ]
+    "roofing_brands": ["GAF", "CertainTeed", "Atlas"],
+    "service_areas": ["Charlotte", "Gastonia", "Belmont", "Lake Wylie", "Mount Holly", "Huntersville", "Lowell", "Weddington", "Matthews", "Waxhaw", "Ballantyne", "Indian Trail", "Mooresville", "Concord", "Pineville"]
   },
   "fact_guardrails": {
     "unsupported_claim_count": 0,
-    "forbidden_patterns": [
-      "\\bdecades? of (combined )?experience\\b",
-      "\\b20\\+ years? of experience\\b",
-      "\\bguaranteed lowest price\\b",
-      "\\bcheapest roofer\\b"
-    ],
-    "claims_requiring_explicit_verified_fact": [
-      "license status",
-      "certification status",
-      "years of experience",
-      "warranty duration",
-      "response-time guarantee",
-      "price guarantee",
-      "project count",
-      "award",
-      "insurance relationship"
-    ]
+    "forbidden_patterns": ["\\bdecades? of (combined )?experience\\b", "\\b20\\+ years? of experience\\b", "\\bguaranteed lowest price\\b", "\\bcheapest roofer\\b"],
+    "claims_requiring_explicit_verified_fact": ["license status", "certification status", "years of experience", "warranty duration", "response-time guarantee", "price guarantee", "project count", "award", "insurance relationship"]
   },
   "visual_sentinels": [
-    {
-      "route": "/",
-      "critical": true
-    },
-    {
-      "route": "/services/roof-replacement/",
-      "critical": true
-    },
-    {
-      "route": "/services/storm-damage/",
-      "critical": false
-    },
-    {
-      "route": "/gallery/",
-      "critical": true
-    },
-    {
-      "route": "/contact/",
-      "critical": true
-    }
+    {"route": "/", "critical": true},
+    {"route": "/services/roof-replacement/", "critical": true},
+    {"route": "/services/storm-damage/", "critical": false},
+    {"route": "/gallery/", "critical": true},
+    {"route": "/contact/", "critical": true}
   ],
   "viewports": [
-    {
-      "id": "desktop",
-      "width": 1440,
-      "height": 900,
-      "device_scale_factor": 1
-    },
-    {
-      "id": "mobile",
-      "width": 390,
-      "height": 844,
-      "device_scale_factor": 1
-    }
+    {"id": "desktop", "width": 1440, "height": 900, "device_scale_factor": 1},
+    {"id": "mobile", "width": 390, "height": 844, "device_scale_factor": 1}
   ]
 }

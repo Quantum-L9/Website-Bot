@@ -1,0 +1,2094 @@
+schema: l9.golden-oracle-complete/v1
+
+oracle:
+  id: safehaven-redesign-oracle-v1
+  normative_authority: oracle.json
+  enumeration_authority: oracle-coverage.json
+  implementation_snapshot_authority: ORACLE_COVERAGE_AUDIT.md
+
+philosophy:
+  command_success_is_evidence: false
+  missing_evidence_is_failure: true
+  inconclusive_is_pass: false
+  structural_pass_can_claim_visual_improvement: false
+  self_certification_allowed: false
+
+coverage_snapshot:
+  blocking_properties_total: 101
+  enforced_total: 62
+  unenforced_total: 39
+  hardcoded_within_enforced: 2
+  coverage_pct: 61.4
+  stale_citations: 0
+  verdict: ORACLE_IMPLEMENTATION_INCOMPLETE
+
+status_semantics:
+  ENFORCED:
+    meaning: counted among historical 62 enforced properties
+  UNENFORCED:
+    meaning: counted among historical 39 unenforced properties
+  ENFORCED_BUT_HARDCODED:
+    meaning: >
+      Counted among historical 62, but implementation duplicated oracle
+      configuration instead of reading oracle.json dynamically.
+
+global_invariants:
+  - oracle.json is normative authority
+  - missing required evidence fails closed
+  - UNKNOWN cannot satisfy a blocking property
+  - command exit code cannot override a failed property
+  - structural success cannot assert visual improvement
+  - visual inconclusive state cannot produce GOLDEN_E2E_PASS_IMPROVED
+  - deterministic verification must not invoke an LLM
+  - cross-process execution facts cannot be fabricated by Website-Bot
+  - oracle-configured lists and thresholds must be read dynamically
+  - all blocking properties must be evaluated before final PASS
+
+# =====================================================================
+# ALL 101 BLOCKING PROPERTIES
+# =====================================================================
+
+properties:
+
+  # -------------------------------------------------------------------
+  # IDENTITY
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-001
+    path: identity.require_full_git_shas
+    requirement: true
+    status: ENFORCED
+    evidence: identity.*.sha
+    negative_control: null
+
+  - id: ORACLE-002
+    path: identity.router_version_rule
+    requirement: website_bot_installed == seo_bot_installed == router_run_identity
+    status: ENFORCED
+    evidence: identity.*.llm_router_version
+    negative_control: NC-17
+
+  - id: ORACLE-003
+    path: identity.require_clean_or_explicitly_recorded_worktrees
+    requirement: true
+    status: UNENFORCED
+    evidence: identity.*.worktree_state
+    negative_control: null
+
+  - id: ORACLE-004
+    path: identity.require_bot_interop_compatibility
+    requirement: true
+    status: UNENFORCED
+    evidence: identity.bot_interop
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # PREFLIGHT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-005
+    path: preflight.must_precede_first_seo_build_intelligence_call
+    requirement: true
+    status: ENFORCED
+    evidence: events[]
+    negative_control: NC-05
+
+  - id: ORACLE-006
+    path: preflight.required
+    requirement: true
+    status: UNENFORCED
+    evidence: preflight.status
+    negative_control: null
+
+  - id: ORACLE-007
+    path: preflight.required_checks
+    requirement:
+      - seo_bot_reachable
+      - seo_bot_machine_auth
+      - competitive_landscape_capability
+      - seo_content_blueprint_capability
+      - structured_content_capability
+      - dataforseo_configured
+      - llm_provider_configured
+      - bot_interop_compatible
+      - llm_router_compatible
+    status: UNENFORCED
+    evidence: preflight.checks[]
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # EXECUTION GRAPH
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-008
+    path: execution_graph.build_intent
+    requirement: REDESIGN_IMPROVE
+    status: ENFORCED
+    evidence: run.build_intent
+    negative_control: null
+
+  - id: ORACLE-009
+    path: execution_graph.copy_fallback_used
+    requirement: false
+    status: ENFORCED
+    evidence: run.copy_fallback_used
+    negative_control: null
+
+  - id: ORACLE-010
+    path: execution_graph.generic_fallback_used
+    requirement: false
+    status: ENFORCED
+    evidence: run.generic_fallback_used
+    negative_control: null
+
+  - id: ORACLE-011
+    path: execution_graph.required_ordered_subsequence
+    requirement:
+      - domain-spec-loader
+      - unknown-resolver
+      - seo-build-intelligence-preflight
+      - competitive-intelligence
+      - source-site-ingestion
+      - design-intelligence
+      - redesign-content-authority
+      - structured-content-projection
+      - redesign-schema-serializer
+      - image-asset-planning
+      - site-assembler
+      - site-build
+      - visual-qa
+      - redesign-integrity-receipt
+      - terminal-convergence
+    status: UNENFORCED
+    evidence: events[]
+    negative_control: null
+
+  - id: ORACLE-012
+    path: execution_graph.forbidden_stages_under_redesign
+    requirement:
+      - content-generation
+      - schema-generator
+    status: UNENFORCED
+    evidence: events[]
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # COMPETITIVE LANDSCAPE
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-013
+    path: competitive_landscape.selected_donor_count
+    requirement: 10
+    status: ENFORCED
+    evidence: competitive_landscape.selected_donors
+    negative_control: NC-01
+
+  - id: ORACLE-014
+    path: competitive_landscape.unique_normalized_domains
+    requirement: 10
+    status: ENFORCED
+    evidence: selected_donors[].normalized_domain
+    negative_control: NC-02
+
+  - id: ORACLE-015
+    path: competitive_landscape.evidence_complete
+    requirement: true
+    status: ENFORCED
+    evidence: competitive_landscape.evidence_complete
+    negative_control: null
+
+  - id: ORACLE-016
+    path: competitive_landscape.ranking_llm_calls
+    requirement: 0
+    status: ENFORCED
+    evidence: competitive_landscape.ranking_llm_calls
+    negative_control: null
+
+  - id: ORACLE-017
+    path: competitive_landscape.every_selected_donor_requires
+    requirement:
+      - qualified_operating_company
+      - real_dataforseo_observation
+      - query_id
+      - rank
+      - url
+      - domain
+      - observed_at
+      - visibility_contribution
+    status: ENFORCED
+    evidence: selected_donors[]
+    negative_control: null
+    historical_note: >
+      Coverage snapshot marked implemented=true, while noting that some
+      subfields were not individually checked.
+
+  - id: ORACLE-018
+    path: competitive_landscape.forbidden_selected_classes
+    requirement:
+      - directory
+      - social
+      - publisher
+      - aggregator
+      - marketplace
+      - unknown
+    status: UNENFORCED
+    evidence: selected_donors[].class
+    negative_control: NC-03
+
+  # -------------------------------------------------------------------
+  # DONOR EVIDENCE
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-019
+    path: donor_evidence.accepted_donors
+    requirement: 10
+    status: ENFORCED
+    evidence: donor_evidence[]
+    negative_control: null
+
+  - id: ORACLE-020
+    path: donor_evidence.per_donor.minimum_successful_pages
+    requirement: 1
+    status: ENFORCED
+    evidence: donor_evidence[].successful_pages
+    negative_control: null
+
+  - id: ORACLE-021
+    path: donor_evidence.per_donor.minimum_screenshots
+    requirement: 1
+    status: ENFORCED
+    evidence: donor_evidence[].screenshots
+    negative_control: NC-04
+
+  - id: ORACLE-022
+    path: donor_evidence.per_donor.require_evidence_digest
+    requirement: true
+    status: ENFORCED
+    evidence: donor_evidence[].evidence_digest
+    negative_control: null
+
+  - id: ORACLE-023
+    path: donor_evidence.per_donor.require_timestamp
+    requirement: true
+    status: UNENFORCED
+    evidence: donor_evidence[].crawled_at
+    negative_control: null
+
+  - id: ORACLE-024
+    path: donor_evidence.candidate_donor_asset_hash_matches
+    requirement: 0
+    status: ENFORCED
+    evidence: assets.donor_asset_hash_matches
+    negative_control: NC-16
+
+  # -------------------------------------------------------------------
+  # WEBSITE BLUEPRINT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-025
+    path: website_blueprint.must_reference_exact_competitive_landscape
+    requirement: true
+    status: ENFORCED
+    evidence: website_build_blueprint.competitive_landscape_ref
+    negative_control: NC-08
+
+  - id: ORACLE-026
+    path: website_blueprint.required
+    requirement: true
+    status: UNENFORCED
+    evidence: website_build_blueprint
+    negative_control: null
+
+  - id: ORACLE-027
+    path: website_blueprint.visual_asset_requirements_required
+    requirement: true
+    status: UNENFORCED
+    evidence: website_build_blueprint.visual_requirements
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # SEO CONTENT BLUEPRINT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-028
+    path: seo_content_blueprint.produced_routes
+    requirement: 29
+    status: ENFORCED
+    evidence: seo_content_blueprint.routes
+    negative_control: NC-06
+
+  - id: ORACLE-029
+    path: seo_content_blueprint.extra_routes
+    requirement: 0
+    status: ENFORCED
+    evidence: seo_content_blueprint.routes
+    negative_control: NC-07
+
+  - id: ORACLE-030
+    path: seo_content_blueprint.batch_size
+    requirement: 4
+    status: ENFORCED
+    evidence: seo_content_blueprint.batch_size
+    negative_control: null
+
+  - id: ORACLE-031
+    path: seo_content_blueprint.expected_batch_count
+    requirement: 8
+    status: ENFORCED
+    evidence: seo_content_blueprint.batch_count
+    negative_control: null
+
+  - id: ORACLE-032
+    path: seo_content_blueprint.must_reference_exact_competitive_landscape
+    requirement: true
+    status: ENFORCED
+    evidence: seo_content_blueprint.competitive_landscape_ref
+    negative_control: NC-08
+
+  - id: ORACLE-033
+    path: seo_content_blueprint.duplicate_routes
+    requirement: 0
+    status: UNENFORCED
+    evidence: seo_content_blueprint.routes
+    negative_control: null
+
+  - id: ORACLE-034
+    path: seo_content_blueprint.unknown_content_slots
+    requirement: 0
+    status: UNENFORCED
+    evidence: seo_content_blueprint.unknown_content_slots
+    negative_control: null
+
+  - id: ORACLE-035
+    path: seo_content_blueprint.invalid_internal_link_targets
+    requirement: 0
+    status: UNENFORCED
+    evidence: seo_content_blueprint.invalid_internal_link_targets
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # PAGE CONTENT CONTRACT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-036
+    path: page_content_contract.produced_routes
+    requirement: 29
+    status: ENFORCED
+    evidence: page_content_contract.routes
+    negative_control: null
+
+  - id: ORACLE-037
+    path: page_content_contract.llm_calls
+    requirement: 0
+    status: ENFORCED
+    evidence: page_content_contract.llm_calls
+    negative_control: NC-09
+
+  - id: ORACLE-038
+    path: page_content_contract.unplaced_content_requirements
+    requirement: 0
+    status: ENFORCED
+    evidence: page_content_contract.unplaced_requirements
+    negative_control: null
+
+  - id: ORACLE-039
+    path: page_content_contract.invalid_business_facts
+    requirement: 0
+    status: UNENFORCED
+    evidence: page_content_contract.invalid_business_facts
+    negative_control: null
+
+  - id: ORACLE-040
+    path: page_content_contract.determinism.same_semantic_input_same_digest
+    requirement: true
+    status: UNENFORCED
+    evidence: page_content_contract.determinism_digest
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # STRUCTURED CONTENT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-041
+    path: structured_content.produced_routes
+    requirement: 29
+    status: ENFORCED
+    evidence: structured_content.routes
+    negative_control: null
+
+  - id: ORACLE-042
+    path: structured_content.must_reference_exact_page_content_contract
+    requirement: true
+    status: ENFORCED
+    evidence: structured_content.page_content_contract_ref
+    negative_control: NC-10
+
+  - id: ORACLE-043
+    path: structured_content.schema_invalid_routes
+    requirement: 0
+    status: ENFORCED
+    evidence: route_results[].schema_errors
+    negative_control: null
+
+  - id: ORACLE-044
+    path: structured_content.unsupported_claims
+    requirement: 0
+    status: ENFORCED
+    evidence: route_results[].unsupported_claims
+    negative_control: null
+
+  - id: ORACLE-045
+    path: structured_content.failed_requirements
+    requirement: 0
+    status: ENFORCED
+    evidence: route_results[].failed_requirements
+    negative_control: null
+
+  - id: ORACLE-046
+    path: structured_content.maximum_repairs_per_route
+    requirement: 1
+    status: ENFORCED
+    evidence: route_results[].repair_attempts
+    negative_control: NC-12
+
+  - id: ORACLE-047
+    path: structured_content.maximum_generation_calls_per_route
+    requirement: 2
+    status: ENFORCED
+    evidence: route_results[].generation_calls
+    negative_control: null
+
+  - id: ORACLE-048
+    path: structured_content.section_alias_fields_forbidden
+    requirement:
+      - content
+      - body
+      - copy
+      - paragraphs
+    status: UNENFORCED
+    evidence: route_results[].section_alias_fields
+    negative_control: NC-11
+    known_live_regression: true
+
+  - id: ORACLE-049
+    path: structured_content.all_section_prose_must_use_blocks
+    requirement: true
+    status: UNENFORCED
+    evidence: route_results[].prose_without_blocks
+    negative_control: NC-11
+    known_live_regression: true
+
+  # -------------------------------------------------------------------
+  # LEGACY AUTHORITY
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-050
+    path: legacy_authority.legacy_content_generation_calls
+    requirement: 0
+    status: ENFORCED
+    evidence: legacy.content_generation_calls
+    negative_control: NC-13
+
+  - id: ORACLE-051
+    path: legacy_authority.legacy_schema_generation_calls
+    requirement: 0
+    status: ENFORCED
+    evidence: legacy.schema_llm_calls
+    negative_control: null
+
+  - id: ORACLE-052
+    path: legacy_authority.page_content_contract_llm_calls
+    requirement: 0
+    status: ENFORCED
+    evidence: page_content_contract.llm_calls
+    negative_control: NC-09
+
+  - id: ORACLE-053
+    path: legacy_authority.redesign_schema_llm_calls
+    requirement: 0
+    status: UNENFORCED
+    evidence: legacy.redesign_schema_llm_calls
+    negative_control: NC-14
+
+  # -------------------------------------------------------------------
+  # SOURCE ASSETS
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-054
+    path: source_assets.minimum_raw_source_images
+    requirement: 1
+    status: ENFORCED
+    evidence: assets.raw_source_images
+    negative_control: null
+
+  - id: ORACLE-055
+    path: source_assets.minimum_authorized_reusable_images
+    requirement: 1
+    status: ENFORCED
+    evidence: assets.authorized_reusable_images
+    negative_control: null
+
+  - id: ORACLE-056
+    path: source_assets.minimum_selected_source_images
+    requirement: 1
+    status: ENFORCED
+    evidence: assets.selected_source_images
+    negative_control: null
+
+  - id: ORACLE-057
+    path: source_assets.unexplained_reusable_asset_loss
+    requirement: 0
+    status: ENFORCED
+    evidence: assets.unexplained_reusable_asset_loss
+    negative_control: NC-15
+
+  - id: ORACLE-058
+    path: source_assets.required_visual_slots_filled_fraction
+    requirement: 1.0
+    status: ENFORCED
+    evidence: assets.required_visual_slots_filled_fraction
+    negative_control: null
+
+  - id: ORACLE-059
+    path: source_assets.source_corpus_completed
+    requirement: true
+    status: UNENFORCED
+    evidence: assets.source_corpus_completed
+    negative_control: null
+
+  - id: ORACLE-060
+    path: source_assets.forbidden_candidate_dispositions
+    requirement:
+      - SOURCE_REFERENCE_ONLY
+      - DONOR_REFERENCE_ONLY
+      - UNKNOWN
+    status: UNENFORCED
+    evidence: assets.candidate_dispositions[]
+    negative_control: null
+
+  - id: ORACLE-061
+    path: source_assets.conditional_rules
+    requirement:
+      - if: eligible_source_project_proof_count > 0 && blueprint.project_proof_required
+        then: selected_source_project_proof_count > 0
+      - if: eligible_source_gallery_count > 0 && blueprint.gallery_required
+        then: selected_source_gallery_count > 0
+    status: UNENFORCED
+    evidence: assets.project_proof_gallery_counts
+    negative_control: NC-15
+
+  # -------------------------------------------------------------------
+  # SITE INTEGRITY
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-062
+    path: site_integrity.built_routes
+    requirement: 29
+    status: ENFORCED
+    evidence: site.routes
+    negative_control: null
+
+  - id: ORACLE-063
+    path: site_integrity.reachable_routes
+    requirement: 29
+    status: ENFORCED
+    evidence: site.reachable_routes
+    negative_control: NC-24
+
+  - id: ORACLE-064
+    path: site_integrity.broken_internal_links
+    requirement: 0
+    status: ENFORCED
+    evidence: site.broken_internal_links
+    negative_control: null
+
+  - id: ORACLE-065
+    path: site_integrity.placeholder_count
+    requirement: 0
+    status: ENFORCED
+    evidence: site.placeholder_count
+    negative_control: null
+
+  - id: ORACLE-066
+    path: site_integrity.per_route
+    requirement:
+      http_200: true
+      single_h1: true
+      title_present: true
+      meta_description_present: true
+      canonical_present: true
+      lang_present: true
+    status: UNENFORCED
+    evidence: site.per_route[]
+    negative_control: null
+
+  - id: ORACLE-067
+    path: site_integrity.unique_titles
+    requirement: 29
+    status: UNENFORCED
+    evidence: site.unique_titles
+    negative_control: null
+
+  - id: ORACLE-068
+    path: site_integrity.unique_canonical_urls
+    requirement: 29
+    status: UNENFORCED
+    evidence: site.unique_canonical_urls
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # BUSINESS TRUTH
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-069
+    path: business_truth.unsupported_claim_count
+    requirement: 0
+    status: ENFORCED
+    evidence: business_truth.unsupported_claim_count
+    negative_control: NC-23
+
+  - id: ORACLE-070
+    path: business_truth.phone_mismatch_count
+    requirement: 0
+    status: ENFORCED
+    evidence: business_truth.phone_mismatch_count
+    negative_control: null
+
+  - id: ORACLE-071
+    path: business_truth.email_mismatch_count
+    requirement: 0
+    status: ENFORCED
+    evidence: business_truth.email_mismatch_count
+    negative_control: null
+
+  - id: ORACLE-072
+    path: business_truth.prohibition_violations
+    requirement: 0
+    status: UNENFORCED
+    evidence: business_truth.prohibition_violations
+    negative_control: NC-23
+
+  # -------------------------------------------------------------------
+  # LLM AUDIT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-073
+    path: llm_audit.direct_provider_bypass_count
+    requirement: 0
+    status: ENFORCED
+    evidence: llm_audit.direct_provider_bypass_count
+    negative_control: null
+
+  - id: ORACLE-074
+    path: llm_audit.required_policy.SEO_CONTENT_BLUEPRINT
+    requirement:
+      searchRequired: false
+      searchPolicySource: EXPLICIT
+    status: ENFORCED
+    evidence: llm_audit.operations.SEO_CONTENT_BLUEPRINT
+    negative_control: null
+
+  - id: ORACLE-075
+    path: llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION
+    requirement:
+      searchRequired: false
+      searchPolicySource: EXPLICIT
+    status: ENFORCED
+    evidence: llm_audit.operations.STRUCTURED_CONTENT_GENERATION
+    negative_control: null
+
+  - id: ORACLE-076
+    path: llm_audit.required_policy.CONTENT_VALIDATION
+    requirement:
+      searchRequired: false
+      searchPolicySource: EXPLICIT
+    status: ENFORCED
+    evidence: llm_audit.operations.CONTENT_VALIDATION
+    negative_control: NC-18
+
+  - id: ORACLE-077
+    path: llm_audit.required_policy.VISUAL_QA
+    requirement:
+      searchRequired: false
+    status: UNENFORCED
+    evidence: llm_audit.operations.VISUAL_QA
+    negative_control: null
+
+  - id: ORACLE-078
+    path: llm_audit.unsupported_capability_combination_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: llm_audit.unsupported_capability_combination_count
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # VISUAL CAPTURE
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-079
+    path: visual_capture.required_pairs
+    requirement: 10
+    status: ENFORCED
+    evidence: visual.pairs[]
+    negative_control: NC-19
+
+  - id: ORACLE-080
+    path: visual_capture.candidate_blank_capture_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: visual.pairs[].candidate_blank
+    negative_control: null
+
+  - id: ORACLE-081
+    path: visual_capture.baseline_blank_capture_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: visual.pairs[].baseline_blank
+    negative_control: null
+
+  - id: ORACLE-082
+    path: visual_capture.route_mismatch_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: visual.pairs[].route_match
+    negative_control: null
+
+  - id: ORACLE-083
+    path: visual_capture.viewport_mismatch_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: visual.pairs[].viewport_match
+    negative_control: null
+
+  - id: ORACLE-084
+    path: visual_capture.stale_capture_count
+    requirement: 0
+    status: UNENFORCED
+    evidence: visual.pairs[].captured_run_id
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # VISUAL ORACLE
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-085
+    path: visual_oracle.trials_per_pair
+    requirement: 3
+    status: ENFORCED
+    evidence: visual.pairs[].trials
+    negative_control: null
+
+  - id: ORACLE-086
+    path: visual_oracle.pass.minimum_pair_majority_wins
+    requirement: 7
+    status: ENFORCED
+    evidence: normalized_preference
+    negative_control: NC-20
+
+  - id: ORACLE-087
+    path: visual_oracle.pass.maximum_pair_majority_losses
+    requirement: 2
+    status: ENFORCED
+    evidence: normalized_preference
+    negative_control: null
+
+  - id: ORACLE-088
+    path: visual_oracle.pass.minimum_candidate_votes
+    requirement: 21
+    status: ENFORCED
+    evidence: normalized_preference
+    negative_control: null
+
+  - id: ORACLE-089
+    path: visual_oracle.pass.wilson_lower_bound_must_exceed
+    requirement: 0.5
+    status: ENFORCED
+    evidence: normalized_preference
+    negative_control: null
+
+  - id: ORACLE-090
+    path: visual_oracle.pass.critical_pairs_may_not_lose
+    requirement:
+      - /::desktop
+      - /::mobile
+      - /gallery/::desktop
+      - /contact/::mobile
+    status: ENFORCED_BUT_HARDCODED
+    evidence: visual.pairs[]
+    negative_control: NC-21
+
+  - id: ORACLE-091
+    path: visual_oracle.pass.critical_dimensions_may_not_regress
+    requirement:
+      - visual_hierarchy
+      - conversion_clarity
+      - trust_and_credibility
+      - authentic_imagery
+      - mobile_usability
+    status: ENFORCED_BUT_HARDCODED
+    evidence: normalized_candidate_delta
+    negative_control: NC-22
+
+  - id: ORACLE-092
+    path: visual_oracle.pass.minimum_weighted_mean_delta
+    requirement: 0.25
+    status: UNENFORCED
+    evidence: normalized_candidate_delta + oracle.visual_oracle.dimensions
+    negative_control: null
+
+  - id: ORACLE-093
+    path: visual_oracle.dimensions
+    requirement:
+      visual_hierarchy: 0.15
+      brand_coherence: 0.10
+      conversion_clarity: 0.15
+      trust_and_credibility: 0.10
+      authentic_imagery: 0.12
+      content_readability: 0.10
+      information_density: 0.07
+      spacing_and_rhythm: 0.07
+      mobile_usability: 0.08
+      professional_polish: 0.06
+    status: UNENFORCED
+    evidence: oracle.visual_oracle.dimensions
+    negative_control: null
+
+  - id: ORACLE-094
+    path: visual_oracle.reveal_candidate_identity_to_judge
+    requirement: false
+    status: UNENFORCED
+    evidence: visual.trials[].blind
+    negative_control: null
+
+  - id: ORACLE-095
+    path: visual_oracle.inconclusive.missing_trial
+    requirement: true
+    status: UNENFORCED
+    evidence: visual.pairs[].trials
+    negative_control: null
+
+  - id: ORACLE-096
+    path: visual_oracle.inconclusive.judge_disagreement_without_majority
+    requirement: true
+    status: UNENFORCED
+    evidence: normalized_preference
+    negative_control: null
+
+  - id: ORACLE-097
+    path: visual_oracle.inconclusive.wilson_interval_crosses_required_boundary
+    requirement: true
+    status: UNENFORCED
+    evidence: wilson_bounds
+    negative_control: null
+
+  # -------------------------------------------------------------------
+  # FINAL VERDICT
+  # -------------------------------------------------------------------
+
+  - id: ORACLE-098
+    path: final_verdict.pass_requires.all_hard_gates_pass
+    requirement: true
+    status: ENFORCED
+    evidence: failures[]
+    negative_control: NC-25
+
+  - id: ORACLE-099
+    path: final_verdict.pass_requires.visual_oracle_pass
+    requirement: true
+    status: ENFORCED
+    evidence: visual_aggregate
+    negative_control: null
+
+  - id: ORACLE-100
+    path: final_verdict.pass_requires.rendered_visual_qa_executed
+    requirement: true
+    status: ENFORCED
+    evidence: visual.pairs[]
+    negative_control: NC-19
+
+  - id: ORACLE-101
+    path: final_verdict.pass_requires.no_inconclusive_blocking_dimension
+    requirement: true
+    status: UNENFORCED
+    evidence: visual_inconclusive_states
+    negative_control: null
+
+# =====================================================================
+# COMPLETE CLOSURE CONTRACT FOR ALL 39 UNENFORCED PROPERTIES
+# =====================================================================
+
+closure:
+
+  ORACLE-003:
+    path: identity.require_clean_or_explicitly_recorded_worktrees
+    owner:
+      producer: each_tested_repository
+      verifier: Website-Bot
+    inputs:
+      - identity.website_bot.worktree_state
+      - identity.seo_bot.worktree_state
+      - identity.llm_router.worktree_state
+    preconditions:
+      - repository identity captured
+    validation:
+      rule: >
+        Each repository must be CLEAN, or DIRTY with an explicitly recorded
+        deterministic dirty-state identity.
+    failures:
+      missing: WORKTREE_STATE_MISSING
+      invalid: WORKTREE_STATE_UNRECORDED_DIRTY
+    evidence:
+      required: true
+      source: identity.*.worktree_state
+      missing_behavior: FAIL
+    done:
+      - missing state rejected
+      - unrecorded dirty state rejected
+      - clean state accepted
+
+  ORACLE-004:
+    path: identity.require_bot_interop_compatibility
+    owner:
+      producer:
+        - Website-Bot
+        - SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - identity.bot_interop.website_bot_version
+      - identity.bot_interop.seo_bot_version
+      - identity.bot_interop.compatible
+    validation:
+      rule: compatible == true
+    failures:
+      missing: BOT_INTEROP_EVIDENCE_MISSING
+      mismatch: BOT_INTEROP_MISMATCH
+    evidence:
+      required: true
+      source: identity.bot_interop
+      missing_behavior: FAIL
+    done:
+      - mismatch rejected
+      - missing compatibility rejected
+      - compatible identities accepted
+
+  ORACLE-006:
+    path: preflight.required
+    owner:
+      producer: Website-Bot
+      dependency: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - preflight.status
+    execution_order: before_first_seo_build_intelligence_call
+    validation:
+      rule: preflight.status == PASS
+    failures:
+      missing: PREFLIGHT_MISSING
+      failed: PREFLIGHT_NOT_READY
+    evidence:
+      required: true
+      source: preflight.status
+      missing_behavior: FAIL
+    done:
+      - absent preflight rejected
+      - failed preflight rejected
+      - PASS accepted
+
+  ORACLE-007:
+    path: preflight.required_checks
+    owner:
+      producer:
+        - Website-Bot
+        - SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - preflight.checks[]
+    validation:
+      exact_required_checks:
+        - seo_bot_reachable
+        - seo_bot_machine_auth
+        - competitive_landscape_capability
+        - seo_content_blueprint_capability
+        - structured_content_capability
+        - dataforseo_configured
+        - llm_provider_configured
+        - bot_interop_compatible
+        - llm_router_compatible
+      rule: >
+        Every required check must appear exactly once and have PASS status.
+    failures:
+      missing: PREFLIGHT_CHECK_MISSING
+      failed: PREFLIGHT_CHECK_FAILED
+      duplicate: PREFLIGHT_CHECK_DUPLICATE
+    evidence:
+      required: true
+      source: preflight.checks[]
+      missing_behavior: FAIL
+    done:
+      - all nine checks enforced
+      - missing check rejected
+      - failed check rejected
+      - duplicate check rejected
+
+  ORACLE-011:
+    path: execution_graph.required_ordered_subsequence
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - events[]
+    validation:
+      ordered_subsequence:
+        - domain-spec-loader
+        - unknown-resolver
+        - seo-build-intelligence-preflight
+        - competitive-intelligence
+        - source-site-ingestion
+        - design-intelligence
+        - redesign-content-authority
+        - structured-content-projection
+        - redesign-schema-serializer
+        - image-asset-planning
+        - site-assembler
+        - site-build
+        - visual-qa
+        - redesign-integrity-receipt
+        - terminal-convergence
+      semantics: relative_order
+    failures:
+      missing: REQUIRED_STAGE_MISSING
+      ordering: REQUIRED_STAGE_ORDER_VIOLATION
+    evidence:
+      required: true
+      source: events[]
+      missing_behavior: FAIL
+    done:
+      - missing stage rejected
+      - reordered stage rejected
+      - correct subsequence accepted
+
+  ORACLE-012:
+    path: execution_graph.forbidden_stages_under_redesign
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - events[]
+    validation:
+      forbidden:
+        - content-generation
+        - schema-generator
+      rule: intersection(executed_stages, forbidden) == empty
+    failures:
+      observed: FORBIDDEN_REDESIGN_STAGE_EXECUTED
+    evidence:
+      required: true
+      source: events[]
+      missing_behavior: FAIL
+    done:
+      - either forbidden stage causes failure
+
+  ORACLE-018:
+    path: competitive_landscape.forbidden_selected_classes
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - selected_donors[].class
+    validation:
+      forbidden:
+        - directory
+        - social
+        - publisher
+        - aggregator
+        - marketplace
+        - unknown
+    failures:
+      missing: DONOR_CLASS_MISSING
+      forbidden: FORBIDDEN_DONOR_CLASS
+    evidence:
+      required: true
+      source: competitive_landscape.selected_donors[].class
+      missing_behavior: FAIL
+    done:
+      - NC-03 rejected
+      - missing class rejected
+
+  ORACLE-023:
+    path: donor_evidence.per_donor.require_timestamp
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - donor_evidence[].crawled_at
+    validation:
+      rule: every accepted donor has nonempty parseable timestamp
+    failures:
+      missing: DONOR_TIMESTAMP_MISSING
+      invalid: DONOR_TIMESTAMP_INVALID
+    evidence:
+      required: true
+      source: donor_evidence[].crawled_at
+      missing_behavior: FAIL
+    done:
+      - all ten timestamps validated
+
+  ORACLE-026:
+    path: website_blueprint.required
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - website_build_blueprint
+      - website_build_blueprint.artifact_ref
+    validation:
+      rule: valid WebsiteBuildBlueprint and artifact_ref must exist
+    failures:
+      missing: WEBSITE_BLUEPRINT_REQUIRED
+      invalid: WEBSITE_BLUEPRINT_INVALID
+    evidence:
+      required: true
+      source: website_build_blueprint
+      missing_behavior: FAIL
+    done:
+      - missing WBB rejected
+      - missing artifact ref rejected
+
+  ORACLE-027:
+    path: website_blueprint.visual_asset_requirements_required
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - website_build_blueprint.visual_requirements
+    validation:
+      rule: >
+        Blueprint must expose nonempty visual requirements wherever the
+        blueprint requires visual evidence.
+    failures:
+      missing: BLUEPRINT_VISUAL_REQUIREMENTS_MISSING
+    evidence:
+      required: true
+      source: website_build_blueprint.visual_requirements
+      missing_behavior: FAIL
+    done:
+      - required visual contract cannot silently disappear
+
+  ORACLE-033:
+    path: seo_content_blueprint.duplicate_routes
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - seo_content_blueprint.routes
+    validation:
+      rule: >
+        Preserve cardinality and verify every normalized route occurs exactly
+        once. Set-only comparison is forbidden.
+    failures:
+      duplicate: SEO_BLUEPRINT_DUPLICATE_ROUTE
+    evidence:
+      required: true
+      source: seo_content_blueprint.routes
+      missing_behavior: FAIL
+    done:
+      - duplicate route mutation rejected
+      - multiset comparison used
+
+  ORACLE-034:
+    path: seo_content_blueprint.unknown_content_slots
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - SEOContentBlueprint ContentSlots
+    validation:
+      allowed:
+        - primary_offer
+        - service_overview
+        - differentiation
+        - trust
+        - process
+        - project_proof
+        - local_relevance
+        - objection_handling
+        - faq
+        - conversion
+        - metadata
+      expected_unknown_count: 0
+    failures:
+      unknown: SEO_BLUEPRINT_UNKNOWN_CONTENT_SLOT
+    evidence:
+      required: true
+      source: seo_content_blueprint.unknown_content_slots
+      missing_behavior: FAIL
+    done:
+      - unknown slot mutation rejected
+
+  ORACLE-035:
+    path: seo_content_blueprint.invalid_internal_link_targets
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - SEOContentBlueprint internal link targets
+      - exact case route set
+    validation:
+      rule: every internal target belongs to authorized route set
+      expected_invalid_count: 0
+    failures:
+      invalid: SEO_BLUEPRINT_INVALID_INTERNAL_LINK_TARGET
+    evidence:
+      required: true
+      source: seo_content_blueprint.invalid_internal_link_targets
+      missing_behavior: FAIL
+    done:
+      - invalid target rejected
+
+  ORACLE-039:
+    path: page_content_contract.invalid_business_facts
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - PageContentContract
+      - case.verified_business_facts
+    validation:
+      expected_invalid_business_facts: 0
+    failures:
+      invalid: PCC_INVALID_BUSINESS_FACT
+    evidence:
+      required: true
+      source: page_content_contract.invalid_business_facts
+      missing_behavior: FAIL
+    done:
+      - conflicting fact mutation rejected
+
+  ORACLE-040:
+    path: page_content_contract.determinism.same_semantic_input_same_digest
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - deterministic semantic input fixture
+      - digest_run_1
+      - digest_run_2
+    validation:
+      rule: digest_run_1 == digest_run_2
+    failures:
+      mismatch: PCC_NONDETERMINISTIC
+    evidence:
+      required: true
+      source: page_content_contract.determinism
+      missing_behavior: FAIL
+    done:
+      - same semantic input produces identical digest
+      - deterministic replay test exists
+
+  ORACLE-048:
+    path: structured_content.section_alias_fields_forbidden
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - structured content sections
+    validation:
+      forbidden:
+        - content
+        - body
+        - copy
+        - paragraphs
+    failures:
+      observed: STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS
+    evidence:
+      required: true
+      source: route_results[].section_alias_fields
+      missing_behavior: FAIL
+    regression:
+      known_live_regression: true
+      negative_control: NC-11
+    done:
+      - section.content rejected
+      - section.body rejected
+      - section.copy rejected
+      - section.paragraphs rejected
+
+  ORACLE-049:
+    path: structured_content.all_section_prose_must_use_blocks
+    owner:
+      producer: SEO-Bot
+      verifier: Website-Bot
+    inputs:
+      - structured content sections
+    validation:
+      rule: prose_without_blocks == 0
+    failures:
+      missing: STRUCTURED_CONTENT_BLOCKS_REQUIRED
+    evidence:
+      required: true
+      source: route_results[].prose_without_blocks
+      missing_behavior: FAIL
+    regression:
+      known_live_regression: true
+      negative_control: NC-11
+    done:
+      - prose outside blocks rejected
+      - NC-11 rejected
+
+  ORACLE-053:
+    path: legacy_authority.redesign_schema_llm_calls
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - legacy.redesign_schema_llm_calls
+    validation:
+      expected: 0
+    failures:
+      nonzero: REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION
+    evidence:
+      required: true
+      source: legacy.redesign_schema_llm_calls
+      missing_behavior: FAIL
+    done:
+      - NC-14 rejected
+
+  ORACLE-059:
+    path: source_assets.source_corpus_completed
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - assets.source_corpus_completed
+    validation:
+      expected: true
+    failures:
+      incomplete: SOURCE_ASSET_CORPUS_INCOMPLETE
+    evidence:
+      required: true
+      source: assets.source_corpus_completed
+      missing_behavior: FAIL
+    done:
+      - incomplete harvest rejected
+
+  ORACLE-060:
+    path: source_assets.forbidden_candidate_dispositions
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - assets.candidate_dispositions[]
+    validation:
+      forbidden:
+        - SOURCE_REFERENCE_ONLY
+        - DONOR_REFERENCE_ONLY
+        - UNKNOWN
+    failures:
+      observed: FORBIDDEN_CANDIDATE_ASSET_DISPOSITION
+    evidence:
+      required: true
+      source: assets.candidate_dispositions[]
+      missing_behavior: FAIL
+    done:
+      - every forbidden disposition rejected
+
+  ORACLE-061:
+    path: source_assets.conditional_rules
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - eligible_source_project_proof_count
+      - selected_source_project_proof_count
+      - eligible_source_gallery_count
+      - selected_source_gallery_count
+      - blueprint.project_proof_required
+      - blueprint.gallery_required
+    validation:
+      rules:
+        - >
+          if eligible_source_project_proof_count > 0 and
+          blueprint.project_proof_required == true then
+          selected_source_project_proof_count > 0
+        - >
+          if eligible_source_gallery_count > 0 and
+          blueprint.gallery_required == true then
+          selected_source_gallery_count > 0
+    failures:
+      project_proof: REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED
+      gallery: REQUIRED_SOURCE_GALLERY_NOT_SELECTED
+    evidence:
+      required: true
+      source: assets.project_proof_gallery_counts
+      missing_behavior: FAIL
+    done:
+      - NC-15 rejected
+      - eligible required source photography cannot silently disappear
+
+  ORACLE-066:
+    path: site_integrity.per_route
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - site.per_route[]
+    validation:
+      for_every_expected_route:
+        http_status: 200
+        h1_count: 1
+        title_present: true
+        meta_description_present: true
+        canonical_present: true
+        lang_present: true
+    failures:
+      http: ROUTE_HTTP_STATUS_INVALID
+      h1: ROUTE_H1_COUNT_INVALID
+      title: ROUTE_TITLE_MISSING
+      meta: ROUTE_META_DESCRIPTION_MISSING
+      canonical: ROUTE_CANONICAL_MISSING
+      lang: ROUTE_LANG_MISSING
+    evidence:
+      required: true
+      source: site.per_route[]
+      missing_behavior: FAIL
+    done:
+      - all 29 routes checked
+      - every field independently mutation-tested
+
+  ORACLE-067:
+    path: site_integrity.unique_titles
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - site.per_route[].title
+    validation:
+      unique_nonempty_count: 29
+    failures:
+      duplicate: DUPLICATE_PAGE_TITLE
+    evidence:
+      required: true
+      source: site.per_route[].title
+      missing_behavior: FAIL
+    done:
+      - duplicate title rejected
+
+  ORACLE-068:
+    path: site_integrity.unique_canonical_urls
+    owner:
+      producer: Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - site.per_route[].canonical
+    validation:
+      unique_nonempty_count: 29
+    failures:
+      duplicate: DUPLICATE_CANONICAL_URL
+    evidence:
+      required: true
+      source: site.per_route[].canonical
+      missing_behavior: FAIL
+    done:
+      - duplicate canonical rejected
+
+  ORACLE-072:
+    path: business_truth.prohibition_violations
+    owner:
+      producer:
+        - SEO-Bot
+        - Website-Bot
+      verifier: Website-Bot
+    inputs:
+      - case.fact_guardrails
+      - PCC prohibitions
+      - StructuredContentPackage
+      - rendered site content
+    validation:
+      expected: 0
+    failures:
+      violation: BUSINESS_PROHIBITION_VIOLATION
+    evidence:
+      required: true
+      source: business_truth.prohibition_violations
+      missing_behavior: FAIL
+    done:
+      - NC-23 rejected
+      - final rendered content included in validation scope
+
+  ORACLE-077:
+    path: llm_audit.required_policy.VISUAL_QA
+    owner:
+      producer: LLM-Router
+      verifier: Website-Bot
+    inputs:
+      - llm_audit.operations.VISUAL_QA[]
+    validation:
+      every_call:
+        searchRequired: false
+    failures:
+      missing: VISUAL_QA_ROUTER_AUDIT_MISSING
+      violation: VISUAL_QA_ROUTING_POLICY_VIOLATION
+    evidence:
+      required: true
+      source: llm_audit.operations.VISUAL_QA
+      missing_behavior: FAIL
+    done:
+      - every governed visual QA call checked
+
+  ORACLE-078:
+    path: llm_audit.unsupported_capability_combination_count
+    owner:
+      producer: LLM-Router
+      verifier: Website-Bot
+    inputs:
+      - llm_audit.unsupported_capability_combination_count
+    validation:
+      expected: 0
+    failures:
+      nonzero: UNSUPPORTED_LLM_CAPABILITY_COMBINATION
+    evidence:
+      required: true
+      source: llm_audit.unsupported_capability_combination_count
+      missing_behavior: FAIL
+    done:
+      - nonzero count rejected
+
+  ORACLE-080:
+    path: visual_capture.candidate_blank_capture_count
+    owner:
+      producer: visual_capture_harness
+      verifier: Website-Bot
+    inputs:
+      - visual.pairs[].candidate_blank
+    validation:
+      expected_count: 0
+    failures:
+      observed: CANDIDATE_BLANK_CAPTURE
+    evidence:
+      required: true
+      source: visual.pairs[].candidate_blank
+      missing_behavior: FAIL
+    done:
+      - blank candidate screenshot rejected
+
+  ORACLE-081:
+    path: visual_capture.baseline_blank_capture_count
+    owner:
+      producer: visual_capture_harness
+      verifier: Website-Bot
+    inputs:
+      - visual.pairs[].baseline_blank
+    validation:
+      expected_count: 0
+    failures:
+      observed: BASELINE_BLANK_CAPTURE
+    evidence:
+      required: true
+      source: visual.pairs[].baseline_blank
+      missing_behavior: FAIL
+    done:
+      - blank baseline screenshot rejected
+
+  ORACLE-082:
+    path: visual_capture.route_mismatch_count
+    owner:
+      producer: visual_capture_harness
+      verifier: Website-Bot
+    inputs:
+      - baseline_route
+      - candidate_route
+    validation:
+      rule: normalized baseline route == normalized candidate route
+      expected_mismatches: 0
+    failures:
+      mismatch: VISUAL_ROUTE_MISMATCH
+    evidence:
+      required: true
+      source: visual.pairs[].route_match
+      missing_behavior: FAIL
+    done:
+      - cross-route pair rejected
+
+  ORACLE-083:
+    path: visual_capture.viewport_mismatch_count
+    owner:
+      producer: visual_capture_harness
+      verifier: Website-Bot
+    inputs:
+      - baseline_viewport
+      - candidate_viewport
+    validation:
+      rule: viewport definitions match exactly
+      expected_mismatches: 0
+    failures:
+      mismatch: VISUAL_VIEWPORT_MISMATCH
+    evidence:
+      required: true
+      source: visual.pairs[].viewport_match
+      missing_behavior: FAIL
+    done:
+      - mismatched viewport pair rejected
+
+  ORACLE-084:
+    path: visual_capture.stale_capture_count
+    owner:
+      producer: visual_capture_harness
+      verifier: Website-Bot
+    inputs:
+      - current_run_id
+      - candidate_capture_run_id
+    validation:
+      rule: candidate_capture_run_id == current_run_id
+      expected_stale_count: 0
+    failures:
+      stale: STALE_VISUAL_CAPTURE
+    evidence:
+      required: true
+      source: visual.pairs[].captured_run_id
+      missing_behavior: FAIL
+    done:
+      - stale capture rejected
+
+  ORACLE-092:
+    path: visual_oracle.pass.minimum_weighted_mean_delta
+    owner:
+      producer: deterministic_visual_aggregator
+      verifier: Website-Bot
+    inputs:
+      - oracle.visual_oracle.dimensions
+      - normalized_candidate_delta
+    validation:
+      formula: >
+        weighted_mean_delta =
+        sum(mean_candidate_delta[dimension] * weight[dimension])
+      threshold:
+        operator: ">="
+        value: 0.25
+    failures:
+      below_threshold: VISUAL_WEIGHTED_MEAN_DELTA_INSUFFICIENT
+    evidence:
+      required: true
+      source:
+        - visual.trials[].normalized_candidate_delta
+        - oracle.visual_oracle.dimensions
+      missing_behavior: INCONCLUSIVE
+    done:
+      - weights read dynamically
+      - threshold read dynamically
+      - below-threshold case rejected
+
+  ORACLE-093:
+    path: visual_oracle.dimensions
+    owner:
+      producer: oracle_configuration
+      verifier: Website-Bot
+    inputs:
+      visual_hierarchy: 0.15
+      brand_coherence: 0.10
+      conversion_clarity: 0.15
+      trust_and_credibility: 0.10
+      authentic_imagery: 0.12
+      content_readability: 0.10
+      information_density: 0.07
+      spacing_and_rhythm: 0.07
+      mobile_usability: 0.08
+      professional_polish: 0.06
+    validation:
+      required_dimensions: 10
+      weight_sum: 1.0
+      rule: every configured dimension must be present in every valid trial
+    failures:
+      missing: VISUAL_DIMENSION_MISSING
+      invalid_weight: VISUAL_DIMENSION_WEIGHT_INVALID
+    evidence:
+      required: true
+      source: oracle.visual_oracle.dimensions
+      missing_behavior: INCONCLUSIVE
+    done:
+      - all ten dimensions consumed dynamically
+      - weight sum validated
+      - missing dimension blocks PASS
+
+  ORACLE-094:
+    path: visual_oracle.reveal_candidate_identity_to_judge
+    owner:
+      producer: visual_judge_harness
+      verifier: Website-Bot
+    inputs:
+      - trial.blind
+      - judge_input_manifest
+      - orientation_map
+    validation:
+      expected: false
+      rules:
+        - candidate identity absent from judge context
+        - baseline identity absent from judge context
+        - repository identity absent
+        - prior verdict absent
+        - QualityDelta absent
+        - engineering expectation absent
+    failures:
+      exposure: VISUAL_JUDGE_NOT_BLIND
+      missing_evidence: VISUAL_BLINDING_EVIDENCE_MISSING
+    evidence:
+      required: true
+      source: visual.trials[].judge_input_manifest
+      missing_behavior: FAIL
+    done:
+      - identity exposure mutation rejected
+
+  ORACLE-095:
+    path: visual_oracle.inconclusive.missing_trial
+    owner:
+      producer: deterministic_visual_aggregator
+      verifier: Website-Bot
+    inputs:
+      - visual.pairs[].trials
+    validation:
+      exact_trials_per_pair: 3
+    failures:
+      missing: VISUAL_ORACLE_MISSING_TRIAL
+    evidence:
+      required: true
+      source: visual.pairs[].trials
+      missing_behavior: INCONCLUSIVE
+    done:
+      - missing trial cannot yield Golden PASS
+
+  ORACLE-096:
+    path: visual_oracle.inconclusive.judge_disagreement_without_majority
+    owner:
+      producer: deterministic_visual_aggregator
+      verifier: Website-Bot
+    inputs:
+      - normalized_preference
+    validation:
+      rule: >
+        Each three-trial pair must resolve to candidate majority or baseline
+        majority. A no-majority state is blocking inconclusive.
+    failures:
+      inconclusive: VISUAL_PAIR_NO_MAJORITY
+    evidence:
+      required: true
+      source: normalized_preference
+      missing_behavior: INCONCLUSIVE
+    done:
+      - no-majority pair cannot yield Golden PASS
+
+  ORACLE-097:
+    path: visual_oracle.inconclusive.wilson_interval_crosses_required_boundary
+    owner:
+      producer: deterministic_visual_aggregator
+      verifier: Website-Bot
+    inputs:
+      - candidate_votes
+      - total_votes
+    validation:
+      confidence: 0.95
+      required_lower_bound_strictly_greater_than: 0.5
+      rule: >
+        Compute Wilson confidence interval deterministically. If the lower
+        bound does not strictly exceed 0.5, visual result is blocking
+        inconclusive.
+    failures:
+      inconclusive: VISUAL_WILSON_INTERVAL_INCONCLUSIVE
+    evidence:
+      required: true
+      source: visual_vote_aggregate
+      missing_behavior: INCONCLUSIVE
+    done:
+      - boundary-crossing case cannot yield Golden PASS
+
+  ORACLE-101:
+    path: final_verdict.pass_requires.no_inconclusive_blocking_dimension
+    owner:
+      producer: deterministic_golden_verifier
+      verifier: Website-Bot
+    inputs:
+      - hard_gate_failures[]
+      - blocking_inconclusive_states[]
+    validation:
+      rule: >
+        GOLDEN_E2E_PASS_IMPROVED requires:
+        hard_gate_failures.length == 0 AND
+        blocking_inconclusive_states.length == 0
+    failures:
+      inconclusive: GOLDEN_ORACLE_BLOCKING_INCONCLUSIVE
+    evidence:
+      required: true
+      source: final_verifier_state
+      missing_behavior: FAIL
+    done:
+      - any ORACLE-095/096/097 blocking state prevents Golden PASS
+
+# =====================================================================
+# TWO HISTORICALLY HARDCODED IMPLEMENTATIONS
+# =====================================================================
+
+hardcoded_corrections:
+
+  ORACLE-090:
+    path: visual_oracle.pass.critical_pairs_may_not_lose
+    current_snapshot_status: ENFORCED_BUT_HARDCODED
+    required_fix:
+      - remove hardcoded critical pair literals from verifier
+      - read exact list from oracle.visual_oracle.pass.critical_pairs_may_not_lose
+      - missing oracle configuration fails closed
+    required_test:
+      - changing oracle critical-pair configuration changes verifier behavior
+    done_when:
+      - verifier contains no duplicate authoritative critical-pair list
+
+  ORACLE-091:
+    path: visual_oracle.pass.critical_dimensions_may_not_regress
+    current_snapshot_status: ENFORCED_BUT_HARDCODED
+    required_fix:
+      - remove hardcoded critical dimension literals from verifier
+      - read exact list from oracle.visual_oracle.pass.critical_dimensions_may_not_regress
+      - missing oracle configuration fails closed
+    required_test:
+      - changing oracle critical-dimension configuration changes verifier behavior
+    done_when:
+      - verifier contains no duplicate authoritative critical-dimension list
+
+# =====================================================================
+# CALIBRATION
+# =====================================================================
+
+calibration:
+
+  positive_control:
+    required: true
+    count_minimum: 1
+    expected_result: GOLDEN_E2E_PASS_IMPROVED
+    purpose: prove oracle does not reject every input
+
+  negative_controls:
+    required: true
+    total: 25
+    expected_rejected: 25
+    false_acceptance_count: 0
+
+    mappings:
+      NC-01: ORACLE-013
+      NC-02: ORACLE-014
+      NC-03: ORACLE-018
+      NC-04: ORACLE-021
+      NC-05: ORACLE-005
+      NC-06: ORACLE-028
+      NC-07: ORACLE-029
+      NC-08:
+        - ORACLE-025
+        - ORACLE-032
+      NC-09:
+        - ORACLE-037
+        - ORACLE-052
+      NC-10: ORACLE-042
+      NC-11:
+        - ORACLE-048
+        - ORACLE-049
+      NC-12: ORACLE-046
+      NC-13: ORACLE-050
+      NC-14: ORACLE-053
+      NC-15:
+        - ORACLE-057
+        - ORACLE-061
+      NC-16: ORACLE-024
+      NC-17: ORACLE-002
+      NC-18: ORACLE-076
+      NC-19:
+        - ORACLE-079
+        - ORACLE-100
+      NC-20: ORACLE-086
+      NC-21: ORACLE-090
+      NC-22: ORACLE-091
+      NC-23:
+        - ORACLE-069
+        - ORACLE-072
+      NC-24: ORACLE-063
+      NC-25: ORACLE-098
+
+  deterministic_replay:
+    required: true
+    rule: >
+      Running the deterministic verifier twice against identical receipt,
+      case, and oracle inputs must produce identical semantic failures,
+      inconclusive states, metrics, and verdict, excluding timestamps.
+
+# =====================================================================
+# VALIDATION OF THIS COMPLETE CONTRACT
+# =====================================================================
+
+validation:
+
+  blocking_property_count:
+    expected: 101
+    actual: 101
+    pass: true
+
+  historical_status_counts:
+    enforced_including_hardcoded:
+      expected: 62
+      actual: 62
+      pass: true
+
+    unenforced:
+      expected: 39
+      actual: 39
+      pass: true
+
+    enforced_but_hardcoded:
+      expected: 2
+      actual: 2
+      pass: true
+
+  closure_contract_count:
+    expected: 39
+    actual: 39
+    pass: true
+
+  closure_ids:
+    - ORACLE-003
+    - ORACLE-004
+    - ORACLE-006
+    - ORACLE-007
+    - ORACLE-011
+    - ORACLE-012
+    - ORACLE-018
+    - ORACLE-023
+    - ORACLE-026
+    - ORACLE-027
+    - ORACLE-033
+    - ORACLE-034
+    - ORACLE-035
+    - ORACLE-039
+    - ORACLE-040
+    - ORACLE-048
+    - ORACLE-049
+    - ORACLE-053
+    - ORACLE-059
+    - ORACLE-060
+    - ORACLE-061
+    - ORACLE-066
+    - ORACLE-067
+    - ORACLE-068
+    - ORACLE-072
+    - ORACLE-077
+    - ORACLE-078
+    - ORACLE-080
+    - ORACLE-081
+    - ORACLE-082
+    - ORACLE-083
+    - ORACLE-084
+    - ORACLE-092
+    - ORACLE-093
+    - ORACLE-094
+    - ORACLE-095
+    - ORACLE-096
+    - ORACLE-097
+    - ORACLE-101
+
+  visual_dimension_weight_sum:
+    expected: 1.0
+    actual: 1.0
+    pass: true
+
+  duplicate_oracle_ids:
+    expected: 0
+    pass: true
+
+  duplicate_oracle_paths:
+    expected: 0
+    pass: true
+
+  missing_closure_for_unenforced_property:
+    expected: 0
+    pass: true
+
+# =====================================================================
+# ACCEPTANCE / TERMINAL GATES
+# =====================================================================
+
+acceptance:
+
+  oracle_implementation_complete_requires:
+    blocking_properties_total: 101
+    blocking_properties_enforced: 101
+    coverage_pct: 100
+    stale_citations: 0
+    remaining_unenforced: 0
+
+  calibration_requires:
+    positive_control_pass: true
+    negative_controls_run: 25
+    negative_controls_rejected: 25
+    false_acceptance_count: 0
+    deterministic_replay_pass: true
+
+  NC11_requires:
+    product_producer_fixed: true
+    oracle_negative_control_rejected: true
+
+  golden_e2e_authorization_requires:
+    oracle_implementation_complete: true
+    calibration_complete: true
+    material_UNKNOWN_count: 0
+
+failure_behavior:
+
+  missing_required_evidence:
+    action: FAIL
+    rule: do_not_default_missing_numeric_values_to_zero
+
+  material_unknown:
+    action: HALT_BRANCH
+    label: UNKNOWN
+
+  oracle_coverage_less_than_100:
+    action: PROHIBIT_REAL_GOLDEN_RUN
+    code: ORACLE_IMPLEMENTATION_INCOMPLETE
+
+  positive_control_rejected:
+    action: PROHIBIT_REAL_GOLDEN_RUN
+    code: ORACLE_FALSE_REJECTION
+
+  negative_control_accepted:
+    action: PROHIBIT_REAL_GOLDEN_RUN
+    code: ORACLE_FALSE_ACCEPTANCE
+
+  visual_inconclusive:
+    action: PROHIBIT_GOLDEN_E2E_PASS_IMPROVED
+    code: GOLDEN_ORACLE_BLOCKING_INCONCLUSIVE
+
+final_verdict_rules:
+
+  GOLDEN_E2E_PASS_IMPROVED:
+    requires:
+      - all 101 blocking properties pass
+      - no hard gate failures
+      - no blocking inconclusive state
+      - rendered visual QA executed
+      - visual oracle passes
+      - no missing required evidence
+
+  STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN:
+    meaning: >
+      Structural/product gates passed but visual improvement cannot be
+      established conclusively.
+    counts_as_golden_pass: false
+
+  GOLDEN_E2E_FAIL:
+    requires_any:
+      - hard gate failure
+      - prohibited product authority
+      - invalid lineage
+      - unsupported business truth
+      - asset-policy violation
+      - route integrity failure
+      - visual regression hard gate
+      - missing evidence treated as hard failure
+
+terminal_state:
+  current_snapshot: ORACLE_IMPLEMENTATION_INCOMPLETE
+  target: ORACLE_IMPLEMENTATION_COMPLETE
+  real_golden_e2e_allowed_before_target: false

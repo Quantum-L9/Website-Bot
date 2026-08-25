@@ -58,5 +58,19 @@ export function verifiedBusinessFactsFromSpec(spec: DomainSpec): VerifiedBusines
       source_refs: ["domain_spec:seo_contract.site_url"],
     });
   }
+  // Operator-verified business facts carried by the spec itself. These are
+  // the literal phrases claim grounding validates against ("24/7", "free
+  // inspection", warranty years, …) — without them, generated prose that
+  // states a true client fact is scored as an unsupported claim (golden
+  // run #15).
+  for (const [key, value] of Object.entries(spec.business_facts ?? {})) {
+    facts.push({
+      fact_id: `fact-${key}`,
+      key,
+      value,
+      verified: true,
+      source_refs: [`domain_spec:business_facts.${key}`],
+    });
+  }
   return facts;
 }

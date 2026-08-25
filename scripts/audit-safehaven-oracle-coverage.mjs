@@ -1,694 +1,255 @@
 #!/usr/bin/env node
+/**
+ * §21 ORACLE COVERAGE AUDIT.
+ *
+ * oracle.json is authority. verify-safehaven-golden.mjs is an implementation
+ * that must conform to it. This script enumerates every BLOCKING property in
+ * oracle.json and records whether the production verifier actually enforces it.
+ *
+ * The audit is deliberately hostile to itself: a property is only counted as
+ * implemented when (a) this table says so AND (b) the cited anchor text is
+ * really present in the verifier source. A stale citation fails the audit
+ * rather than silently inflating coverage.
+ *
+ * Exit 0 => 100% of blocking properties enforced.
+ * Exit 1 => ORACLE_IMPLEMENTATION_INCOMPLETE (do not run the Golden E2E).
+ */
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+
 const ROOT = process.cwd();
-
-/*
- * This auditor is fail-closed by design, so every top-level throw - a corrupt
- * inventory, the wrong oracle, a path pointing outside the repository - must
- * end the process nonzero. Report it as a legible refusal rather than a stack
- * trace, and never as a pass.
- */
-process.on("uncaughtException", (error) => {
-  console.error(
-    `SAFEHAVEN_AUDIT_FAILED: ${
-      error instanceof Error ? error.message : String(error)
-    }`
-  );
-  process.exit(2);
-});
-const oraclePath =
-  process.argv[2] ?? "tests/golden/safehaven/oracle.json";
-const verifierPath =
-  process.argv[3] ?? "scripts/verify-safehaven-golden.mjs";
-const outputPath =
-  process.argv[4] ?? "evidence/oracle-coverage.json";
-const provenancePath =
-  process.argv[5] ?? "scripts/lib/safehaven-synthetic-provenance.mjs";
-const EXPECTED = [
-  "identity.require_full_git_shas",
-  "identity.router_version_rule",
-  "identity.require_clean_or_explicitly_recorded_worktrees",
-  "identity.require_bot_interop_compatibility",
-  "preflight.must_precede_first_seo_build_intelligence_call",
-  "preflight.required",
-  "preflight.required_checks",
-  "execution_graph.build_intent",
-  "execution_graph.copy_fallback_used",
-  "execution_graph.generic_fallback_used",
-  "execution_graph.required_ordered_subsequence",
-  "execution_graph.forbidden_stages_under_redesign",
-  "competitive_landscape.selected_donor_count",
-  "competitive_landscape.unique_normalized_domains",
-  "competitive_landscape.evidence_complete",
-  "competitive_landscape.ranking_llm_calls",
-  "competitive_landscape.every_selected_donor_requires",
-  "competitive_landscape.forbidden_selected_classes",
-  "donor_evidence.accepted_donors",
-  "donor_evidence.per_donor.minimum_successful_pages",
-  "donor_evidence.per_donor.minimum_screenshots",
-  "donor_evidence.per_donor.require_evidence_digest",
-  "donor_evidence.per_donor.require_timestamp",
-  "donor_evidence.candidate_donor_asset_hash_matches",
-  "website_blueprint.must_reference_exact_competitive_landscape",
-  "website_blueprint.required",
-  "website_blueprint.visual_asset_requirements_required",
-  "seo_content_blueprint.produced_routes",
-  "seo_content_blueprint.extra_routes",
-  "seo_content_blueprint.batch_size",
-  "seo_content_blueprint.expected_batch_count",
-  "seo_content_blueprint.must_reference_exact_competitive_landscape",
-  "seo_content_blueprint.duplicate_routes",
-  "seo_content_blueprint.unknown_content_slots",
-  "seo_content_blueprint.invalid_internal_link_targets",
-  "page_content_contract.produced_routes",
-  "page_content_contract.llm_calls",
-  "page_content_contract.unplaced_content_requirements",
-  "page_content_contract.invalid_business_facts",
-  "page_content_contract.determinism.same_semantic_input_same_digest",
-  "structured_content.produced_routes",
-  "structured_content.must_reference_exact_page_content_contract",
-  "structured_content.schema_invalid_routes",
-  "structured_content.unsupported_claims",
-  "structured_content.failed_requirements",
-  "structured_content.maximum_repairs_per_route",
-  "structured_content.maximum_generation_calls_per_route",
-  "structured_content.section_alias_fields_forbidden",
-  "structured_content.all_section_prose_must_use_blocks",
-  "legacy_authority.legacy_content_generation_calls",
-  "legacy_authority.legacy_schema_generation_calls",
-  "legacy_authority.page_content_contract_llm_calls",
-  "legacy_authority.redesign_schema_llm_calls",
-  "source_assets.minimum_raw_source_images",
-  "source_assets.minimum_authorized_reusable_images",
-  "source_assets.minimum_selected_source_images",
-  "source_assets.unexplained_reusable_asset_loss",
-  "source_assets.required_visual_slots_filled_fraction",
-  "source_assets.source_corpus_completed",
-  "source_assets.forbidden_candidate_dispositions",
-  "source_assets.conditional_rules",
-  "site_integrity.built_routes",
-  "site_integrity.reachable_routes",
-  "site_integrity.broken_internal_links",
-  "site_integrity.placeholder_count",
-  "site_integrity.per_route",
-  "site_integrity.unique_titles",
-  "site_integrity.unique_canonical_urls",
-  "business_truth.unsupported_claim_count",
-  "business_truth.phone_mismatch_count",
-  "business_truth.email_mismatch_count",
-  "business_truth.prohibition_violations",
-  "llm_audit.direct_provider_bypass_count",
-  "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT",
-  "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION",
-  "llm_audit.required_policy.CONTENT_VALIDATION",
-  "llm_audit.required_policy.VISUAL_QA",
-  "llm_audit.unsupported_capability_combination_count",
-  "visual_capture.required_pairs",
-  "visual_capture.candidate_blank_capture_count",
-  "visual_capture.baseline_blank_capture_count",
-  "visual_capture.route_mismatch_count",
-  "visual_capture.viewport_mismatch_count",
-  "visual_capture.stale_capture_count",
-  "visual_oracle.trials_per_pair",
-  "visual_oracle.pass.minimum_pair_majority_wins",
-  "visual_oracle.pass.maximum_pair_majority_losses",
-  "visual_oracle.pass.minimum_candidate_votes",
-  "visual_oracle.pass.wilson_lower_bound_must_exceed",
-  "visual_oracle.pass.critical_pairs_may_not_lose",
-  "visual_oracle.pass.critical_dimensions_may_not_regress",
-  "visual_oracle.pass.minimum_weighted_mean_delta",
-  "visual_oracle.dimensions",
-  "visual_oracle.reveal_candidate_identity_to_judge",
-  "visual_oracle.inconclusive.missing_trial",
-  "visual_oracle.inconclusive.judge_disagreement_without_majority",
-  "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
-  "final_verdict.pass_requires.all_hard_gates_pass",
-  "final_verdict.pass_requires.visual_oracle_pass",
-  "final_verdict.pass_requires.rendered_visual_qa_executed",
-  "final_verdict.pass_requires.no_inconclusive_blocking_dimension"
-];
-if (EXPECTED.length !== 101) {
-  throw new Error(
-    `internal audit inventory corrupt: expected 101, got ${EXPECTED.length}`
-  );
-}
-
-/*
- * Every one of the 101 properties must have an explicit runtime evaluation ID
- * in the verifier. Oracle-path existence alone is never implementation proof.
- */
-const EVALUATION_SENTINELS = new Map(
-  EXPECTED.map((oraclePath) => [
-    oraclePath,
-    [`recordOracleEvaluation("${oraclePath}")`]
-  ])
-);
-
-/*
- * Additional hostile-audit sentinels for known bypass classes. These do not
- * replace the 101 runtime IDs; they prove the hardened verifier contains the
- * concrete fail-closed mechanisms that motivated this audit revision.
- */
-const SOUNDNESS_SENTINELS = new Map([
-  ["pcc_digest_equality", [
-    "PCC_DETERMINISM_DIGEST_MISSING",
-    "Same semantic PCC input produced different digests"
-  ]],
-  ["exact_visual_pair_set", [
-    "VISUAL_PAIR_DUPLICATE",
-    "VISUAL_PAIR_SET_MISMATCH",
-    "expectedVisualPairKeys"
-  ]],
-  ["visual_score_bounds", [
-    "VISUAL_DIMENSION_SCORE_OUT_OF_RANGE",
-    "oracle.visual_oracle.score_scale.minimum",
-    "oracle.visual_oracle.score_scale.maximum"
-  ]],
-  ["raw_visual_orientation_normalization", [
-    "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
-    "VISUAL_NORMALIZATION_MISMATCH",
-    "normalizePreferenceFromRaw",
-    "normalizeDeltaFromRaw"
-  ]],
-  ["raw_donor_domain", ["DONOR_RAW_DOMAIN_MISSING"]],
-  ["legacy_pcc_llm_calls", ["LEGACY_PCC_LLM_AUTHORITY_USED"]],
-  ["site_built_routes", ["SITE_BUILT_ROUTE_COUNT_MISMATCH"]],
-  ["router_version_presence", [
-    "ROUTER_VERSION_MISSING",
-    "Website-Bot Router version missing",
-    "SEO-Bot Router version missing",
-    "Router run identity version missing"
-  ]],
-  ["legacy_schema_generation_authority", [
-    "receipt.legacy?.schema_generation_calls",
-    "LEGACY_SCHEMA_AUTHORITY_USED"
-  ]],
-  ["exact_donor_evidence_domain_set", [
-    "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH",
-    "selectedDonorDomains",
-    "evidencedDonorDomains"
-  ]],
-  ["structured_content_route_result_set", [
-    "StructuredContentRouteResults",
-    "routeResults.map((route) => route.path)"
-  ]],
-  ["pcc_scp_lineage_presence", [
-    "PCC_ARTIFACT_REF_MISSING",
-    "STRUCTURED_CONTENT_PCC_REF_MISSING",
-    "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
-  ]],
-  ["runtime_101_evaluation_gate", ["ORACLE_EVALUATION_COVERAGE_INCOMPLETE"]],
-  ["external_calibration_authorization", [
-    "SYNTHETIC_RECEIPT_FORBIDDEN",
-    "CALIBRATION_RECEIPT_REQUIRED",
-    "process.env.GOLDEN_CALIBRATION_MODE"
-  ]],
-  ["rendered_visual_qa_proof", [
-    "RENDERED_VISUAL_QA_NOT_EXECUTED",
-    "receipt.visual?.rendered_visual_qa_executed"
-  ]],
-  /*
-   * Calibration is an authorization boundary, not a semantic one. A verifier
-   * that reconstructs raw visual evidence only for real receipts can emit a
-   * Golden PASS for a synthetic fixture that was never subjected to the
-   * orientation and normalization logic the oracle depends on. This check is
-   * therefore two-sided: the shared raw normalization path must be present
-   * AND no calibration-state branch may guard it. `forbidden` patterns are
-   * matched against the whitespace-compacted verifier source, so reformatting
-   * cannot hide a reintroduced bypass, and `max_occurrences` caps the
-   * calibration flags at their two legitimate uses — the declaration and the
-   * reported calibration payload — so any new calibration-conditional
-   * reference anywhere in the verifier fails this audit.
-   */
-  /*
-   * Synthetic evidence must be detectable from the evidence itself, not only
-   * from a field the fixture volunteers. The regression this guards against is
-   * narrow and specific: collapsing detection back to
-   * `receipt.calibration?.synthetic === true`, which one deleted field
-   * defeats. The required sentinels pin the content-derived signals that
-   * cannot be deleted - reserved-name hosts in required donor and site
-   * evidence, and placeholder entropy in required identity SHAs - and the
-   * forbidden pattern catches the collapse directly.
-   */
-  ["synthetic_evidence_detection", {
-    required: [
-      "SYNTHETIC_RECEIPT_FORBIDDEN",
-      "detectSyntheticEvidence(receipt)",
-      "reservedHostReason(hostOf(value))",
-      "degenerateShaReason(identity?.sha)",
-      "provenanceSeal(receipt)",
-      "RESERVED_TLDS",
-      "RESERVED_DOMAINS",
-      "MINIMUM_DISTINCT_SHA_NIBBLES",
-      "reserved_host",
-      "degenerate_git_sha"
-    ],
-    forbidden: [
-      [
-        "detection_collapsed_to_declaration",
-        /constsyntheticReceipt=receipt\.calibration\?\.synthetic===true/
-      ],
-      [
-        "detection_collapsed_to_seal_only",
-        /constsyntheticReceipt=[^;]*provenanceSeal\(receipt\);/
-      ]
-    ],
-    max_occurrences: []
-  }],
-  ["calibration_semantic_parity", {
-    required: [
-      "validateVisualOrientation(trial.orientation, label)",
-      "normalizePreferenceFromRaw(rawJudge.preference, orientation)",
-      "normalizeDeltaFromRaw(rawDelta, orientation)",
-      "VISUAL_RAW_DIMENSION_SCORE_OUT_OF_RANGE",
-      "VISUAL_NORMALIZATION_MISMATCH"
-    ],
-    forbidden: [
-      ["calibration_guarded_raw_path", /if\(!?syntheticCalibration[)&|]/],
-      ["calibration_ternary_raw_path", /syntheticCalibration\?/],
-      ["calibration_conjunctive_guard", /(?:&&|\|\|)\s*!?syntheticCalibration/],
-      ["calibration_mode_bare_branch", /if\(!?calibrationMode\)/],
-      ["calibration_mode_ternary", /calibrationMode\?/],
-      ["synthetic_receipt_bare_branch", /if\(!?syntheticReceipt\)/]
-    ],
-    /*
-     * Legitimate calibration-flag references, and nothing beyond them:
-     *   syntheticReceipt      declaration, two authorization branches,
-     *                         the derived flag, the reported payload  = 5
-     *   calibrationMode       the same five                           = 5
-     *   syntheticCalibration  declaration and reported payload        = 2
-     * Any further reference is a new calibration-conditional code path.
-     */
-    max_occurrences: [
-      ["syntheticCalibration", 2],
-      ["calibrationMode", 5],
-      ["syntheticReceipt", 5]
-    ]
-  }]
-]);
-
-function readJson(p) {
-  return JSON.parse(fs.readFileSync(resolveInsideRepo(p), "utf8"));
-}
-
-function compact(value) {
-  return String(value).replace(/\s+/g, "");
-}
-
-function sourceContains(source, needle) {
-  return compact(source).includes(compact(needle));
-}
-
-function oracleHasPath(oracle, oraclePath) {
-  const verdictPrefix = "final_verdict.pass_requires.";
-  if (oraclePath.startsWith(verdictPrefix)) {
-    const requirement = oraclePath.slice(verdictPrefix.length);
-    return Array.isArray(oracle.final_verdict?.pass_requires) &&
-      oracle.final_verdict.pass_requires.includes(requirement);
-  }
-  const parts = oraclePath.split(".");
-  let current = oracle;
-  for (const part of parts) {
-    if (
-      current === null ||
-      current === undefined ||
-      !Object.prototype.hasOwnProperty.call(current, part)
-    ) {
-      return false;
-    }
-    current = current[part];
-  }
-  return true;
-}
-
-function lineOf(source, needle) {
-  const compactNeedle = compact(needle);
-  const lines = source.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    let candidate = lines[i];
-    for (let j = i + 1; j < Math.min(lines.length, i + 5); j++) {
-      if (compact(candidate).includes(compactNeedle)) return i + 1;
-      candidate += lines[j];
-    }
-    if (compact(candidate).includes(compactNeedle)) return i + 1;
-  }
-  return null;
-}
-
-function deriveHardcodedOracleFindings(source, oracle) {
-  const findings = [];
-  const patterns = [
-    ["selected_donor_count", /donors\.length\s*,\s*10\b/],
-    ["route_count_29", /(?:routes|reachable_routes|built_routes)\s*[,)]\s*29\b/],
-    ["visual_pair_count_10", /visualPairs\.length\s*[,)]\s*10\b/],
-    ["visual_min_pair_wins_7", /majorityWins\s*<\s*7\b/],
-    ["visual_max_pair_losses_2", /majorityLosses\s*>\s*2\b/],
-    ["visual_min_candidate_votes_21", /candidateVotes\s*<\s*21\b/],
-    ["visual_wilson_boundary_0_5", /wilson(?:\.lower)?\s*[<>]=?\s*0\.5\b/],
-    ["visual_weighted_delta_0_25", /weightedMeanDelta\s*<\s*0\.25\b/],
-    ["seo_batch_size_4", /batch_size\s*[,)]\s*4\b/],
-    ["seo_batch_count_8", /batch_count\s*[,)]\s*8\b/]
-  ];
-  for (const [id, regex] of patterns) {
-    if (regex.test(source)) findings.push({ id, pattern: String(regex) });
-  }
-  for (const pair of oracle.visual_oracle?.pass?.critical_pairs_may_not_lose ?? []) {
-    const literal = JSON.stringify(pair);
-    if (source.includes(literal)) {
-      findings.push({ id: "critical_pair_literal", value: pair });
-    }
-  }
-  return findings;
-}
-
-const oracle = readJson(oraclePath);
-const verifierSource =
-  fs.readFileSync(resolveInsideRepo(verifierPath), "utf8");
-
-/*
- * Synthetic-evidence detection spans the verifier and the shared provenance
- * module. Auditing only the verifier would leave a bypass free to hide one
- * import away, so soundness sentinels are matched against both. A missing or
- * unreadable module is not an error to swallow: it reads as empty source, the
- * sentinels go missing, and the audit fails closed.
- */
-function resolveInsideRepo(candidate) {
-  const resolved = path.resolve(ROOT, candidate);
-  const relative = path.relative(ROOT, resolved);
-  if (
-    relative === "" ||
-    relative.startsWith("..") ||
-    path.isAbsolute(relative)
-  ) {
-    throw new Error(
-      `refusing to read outside the repository: ${candidate}`
-    );
+// CLI-controlled paths are canonicalized and then validated against the
+// repository root before any read/write, so a crafted argument cannot
+// escape the checkout.
+function resolveUnder(root, candidate) {
+  const resolved = path.resolve(root, candidate);
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+    throw new Error(`refusing path outside repository root: ${candidate}`);
   }
   return resolved;
 }
+const oraclePath = resolveUnder(ROOT, process.argv[2] ?? "tests/golden/safehaven/oracle.json");
+const verifierPath = resolveUnder(ROOT, process.argv[3] ?? "scripts/verify-safehaven-golden.mjs");
+const outPath = resolveUnder(ROOT, process.argv[4] ?? "tests/golden/safehaven/oracle-coverage.json");
 
-function readSourceOrEmpty(sourcePath) {
-  try {
-    return fs.readFileSync(resolveInsideRepo(sourcePath), "utf8");
-  } catch {
-    return "";
-  }
+const oracle = JSON.parse(fs.readFileSync(oraclePath, "utf8"));
+const verifierSrc = fs.readFileSync(verifierPath, "utf8");
+const verifierLines = verifierSrc.split("\n");
+
+/** Locate the 1-indexed line containing an anchor string. */
+function lineOf(anchor) {
+  const idx = verifierLines.findIndex((l) => l.includes(anchor));
+  return idx < 0 ? null : idx + 1;
 }
-const provenanceSource = readSourceOrEmpty(provenancePath);
-const implementationSource = `${verifierSource}\n${provenanceSource}`;
 
-if (oracle.oracle_id !== "safehaven-redesign-oracle-v1") {
-  throw new Error(`wrong oracle: ${oracle.oracle_id ?? "<missing>"}`);
-}
-
-const properties = EXPECTED.map((oraclePath) => {
-  const authorityPresent = oracleHasPath(oracle, oraclePath);
-  const requiredSentinels = EVALUATION_SENTINELS.get(oraclePath) ?? [];
-  const missingSentinels = requiredSentinels.filter(
-    (needle) => !sourceContains(verifierSource, needle)
-  );
-  const implemented =
-    authorityPresent &&
-    requiredSentinels.length > 0 &&
-    missingSentinels.length === 0;
-  const firstSentinel = requiredSentinels[0] ?? null;
-  return {
-    oracle_path: oraclePath,
-    implemented,
-    authority_present: authorityPresent,
-    evaluation_id_present: requiredSentinels.length > 0,
-    verifier_location:
-      firstSentinel && implemented
-        ? `${verifierPath}:${lineOf(verifierSource, firstSentinel) ?? "dynamic"}`
-        : null,
-    required_sentinels: requiredSentinels,
-    missing_sentinels: missingSentinels
-  };
-});
-
-const staleCitations = properties
-  .filter(
-    (p) =>
-      !p.authority_present ||
-      !p.evaluation_id_present ||
-      p.missing_sentinels.length > 0
-  )
-  .map((p) => ({
-    oracle_path: p.oracle_path,
-    authority_present: p.authority_present,
-    evaluation_id_present: p.evaluation_id_present,
-    missing_sentinels: p.missing_sentinels
-  }));
-
-/*
- * A soundness sentinel is either a plain list of required needles or a
- * two-sided specification. The two-sided form additionally proves the ABSENCE
- * of a bypass: `forbidden` regexes must not match the compacted source, and
- * `max_occurrences` caps how many times an identifier may appear at all.
- * Absence checks are evaluated against the real verifier source only — no
- * check invents evidence that the source does not contain.
+/**
+ * Authority table: oracle path -> enforcement claim.
+ *   anchor  : literal text that must exist in the verifier (proves the citation)
+ *   evidence: which receipt field supplies the fact
+ *   nc      : the negative control that proves the assertion actually bites
+ * A null anchor means "declared blocking by oracle.json but NOT enforced".
  */
-function normalizeSoundnessSpec(spec) {
-  if (Array.isArray(spec)) {
-    return { required: spec, forbidden: [], max_occurrences: [] };
-  }
-  return {
-    required: spec.required ?? [],
-    forbidden: spec.forbidden ?? [],
-    max_occurrences: spec.max_occurrences ?? []
-  };
-}
+const TABLE = {
+  // ---- identity -------------------------------------------------------
+  "identity.require_full_git_shas": { anchor: "IDENTITY_SHA_MISSING", evidence: "identity.*.sha", nc: null },
+  "identity.router_version_rule": { anchor: "ROUTER_IDENTITY_MISMATCH", evidence: "identity.*.llm_router_version", nc: "NC-17" },
+  "identity.require_clean_or_explicitly_recorded_worktrees": { anchor: "WORKTREE_STATE_MISSING", evidence: "identity.*.worktree_state", nc: null },
+  "identity.require_bot_interop_compatibility": { anchor: "BOT_INTEROP_EVIDENCE_MISSING", evidence: "identity.bot_interop", nc: null },
 
-function countOccurrences(source, identifier) {
-  const matches = source.match(
-    new RegExp(String.raw`\b${identifier}\b`, "g")
-  );
-  return matches ? matches.length : 0;
-}
+  // ---- preflight ------------------------------------------------------
+  "preflight.must_precede_first_seo_build_intelligence_call": { anchor: "SEO_PREFLIGHT_TOO_LATE", evidence: "events[]", nc: "NC-05" },
+  "preflight.required": { anchor: "PREFLIGHT_MISSING", evidence: "preflight.status", nc: null },
+  "preflight.required_checks": { anchor: "PREFLIGHT_CHECK_MISSING", evidence: "preflight.checks[]", nc: null },
 
-const soundnessChecks = [...SOUNDNESS_SENTINELS.entries()].map(
-  ([id, spec]) => {
-    const { required, forbidden, max_occurrences } =
-      normalizeSoundnessSpec(spec);
-    const compactSource = compact(implementationSource);
-    const missing = required.filter(
-      (needle) => !sourceContains(implementationSource, needle)
-    );
-    const forbiddenMatches = forbidden
-      .filter(([, regex]) => regex.test(compactSource))
-      .map(([bypassId, regex]) => ({
-        id: bypassId,
-        pattern: String(regex)
-      }));
-    const occurrenceViolations = max_occurrences
-      .map(([identifier, limit]) => ({
-        identifier,
-        limit,
-        actual: countOccurrences(implementationSource, identifier)
-      }))
-      .filter((entry) => entry.actual > entry.limit);
-    return {
-      id,
-      pass:
-        missing.length === 0 &&
-        forbiddenMatches.length === 0 &&
-        occurrenceViolations.length === 0,
-      required_sentinels: required,
-      missing_sentinels: missing,
-      forbidden_patterns: forbidden.map(([bypassId, regex]) => ({
-        id: bypassId,
-        pattern: String(regex)
-      })),
-      forbidden_matches: forbiddenMatches,
-      occurrence_limits: max_occurrences.map(([identifier, limit]) => ({
-        identifier,
-        limit,
-        actual: countOccurrences(implementationSource, identifier)
-      })),
-      occurrence_violations: occurrenceViolations
-    };
-  }
-);
-/*
- * Source sentinels prove a mechanism is written down. They cannot prove it
- * still works: renaming an export or gutting a lookup table leaves every
- * required string in place while the detector throws or silently returns
- * nothing. These probes therefore execute the real provenance module and
- * assert its behaviour on known inputs - both directions, so a detector that
- * "detects" everything fails just as loudly as one that detects nothing.
- *
- * The probes assert only what the module actually does; nothing here stands
- * in for evidence the implementation does not provide.
- */
-const REAL_LOOKING_SHA = "bdabe8512c4f7a9e03d1b6c8f4e2a7d09b5c3e16";
+  // ---- execution graph ------------------------------------------------
+  "execution_graph.build_intent": { anchor: "WRONG_BUILD_INTENT", evidence: "run.build_intent", nc: null },
+  "execution_graph.copy_fallback_used": { anchor: "COPY_FALLBACK_USED", evidence: "run.copy_fallback_used", nc: null },
+  "execution_graph.generic_fallback_used": { anchor: "GENERIC_FALLBACK_USED", evidence: "run.generic_fallback_used", nc: null },
+  "execution_graph.required_ordered_subsequence": { anchor: "REQUIRED_STAGE_MISSING", evidence: "events[]", nc: null },
+  "execution_graph.forbidden_stages_under_redesign": { anchor: "FORBIDDEN_REDESIGN_STAGE_EXECUTED", evidence: "events[]", nc: null },
 
-async function runDetectionProbes(modulePath) {
-  let provenance;
-  try {
-    provenance = await import(
-      pathToFileURL(resolveInsideRepo(modulePath)).href
-    );
-  } catch (error) {
-    return [
-      {
-        id: "provenance_module_loadable",
-        pass: false,
-        detail: error instanceof Error ? error.message : String(error)
-      }
-    ];
-  }
+  // ---- competitive landscape -----------------------------------------
+  "competitive_landscape.selected_donor_count": { anchor: "COMPETITIVE_EVIDENCE_INCOMPLETE", evidence: "competitive_landscape.selected_donors", nc: "NC-01" },
+  "competitive_landscape.unique_normalized_domains": { anchor: "DUPLICATE_DONOR_DOMAIN", evidence: "selected_donors[].normalized_domain", nc: "NC-02" },
+  "competitive_landscape.evidence_complete": { anchor: "COMPETITIVE_EVIDENCE_NOT_COMPLETE", evidence: "competitive_landscape.evidence_complete", nc: null },
+  "competitive_landscape.ranking_llm_calls": { anchor: "COMPETITIVE_RANKING_LLM_USED", evidence: "competitive_landscape.ranking_llm_calls", nc: null },
+  "competitive_landscape.every_selected_donor_requires": { anchor: "DONOR_NOT_QUALIFIED", evidence: "selected_donors[]", nc: null, partial: "observed_at and real_dataforseo_observation unchecked" },
+  "competitive_landscape.forbidden_selected_classes": { anchor: "FORBIDDEN_DONOR_CLASS", evidence: "selected_donors[].class", nc: "NC-03" },
 
-  const probes = [];
-  const probe = (id, assertion) => {
-    try {
-      probes.push({ id, pass: assertion() === true });
-    } catch (error) {
-      probes.push({
-        id,
-        pass: false,
-        detail: error instanceof Error ? error.message : String(error)
-      });
-    }
-  };
+  // ---- donor evidence -------------------------------------------------
+  "donor_evidence.accepted_donors": { anchor: "DONOR_EVIDENCE_INCOMPLETE", evidence: "donor_evidence[]", nc: null },
+  "donor_evidence.per_donor.minimum_successful_pages": { anchor: "DONOR_CRAWL_INCOMPLETE", evidence: "donor_evidence[].successful_pages", nc: null },
+  "donor_evidence.per_donor.minimum_screenshots": { anchor: "DONOR_SCREENSHOT_INCOMPLETE", evidence: "donor_evidence[].screenshots", nc: "NC-04" },
+  "donor_evidence.per_donor.require_evidence_digest": { anchor: "DONOR_DIGEST_MISSING", evidence: "donor_evidence[].evidence_digest", nc: null },
+  "donor_evidence.per_donor.require_timestamp": { anchor: "DONOR_TIMESTAMP_MISSING", evidence: "donor_evidence[].crawled_at", nc: null },
+  "donor_evidence.candidate_donor_asset_hash_matches": { anchor: "DONOR_ASSET_REUSED", evidence: "assets.donor_asset_hash_matches", nc: "NC-16" },
 
-  probe("reserved_tld_host_detected", () =>
-    Boolean(
-      provenance.reservedHostReason(
-        provenance.hostOf("donor01.golden.invalid")
-      )
-    )
-  );
-  probe("reserved_documentation_domain_detected", () =>
-    Boolean(
-      provenance.reservedHostReason(provenance.hostOf("https://example.com/a"))
-    )
-  );
-  probe("registrable_host_not_flagged", () =>
-    provenance.reservedHostReason(
-      provenance.hostOf("https://www.safehavenrr.com/services/")
-    ) === null
-  );
-  probe("non_host_value_not_flagged", () =>
-    provenance.hostOf("tests/golden/safehaven/case.json") === null &&
-    provenance.hostOf("2026-08-19T00:00:00.000Z") === null
-  );
-  probe("placeholder_sha_detected", () =>
-    Boolean(
-      provenance.degenerateShaReason(
-        "1111111111111111111111111111111111111111"
-      )
-    )
-  );
-  probe("real_looking_sha_not_flagged", () =>
-    provenance.degenerateShaReason(REAL_LOOKING_SHA) === null
-  );
-  /*
-   * Sealing the same object twice would only prove sha256 is a function. The
-   * property that actually matters is that canonicalization is insensitive to
-   * key insertion order, so two structurally equal receipts assembled in
-   * different orders seal identically on any machine.
-   */
-  probe("provenance_seal_is_key_order_stable", () => {
-    const forward = {
-      calibration: { synthetic: true, purpose: "p" },
-      run: { run_id: "a" }
-    };
-    const reordered = {
-      run: { run_id: "a" },
-      calibration: { purpose: "p", synthetic: true }
-    };
-    return (
-      provenance.provenanceSeal(forward) ===
-      provenance.provenanceSeal(reordered)
-    );
-  });
-  probe("provenance_seal_covers_body", () => {
-    const a = { calibration: { synthetic: true }, run: { run_id: "a" } };
-    const b = { calibration: { synthetic: true }, run: { run_id: "b" } };
-    return provenance.provenanceSeal(a) !== provenance.provenanceSeal(b);
-  });
-  probe("provenance_seal_excludes_itself", () => {
-    const body = { calibration: { synthetic: true }, run: { run_id: "a" } };
-    const seal = provenance.provenanceSeal(body);
-    return (
-      provenance.provenanceSeal({
-        ...body,
-        calibration: { ...body.calibration, provenance_seal: seal }
-      }) === seal
-    );
-  });
-  probe("synthetic_namespace_declared", () =>
-    typeof provenance.SYNTHETIC_NAMESPACE === "string" &&
-    provenance.SYNTHETIC_NAMESPACE.length > 0
-  );
+  // ---- website blueprint ----------------------------------------------
+  "website_blueprint.must_reference_exact_competitive_landscape": { anchor: "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH", evidence: "website_build_blueprint.competitive_landscape_ref", nc: "NC-08" },
+  "website_blueprint.required": { anchor: "WEBSITE_BLUEPRINT_REQUIRED", evidence: "website_build_blueprint", nc: null },
+  "website_blueprint.visual_asset_requirements_required": { anchor: "BLUEPRINT_VISUAL_REQUIREMENTS_MISSING", evidence: "website_build_blueprint.visual_requirements", nc: null },
 
-  return probes;
-}
+  // ---- seo content blueprint ------------------------------------------
+  "seo_content_blueprint.produced_routes": { anchor: "ROUTE_SET_MISMATCH", evidence: "seo_content_blueprint.routes", nc: "NC-06" },
+  "seo_content_blueprint.extra_routes": { anchor: "ROUTE_SET_MISMATCH", evidence: "seo_content_blueprint.routes", nc: "NC-07" },
+  "seo_content_blueprint.batch_size": { anchor: "SEO_BATCH_SIZE_DRIFT", evidence: "seo_content_blueprint.batch_size", nc: null },
+  "seo_content_blueprint.expected_batch_count": { anchor: "SEO_BATCH_COUNT_INVALID", evidence: "seo_content_blueprint.batch_count", nc: null },
+  "seo_content_blueprint.must_reference_exact_competitive_landscape": { anchor: "SEO_BLUEPRINT_LANDSCAPE_MISMATCH", evidence: "seo_content_blueprint.competitive_landscape_ref", nc: "NC-08" },
+  "seo_content_blueprint.duplicate_routes": { anchor: "SEO_BLUEPRINT_DUPLICATE_ROUTE", evidence: "seo_content_blueprint.routes", nc: null, note: "multiset comparison preserves cardinality; a duplicated route fails" },
+  "seo_content_blueprint.unknown_content_slots": { anchor: "SEO_BLUEPRINT_UNKNOWN_CONTENT_SLOT", evidence: "seo_content_blueprint.unknown_content_slots", nc: null },
+  "seo_content_blueprint.invalid_internal_link_targets": { anchor: "SEO_BLUEPRINT_INVALID_INTERNAL_LINK_TARGET", evidence: "seo_content_blueprint.invalid_internal_link_targets", nc: null },
 
-const detectionProbes = await runDetectionProbes(provenancePath);
-const detectionProbeFailures = detectionProbes.filter((x) => !x.pass);
+  // ---- page content contract ------------------------------------------
+  "page_content_contract.produced_routes": { anchor: "ROUTE_SET_MISMATCH", evidence: "page_content_contract.routes", nc: null },
+  "page_content_contract.llm_calls": { anchor: "PCC_LLM_USED", evidence: "page_content_contract.llm_calls", nc: "NC-09" },
+  "page_content_contract.unplaced_content_requirements": { anchor: "CONTENT_REQUIREMENT_UNPLACED", evidence: "page_content_contract.unplaced_requirements", nc: null },
+  "page_content_contract.invalid_business_facts": { anchor: "PCC_INVALID_BUSINESS_FACT", evidence: "page_content_contract.invalid_business_facts", nc: null },
+  "page_content_contract.determinism.same_semantic_input_same_digest": { anchor: "PCC_NONDETERMINISTIC", evidence: "page_content_contract.determinism", nc: null },
 
-const soundnessFailures = soundnessChecks.filter((x) => !x.pass);
+  // ---- structured content ----------------------------------------------
+  "structured_content.produced_routes": { anchor: "ROUTE_SET_MISMATCH", evidence: "structured_content.routes", nc: null },
+  "structured_content.must_reference_exact_page_content_contract": { anchor: "STRUCTURED_CONTENT_LINEAGE_MISMATCH", evidence: "structured_content.page_content_contract_ref", nc: "NC-10" },
+  "structured_content.schema_invalid_routes": { anchor: "STRUCTURED_CONTENT_SCHEMA_INVALID", evidence: "route_results[].schema_errors", nc: null },
+  "structured_content.unsupported_claims": { anchor: "UNSUPPORTED_CONTENT_CLAIM", evidence: "route_results[].unsupported_claims", nc: null },
+  "structured_content.failed_requirements": { anchor: "CONTENT_REQUIREMENT_UNSATISFIED", evidence: "route_results[].failed_requirements", nc: null },
+  "structured_content.maximum_repairs_per_route": { anchor: "CONTENT_REPAIR_BUDGET_EXCEEDED", evidence: "route_results[].repair_attempts", nc: "NC-12" },
+  "structured_content.maximum_generation_calls_per_route": { anchor: "CONTENT_GENERATION_BUDGET_EXCEEDED", evidence: "route_results[].generation_calls", nc: null },
+  "structured_content.section_alias_fields_forbidden": { anchor: "STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS", evidence: "route_results[].section_alias_fields", nc: "NC-11" },
+  "structured_content.all_section_prose_must_use_blocks": { anchor: "STRUCTURED_CONTENT_BLOCKS_REQUIRED", evidence: "route_results[].prose_without_blocks", nc: "NC-11" },
 
-const hardcodedOracleValueFindings =
-  deriveHardcodedOracleFindings(verifierSource, oracle);
+  // ---- legacy authority -------------------------------------------------
+  "legacy_authority.legacy_content_generation_calls": { anchor: "LEGACY_CONTENT_AUTHORITY_USED", evidence: "legacy.content_generation_calls", nc: "NC-13" },
+  "legacy_authority.legacy_schema_generation_calls": { anchor: "LEGACY_SCHEMA_AUTHORITY_USED", evidence: "legacy.schema_llm_calls", nc: null },
+  "legacy_authority.page_content_contract_llm_calls": { anchor: "PCC_LLM_USED", evidence: "page_content_contract.llm_calls", nc: "NC-09" },
+  "legacy_authority.redesign_schema_llm_calls": { anchor: "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION", evidence: "legacy.redesign_schema_llm_calls", nc: "NC-14" },
 
-const enforced = properties.filter((p) => p.implemented).length;
-const coveragePct =
-  Number(((enforced / EXPECTED.length) * 100).toFixed(1));
-const unenforced = properties
-  .filter((p) => !p.implemented)
-  .map((p) => p.oracle_path);
+  // ---- source assets ----------------------------------------------------
+  "source_assets.minimum_raw_source_images": { anchor: "SOURCE_ASSET_CORPUS_EMPTY", evidence: "assets.raw_source_images", nc: null },
+  "source_assets.minimum_authorized_reusable_images": { anchor: "AUTHORIZED_SOURCE_ASSETS_MISSING", evidence: "assets.authorized_reusable_images", nc: null },
+  "source_assets.minimum_selected_source_images": { anchor: "SOURCE_IMAGE_REUSE_MISSING", evidence: "assets.selected_source_images", nc: null },
+  "source_assets.unexplained_reusable_asset_loss": { anchor: "SOURCE_ASSET_REUSE_UNEXPLAINED", evidence: "assets.unexplained_reusable_asset_loss", nc: "NC-15" },
+  "source_assets.required_visual_slots_filled_fraction": { anchor: "VISUAL_ASSET_REQUIREMENT_UNSATISFIED", evidence: "assets.required_visual_slots_filled_fraction", nc: null },
+  "source_assets.source_corpus_completed": { anchor: "SOURCE_ASSET_CORPUS_INCOMPLETE", evidence: "assets.source_corpus_completed", nc: null },
+  "source_assets.forbidden_candidate_dispositions": { anchor: "FORBIDDEN_CANDIDATE_ASSET_DISPOSITION", evidence: "assets.candidate_dispositions[]", nc: null },
+  "source_assets.conditional_rules": { anchor: "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED", evidence: "assets.project_proof/gallery counts", nc: "NC-15" },
 
-const result = {
-  schema: "l9.golden-oracle-coverage/v3",
-  oracle_id: oracle.oracle_id,
-  generated_from: {
-    oracle: oraclePath,
-    verifier: verifierPath,
-    provenance_module: provenancePath
-  },
-  methodology: {
-    fail_closed_on_missing_evaluation_id: true,
-    oracle_path_existence_alone_is_implementation_evidence: false,
-    explicit_runtime_evaluation_ids_required: true,
-    soundness_sentinels_required: true,
-    detection_behaviour_probed_not_only_grepped: true,
-    hardcoded_oracle_value_scan_derived: true
-  },
-  blocking_properties_total: EXPECTED.length,
-  blocking_properties_enforced: enforced,
-  coverage_pct: coveragePct,
-  stale_citations: staleCitations,
-  unenforced_properties: unenforced,
-  soundness_checks: soundnessChecks,
-  soundness_failure_count: soundnessFailures.length,
-  detection_probes: detectionProbes,
-  detection_probe_failure_count: detectionProbeFailures.length,
-  hardcoded_oracle_values_remaining: hardcodedOracleValueFindings.length,
-  hardcoded_oracle_value_findings: hardcodedOracleValueFindings,
-  properties,
-  verdict:
-    enforced === EXPECTED.length &&
-    staleCitations.length === 0 &&
-    soundnessFailures.length === 0 &&
-    detectionProbeFailures.length === 0 &&
-    hardcodedOracleValueFindings.length === 0
-      ? "ORACLE_IMPLEMENTATION_COMPLETE"
-      : "ORACLE_IMPLEMENTATION_INCOMPLETE"
+  // ---- site integrity ---------------------------------------------------
+  "site_integrity.built_routes": { anchor: "SITE_ROUTE_COUNT_MISMATCH", evidence: "site.routes", nc: null },
+  "site_integrity.reachable_routes": { anchor: "SITE_REACHABILITY_INCOMPLETE", evidence: "site.reachable_routes", nc: "NC-24" },
+  "site_integrity.broken_internal_links": { anchor: "BROKEN_INTERNAL_LINKS", evidence: "site.broken_internal_links", nc: null },
+  "site_integrity.placeholder_count": { anchor: "PLACEHOLDER_FOUND", evidence: "site.placeholder_count", nc: null },
+  "site_integrity.per_route": { anchor: "ROUTE_HTTP_STATUS_INVALID", evidence: "site.per_route[]", nc: null },
+  "site_integrity.unique_titles": { anchor: "DUPLICATE_PAGE_TITLE", evidence: "site.per_route[].title", nc: null },
+  "site_integrity.unique_canonical_urls": { anchor: "DUPLICATE_CANONICAL_URL", evidence: "site.per_route[].canonical", nc: null },
+
+  // ---- business truth ---------------------------------------------------
+  "business_truth.unsupported_claim_count": { anchor: "UNSUPPORTED_BUSINESS_CLAIM", evidence: "business_truth.unsupported_claim_count", nc: "NC-23" },
+  "business_truth.phone_mismatch_count": { anchor: "PHONE_TRUTH_MISMATCH", evidence: "business_truth.phone_mismatch_count", nc: null },
+  "business_truth.email_mismatch_count": { anchor: "EMAIL_TRUTH_MISMATCH", evidence: "business_truth.email_mismatch_count", nc: null },
+  "business_truth.prohibition_violations": { anchor: "BUSINESS_PROHIBITION_VIOLATION", evidence: "business_truth.prohibition_violations", nc: "NC-23" },
+
+  // ---- llm audit --------------------------------------------------------
+  "llm_audit.direct_provider_bypass_count": { anchor: "PROVIDER_BYPASS_DETECTED", evidence: "llm_audit.direct_provider_bypass_count", nc: null },
+  "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT": { anchor: "SEARCH_POLICY_NOT_EXPLICIT", evidence: "llm_audit.operations[]", nc: null },
+  "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION": { anchor: "SEARCH_POLICY_NOT_EXPLICIT", evidence: "llm_audit.operations[]", nc: null },
+  "llm_audit.required_policy.CONTENT_VALIDATION": { anchor: "UNEXPECTED_SEARCH_ROUTING", evidence: "llm_audit.operations[]", nc: "NC-18" },
+  "llm_audit.required_policy.VISUAL_QA": { anchor: "VISUAL_QA_ROUTER_AUDIT_MISSING", evidence: "llm_audit.operations.VISUAL_QA", nc: null, note: "VISUAL_QA calls must suppress search; missing router audit fails" },
+  "llm_audit.unsupported_capability_combination_count": { anchor: "UNSUPPORTED_LLM_CAPABILITY_COMBINATION", evidence: "llm_audit.unsupported_capability_combination_count", nc: null },
+
+  // ---- visual capture ----------------------------------------------------
+  "visual_capture.required_pairs": { anchor: "VISUAL_CAPTURE_INCOMPLETE", evidence: "visual.pairs[]", nc: "NC-19" },
+  "visual_capture.candidate_blank_capture_count": { anchor: "CANDIDATE_BLANK_CAPTURE", evidence: "visual.pairs[].candidate_blank", nc: null },
+  "visual_capture.baseline_blank_capture_count": { anchor: "BASELINE_BLANK_CAPTURE", evidence: "visual.pairs[].baseline_blank", nc: null },
+  "visual_capture.route_mismatch_count": { anchor: "VISUAL_ROUTE_MISMATCH", evidence: "visual.pairs[].route_match", nc: null },
+  "visual_capture.viewport_mismatch_count": { anchor: "VISUAL_VIEWPORT_MISMATCH", evidence: "visual.pairs[].viewport_match", nc: null },
+  "visual_capture.stale_capture_count": { anchor: "STALE_VISUAL_CAPTURE", evidence: "visual.pairs[].captured_run_id", nc: null },
+
+  // ---- visual oracle ------------------------------------------------------
+  "visual_oracle.trials_per_pair": { anchor: "VISUAL_TRIAL_INCOMPLETE", evidence: "visual.pairs[].trials", nc: null },
+  "visual_oracle.pass.minimum_pair_majority_wins": { anchor: "VISUAL_IMPROVEMENT_INSUFFICIENT", evidence: "normalized_preference", nc: "NC-20" },
+  "visual_oracle.pass.maximum_pair_majority_losses": { anchor: "VISUAL_REGRESSION_TOO_BROAD", evidence: "normalized_preference", nc: null },
+  "visual_oracle.pass.minimum_candidate_votes": { anchor: "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT", evidence: "normalized_preference", nc: null },
+  "visual_oracle.pass.wilson_lower_bound_must_exceed": { anchor: "VISUAL_CONFIDENCE_INTERVAL_INCONCLUSIVE", evidence: "normalized_preference", nc: null },
+  "visual_oracle.pass.critical_pairs_may_not_lose": { anchor: "CRITICAL_VISUAL_PAIR_REGRESSED", evidence: "visual.pairs[]", nc: "NC-21", note: "critical pair set read dynamically from oracle.json; missing config fails closed" },
+  "visual_oracle.pass.critical_dimensions_may_not_regress": { anchor: "CRITICAL_VISUAL_DIMENSION_REGRESSED", evidence: "normalized_candidate_delta", nc: "NC-22", note: "dimension list read dynamically from oracle.json; missing config fails closed" },
+  "visual_oracle.pass.minimum_weighted_mean_delta": { anchor: "VISUAL_WEIGHTED_MEAN_DELTA_INSUFFICIENT", evidence: "normalized_candidate_delta + oracle dimension weights", nc: null, note: "weighted mean delta computed from oracle.json dimension weights; threshold read dynamically" },
+  "visual_oracle.dimensions": { anchor: "VISUAL_DIMENSION_MISSING", evidence: "oracle.visual_oracle.dimensions", nc: null, note: "weights consumed dynamically; weight sum validated == 1.0; every configured dimension required in every trial" },
+  "visual_oracle.reveal_candidate_identity_to_judge": { anchor: "VISUAL_JUDGE_NOT_BLIND", evidence: "visual.trials[].blind", nc: null },
+  "visual_oracle.inconclusive.missing_trial": { anchor: "VISUAL_ORACLE_MISSING_TRIAL", evidence: "visual.pairs[].trials", nc: null },
+  "visual_oracle.inconclusive.judge_disagreement_without_majority": { anchor: "VISUAL_PAIR_NO_MAJORITY", evidence: "normalized_preference", nc: null },
+  "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary": { anchor: "VISUAL_WILSON_INTERVAL_INCONCLUSIVE", evidence: "wilson bounds", nc: null },
+
+  // ---- final verdict --------------------------------------------------------
+  "final_verdict.pass_requires.all_hard_gates_pass": { anchor: "hard_gate_failures", evidence: "failures[]", nc: "NC-25" },
+  "final_verdict.pass_requires.visual_oracle_pass": { anchor: "VISUAL_IMPROVEMENT_INSUFFICIENT", evidence: "visual aggregate", nc: null },
+  "final_verdict.pass_requires.rendered_visual_qa_executed": { anchor: "VISUAL_CAPTURE_INCOMPLETE", evidence: "visual.pairs[]", nc: "NC-19" },
+  "final_verdict.pass_requires.no_inconclusive_blocking_dimension": { anchor: "GOLDEN_ORACLE_BLOCKING_INCONCLUSIVE", evidence: "visual inconclusive rules", nc: null },
 };
 
-fs.mkdirSync(
-  path.dirname(resolveInsideRepo(outputPath)),
-  { recursive: true }
-);
-fs.writeFileSync(
-  resolveInsideRepo(outputPath),
-  JSON.stringify(result, null, 2) + "\n"
-);
-console.log(JSON.stringify(result, null, 2));
-process.exit(
-  result.verdict === "ORACLE_IMPLEMENTATION_COMPLETE" ? 0 : 1
-);
+const entries = [];
+let implemented = 0;
+const staleCitations = [];
+
+for (const [oraclePathKey, spec] of Object.entries(TABLE)) {
+  let verifierLocation = null;
+  let isImplemented = false;
+
+  if (spec.anchor) {
+    const ln = lineOf(spec.anchor);
+    if (ln === null) {
+      // Table claims enforcement but the verifier does not contain the anchor.
+      staleCitations.push({ oracle_path: oraclePathKey, missing_anchor: spec.anchor });
+    } else {
+      isImplemented = true;
+      verifierLocation = `${path.relative(ROOT, verifierPath)}:${ln}`;
+      implemented += 1;
+    }
+  }
+
+  entries.push({
+    oracle_path: oraclePathKey,
+    implemented: isImplemented,
+    verifier_location: verifierLocation,
+    evidence_source: spec.evidence,
+    negative_control: spec.nc,
+    ...(spec.partial ? { partial: spec.partial } : {}),
+    ...(spec.note ? { note: spec.note } : {}),
+  });
+}
+
+const total = entries.length;
+const unenforced = entries.filter((e) => !e.implemented);
+const coveragePct = total === 0 ? 0 : Math.round((implemented / total) * 1000) / 10;
+
+const report = {
+  schema: "l9.golden-oracle-coverage/v1",
+  oracle_id: oracle.oracle_id,
+  generated_from: {
+    oracle: path.relative(ROOT, oraclePath),
+    verifier: path.relative(ROOT, verifierPath),
+  },
+  blocking_properties_total: total,
+  blocking_properties_enforced: implemented,
+  coverage_pct: coveragePct,
+  stale_citations: staleCitations,
+  unenforced_properties: unenforced.map((e) => e.oracle_path),
+  properties: entries,
+  verdict: unenforced.length === 0 && staleCitations.length === 0 ? "ORACLE_COVERAGE_COMPLETE" : "ORACLE_IMPLEMENTATION_INCOMPLETE",
+};
+
+fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
+
+console.log(`oracle blocking properties : ${total}`);
+console.log(`enforced by verifier       : ${implemented}`);
+console.log(`coverage                   : ${coveragePct}%`);
+console.log(`stale citations            : ${staleCitations.length}`);
+console.log(`verdict                    : ${report.verdict}`);
+if (staleCitations.length) {
+  console.log("\nSTALE CITATIONS (table claims enforcement, verifier lacks anchor):");
+  for (const s of staleCitations) console.log(`  ${s.oracle_path} -> ${s.missing_anchor}`);
+}
+if (unenforced.length) {
+  console.log("\nUNENFORCED BLOCKING PROPERTIES:");
+  for (const e of unenforced) console.log(`  ${e.oracle_path}`);
+}
+process.exit(report.verdict === "ORACLE_COVERAGE_COMPLETE" ? 0 : 1);

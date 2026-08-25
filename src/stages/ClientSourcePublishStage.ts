@@ -23,6 +23,9 @@ import { normalizeManagedPath } from "../validation/validate-generated-site.js";
 const logger = createModuleLogger("stage:client-source-publish");
 const API = "https://api.github.com";
 const MANIFEST_PATH = ".l9/generated-manifest.json";
+/** Canonical Git empty-tree object sha — the base tree for an initial
+ * publication into a branch that does not exist yet. */
+const EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 const MAX_FILES = 5_000;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
@@ -117,6 +120,7 @@ export class ClientSourcePublishStage implements Stage {
       refUrl: remote.refUrl,
       previousHeadSha: remote.previousHeadSha,
       baseTreeSha: remote.baseTreeSha,
+      branchExists: remote.branchExists,
       localFiles,
       diff,
     });
@@ -207,17 +211,40 @@ export class ClientSourcePublishStage implements Stage {
     headers: Headers,
   ): Promise<{
     refUrl: string;
-    previousHeadSha: string;
+    previousHeadSha: string | null;
     baseTreeSha: string;
     remoteBlobs: Map<string, string>;
     previousManifest: GeneratedManifest;
+    branchExists: boolean;
   }> {
     const refUrl = `${API}/repos/${githubRepo}/git/ref/heads/${encodeURIComponent(sourceBranch)}`;
-    const ref = await this.requestJson<{ object?: { sha?: string } }>(
-      refUrl,
-      { headers },
-      "Cannot read target branch",
-    );
+    const refResponse = await this.fetchImpl(refUrl, { headers });
+    if (refResponse.status === 404) {
+      // Initial publication: the branch does not exist yet. Diff against
+      // the canonical empty tree and create the branch with the first
+      // commit (golden run #57: the spec's source_branch had never been
+      // created on the client repository).
+      return {
+        refUrl,
+        previousHeadSha: null,
+        baseTreeSha: EMPTY_TREE_SHA,
+        remoteBlobs: new Map(),
+        previousManifest: {
+          schema: "website-bot.generated-manifest/v1",
+          clientId: "",
+          sourceDigest: "",
+          paths: [],
+        },
+        branchExists: false,
+      };
+    }
+    if (!refResponse.ok) {
+      throw new BuildError(
+        "SOURCE_PUBLISH_FAILED",
+        `Cannot read target branch: ${refResponse.status} ${(await refResponse.text()).slice(0, 500)}`,
+      );
+    }
+    const ref = (await refResponse.json()) as { object?: { sha?: string } };
     const previousHeadSha = this.requireSha(ref.object?.sha, "GitHub branch head");
     const parent = await this.requestJson<{ tree?: { sha?: string } }>(
       `${API}/repos/${githubRepo}/git/commits/${previousHeadSha}`,
@@ -244,7 +271,7 @@ export class ClientSourcePublishStage implements Stage {
         .map((item) => [normalizeManagedPath(item.path as string), item.sha as string]),
     );
     const previousManifest = await this.readPreviousManifest(githubRepo, sourceBranch, headers);
-    return { refUrl, previousHeadSha, baseTreeSha, remoteBlobs, previousManifest };
+    return { refUrl, previousHeadSha, baseTreeSha, remoteBlobs, previousManifest, branchExists: true };
   }
 
   private assertTargetOwnership(previousManifest: GeneratedManifest, clientId: string): void {
@@ -298,8 +325,9 @@ export class ClientSourcePublishStage implements Stage {
       currentSource: ReturnType<typeof digestDirectory>;
       headers: Headers;
       refUrl: string;
-      previousHeadSha: string;
+      previousHeadSha: string | null;
       baseTreeSha: string;
+      branchExists: boolean;
       localFiles: Map<string, Buffer>;
       diff: { changedPaths: string[]; deletedPaths: string[] };
     },
@@ -348,11 +376,29 @@ export class ClientSourcePublishStage implements Stage {
       {
         method: "POST",
         headers: params.headers,
-        body: JSON.stringify({ message, tree: treeSha, parents: [params.previousHeadSha] }),
+        body: JSON.stringify({
+          message,
+          tree: treeSha,
+          // Initial publication: a root commit has no parents.
+          parents: params.previousHeadSha ? [params.previousHeadSha] : [],
+        }),
       },
       "Git commit creation failed",
     );
     const commitSha = this.requireSha(commit.sha, "new Git commit");
+
+    if (!params.branchExists) {
+      await this.requestJson<unknown>(
+        `${API}/repos/${githubRepo}/git/refs`,
+        {
+          method: "POST",
+          headers: params.headers,
+          body: JSON.stringify({ ref: `refs/heads/${sourceBranch}`, sha: commitSha }),
+        },
+        "Branch creation failed",
+      );
+      return { commitSha, treeSha };
+    }
 
     const latestRef = await this.requestJson<{ object?: { sha?: string } }>(
       params.refUrl,
@@ -390,10 +436,18 @@ export class ClientSourcePublishStage implements Stage {
       storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
       currentSource: ReturnType<typeof digestDirectory>;
       managedManifestDigest: string;
-      previousHeadSha: string;
+      previousHeadSha: string | null;
       baseTreeSha: string;
     },
   ): Promise<StageRunResult> {
+    if (params.previousHeadSha === null) {
+      // Unreachable in practice (a missing branch always diffs non-empty);
+      // guarded so the evidence validator's SHA1 requirement is provable.
+      throw new BuildError(
+        "SOURCE_PUBLISH_FAILED",
+        "No-op publication requires an existing target branch",
+      );
+    }
     const { githubRepo, sourceBranch } = params.deployTarget;
     const publicationSeed = `${ctx.buildId}\0${params.previousHeadSha}\0${params.currentSource.digest}`;
     const evidence: PublicationEvidence = {
@@ -433,7 +487,7 @@ export class ClientSourcePublishStage implements Stage {
       storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
       currentSource: ReturnType<typeof digestDirectory>;
       managedManifestDigest: string;
-      previousHeadSha: string;
+      previousHeadSha: string | null;
       commitSha: string;
       treeSha: string;
       diff: { changedPaths: string[]; deletedPaths: string[] };

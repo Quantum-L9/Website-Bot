@@ -321,6 +321,15 @@ function makeGoldenContext(): BuildContext {
         unsupported_claims: [],
         failed_requirements: [],
       },
+      route_evidence: [
+        {
+          route_id: "/",
+          repair_attempts: 0,
+          generation_calls: 1,
+          validation_calls: 1,
+          schema_errors: 0,
+        },
+      ],
     },
   });
 

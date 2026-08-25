@@ -1,31 +1,27 @@
-# Convenience copy only. Authoritative evidence: /Users/macm2/dev/website-bot-e2e-full-feature-20260813/evidence-run3/handoff-v3.json
+# Convenience copy only. Authoritative evidence: /Users/macm2/.l9/program-worktrees/safehaven-golden-oracle/build/evidence/safehavenrr/golden-20260825-r61/handoff-v3.json
 protocol: l9.website-factory.handoff
 schema_version: "3.0"
-contract_id: safehavenrr:safehavenrr-1786648135109:41622042c4b21b3a47de343a0c5b88e5dbbe7d2b
-emitted_at: 2026-08-13T19:33:51.166Z
+contract_id: safehavenrr:golden-20260825-r61:685c4941a5e117a7199f79a6bb66ceaa0d9fa361
+emitted_at: 2026-08-25T17:01:03.860Z
 client:
   id: safehavenrr
-  domain: safehavenrr-site.vercel.app
+  domain: safehavenrr-site-git-golden-safeha-797abb-igor-beylins-projects.vercel.app
   name: Safe Haven Roofing & Renovations
-  industry: roofing_contractor
+  industry: roofing_construction
   state: NC
 seo:
   target_keywords:
-    - keyword: charlotte roofing contractor
+    - keyword: roof replacement
       priority: medium
-    - keyword: roof replacement charlotte nc
+    - keyword: roof repair
       priority: medium
-    - keyword: roof repair charlotte
+    - keyword: storm damage repair
       priority: medium
-    - keyword: storm damage roofing
+    - keyword: roof installation
       priority: medium
-    - keyword: metal roofing charlotte
+    - keyword: roof inspection
       priority: medium
-    - keyword: asphalt shingle installation
-      priority: medium
-    - keyword: flat roofing charlotte
-      priority: medium
-    - keyword: roof inspection services
+    - keyword: charlotte roofing
       priority: medium
   competitor_urls: []
 site:
@@ -33,20 +29,20 @@ site:
     provider: github
     full_name: cryptoxdog/safehavenrr-site
     repository_id: "1333449696"
-    branch: main
-    commit_sha: 41622042c4b21b3a47de343a0c5b88e5dbbe7d2b
-    source_digest: 29e345538aefbaa987751f169bb5f3d92e7b92b42b4d1972c481c1677638c26c
+    branch: golden-safehaven-2026-08-24
+    commit_sha: 685c4941a5e117a7199f79a6bb66ceaa0d9fa361
+    source_digest: c3ee1b888e8b77f67f717f6f4ff8bca5549dcd12fd4b472b0c7cd209491e46b0
     managed_manifest_path: .l9/generated-manifest.json
     editable_root: src/pages
     page_path_strategy: directory-index-astro
   deployment:
     provider: vercel
     project_id: prj_btQp1yoETe27lfYf6Xm817nooGyM
-    deployment_id: dpl_4tkaFDaznSv8K9ndhx1GE4xANhdC
-    deployment_url: https://safehavenrr-site.vercel.app
+    deployment_id: dpl_2iqCNC3ntMsHpon6Sq435hDdRRHZ
+    deployment_url: https://safehavenrr-site-git-golden-safeha-797abb-igor-beylins-projects.vercel.app
     state: READY
-    requested_commit_sha: 41622042c4b21b3a47de343a0c5b88e5dbbe7d2b
-    observed_commit_sha: 41622042c4b21b3a47de343a0c5b88e5dbbe7d2b
+    requested_commit_sha: 685c4941a5e117a7199f79a6bb66ceaa0d9fa361
+    observed_commit_sha: 685c4941a5e117a7199f79a6bb66ceaa0d9fa361
   maintenance:
     enabled: true
     transport: github-contents-api
@@ -55,13 +51,13 @@ site:
       - .l9/generated-manifest.json
       - src/pages/index.astro
 proof:
-  receipt_id: receipt_c27c10b0af8246611eb6e912eb3c7330
+  receipt_id: receipt_5d12e9d34db2ef2505042eacf2a5820d
   receipt_status: succeeded
-  source_digest: 29e345538aefbaa987751f169bb5f3d92e7b92b42b4d1972c481c1677638c26c
-  dist_digest: 89b50acf6d94a323fe4958458db486afeb89f9b0c8d1057fbc7083234e4a1004
+  source_digest: c3ee1b888e8b77f67f717f6f4ff8bca5549dcd12fd4b472b0c7cd209491e46b0
+  dist_digest: c44a42945193f7230cccec1d5b426c3f1eeb2d4d5a0b78adb25851f275734579
   local_build_status: passed
   publication_status: passed
   deployment_status: passed
 integrity:
   algorithm: sha256
-  payload_digest: 841054343fd1e2dd5bdde86d8a388ceae7eb3db854d2a6f874aceed600fd86b6
+  payload_digest: fbd3580dfd0546fedee9a088133b0d924b72112fddf81f73988bb86b7f1f3c11

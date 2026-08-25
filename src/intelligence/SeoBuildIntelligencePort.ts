@@ -51,6 +51,10 @@ export interface SeoBotPreflightResult {
   version: string;
   bot_interop_version: string;
   llm_router_version: string;
+  /** Server-side stamps and oracle checks carried by the producer's report. */
+  produced_at?: string;
+  preflight_id?: string;
+  checks?: Array<{ name: string; status: string; detail: string }>;
   capabilities: {
     competitive_landscape: boolean;
     seo_content_blueprint: boolean;

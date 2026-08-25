@@ -131,6 +131,63 @@ void test("updates the branch ref non-forcibly to the new commit (force: false)"
   }
 });
 
+void test("bootstraps a missing branch with a root commit (golden run #57)", async () => {
+  const ctx = fixtureContext({
+    deploy: { github_repo: "example/disposable-site", source_branch: "golden-safehaven-2026-08-24" },
+  });
+  await new SiteAssemblerStage().run(ctx);
+  const source = digestDirectory(ctx.outputDir, { exclude: isSourceDigestExcluded });
+  await persistFixtureBuildProof(ctx, source.digest);
+  try {
+    let commitBody: { parents?: unknown[]; tree?: unknown } | undefined;
+    let createBody: { ref?: string; sha?: string } | undefined;
+    const fakeFetch = async (
+      input: string | URL | Request,
+      init: RequestInit = {},
+    ): Promise<Response> => {
+      const url = String(input);
+      const method = init.method ?? "GET";
+      if (url.includes("/git/ref/heads/")) return new Response("", { status: 404 });
+      if (url.includes("/contents/.l9/generated-manifest.json"))
+        return new Response("", { status: 404 });
+      if (url.endsWith("/git/blobs")) return Response.json({ sha: gitSha("c") });
+      if (url.endsWith("/git/trees")) return Response.json({ sha: gitSha("d") });
+      if (url.endsWith("/git/commits")) {
+        commitBody = JSON.parse(String(init.body)) as { parents?: unknown[]; tree?: unknown };
+        return Response.json({ sha: gitSha("e") });
+      }
+      if (url.endsWith("/git/refs") && method === "POST") {
+        createBody = JSON.parse(String(init.body)) as { ref?: string; sha?: string };
+        return Response.json({
+          ref: "refs/heads/golden-safehaven-2026-08-24",
+          object: { sha: gitSha("e") },
+        });
+      }
+      throw new Error(`Unexpected GitHub request ${method} ${url}`);
+    };
+
+    await withEnv({ GITHUB_SITE_TOKEN: "test-token" }, async () => {
+      await new ClientSourcePublishStage(
+        fakeFetch,
+        () => new Date("2026-07-20T00:00:02.000Z"),
+        async () => {},
+      ).run(ctx);
+    });
+
+    // A root commit has no parents; the branch is created, not updated.
+    assert.deepEqual(commitBody?.parents, []);
+    assert.equal(createBody?.ref, "refs/heads/golden-safehaven-2026-08-24");
+    assert.equal(createBody?.sha, gitSha("e"));
+    const stored = await ctx.evidenceStore.readPublication();
+    assert.ok(stored);
+    assert.equal(stored.value.commitSha, gitSha("e"));
+    assert.equal(stored.value.previousHeadSha, null);
+    assert.equal(stored.value.noOp, false);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test("refuses publication when source changed after persisted build proof", async () => {
   const ctx = await prepareContext();
   try {

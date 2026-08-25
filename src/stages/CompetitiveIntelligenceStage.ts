@@ -1,5 +1,6 @@
 // L9_META: layer=stage, role=competitive_intelligence, stage_index=3, status=active, version=1.0.0
 import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   type CompetitiveLandscapeArtifact,
@@ -22,7 +23,10 @@ import {
 } from "../intelligence/DonorIngestion.js";
 import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
+import {
+  SeoBotPreflightError,
+  type SeoBuildIntelligencePort,
+} from "../intelligence/SeoBuildIntelligencePort.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
@@ -96,13 +100,33 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
         "INTELLIGENCE_PARSE_FAILED",
         `${source}: pattern ${index} is not an object`,
       );
-    const disposition = String(entry.disposition ?? "");
-    if (!(ALLOWED_DISPOSITIONS as readonly string[]).includes(disposition)) {
+    // The model may emit a multi-part disposition ("PORT,MERGE_WITH_EXISTING").
+    // Split on commas/semicolons, validate each part against the allowed set,
+    // and keep the sorted unique joined form. Only string dispositions are
+    // meaningful — any other shape falls through to the no-disposition error.
+    const rawDisposition =
+      typeof entry.disposition === "string" ? entry.disposition : "";
+    const dispositionParts = [...new Set(
+      rawDisposition
+        .split(/[,;]/)
+        .map((part) => part.trim())
+        .filter(Boolean),
+    )].sort((a, b) => a.localeCompare(b));
+    if (dispositionParts.length === 0) {
       throw new BuildError(
         "INTELLIGENCE_PARSE_FAILED",
-        `${source}: pattern ${index} has invalid disposition ${JSON.stringify(disposition)}`,
+        `${source}: pattern ${index} has no disposition`,
       );
     }
+    for (const part of dispositionParts) {
+      if (!(ALLOWED_DISPOSITIONS as readonly string[]).includes(part)) {
+        throw new BuildError(
+          "INTELLIGENCE_PARSE_FAILED",
+          `${source}: pattern ${index} has invalid disposition ${JSON.stringify(rawDisposition)}`,
+        );
+      }
+    }
+    const disposition = dispositionParts.join(",");
     return {
       pattern_id: String(entry.pattern_id ?? `p-${index}`),
       evidence: String(entry.evidence ?? ""),
@@ -355,6 +379,24 @@ export function ensureCanonicalSlotCoverage(
   const missing = CONTENT_SLOTS.filter((slot): slot is ContentSlot => !covered.has(slot as ContentSlot));
   if (missing.length > 0) {
     next[0].content_slots = uniqueSlots([...next[0].content_slots, ...missing]);
+  }
+
+  // Section-per-component parity: the projection stage maps spec component i
+  // onto generated section i (StructuredContentProjectionStage), so a
+  // blueprint with fewer sections than the spec's components can never
+  // project — golden run #51: /about had 1 LLM-produced blueprint section
+  // against 4 frozen spec components. The spec's component inventory is the
+  // section authority; pad with component-derived sections in spec order.
+  while (next.length < specComponents.length) {
+    const component = specComponents[next.length]!;
+    next.push({
+      section_id: `spec-component-${next.length + 1}`,
+      component_class: component.toLowerCase().replace(/\s+/g, "-"),
+      objective: component,
+      content_slots: slotsForSpecComponent(component),
+      pattern_refs: [],
+      proof_requirements: [],
+    });
   }
   return next;
 }
@@ -615,6 +657,29 @@ export class CompetitiveIntelligenceStage implements Stage {
     }
 
     const port = this.portFactory(ctx);
+
+    // Preflight BEFORE the first SEO-Bot build-intelligence call (oracle
+    // ORACLE-005: seo-build-intelligence-preflight must precede
+    // seo:createCompetitiveLandscape). Ordering proof is server-side:
+    // SEO-Bot stamps the preflight report (produced_at) and the sealed
+    // landscape artifact (produced_at) — the receipt compares the two.
+    let preflightSnapshot: Awaited<ReturnType<SeoBuildIntelligencePort["preflight"]>>;
+    try {
+      preflightSnapshot = await port.preflight();
+    } catch (error) {
+      if (error instanceof SeoBotPreflightError) {
+        throw new BuildError(
+          error.code,
+          `REDESIGN preflight failed: ${error.message}`,
+        );
+      }
+      throw error;
+    }
+    ctx.seoBotOrdering = {
+      preflight_produced_at: preflightSnapshot.produced_at ?? "",
+      landscape_produced_at: "",
+    };
+
     const keywords = (ctx.domainSpec.seo_contract?.target_keywords ?? []).filter((keyword) =>
       keyword.trim(),
     );
@@ -651,6 +716,9 @@ export class CompetitiveIntelligenceStage implements Stage {
       desired_donor_count: REQUIRED_DONOR_COUNT,
     });
     ctx.competitiveLandscape = landscape;
+    if (ctx.seoBotOrdering) {
+      ctx.seoBotOrdering.landscape_produced_at = landscape.produced_at;
+    }
     logger.info(
       {
         landscapeId: landscape.artifact_id,
@@ -797,6 +865,20 @@ export class CompetitiveIntelligenceStage implements Stage {
 
     validateWebsiteBuildBlueprint(blueprint, landscape, portfolio, expectedRoutes);
     ctx.websiteBlueprint = blueprint;
+    // Persist the sealed artifact: the golden receipt adapter projects
+    // evidence from disk, and the runtime previously kept the blueprint in
+    // product memory only (golden run #61: WEBSITE_BLUEPRINT_INVALID —
+    // artifact_ref evidence missing). Written under the client asset root,
+    // the same root the adapter's candidate paths scan.
+    if (!ctx.dryRun) {
+      const assetsDir = clientAssetRoot(ctx);
+      mkdirSync(assetsDir, { recursive: true });
+      writeFileSync(
+        resolve(assetsDir, "website-build-blueprint.json"),
+        `${JSON.stringify(blueprint, null, 2)}\n`,
+        "utf-8",
+      );
+    }
     logger.info(
       {
         artifactId: blueprint.artifact_id,

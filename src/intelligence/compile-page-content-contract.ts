@@ -188,6 +188,73 @@ export function compilePageContentContract(
       }
     }
 
+    // Unverifiable credential topics, entities, AND questions: the oracle's
+    // fact_guardrails (claims_requiring_explicit_verified_fact) mark
+    // license/certification/award/availability/response-time status as
+    // claims that need a verified fact. A coverage requirement in that set
+    // with no fact to back it can never be satisfied honestly — requiring it
+    // forces the generator to either invent the claim or write a disclaimer
+    // the validator rejects (topics: golden runs #19-#22; entities: golden
+    // run #42, where a blueprint-invented "licensed contractor" entity
+    // forced the writer to choose between an ungrounded credential claim and
+    // literal entity coverage; topics again: golden run #43, where
+    // "no obligation" — a banned claim phrase — was simultaneously required
+    // by topic coverage and forbidden by claim grounding; questions: golden
+    // run #44, where "How quickly can you respond?" demanded a response-time
+    // commitment no verified fact asserts). Drop such requirements from the
+    // coverage contract; the claim itself remains covered by claim grounding
+    // on the prose.
+    //
+    // The availability/offer markers below mirror SEO-Bot's credential
+    // claim vocabulary (claim-grounding CREDENTIAL_CLAIM_TOKENS) so a
+    // coverage requirement can never demand a phrase the writer is
+    // forbidden to write ungrounded. Corpus backing keeps grounded phrases
+    // in the contract ("fully insured", "warranty", "free inspection",
+    // "24/7 emergency service available").
+    const UNVERIFIABLE_TOPIC_MARKERS = [
+      "licens", "certif", "accredit", "award", "bond", "years in business",
+      "obligat", "financing", "free estimat", "free inspect", "money-back",
+      "money back", "same-day", "same day", "24/7", "emergency servic",
+      "guarantee", "warrant", "insured",
+      // Response-time commitments: an answer to "how quickly?" is a promise
+      // only a verified fact can make.
+      "respond", "response time", "how quickly", "how fast", "how soon",
+      "turnaround",
+      // Quantity/cost commitments: "how long do metal roofs last?", "how
+      // much does it cost?" demand numbers the facts do not assert (golden
+      // run #45: the writer's lifespan number was grounded-scrubbed, leaving
+      // broken prose the semantic validator then flagged).
+      "how long", "how much", "how many", "cost",
+      // Lifespan/comparison topics: "lifespan comparison" invites
+      // comparative lifespan claims no fact asserts (golden run #49: the
+      // guide route's comparison content was flagged as unsupported claims).
+      "lifespan",
+    ];
+    const factCorpus = routeFacts
+      .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
+      .join(" ")
+      .toLowerCase();
+    const isBacked = (value: string): boolean =>
+      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
+      factCorpus.includes(value.toLowerCase());
+    const filterBacked = (values: string[]): string[] =>
+      uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
+    // Questions are phrased as questions, so the full-string corpus check
+    // above would drop every fact-answerable one ("Do you offer free
+    // inspections?" never equals the fact "free inspection"). A question is
+    // answerable when every unverifiable marker inside it is corpus-grounded
+    // ("free inspection" fact backs the "free inspect" marker; a "how
+    // quickly?" response-time marker has no fact anywhere in the corpus).
+    const isBackedQuestion = (question: string): boolean => {
+      const lower = question.toLowerCase();
+      const found = UNVERIFIABLE_TOPIC_MARKERS.filter((marker) => lower.includes(marker));
+      return found.every((marker) => factCorpus.includes(marker));
+    };
+    const filterQuestions = (questions: string[]): string[] =>
+      uniq(questions).filter(
+        (question) => question.trim().length > 0 && isBackedQuestion(question),
+      );
+
     const sections = websiteRoute.sections.map((section) => {
       const requirements = requirementPlacement.get(section.section_id) ?? [];
       const allowedFacts = routeFacts.filter((fact) => factAllowedForSection(fact, section));
@@ -198,15 +265,43 @@ export function compilePageContentContract(
         slots: [...section.content_slots],
         content_requirements: {
           requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
-          topics: uniq(requirements.flatMap((requirement) => requirement.required_topics)),
-          entities: uniq(requirements.flatMap((requirement) => requirement.required_entities)),
-          questions: uniq(requirements.flatMap((requirement) => requirement.questions)),
+          topics: filterBacked(requirements.flatMap((requirement) => requirement.required_topics)),
+          entities: filterBacked(requirements.flatMap((requirement) => requirement.required_entities)),
+          questions: filterQuestions(requirements.flatMap((requirement) => requirement.questions)),
         },
         allowed_fact_ids: uniq(allowedFacts.map((fact) => fact.fact_id)),
         proof_requirements: uniq([
           ...section.proof_requirements,
           ...requirements.flatMap((requirement) => requirement.proof_needed),
-        ]),
+        ]).filter((proof) => {
+          // Unverifiable proof classes: community involvement, awards,
+          // licensure, certifications, statistics/percentages/lifespan data,
+          // cost/rating/weather data — anything the frozen facts cannot
+          // assert. Requiring them forces the generator to invent claims
+          // the semantic validator then rejects (golden run #34, /about;
+          // golden run #45, /services/metal-roofing, where "durability
+          // statistics" / "energy savings" / "lifespan data" demanded
+          // numbers the facts do not contain — the writer's invented
+          // lifespan number was grounded-scrubbed, leaving broken prose;
+          // golden run #49, the guide route's "cost data" / "energy
+          // efficiency ratings" / "local weather data"). Project/gallery
+          // proof (image-backed) is never filtered.
+          const UNVERIFIABLE_PROOF_MARKERS = [
+            "community", "involvement", "participation", "award",
+            "certif", "licens", "bond", "membership", "accredit",
+            "statistic", "percentage", "lifespan", "savings",
+            "cost", "rating", "data", "threshold",
+            // The magnitude phrase itself is a banned claim token — a proof
+            // demanding it can never be satisfied (golden run #53: the
+            // writer's attempt was scrubbed into "6 serving Charlotte"
+            // residue and the validator kept the requirement unmet).
+            "years of experience",
+          ];
+          if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
+            return true;
+          }
+          return factCorpus.includes(proof.toLowerCase());
+        }),
         ...(section.conversion_action ? { conversion_action: section.conversion_action } : {}),
         acceptance_tests: uniq(section.acceptance_tests ?? []),
       };

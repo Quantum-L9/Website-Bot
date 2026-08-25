@@ -109,6 +109,11 @@ export interface DomainSpec {
   };
   routes: Array<{ slug: string; title: string; components: string[]; noindex?: boolean }>;
   seo_contract?: SeoContract;
+  /** Operator-verified business facts (frozen case authority). Each key
+   * becomes a VerifiedBusinessFact; values may be string | boolean | number
+   * | string[]. Literal phrases here are what claim grounding validates
+   * against (e.g. hours: "24/7", free_inspection: true). */
+  business_facts?: Record<string, string | boolean | number | string[]>;
   wom_flags?: Array<{ key: string; value: string; severity: "error" | "warning" | "info" }>;
   deploy?: {
     github_repo: string;
@@ -197,6 +202,12 @@ export interface BuildContext {
    * counters prove the deterministic/zero-LLM invariants at runtime.
    */
   competitiveLandscape?: CompetitiveLandscapeArtifact;
+  /** Server-side ordering stamps proving preflight preceded the first
+   * SEO build-intelligence call (oracle ORACLE-005). */
+  seoBotOrdering?: {
+    preflight_produced_at: string;
+    landscape_produced_at: string;
+  };
   acceptedDonors?: AcceptedDonorEvidence[];
   seoContentBlueprint?: SEOContentBlueprintArtifact;
   pageContentContract?: PageContentContractArtifact;

@@ -8,6 +8,7 @@ import {
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Agent, fetch as undiciFetch } from "undici";
 import {
   SeoBotPreflightError,
   type SeoBotPreflightResult,
@@ -59,6 +60,13 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     private readonly baseUrl: string,
     private readonly apiKey: string,
     private readonly fetchImpl: typeof fetch = fetch,
+    // Heavy calls need the npm-undici transport (own Agent; Node's built-in
+    // fetch cannot accept an npm-undici dispatcher). Injectable so tests can
+    // observe heavy calls with a mock.
+    private readonly heavyFetchImpl: (
+      input: string | Request | URL,
+      init?: RequestInit,
+    ) => Promise<Response> = undiciFetch as typeof fetch,
   ) {
     if (!this.baseUrl.trim()) {
       throw new Error(
@@ -74,15 +82,50 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
-    const response = await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+    // The two heavyweight endpoints generate content for the whole contract
+    // in one request (blueprint: 8 batched strategy calls; structured
+    // content: prose for all 29 routes). Both take minutes — the legacy
+    // generator measured 327s for the same contract — so a blanket 120s cap
+    // aborts them mid-generation. Lightweight endpoints keep 120s.
+    // The structured-content endpoint also runs the per-route bounded
+    // repair loop server-side; a repair-heavy contract legitimately exceeds
+    // 15 minutes (golden run #59: the stage reached 1210s and the 900s cap
+    // aborted the request while the server was still repairing).
+    const heavy =
+      path.includes("structured-content") ||
+      path.includes("seo-content-blueprint") ||
+      // The landscape call embeds live SERP queries whose own timeout is now
+      // 90s; several queries can push the endpoint past the 120s light cap
+      // (golden run #37).
+      path.includes("competitive-landscape");
+    const timeoutMs = heavy
+      ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 1_800_000)
+      : 120_000;
+    // undici's default headersTimeout (300s) kills a request that is still
+    // waiting for response headers while the server computes — the heavy
+    // endpoints respond after ~5 minutes. The heavy calls therefore use the
+    // npm-undici fetch with its OWN Agent: Node's built-in fetch cannot
+    // accept an npm-undici dispatcher (separate module instances; passing
+    // one fails instantly with "fetch failed" — golden run #13).
+    const url = `${this.baseUrl.replace(/\/+$/, "")}${path}`;
+    const init: RequestInit = {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(120_000),
-    });
+      signal: AbortSignal.timeout(timeoutMs),
+    };
+    // The cast bridges npm-undici's Agent to the undici-types Dispatcher
+    // bundled with @types/node — same API, separate type lineages. The
+    // heavy transport is npm-undici fetch, which accepts its own Agent.
+    const response = heavy
+      ? await this.heavyFetchImpl(url, {
+          ...init,
+          dispatcher: new Agent({ headersTimeout: timeoutMs }),
+        } as unknown as RequestInit)
+      : await this.fetchImpl(url, init);
     const raw = await response.text();
     if (!response.ok) {
       throw new Error(

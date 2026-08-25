@@ -1,0 +1,404 @@
+{
+  "schema": "l9.golden-oracle-negative-control-results/v1",
+  "negative_controls_run": 25,
+  "negative_controls_rejected": 25,
+  "false_acceptance_count": 0,
+  "semantic_misses": [],
+  "results": [
+    {
+      "id": "NC-01",
+      "reason": "exact-10 donor invariant",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "COMPETITIVE_EVIDENCE_INCOMPLETE",
+        "DUPLICATE_DONOR_DOMAIN"
+      ],
+      "expected_semantic_hit": [
+        "COMPETITIVE_EVIDENCE_INCOMPLETE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-02",
+      "reason": "10 rows are not 10 companies",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "DUPLICATE_DONOR_DOMAIN"
+      ],
+      "expected_semantic_hit": [
+        "DUPLICATE_DONOR_DOMAIN"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-03",
+      "reason": "excluded domain cannot occupy donor position",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "FORBIDDEN_DONOR_CLASS"
+      ],
+      "expected_semantic_hit": [
+        "FORBIDDEN_DONOR_CLASS"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-04",
+      "reason": "SERP identity is not donor visual evidence",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "DONOR_SCREENSHOT_INCOMPLETE"
+      ],
+      "expected_semantic_hit": [
+        "DONOR_SCREENSHOT_INCOMPLETE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-05",
+      "reason": "expensive dependency use occurred before readiness gate",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "SEO_PREFLIGHT_TOO_LATE",
+        "REQUIRED_STAGE_ORDER_VIOLATION"
+      ],
+      "expected_semantic_hit": [
+        "SEO_PREFLIGHT_TOO_LATE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-06",
+      "reason": "partial site cannot seal",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "ROUTE_SET_MISMATCH"
+      ],
+      "expected_semantic_hit": [
+        "ROUTE_SET_MISMATCH"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-07",
+      "reason": "route-set authority violation",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "ROUTE_SET_MISMATCH"
+      ],
+      "expected_semantic_hit": [
+        "ROUTE_SET_MISMATCH"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-08",
+      "reason": "cross-authority lineage violation",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"
+      ],
+      "expected_semantic_hit": [
+        "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-09",
+      "reason": "PCC must be deterministic",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "PCC_LLM_USED",
+        "PCC_LLM_USED"
+      ],
+      "expected_semantic_hit": [
+        "PCC_LLM_USED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-10",
+      "reason": "exact contract lineage required",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
+      ],
+      "expected_semantic_hit": [
+        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-11",
+      "reason": "malformed producer output must not normalize silently",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "STRUCTURED_CONTENT_BLOCKS_REQUIRED",
+        "STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS"
+      ],
+      "expected_semantic_hit": [
+        "STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS",
+        "STRUCTURED_CONTENT_BLOCKS_REQUIRED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-12",
+      "reason": "bounded one-repair contract",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "CONTENT_REPAIR_BUDGET_EXCEEDED"
+      ],
+      "expected_semantic_hit": [
+        "CONTENT_REPAIR_BUDGET_EXCEEDED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-13",
+      "reason": "Website-Bot cannot regain final prose authority",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "LEGACY_CONTENT_AUTHORITY_USED"
+      ],
+      "expected_semantic_hit": [
+        "LEGACY_CONTENT_AUTHORITY_USED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-14",
+      "reason": "redesign schema authority must be deterministic",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
+      ],
+      "expected_semantic_hit": [
+        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-15",
+      "reason": "authorized source photography cannot silently disappear",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
+      ],
+      "expected_semantic_hit": [
+        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-16",
+      "reason": "competitor assets are evidence only",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "DONOR_ASSET_REUSED"
+      ],
+      "expected_semantic_hit": [
+        "DONOR_ASSET_REUSED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-17",
+      "reason": "runtime policy plane must be version-aligned",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "ROUTER_VERSION_MISMATCH"
+      ],
+      "expected_semantic_hit": [
+        "ROUTER_VERSION_MISMATCH"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-18",
+      "reason": "strategic validation must not accidentally become fresh-search authority",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "UNEXPECTED_SEARCH_ROUTING"
+      ],
+      "expected_semantic_hit": [
+        "UNEXPECTED_SEARCH_ROUTING"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-19",
+      "reason": "structural success cannot assert visual improvement",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "VISUAL_CAPTURE_INCOMPLETE",
+        "VISUAL_TRIAL_INCOMPLETE",
+        "CANDIDATE_BLANK_CAPTURE",
+        "BASELINE_BLANK_CAPTURE",
+        "VISUAL_ROUTE_MISMATCH",
+        "VISUAL_VIEWPORT_MISMATCH",
+        "STALE_VISUAL_CAPTURE"
+      ],
+      "expected_semantic_hit": [
+        "VISUAL_CAPTURE_INCOMPLETE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-20",
+      "reason": "insufficient evidence of material aesthetic improvement",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "CRITICAL_VISUAL_PAIR_REGRESSED",
+        "CRITICAL_VISUAL_PAIR_REGRESSED",
+        "VISUAL_IMPROVEMENT_INSUFFICIENT",
+        "VISUAL_REGRESSION_TOO_BROAD",
+        "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT"
+      ],
+      "expected_semantic_hit": [
+        "VISUAL_IMPROVEMENT_INSUFFICIENT",
+        "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-21",
+      "reason": "critical conversion surface regressed",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "CRITICAL_VISUAL_PAIR_REGRESSED"
+      ],
+      "expected_semantic_hit": [
+        "CRITICAL_VISUAL_PAIR_REGRESSED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-22",
+      "reason": "critical visual dimension regressed",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
+      ],
+      "expected_semantic_hit": [
+        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-23",
+      "reason": "contradicts frozen verified six-year baseline",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "UNSUPPORTED_CONTENT_CLAIM",
+        "UNSUPPORTED_BUSINESS_CLAIM",
+        "BUSINESS_PROHIBITION_VIOLATION"
+      ],
+      "expected_semantic_hit": [
+        "UNSUPPORTED_BUSINESS_CLAIM",
+        "BUSINESS_PROHIBITION_VIOLATION",
+        "UNSUPPORTED_CONTENT_CLAIM"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-24",
+      "reason": "route completeness is all-or-nothing",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "SITE_REACHABILITY_INCOMPLETE"
+      ],
+      "expected_semantic_hit": [
+        "SITE_REACHABILITY_INCOMPLETE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    },
+    {
+      "id": "NC-25",
+      "reason": "command success is never final authority",
+      "expected": "FAIL",
+      "rejected": true,
+      "exit_code": 1,
+      "observed_codes": [
+        "SITE_REACHABILITY_INCOMPLETE"
+      ],
+      "expected_semantic_hit": [
+        "SITE_REACHABILITY_INCOMPLETE"
+      ],
+      "semantic_ok": true,
+      "verdict": "GOLDEN_E2E_FAIL"
+    }
+  ]
+}

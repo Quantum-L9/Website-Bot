@@ -34,7 +34,9 @@ import {
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../intelligence/verified-business-facts.js";
-import type { BuildContext } from "../pipeline/BuildContext.js";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
@@ -160,6 +162,19 @@ export class RedesignContentAuthorityStage implements Stage {
       counters,
     );
     ctx.pageContentContract = contract;
+    // Persist the sealed artifact for the golden receipt adapter (the
+    // runtime previously kept the contract in product memory only —
+    // golden run #61: ROUTE_SET_MISMATCH, PCC_NONDETERMINISTIC — because
+    // no file evidence existed).
+    if (!ctx.dryRun) {
+      const assetsDir = clientAssetRoot(ctx);
+      mkdirSync(assetsDir, { recursive: true });
+      writeFileSync(
+        resolve(assetsDir, "page-content-contract.json"),
+        `${JSON.stringify(contract, null, 2)}\n`,
+        "utf-8",
+      );
+    }
     logger.info(
       { artifactId: contract.artifact_id, llmCalls: counters.pageContentContractLlmCalls },
       "PageContentContract sealed deterministically (0 LLM calls)",

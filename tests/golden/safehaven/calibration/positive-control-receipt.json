@@ -1,0 +1,1952 @@
+{
+  "identity": {
+    "website_bot": {
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "llm_router_version": "1.1.3",
+      "worktree_state": "CLEAN"
+    },
+    "seo_bot": {
+      "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "llm_router_version": "1.1.3",
+      "worktree_state": "CLEAN"
+    },
+    "llm_router": {
+      "sha": "cccccccccccccccccccccccccccccccccccccccc",
+      "package_version": "1.1.3",
+      "worktree_state": "CLEAN"
+    },
+    "bot_interop": {
+      "website_bot_version": "3.1.0",
+      "seo_bot_version": "2.4.0",
+      "compatible": true
+    }
+  },
+  "run": {
+    "build_intent": "REDESIGN_IMPROVE",
+    "copy_fallback_used": false,
+    "generic_fallback_used": false,
+    "run_id": "golden-run-2026-08-24"
+  },
+  "events": [
+    {
+      "name": "domain-spec-loader"
+    },
+    {
+      "name": "unknown-resolver"
+    },
+    {
+      "name": "seo-build-intelligence-preflight:PASS"
+    },
+    {
+      "name": "seo:createCompetitiveLandscape"
+    },
+    {
+      "name": "competitive-intelligence"
+    },
+    {
+      "name": "source-site-ingestion"
+    },
+    {
+      "name": "design-intelligence"
+    },
+    {
+      "name": "redesign-content-authority"
+    },
+    {
+      "name": "structured-content-projection"
+    },
+    {
+      "name": "redesign-schema-serializer"
+    },
+    {
+      "name": "image-asset-planning"
+    },
+    {
+      "name": "site-assembler"
+    },
+    {
+      "name": "site-build"
+    },
+    {
+      "name": "visual-qa"
+    },
+    {
+      "name": "redesign-integrity-receipt"
+    },
+    {
+      "name": "terminal-convergence"
+    }
+  ],
+  "preflight": {
+    "status": "PASS",
+    "checks": [
+      {
+        "name": "seo_bot_reachable",
+        "status": "PASS"
+      },
+      {
+        "name": "seo_bot_machine_auth",
+        "status": "PASS"
+      },
+      {
+        "name": "competitive_landscape_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "seo_content_blueprint_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "structured_content_capability",
+        "status": "PASS"
+      },
+      {
+        "name": "dataforseo_configured",
+        "status": "PASS"
+      },
+      {
+        "name": "llm_provider_configured",
+        "status": "PASS"
+      },
+      {
+        "name": "bot_interop_compatible",
+        "status": "PASS"
+      },
+      {
+        "name": "llm_router_compatible",
+        "status": "PASS"
+      }
+    ]
+  },
+  "competitive_landscape": {
+    "selected_donors": [
+      {
+        "normalized_domain": "donor-0.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-0",
+        "url": "https://donor-0.example.com/",
+        "domain": "donor-0.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 1,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-1.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-1",
+        "url": "https://donor-1.example.com/",
+        "domain": "donor-1.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 2,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-2.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-2",
+        "url": "https://donor-2.example.com/",
+        "domain": "donor-2.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 3,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-3.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-3",
+        "url": "https://donor-3.example.com/",
+        "domain": "donor-3.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 4,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-4.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-4",
+        "url": "https://donor-4.example.com/",
+        "domain": "donor-4.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 5,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-5.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-5",
+        "url": "https://donor-5.example.com/",
+        "domain": "donor-5.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 6,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-6.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-6",
+        "url": "https://donor-6.example.com/",
+        "domain": "donor-6.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 7,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-7.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-7",
+        "url": "https://donor-7.example.com/",
+        "domain": "donor-7.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 8,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-8.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-8",
+        "url": "https://donor-8.example.com/",
+        "domain": "donor-8.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 9,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      },
+      {
+        "normalized_domain": "donor-9.example.com",
+        "qualified_operating_company": true,
+        "real_dataforseo_observation": true,
+        "query_id": "q-9",
+        "url": "https://donor-9.example.com/",
+        "domain": "donor-9.example.com",
+        "observed_at": "2026-08-18T00:00:00Z",
+        "rank": 10,
+        "visibility_contribution": 0.5,
+        "class": "operating-company"
+      }
+    ],
+    "evidence_complete": true,
+    "ranking_llm_calls": 0,
+    "artifact_ref": "landscape-ref"
+  },
+  "donor_evidence": [
+    {
+      "domain": "donor-0.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-0",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-1.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-1",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-2.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-2",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-3.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-3",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-4.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-4",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-5.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-5",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-6.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-6",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-7.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-7",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-8.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-8",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "domain": "donor-9.example.com",
+      "successful_pages": 3,
+      "screenshots": 2,
+      "evidence_digest": "dig-9",
+      "crawled_at": "2026-08-19T00:00:00Z"
+    }
+  ],
+  "website_build_blueprint": {
+    "artifact_ref": "wbb-ref",
+    "competitive_landscape_ref": "landscape-ref",
+    "visual_requirements": {
+      "hero": [
+        "authentic imagery"
+      ],
+      "sections": [
+        "gallery"
+      ]
+    },
+    "project_proof_required": false,
+    "gallery_required": false
+  },
+  "seo_content_blueprint": {
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "batch_size": 4,
+    "batch_count": 8,
+    "competitive_landscape_ref": "landscape-ref",
+    "unknown_content_slots": 0,
+    "invalid_internal_link_targets": 0
+  },
+  "page_content_contract": {
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "artifact_ref": "pcc-ref",
+    "llm_calls": 0,
+    "unplaced_requirements": 0,
+    "invalid_business_facts": 0,
+    "determinism": {
+      "digest_run_1": "semantic-digest-1",
+      "digest_run_2": "semantic-digest-1"
+    }
+  },
+  "structured_content": {
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "page_content_contract_ref": "pcc-ref",
+    "route_results": [
+      {
+        "route_id": "/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/roof-replacement/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/roof-repair/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/roof-installation/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/roof-inspection/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/storm-damage/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/asphalt-shingles/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/metal-roofing/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/flat-roofing/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/gutters/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/siding-fascia-soffit/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/interior-renovations/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/services/outdoor-living/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/service-areas/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/service-areas/charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/insurance-claims/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/repair-or-replace-roof-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/how-long-roof-replacement-takes-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/how-to-choose-roofing-contractor-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/metal-roof-vs-shingles-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/roof-replacement-cost-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/guides/storm-damage-roof-repair-charlotte/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/about/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/gallery/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/faq/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/contact/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      },
+      {
+        "route_id": "/privacy/",
+        "schema_errors": 0,
+        "unsupported_claims": 0,
+        "failed_requirements": 0,
+        "repair_attempts": 0,
+        "generation_calls": 0,
+        "prose_without_blocks": 0,
+        "sections": [
+          {
+            "type": "heading",
+            "text": "Example section"
+          }
+        ],
+        "section_alias_fields": []
+      }
+    ]
+  },
+  "legacy": {
+    "content_generation_calls": 0,
+    "schema_llm_calls": 0,
+    "redesign_schema_llm_calls": 0
+  },
+  "assets": {
+    "raw_source_images": 5,
+    "authorized_reusable_images": 3,
+    "selected_source_images": 2,
+    "unexplained_reusable_asset_loss": 0,
+    "required_visual_slots_filled_fraction": 1,
+    "donor_asset_hash_matches": 0,
+    "source_corpus_completed": true,
+    "candidate_dispositions": [
+      "SOURCE_CLIENT_OWNED",
+      "SOURCE_LICENSED_REUSE",
+      "GENERATED"
+    ],
+    "eligible_source_project_proof_count": 0,
+    "selected_source_project_proof_count": 0,
+    "eligible_source_gallery_count": 0,
+    "selected_source_gallery_count": 0
+  },
+  "site": {
+    "routes": [
+      "/",
+      "/services/",
+      "/services/roof-replacement/",
+      "/services/roof-repair/",
+      "/services/roof-installation/",
+      "/services/roof-inspection/",
+      "/services/storm-damage/",
+      "/services/asphalt-shingles/",
+      "/services/metal-roofing/",
+      "/services/flat-roofing/",
+      "/services/gutters/",
+      "/services/siding-fascia-soffit/",
+      "/services/interior-renovations/",
+      "/services/outdoor-living/",
+      "/service-areas/",
+      "/service-areas/charlotte/",
+      "/insurance-claims/",
+      "/guides/",
+      "/guides/repair-or-replace-roof-charlotte/",
+      "/guides/how-long-roof-replacement-takes-charlotte/",
+      "/guides/how-to-choose-roofing-contractor-charlotte/",
+      "/guides/metal-roof-vs-shingles-charlotte/",
+      "/guides/roof-replacement-cost-charlotte/",
+      "/guides/storm-damage-roof-repair-charlotte/",
+      "/about/",
+      "/gallery/",
+      "/faq/",
+      "/contact/",
+      "/privacy/"
+    ],
+    "reachable_routes": 29,
+    "broken_internal_links": 0,
+    "placeholder_count": 0,
+    "per_route": [
+      {
+        "route": "/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - / - 0",
+        "canonical": "https://www.safehavenrr.com/"
+      },
+      {
+        "route": "/services/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/ - 1",
+        "canonical": "https://www.safehavenrr.com/services/"
+      },
+      {
+        "route": "/services/roof-replacement/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/roof-replacement/ - 2",
+        "canonical": "https://www.safehavenrr.com/services/roof-replacement/"
+      },
+      {
+        "route": "/services/roof-repair/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/roof-repair/ - 3",
+        "canonical": "https://www.safehavenrr.com/services/roof-repair/"
+      },
+      {
+        "route": "/services/roof-installation/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/roof-installation/ - 4",
+        "canonical": "https://www.safehavenrr.com/services/roof-installation/"
+      },
+      {
+        "route": "/services/roof-inspection/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/roof-inspection/ - 5",
+        "canonical": "https://www.safehavenrr.com/services/roof-inspection/"
+      },
+      {
+        "route": "/services/storm-damage/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/storm-damage/ - 6",
+        "canonical": "https://www.safehavenrr.com/services/storm-damage/"
+      },
+      {
+        "route": "/services/asphalt-shingles/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/asphalt-shingles/ - 7",
+        "canonical": "https://www.safehavenrr.com/services/asphalt-shingles/"
+      },
+      {
+        "route": "/services/metal-roofing/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/metal-roofing/ - 8",
+        "canonical": "https://www.safehavenrr.com/services/metal-roofing/"
+      },
+      {
+        "route": "/services/flat-roofing/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/flat-roofing/ - 9",
+        "canonical": "https://www.safehavenrr.com/services/flat-roofing/"
+      },
+      {
+        "route": "/services/gutters/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/gutters/ - 10",
+        "canonical": "https://www.safehavenrr.com/services/gutters/"
+      },
+      {
+        "route": "/services/siding-fascia-soffit/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/siding-fascia-soffit/ - 11",
+        "canonical": "https://www.safehavenrr.com/services/siding-fascia-soffit/"
+      },
+      {
+        "route": "/services/interior-renovations/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/interior-renovations/ - 12",
+        "canonical": "https://www.safehavenrr.com/services/interior-renovations/"
+      },
+      {
+        "route": "/services/outdoor-living/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /services/outdoor-living/ - 13",
+        "canonical": "https://www.safehavenrr.com/services/outdoor-living/"
+      },
+      {
+        "route": "/service-areas/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /service-areas/ - 14",
+        "canonical": "https://www.safehavenrr.com/service-areas/"
+      },
+      {
+        "route": "/service-areas/charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /service-areas/charlotte/ - 15",
+        "canonical": "https://www.safehavenrr.com/service-areas/charlotte/"
+      },
+      {
+        "route": "/insurance-claims/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /insurance-claims/ - 16",
+        "canonical": "https://www.safehavenrr.com/insurance-claims/"
+      },
+      {
+        "route": "/guides/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/ - 17",
+        "canonical": "https://www.safehavenrr.com/guides/"
+      },
+      {
+        "route": "/guides/repair-or-replace-roof-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/repair-or-replace-roof-charlotte/ - 18",
+        "canonical": "https://www.safehavenrr.com/guides/repair-or-replace-roof-charlotte/"
+      },
+      {
+        "route": "/guides/how-long-roof-replacement-takes-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/how-long-roof-replacement-takes-charlotte/ - 19",
+        "canonical": "https://www.safehavenrr.com/guides/how-long-roof-replacement-takes-charlotte/"
+      },
+      {
+        "route": "/guides/how-to-choose-roofing-contractor-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/how-to-choose-roofing-contractor-charlotte/ - 20",
+        "canonical": "https://www.safehavenrr.com/guides/how-to-choose-roofing-contractor-charlotte/"
+      },
+      {
+        "route": "/guides/metal-roof-vs-shingles-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/metal-roof-vs-shingles-charlotte/ - 21",
+        "canonical": "https://www.safehavenrr.com/guides/metal-roof-vs-shingles-charlotte/"
+      },
+      {
+        "route": "/guides/roof-replacement-cost-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/roof-replacement-cost-charlotte/ - 22",
+        "canonical": "https://www.safehavenrr.com/guides/roof-replacement-cost-charlotte/"
+      },
+      {
+        "route": "/guides/storm-damage-roof-repair-charlotte/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /guides/storm-damage-roof-repair-charlotte/ - 23",
+        "canonical": "https://www.safehavenrr.com/guides/storm-damage-roof-repair-charlotte/"
+      },
+      {
+        "route": "/about/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /about/ - 24",
+        "canonical": "https://www.safehavenrr.com/about/"
+      },
+      {
+        "route": "/gallery/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /gallery/ - 25",
+        "canonical": "https://www.safehavenrr.com/gallery/"
+      },
+      {
+        "route": "/faq/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /faq/ - 26",
+        "canonical": "https://www.safehavenrr.com/faq/"
+      },
+      {
+        "route": "/contact/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /contact/ - 27",
+        "canonical": "https://www.safehavenrr.com/contact/"
+      },
+      {
+        "route": "/privacy/",
+        "http_status": 200,
+        "h1_count": 1,
+        "title_present": true,
+        "meta_description_present": true,
+        "canonical_present": true,
+        "lang_present": true,
+        "title": "Safe Haven Roofing & Renovations - /privacy/ - 28",
+        "canonical": "https://www.safehavenrr.com/privacy/"
+      }
+    ]
+  },
+  "business_truth": {
+    "unsupported_claim_count": 0,
+    "phone_mismatch_count": 0,
+    "email_mismatch_count": 0,
+    "prohibition_violations": 0
+  },
+  "llm_audit": {
+    "direct_provider_bypass_count": 0,
+    "unsupported_capability_combination_count": 0,
+    "operations": {
+      "SEO_CONTENT_BLUEPRINT": [
+        {
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "STRUCTURED_CONTENT_GENERATION": [
+        {
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "CONTENT_VALIDATION": [
+        {
+          "searchRequired": false,
+          "searchPolicySource": "EXPLICIT"
+        }
+      ],
+      "VISUAL_QA": [
+        {
+          "searchRequired": false
+        }
+      ]
+    }
+  },
+  "visual": {
+    "pairs": [
+      {
+        "route": "/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/roof-replacement/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/services/storm-damage/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/gallery/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/gallery/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/contact/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/contact/",
+        "viewport": "mobile",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "BASELINE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      },
+      {
+        "route": "/",
+        "viewport": "desktop",
+        "candidate_blank": false,
+        "baseline_blank": false,
+        "route_match": true,
+        "viewport_match": true,
+        "captured_run_id": "golden-run-2026-08-24",
+        "trials": [
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "CANDIDATE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          },
+          {
+            "blind": true,
+            "judge_input_manifest": "homepage render pair; left-right order randomized",
+            "normalized_preference": "BASELINE",
+            "normalized_candidate_delta": {
+              "visual_hierarchy": 0.4,
+              "brand_coherence": 0.4,
+              "conversion_clarity": 0.4,
+              "trust_and_credibility": 0.4,
+              "authentic_imagery": 0.4,
+              "content_readability": 0.4,
+              "information_density": 0.4,
+              "spacing_and_rhythm": 0.4,
+              "mobile_usability": 0.4,
+              "professional_polish": 0.4
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
