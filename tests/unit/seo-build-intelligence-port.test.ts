@@ -93,16 +93,20 @@ import { SeoBuildIntelligenceHttpClient } from "../../src/intelligence/SeoBuildI
 
 test("client sends the machine credential on build-intelligence routes only", async () => {
   const seen: Array<{ url: string; headers: Record<string, string> }> = [];
+  const mock = async (url: string | URL | Request, init?: RequestInit) => {
+    seen.push({
+      url: String(url),
+      headers: (init?.headers ?? {}) as Record<string, string>,
+    });
+    return new Response(JSON.stringify(landscapeArtifact()), { status: 200 });
+  };
   const client = new SeoBuildIntelligenceHttpClient(
     "https://seo-bot.example",
     "machine-key-123",
-    async (url, init) => {
-      seen.push({
-        url: String(url),
-        headers: (init?.headers ?? {}) as Record<string, string>,
-      });
-      return new Response(JSON.stringify(landscapeArtifact()), { status: 200 });
-    },
+    mock as typeof fetch,
+    // landscape is a HEAVY call; inject the same mock for the heavy
+    // transport so the assertion still observes the request.
+    mock as typeof fetch,
   );
 
   await client.createCompetitiveLandscape({
