@@ -84,6 +84,10 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // content: prose for all 29 routes). Both take minutes — the legacy
     // generator measured 327s for the same contract — so a blanket 120s cap
     // aborts them mid-generation. Lightweight endpoints keep 120s.
+    // The structured-content endpoint also runs the per-route bounded
+    // repair loop server-side; a repair-heavy contract legitimately exceeds
+    // 15 minutes (golden run #59: the stage reached 1210s and the 900s cap
+    // aborted the request while the server was still repairing).
     const heavy =
       path.includes("structured-content") ||
       path.includes("seo-content-blueprint") ||
@@ -92,7 +96,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       // (golden run #37).
       path.includes("competitive-landscape");
     const timeoutMs = heavy
-      ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 900_000)
+      ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 1_800_000)
       : 120_000;
     // undici's default headersTimeout (300s) kills a request that is still
     // waiting for response headers while the server computes — the heavy
