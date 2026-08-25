@@ -1,0 +1,258 @@
+{
+  "schema": "l9.golden-visual-capture-manifest/v1",
+  "run_id": "golden-20260825-r61",
+  "captured_at": "2026-08-25T17:01:07.098Z",
+  "baseline": {
+    "url": "https://www.safehavenrr.com",
+    "source": "https://www.safehavenrr.com"
+  },
+  "candidate": {
+    "url": "http://localhost:4173"
+  },
+  "viewports": [
+    {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900,
+      "device_scale_factor": 1
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844,
+      "device_scale_factor": 1
+    }
+  ],
+  "pairs": [
+    {
+      "pair_id": "___desktop",
+      "route": "/",
+      "viewport": "desktop",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__root__desktop.png",
+        "hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
+        "status": null,
+        "final_route": "/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__root__desktop.png",
+        "hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
+        "status": 200,
+        "final_route": "/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "___mobile",
+      "route": "/",
+      "viewport": "mobile",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__root__mobile.png",
+        "hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
+        "status": null,
+        "final_route": "/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__root__mobile.png",
+        "hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
+        "status": 200,
+        "final_route": "/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_services_roof-replacement___desktop",
+      "route": "/services/roof-replacement/",
+      "viewport": "desktop",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__services_roof-replacement___desktop.png",
+        "hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
+        "status": 200,
+        "final_route": "/services/roof-replacement/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__services_roof-replacement___desktop.png",
+        "hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
+        "status": 200,
+        "final_route": "/services/roof-replacement/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_services_roof-replacement___mobile",
+      "route": "/services/roof-replacement/",
+      "viewport": "mobile",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__services_roof-replacement___mobile.png",
+        "hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
+        "status": 200,
+        "final_route": "/services/roof-replacement/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__services_roof-replacement___mobile.png",
+        "hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
+        "status": 200,
+        "final_route": "/services/roof-replacement/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_services_storm-damage___desktop",
+      "route": "/services/storm-damage/",
+      "viewport": "desktop",
+      "critical": false,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__services_storm-damage___desktop.png",
+        "hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
+        "status": 200,
+        "final_route": "/services/storm-damage/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__services_storm-damage___desktop.png",
+        "hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
+        "status": 200,
+        "final_route": "/services/storm-damage/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_services_storm-damage___mobile",
+      "route": "/services/storm-damage/",
+      "viewport": "mobile",
+      "critical": false,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__services_storm-damage___mobile.png",
+        "hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
+        "status": 200,
+        "final_route": "/services/storm-damage/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__services_storm-damage___mobile.png",
+        "hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
+        "status": 200,
+        "final_route": "/services/storm-damage/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_gallery___desktop",
+      "route": "/gallery/",
+      "viewport": "desktop",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__gallery___desktop.png",
+        "hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
+        "status": 200,
+        "final_route": "/gallery/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__gallery___desktop.png",
+        "hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
+        "status": 200,
+        "final_route": "/gallery/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_gallery___mobile",
+      "route": "/gallery/",
+      "viewport": "mobile",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__gallery___mobile.png",
+        "hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
+        "status": 200,
+        "final_route": "/gallery/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__gallery___mobile.png",
+        "hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
+        "status": 200,
+        "final_route": "/gallery/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_contact___desktop",
+      "route": "/contact/",
+      "viewport": "desktop",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__contact___desktop.png",
+        "hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
+        "status": null,
+        "final_route": "/contact/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__contact___desktop.png",
+        "hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
+        "status": 200,
+        "final_route": "/contact/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    },
+    {
+      "pair_id": "_contact___mobile",
+      "route": "/contact/",
+      "viewport": "mobile",
+      "critical": true,
+      "run_id": "golden-20260825-r61",
+      "baseline": {
+        "file": "baseline/baseline__contact___mobile.png",
+        "hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
+        "status": null,
+        "final_route": "/contact/",
+        "blank": false
+      },
+      "candidate": {
+        "file": "candidate/candidate__contact___mobile.png",
+        "hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
+        "status": 200,
+        "final_route": "/contact/",
+        "blank": false
+      },
+      "route_match": true,
+      "viewport_match": true
+    }
+  ]
+}

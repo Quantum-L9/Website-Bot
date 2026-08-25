@@ -1,0 +1,2137 @@
+{
+  "market": {
+    "niche": "roofing_construction",
+    "device": "desktop",
+    "country": "US",
+    "language": "English",
+    "location_name": "North Carolina,United States"
+  },
+  "schema": "l9://website-intelligence/competitive-landscape/v1",
+  "domains": [
+    {
+      "domain": "youtube.com",
+      "observation_ids": [
+        "q1-o2",
+        "q1-o8",
+        "q2-o6",
+        "q3-o15",
+        "q4-o4",
+        "q4-o8",
+        "q4-o11",
+        "q4-o16",
+        "q5-o3",
+        "q5-o12"
+      ],
+      "aggregate_visibility": 3.592575,
+      "qualifying_query_ids": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ]
+    },
+    {
+      "domain": "lowes.com",
+      "observation_ids": [
+        "q1-o1",
+        "q2-o9",
+        "q4-o1"
+      ],
+      "aggregate_visibility": 2.30103,
+      "qualifying_query_ids": [
+        "q1",
+        "q2",
+        "q4"
+      ]
+    },
+    {
+      "domain": "facebook.com",
+      "observation_ids": [
+        "q1-o4",
+        "q2-o7",
+        "q4-o13",
+        "q5-o5",
+        "q5-o16",
+        "q6-o6"
+      ],
+      "aggregate_visibility": 2.01437,
+      "qualifying_query_ids": [
+        "q1",
+        "q2",
+        "q4",
+        "q5",
+        "q6"
+      ]
+    },
+    {
+      "domain": "owenscorning.com",
+      "observation_ids": [
+        "q2-o17",
+        "q4-o2",
+        "q5-o1"
+      ],
+      "aggregate_visibility": 1.870742,
+      "qualifying_query_ids": [
+        "q2",
+        "q4",
+        "q5"
+      ]
+    },
+    {
+      "domain": "yelp.com",
+      "observation_ids": [
+        "q2-o3",
+        "q5-o2",
+        "q6-o5"
+      ],
+      "aggregate_visibility": 1.517783,
+      "qualifying_query_ids": [
+        "q2",
+        "q5",
+        "q6"
+      ]
+    },
+    {
+      "domain": "homedepot.com",
+      "observation_ids": [
+        "q1-o5",
+        "q2-o2",
+        "q4-o6"
+      ],
+      "aggregate_visibility": 1.37399,
+      "qualifying_query_ids": [
+        "q1",
+        "q2",
+        "q4"
+      ]
+    },
+    {
+      "domain": "angi.com",
+      "observation_ids": [
+        "q2-o8",
+        "q6-o2",
+        "q6-o16"
+      ],
+      "aggregate_visibility": 1.191045,
+      "qualifying_query_ids": [
+        "q2",
+        "q6"
+      ]
+    },
+    {
+      "domain": "nathansroofrepairs.com",
+      "observation_ids": [
+        "q2-o1"
+      ],
+      "aggregate_visibility": 1,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "servpro.com",
+      "observation_ids": [
+        "q3-o1"
+      ],
+      "aggregate_visibility": 1,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "charlotteroofing.com",
+      "observation_ids": [
+        "q6-o1"
+      ],
+      "aggregate_visibility": 1,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "familyhandyman.com",
+      "observation_ids": [
+        "q2-o14",
+        "q4-o3"
+      ],
+      "aggregate_visibility": 0.755958,
+      "qualifying_query_ids": [
+        "q2",
+        "q4"
+      ]
+    },
+    {
+      "domain": "phoenixroofingandrepair.com",
+      "observation_ids": [
+        "q2-o5",
+        "q5-o9"
+      ],
+      "aggregate_visibility": 0.687883,
+      "qualifying_query_ids": [
+        "q2",
+        "q5"
+      ]
+    },
+    {
+      "domain": "reddit.com",
+      "observation_ids": [
+        "q2-o4",
+        "q5-o18"
+      ],
+      "aggregate_visibility": 0.666085,
+      "qualifying_query_ids": [
+        "q2",
+        "q5"
+      ]
+    },
+    {
+      "domain": "vk1call.com",
+      "observation_ids": [
+        "q3-o2"
+      ],
+      "aggregate_visibility": 0.63093,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "thumbtack.com",
+      "observation_ids": [
+        "q4-o10",
+        "q5-o14"
+      ],
+      "aggregate_visibility": 0.545023,
+      "qualifying_query_ids": [
+        "q4",
+        "q5"
+      ]
+    },
+    {
+      "domain": "wildwoodroof.com",
+      "observation_ids": [
+        "q1-o3"
+      ],
+      "aggregate_visibility": 0.5,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "monroerestoration.com",
+      "observation_ids": [
+        "q3-o3"
+      ],
+      "aggregate_visibility": 0.5,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "bbb.org",
+      "observation_ids": [
+        "q6-o3"
+      ],
+      "aggregate_visibility": 0.5,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "disasterresponse.us",
+      "observation_ids": [
+        "q3-o4"
+      ],
+      "aggregate_visibility": 0.430677,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "valentineroof.com",
+      "observation_ids": [
+        "q5-o4"
+      ],
+      "aggregate_visibility": 0.430677,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "charlotteaceroofing.com",
+      "observation_ids": [
+        "q6-o4"
+      ],
+      "aggregate_visibility": 0.430677,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "restoreprorestoration.com",
+      "observation_ids": [
+        "q3-o5"
+      ],
+      "aggregate_visibility": 0.386853,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "hover.to",
+      "observation_ids": [
+        "q4-o5"
+      ],
+      "aggregate_visibility": 0.386853,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "roofreplacementca.com",
+      "observation_ids": [
+        "q1-o6"
+      ],
+      "aggregate_visibility": 0.356207,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "southeastrestoration.com",
+      "observation_ids": [
+        "q3-o6"
+      ],
+      "aggregate_visibility": 0.356207,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "cornerstoneroof.com",
+      "observation_ids": [
+        "q5-o6"
+      ],
+      "aggregate_visibility": 0.356207,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "smithrock-roofing.com",
+      "observation_ids": [
+        "q1-o7"
+      ],
+      "aggregate_visibility": 0.333333,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "brunettehomeimprovement.com",
+      "observation_ids": [
+        "q3-o7"
+      ],
+      "aggregate_visibility": 0.333333,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "ecowatch.com",
+      "observation_ids": [
+        "q4-o7"
+      ],
+      "aggregate_visibility": 0.333333,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "larsonkeeneyhomeservices.com",
+      "observation_ids": [
+        "q5-o7"
+      ],
+      "aggregate_visibility": 0.333333,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "gaf.com",
+      "observation_ids": [
+        "q6-o7"
+      ],
+      "aggregate_visibility": 0.333333,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "specialtyrestorationoftexas.com",
+      "observation_ids": [
+        "q3-o8"
+      ],
+      "aggregate_visibility": 0.315465,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "northcarolinaroofauthority.com",
+      "observation_ids": [
+        "q5-o8"
+      ],
+      "aggregate_visibility": 0.315465,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "forbes.com",
+      "observation_ids": [
+        "q6-o8"
+      ],
+      "aggregate_visibility": 0.315465,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "homestretchroofing.com",
+      "observation_ids": [
+        "q1-o9"
+      ],
+      "aggregate_visibility": 0.30103,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "phoenixndr.com",
+      "observation_ids": [
+        "q3-o9"
+      ],
+      "aggregate_visibility": 0.30103,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "highroadroofing.com",
+      "observation_ids": [
+        "q4-o9"
+      ],
+      "aggregate_visibility": 0.30103,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "tcrfg.com",
+      "observation_ids": [
+        "q6-o9"
+      ],
+      "aggregate_visibility": 0.30103,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "pinnaclehomeimprovements.com",
+      "observation_ids": [
+        "q1-o10"
+      ],
+      "aggregate_visibility": 0.289065,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "roofrepairsolutions.net",
+      "observation_ids": [
+        "q2-o10"
+      ],
+      "aggregate_visibility": 0.289065,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "accuworks.com",
+      "observation_ids": [
+        "q3-o10"
+      ],
+      "aggregate_visibility": 0.289065,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "coutoconstruction.com",
+      "observation_ids": [
+        "q5-o10"
+      ],
+      "aggregate_visibility": 0.289065,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "roofsbytaylor.com",
+      "observation_ids": [
+        "q6-o10"
+      ],
+      "aggregate_visibility": 0.289065,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "therooferfinder.com",
+      "observation_ids": [
+        "q1-o11"
+      ],
+      "aggregate_visibility": 0.278943,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "dicksroofing.com",
+      "observation_ids": [
+        "q2-o11"
+      ],
+      "aggregate_visibility": 0.278943,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "nepabldrs.com",
+      "observation_ids": [
+        "q3-o11"
+      ],
+      "aggregate_visibility": 0.278943,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "burishbuilderswest.com",
+      "observation_ids": [
+        "q5-o11"
+      ],
+      "aggregate_visibility": 0.278943,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "serviceagent.ai",
+      "observation_ids": [
+        "q6-o11"
+      ],
+      "aggregate_visibility": 0.278943,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "aol.com",
+      "observation_ids": [
+        "q1-o12"
+      ],
+      "aggregate_visibility": 0.270238,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "lancasterpa.com",
+      "observation_ids": [
+        "q2-o12"
+      ],
+      "aggregate_visibility": 0.270238,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "servicemasterrestore.com",
+      "observation_ids": [
+        "q3-o12"
+      ],
+      "aggregate_visibility": 0.270238,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "tomtheroofer.com",
+      "observation_ids": [
+        "q4-o12"
+      ],
+      "aggregate_visibility": 0.270238,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "mastersroofinginc.com",
+      "observation_ids": [
+        "q6-o12"
+      ],
+      "aggregate_visibility": 0.270238,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "ontopsroofing.com",
+      "observation_ids": [
+        "q1-o13"
+      ],
+      "aggregate_visibility": 0.26265,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "roofing.promatcher.com",
+      "observation_ids": [
+        "q2-o13"
+      ],
+      "aggregate_visibility": 0.26265,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "certifiedwaterandfire.com",
+      "observation_ids": [
+        "q3-o13"
+      ],
+      "aggregate_visibility": 0.26265,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "bayareahomeinspections.com",
+      "observation_ids": [
+        "q5-o13"
+      ],
+      "aggregate_visibility": 0.26265,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "bestroofingcharlotte.com",
+      "observation_ids": [
+        "q6-o13"
+      ],
+      "aggregate_visibility": 0.26265,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "specialty-exteriors.com",
+      "observation_ids": [
+        "q1-o14"
+      ],
+      "aggregate_visibility": 0.255958,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "cottongds.com",
+      "observation_ids": [
+        "q3-o14"
+      ],
+      "aggregate_visibility": 0.255958,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "todayshomeowner.com",
+      "observation_ids": [
+        "q4-o14"
+      ],
+      "aggregate_visibility": 0.255958,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "charlottepremierroofing.com",
+      "observation_ids": [
+        "q6-o14"
+      ],
+      "aggregate_visibility": 0.255958,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "homeadvisor.com",
+      "observation_ids": [
+        "q1-o15"
+      ],
+      "aggregate_visibility": 0.25,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "cruzroofingsolutions.com",
+      "observation_ids": [
+        "q2-o15"
+      ],
+      "aggregate_visibility": 0.25,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "wikihow.com",
+      "observation_ids": [
+        "q4-o15"
+      ],
+      "aggregate_visibility": 0.25,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "bulldoginspect.com",
+      "observation_ids": [
+        "q5-o15"
+      ],
+      "aggregate_visibility": 0.25,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "cedur.com",
+      "observation_ids": [
+        "q6-o15"
+      ],
+      "aggregate_visibility": 0.25,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "hometownrfg.com",
+      "observation_ids": [
+        "q1-o16"
+      ],
+      "aggregate_visibility": 0.244651,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "cjroofingdc.com",
+      "observation_ids": [
+        "q2-o16"
+      ],
+      "aggregate_visibility": 0.244651,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "restoremastersllc.com",
+      "observation_ids": [
+        "q3-o16"
+      ],
+      "aggregate_visibility": 0.244651,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "50northroofing.com",
+      "observation_ids": [
+        "q1-o17"
+      ],
+      "aggregate_visibility": 0.239812,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "orionohio.com",
+      "observation_ids": [
+        "q3-o17"
+      ],
+      "aggregate_visibility": 0.239812,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "custominstallations.com",
+      "observation_ids": [
+        "q4-o17"
+      ],
+      "aggregate_visibility": 0.239812,
+      "qualifying_query_ids": [
+        "q4"
+      ]
+    },
+    {
+      "domain": "rivertoproofing.com",
+      "observation_ids": [
+        "q5-o17"
+      ],
+      "aggregate_visibility": 0.239812,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    },
+    {
+      "domain": "csroofingandgutters.com",
+      "observation_ids": [
+        "q6-o17"
+      ],
+      "aggregate_visibility": 0.239812,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "ncroofingservice.com",
+      "observation_ids": [
+        "q1-o18"
+      ],
+      "aggregate_visibility": 0.235409,
+      "qualifying_query_ids": [
+        "q1"
+      ]
+    },
+    {
+      "domain": "roofrepairspecialist.com",
+      "observation_ids": [
+        "q2-o18"
+      ],
+      "aggregate_visibility": 0.235409,
+      "qualifying_query_ids": [
+        "q2"
+      ]
+    },
+    {
+      "domain": "dcrikc.com",
+      "observation_ids": [
+        "q3-o18"
+      ],
+      "aggregate_visibility": 0.235409,
+      "qualifying_query_ids": [
+        "q3"
+      ]
+    },
+    {
+      "domain": "charlotteproroofing.com",
+      "observation_ids": [
+        "q6-o18"
+      ],
+      "aggregate_visibility": 0.235409,
+      "qualifying_query_ids": [
+        "q6"
+      ]
+    },
+    {
+      "domain": "mdhi.com",
+      "observation_ids": [
+        "q5-o19"
+      ],
+      "aggregate_visibility": 0.231378,
+      "qualifying_query_ids": [
+        "q5"
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "domain": "youtube.com",
+      "reason": "social"
+    },
+    {
+      "domain": "facebook.com",
+      "reason": "social"
+    },
+    {
+      "domain": "yelp.com",
+      "reason": "directory"
+    },
+    {
+      "domain": "angi.com",
+      "reason": "directory"
+    },
+    {
+      "domain": "reddit.com",
+      "reason": "social"
+    },
+    {
+      "domain": "thumbtack.com",
+      "reason": "directory"
+    },
+    {
+      "domain": "bbb.org",
+      "reason": "directory"
+    },
+    {
+      "domain": "forbes.com",
+      "reason": "publisher"
+    },
+    {
+      "domain": "therooferfinder.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "dicksroofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "nepabldrs.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "burishbuilderswest.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "serviceagent.ai",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "aol.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "lancasterpa.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "servicemasterrestore.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "tomtheroofer.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "mastersroofinginc.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "ontopsroofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "roofing.promatcher.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "certifiedwaterandfire.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "bayareahomeinspections.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "bestroofingcharlotte.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "specialty-exteriors.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "cottongds.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "todayshomeowner.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "charlottepremierroofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "homeadvisor.com",
+      "reason": "marketplace"
+    },
+    {
+      "domain": "cruzroofingsolutions.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "wikihow.com",
+      "reason": "publisher"
+    },
+    {
+      "domain": "bulldoginspect.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "cedur.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "hometownrfg.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "cjroofingdc.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "restoremastersllc.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "50northroofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "orionohio.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "custominstallations.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "rivertoproofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "csroofingandgutters.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "ncroofingservice.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "roofrepairspecialist.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "dcrikc.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "charlotteproroofing.com",
+      "reason": "irrelevant"
+    },
+    {
+      "domain": "mdhi.com",
+      "reason": "irrelevant"
+    }
+  ],
+  "observations": [
+    {
+      "url": "https://www.lowes.com/l/install/roofing",
+      "rank": 1,
+      "domain": "lowes.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o1"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Ex-utl76pnE&vl=en-US",
+      "rank": 2,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o2"
+    },
+    {
+      "url": "https://wildwoodroof.com/residential-roof-installation/",
+      "rank": 3,
+      "domain": "wildwoodroof.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o3"
+    },
+    {
+      "url": "https://www.facebook.com/groups/275583976143836/posts/2776831086019100/",
+      "rank": 4,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o4"
+    },
+    {
+      "url": "https://www.homedepot.com/c/ab/roof-repair-vs.-roof-replacement/9ba683603be9fa5395fab90183a6ce5a",
+      "rank": 5,
+      "domain": "homedepot.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o5"
+    },
+    {
+      "url": "https://www.roofreplacementca.com/",
+      "rank": 6,
+      "domain": "roofreplacementca.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o6"
+    },
+    {
+      "url": "https://smithrock-roofing.com/roof-replacement-costs/",
+      "rank": 7,
+      "domain": "smithrock-roofing.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o7"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OubaCWg9Zmc",
+      "rank": 8,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o8"
+    },
+    {
+      "url": "https://homestretchroofing.com/services/roof-replacement",
+      "rank": 9,
+      "domain": "homestretchroofing.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o9"
+    },
+    {
+      "url": "https://pinnaclehomeimprovements.com/blog/roof-replacement-cost-in-north-carolina/",
+      "rank": 10,
+      "domain": "pinnaclehomeimprovements.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o10"
+    },
+    {
+      "url": "https://www.therooferfinder.com/north-carolina",
+      "rank": 11,
+      "domain": "therooferfinder.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o11"
+    },
+    {
+      "url": "https://www.aol.com/articles/ready-replace-roof-avoid-one-034500000.html",
+      "rank": 12,
+      "domain": "aol.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o12"
+    },
+    {
+      "url": "https://www.ontopsroofing.com/guides/roof-replacement-in-nc",
+      "rank": 13,
+      "domain": "ontopsroofing.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o13"
+    },
+    {
+      "url": "https://www.specialty-exteriors.com/wa/roofing/replacement",
+      "rank": 14,
+      "domain": "specialty-exteriors.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o14"
+    },
+    {
+      "url": "https://www.homeadvisor.com/tloc/Boise-ID/Roofing-Install-or-Repair/",
+      "rank": 15,
+      "domain": "homeadvisor.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o15"
+    },
+    {
+      "url": "https://hometownrfg.com/roofing/roof-replacement/",
+      "rank": 16,
+      "domain": "hometownrfg.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o16"
+    },
+    {
+      "url": "https://www.50northroofing.com/roof-replacement-cost-in-north-carolina-2026/",
+      "rank": 17,
+      "domain": "50northroofing.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o17"
+    },
+    {
+      "url": "https://ncroofingservice.com/residential/roof-replacement",
+      "rank": 18,
+      "domain": "ncroofingservice.com",
+      "source": "dataforseo",
+      "query_id": "q1",
+      "observed_at": "2026-08-25T16:36:31.000Z",
+      "observation_id": "q1-o18"
+    },
+    {
+      "url": "https://nathansroofrepairs.com/",
+      "rank": 1,
+      "domain": "nathansroofrepairs.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o1"
+    },
+    {
+      "url": "https://www.homedepot.com/c/ab/roof-repair-vs.-roof-replacement/9ba683603be9fa5395fab90183a6ce5a",
+      "rank": 2,
+      "domain": "homedepot.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o2"
+    },
+    {
+      "url": "https://www.yelp.com/search?find_desc=Roof+Repair&find_loc=Scottsdale%2C+AZ",
+      "rank": 3,
+      "domain": "yelp.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o3"
+    },
+    {
+      "url": "https://www.reddit.com/r/memphis/comments/1hekv3t/handymanroofer_for_small_roof_repairs/",
+      "rank": 4,
+      "domain": "reddit.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o4"
+    },
+    {
+      "url": "https://phoenixroofingandrepair.com/",
+      "rank": 5,
+      "domain": "phoenixroofingandrepair.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o5"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=a7KSVwMGW5w",
+      "rank": 6,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o6"
+    },
+    {
+      "url": "https://www.facebook.com/groups/275583976143836/posts/2776831086019100/",
+      "rank": 7,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o7"
+    },
+    {
+      "url": "https://www.angi.com/articles/how-much-do-roof-repairs-cost.htm",
+      "rank": 8,
+      "domain": "angi.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o8"
+    },
+    {
+      "url": "https://www.lowes.com/n/how-to/how-to-repair-a-leaky-roof",
+      "rank": 9,
+      "domain": "lowes.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o9"
+    },
+    {
+      "url": "https://roofrepairsolutions.net/roofing-repair-pricing/",
+      "rank": 10,
+      "domain": "roofrepairsolutions.net",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o10"
+    },
+    {
+      "url": "https://www.dicksroofing.com/",
+      "rank": 11,
+      "domain": "dicksroofing.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o11"
+    },
+    {
+      "url": "https://lancasterpa.com/roofing-contractors/",
+      "rank": 12,
+      "domain": "lancasterpa.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o12"
+    },
+    {
+      "url": "https://roofing.promatcher.com/cost/north-carolina.aspx",
+      "rank": 13,
+      "domain": "roofing.promatcher.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o13"
+    },
+    {
+      "url": "https://www.familyhandyman.com/list/roof-repair-how-to-find-and-fix-roof-leaks/",
+      "rank": 14,
+      "domain": "familyhandyman.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o14"
+    },
+    {
+      "url": "http://cruzroofingsolutions.com/",
+      "rank": 15,
+      "domain": "cruzroofingsolutions.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o15"
+    },
+    {
+      "url": "https://cjroofingdc.com/",
+      "rank": 16,
+      "domain": "cjroofingdc.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o16"
+    },
+    {
+      "url": "https://www.owenscorning.com/en-us/roofing/blog/reroof-vs-roof-repair",
+      "rank": 17,
+      "domain": "owenscorning.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o17"
+    },
+    {
+      "url": "https://www.roofrepairspecialist.com/",
+      "rank": 18,
+      "domain": "roofrepairspecialist.com",
+      "source": "dataforseo",
+      "query_id": "q2",
+      "observed_at": "2026-08-25T16:36:41.000Z",
+      "observation_id": "q2-o18"
+    },
+    {
+      "url": "https://www.servpro.com/services/storm-services",
+      "rank": 1,
+      "domain": "servpro.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o1"
+    },
+    {
+      "url": "https://www.vk1call.com/services/wind-damage-repair/",
+      "rank": 2,
+      "domain": "vk1call.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o2"
+    },
+    {
+      "url": "https://www.monroerestoration.com/storm-damage.html",
+      "rank": 3,
+      "domain": "monroerestoration.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o3"
+    },
+    {
+      "url": "https://disasterresponse.us/services/storm-damage/",
+      "rank": 4,
+      "domain": "disasterresponse.us",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o4"
+    },
+    {
+      "url": "https://www.restoreprorestoration.com/storm-and-flood-damage",
+      "rank": 5,
+      "domain": "restoreprorestoration.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o5"
+    },
+    {
+      "url": "https://www.southeastrestoration.com/blog/2022/january/5-common-storm-damage-repairs-you-need-to-know-a/",
+      "rank": 6,
+      "domain": "southeastrestoration.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o6"
+    },
+    {
+      "url": "https://www.brunettehomeimprovement.com/storm-damage-repair-tips-restoring-your-home-after-severe-weather",
+      "rank": 7,
+      "domain": "brunettehomeimprovement.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o7"
+    },
+    {
+      "url": "https://www.specialtyrestorationoftexas.com/disaster-response-team.htm",
+      "rank": 8,
+      "domain": "specialtyrestorationoftexas.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o8"
+    },
+    {
+      "url": "https://phoenixndr.com/services/storm-damage-restoration/",
+      "rank": 9,
+      "domain": "phoenixndr.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o9"
+    },
+    {
+      "url": "https://accuworks.com/storm-damage-restoration/",
+      "rank": 10,
+      "domain": "accuworks.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o10"
+    },
+    {
+      "url": "https://www.nepabldrs.com/services/storm-damage/",
+      "rank": 11,
+      "domain": "nepabldrs.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o11"
+    },
+    {
+      "url": "https://servicemasterrestore.com/servicemaster-cdr-cleveland/areas-we-serve2/mentor/storm-damage-restoration",
+      "rank": 12,
+      "domain": "servicemasterrestore.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o12"
+    },
+    {
+      "url": "https://certifiedwaterandfire.com/services/storm-damage/",
+      "rank": 13,
+      "domain": "certifiedwaterandfire.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o13"
+    },
+    {
+      "url": "https://cottongds.com/disaster-response/commercial-storm-damage-repair",
+      "rank": 14,
+      "domain": "cottongds.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o14"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vtXPwpyruMI",
+      "rank": 15,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o15"
+    },
+    {
+      "url": "https://www.restoremastersllc.com/restoration/tornado-damage-restoration/",
+      "rank": 16,
+      "domain": "restoremastersllc.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o16"
+    },
+    {
+      "url": "https://orionohio.com/restoration-services/storm-damage-restoration/",
+      "rank": 17,
+      "domain": "orionohio.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o17"
+    },
+    {
+      "url": "https://www.dcrikc.com/wind-damage-restoration/",
+      "rank": 18,
+      "domain": "dcrikc.com",
+      "source": "dataforseo",
+      "query_id": "q3",
+      "observed_at": "2026-08-25T16:36:50.000Z",
+      "observation_id": "q3-o18"
+    },
+    {
+      "url": "https://www.lowes.com/l/install/roofing",
+      "rank": 1,
+      "domain": "lowes.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o1"
+    },
+    {
+      "url": "https://www.owenscorning.com/en-us/roofing/blog/what-to-expect",
+      "rank": 2,
+      "domain": "owenscorning.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o2"
+    },
+    {
+      "url": "https://www.familyhandyman.com/project/how-to-roof-a-house/",
+      "rank": 3,
+      "domain": "familyhandyman.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o3"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OFQlk-kvdlo",
+      "rank": 4,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o4"
+    },
+    {
+      "url": "http://hover.to/blog/roof-installation",
+      "rank": 5,
+      "domain": "hover.to",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o5"
+    },
+    {
+      "url": "https://www.homedepot.com/c/ap/a-new-roof-made-easy/9ba683603be9fa5395fab9017b777ba5",
+      "rank": 6,
+      "domain": "homedepot.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o6"
+    },
+    {
+      "url": "https://www.ecowatch.com/roofing/installation-process",
+      "rank": 7,
+      "domain": "ecowatch.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o7"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=BTPEs_YRuFg",
+      "rank": 8,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o8"
+    },
+    {
+      "url": "https://highroadroofing.com/blog/roof-installation-process/",
+      "rank": 9,
+      "domain": "highroadroofing.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o9"
+    },
+    {
+      "url": "https://www.thumbtack.com/fl/miami/roof-installation",
+      "rank": 10,
+      "domain": "thumbtack.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o10"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mf3JRofnbz8",
+      "rank": 11,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o11"
+    },
+    {
+      "url": "https://tomtheroofer.com/roof-installation-process/",
+      "rank": 12,
+      "domain": "tomtheroofer.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o12"
+    },
+    {
+      "url": "https://www.facebook.com/groups/469820494480580/posts/1642648320531119/",
+      "rank": 13,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o13"
+    },
+    {
+      "url": "https://todayshomeowner.com/roofing/installation-and-maintenance/",
+      "rank": 14,
+      "domain": "todayshomeowner.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o14"
+    },
+    {
+      "url": "https://www.wikihow.com/Install-Roofing",
+      "rank": 15,
+      "domain": "wikihow.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o15"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Atyse0Ne4hQ",
+      "rank": 16,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o16"
+    },
+    {
+      "url": "https://www.custominstallations.com/roofing-services/residential-roofing/roof-installation/",
+      "rank": 17,
+      "domain": "custominstallations.com",
+      "source": "dataforseo",
+      "query_id": "q4",
+      "observed_at": "2026-08-25T16:36:57.000Z",
+      "observation_id": "q4-o17"
+    },
+    {
+      "url": "https://www.owenscorning.com/en-us/roofing/blog/roof-inspection",
+      "rank": 1,
+      "domain": "owenscorning.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o1"
+    },
+    {
+      "url": "https://www.yelp.com/search?find_desc=Roof+Inspection&find_loc=Charlotte%2C+NC",
+      "rank": 2,
+      "domain": "yelp.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o2"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=HrdVa12EHas",
+      "rank": 3,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o3"
+    },
+    {
+      "url": "https://www.valentineroof.com/wa/roofing/inspections",
+      "rank": 4,
+      "domain": "valentineroof.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o4"
+    },
+    {
+      "url": "https://www.facebook.com/groups/1765271366889536/posts/27986640250992623/",
+      "rank": 5,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o5"
+    },
+    {
+      "url": "https://cornerstoneroof.com/residential-roofing/free-roof-certification/",
+      "rank": 6,
+      "domain": "cornerstoneroof.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o6"
+    },
+    {
+      "url": "https://www.larsonkeeneyhomeservices.com/roof-inspections/",
+      "rank": 7,
+      "domain": "larsonkeeneyhomeservices.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o7"
+    },
+    {
+      "url": "https://northcarolinaroofauthority.com/north-carolina-roof-inspection-what-to-expect/",
+      "rank": 8,
+      "domain": "northcarolinaroofauthority.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o8"
+    },
+    {
+      "url": "https://phoenixroofingandrepair.com/residential-roofing/roofing-inspections",
+      "rank": 9,
+      "domain": "phoenixroofingandrepair.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o9"
+    },
+    {
+      "url": "https://www.coutoconstruction.com/ma/roofing/inspection",
+      "rank": 10,
+      "domain": "coutoconstruction.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o10"
+    },
+    {
+      "url": "https://burishbuilderswest.com/how-much-does-a-roof-inspection-cost/",
+      "rank": 11,
+      "domain": "burishbuilderswest.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o11"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=zXLGnIpa2vA",
+      "rank": 12,
+      "domain": "youtube.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o12"
+    },
+    {
+      "url": "https://www.bayareahomeinspections.com/roof-inspections",
+      "rank": 13,
+      "domain": "bayareahomeinspections.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o13"
+    },
+    {
+      "url": "https://www.thumbtack.com/ca/fresno/roof-inspection-services",
+      "rank": 14,
+      "domain": "thumbtack.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o14"
+    },
+    {
+      "url": "https://bulldoginspect.com/roof-inspection-kc/",
+      "rank": 15,
+      "domain": "bulldoginspect.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o15"
+    },
+    {
+      "url": "https://www.facebook.com/groups/welovewaynesville/posts/23875340688721230/",
+      "rank": 16,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o16"
+    },
+    {
+      "url": "https://www.rivertoproofing.com/roof-inspection-atlanta-ga",
+      "rank": 17,
+      "domain": "rivertoproofing.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o17"
+    },
+    {
+      "url": "https://www.reddit.com/r/Roofing/comments/1vw8xgl/bought_a_home_immediately_found_issues/",
+      "rank": 18,
+      "domain": "reddit.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o18"
+    },
+    {
+      "url": "https://www.mdhi.com/roof-inspection/",
+      "rank": 19,
+      "domain": "mdhi.com",
+      "source": "dataforseo",
+      "query_id": "q5",
+      "observed_at": "2026-08-25T16:37:04.000Z",
+      "observation_id": "q5-o19"
+    },
+    {
+      "url": "https://www.charlotteroofing.com/",
+      "rank": 1,
+      "domain": "charlotteroofing.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o1"
+    },
+    {
+      "url": "https://www.angi.com/companylist/us/nc/charlotte/roofing.htm",
+      "rank": 2,
+      "domain": "angi.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o2"
+    },
+    {
+      "url": "https://www.bbb.org/us/nc/charlotte/profile/roofing-contractors/charlotte-roofing-specialists-0473-237236",
+      "rank": 3,
+      "domain": "bbb.org",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o3"
+    },
+    {
+      "url": "https://charlotteaceroofing.com/",
+      "rank": 4,
+      "domain": "charlotteaceroofing.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o4"
+    },
+    {
+      "url": "https://www.yelp.com/biz/charlotte-roofing-specialists-charlotte-3",
+      "rank": 5,
+      "domain": "yelp.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o5"
+    },
+    {
+      "url": "https://www.facebook.com/charlotteroofingspecialists/",
+      "rank": 6,
+      "domain": "facebook.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o6"
+    },
+    {
+      "url": "https://www.gaf.com/en-us/roofing-contractors/residential/usa/nc/charlotte/charlotte-roofing-specialists-1002603",
+      "rank": 7,
+      "domain": "gaf.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o7"
+    },
+    {
+      "url": "https://www.forbes.com/home-improvement/roofing/local-roofers/roofing-companies-charlotte-nc/",
+      "rank": 8,
+      "domain": "forbes.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o8"
+    },
+    {
+      "url": "https://www.tcrfg.com/charlotte",
+      "rank": 9,
+      "domain": "tcrfg.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o9"
+    },
+    {
+      "url": "https://www.roofsbytaylor.com/",
+      "rank": 10,
+      "domain": "roofsbytaylor.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o10"
+    },
+    {
+      "url": "https://serviceagent.ai/directory/north-carolina/charlotte/roofing/charlotte-roofing-specialists/",
+      "rank": 11,
+      "domain": "serviceagent.ai",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o11"
+    },
+    {
+      "url": "https://www.mastersroofinginc.com/service-areas/charlotte-roofing-company/",
+      "rank": 12,
+      "domain": "mastersroofinginc.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o12"
+    },
+    {
+      "url": "https://bestroofingcharlotte.com/",
+      "rank": 13,
+      "domain": "bestroofingcharlotte.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o13"
+    },
+    {
+      "url": "https://www.charlottepremierroofing.com/",
+      "rank": 14,
+      "domain": "charlottepremierroofing.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o14"
+    },
+    {
+      "url": "https://www.cedur.com/roofing-companies-charlotte-nc/",
+      "rank": 15,
+      "domain": "cedur.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o15"
+    },
+    {
+      "url": "https://www.angi.com/companylist/us/nc/charlotte/charlotte-roofing-specialists-reviews-4512446.htm",
+      "rank": 16,
+      "domain": "angi.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o16"
+    },
+    {
+      "url": "https://csroofingandgutters.com/",
+      "rank": 17,
+      "domain": "csroofingandgutters.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o17"
+    },
+    {
+      "url": "https://charlotteproroofing.com/",
+      "rank": 18,
+      "domain": "charlotteproroofing.com",
+      "source": "dataforseo",
+      "query_id": "q6",
+      "observed_at": "2026-08-25T16:37:11.000Z",
+      "observation_id": "q6-o18"
+    }
+  ],
+  "query_portfolio": [
+    {
+      "query": "roof replacement",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q1"
+    },
+    {
+      "query": "roof repair",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q2"
+    },
+    {
+      "query": "storm damage repair",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q3"
+    },
+    {
+      "query": "roof installation",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q4"
+    },
+    {
+      "query": "roof inspection",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q5"
+    },
+    {
+      "query": "charlotte roofing",
+      "intent": "commercial",
+      "weight": 1,
+      "query_id": "q6"
+    }
+  ],
+  "selected_donors": [
+    {
+      "domain": "lowes.com",
+      "observation_ids": [
+        "q1-o1",
+        "q2-o9",
+        "q4-o1"
+      ],
+      "aggregate_visibility": 2.30103
+    },
+    {
+      "domain": "owenscorning.com",
+      "observation_ids": [
+        "q2-o17",
+        "q4-o2",
+        "q5-o1"
+      ],
+      "aggregate_visibility": 1.870742
+    },
+    {
+      "domain": "homedepot.com",
+      "observation_ids": [
+        "q1-o5",
+        "q2-o2",
+        "q4-o6"
+      ],
+      "aggregate_visibility": 1.37399
+    },
+    {
+      "domain": "nathansroofrepairs.com",
+      "observation_ids": [
+        "q2-o1"
+      ],
+      "aggregate_visibility": 1
+    },
+    {
+      "domain": "servpro.com",
+      "observation_ids": [
+        "q3-o1"
+      ],
+      "aggregate_visibility": 1
+    },
+    {
+      "domain": "charlotteroofing.com",
+      "observation_ids": [
+        "q6-o1"
+      ],
+      "aggregate_visibility": 1
+    },
+    {
+      "domain": "familyhandyman.com",
+      "observation_ids": [
+        "q2-o14",
+        "q4-o3"
+      ],
+      "aggregate_visibility": 0.755958
+    },
+    {
+      "domain": "phoenixroofingandrepair.com",
+      "observation_ids": [
+        "q2-o5",
+        "q5-o9"
+      ],
+      "aggregate_visibility": 0.687883
+    },
+    {
+      "domain": "vk1call.com",
+      "observation_ids": [
+        "q3-o2"
+      ],
+      "aggregate_visibility": 0.63093
+    },
+    {
+      "domain": "wildwoodroof.com",
+      "observation_ids": [
+        "q1-o3"
+      ],
+      "aggregate_visibility": 0.5
+    }
+  ],
+  "evidence_complete": true,
+  "ranking_llm_calls": 0
+}

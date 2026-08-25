@@ -1,0 +1,177 @@
+{
+  "schema": "l9.golden-visual-aggregate/v1",
+  "run_id": "golden-20260825-r61",
+  "pairs": [
+    {
+      "pair_id": "___desktop",
+      "key": "/::desktop",
+      "candidate_votes": 2,
+      "baseline_votes": 1,
+      "ties": 0,
+      "majority": "CANDIDATE",
+      "critical_pair": true,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "___mobile",
+      "key": "/::mobile",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": true,
+      "critical_pair_regressed": true
+    },
+    {
+      "pair_id": "_services_roof-replacement___desktop",
+      "key": "/services/roof-replacement/::desktop",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_services_roof-replacement___mobile",
+      "key": "/services/roof-replacement/::mobile",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_services_storm-damage___desktop",
+      "key": "/services/storm-damage/::desktop",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_services_storm-damage___mobile",
+      "key": "/services/storm-damage/::mobile",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_gallery___desktop",
+      "key": "/gallery/::desktop",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": true,
+      "critical_pair_regressed": true
+    },
+    {
+      "pair_id": "_gallery___mobile",
+      "key": "/gallery/::mobile",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_contact___desktop",
+      "key": "/contact/::desktop",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": false,
+      "critical_pair_regressed": false
+    },
+    {
+      "pair_id": "_contact___mobile",
+      "key": "/contact/::mobile",
+      "candidate_votes": 0,
+      "baseline_votes": 3,
+      "ties": 0,
+      "majority": "BASELINE",
+      "critical_pair": true,
+      "critical_pair_regressed": true
+    }
+  ],
+  "candidate_visual_votes": 2,
+  "total_visual_votes": 30,
+  "majority_wins": 1,
+  "majority_losses": 9,
+  "wilson_lower_bound": 0.01847663532769335,
+  "dimension_means": {
+    "visual_hierarchy": 0.06666666666666667,
+    "brand_coherence": 0.06666666666666667,
+    "conversion_clarity": 0.16666666666666666,
+    "trust_and_credibility": 0.23333333333333334,
+    "authentic_imagery": 0.16666666666666666,
+    "content_readability": 0.06666666666666667,
+    "information_density": 0.3333333333333333,
+    "spacing_and_rhythm": 0.06666666666666667,
+    "mobile_usability": 0.16666666666666666,
+    "professional_polish": 0.13333333333333333
+  },
+  "dimension_weights_used": {
+    "visual_hierarchy": 0.15,
+    "brand_coherence": 0.1,
+    "conversion_clarity": 0.15,
+    "trust_and_credibility": 0.1,
+    "authentic_imagery": 0.12,
+    "content_readability": 0.1,
+    "information_density": 0.07,
+    "spacing_and_rhythm": 0.07,
+    "mobile_usability": 0.08,
+    "professional_polish": 0.06
+  },
+  "weight_sum": 1.0,
+  "weight_sum_valid": true,
+  "weighted_mean_delta": 0.141,
+  "critical_pairs": {
+    "required": [
+      "/::desktop",
+      "/::mobile",
+      "/gallery/::desktop",
+      "/contact/::mobile"
+    ],
+    "regressed": [
+      "/::mobile",
+      "/gallery/::desktop",
+      "/contact/::mobile"
+    ]
+  },
+  "critical_dimensions": {
+    "required": [
+      "visual_hierarchy",
+      "conversion_clarity",
+      "trust_and_credibility",
+      "authentic_imagery",
+      "mobile_usability"
+    ],
+    "means": {
+      "visual_hierarchy": 0.06666666666666667,
+      "conversion_clarity": 0.16666666666666666,
+      "trust_and_credibility": 0.23333333333333334,
+      "authentic_imagery": 0.16666666666666666,
+      "mobile_usability": 0.16666666666666666
+    },
+    "regressed": [],
+    "unmeasured": []
+  },
+  "gates": {
+    "min_pair_majority_wins": 7,
+    "max_pair_majority_losses": 2,
+    "min_candidate_votes": 21,
+    "total_votes": 30,
+    "wilson_lower_bound_must_exceed": 0.5,
+    "minimum_weighted_mean_delta": 0.25
+  }
+}

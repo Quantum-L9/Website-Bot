@@ -1,0 +1,269 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 0 }
+[17:26:28.593] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mversion[39m: "2.1.0"
+    [35mattempt[39m: 1
+[17:26:28.593] [32mINFO[39m (72345): [36mLoading domain spec[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mspecPath[39m: "fixtures/safehavenrr-golden-spec.yaml"
+[17:26:28.599] [32mINFO[39m (72345): [36mDomain spec loaded[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mclientId[39m: "safehavenrr"
+    [35mroutes[39m: 29
+    [35mvertical[39m: "roofing_construction"
+[17:26:28.616] [32mINFO[39m (72345): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mdurationMs[39m: 17
+    [35mevidenceRevision[39m: 2
+[17:26:28.616] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mversion[39m: "3.0.0"
+    [35mattempt[39m: 1
+[17:26:28.616] [32mINFO[39m (72345): [36mUnknown resolution complete[39m
+    [35mmodule[39m: "stage:unknown-resolver"
+    [35mresolved[39m: 0
+    [35mtotal[39m: 0
+[17:26:28.626] [32mINFO[39m (72345): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mdurationMs[39m: 6
+    [35mevidenceRevision[39m: 3
+[17:26:28.626] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[17:26:28.648] [32mINFO[39m (72345): [36mFetching competitive landscape from SEO-Bot[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mdonors[39m: 10
+    [35mqueries[39m: 6
+[17:27:11.884] [32mINFO[39m (72345): [36mCompetitive landscape sealed; beginning bounded donor acquisition[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mlandscapeId[39m: "competitive_landscape:01a21f3f8011759100d8a3e8f47ca2bbd331258783061d24b96680ffa1c8e48e"
+    [35mselected[39m: 10
+    [35mdomains[39m: 79
+[17:27:16.468] [33mWARN[39m (72345): [36mdonor failed minimum evidence policy; must be replaced[39m
+    [35mmodule[39m: "intelligence:donor-ingestion"
+    [35mdonor[39m: "thespruce.com"
+    [35mpages[39m: 0
+    [35mscreenshots[39m: 0
+[17:27:21.150] [33mWARN[39m (72345): [36mdonor failed minimum evidence policy; must be replaced[39m
+    [35mmodule[39m: "intelligence:donor-ingestion"
+    [35mdonor[39m: "charlotteroofing.com"
+    [35mpages[39m: 0
+    [35mscreenshots[39m: 0
+[17:27:38.846] [32mINFO[39m (72345): [36mDonor evidence acquisition complete (10/10)[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35maccepted[39m: 10
+    [35mcrawlManifests[39m: 10
+    [35mscreenshotSets[39m: 10
+[17:27:38.846] [33mWARN[39m (72345): [36mGoverned memory is not configured; continuing without hydration or promotion[39m
+    [35mmodule[39m: "service:memory"
+[17:27:38.851] [32mINFO[39m (72345): [36mLLM service initialized with @quantum-l9/llm-router[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+[17:27:43.237] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 343
+    [35moutputTokens[39m: 329
+    [35mcostUsd[39m: 0.004147
+    [35mlatencyMs[39m: 4383
+    [35mrequestId[39m: "gen-1787606858-QpmWrWPdgrO5IkODF2kA"
+[17:27:45.843] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 220
+    [35moutputTokens[39m: 410
+    [35mcostUsd[39m: 0.00465
+    [35mlatencyMs[39m: 2605
+    [35mrequestId[39m: "gen-1787606863-UfPPxD5IAxHUCNoa23dR"
+[17:27:48.089] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 273
+    [35moutputTokens[39m: 231
+    [35mcostUsd[39m: 0.002993
+    [35mlatencyMs[39m: 2246
+    [35mrequestId[39m: "gen-1787606865-4G4yXsaC8MhLNUF2qwpa"
+[17:27:54.674] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 217
+    [35moutputTokens[39m: 469
+    [35mcostUsd[39m: 0.005232
+    [35mlatencyMs[39m: 6584
+    [35mrequestId[39m: "gen-1787606868-vEySIgAHsWSIea7tYTsI"
+[17:27:59.458] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 219
+    [35moutputTokens[39m: 443
+    [35mcostUsd[39m: 0.004978
+    [35mlatencyMs[39m: 4783
+    [35mrequestId[39m: "gen-1787606874-sy2NgdkFVmrYWXWYp33v"
+[17:28:02.630] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 350
+    [35moutputTokens[39m: 335
+    [35mcostUsd[39m: 0.004225
+    [35mlatencyMs[39m: 3171
+    [35mrequestId[39m: "gen-1787606879-a42o9s6E9VDnFKxV1Ymc"
+[17:28:05.334] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 276
+    [35moutputTokens[39m: 231
+    [35mcostUsd[39m: 0.003
+    [35mlatencyMs[39m: 2704
+    [35mrequestId[39m: "gen-1787606882-HK8q6q3sbM8xT662pLCf"
+[17:28:11.335] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 279
+    [35moutputTokens[39m: 228
+    [35mcostUsd[39m: 0.002978
+    [35mlatencyMs[39m: 6000
+    [35mrequestId[39m: "gen-1787606885-0TYtlvpeYjQWsWtkdgNg"
+[17:28:14.023] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 287
+    [35moutputTokens[39m: 236
+    [35mcostUsd[39m: 0.003078
+    [35mlatencyMs[39m: 2687
+    [35mrequestId[39m: "gen-1787606891-ppr0wTgu1ZBs152dAttZ"
+[17:28:16.111] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 273
+    [35moutputTokens[39m: 227
+    [35mcostUsd[39m: 0.002953
+    [35mlatencyMs[39m: 2087
+    [35mrequestId[39m: "gen-1787606894-IAoH3OSFM9PQeQvmppH3"
+[17:28:33.888] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "anthropic/claude-sonnet-4"
+    [35minputTokens[39m: 3685
+    [35moutputTokens[39m: 1607
+    [35mcostUsd[39m: 0.03516
+    [35mlatencyMs[39m: 17777
+    [35mrequestId[39m: "gen-1787606896-uKfYWuAYmlhQYTwUE8le"
+[17:29:08.587] [32mINFO[39m (72345): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "anthropic/claude-sonnet-4"
+    [35minputTokens[39m: 3229
+    [35moutputTokens[39m: 3039
+    [35mcostUsd[39m: 0.055272
+    [35mlatencyMs[39m: 34697
+    [35mrequestId[39m: "gen-1787606913-cps2jR4f5iZO4xYs75QT"
+[17:29:08.603] [32mINFO[39m (72345): [36mWebsite build blueprint sealed and gated[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35martifactId[39m: "website_build_blueprint:132af98421cfecb1e53d8de9b223ed49f9f2eace707cf34f24ee0cac13aaf2e8"
+    [35mpatterns[39m: 5
+    [35mroutes[39m: 29
+[17:29:08.626] [32mINFO[39m (72345): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mdurationMs[39m: 159991
+    [35mevidenceRevision[39m: 4
+[17:29:08.626] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "source-site-ingestion"
+    [35mversion[39m: "2.0.0"
+    [35mattempt[39m: 1
+[17:29:08.664] [32mINFO[39m (72345): [36mSource site reused from client cache (no crawl)[39m
+    [35mmodule[39m: "stage:source-site-ingestion"
+    [35murl[39m: "https://www.safehavenrr.com/"
+    [35mimages[39m: 18
+[17:29:08.679] [32mINFO[39m (72345): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "source-site-ingestion"
+    [35mdurationMs[39m: 44
+    [35mevidenceRevision[39m: 6
+[17:29:08.679] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "design-intelligence"
+    [35mattempt[39m: 1
+[17:29:08.680] [32mINFO[39m (72345): [36mDesign tokens preserved from source-site palette[39m
+    [35mmodule[39m: "stage:design-intelligence"
+    [35mtokens[39m: [
+      "primary",
+      "secondary",
+      "accent",
+      "background",
+      "text",
+      "heading",
+      "body",
+      "font_heading",
+      "font_body"
+    ]
+    [35msource[39m: "source-site-css"
+[17:29:08.694] [32mINFO[39m (72345): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "design-intelligence"
+    [35mdurationMs[39m: 8
+    [35mevidenceRevision[39m: 7
+[17:29:08.694] [32mINFO[39m (72345): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "redesign-content-authority"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[17:29:08.724] [32mINFO[39m (72345): [36mSEO-Bot preflight passed[39m
+    [35mmodule[39m: "stage:redesign-content-authority"
+    [35mclientId[39m: "safehavenrr"
+[17:34:37.101] [32mINFO[39m (72345): [36mSEOContentBlueprint accepted (lineage verified)[39m
+    [35mmodule[39m: "stage:redesign-content-authority"
+    [35martifactId[39m: "seo_content_blueprint:84ea408c4effc710c508b9447763408786b9d11ee6d84290a04f93a18af2f386"
+    [35mroutes[39m: 29
+[17:34:37.110] [32mINFO[39m (72345): [36mPageContentContract sealed deterministically (0 LLM calls)[39m
+    [35mmodule[39m: "stage:redesign-content-authority"
+    [35martifactId[39m: "page_content_contract:c0e4b5f08f7cd97c9e7bb194ec1dd474b6d85516b1ff8543e8ef07bf2a78340b"
+    [35mllmCalls[39m: 0
+Pipeline FAILED: SEO-Bot intelligence /api/build-intelligence/structured-content failed (422): {"error":"CONTENT_REQUIREMENT_UNSATISFIED","message":"Route \"/\" still fails validation after one bounded repair","failed_requirements":["/: required topic \"24/7 availability\" is not covered (missing: availability)"],"unsupported_claims":[]}
+[17:35:16.253] [31mERROR[39m (72345): [36mStage FAILED[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "redesign-content-authority"
+    [35mdurationMs[39m: 367524
+    error: "SEO-Bot intelligence /api/build-intelligence/structured-content failed (422): {\"error\":\"CONTENT_REQUIREMENT_UNSATISFIED\",\"message\":\"Route \\\"/\\\" still fails validation after one bounded repair\",\"failed_requirements\":[\"/: required topic \\\"24/7 availability\\\" is not covered (missing: availability)\"],\"unsupported_claims\":[]}"

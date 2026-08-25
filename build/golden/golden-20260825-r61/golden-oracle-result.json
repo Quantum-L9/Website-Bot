@@ -1,0 +1,448 @@
+{
+  "schema": "l9.golden-oracle-result/v2",
+  "oracle_id": "safehaven-redesign-oracle-v1",
+  "case_id": "safehaven-redesign-golden-v1",
+  "evaluated_at": "2026-08-25T22:15:47.083Z",
+  "hard_gate_failures": [
+    {
+      "code": "WORKTREE_STATE_UNRECORDED_DIRTY",
+      "message": "website_bot is dirty without explicit recorded identity",
+      "evidence": {
+        "deterministic_identity": "db8d8bdfa650acfb95e3547c1bd98155424ca7a9df86c0bdb2f2bfa5e64e1c54",
+        "status": "DIRTY"
+      }
+    },
+    {
+      "code": "WORKTREE_STATE_UNRECORDED_DIRTY",
+      "message": "seo_bot is dirty without explicit recorded identity",
+      "evidence": {
+        "deterministic_identity": "b55751429f3e08a516519c6a81f0667d9e432a3a85568e2cd37d4481d15a2e42",
+        "status": "DIRTY"
+      }
+    },
+    {
+      "code": "IDENTITY_SHA_INVALID",
+      "message": "llm_router must record a full 40-character git SHA",
+      "evidence": "installed:1.3.0:fafab365ab1eb6e85a3bea7e4d77f4f6dc80a13d8e3c7ef59412a8479b43a040"
+    },
+    {
+      "code": "WORKTREE_STATE_UNRECORDED_DIRTY",
+      "message": "llm_router is dirty without explicit recorded identity",
+      "evidence": {
+        "deterministic_identity": "fafab365ab1eb6e85a3bea7e4d77f4f6dc80a13d8e3c7ef59412a8479b43a040",
+        "status": "DIRTY"
+      }
+    },
+    {
+      "code": "REQUIRED_STAGE_ORDER_VIOLATION",
+      "message": "Required redesign execution subsequence was not observed",
+      "evidence": {
+        "required": [
+          "domain-spec-loader",
+          "unknown-resolver",
+          "seo-build-intelligence-preflight",
+          "competitive-intelligence",
+          "source-site-ingestion",
+          "design-intelligence",
+          "redesign-content-authority",
+          "structured-content-projection",
+          "redesign-schema-serializer",
+          "image-asset-planning",
+          "site-assembler",
+          "site-build",
+          "visual-qa",
+          "redesign-integrity-receipt",
+          "terminal-convergence"
+        ],
+        "observed": [
+          "domain-spec-loader",
+          "unknown-resolver",
+          "seo-build-intelligence-preflight:PASS",
+          "seo:createCompetitiveLandscape",
+          "competitive-intelligence",
+          "source-site-ingestion",
+          "design-intelligence",
+          "redesign-content-authority",
+          "structured-content-projection",
+          "redesign-schema-serializer",
+          "image-asset-planning",
+          "image-generation",
+          "placeholder-scan",
+          "site-assembler",
+          "image-validation",
+          "posthog-snippet",
+          "site-build",
+          "client-source-publish",
+          "vercel-deploy",
+          "release-receipt",
+          "seo-baseline",
+          "visual-qa",
+          "release-receipt-finalizer",
+          "handoff-emitter",
+          "redesign-integrity-receipt",
+          "terminal-convergence",
+          "seo-bot:health:PASS",
+          "seo:createSEOContentBlueprint",
+          "seo:createStructuredContent"
+        ],
+        "firstMissing": "seo-build-intelligence-preflight"
+      }
+    },
+    {
+      "code": "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH",
+      "message": "Donor crawl/screenshot evidence must cover exactly the selected donor domains",
+      "evidence": {
+        "selected": [
+          "charlotteroofing.com",
+          "familyhandyman.com",
+          "homedepot.com",
+          "lowes.com",
+          "nathansroofrepairs.com",
+          "owenscorning.com",
+          "phoenixroofingandrepair.com",
+          "servpro.com",
+          "vk1call.com",
+          "wildwoodroof.com"
+        ],
+        "evidenced": [
+          "familyhandyman.com",
+          "homedepot.com",
+          "lowes.com",
+          "monroerestoration.com",
+          "nathansroofrepairs.com",
+          "owenscorning.com",
+          "phoenixroofingandrepair.com",
+          "servpro.com",
+          "vk1call.com",
+          "wildwoodroof.com"
+        ]
+      }
+    },
+    {
+      "code": "WEBSITE_BLUEPRINT_REF_MISSING",
+      "message": "WebsiteBuildBlueprint artifact_ref missing"
+    },
+    {
+      "code": "BLUEPRINT_VISUAL_REQUIREMENTS_MISSING",
+      "message": "WebsiteBuildBlueprint visual asset requirements are required"
+    },
+    {
+      "code": "SEO_PRODUCED_ROUTE_COUNT_MISMATCH",
+      "message": "SEOContentBlueprint produced_routes violates oracle",
+      "evidence": {
+        "expected": 29
+      }
+    },
+    {
+      "code": "SEO_EXTRA_ROUTE_COUNT_MISMATCH",
+      "message": "SEOContentBlueprint extra_routes violates oracle",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "SEO_DUPLICATE_ROUTE_COUNT_MISMATCH",
+      "message": "SEOContentBlueprint duplicate_routes violates oracle",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "SEO_BLUEPRINT_UNKNOWN_CONTENT_SLOT",
+      "message": "SEOContentBlueprint contains unknown ContentSlots",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "SEO_BLUEPRINT_INVALID_INTERNAL_LINK_TARGET",
+      "message": "SEOContentBlueprint contains invalid internal-link targets",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH",
+      "message": "WebsiteBuildBlueprint must reference exact landscape",
+      "evidence": {
+        "expected": "competitive_landscape:bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653"
+      }
+    },
+    {
+      "code": "PCC_PRODUCED_ROUTE_COUNT_MISMATCH",
+      "message": "PageContentContract produced_routes violates oracle",
+      "evidence": {
+        "expected": 29
+      }
+    },
+    {
+      "code": "PCC_NONDETERMINISTIC",
+      "message": "PCC determinism proof missing"
+    },
+    {
+      "code": "PCC_DETERMINISM_DIGEST_MISSING",
+      "message": "PCC determinism digest_run_1 missing"
+    },
+    {
+      "code": "PCC_DETERMINISM_DIGEST_MISSING",
+      "message": "PCC determinism digest_run_2 missing"
+    },
+    {
+      "code": "STRUCTURED_CONTENT_PRODUCED_ROUTE_COUNT_MISMATCH",
+      "message": "StructuredContent produced_routes violates oracle",
+      "evidence": {
+        "expected": 29
+      }
+    },
+    {
+      "code": "STRUCTURED_CONTENT_ROUTE_EVIDENCE_MISSING",
+      "message": "StructuredContent route execution evidence missing"
+    },
+    {
+      "code": "LEGACY_SCHEMA_AUTHORITY_USED",
+      "message": "Legacy schema-generation authority used",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "LEGACY_PCC_LLM_AUTHORITY_USED",
+      "message": "Legacy PageContentContract LLM authority must remain zero",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "BLUEPRINT_PROJECT_PROOF_REQUIREMENT_MISSING",
+      "message": "Blueprint project-proof requirement evidence missing"
+    },
+    {
+      "code": "BLUEPRINT_GALLERY_REQUIREMENT_MISSING",
+      "message": "Blueprint gallery requirement evidence missing"
+    },
+    {
+      "code": "SITE_BUILT_ROUTE_COUNT_MISMATCH",
+      "message": "Built route count violates oracle",
+      "evidence": {
+        "expected": 29
+      }
+    },
+    {
+      "code": "PROVIDER_BYPASS_DETECTED",
+      "message": "Governed LLM operations bypassed LLM-Router",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "LLM_AUDIT_OPERATION_MISSING",
+      "message": "LLM audit evidence missing for SEO_CONTENT_BLUEPRINT"
+    },
+    {
+      "code": "LLM_AUDIT_OPERATION_MISSING",
+      "message": "LLM audit evidence missing for STRUCTURED_CONTENT_GENERATION"
+    },
+    {
+      "code": "LLM_AUDIT_OPERATION_MISSING",
+      "message": "LLM audit evidence missing for CONTENT_VALIDATION"
+    },
+    {
+      "code": "LLM_AUDIT_OPERATION_MISSING",
+      "message": "LLM audit evidence missing for VISUAL_QA"
+    },
+    {
+      "code": "UNSUPPORTED_LLM_CAPABILITY_COMBINATION",
+      "message": "Unsupported Router capability combinations occurred",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_PAIR_REGRESSED",
+      "message": "/::mobile lost the blind pairwise comparison"
+    },
+    {
+      "code": "CRITICAL_VISUAL_PAIR_REGRESSED",
+      "message": "/contact::mobile lost the blind pairwise comparison"
+    },
+    {
+      "code": "CRITICAL_VISUAL_PAIR_REGRESSED",
+      "message": "/gallery::desktop lost the blind pairwise comparison"
+    },
+    {
+      "code": "VISUAL_IMPROVEMENT_INSUFFICIENT",
+      "message": "Candidate did not win enough visual pairs",
+      "evidence": 1
+    },
+    {
+      "code": "VISUAL_REGRESSION_TOO_BROAD",
+      "message": "Candidate lost too many visual pairs",
+      "evidence": 9
+    },
+    {
+      "code": "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT",
+      "message": "Candidate did not receive enough blind votes",
+      "evidence": {
+        "candidateVotes": 2,
+        "totalVotes": 30
+      }
+    },
+    {
+      "code": "VISUAL_WEIGHTED_MEAN_DELTA_INSUFFICIENT",
+      "message": "Weighted visual-quality improvement is below oracle threshold",
+      "evidence": {
+        "weightedMeanDelta": 0.141,
+        "required": 0.25
+      }
+    }
+  ],
+  "blocking_inconclusive_states": [
+    {
+      "code": "VISUAL_WILSON_INTERVAL_INCONCLUSIVE",
+      "message": "Wilson confidence interval does not clear required boundary",
+      "evidence": {
+        "candidateVotes": 2,
+        "totalVotes": 30,
+        "lower": 0.01847663532769335,
+        "upper": 0.21323817721072091,
+        "boundary": 0.5
+      }
+    }
+  ],
+  "oracle_evaluation_coverage": {
+    "expected": 101,
+    "executed": 101,
+    "evaluation_ids": [
+      "business_truth.email_mismatch_count",
+      "business_truth.phone_mismatch_count",
+      "business_truth.prohibition_violations",
+      "business_truth.unsupported_claim_count",
+      "competitive_landscape.every_selected_donor_requires",
+      "competitive_landscape.evidence_complete",
+      "competitive_landscape.forbidden_selected_classes",
+      "competitive_landscape.ranking_llm_calls",
+      "competitive_landscape.selected_donor_count",
+      "competitive_landscape.unique_normalized_domains",
+      "donor_evidence.accepted_donors",
+      "donor_evidence.candidate_donor_asset_hash_matches",
+      "donor_evidence.per_donor.minimum_screenshots",
+      "donor_evidence.per_donor.minimum_successful_pages",
+      "donor_evidence.per_donor.require_evidence_digest",
+      "donor_evidence.per_donor.require_timestamp",
+      "execution_graph.build_intent",
+      "execution_graph.copy_fallback_used",
+      "execution_graph.forbidden_stages_under_redesign",
+      "execution_graph.generic_fallback_used",
+      "execution_graph.required_ordered_subsequence",
+      "final_verdict.pass_requires.all_hard_gates_pass",
+      "final_verdict.pass_requires.no_inconclusive_blocking_dimension",
+      "final_verdict.pass_requires.rendered_visual_qa_executed",
+      "final_verdict.pass_requires.visual_oracle_pass",
+      "identity.require_bot_interop_compatibility",
+      "identity.require_clean_or_explicitly_recorded_worktrees",
+      "identity.require_full_git_shas",
+      "identity.router_version_rule",
+      "legacy_authority.legacy_content_generation_calls",
+      "legacy_authority.legacy_schema_generation_calls",
+      "legacy_authority.page_content_contract_llm_calls",
+      "legacy_authority.redesign_schema_llm_calls",
+      "llm_audit.direct_provider_bypass_count",
+      "llm_audit.required_policy.CONTENT_VALIDATION",
+      "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT",
+      "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION",
+      "llm_audit.required_policy.VISUAL_QA",
+      "llm_audit.unsupported_capability_combination_count",
+      "page_content_contract.determinism.same_semantic_input_same_digest",
+      "page_content_contract.invalid_business_facts",
+      "page_content_contract.llm_calls",
+      "page_content_contract.produced_routes",
+      "page_content_contract.unplaced_content_requirements",
+      "preflight.must_precede_first_seo_build_intelligence_call",
+      "preflight.required",
+      "preflight.required_checks",
+      "seo_content_blueprint.batch_size",
+      "seo_content_blueprint.duplicate_routes",
+      "seo_content_blueprint.expected_batch_count",
+      "seo_content_blueprint.extra_routes",
+      "seo_content_blueprint.invalid_internal_link_targets",
+      "seo_content_blueprint.must_reference_exact_competitive_landscape",
+      "seo_content_blueprint.produced_routes",
+      "seo_content_blueprint.unknown_content_slots",
+      "site_integrity.broken_internal_links",
+      "site_integrity.built_routes",
+      "site_integrity.per_route",
+      "site_integrity.placeholder_count",
+      "site_integrity.reachable_routes",
+      "site_integrity.unique_canonical_urls",
+      "site_integrity.unique_titles",
+      "source_assets.conditional_rules",
+      "source_assets.forbidden_candidate_dispositions",
+      "source_assets.minimum_authorized_reusable_images",
+      "source_assets.minimum_raw_source_images",
+      "source_assets.minimum_selected_source_images",
+      "source_assets.required_visual_slots_filled_fraction",
+      "source_assets.source_corpus_completed",
+      "source_assets.unexplained_reusable_asset_loss",
+      "structured_content.all_section_prose_must_use_blocks",
+      "structured_content.failed_requirements",
+      "structured_content.maximum_generation_calls_per_route",
+      "structured_content.maximum_repairs_per_route",
+      "structured_content.must_reference_exact_page_content_contract",
+      "structured_content.produced_routes",
+      "structured_content.schema_invalid_routes",
+      "structured_content.section_alias_fields_forbidden",
+      "structured_content.unsupported_claims",
+      "visual_capture.baseline_blank_capture_count",
+      "visual_capture.candidate_blank_capture_count",
+      "visual_capture.required_pairs",
+      "visual_capture.route_mismatch_count",
+      "visual_capture.stale_capture_count",
+      "visual_capture.viewport_mismatch_count",
+      "visual_oracle.dimensions",
+      "visual_oracle.inconclusive.judge_disagreement_without_majority",
+      "visual_oracle.inconclusive.missing_trial",
+      "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
+      "visual_oracle.pass.critical_dimensions_may_not_regress",
+      "visual_oracle.pass.critical_pairs_may_not_lose",
+      "visual_oracle.pass.maximum_pair_majority_losses",
+      "visual_oracle.pass.minimum_candidate_votes",
+      "visual_oracle.pass.minimum_pair_majority_wins",
+      "visual_oracle.pass.minimum_weighted_mean_delta",
+      "visual_oracle.pass.wilson_lower_bound_must_exceed",
+      "visual_oracle.reveal_candidate_identity_to_judge",
+      "visual_oracle.trials_per_pair",
+      "website_blueprint.must_reference_exact_competitive_landscape",
+      "website_blueprint.required",
+      "website_blueprint.visual_asset_requirements_required"
+    ]
+  },
+  "calibration": {
+    "synthetic": false,
+    "synthetic_receipt": false,
+    "calibration_mode": false,
+    "synthetic_evidence_signals": [],
+    "synthetic_evidence_detail": []
+  },
+  "metrics": {
+    "candidate_visual_votes": 2,
+    "total_visual_votes": 30,
+    "visual_majority_wins": 1,
+    "visual_majority_losses": 9,
+    "visual_wilson_lower_bound": 0.01847663532769335,
+    "visual_wilson_upper_bound": 0.21323817721072091,
+    "visual_dimension_means": {
+      "visual_hierarchy": 0.06666666666666667,
+      "brand_coherence": 0.06666666666666667,
+      "conversion_clarity": 0.16666666666666666,
+      "trust_and_credibility": 0.23333333333333334,
+      "authentic_imagery": 0.16666666666666666,
+      "content_readability": 0.06666666666666667,
+      "information_density": 0.3333333333333333,
+      "spacing_and_rhythm": 0.06666666666666667,
+      "mobile_usability": 0.16666666666666666,
+      "professional_polish": 0.13333333333333333
+    },
+    "visual_weighted_mean_delta": 0.141
+  },
+  "verdict": "GOLDEN_E2E_FAIL"
+}

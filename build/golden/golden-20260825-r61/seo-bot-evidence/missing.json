@@ -1,0 +1,10 @@
+{
+  "schema": "website-bot.golden-seo-bot-missing/v1",
+  "entries": [
+    {
+      "field_group": "SEO_BOT",
+      "producer": "SEO_BOT_URL",
+      "reason": "SEO_BOT_URL is not set in the environment"
+    }
+  ]
+}

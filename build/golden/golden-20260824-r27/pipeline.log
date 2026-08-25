@@ -1,0 +1,190 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 0 }
+[20:26:57.263] [32mINFO[39m (29513): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mversion[39m: "2.1.0"
+    [35mattempt[39m: 1
+[20:26:57.263] [32mINFO[39m (29513): [36mLoading domain spec[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mspecPath[39m: "fixtures/safehavenrr-golden-spec.yaml"
+[20:26:57.270] [32mINFO[39m (29513): [36mDomain spec loaded[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mclientId[39m: "safehavenrr"
+    [35mroutes[39m: 29
+    [35mvertical[39m: "roofing_construction"
+[20:26:57.287] [32mINFO[39m (29513): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mdurationMs[39m: 18
+    [35mevidenceRevision[39m: 2
+[20:26:57.287] [32mINFO[39m (29513): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mversion[39m: "3.0.0"
+    [35mattempt[39m: 1
+[20:26:57.287] [32mINFO[39m (29513): [36mUnknown resolution complete[39m
+    [35mmodule[39m: "stage:unknown-resolver"
+    [35mresolved[39m: 0
+    [35mtotal[39m: 0
+[20:26:57.302] [32mINFO[39m (29513): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mdurationMs[39m: 6
+    [35mevidenceRevision[39m: 3
+[20:26:57.302] [32mINFO[39m (29513): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[20:26:57.313] [32mINFO[39m (29513): [36mFetching competitive landscape from SEO-Bot[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mdonors[39m: 10
+    [35mqueries[39m: 6
+[20:27:55.060] [32mINFO[39m (29513): [36mCompetitive landscape sealed; beginning bounded donor acquisition[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mlandscapeId[39m: "competitive_landscape:f2e15fd8a62fbdaa28119e7349f9b667dd238cbeb422fafc6685269b1dd70ee2"
+    [35mselected[39m: 10
+    [35mdomains[39m: 81
+[20:28:05.358] [33mWARN[39m (29513): [36mdonor failed minimum evidence policy; must be replaced[39m
+    [35mmodule[39m: "intelligence:donor-ingestion"
+    [35mdonor[39m: "charlotteroofing.com"
+    [35mpages[39m: 0
+    [35mscreenshots[39m: 0
+[20:28:20.379] [32mINFO[39m (29513): [36mDonor evidence acquisition complete (10/10)[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35maccepted[39m: 10
+    [35mcrawlManifests[39m: 10
+    [35mscreenshotSets[39m: 10
+[20:28:20.379] [33mWARN[39m (29513): [36mGoverned memory is not configured; continuing without hydration or promotion[39m
+    [35mmodule[39m: "service:memory"
+[20:28:20.382] [32mINFO[39m (29513): [36mLLM service initialized with @quantum-l9/llm-router[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+[20:28:24.857] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 218
+    [35moutputTokens[39m: 386
+    [35mcostUsd[39m: 0.004405
+    [35mlatencyMs[39m: 4472
+    [35mrequestId[39m: "gen-1787617700-luET5bx3Pibz8ZUovHmt"
+[20:28:27.312] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 216
+    [35moutputTokens[39m: 398
+    [35mcostUsd[39m: 0.00452
+    [35mlatencyMs[39m: 2453
+    [35mrequestId[39m: "gen-1787617704-cHRd7SJPM4sZx7RW1FJ7"
+[20:28:30.323] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 345
+    [35moutputTokens[39m: 352
+    [35mcostUsd[39m: 0.004382
+    [35mlatencyMs[39m: 3010
+    [35mrequestId[39m: "gen-1787617707-Ed5ZmBUE7AYuvNnqb6Kz"
+[20:28:32.126] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 264
+    [35moutputTokens[39m: 231
+    [35mcostUsd[39m: 0.00297
+    [35mlatencyMs[39m: 1802
+    [35mrequestId[39m: "gen-1787617710-5u7yFTmtdmr7SyptQotj"
+[20:28:33.986] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 287
+    [35moutputTokens[39m: 239
+    [35mcostUsd[39m: 0.003108
+    [35mlatencyMs[39m: 1859
+    [35mrequestId[39m: "gen-1787617712-Yfu92UWw5L53VGa4JK9c"
+[20:28:36.995] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 339
+    [35moutputTokens[39m: 331
+    [35mcostUsd[39m: 0.004158
+    [35mlatencyMs[39m: 3009
+    [35mrequestId[39m: "gen-1787617713-gLqlBBtEcriacxixODhh"
+[20:28:39.730] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 283
+    [35moutputTokens[39m: 230
+    [35mcostUsd[39m: 0.003007
+    [35mlatencyMs[39m: 2734
+    [35mrequestId[39m: "gen-1787617717-pvoYcfLg9vUbXf9YIQ4b"
+[20:28:41.895] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 271
+    [35moutputTokens[39m: 245
+    [35mcostUsd[39m: 0.003128
+    [35mlatencyMs[39m: 2164
+    [35mrequestId[39m: "gen-1787617719-RNyaiukgkQjXrKLRohen"
+[20:28:43.766] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 279
+    [35moutputTokens[39m: 239
+    [35mcostUsd[39m: 0.003088
+    [35mlatencyMs[39m: 1870
+    [35mrequestId[39m: "gen-1787617721-MM0v7g3wai3oG9cvpXQv"
+[20:28:45.581] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 282
+    [35moutputTokens[39m: 234
+    [35mcostUsd[39m: 0.003045
+    [35mlatencyMs[39m: 1813
+    [35mrequestId[39m: "gen-1787617723-PWwpQEkvPuA3R91f52ah"
+Pipeline FAILED: pattern synthesis: pattern 1 has invalid disposition "PORT,MERGE_WITH_EXISTING"
+[20:29:07.889] [32mINFO[39m (29513): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "anthropic/claude-sonnet-4"
+    [35minputTokens[39m: 3383
+    [35moutputTokens[39m: 1829
+    [35mcostUsd[39m: 0.037584
+    [35mlatencyMs[39m: 22307
+    [35mrequestId[39m: "gen-1787617725-ZG5uCJiOFYUkSjIkbVyg"
+[20:29:07.930] [31mERROR[39m (29513): [36mStage FAILED[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mdurationMs[39m: 130588
+    error: "pattern synthesis: pattern 1 has invalid disposition \"PORT,MERGE_WITH_EXISTING\""
