@@ -63,7 +63,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // Heavy calls need the npm-undici transport (own Agent; Node's built-in
     // fetch cannot accept an npm-undici dispatcher). Injectable so tests can
     // observe heavy calls with a mock.
-    private readonly heavyFetchImpl: typeof fetch = undiciFetch,
+    private readonly heavyFetchImpl: (input: string | Request | URL, init?: RequestInit) => Promise<Response> = undiciFetch as typeof fetch,
   ) {
     if (!this.baseUrl.trim()) {
       throw new Error(
