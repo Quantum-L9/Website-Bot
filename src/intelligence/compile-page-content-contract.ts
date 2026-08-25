@@ -291,6 +291,11 @@ export function compilePageContentContract(
             "certif", "licens", "bond", "membership", "accredit",
             "statistic", "percentage", "lifespan", "savings",
             "cost", "rating", "data", "threshold",
+            // The magnitude phrase itself is a banned claim token — a proof
+            // demanding it can never be satisfied (golden run #53: the
+            // writer's attempt was scrubbed into "6 serving Charlotte"
+            // residue and the validator kept the requirement unmet).
+            "years of experience",
           ];
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;

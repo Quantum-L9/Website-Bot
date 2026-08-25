@@ -325,6 +325,7 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
           "energy efficiency ratings",
           "local weather data",
           "damage thresholds",
+          "years of experience",
           "material options",
         ],
       }),
@@ -354,6 +355,7 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
     "energy efficiency ratings",
     "local weather data",
     "damage thresholds",
+    "years of experience",
   ]) {
     assert.ok(!services.proof_requirements.includes(dropped), `proof should drop: ${dropped}`);
   }
