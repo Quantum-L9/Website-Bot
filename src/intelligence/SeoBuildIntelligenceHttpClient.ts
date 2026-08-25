@@ -80,7 +80,13 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // content: prose for all 29 routes). Both take minutes — the legacy
     // generator measured 327s for the same contract — so a blanket 120s cap
     // aborts them mid-generation. Lightweight endpoints keep 120s.
-    const heavy = path.includes("structured-content") || path.includes("seo-content-blueprint");
+    const heavy =
+      path.includes("structured-content") ||
+      path.includes("seo-content-blueprint") ||
+      // The landscape call embeds live SERP queries whose own timeout is now
+      // 90s; several queries can push the endpoint past the 120s light cap
+      // (golden run #37).
+      path.includes("competitive-landscape");
     const timeoutMs = heavy
       ? Number(process.env.SEO_BOT_HEAVY_CALL_TIMEOUT_MS ?? 900_000)
       : 120_000;
