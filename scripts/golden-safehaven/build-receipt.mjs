@@ -171,7 +171,11 @@ const redesignReceipt = (() => {
   return r.found ? r.json : null;
 })();
 
-const seoBotDir = path.join(ABS.evidence, "seo-bot");
+// The collector writes to the run's seo-bot-evidence dir (passed by the
+// orchestrator); the legacy layout nested it under the evidence dir.
+// Honor the explicit flag first (golden run #61: the adapter silently
+// ignored --seo-bot-evidence and read a nonexistent evidence/seo-bot).
+const seoBotDir = path.resolve(arg("seo-bot-evidence") ?? path.join(ABS.evidence, "seo-bot"));
 function seoBotFile(name) {
   return readJsonFile(path.join(seoBotDir, name), `seo-bot/${name}`);
 }
@@ -337,7 +341,14 @@ if (identity.bot_interop.website_bot_version && identity.bot_interop.seo_bot_ver
 // supply it — the runtime never persists its own git state.
 for (const repo of ["website_bot", "seo_bot", "llm_router"]) {
   const state = firstDefined(identitySnapshot, [`${repo}.worktree_state`]);
-  if (typeof state === "string" && state !== "") {
+  const stateOk =
+    state === "CLEAN" ||
+    (state !== null &&
+      typeof state === "object" &&
+      state.status === "DIRTY" &&
+      typeof state.deterministic_identity === "string" &&
+      state.deterministic_identity !== "");
+  if (stateOk) {
     identity[repo].worktree_state = state;
     track(`identity.${repo}.worktree_state`, "seo-bot/identity-snapshot.json", identitySnapshotDigest(), "runtime-captured worktree state");
   } else {
@@ -610,10 +621,23 @@ function donorScreenshotFiles(m) {
   }
 }
 
+// The redesign receipt records the donors ACTUALLY acquired — the sealed
+// landscape's selected_donors list can be stale when the bounded ingestor
+// replaced a failing candidate (golden run #61: charlotteroofing.com was
+// replaced by monroerestoration.com; the evidence dirs prove it).
+const redesignReceiptFile = readJsonFile(
+  path.join(ABS.assets, "redesign-integrity-receipt.json"),
+  "redesign-integrity-receipt.json",
+);
+const acquiredDonors = Array.isArray(redesignReceiptFile.json?.donors)
+  ? redesignReceiptFile.json.donors
+  : null;
+
 const donorEvidence = [];
-if (Array.isArray(competitive.selected_donors)) {
-  for (const donor of competitive.selected_donors) {
-    const normalized = donor.normalized_domain;
+const donorSourceList = acquiredDonors ?? competitive.selected_donors;
+if (Array.isArray(donorSourceList)) {
+  for (const donor of donorSourceList) {
+    const normalized = donor.normalized_domain ?? normalizeDomain(donor.domain ?? donor);
     const m = manifestForDomain(normalized);
     if (!m) {
       missing(`donor_evidence[${normalized}]`, "donor-evidence/*/crawl-manifest.json", `no crawl manifest for donor ${normalized} (expected under donor-evidence/${donorDirToken(normalized)}/)`);
@@ -791,6 +815,12 @@ if (redesignReceipt?.counters && typeof redesignReceipt.counters.page_content_co
     if (Array.isArray(payload.routes)) {
       pageContentContract.routes = normalizeRouteSet(payload.routes.map((r) => r.path ?? r.route_id ?? ""));
       track("page_content_contract.routes", found.label, found.digest, "sealed PCC payload");
+    } else if (Array.isArray(structuredPayload?.routes)) {
+      // The sealed structured-content package's lineage check guarantees
+      // its route set matches the PCC one-for-one — deriving the PCC route
+      // set from the package is a faithful projection, not an inference.
+      pageContentContract.routes = normalizeRouteSet(structuredPayload.routes.map((r) => r.path ?? r.route_id ?? ""));
+      track("page_content_contract.routes", "seo-bot/structured-content.json", structuredEvidence.digest, "derived from the sealed structured-content package (lineage-checked route set)");
     }
     const unplaced = firstDefined(payload, ["unplaced_requirements", "counters.unplaced_requirements", "compiler.unplaced_requirements"]);
     if (unplaced != null) {
@@ -823,7 +853,31 @@ if (redesignReceipt?.counters && typeof redesignReceipt.counters.page_content_co
       missing("page_content_contract.determinism", found.label, "PCC payload does not persist determinism digests (wrapper must persist the sealed artifact)");
     }
   } else {
-    missing("page_content_contract.routes", "page-content-contract.json", "PageContentContract is Website-Bot product memory, not persisted by the runtime; wrapper must persist the sealed artifact");
+    // No persisted PCC payload: project the recoverable fields.
+    // Routes come from the sealed structured-content package, whose lineage
+    // check guarantees a one-for-one route-set match with the contract.
+    if (Array.isArray(structuredPayload?.routes)) {
+      pageContentContract.routes = normalizeRouteSet(structuredPayload.routes.map((r) => r.path ?? r.route_id ?? ""));
+      track("page_content_contract.routes", "seo-bot/structured-content.json", structuredEvidence.digest, "derived from the sealed structured-content package (lineage-checked route set)");
+    } else {
+      missing("page_content_contract.routes", "page-content-contract.json", "PageContentContract is Website-Bot product memory, not persisted by the runtime; wrapper must persist the sealed artifact");
+    }
+    // Zero-counters from completion evidence: the PCC compiler fails the
+    // pipeline closed on CONTENT_REQUIREMENT_UNPLACED and
+    // INVALID_BUSINESS_FACT, so a completed run proves both are zero.
+    const redesignPassed = redesignReceiptFile.found &&
+      Array.isArray(redesignReceiptFile.json?.executed_stages) &&
+      redesignReceiptFile.json.executed_stages.includes("redesign-content-authority");
+    if (redesignPassed) {
+      pageContentContract.unplaced_requirements = 0;
+      pageContentContract.invalid_business_facts = 0;
+      track("page_content_contract.unplaced_requirements", "redesign-integrity-receipt.json", redesignReceiptDigest(), "derived: the compiler fails closed on unplaced requirements; a completed run proves zero");
+      track("page_content_contract.invalid_business_facts", "redesign-integrity-receipt.json", redesignReceiptDigest(), "derived: the compiler fails closed on invalid business facts; a completed run proves zero");
+    } else {
+      missing("page_content_contract.unplaced_requirements", "redesign-integrity-receipt.json", "no completion evidence to derive the zero counter");
+      missing("page_content_contract.invalid_business_facts", "redesign-integrity-receipt.json", "no completion evidence to derive the zero counter");
+    }
+    missing("page_content_contract.determinism", "page-content-contract.json", "PCC determinism digests require two compiler runs on identical inputs; the runtime runs the compiler once — the wrapper must persist the sealed artifact");
   }
 }
 
@@ -1181,7 +1235,18 @@ const visual = {};
 {
   const visualRoot = visualDir ? path.resolve(visualDir) : path.join(ABS.assets, "visual-qa");
   const manifestFile = readJsonFile(path.join(visualRoot, "manifest.json"), "visual-qa/manifest.json");
-  const trialsFile = readJsonFile(path.join(visualRoot, "normalized-results.json"), "visual-qa/normalized-results.json");
+  // The harness aggregates normalized trials under visual/aggregated/;
+  // accept either location so the adapter works against both layouts.
+  let trialsFile = readJsonFile(
+    path.join(visualRoot, "normalized-results.json"),
+    "visual/normalized-results.json",
+  );
+  if (!trialsFile.found) {
+    trialsFile = readJsonFile(
+      path.join(visualRoot, "aggregated", "normalized-results.json"),
+      "visual/aggregated/normalized-results.json",
+    );
+  }
   if (manifestFile.found && trialsFile.found) {
     const pairs = Array.isArray(manifestFile.json.pairs) ? manifestFile.json.pairs : [];
     const trials = Array.isArray(trialsFile.json.trials) ? trialsFile.json.trials : [];

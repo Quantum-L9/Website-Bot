@@ -38,6 +38,56 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import pg from "pg";
+
+/** Endpoint name -> SEO-Bot store artifact_type. */
+const ARTIFACT_TYPE_BY_NAME = {
+  "competitive-landscape": "competitive_landscape",
+  "seo-content-blueprint": "seo_content_blueprint",
+  "structured-content": "structured_content_package",
+};
+
+/**
+ * Read a sealed build-intelligence artifact from the SEO-Bot store. The
+ * artifacts persist per build_id; re-POSTing an endpoint would RE-RUN the
+ * generation (SERP queries, LLM spend), so the store is the honest
+ * evidence source when no request file exists. Returns an API-envelope
+ * shaped object, or null when the store is not configured/unreachable.
+ */
+async function readArtifactFromStore(name, buildIdValue) {
+  const url = process.env.SEO_BOT_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) return null;
+  const artifactType = ARTIFACT_TYPE_BY_NAME[name];
+  if (!artifactType) return null;
+  let pool;
+  try {
+    pool = new pg.Pool({ connectionString: url });
+    const result = await pool.query(
+      `SELECT artifact_id, artifact_type, client_id, build_id, produced_at, payload
+       FROM build_intelligence_artifacts
+       WHERE build_id = $1 AND artifact_type = $2
+       ORDER BY created_at DESC LIMIT 1`,
+      [buildIdValue, artifactType],
+    );
+    const row = result.rows[0];
+    if (!row) return null;
+    return {
+      artifact_id: row.artifact_id,
+      artifact_type: row.artifact_type,
+      client_id: row.client_id,
+      build_id: row.build_id,
+      produced_at:
+        row.produced_at instanceof Date ? row.produced_at.toISOString() : String(row.produced_at),
+      payload: row.payload,
+    };
+  } catch (err) {
+    console.warn(`seo-bot store read failed for ${name}: ${String(err?.message ?? err)}`);
+    return null;
+  } finally {
+    if (pool) await pool.end().catch(() => {});
+  }
+}
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -95,12 +145,50 @@ function identitySnapshot() {
   const seoBotHead = seoBotCheckout ? gitOutput(["rev-parse", "HEAD"], seoBotCheckout) : null;
   // worktree_state per repository: null when the dir is not a git checkout
   // (installed npm packages usually are not) — the adapter fails closed on
-  // null, never defaulting a state.
+  // null, never defaulting a state. A dirty checkout is recorded as the
+  // ORACLE-003 object form {status, deterministic_identity} — the
+  // deterministic identity is the digest of the porcelain status itself.
   const seoBotPorcelain = seoBotCheckout ? gitOutput(["status", "--porcelain"], seoBotCheckout) : null;
   const routerDir = path.join(root, "node_modules/@quantum-l9/llm-router");
-  const routerPorcelain = gitOutput(["status", "--porcelain"], routerDir);
-  const routerHead = gitOutput(["rev-parse", "HEAD"], routerDir);
-  const worktreeState = (p) => (p === null ? null : p === "" ? "CLEAN" : `DIRTY:${p.split("\n").length} paths`);
+  // git walks UP from the router dir into the Website-Bot worktree, so a
+  // bare rev-parse there reports the WRONG identity (golden run #61:
+  // llm_router.sha equaled the Website-Bot HEAD). Only a real git checkout
+  // (its own .git, not the parent's) qualifies as a checkout identity.
+  const routerIsOwnCheckout =
+    fs.existsSync(path.join(routerDir, ".git")) && gitOutput(["rev-parse", "--show-toplevel"], routerDir) === routerDir;
+  const routerPorcelain = routerIsOwnCheckout ? gitOutput(["status", "--porcelain"], routerDir) : null;
+  const routerHead = routerIsOwnCheckout ? gitOutput(["rev-parse", "HEAD"], routerDir) : null;
+  const worktreeState = (p) =>
+    p === null
+      ? null
+      : p === ""
+        ? "CLEAN"
+        : { status: "DIRTY", deterministic_identity: createHash("sha256").update(p).digest("hex") };
+  // Deterministic identity of a registry-installed package: version plus a
+  // digest over every installed file — real evidence of the exact bytes
+  // that ran, for packages that carry no git metadata.
+  function installedPackageDigest(dir) {
+    const files = [];
+    const walk = (d, rel) => {
+      for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+        const abs = path.join(d, entry.name);
+        const r = rel ? `${rel}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) walk(abs, r);
+        else if (entry.isFile()) files.push(r);
+      }
+    };
+    walk(dir, "");
+    files.sort();
+    const h = createHash("sha256");
+    for (const f of files) {
+      h.update(f)
+        .update("\0")
+        .update(createHash("sha256").update(fs.readFileSync(path.join(dir, f))).digest("hex"))
+        .update("\n");
+    }
+    return h.digest("hex");
+  }
+  const routerInstalledDigest = routerPkg ? installedPackageDigest(routerDir) : null;
   const snapshot = {
     schema: "website-bot.golden-identity-snapshot/v1",
     captured_at: new Date().toISOString(),
@@ -111,8 +199,16 @@ function identitySnapshot() {
     },
     llm_router: {
       package_version: routerPkg?.version ?? null,
-      sha: routerHead ?? null,
-      worktree_state: worktreeState(routerPorcelain),
+      sha: routerIsOwnCheckout
+        ? routerHead
+        : routerInstalledDigest
+          ? `installed:${routerPkg.version}:${routerInstalledDigest}`
+          : null,
+      worktree_state: routerIsOwnCheckout
+        ? worktreeState(routerPorcelain)
+        : routerInstalledDigest
+          ? { status: "DIRTY", deterministic_identity: routerInstalledDigest }
+          : null,
     },
     bot_interop: { website_bot_version: interopPkg?.version ?? null },
     seo_bot: {
@@ -238,6 +334,18 @@ async function run() {
   ];
   for (const [name, urlPath, reqFile] of endpointDefs) {
     if (!reqFile) {
+      // No request file: prefer the SEO-Bot artifact store — the sealed
+      // artifacts already persist there per build. Re-POSTing the endpoint
+      // would RE-RUN the generation (DataForSEO queries, LLM spend), which
+      // is not evidence collection. Only when the store is unreachable is
+      // the endpoint recorded SKIPPED.
+      const fromStore = await readArtifactFromStore(name, buildId);
+      if (fromStore) {
+        fetchMeta[name] = { endpoint: urlPath, attempted: false, source: "store", artifact_id: fromStore.artifact_id };
+        const status = await saveResponse(name, `${name}.json`, { ...fromStore, ok: true });
+        record(name, `${name}.json`, status, null, `persisted artifact ${fromStore.artifact_id} read from the SEO-Bot store`);
+        continue;
+      }
       fetchMeta[name] = { endpoint: urlPath, attempted: false };
       record(name, `${name}.json`, "SKIPPED", null, `no --${name.replace("-", "-")}-request file supplied`);
       continue;

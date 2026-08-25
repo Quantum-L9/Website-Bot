@@ -68,7 +68,11 @@ echo "site:     ${SITE_DIR}"
 
 # ---- 4. SEO-Bot evidence collection (preflight + audit) ----
 node scripts/golden-safehaven/collect-seo-bot-evidence.mjs \
+  --client-id "${CLIENT_ID}" \
   --build-id "${BUILD_ID}" \
+  --evidence-dir "${EVIDENCE_DIR}" \
+  --case tests/golden/safehaven/case.json \
+  ${SEO_BOT_CHECKOUT:+--seo-bot-checkout "${SEO_BOT_CHECKOUT}"} \
   --out "${RUN_ROOT}/seo-bot-evidence" \
   || echo "WARN: seo-bot evidence collector failed (adapter must record missing producers)"
 
@@ -78,18 +82,21 @@ node scripts/golden-safehaven/check-site-integrity.mjs \
   --site-dir "${SITE_DIR}" \
   --out "${RUN_ROOT}/site-integrity.json"
 
-node scripts/golden-safehaven/build-receipt.mjs \
-  --client-id "${CLIENT_ID}" \
-  --build-id "${BUILD_ID}" \
-  --evidence-dir "${EVIDENCE_DIR}" \
-  --assets-dir "${ASSETS_DIR}" \
-  --site-dir "${SITE_DIR}" \
-  --db .l9/data/website-bot.db \
-  --case tests/golden/safehaven/case.json \
-  --run-id "${RUN_ID}" \
-  --site-integrity "${RUN_ROOT}/site-integrity.json" \
-  --seo-bot-evidence "${RUN_ROOT}/seo-bot-evidence" \
+RECEIPT_ARGS=(
+  --client-id "${CLIENT_ID}"
+  --build-id "${BUILD_ID}"
+  --evidence-dir "${EVIDENCE_DIR}"
+  --assets-dir "${ASSETS_DIR}"
+  --site-dir "${SITE_DIR}"
+  --db .l9/data/website-bot.db
+  --case tests/golden/safehaven/case.json
+  --run-id "${RUN_ID}"
+  --site-integrity "${RUN_ROOT}/site-integrity.json"
+  --seo-bot-evidence "${RUN_ROOT}/seo-bot-evidence"
+  --visual-dir "${RUN_ROOT}/visual"
   --out "${RUN_ROOT}/receipt.json"
+)
+node scripts/golden-safehaven/build-receipt.mjs "${RECEIPT_ARGS[@]}"
 
 # ---- 6. Blind visual oracle (§17-§20) ----
 # Serve the frozen build locally for candidate captures; kill on exit.
@@ -115,6 +122,11 @@ node scripts/golden-safehaven/run-visual-trials.mjs \
 node scripts/golden-safehaven/aggregate-visual.mjs \
   --visual "${RUN_ROOT}/visual" \
   --oracle tests/golden/safehaven/oracle.json
+
+# Rebuild the receipt AFTER the visual harness completes so the sealed
+# receipt carries the trial evidence (the adapter is deterministic — the
+# first build supplied everything else; this pass adds visual.pairs).
+node scripts/golden-safehaven/build-receipt.mjs "${RECEIPT_ARGS[@]}"
 
 # ---- 7. Verifier (the only judge) ----
 node scripts/verify-safehaven-golden.mjs \
