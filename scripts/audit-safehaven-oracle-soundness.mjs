@@ -30,9 +30,19 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
-const casePath = process.argv[2] ?? "tests/golden/safehaven/case.json";
-const verifier = process.argv[3] ?? "scripts/verify-safehaven-golden.mjs";
-const outPath = process.argv[4] ?? "tests/golden/safehaven/oracle-soundness.json";
+// CLI-controlled paths are canonicalized and then validated against the
+// repository root before any read/write, so a crafted argument cannot
+// escape the checkout.
+function resolveUnder(root, candidate) {
+  const resolved = path.resolve(root, candidate);
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+    throw new Error(`refusing path outside repository root: ${candidate}`);
+  }
+  return resolved;
+}
+const casePath = resolveUnder(ROOT, process.argv[2] ?? "tests/golden/safehaven/case.json");
+const verifier = resolveUnder(ROOT, process.argv[3] ?? "scripts/verify-safehaven-golden.mjs");
+const outPath = resolveUnder(ROOT, process.argv[4] ?? "tests/golden/safehaven/oracle-soundness.json");
 
 /** Minimal skeleton. Unrelated gates fail loudly; we only read per-probe codes. */
 function skeleton() {
@@ -101,7 +111,9 @@ function codesFor(receipt, tag) {
   fs.writeFileSync(p, JSON.stringify(receipt));
   let stdout = "";
   try {
-    stdout = execFileSync("node", [verifier, casePath, p], { encoding: "utf8" });
+    // process.execPath pins the interpreter to the running Node binary
+    // instead of resolving "node" through a potentially writable PATH.
+    stdout = execFileSync(process.execPath, [verifier, casePath, p], { encoding: "utf8" });
   } catch (e) {
     stdout = e.stdout ?? "";
   } finally {
@@ -236,7 +248,7 @@ const report = {
   probes: results,
   verdict: vac.length === 0 && inert.length === 0 ? "ORACLE_SOUNDNESS_COMPLETE" : "ORACLE_SOUNDNESS_INCOMPLETE",
 };
-fs.writeFileSync(path.resolve(ROOT, outPath), `${JSON.stringify(report, null, 2)}\n`);
+fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
 
 console.log(`probes            : ${results.length}`);
 console.log(`sound             : ${sound.length}`);

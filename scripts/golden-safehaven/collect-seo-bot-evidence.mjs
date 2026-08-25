@@ -119,10 +119,26 @@ fs.mkdirSync(outDir, { recursive: true });
 const baseUrl = process.env.SEO_BOT_URL ?? null;
 const apiKey = process.env.SEO_BOT_API_KEY ?? null;
 
+// Deterministic code-unit comparator: keeps digest inputs byte-ordered and
+// locale-independent (default Array#sort order, made explicit).
+function compareCodeUnits(a, b) {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
 // ---------- identity snapshot (Website-Bot checkout identity) ----------
+// PATH is pinned to fixed system directories so the subprocess cannot be
+// hijacked through a writable PATH entry.
+const FIXED_PATH = "/usr/local/bin:/usr/bin:/bin";
 function gitOutput(args, cwd) {
   try {
-    return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return execFileSync("git", args, {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      env: { ...process.env, PATH: FIXED_PATH },
+    }).trim();
   } catch {
     return null;
   }
@@ -178,7 +194,7 @@ function identitySnapshot() {
       }
     };
     walk(dir, "");
-    files.sort();
+    files.sort(compareCodeUnits);
     const h = createHash("sha256");
     for (const f of files) {
       h.update(f)
@@ -280,11 +296,11 @@ async function run() {
   if (!baseUrl || !apiKey) {
     if (!baseUrl) sequence.missing_producers.push(missingEnv("SEO_BOT_URL"));
     if (!apiKey) sequence.missing_producers.push(missingEnv("SEO_BOT_API_KEY"));
-    for (const [name, p] of [
-      ["preflight", "/api/build-intelligence/preflight"],
-      ["competitive-landscape", "/api/build-intelligence/competitive-landscape"],
-      ["seo-content-blueprint", "/api/build-intelligence/seo-content-blueprint"],
-      ["structured-content", "/api/build-intelligence/structured-content"],
+    for (const name of [
+      "preflight",
+      "competitive-landscape",
+      "seo-content-blueprint",
+      "structured-content",
     ]) {
       record(name, `${name}.json`, "SKIPPED", null, "SEO_BOT_URL/SEO_BOT_API_KEY missing");
     }

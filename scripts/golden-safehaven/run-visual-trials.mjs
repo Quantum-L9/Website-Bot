@@ -82,9 +82,10 @@ function makeRng(seedStr) {
 function flip(o) {
   return o === "A" ? "B" : "A";
 }
+// "A" = candidate shown as IMAGE A, "B" = candidate shown as IMAGE B —
+// the single-letter value every consumer below tests against.
 function orientationFor(pair, rng) {
-  const roll = rng() < 0.5 ? "AB" : "BA";
-  return roll; // A=candidate,B=baseline or reversed; the map records truth
+  return rng() < 0.5 ? "A" : "B";
 }
 
 const trials = [];
@@ -143,14 +144,14 @@ for (const pair of pairs) {
     }
 
     // Dimension scores: judge scores B relative to A on [-2,+2].
-    // Normalize to candidate-relative: if A was the candidate, score as-is;
-    // if B was the candidate, negate.
+    // Normalize to candidate-relative: if B was the candidate, keep the
+    // B-relative score as-is; if A was the candidate, negate it.
     const dims = judge.dimensions ?? {};
     const normalizedCandidateDelta = {};
     for (const [dim, v] of Object.entries(dims)) {
       const num = Number(v);
       if (!Number.isFinite(num)) continue;
-      normalizedCandidateDelta[dim] = orientation === "A" ? num : -num;
+      normalizedCandidateDelta[dim] = orientation === "A" ? -num : num;
     }
 
     trials.push({

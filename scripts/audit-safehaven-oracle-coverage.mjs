@@ -18,12 +18,22 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const oraclePath = process.argv[2] ?? "tests/golden/safehaven/oracle.json";
-const verifierPath = process.argv[3] ?? "scripts/verify-safehaven-golden.mjs";
-const outPath = process.argv[4] ?? "tests/golden/safehaven/oracle-coverage.json";
+// CLI-controlled paths are canonicalized and then validated against the
+// repository root before any read/write, so a crafted argument cannot
+// escape the checkout.
+function resolveUnder(root, candidate) {
+  const resolved = path.resolve(root, candidate);
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+    throw new Error(`refusing path outside repository root: ${candidate}`);
+  }
+  return resolved;
+}
+const oraclePath = resolveUnder(ROOT, process.argv[2] ?? "tests/golden/safehaven/oracle.json");
+const verifierPath = resolveUnder(ROOT, process.argv[3] ?? "scripts/verify-safehaven-golden.mjs");
+const outPath = resolveUnder(ROOT, process.argv[4] ?? "tests/golden/safehaven/oracle-coverage.json");
 
-const oracle = JSON.parse(fs.readFileSync(path.resolve(ROOT, oraclePath), "utf8"));
-const verifierSrc = fs.readFileSync(path.resolve(ROOT, verifierPath), "utf8");
+const oracle = JSON.parse(fs.readFileSync(oraclePath, "utf8"));
+const verifierSrc = fs.readFileSync(verifierPath, "utf8");
 const verifierLines = verifierSrc.split("\n");
 
 /** Locate the 1-indexed line containing an anchor string. */
@@ -191,7 +201,7 @@ for (const [oraclePathKey, spec] of Object.entries(TABLE)) {
       staleCitations.push({ oracle_path: oraclePathKey, missing_anchor: spec.anchor });
     } else {
       isImplemented = true;
-      verifierLocation = `${verifierPath}:${ln}`;
+      verifierLocation = `${path.relative(ROOT, verifierPath)}:${ln}`;
       implemented += 1;
     }
   }
@@ -214,7 +224,10 @@ const coveragePct = total === 0 ? 0 : Math.round((implemented / total) * 1000) /
 const report = {
   schema: "l9.golden-oracle-coverage/v1",
   oracle_id: oracle.oracle_id,
-  generated_from: { oracle: oraclePath, verifier: verifierPath },
+  generated_from: {
+    oracle: path.relative(ROOT, oraclePath),
+    verifier: path.relative(ROOT, verifierPath),
+  },
   blocking_properties_total: total,
   blocking_properties_enforced: implemented,
   coverage_pct: coveragePct,
@@ -224,7 +237,7 @@ const report = {
   verdict: unenforced.length === 0 && staleCitations.length === 0 ? "ORACLE_COVERAGE_COMPLETE" : "ORACLE_IMPLEMENTATION_INCOMPLETE",
 };
 
-fs.writeFileSync(path.resolve(ROOT, outPath), `${JSON.stringify(report, null, 2)}\n`);
+fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
 
 console.log(`oracle blocking properties : ${total}`);
 console.log(`enforced by verifier       : ${implemented}`);

@@ -10,6 +10,17 @@
  */
 import { createHash } from "node:crypto";
 
+/**
+ * Deterministic code-unit comparator. Explicitly locale-independent so
+ * canonical orderings (and the digests derived from them) are identical
+ * on every machine.
+ */
+export function compareCodeUnits(a, b) {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
 /** Canonical route: leading slash, no trailing slash; root stays "/". */
 export function normalizeRoute(value) {
   if (typeof value !== "string") return "/";
@@ -23,7 +34,7 @@ export function normalizeRoute(value) {
 /** Sorted, deduplicated canonical route set (deterministic order). */
 export function normalizeRouteSet(values) {
   if (!Array.isArray(values)) return [];
-  return [...new Set(values.map(normalizeRoute))].sort();
+  return [...new Set(values.map(normalizeRoute))].sort(compareCodeUnits);
 }
 
 /**
@@ -188,7 +199,7 @@ export function visualRequirementRoles(visualRequirements) {
     return Object.keys(visualRequirements)
       .map((k) => k.toLowerCase())
       .filter(Boolean)
-      .sort();
+      .sort(compareCodeUnits);
   }
   return [];
 }
@@ -273,7 +284,7 @@ export function sortKeys(value) {
   if (Array.isArray(value)) return value.map(sortKeys);
   if (value && typeof value === "object") {
     const out = {};
-    for (const key of Object.keys(value).sort()) out[key] = sortKeys(value[key]);
+    for (const key of Object.keys(value).sort(compareCodeUnits)) out[key] = sortKeys(value[key]);
     return out;
   }
   return value;

@@ -262,7 +262,6 @@ const checkpoints = (() => {
 // identity
 // ---------------------------------------------------------------------------
 const identity = {};
-const identityProvenance = {};
 track("identity.website_bot.llm_router_version", LLM_ROUTER_PKG, pkgVersionDigest(LLM_ROUTER_PKG), "installed package identity");
 track("identity.website_bot.package_version", ROOT_PKG, pkgVersionDigest(ROOT_PKG), "installed package identity");
 track("identity.llm_router.package_version", LLM_ROUTER_PKG, pkgVersionDigest(LLM_ROUTER_PKG), "installed package identity");
@@ -992,7 +991,9 @@ if (imageAssetManifest.found) {
   assets.selected_source_images = new Set(sourceSiteAssets.map((a) => a.sha256)).size;
   // Manifest dispositions are translated into the oracle taxonomy
   // (eligible_source_asset_precedence / forbidden_candidate_dispositions).
-  assets.candidate_dispositions = [...new Set(assetsList.map(normalizeAssetDisposition).filter(Boolean))].sort();
+  assets.candidate_dispositions = [...new Set(assetsList.map(normalizeAssetDisposition).filter(Boolean))].sort(
+    (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  );
   track("assets.authorized_reusable_images", "image-asset-manifest.json", imageAssetManifest.digest, "source-site assets with approved-client-owned disposition");
   track("assets.selected_source_images", "image-asset-manifest.json", imageAssetManifest.digest, "source-site assets present in the final manifest");
   track("assets.candidate_dispositions", "image-asset-manifest.json", imageAssetManifest.digest, "manifest dispositions mapped to the oracle taxonomy");

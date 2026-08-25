@@ -30,7 +30,17 @@ const ROOT = path.resolve(here, "..", "..");
 const casePath = path.resolve(ROOT, "tests/golden/safehaven/case.json");
 const oraclePath = path.resolve(ROOT, "tests/golden/safehaven/oracle.json");
 const ncPath = path.resolve(ROOT, "tests/golden/safehaven/negative-controls.json");
-const outDir = path.resolve(ROOT, process.argv[2] ?? "tests/golden/safehaven/calibration");
+// CLI-controlled paths are canonicalized and then validated against the
+// repository root before any read/write, so a crafted argument cannot
+// escape the checkout.
+function resolveUnder(root, candidate) {
+  const resolved = path.resolve(root, candidate);
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+    throw new Error(`refusing path outside repository root: ${candidate}`);
+  }
+  return resolved;
+}
+const outDir = resolveUnder(ROOT, process.argv[2] ?? "tests/golden/safehaven/calibration");
 
 const { runVerifier } = await import(path.resolve(ROOT, "scripts/verify-safehaven-golden.mjs"));
 

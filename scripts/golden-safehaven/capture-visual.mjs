@@ -57,7 +57,7 @@ if (baselineDir) {
   const { createServer } = await import("node:http");
   const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
   baselineServer = createServer((req, res) => {
-    let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    let p = decodeURIComponent(new URL(req.url, "https://x").pathname);
     if (p.endsWith("/")) p += "index.html";
     const file = path.join(baselineDir, p);
     if (!file.startsWith(path.resolve(baselineDir)) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
@@ -99,7 +99,7 @@ fs.mkdirSync(path.join(resultsDir, "baseline"), { recursive: true });
 fs.mkdirSync(path.join(resultsDir, "candidate"), { recursive: true });
 
 async function capture(url, route, viewport, side) {
-  const { rt, file } = captureKey(route, viewport, side);
+  const { file } = captureKey(route, viewport, side);
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     deviceScaleFactor: viewport.device_scale_factor ?? 1,

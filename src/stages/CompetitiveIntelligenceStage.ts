@@ -23,7 +23,10 @@ import {
 } from "../intelligence/DonorIngestion.js";
 import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
+import {
+  SeoBotPreflightError,
+  type SeoBuildIntelligencePort,
+} from "../intelligence/SeoBuildIntelligencePort.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
@@ -99,14 +102,16 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
       );
     // The model may emit a multi-part disposition ("PORT,MERGE_WITH_EXISTING").
     // Split on commas/semicolons, validate each part against the allowed set,
-    // and keep the sorted unique joined form.
-    const rawDisposition = String(entry.disposition ?? "");
+    // and keep the sorted unique joined form. Only string dispositions are
+    // meaningful — any other shape falls through to the no-disposition error.
+    const rawDisposition =
+      typeof entry.disposition === "string" ? entry.disposition : "";
     const dispositionParts = [...new Set(
       rawDisposition
         .split(/[,;]/)
         .map((part) => part.trim())
         .filter(Boolean),
-    )].sort();
+    )].sort((a, b) => a.localeCompare(b));
     if (dispositionParts.length === 0) {
       throw new BuildError(
         "INTELLIGENCE_PARSE_FAILED",
@@ -649,7 +654,18 @@ export class CompetitiveIntelligenceStage implements Stage {
     // seo:createCompetitiveLandscape). Ordering proof is server-side:
     // SEO-Bot stamps the preflight report (produced_at) and the sealed
     // landscape artifact (produced_at) — the receipt compares the two.
-    const preflightSnapshot = await port.preflight();
+    let preflightSnapshot: Awaited<ReturnType<SeoBuildIntelligencePort["preflight"]>>;
+    try {
+      preflightSnapshot = await port.preflight();
+    } catch (error) {
+      if (error instanceof SeoBotPreflightError) {
+        throw new BuildError(
+          error.code,
+          `REDESIGN preflight failed: ${error.message}`,
+        );
+      }
+      throw error;
+    }
     ctx.seoBotOrdering = {
       preflight_produced_at: preflightSnapshot.produced_at ?? "",
       landscape_produced_at: "",

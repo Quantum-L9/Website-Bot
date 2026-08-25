@@ -65,6 +65,14 @@ function readJson(p) {
   return JSON.parse(fs.readFileSync(path.resolve(ROOT, p), "utf8"));
 }
 
+/**
+ * Identifier whitelist applied before any externally sourced id is echoed
+ * into the printed result: strips everything outside [A-Za-z0-9._-].
+ */
+function sanitizeIdentifier(value) {
+  return String(value ?? "").replace(/[^A-Za-z0-9._-]/g, "").slice(0, 128);
+}
+
 /* ------------------------------------------------------------------ *
  * Pure helpers (exported for the unit suite under tests/golden/safehaven)
  * ------------------------------------------------------------------ */
@@ -212,9 +220,6 @@ function createVerifier(oracle) {
   }
   function requireNonEmpty(value, code, message) {
     if (typeof value !== "string" || value.trim() === "") fail(code, message, value);
-  }
-  function requireFiniteNumber(value, code, message, evidence) {
-    if (typeof value !== "number" || !Number.isFinite(value)) fail(code, message, evidence ?? value);
   }
 
   /** Oracle-config helpers: missing configuration fails closed with the given code. */
@@ -845,7 +850,7 @@ function createVerifier(oracle) {
     metrics.blocking_inconclusive_count = blockingInconclusive.length;
     return {
       schema: "l9.golden-oracle-result/v1",
-      case_id: testCase.case_id,
+      case_id: sanitizeIdentifier(testCase.case_id),
       evaluated_at: new Date().toISOString(),
       hard_gate_failures: failures,
       blocking_inconclusive_states: blockingInconclusive,

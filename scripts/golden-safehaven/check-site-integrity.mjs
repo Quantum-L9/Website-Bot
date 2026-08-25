@@ -161,7 +161,6 @@ async function checkUrl() {
     const chain = [];
     let current = res;
     let finalUrl = url;
-    let status = current.status;
     let finalRes = current;
     while (current.status >= 300 && current.status < 400 && current.headers.get("location")) {
       const loc = new URL(current.headers.get("location"), current.url).toString();
@@ -170,7 +169,7 @@ async function checkUrl() {
       finalUrl = loc;
       finalRes = current;
     }
-    status = finalRes.status;
+    const status = finalRes.status;
     const text = status < 400 ? await finalRes.text() : "";
     const parsed = status < 400 ? parseHtml(text) : {};
     redirects.push({ route: raw, status: res.status, final_url: finalUrl, chain });
@@ -227,7 +226,9 @@ function aggregate(mode, { perRoute, broken, redirects }) {
     routes: perRoute.map((r) => r.route),
     reachable_routes: reachable.length,
     broken_internal_links: brokenLinks.length,
-    broken_link_targets: [...new Set(brokenLinks.map((b) => `${b.route} -> ${b.href}`))].sort(),
+    broken_link_targets: [...new Set(brokenLinks.map((b) => `${b.route} -> ${b.href}`))].sort(
+      (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+    ),
     placeholder_count: placeholderFindings.length,
     placeholder_findings: placeholderFindings
       .map((f) => ({ route: f.route, ...f.placeholder }))

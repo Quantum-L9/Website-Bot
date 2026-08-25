@@ -20,7 +20,6 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import Database from "better-sqlite3";
 
-const ROOT = process.cwd();
 const CASE = JSON.parse(fs.readFileSync(path.resolve("tests/golden/safehaven/case.json"), "utf8"));
 const ROUTES = CASE.routes;
 const BUILD_ID = "golden-fixture-001";

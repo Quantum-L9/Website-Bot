@@ -129,10 +129,14 @@ node scripts/golden-safehaven/aggregate-visual.mjs \
 node scripts/golden-safehaven/build-receipt.mjs "${RECEIPT_ARGS[@]}"
 
 # ---- 7. Verifier (the only judge) ----
+# Capture (never discard) the verifier status: a GOLDEN_E2E_FAIL or blocking
+# inconclusive verdict must propagate as this orchestrator's exit code.
+verifier_status=0
 node scripts/verify-safehaven-golden.mjs \
   tests/golden/safehaven/case.json \
   "${RUN_ROOT}/receipt.json" \
-  > "${RUN_ROOT}/golden-oracle-result.json" || true
+  > "${RUN_ROOT}/golden-oracle-result.json" || verifier_status=$?
 
 python3 -c "import json; d=json.load(open('${RUN_ROOT}/golden-oracle-result.json')); print('VERDICT:', d.get('verdict'))"
 echo "== run ${RUN_ID} complete; artifacts under ${RUN_ROOT} =="
+exit "${verifier_status}"

@@ -53,7 +53,7 @@ let totalVotes = 0;
 let majorityWins = 0;
 let majorityLosses = 0;
 const dimSums = new Map();
-let dimTrials = 0;
+const dimCounts = new Map();
 
 for (const [pairId, ts] of byPair) {
   let c = 0;
@@ -64,7 +64,7 @@ for (const [pairId, ts] of byPair) {
     totalVotes += 1;
     for (const [d, v] of Object.entries(t.normalized_candidate_delta ?? {})) {
       dimSums.set(d, (dimSums.get(d) ?? 0) + Number(v));
-      dimTrials += 1;
+      dimCounts.set(d, (dimCounts.get(d) ?? 0) + 1);
     }
   }
   const majority = c >= 2 ? "CANDIDATE" : b >= 2 ? "BASELINE" : "NO_MAJORITY";
@@ -84,8 +84,7 @@ for (const [pairId, ts] of byPair) {
 }
 
 const dimensionMeans = {};
-const dimensionTrials = dimTrials;
-for (const [d, sum] of dimSums) dimensionMeans[d] = sum / dimensionTrials;
+for (const [d, sum] of dimSums) dimensionMeans[d] = sum / dimCounts.get(d);
 
 let weightedMeanDelta = 0;
 const weightSum = Object.values(weights).reduce((a, x) => a + x, 0);
