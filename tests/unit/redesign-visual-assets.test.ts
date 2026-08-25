@@ -149,6 +149,52 @@ void test("spec slots with a placement already covered by the blueprint are drop
   assert.deepEqual(merged.map((slot) => slot.id), ["hero-global-logo", "og-image"]);
 });
 
+void test("blueprint requirements sharing a role dedupe to one placement (golden run #58)", () => {
+  const requirements: VisualRequirement[] = [
+    {
+      requirement_id: "vr-a",
+      route_id: "/",
+      section_id: "hero",
+      slot_id: "/:hero",
+      role: "service",
+      required: false,
+      min_count: 1,
+      preferred_provenance: ["generated"],
+      device_suitability: ["desktop"],
+    },
+    {
+      requirement_id: "vr-b",
+      route_id: "/",
+      section_id: "services-overview",
+      slot_id: "/:services-overview",
+      role: "service",
+      required: true,
+      min_count: 1,
+      preferred_provenance: ["generated"],
+      device_suitability: ["desktop"],
+    },
+    {
+      requirement_id: "vr-c",
+      route_id: "/",
+      section_id: "hero",
+      slot_id: "/:hero",
+      role: "project_proof",
+      required: false,
+      min_count: 1,
+      preferred_provenance: ["generated"],
+      device_suitability: ["desktop"],
+    },
+  ];
+  const slots = slotsFromVisualRequirements(requirements);
+  // Both "service"-role requirements collapse to one "/:service"
+  // placement; the required one wins the tie.
+  assert.equal(slots.length, 2);
+  const service = slots.find((slot) => slot.placement === "/:service");
+  assert.ok(service);
+  assert.equal(service.id, "/:services-overview");
+  assert.equal(service.required, true);
+});
+
 void test("an authorized source photo outranks generation for a hero slot", async () => {
   const dir = mkdtempSync(join(tmpdir(), "c7-visual-"));
   const landscape = makeLandscape();

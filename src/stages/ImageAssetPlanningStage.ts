@@ -76,7 +76,7 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
     licensed: ["provided"],
     generated: ["generated"],
   };
-  return requirements.map((requirement) => {
+  const slots: ImageSlotSpec[] = requirements.map((requirement) => {
     const sources: Array<"provided" | "source-site" | "generated"> = [];
     for (const provenance of requirement.preferred_provenance) {
       for (const source of provenanceToSources[provenance] ?? []) {
@@ -94,6 +94,18 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
       altText: requirement.composition_guidance,
     };
   });
+  // The manifest's uniqueness key is the placement; multiple blueprint
+  // sections on one route can share a role and therefore a placement
+  // (golden run #58: "/:service"). Required slots win ties; the first
+  // occurrence of equal priority wins.
+  const seen = new Set<string>();
+  const deduped: ImageSlotSpec[] = [];
+  for (const slot of [...slots].sort((a, b) => Number(b.required) - Number(a.required))) {
+    if (seen.has(slot.placement)) continue;
+    seen.add(slot.placement);
+    deduped.push(slot);
+  }
+  return deduped;
 }
 
 /**
