@@ -8,6 +8,15 @@
 # SDK-owned reusable workflow below. ESLint is NOT a second formatter owner
 # here. Type checking (tsc) and the repository test suite stay in this repo.
 #
+# Org-seed safety (Cursor-Governance#276 remediating):
+#   - Biome always runs. It needs no Node package.
+#   - `typecheck` / `test` run only when a root `package.json` exists.
+#     `actions/setup-node` with `cache: npm` hard-fails
+#     ("Dependencies lock file is not found") before any skip guard, so those
+#     jobs must not start on Python-only / no-Node consumers.
+#   - The test job is named `Node Test Suite`, not `Test Suite`, so it cannot
+#     collide with a required Python pytest context.
+#
 # Conventions:
 #   - Immutable event-revision checkout (no floating action ref)
 #   - SDK reusable workflow pinned to a full 40-char commit SHA
@@ -49,8 +58,45 @@ jobs:
       # Flip to true to make Biome findings blocking once the repo is clean.
       enforce-biome: false
 
+  detect-node:
+    name: Detect Node package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      has_package: ${{ steps.detect.outputs.has_package }}
+    steps:
+      - name: Checkout immutable event revision
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+          TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          auth_header="Authorization: Basic $(printf 'x-access-token:%s' "${TOKEN}" | base64 | tr -d '\n')"
+          git -c protocol.version=2 \
+            -c "http.https://github.com/.extraheader=${auth_header}" \
+            fetch --depth=1 origin "${REVISION}"
+          git checkout --detach FETCH_HEAD
+
+      - id: detect
+        name: Detect root package.json
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            echo "has_package=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_package=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::no root package.json; skipping Node typecheck and tests"
+          fi
+
   typecheck:
     name: Type Check (tsc --noEmit)
+    needs: detect-node
+    if: needs.detect-node.outputs.has_package == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -78,7 +124,8 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.PACKAGE_MANAGER }}
+          # Do not set cache: here. setup-node cache hard-fails when the
+          # matching lockfile is absent.
 
       - name: Install dependencies
         run: |
@@ -101,7 +148,9 @@ jobs:
           fi
 
   test:
-    name: Test Suite
+    name: Node Test Suite
+    needs: detect-node
+    if: needs.detect-node.outputs.has_package == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -126,7 +175,6 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.PACKAGE_MANAGER }}
 
       - name: Install dependencies
         run: |
