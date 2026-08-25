@@ -1,0 +1,1471 @@
+{
+  "schema": "l9.golden-oracle-coverage/v3",
+  "oracle_id": "safehaven-redesign-oracle-v1",
+  "generated_from": {
+    "oracle": "tests/golden/safehaven/oracle.json",
+    "verifier": "scripts/verify-safehaven-golden.mjs",
+    "provenance_module": "scripts/lib/safehaven-synthetic-provenance.mjs"
+  },
+  "methodology": {
+    "fail_closed_on_missing_evaluation_id": true,
+    "oracle_path_existence_alone_is_implementation_evidence": false,
+    "explicit_runtime_evaluation_ids_required": true,
+    "soundness_sentinels_required": true,
+    "detection_behaviour_probed_not_only_grepped": true,
+    "hardcoded_oracle_value_scan_derived": true
+  },
+  "blocking_properties_total": 101,
+  "blocking_properties_enforced": 101,
+  "coverage_pct": 100,
+  "stale_citations": [],
+  "unenforced_properties": [],
+  "soundness_checks": [
+    {
+      "id": "pcc_digest_equality",
+      "pass": true,
+      "required_sentinels": [
+        "PCC_DETERMINISM_DIGEST_MISSING",
+        "Same semantic PCC input produced different digests"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "exact_visual_pair_set",
+      "pass": true,
+      "required_sentinels": [
+        "VISUAL_PAIR_DUPLICATE",
+        "VISUAL_PAIR_SET_MISMATCH",
+        "expectedVisualPairKeys"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "visual_score_bounds",
+      "pass": true,
+      "required_sentinels": [
+        "VISUAL_DIMENSION_SCORE_OUT_OF_RANGE",
+        "oracle.visual_oracle.score_scale.minimum",
+        "oracle.visual_oracle.score_scale.maximum"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "raw_visual_orientation_normalization",
+      "pass": true,
+      "required_sentinels": [
+        "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
+        "VISUAL_NORMALIZATION_MISMATCH",
+        "normalizePreferenceFromRaw",
+        "normalizeDeltaFromRaw"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "raw_donor_domain",
+      "pass": true,
+      "required_sentinels": [
+        "DONOR_RAW_DOMAIN_MISSING"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "legacy_pcc_llm_calls",
+      "pass": true,
+      "required_sentinels": [
+        "LEGACY_PCC_LLM_AUTHORITY_USED"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "site_built_routes",
+      "pass": true,
+      "required_sentinels": [
+        "SITE_BUILT_ROUTE_COUNT_MISMATCH"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "router_version_presence",
+      "pass": true,
+      "required_sentinels": [
+        "ROUTER_VERSION_MISSING",
+        "Website-Bot Router version missing",
+        "SEO-Bot Router version missing",
+        "Router run identity version missing"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "legacy_schema_generation_authority",
+      "pass": true,
+      "required_sentinels": [
+        "receipt.legacy?.schema_generation_calls",
+        "LEGACY_SCHEMA_AUTHORITY_USED"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "exact_donor_evidence_domain_set",
+      "pass": true,
+      "required_sentinels": [
+        "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH",
+        "selectedDonorDomains",
+        "evidencedDonorDomains"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "structured_content_route_result_set",
+      "pass": true,
+      "required_sentinels": [
+        "StructuredContentRouteResults",
+        "routeResults.map((route) => route.path)"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "pcc_scp_lineage_presence",
+      "pass": true,
+      "required_sentinels": [
+        "PCC_ARTIFACT_REF_MISSING",
+        "STRUCTURED_CONTENT_PCC_REF_MISSING",
+        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "runtime_101_evaluation_gate",
+      "pass": true,
+      "required_sentinels": [
+        "ORACLE_EVALUATION_COVERAGE_INCOMPLETE"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "external_calibration_authorization",
+      "pass": true,
+      "required_sentinels": [
+        "SYNTHETIC_RECEIPT_FORBIDDEN",
+        "CALIBRATION_RECEIPT_REQUIRED",
+        "process.env.GOLDEN_CALIBRATION_MODE"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "rendered_visual_qa_proof",
+      "pass": true,
+      "required_sentinels": [
+        "RENDERED_VISUAL_QA_NOT_EXECUTED",
+        "receipt.visual?.rendered_visual_qa_executed"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "synthetic_evidence_detection",
+      "pass": true,
+      "required_sentinels": [
+        "SYNTHETIC_RECEIPT_FORBIDDEN",
+        "detectSyntheticEvidence(receipt)",
+        "reservedHostReason(hostOf(value))",
+        "degenerateShaReason(identity?.sha)",
+        "provenanceSeal(receipt)",
+        "RESERVED_TLDS",
+        "RESERVED_DOMAINS",
+        "MINIMUM_DISTINCT_SHA_NIBBLES",
+        "reserved_host",
+        "degenerate_git_sha"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [
+        {
+          "id": "detection_collapsed_to_declaration",
+          "pattern": "/constsyntheticReceipt=receipt\\.calibration\\?\\.synthetic===true/"
+        },
+        {
+          "id": "detection_collapsed_to_seal_only",
+          "pattern": "/constsyntheticReceipt=[^;]*provenanceSeal\\(receipt\\);/"
+        }
+      ],
+      "forbidden_matches": [],
+      "occurrence_limits": [],
+      "occurrence_violations": []
+    },
+    {
+      "id": "calibration_semantic_parity",
+      "pass": true,
+      "required_sentinels": [
+        "validateVisualOrientation(trial.orientation, label)",
+        "normalizePreferenceFromRaw(rawJudge.preference, orientation)",
+        "normalizeDeltaFromRaw(rawDelta, orientation)",
+        "VISUAL_RAW_DIMENSION_SCORE_OUT_OF_RANGE",
+        "VISUAL_NORMALIZATION_MISMATCH"
+      ],
+      "missing_sentinels": [],
+      "forbidden_patterns": [
+        {
+          "id": "calibration_guarded_raw_path",
+          "pattern": "/if\\(!?syntheticCalibration[)&|]/"
+        },
+        {
+          "id": "calibration_ternary_raw_path",
+          "pattern": "/syntheticCalibration\\?/"
+        },
+        {
+          "id": "calibration_conjunctive_guard",
+          "pattern": "/(?:&&|\\|\\|)\\s*!?syntheticCalibration/"
+        },
+        {
+          "id": "calibration_mode_bare_branch",
+          "pattern": "/if\\(!?calibrationMode\\)/"
+        },
+        {
+          "id": "calibration_mode_ternary",
+          "pattern": "/calibrationMode\\?/"
+        },
+        {
+          "id": "synthetic_receipt_bare_branch",
+          "pattern": "/if\\(!?syntheticReceipt\\)/"
+        }
+      ],
+      "forbidden_matches": [],
+      "occurrence_limits": [
+        {
+          "identifier": "syntheticCalibration",
+          "limit": 2,
+          "actual": 2
+        },
+        {
+          "identifier": "calibrationMode",
+          "limit": 5,
+          "actual": 5
+        },
+        {
+          "identifier": "syntheticReceipt",
+          "limit": 5,
+          "actual": 5
+        }
+      ],
+      "occurrence_violations": []
+    }
+  ],
+  "soundness_failure_count": 0,
+  "detection_probes": [
+    {
+      "id": "reserved_tld_host_detected",
+      "pass": true
+    },
+    {
+      "id": "reserved_documentation_domain_detected",
+      "pass": true
+    },
+    {
+      "id": "registrable_host_not_flagged",
+      "pass": true
+    },
+    {
+      "id": "non_host_value_not_flagged",
+      "pass": true
+    },
+    {
+      "id": "placeholder_sha_detected",
+      "pass": true
+    },
+    {
+      "id": "real_looking_sha_not_flagged",
+      "pass": true
+    },
+    {
+      "id": "provenance_seal_is_key_order_stable",
+      "pass": true
+    },
+    {
+      "id": "provenance_seal_covers_body",
+      "pass": true
+    },
+    {
+      "id": "provenance_seal_excludes_itself",
+      "pass": true
+    },
+    {
+      "id": "synthetic_namespace_declared",
+      "pass": true
+    }
+  ],
+  "detection_probe_failure_count": 0,
+  "hardcoded_oracle_values_remaining": 0,
+  "hardcoded_oracle_value_findings": [],
+  "properties": [
+    {
+      "oracle_path": "identity.require_full_git_shas",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:461",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"identity.require_full_git_shas\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "identity.router_version_rule",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:462",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"identity.router_version_rule\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "identity.require_clean_or_explicitly_recorded_worktrees",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:463",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"identity.require_clean_or_explicitly_recorded_worktrees\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "identity.require_bot_interop_compatibility",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:464",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"identity.require_bot_interop_compatibility\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "preflight.must_precede_first_seo_build_intelligence_call",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:587",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"preflight.must_precede_first_seo_build_intelligence_call\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "preflight.required",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:588",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"preflight.required\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "preflight.required_checks",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:589",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"preflight.required_checks\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "execution_graph.build_intent",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:558",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"execution_graph.build_intent\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "execution_graph.copy_fallback_used",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:559",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"execution_graph.copy_fallback_used\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "execution_graph.generic_fallback_used",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:560",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"execution_graph.generic_fallback_used\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "execution_graph.required_ordered_subsequence",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:641",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"execution_graph.required_ordered_subsequence\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "execution_graph.forbidden_stages_under_redesign",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:642",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"execution_graph.forbidden_stages_under_redesign\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.selected_donor_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:677",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.selected_donor_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.unique_normalized_domains",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:678",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.unique_normalized_domains\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.evidence_complete",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:679",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.evidence_complete\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.ranking_llm_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:680",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.ranking_llm_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.every_selected_donor_requires",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:681",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.every_selected_donor_requires\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "competitive_landscape.forbidden_selected_classes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:682",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"competitive_landscape.forbidden_selected_classes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.accepted_donors",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:803",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.accepted_donors\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.per_donor.minimum_successful_pages",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:804",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.per_donor.minimum_successful_pages\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.per_donor.minimum_screenshots",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:805",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.per_donor.minimum_screenshots\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.per_donor.require_evidence_digest",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:806",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.per_donor.require_evidence_digest\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.per_donor.require_timestamp",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:807",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.per_donor.require_timestamp\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "donor_evidence.candidate_donor_asset_hash_matches",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:808",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"donor_evidence.candidate_donor_asset_hash_matches\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "website_blueprint.must_reference_exact_competitive_landscape",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:886",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"website_blueprint.must_reference_exact_competitive_landscape\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "website_blueprint.required",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:887",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"website_blueprint.required\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "website_blueprint.visual_asset_requirements_required",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:888",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"website_blueprint.visual_asset_requirements_required\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.produced_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:925",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.produced_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.extra_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:926",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.extra_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.batch_size",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:927",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.batch_size\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.expected_batch_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:928",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.expected_batch_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.must_reference_exact_competitive_landscape",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:929",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.must_reference_exact_competitive_landscape\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.duplicate_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:930",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.duplicate_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.unknown_content_slots",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:931",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.unknown_content_slots\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "seo_content_blueprint.invalid_internal_link_targets",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:932",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"seo_content_blueprint.invalid_internal_link_targets\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "page_content_contract.produced_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1061",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"page_content_contract.produced_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "page_content_contract.llm_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1062",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"page_content_contract.llm_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "page_content_contract.unplaced_content_requirements",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1063",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"page_content_contract.unplaced_content_requirements\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "page_content_contract.invalid_business_facts",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1064",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"page_content_contract.invalid_business_facts\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "page_content_contract.determinism.same_semantic_input_same_digest",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1065",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"page_content_contract.determinism.same_semantic_input_same_digest\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.produced_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1126",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.produced_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.must_reference_exact_page_content_contract",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1127",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.must_reference_exact_page_content_contract\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.schema_invalid_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1128",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.schema_invalid_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.unsupported_claims",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1129",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.unsupported_claims\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.failed_requirements",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1130",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.failed_requirements\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.maximum_repairs_per_route",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1131",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.maximum_repairs_per_route\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.maximum_generation_calls_per_route",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1132",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.maximum_generation_calls_per_route\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.section_alias_fields_forbidden",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1133",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.section_alias_fields_forbidden\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "structured_content.all_section_prose_must_use_blocks",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1134",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"structured_content.all_section_prose_must_use_blocks\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "legacy_authority.legacy_content_generation_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1244",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"legacy_authority.legacy_content_generation_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "legacy_authority.legacy_schema_generation_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1245",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"legacy_authority.legacy_schema_generation_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "legacy_authority.page_content_contract_llm_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1246",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"legacy_authority.page_content_contract_llm_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "legacy_authority.redesign_schema_llm_calls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1247",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"legacy_authority.redesign_schema_llm_calls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.minimum_raw_source_images",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1320",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.minimum_raw_source_images\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.minimum_authorized_reusable_images",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1321",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.minimum_authorized_reusable_images\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.minimum_selected_source_images",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1322",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.minimum_selected_source_images\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.unexplained_reusable_asset_loss",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1323",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.unexplained_reusable_asset_loss\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.required_visual_slots_filled_fraction",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1324",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.required_visual_slots_filled_fraction\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.source_corpus_completed",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1325",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.source_corpus_completed\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.forbidden_candidate_dispositions",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1326",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.forbidden_candidate_dispositions\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "source_assets.conditional_rules",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1327",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"source_assets.conditional_rules\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.built_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1466",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.built_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.reachable_routes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1467",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.reachable_routes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.broken_internal_links",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1468",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.broken_internal_links\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.placeholder_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1469",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.placeholder_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.per_route",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1470",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.per_route\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.unique_titles",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1471",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.unique_titles\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "site_integrity.unique_canonical_urls",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1472",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"site_integrity.unique_canonical_urls\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "business_truth.unsupported_claim_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1282",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"business_truth.unsupported_claim_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "business_truth.phone_mismatch_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1283",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"business_truth.phone_mismatch_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "business_truth.email_mismatch_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1284",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"business_truth.email_mismatch_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "business_truth.prohibition_violations",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1285",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"business_truth.prohibition_violations\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.direct_provider_bypass_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1593",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.direct_provider_bypass_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1594",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.required_policy.SEO_CONTENT_BLUEPRINT\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1595",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.required_policy.CONTENT_VALIDATION",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1596",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.required_policy.CONTENT_VALIDATION\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.required_policy.VISUAL_QA",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1597",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.required_policy.VISUAL_QA\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "llm_audit.unsupported_capability_combination_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1598",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"llm_audit.unsupported_capability_combination_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.required_pairs",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1655",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.required_pairs\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.candidate_blank_capture_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1656",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.candidate_blank_capture_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.baseline_blank_capture_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1657",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.baseline_blank_capture_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.route_mismatch_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1658",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.route_mismatch_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.viewport_mismatch_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1659",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.viewport_mismatch_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_capture.stale_capture_count",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1660",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_capture.stale_capture_count\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.trials_per_pair",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1819",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.trials_per_pair\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.minimum_pair_majority_wins",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1820",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.minimum_pair_majority_wins\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.maximum_pair_majority_losses",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1821",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.maximum_pair_majority_losses\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.minimum_candidate_votes",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1822",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.minimum_candidate_votes\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.wilson_lower_bound_must_exceed",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1823",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.wilson_lower_bound_must_exceed\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.critical_pairs_may_not_lose",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1824",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.critical_pairs_may_not_lose\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.critical_dimensions_may_not_regress",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1825",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.critical_dimensions_may_not_regress\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.pass.minimum_weighted_mean_delta",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1826",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.pass.minimum_weighted_mean_delta\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.dimensions",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1827",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.dimensions\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.reveal_candidate_identity_to_judge",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1828",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.reveal_candidate_identity_to_judge\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.inconclusive.missing_trial",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1829",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.inconclusive.missing_trial\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.inconclusive.judge_disagreement_without_majority",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1830",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.inconclusive.judge_disagreement_without_majority\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:1831",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"visual_oracle.inconclusive.wilson_interval_crosses_required_boundary\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "final_verdict.pass_requires.all_hard_gates_pass",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:2334",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"final_verdict.pass_requires.all_hard_gates_pass\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "final_verdict.pass_requires.visual_oracle_pass",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:2335",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"final_verdict.pass_requires.visual_oracle_pass\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "final_verdict.pass_requires.rendered_visual_qa_executed",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:2336",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"final_verdict.pass_requires.rendered_visual_qa_executed\")"
+      ],
+      "missing_sentinels": []
+    },
+    {
+      "oracle_path": "final_verdict.pass_requires.no_inconclusive_blocking_dimension",
+      "implemented": true,
+      "authority_present": true,
+      "evaluation_id_present": true,
+      "verifier_location": "scripts/verify-safehaven-golden.mjs:2342",
+      "required_sentinels": [
+        "recordOracleEvaluation(\"final_verdict.pass_requires.no_inconclusive_blocking_dimension\")"
+      ],
+      "missing_sentinels": []
+    }
+  ],
+  "verdict": "ORACLE_IMPLEMENTATION_COMPLETE"
+}

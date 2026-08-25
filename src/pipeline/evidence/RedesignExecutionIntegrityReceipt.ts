@@ -6,6 +6,7 @@
 
 import type { BuildContext } from "../BuildContext.js";
 import { BuildError } from "../BuildError.js";
+import type { EvidenceGateStatus } from "./ReleaseReceipt.js";
 
 export const REDESIGN_INTEGRITY_RECEIPT_SCHEMA =
   "website-bot.redesign-execution-integrity-receipt/v1" as const;
@@ -44,7 +45,7 @@ export interface RedesignExecutionIntegrityReceipt {
     source_assets_rejected: number;
     unexplained_asset_loss: number;
   };
-  visual_qa: { status: string };
+  visual_qa: { status: EvidenceGateStatus };
   /** Server-side ordering stamps proving the preflight preceded the first
    * SEO build-intelligence call (oracle ORACLE-005). */
   seo_bot_ordering?: {
@@ -197,13 +198,13 @@ function validateVisualState(
     );
   if (receipt.visual.unexplained_asset_loss !== 0)
     receiptFail(`unexplained_asset_loss must be 0, got ${receipt.visual.unexplained_asset_loss}`);
-  // The gate-status vocabulary is EvidenceGateStatus ("passed" is the
-  // success value — ReleaseReceipt requires "passed visual QA" for a
-  // succeeded receipt; "verified" is not a valid status). The QA stage
-  // records "passed" after running against a real deployment URL, which
-  // requireDeploymentEvidence proves.
+  // "passed" is the canonical EvidenceGateStatus success value emitted by
+  // VisualQAStage and required by the release receipt; nothing ever produces
+  // "verified", so demanding it here failed every end-to-end redesign run.
   if (requireVisualQa && receipt.visual_qa.status !== "passed")
-    receiptFail(`visual_qa must be passed for end-to-end convergence, got ${receipt.visual_qa.status}`);
+    receiptFail(
+      `visual_qa must be passed for end-to-end convergence, got ${receipt.visual_qa.status}`,
+    );
 }
 
 export function validateRedesignExecutionIntegrityReceipt(

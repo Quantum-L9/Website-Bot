@@ -62,7 +62,11 @@
     "recursive:resume": "npx tsx scripts/recursive/recursive-cli.ts resume",
     "recursive:simulate": "npx tsx scripts/recursive/recursive-cli.ts simulate",
     "recursive:schemas": "node scripts/validate-recursive-schemas.mjs",
-    "recursive:test": "node scripts/run-recursive-tests.mjs"
+    "recursive:test": "node scripts/run-recursive-tests.mjs",
+    "golden:safehaven:visual": "npx tsx scripts/run-safehaven-golden-visual.ts",
+    "golden:safehaven:receipt": "npx tsx scripts/build-safehaven-real-golden-receipt.ts",
+    "golden:safehaven:verify": "npx tsx scripts/run-safehaven-real-golden-verify.ts",
+    "golden:safehaven:bridge:test": "node --import tsx --test tests/unit/safehaven-real-golden-bridge.test.ts"
   },
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",

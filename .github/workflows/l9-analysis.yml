@@ -63,7 +63,7 @@ jobs:
 
       - id: gov
         name: Resolve governance
-        uses: Quantum-L9/l9-ci-core/.github/actions/resolve-governance@373bb6d26084e67ef76aaab95021364182a34ee7
+        uses: Quantum-L9/l9-ci-core/.github/actions/resolve-governance@7148fc73dcbf41367f5c5401432dc997b1f4f869
         with:
           profile: ${{ env.L9_PROFILE }}
           provider: semgrep
@@ -126,7 +126,7 @@ jobs:
 
       - name: Validate canonical bundle
         if: steps.gov.outputs.enabled == 'true'
-        uses: Quantum-L9/l9-ci-core/.github/actions/validate-bundle@373bb6d26084e67ef76aaab95021364182a34ee7
+        uses: Quantum-L9/l9-ci-core/.github/actions/validate-bundle@7148fc73dcbf41367f5c5401432dc997b1f4f869
         with:
           executable: ${{ steps.sdk.outputs.executable }}
           bundle: .l9/runtime/${{ env.L9_MATRIX_ID }}/finding-bundle.json
@@ -144,7 +144,7 @@ jobs:
       - id: route
         name: Route artifacts
         if: steps.gov.outputs.enabled == 'true'
-        uses: Quantum-L9/l9-ci-core/.github/actions/route-artifacts@0d28395428426853c44825c4645c23ee8ace23b1
+        uses: Quantum-L9/l9-ci-core/.github/actions/route-artifacts@7148fc73dcbf41367f5c5401432dc997b1f4f869
         with:
           provider: semgrep
           matrix-id: ${{ env.L9_MATRIX_ID }}
@@ -188,7 +188,7 @@ jobs:
     name: Publish analysis (Core)
     needs: analyze
     if: needs.analyze.outputs.enabled == 'true'
-    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@0d28395428426853c44825c4645c23ee8ace23b1
+    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@7148fc73dcbf41367f5c5401432dc997b1f4f869
     permissions:
       actions: read
       checks: write

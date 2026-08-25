@@ -8,6 +8,7 @@ import type {
   WebsiteBuildBlueprintArtifact,
 } from "@quantum-l9/bot-interop";
 import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
+import type { SeoBotPreflightResult } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import type { BuildIntent } from "./BuildIntent.js";
@@ -190,6 +191,12 @@ export interface BuildContext {
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
   /**
+   * Successful machine-authenticated SEO-Bot readiness proof for this run,
+   * produced by the seo-build-intelligence-preflight stage before the first
+   * paid build-intelligence call. Its absence is a hard failure downstream.
+   */
+  seoBuildIntelligencePreflight?: SeoBotPreflightResult;
+  /**
    * Redesign authority chain (Campaign 7). Populated only under
    * REDESIGN_IMPROVE; every artifact is lineage-checked before use and the
    * counters prove the deterministic/zero-LLM invariants at runtime.
@@ -209,6 +216,30 @@ export interface BuildContext {
     pageContentContractLlmCalls: number;
     legacyContentGenerationCalls: number;
     redesignSchemaLlmCalls: number;
+  };
+  /**
+   * Runtime proof that the deterministic PageContentContract compiler produced
+   * the same canonical digest twice from the same semantic input. Written by
+   * RedesignContentAuthorityStage only after two real compiler passes; there is
+   * no default, no fallback, and no single-digest copy. Absence downstream is a
+   * failure, never an assumption of determinism.
+   */
+  pccDeterminism?: {
+    digestRun1: string;
+    digestRun2: string;
+    sameSemanticInputSameDigest: boolean;
+  };
+  /**
+   * Safe Haven Golden bridge export configuration. Present ONLY when the CLI
+   * was invoked with the all-or-none --golden-* argument group, so ordinary
+   * COPY and REDESIGN runs emit no Golden-specific evidence.
+   */
+  goldenRun?: {
+    casePath: string;
+    oraclePath: string;
+    identityManifestPath: string;
+    runtimeEvidenceOutputPath: string;
+    seoLlmAuditPath?: string;
   };
   /** SELECTED / REJECTED ledger for every discovered reusable source asset (R12). */
   sourceAssetDecisions?: Array<{

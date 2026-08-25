@@ -14,9 +14,12 @@
 // no local substitute, no LLM repair. The StructuredContentPackage received
 // here is the FINAL page prose authority — Website-Bot never rewrites it.
 
+import { createHash } from "node:crypto";
 import {
   assertIntelligenceArtifactIntegrity,
+  canonicalJson,
   type PageContentContractArtifact,
+  type PageContentContractV1,
   refForArtifact,
   sameArtifactRef,
   sealIntelligenceArtifact,
@@ -29,10 +32,7 @@ import {
   PageContentContractCompileError,
 } from "../intelligence/compile-page-content-contract.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import {
-  SeoBotPreflightError,
-  type SeoBuildIntelligencePort,
-} from "../intelligence/SeoBuildIntelligencePort.js";
+import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../intelligence/verified-business-facts.js";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -44,6 +44,16 @@ import type { WebsiteFactoryLLM } from "../services/llm.js";
 const logger = createModuleLogger("stage:redesign-content-authority");
 
 const COMPILER_VERSION = "1.0.0";
+
+/**
+ * Canonical digest of a compiled PageContentContract payload. Canonicalization
+ * is key-order independent, so two independent compiler passes over the same
+ * semantic input must produce byte-identical digests. This is the determinism
+ * measurement itself — never a stored constant.
+ */
+function pccPayloadDigest(payload: PageContentContractV1): string {
+  return `sha256:${createHash("sha256").update(canonicalJson(payload)).digest("hex")}`;
+}
 
 /**
  * Instrumented LLM guard: any LLM call during a zero-LLM operation both
@@ -103,6 +113,15 @@ export class RedesignContentAuthorityStage implements Stage {
       return;
     }
     const { blueprint, landscape } = this.assertPrerequisites(ctx);
+    // The readiness proof is produced by the seo-build-intelligence-preflight
+    // stage, which runs before ANY paid SEO-Bot call. Here we require that
+    // evidence rather than repeating the probe.
+    if (!ctx.seoBuildIntelligencePreflight) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "redesign content authority requires successful SEO-Bot preflight evidence",
+      );
+    }
     ctx.redesignCounters ??= {
       pageContentContractLlmCalls: 0,
       legacyContentGenerationCalls: 0,
@@ -111,22 +130,6 @@ export class RedesignContentAuthorityStage implements Stage {
     const counters = ctx.redesignCounters;
 
     const port = this.portFactory(ctx);
-
-    // ---- Authenticated preflight: health + build-intelligence readiness.
-    //      Fails closed with a mapped SEO_BOT_* BuildError code before the
-    //      expensive pipeline (R6+) begins.
-    try {
-      await port.preflight();
-    } catch (error) {
-      if (error instanceof SeoBotPreflightError) {
-        throw new BuildError(
-          error.code,
-          `REDESIGN preflight failed: ${error.message}`,
-        );
-      }
-      throw error;
-    }
-    logger.info({ clientId: ctx.clientId }, "SEO-Bot preflight passed");
 
     const routes = ctx.domainSpec.routes.map((route) => ({
       route_id: route.slug,
@@ -255,6 +258,13 @@ export class RedesignContentAuthorityStage implements Stage {
     }
   }
 
+  /**
+   * R7 + Golden A15. The contract is compiled TWICE from the identical semantic
+   * input by the identical compiler, each pass canonicalized and digested
+   * independently. Equality of the two digests is the determinism proof; a
+   * mismatch fails the build before StructuredContent generation. Only the
+   * first canonical payload is sealed — there is never a second final artifact.
+   */
   private compileContractDeterministically(
     ctx: BuildContext,
     blueprint: NonNullable<BuildContext["websiteBlueprint"]>,
@@ -263,24 +273,46 @@ export class RedesignContentAuthorityStage implements Stage {
     counters: NonNullable<BuildContext["redesignCounters"]>,
   ): PageContentContractArtifact {
     const realLlm = ctx.llm;
+    // Both passes execute inside the SAME forbidden-LLM boundary, so an LLM
+    // call in either pass increments the counter and fails the build.
     ctx.llm = forbiddenLlm("PageContentContract compilation", () => {
       counters.pageContentContractLlmCalls += 1;
     });
     let contract: PageContentContractArtifact;
+    let digestRun1: string;
+    let digestRun2: string;
     try {
-      const payload = compilePageContentContract({
-        websiteBlueprint: blueprint,
-        seoBlueprint,
-        businessFacts,
-        compilerVersion: COMPILER_VERSION,
-      });
+      const compile = (): PageContentContractV1 =>
+        compilePageContentContract({
+          websiteBlueprint: blueprint,
+          seoBlueprint,
+          businessFacts,
+          compilerVersion: COMPILER_VERSION,
+        });
+
+      // ---- pass 1 -----------------------------------------------------
+      const payloadRun1 = compile();
+      digestRun1 = pccPayloadDigest(payloadRun1);
+
+      // ---- pass 2: same compiler, same semantic input, independent run -
+      const payloadRun2 = compile();
+      digestRun2 = pccPayloadDigest(payloadRun2);
+
+      if (digestRun1 !== digestRun2) {
+        throw new BuildError(
+          "CONTENT_CONTRACT_HASH_MISMATCH",
+          `PCC_NONDETERMINISTIC: identical semantic input produced different PageContentContract digests (${digestRun1} != ${digestRun2})`,
+        );
+      }
+
+      // Seal pass 1 only — equality is established, so one canonical payload.
       contract = sealIntelligenceArtifact({
         artifact_type: "page_content_contract",
         client_id: ctx.clientId,
         build_id: ctx.buildId,
         producer: { repo: "Website-Bot", version: COMPILER_VERSION },
         input_refs: [refForArtifact(blueprint), refForArtifact(seoBlueprint)],
-        payload,
+        payload: payloadRun1,
       });
     } catch (error) {
       if (error instanceof PageContentContractCompileError) {
@@ -299,6 +331,12 @@ export class RedesignContentAuthorityStage implements Stage {
         `PageContentContract compilation performed ${counters.pageContentContractLlmCalls} LLM call(s); required count is 0`,
       );
     }
+    // Runtime determinism proof, written only after two real compiler passes.
+    ctx.pccDeterminism = {
+      digestRun1,
+      digestRun2,
+      sameSemanticInputSameDigest: true,
+    };
     return contract;
   }
 

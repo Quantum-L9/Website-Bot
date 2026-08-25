@@ -73,7 +73,23 @@ function completeCtx(overrides?: Partial<BuildContext>): BuildContext {
       ],
     },
     sourceSiteManifest: { images: [{ id: "a" }] },
-    stageResults: new Map([["competitive-intelligence", { ok: true }]]),
+    stageResults: new Map([
+      ["seo-build-intelligence-preflight", { ok: true }],
+      ["competitive-intelligence", { ok: true }],
+    ]),
+    seoBuildIntelligencePreflight: {
+      status: "ready",
+      service: "SEO-Bot",
+      version: "2.1.0",
+      bot_interop_version: "1.1.0",
+      llm_router_version: "1.3.0",
+      capabilities: {
+        competitive_landscape: true,
+        seo_content_blueprint: true,
+        structured_content: true,
+      },
+      configuration: { dataforseo_configured: true, llm_provider_configured: true },
+    },
     qualityEvidence: { seoBaseline: "pending", visualQa: "passed" },
     ...overrides,
   } as unknown as BuildContext;
@@ -161,7 +177,7 @@ void test("receipt validation rejects required visual slots below 100%", () => {
   assert.throws(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }));
 });
 
-void test("receipt validation requires verified visual QA for end-to-end", () => {
+void test("receipt validation requires passed visual QA for end-to-end", () => {
   const receipt = validReceipt();
   receipt.visual_qa.status = "pending";
   validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false });
@@ -230,6 +246,8 @@ void test("mandatoryStagesFor keeps COPY semantics byte-identical to the legacy 
 
 // ---- Credential gate (matrix B) ---------------------------------------------
 
+// The preflight-evidence gate is checked first (see the preflight suite); this
+// ctx carries that evidence so the credential gate itself is what is asserted.
 void test("missing SEO-Bot credentials fail closed with COMPETITIVE_INTELLIGENCE_REQUIRED", async () => {
   const savedUrl = process.env.SEO_BOT_URL;
   const savedKey = process.env.SEO_BOT_API_KEY;

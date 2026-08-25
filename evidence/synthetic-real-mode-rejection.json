@@ -1,0 +1,336 @@
+{
+  "schema": "l9.golden-oracle-result/v2",
+  "oracle_id": "safehaven-redesign-oracle-v1",
+  "case_id": "safehaven-redesign-golden-v1",
+  "evaluated_at": "2026-08-20T20:10:17.374Z",
+  "hard_gate_failures": [
+    {
+      "code": "SYNTHETIC_RECEIPT_FORBIDDEN",
+      "message": "Synthetic calibration receipt cannot certify a real Golden run",
+      "evidence": [
+        {
+          "signal": "declared_synthetic",
+          "detail": "receipt declares calibration.synthetic"
+        },
+        {
+          "signal": "builder_provenance_seal",
+          "detail": "receipt body carries a valid calibration-builder provenance seal"
+        },
+        {
+          "signal": "reserved_namespace",
+          "detail": "22 identifier(s) carry the reserved synthetic namespace",
+          "occurrences": 22,
+          "examples": [
+            {
+              "location": "calibration.provenance_namespace",
+              "value": "l9-synthetic-calibration"
+            },
+            {
+              "location": "run.run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[0].candidate_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[0].captured_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            },
+            {
+              "location": "visual.pairs.[1].candidate_run_id",
+              "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+            }
+          ]
+        },
+        {
+          "signal": "reserved_host",
+          "detail": "69 host value(s) use names reserved by RFC 2606/6761, which can never resolve and so can never be observed by a real crawl",
+          "occurrences": 69,
+          "examples": [
+            {
+              "location": "competitive_landscape.selected_donors.[0].url",
+              "value": "https://donor01.golden.invalid/landing/",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[0].domain",
+              "value": "donor01.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[0].normalized_domain",
+              "value": "donor01.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[1].url",
+              "value": "https://donor02.golden.invalid/landing/",
+              "reason": "reserved TLD .invalid"
+            },
+            {
+              "location": "competitive_landscape.selected_donors.[1].domain",
+              "value": "donor02.golden.invalid",
+              "reason": "reserved TLD .invalid"
+            }
+          ]
+        },
+        {
+          "signal": "degenerate_git_sha",
+          "detail": "3 identity SHA(s) carry placeholder entropy",
+          "occurrences": 3,
+          "examples": [
+            {
+              "location": "identity.website_bot.sha",
+              "value": "1111111111111111111111111111111111111111",
+              "reason": "only 1 distinct hex digits"
+            },
+            {
+              "location": "identity.seo_bot.sha",
+              "value": "2222222222222222222222222222222222222222",
+              "reason": "only 1 distinct hex digits"
+            },
+            {
+              "location": "identity.llm_router.sha",
+              "value": "3333333333333333333333333333333333333333",
+              "reason": "only 1 distinct hex digits"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "blocking_inconclusive_states": [],
+  "oracle_evaluation_coverage": {
+    "expected": 101,
+    "executed": 101,
+    "evaluation_ids": [
+      "business_truth.email_mismatch_count",
+      "business_truth.phone_mismatch_count",
+      "business_truth.prohibition_violations",
+      "business_truth.unsupported_claim_count",
+      "competitive_landscape.every_selected_donor_requires",
+      "competitive_landscape.evidence_complete",
+      "competitive_landscape.forbidden_selected_classes",
+      "competitive_landscape.ranking_llm_calls",
+      "competitive_landscape.selected_donor_count",
+      "competitive_landscape.unique_normalized_domains",
+      "donor_evidence.accepted_donors",
+      "donor_evidence.candidate_donor_asset_hash_matches",
+      "donor_evidence.per_donor.minimum_screenshots",
+      "donor_evidence.per_donor.minimum_successful_pages",
+      "donor_evidence.per_donor.require_evidence_digest",
+      "donor_evidence.per_donor.require_timestamp",
+      "execution_graph.build_intent",
+      "execution_graph.copy_fallback_used",
+      "execution_graph.forbidden_stages_under_redesign",
+      "execution_graph.generic_fallback_used",
+      "execution_graph.required_ordered_subsequence",
+      "final_verdict.pass_requires.all_hard_gates_pass",
+      "final_verdict.pass_requires.no_inconclusive_blocking_dimension",
+      "final_verdict.pass_requires.rendered_visual_qa_executed",
+      "final_verdict.pass_requires.visual_oracle_pass",
+      "identity.require_bot_interop_compatibility",
+      "identity.require_clean_or_explicitly_recorded_worktrees",
+      "identity.require_full_git_shas",
+      "identity.router_version_rule",
+      "legacy_authority.legacy_content_generation_calls",
+      "legacy_authority.legacy_schema_generation_calls",
+      "legacy_authority.page_content_contract_llm_calls",
+      "legacy_authority.redesign_schema_llm_calls",
+      "llm_audit.direct_provider_bypass_count",
+      "llm_audit.required_policy.CONTENT_VALIDATION",
+      "llm_audit.required_policy.SEO_CONTENT_BLUEPRINT",
+      "llm_audit.required_policy.STRUCTURED_CONTENT_GENERATION",
+      "llm_audit.required_policy.VISUAL_QA",
+      "llm_audit.unsupported_capability_combination_count",
+      "page_content_contract.determinism.same_semantic_input_same_digest",
+      "page_content_contract.invalid_business_facts",
+      "page_content_contract.llm_calls",
+      "page_content_contract.produced_routes",
+      "page_content_contract.unplaced_content_requirements",
+      "preflight.must_precede_first_seo_build_intelligence_call",
+      "preflight.required",
+      "preflight.required_checks",
+      "seo_content_blueprint.batch_size",
+      "seo_content_blueprint.duplicate_routes",
+      "seo_content_blueprint.expected_batch_count",
+      "seo_content_blueprint.extra_routes",
+      "seo_content_blueprint.invalid_internal_link_targets",
+      "seo_content_blueprint.must_reference_exact_competitive_landscape",
+      "seo_content_blueprint.produced_routes",
+      "seo_content_blueprint.unknown_content_slots",
+      "site_integrity.broken_internal_links",
+      "site_integrity.built_routes",
+      "site_integrity.per_route",
+      "site_integrity.placeholder_count",
+      "site_integrity.reachable_routes",
+      "site_integrity.unique_canonical_urls",
+      "site_integrity.unique_titles",
+      "source_assets.conditional_rules",
+      "source_assets.forbidden_candidate_dispositions",
+      "source_assets.minimum_authorized_reusable_images",
+      "source_assets.minimum_raw_source_images",
+      "source_assets.minimum_selected_source_images",
+      "source_assets.required_visual_slots_filled_fraction",
+      "source_assets.source_corpus_completed",
+      "source_assets.unexplained_reusable_asset_loss",
+      "structured_content.all_section_prose_must_use_blocks",
+      "structured_content.failed_requirements",
+      "structured_content.maximum_generation_calls_per_route",
+      "structured_content.maximum_repairs_per_route",
+      "structured_content.must_reference_exact_page_content_contract",
+      "structured_content.produced_routes",
+      "structured_content.schema_invalid_routes",
+      "structured_content.section_alias_fields_forbidden",
+      "structured_content.unsupported_claims",
+      "visual_capture.baseline_blank_capture_count",
+      "visual_capture.candidate_blank_capture_count",
+      "visual_capture.required_pairs",
+      "visual_capture.route_mismatch_count",
+      "visual_capture.stale_capture_count",
+      "visual_capture.viewport_mismatch_count",
+      "visual_oracle.dimensions",
+      "visual_oracle.inconclusive.judge_disagreement_without_majority",
+      "visual_oracle.inconclusive.missing_trial",
+      "visual_oracle.inconclusive.wilson_interval_crosses_required_boundary",
+      "visual_oracle.pass.critical_dimensions_may_not_regress",
+      "visual_oracle.pass.critical_pairs_may_not_lose",
+      "visual_oracle.pass.maximum_pair_majority_losses",
+      "visual_oracle.pass.minimum_candidate_votes",
+      "visual_oracle.pass.minimum_pair_majority_wins",
+      "visual_oracle.pass.minimum_weighted_mean_delta",
+      "visual_oracle.pass.wilson_lower_bound_must_exceed",
+      "visual_oracle.reveal_candidate_identity_to_judge",
+      "visual_oracle.trials_per_pair",
+      "website_blueprint.must_reference_exact_competitive_landscape",
+      "website_blueprint.required",
+      "website_blueprint.visual_asset_requirements_required"
+    ]
+  },
+  "calibration": {
+    "synthetic": false,
+    "synthetic_receipt": true,
+    "calibration_mode": false,
+    "synthetic_evidence_signals": [
+      "declared_synthetic",
+      "builder_provenance_seal",
+      "reserved_namespace",
+      "reserved_host",
+      "degenerate_git_sha"
+    ],
+    "synthetic_evidence_detail": [
+      {
+        "signal": "declared_synthetic",
+        "detail": "receipt declares calibration.synthetic"
+      },
+      {
+        "signal": "builder_provenance_seal",
+        "detail": "receipt body carries a valid calibration-builder provenance seal"
+      },
+      {
+        "signal": "reserved_namespace",
+        "detail": "22 identifier(s) carry the reserved synthetic namespace",
+        "occurrences": 22,
+        "examples": [
+          {
+            "location": "calibration.provenance_namespace",
+            "value": "l9-synthetic-calibration"
+          },
+          {
+            "location": "run.run_id",
+            "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+          },
+          {
+            "location": "visual.pairs.[0].candidate_run_id",
+            "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+          },
+          {
+            "location": "visual.pairs.[0].captured_run_id",
+            "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+          },
+          {
+            "location": "visual.pairs.[1].candidate_run_id",
+            "value": "l9-synthetic-calibration/safehaven-positive-control-v1"
+          }
+        ]
+      },
+      {
+        "signal": "reserved_host",
+        "detail": "69 host value(s) use names reserved by RFC 2606/6761, which can never resolve and so can never be observed by a real crawl",
+        "occurrences": 69,
+        "examples": [
+          {
+            "location": "competitive_landscape.selected_donors.[0].url",
+            "value": "https://donor01.golden.invalid/landing/",
+            "reason": "reserved TLD .invalid"
+          },
+          {
+            "location": "competitive_landscape.selected_donors.[0].domain",
+            "value": "donor01.golden.invalid",
+            "reason": "reserved TLD .invalid"
+          },
+          {
+            "location": "competitive_landscape.selected_donors.[0].normalized_domain",
+            "value": "donor01.golden.invalid",
+            "reason": "reserved TLD .invalid"
+          },
+          {
+            "location": "competitive_landscape.selected_donors.[1].url",
+            "value": "https://donor02.golden.invalid/landing/",
+            "reason": "reserved TLD .invalid"
+          },
+          {
+            "location": "competitive_landscape.selected_donors.[1].domain",
+            "value": "donor02.golden.invalid",
+            "reason": "reserved TLD .invalid"
+          }
+        ]
+      },
+      {
+        "signal": "degenerate_git_sha",
+        "detail": "3 identity SHA(s) carry placeholder entropy",
+        "occurrences": 3,
+        "examples": [
+          {
+            "location": "identity.website_bot.sha",
+            "value": "1111111111111111111111111111111111111111",
+            "reason": "only 1 distinct hex digits"
+          },
+          {
+            "location": "identity.seo_bot.sha",
+            "value": "2222222222222222222222222222222222222222",
+            "reason": "only 1 distinct hex digits"
+          },
+          {
+            "location": "identity.llm_router.sha",
+            "value": "3333333333333333333333333333333333333333",
+            "reason": "only 1 distinct hex digits"
+          }
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "candidate_visual_votes": 30,
+    "total_visual_votes": 30,
+    "visual_majority_wins": 10,
+    "visual_majority_losses": 0,
+    "visual_wilson_lower_bound": 0.8864829086095221,
+    "visual_wilson_upper_bound": 1,
+    "visual_dimension_means": {
+      "visual_hierarchy": 1,
+      "brand_coherence": 1,
+      "conversion_clarity": 1,
+      "trust_and_credibility": 1,
+      "authentic_imagery": 1,
+      "content_readability": 1,
+      "information_density": 1,
+      "spacing_and_rhythm": 1,
+      "mobile_usability": 1,
+      "professional_polish": 1
+    },
+    "visual_weighted_mean_delta": 1
+  },
+  "verdict": "GOLDEN_E2E_FAIL"
+}

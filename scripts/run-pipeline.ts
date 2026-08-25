@@ -17,6 +17,7 @@ import {
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
+import { writeSafeHavenRuntimeEvidence } from "./lib/safehaven-golden-runtime-evidence.js";
 
 // Load the operator-provisioned .env.local (gitignored) into process.env
 // before hydration so a local run can supply the Infisical bootstrap without
@@ -85,6 +86,36 @@ const noRollbackProvision = arguments_.includes("--no-rollback-provision");
 // (BUILD_INTENT_REQUIRED) instead of resolving to the legacy COPY default.
 const redesignSurface = arguments_.includes("--redesign");
 
+// Safe Haven Golden evidence export. Entirely opt-in and all-or-none: ordinary
+// COPY and REDESIGN runs never emit Golden-specific evidence, and a partially
+// specified Golden export is a configuration error rather than a silent skip.
+const goldenArgumentNames = [
+  "golden-case",
+  "golden-oracle",
+  "golden-identity",
+  "golden-runtime-out",
+  "golden-seo-llm-audit",
+] as const;
+const goldenArguments = Object.fromEntries(
+  goldenArgumentNames.map((name) => [name, argValue(name)]),
+) as Record<(typeof goldenArgumentNames)[number], string | undefined>;
+const goldenRequested = goldenArgumentNames.some((name) => goldenArguments[name] !== undefined);
+if (goldenRequested) {
+  const missing = (["golden-case", "golden-oracle", "golden-identity", "golden-runtime-out"] as const)
+    .filter((name) => !goldenArguments[name]?.trim());
+  if (missing.length > 0)
+    throw new Error(
+      `Golden export requires all of --golden-case, --golden-oracle, --golden-identity, --golden-runtime-out (missing: ${missing.join(", ")})`,
+    );
+  if (!redesignSurface) throw new Error("Golden export requires --redesign");
+  if (dryRunFlag) throw new Error("Golden export cannot be combined with --dry-run");
+  if (mode !== "end-to-end")
+    throw new Error(`Golden export requires --mode=end-to-end (got ${mode})`);
+  if (!explicitSpec) throw new Error("Golden export requires an explicit --spec");
+  if (process.env.GOLDEN_CALIBRATION_MODE)
+    throw new Error("Golden export refuses to run while GOLDEN_CALIBRATION_MODE is set");
+}
+
 const bootstrapSpec = validateDomainSpec(parse(readFileSync(specPath, "utf-8")), specPath);
 if (process.env.CLIENT_ID && process.env.CLIENT_ID !== bootstrapSpec.client_id) {
   throw new Error(
@@ -147,6 +178,21 @@ if (bootstrapSpec.deploy?.github_repo) {
   };
 }
 
+if (goldenRequested) {
+  const buildIntentIsRedesign = ctx.buildIntent === "REDESIGN_IMPROVE";
+  if (!buildIntentIsRedesign)
+    throw new Error(
+      `Golden export requires build_intent REDESIGN_IMPROVE (spec resolved to ${ctx.buildIntent})`,
+    );
+  ctx.goldenRun = {
+    casePath: goldenArguments["golden-case"] as string,
+    oraclePath: goldenArguments["golden-oracle"] as string,
+    identityManifestPath: goldenArguments["golden-identity"] as string,
+    runtimeEvidenceOutputPath: goldenArguments["golden-runtime-out"] as string,
+    seoLlmAuditPath: goldenArguments["golden-seo-llm-audit"],
+  };
+}
+
 const shouldProvision =
   provisionRequested ||
   ((mode === "publish-proof" || mode === "end-to-end") &&
@@ -165,6 +211,23 @@ const plan = buildFactoryExecutionPlan({
 
 try {
   await executeFactoryPlan(ctx, plan);
+  // Golden runtime evidence is derived from the completed BuildContext BEFORE
+  // any success is announced. A failure here means the run cannot certify, so
+  // the CLI exits non-zero and prints no Golden-ready message.
+  if (ctx.goldenRun) {
+    const evidence = await writeSafeHavenRuntimeEvidence(ctx, {
+      casePath: ctx.goldenRun.casePath,
+      oraclePath: ctx.goldenRun.oraclePath,
+      identityManifestPath: ctx.goldenRun.identityManifestPath,
+      seoLlmAuditPath: ctx.goldenRun.seoLlmAuditPath,
+      outputPath: ctx.goldenRun.runtimeEvidenceOutputPath,
+    });
+    console.log(`Golden runtime evidence: ${ctx.goldenRun.runtimeEvidenceOutputPath}`);
+    for (const unresolved of evidence.unresolved_external_dependencies)
+      console.warn(
+        `[golden] UNRESOLVED ${unresolved.field} (owner: ${unresolved.owner}) — ${unresolved.reason}`,
+      );
+  }
   console.log(`Pipeline complete. Build: ${ctx.buildId}. Mode: ${mode}`);
   if (ctx.outputDir) console.log(`Generated source: ${ctx.outputDir}`);
   if (!dryRun) console.log(`Evidence root: ${ctx.evidenceStore.rootDir}`);
