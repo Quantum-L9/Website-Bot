@@ -128,18 +128,20 @@ function compareCodeUnits(a, b) {
 }
 
 // ---------- identity snapshot (Website-Bot checkout identity) ----------
-// PATH is pinned to fixed system directories so the subprocess cannot be
-// hijacked through a writable PATH entry.
-const FIXED_PATH = "/usr/local/bin:/usr/bin:/bin";
+// git is invoked by absolute path from a fixed, unwriteable set of system
+// directories — never resolved through PATH — and with a minimal explicit
+// environment, so the subprocess cannot be hijacked via a writable PATH
+// entry. Identity capture stays fail-soft: no usable git binary => null.
+const GIT_BINARY = ["/usr/bin/git", "/usr/local/bin/git", "/opt/homebrew/bin/git", "/bin/git"]
+  .find((candidate) => fs.existsSync(candidate));
 function gitOutput(args, cwd) {
+  if (!GIT_BINARY) return null;
   try {
-    return execFileSync("git", args, {
+    return execFileSync(GIT_BINARY, args, {
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
-      // Minimal explicit environment: only the pinned PATH of fixed,
-      // unwriteable system directories — nothing inherited.
-      env: { PATH: FIXED_PATH },
+      env: { PATH: "/usr/bin:/bin" },
     }).trim();
   } catch {
     return null;
