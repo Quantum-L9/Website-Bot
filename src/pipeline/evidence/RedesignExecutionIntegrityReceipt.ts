@@ -197,8 +197,13 @@ function validateVisualState(
     );
   if (receipt.visual.unexplained_asset_loss !== 0)
     receiptFail(`unexplained_asset_loss must be 0, got ${receipt.visual.unexplained_asset_loss}`);
-  if (requireVisualQa && receipt.visual_qa.status !== "verified")
-    receiptFail(`visual_qa must be verified for end-to-end convergence, got ${receipt.visual_qa.status}`);
+  // The gate-status vocabulary is EvidenceGateStatus ("passed" is the
+  // success value — ReleaseReceipt requires "passed visual QA" for a
+  // succeeded receipt; "verified" is not a valid status). The QA stage
+  // records "passed" after running against a real deployment URL, which
+  // requireDeploymentEvidence proves.
+  if (requireVisualQa && receipt.visual_qa.status !== "passed")
+    receiptFail(`visual_qa must be passed for end-to-end convergence, got ${receipt.visual_qa.status}`);
 }
 
 export function validateRedesignExecutionIntegrityReceipt(

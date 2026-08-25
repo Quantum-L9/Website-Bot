@@ -74,7 +74,7 @@ function completeCtx(overrides?: Partial<BuildContext>): BuildContext {
     },
     sourceSiteManifest: { images: [{ id: "a" }] },
     stageResults: new Map([["competitive-intelligence", { ok: true }]]),
-    qualityEvidence: { seoBaseline: "pending", visualQa: "verified" },
+    qualityEvidence: { seoBaseline: "pending", visualQa: "passed" },
     ...overrides,
   } as unknown as BuildContext;
 }
@@ -85,6 +85,18 @@ void test("a complete redesign run emits a valid receipt", () => {
   assert.equal(receipt.qualified_donor_count, 10);
   assert.equal(receipt.counters.page_content_contract_llm_calls, 0);
   assert.equal(receipt.visual.required_visual_slots_filled_pct, 100);
+});
+
+void test("end-to-end convergence requires passed visual QA (golden run #60)", () => {
+  const receipt = emitRedesignExecutionIntegrityReceipt(completeCtx());
+  // "passed" is the EvidenceGateStatus success value (ReleaseReceipt
+  // SSOT); "verified" is not a valid status.
+  assert.doesNotThrow(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }));
+  const failed = { ...receipt, visual_qa: { status: "skipped" } };
+  assert.throws(
+    () => validateRedesignExecutionIntegrityReceipt(failed, { requireVisualQa: true }),
+    /visual_qa must be passed/,
+  );
 });
 
 void test("missing evidence is FAIL, not default (each field)", () => {
