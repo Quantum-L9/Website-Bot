@@ -377,6 +377,30 @@ void test("ensureCanonicalSlotCoverage covers every canonical slot even from an 
   assert.deepEqual(covered, again);
 });
 
+void test("ensureCanonicalSlotCoverage pads sections to spec-component parity (golden run #51)", () => {
+  const sparse = [
+    {
+      section_id: "everything",
+      component_class: "prose",
+      objective: "all content",
+      content_slots: [],
+      pattern_refs: [],
+      proof_requirements: [],
+    },
+  ];
+  const covered = ensureCanonicalSlotCoverage(sparse, [
+    "hero",
+    "service-detail",
+    "trust-bar",
+    "contact-form",
+  ]);
+  // The projection stage maps spec component i onto generated section i —
+  // one LLM section against four frozen components must pad to four.
+  assert.equal(covered.length, 4);
+  assert.equal(covered[3]?.section_id, "spec-component-4");
+  assert.ok((covered[3]?.content_slots ?? []).includes("conversion"));
+});
+
 void test("projection fails closed when the SCP is missing a spec route", async () => {
   const landscape = makeLandscape();
   const blueprint = makeWebsiteBlueprint(landscape);

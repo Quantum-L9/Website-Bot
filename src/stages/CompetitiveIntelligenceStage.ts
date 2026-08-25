@@ -374,6 +374,24 @@ export function ensureCanonicalSlotCoverage(
   if (missing.length > 0) {
     next[0].content_slots = uniqueSlots([...next[0].content_slots, ...missing]);
   }
+
+  // Section-per-component parity: the projection stage maps spec component i
+  // onto generated section i (StructuredContentProjectionStage), so a
+  // blueprint with fewer sections than the spec's components can never
+  // project — golden run #51: /about had 1 LLM-produced blueprint section
+  // against 4 frozen spec components. The spec's component inventory is the
+  // section authority; pad with component-derived sections in spec order.
+  while (next.length < specComponents.length) {
+    const component = specComponents[next.length]!;
+    next.push({
+      section_id: `spec-component-${next.length + 1}`,
+      component_class: component.toLowerCase().replace(/\s+/g, "-"),
+      objective: component,
+      content_slots: slotsForSpecComponent(component),
+      pattern_refs: [],
+      proof_requirements: [],
+    });
+  }
   return next;
 }
 
