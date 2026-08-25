@@ -290,7 +290,7 @@ export function compilePageContentContract(
             "community", "involvement", "participation", "award",
             "certif", "licens", "bond", "membership", "accredit",
             "statistic", "percentage", "lifespan", "savings",
-            "cost", "rating", "data",
+            "cost", "rating", "data", "threshold",
           ];
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;
