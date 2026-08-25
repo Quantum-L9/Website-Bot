@@ -38,16 +38,16 @@
       },
       "normalized_preference": "CANDIDATE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
-        "brand_coherence": -1,
-        "conversion_clarity": -1,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
+        "visual_hierarchy": 1,
+        "brand_coherence": 1,
+        "conversion_clarity": 1,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
         "spacing_and_rhythm": 0,
         "mobile_usability": 0,
-        "professional_polish": -1
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -60,7 +60,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
         "image_b_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
@@ -105,16 +105,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": -1,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.8,
       "defects": {
@@ -127,7 +127,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
         "image_b_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
@@ -172,16 +172,16 @@
       },
       "normalized_preference": "CANDIDATE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -1,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
+        "conversion_clarity": 1,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
         "spacing_and_rhythm": 0,
         "mobile_usability": 0,
-        "professional_polish": -1
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -194,7 +194,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
         "image_b_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
@@ -239,16 +239,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": 1,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -1,
-        "professional_polish": -1
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": -1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 1,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -261,7 +261,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
         "image_b_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
@@ -306,16 +306,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
         "authentic_imagery": 0,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
-        "mobile_usability": 2,
-        "professional_polish": 1
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -1
       },
       "confidence": 0.8,
       "defects": {
@@ -328,7 +328,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
         "image_b_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
@@ -373,16 +373,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": 1,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -1,
-        "professional_polish": -1
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": -1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 1,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -395,7 +395,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: / \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
         "image_b_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
@@ -440,16 +440,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 1,
+        "visual_hierarchy": -1,
         "brand_coherence": 0,
-        "conversion_clarity": 1,
+        "conversion_clarity": -1,
         "trust_and_credibility": 0,
-        "authentic_imagery": -1,
-        "content_readability": 1,
-        "information_density": -1,
-        "spacing_and_rhythm": 1,
+        "authentic_imagery": 1,
+        "content_readability": -1,
+        "information_density": 1,
+        "spacing_and_rhythm": -1,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.7,
       "defects": {
@@ -462,7 +462,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
         "image_b_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
@@ -507,16 +507,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 1,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
         "mobile_usability": 0,
-        "professional_polish": 2
+        "professional_polish": -2
       },
       "confidence": 0.8,
       "defects": {
@@ -529,7 +529,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
         "image_b_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
@@ -574,16 +574,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 1,
+        "visual_hierarchy": -1,
         "brand_coherence": 0,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": -1,
-        "content_readability": 1,
-        "information_density": -1,
-        "spacing_and_rhythm": 1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 1,
+        "content_readability": -1,
+        "information_density": 1,
+        "spacing_and_rhythm": -1,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.7,
       "defects": {
@@ -596,7 +596,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
         "image_b_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
@@ -641,16 +641,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -1,
-        "mobile_usability": -1,
-        "professional_polish": -1
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 1,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -663,7 +663,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
         "image_b_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
@@ -708,16 +708,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 2,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
-        "mobile_usability": 2,
-        "professional_polish": 2
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
       },
       "confidence": 0.8,
       "defects": {
@@ -730,7 +730,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
         "image_b_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
@@ -775,16 +775,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -1,
-        "mobile_usability": -1,
-        "professional_polish": -1
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 1,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -797,7 +797,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
         "image_b_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
@@ -842,16 +842,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 1,
+        "visual_hierarchy": -1,
         "brand_coherence": 0,
-        "conversion_clarity": 1,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 2,
-        "content_readability": 1,
+        "conversion_clarity": -1,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
         "information_density": 0,
-        "spacing_and_rhythm": 1,
+        "spacing_and_rhythm": -1,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.7,
       "defects": {
@@ -864,7 +864,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
         "image_b_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
@@ -909,16 +909,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 1,
+        "visual_hierarchy": -1,
         "brand_coherence": 0,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 2,
-        "content_readability": 1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
         "information_density": 0,
-        "spacing_and_rhythm": 1,
+        "spacing_and_rhythm": -1,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.7,
       "defects": {
@@ -931,7 +931,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
         "image_b_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
@@ -976,16 +976,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 1,
+        "visual_hierarchy": -1,
         "brand_coherence": 0,
-        "conversion_clarity": 1,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 2,
-        "content_readability": 1,
-        "information_density": -1,
-        "spacing_and_rhythm": 1,
+        "conversion_clarity": -1,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": 1,
+        "spacing_and_rhythm": -1,
         "mobile_usability": 0,
-        "professional_polish": 1
+        "professional_polish": -1
       },
       "confidence": 0.7,
       "defects": {
@@ -998,7 +998,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
         "image_b_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
@@ -1043,16 +1043,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": -1,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -2,
-        "professional_polish": -1
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -1065,7 +1065,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
         "image_b_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
@@ -1110,16 +1110,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
-        "authentic_imagery": 1,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
-        "mobile_usability": 2,
-        "professional_polish": 1
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -1
       },
       "confidence": 0.8,
       "defects": {
@@ -1132,7 +1132,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
         "image_b_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
@@ -1177,16 +1177,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -1,
+        "visual_hierarchy": 1,
         "brand_coherence": 0,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
-        "authentic_imagery": -1,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -1,
-        "professional_polish": -1
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 1,
+        "professional_polish": 1
       },
       "confidence": 0.8,
       "defects": {
@@ -1199,7 +1199,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ \u2014 critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
         "image_b_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
@@ -1244,16 +1244,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
         "mobile_usability": 0,
-        "professional_polish": -2
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1266,7 +1266,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
         "image_b_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
@@ -1311,16 +1311,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 2,
-        "authentic_imagery": 2,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
         "mobile_usability": 0,
-        "professional_polish": 2
+        "professional_polish": -2
       },
       "confidence": 0.85,
       "defects": {
@@ -1333,7 +1333,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
         "image_b_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
@@ -1378,16 +1378,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
         "mobile_usability": 0,
-        "professional_polish": -2
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1400,7 +1400,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
         "image_b_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
@@ -1445,16 +1445,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -1,
-        "mobile_usability": -2,
-        "professional_polish": -2
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 2,
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1467,7 +1467,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
         "image_b_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
@@ -1512,16 +1512,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 2,
-        "authentic_imagery": 2,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
-        "mobile_usability": 2,
-        "professional_polish": 2
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
       },
       "confidence": 0.85,
       "defects": {
@@ -1534,7 +1534,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
         "image_b_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
@@ -1579,16 +1579,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -2,
-        "authentic_imagery": -2,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -2,
-        "professional_polish": -2
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1601,7 +1601,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /gallery/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
         "image_b_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
@@ -1646,16 +1646,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
         "authentic_imagery": 0,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
         "mobile_usability": 0,
-        "professional_polish": -2
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1668,7 +1668,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
         "image_b_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
@@ -1713,16 +1713,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
+        "visual_hierarchy": -2,
         "brand_coherence": 0,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
         "authentic_imagery": 0,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
         "mobile_usability": 0,
-        "professional_polish": 2
+        "professional_polish": -2
       },
       "confidence": 0.85,
       "defects": {
@@ -1735,7 +1735,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
         "image_b_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
@@ -1780,16 +1780,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
         "authentic_imagery": 0,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
         "mobile_usability": 0,
-        "professional_polish": -2
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1802,7 +1802,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
         "image_b_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
@@ -1847,16 +1847,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
         "authentic_imagery": 0,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -2,
-        "professional_polish": -2
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -1869,7 +1869,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
         "image_b_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
@@ -1914,16 +1914,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": 2,
-        "brand_coherence": 1,
-        "conversion_clarity": 2,
-        "trust_and_credibility": 1,
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
         "authentic_imagery": 0,
-        "content_readability": 1,
-        "information_density": 1,
-        "spacing_and_rhythm": 2,
-        "mobile_usability": 2,
-        "professional_polish": 2
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
       },
       "confidence": 0.8,
       "defects": {
@@ -1936,7 +1936,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
         "image_b_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
@@ -1981,16 +1981,16 @@
       },
       "normalized_preference": "BASELINE",
       "normalized_candidate_delta": {
-        "visual_hierarchy": -2,
-        "brand_coherence": -1,
-        "conversion_clarity": -2,
-        "trust_and_credibility": -1,
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
         "authentic_imagery": 0,
-        "content_readability": -1,
-        "information_density": -1,
-        "spacing_and_rhythm": -2,
-        "mobile_usability": -2,
-        "professional_polish": -2
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
       },
       "confidence": 0.8,
       "defects": {
@@ -2003,7 +2003,7 @@
       },
       "blind": true,
       "judge_input_manifest": {
-        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "prompt": "ROUTE PURPOSE: /contact/ \u2014 critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
         "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
         "image_a_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
         "image_b_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",

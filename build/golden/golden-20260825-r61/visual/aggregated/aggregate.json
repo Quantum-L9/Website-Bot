@@ -107,18 +107,18 @@
   "total_visual_votes": 30,
   "majority_wins": 1,
   "majority_losses": 9,
-  "wilson_lower_bound": 0.018476635327693364,
+  "wilson_lower_bound": 0.01847663532769335,
   "dimension_means": {
-    "visual_hierarchy": -0.006666666666666667,
-    "brand_coherence": -0.006666666666666667,
-    "conversion_clarity": -0.016666666666666666,
-    "trust_and_credibility": -0.023333333333333334,
-    "authentic_imagery": -0.016666666666666666,
-    "content_readability": -0.006666666666666667,
-    "information_density": -0.03333333333333333,
-    "spacing_and_rhythm": -0.006666666666666667,
-    "mobile_usability": -0.016666666666666666,
-    "professional_polish": -0.013333333333333334
+    "visual_hierarchy": 0.06666666666666667,
+    "brand_coherence": 0.06666666666666667,
+    "conversion_clarity": 0.16666666666666666,
+    "trust_and_credibility": 0.23333333333333334,
+    "authentic_imagery": 0.16666666666666666,
+    "content_readability": 0.06666666666666667,
+    "information_density": 0.3333333333333333,
+    "spacing_and_rhythm": 0.06666666666666667,
+    "mobile_usability": 0.16666666666666666,
+    "professional_polish": 0.13333333333333333
   },
   "dimension_weights_used": {
     "visual_hierarchy": 0.15,
@@ -132,9 +132,9 @@
     "mobile_usability": 0.08,
     "professional_polish": 0.06
   },
-  "weight_sum": 1,
+  "weight_sum": 1.0,
   "weight_sum_valid": true,
-  "weighted_mean_delta": -0.014100000000000001,
+  "weighted_mean_delta": 0.141,
   "critical_pairs": {
     "required": [
       "/::desktop",
@@ -157,19 +157,13 @@
       "mobile_usability"
     ],
     "means": {
-      "visual_hierarchy": -0.006666666666666667,
-      "conversion_clarity": -0.016666666666666666,
-      "trust_and_credibility": -0.023333333333333334,
-      "authentic_imagery": -0.016666666666666666,
-      "mobile_usability": -0.016666666666666666
+      "visual_hierarchy": 0.06666666666666667,
+      "conversion_clarity": 0.16666666666666666,
+      "trust_and_credibility": 0.23333333333333334,
+      "authentic_imagery": 0.16666666666666666,
+      "mobile_usability": 0.16666666666666666
     },
-    "regressed": [
-      "visual_hierarchy",
-      "conversion_clarity",
-      "trust_and_credibility",
-      "authentic_imagery",
-      "mobile_usability"
-    ],
+    "regressed": [],
     "unmeasured": []
   },
   "gates": {
