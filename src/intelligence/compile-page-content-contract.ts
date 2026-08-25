@@ -225,6 +225,10 @@ export function compilePageContentContract(
       // run #45: the writer's lifespan number was grounded-scrubbed, leaving
       // broken prose the semantic validator then flagged).
       "how long", "how much", "how many", "cost",
+      // Lifespan/comparison topics: "lifespan comparison" invites
+      // comparative lifespan claims no fact asserts (golden run #49: the
+      // guide route's comparison content was flagged as unsupported claims).
+      "lifespan",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
@@ -271,19 +275,22 @@ export function compilePageContentContract(
           ...requirements.flatMap((requirement) => requirement.proof_needed),
         ]).filter((proof) => {
           // Unverifiable proof classes: community involvement, awards,
-          // licensure, certifications, statistics/percentages/lifespan data
-          // — anything the frozen facts cannot assert. Requiring them
-          // forces the generator to invent claims the semantic validator
-          // then rejects (golden run #34, /about; golden run #45,
-          // /services/metal-roofing, where "durability statistics" /
-          // "energy savings" / "lifespan data" demanded numbers the facts
-          // do not contain — the writer's invented lifespan number was
-          // grounded-scrubbed, leaving broken prose). Project/gallery
+          // licensure, certifications, statistics/percentages/lifespan data,
+          // cost/rating/weather data — anything the frozen facts cannot
+          // assert. Requiring them forces the generator to invent claims
+          // the semantic validator then rejects (golden run #34, /about;
+          // golden run #45, /services/metal-roofing, where "durability
+          // statistics" / "energy savings" / "lifespan data" demanded
+          // numbers the facts do not contain — the writer's invented
+          // lifespan number was grounded-scrubbed, leaving broken prose;
+          // golden run #49, the guide route's "cost data" / "energy
+          // efficiency ratings" / "local weather data"). Project/gallery
           // proof (image-backed) is never filtered.
           const UNVERIFIABLE_PROOF_MARKERS = [
             "community", "involvement", "participation", "award",
             "certif", "licens", "bond", "membership", "accredit",
             "statistic", "percentage", "lifespan", "savings",
+            "cost", "rating", "data",
           ];
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;

@@ -311,13 +311,21 @@ test("unverifiable response-time questions are dropped; fact-answerable question
   assert.ok(services.content_requirements.questions.includes("Do you offer free inspections?"));
 });
 
-test("quantity questions and statistical proofs are dropped unless corpus-backed (golden run #45)", () => {
+test("quantity questions and statistical proofs are dropped unless corpus-backed (golden runs #45/#49)", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(
     seoPayload(landscapeRef, [
       seoRequirement({
         questions: ["How long do metal roofs last?", "What types of metal roofing do you install?"],
-        proof_needed: ["durability statistics", "energy savings", "lifespan data", "material options"],
+        proof_needed: [
+          "durability statistics",
+          "energy savings",
+          "lifespan data",
+          "cost data",
+          "energy efficiency ratings",
+          "local weather data",
+          "material options",
+        ],
       }),
     ]),
   );
@@ -335,11 +343,18 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
   // asserts; "What types…" is answerable and stays.
   assert.ok(!services.content_requirements.questions.includes("How long do metal roofs last?"));
   assert.ok(services.content_requirements.questions.includes("What types of metal roofing do you install?"));
-  // Statistical proofs demand numbers the facts do not contain; qualitative
-  // proof classes stay.
-  assert.ok(!services.proof_requirements.includes("durability statistics"));
-  assert.ok(!services.proof_requirements.includes("energy savings"));
-  assert.ok(!services.proof_requirements.includes("lifespan data"));
+  // Statistical/data proofs demand numbers the facts do not contain;
+  // qualitative proof classes stay.
+  for (const dropped of [
+    "durability statistics",
+    "energy savings",
+    "lifespan data",
+    "cost data",
+    "energy efficiency ratings",
+    "local weather data",
+  ]) {
+    assert.ok(!services.proof_requirements.includes(dropped), `proof should drop: ${dropped}`);
+  }
   assert.ok(services.proof_requirements.includes("material options"));
 });
 
