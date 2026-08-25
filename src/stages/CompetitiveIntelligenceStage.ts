@@ -1,5 +1,6 @@
 // L9_META: layer=stage, role=competitive_intelligence, stage_index=3, status=active, version=1.0.0
 import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   type CompetitiveLandscapeArtifact,
@@ -839,6 +840,20 @@ export class CompetitiveIntelligenceStage implements Stage {
 
     validateWebsiteBuildBlueprint(blueprint, landscape, portfolio, expectedRoutes);
     ctx.websiteBlueprint = blueprint;
+    // Persist the sealed artifact: the golden receipt adapter projects
+    // evidence from disk, and the runtime previously kept the blueprint in
+    // product memory only (golden run #61: WEBSITE_BLUEPRINT_INVALID —
+    // artifact_ref evidence missing). Written under the client asset root,
+    // the same root the adapter's candidate paths scan.
+    if (!ctx.dryRun) {
+      const assetsDir = clientAssetRoot(ctx);
+      mkdirSync(assetsDir, { recursive: true });
+      writeFileSync(
+        resolve(assetsDir, "website-build-blueprint.json"),
+        `${JSON.stringify(blueprint, null, 2)}\n`,
+        "utf-8",
+      );
+    }
     logger.info(
       {
         artifactId: blueprint.artifact_id,
