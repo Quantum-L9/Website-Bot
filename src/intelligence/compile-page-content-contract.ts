@@ -227,7 +227,21 @@ export function compilePageContentContract(
         proof_requirements: uniq([
           ...section.proof_requirements,
           ...requirements.flatMap((requirement) => requirement.proof_needed),
-        ]),
+        ]).filter((proof) => {
+          // Unverifiable proof classes: community involvement, awards,
+          // licensure, certifications — anything the frozen facts cannot
+          // assert. Requiring them forces the generator to invent claims
+          // the semantic validator then rejects (golden run #34, /about).
+          // Project/gallery proof (image-backed) is never filtered.
+          const UNVERIFIABLE_PROOF_MARKERS = [
+            "community", "involvement", "participation", "award",
+            "certif", "licens", "bond", "membership", "accredit",
+          ];
+          if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
+            return true;
+          }
+          return factCorpus.includes(proof.toLowerCase());
+        }),
         ...(section.conversion_action ? { conversion_action: section.conversion_action } : {}),
         acceptance_tests: uniq(section.acceptance_tests ?? []),
       };
