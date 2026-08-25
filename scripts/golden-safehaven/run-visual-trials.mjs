@@ -47,7 +47,15 @@ const router = new L9LLMRouter({
   perplexityApiKey: process.env.PERPLEXITY_API_KEY,
   appName: "L9-Website-Bot-GoldenSafeHaven",
   providerMaxRetries: 0,
+  // Budget tracking is part of the executable task contract: a client must
+  // be initialized before the first execute (golden run #61 harness).
+  budget: {
+    monthlyBudgetPerClient: 200,
+    weeklyTarget: 50,
+    weeklyHardCeiling: 100,
+  },
 });
+await router.initClient("safehavenrr");
 
 const routePurpose = new Map(
   (manifest.pairs ?? []).map((p) => {
