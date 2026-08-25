@@ -63,7 +63,13 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // Heavy calls need the npm-undici transport (own Agent; Node's built-in
     // fetch cannot accept an npm-undici dispatcher). Injectable so tests can
     // observe heavy calls with a mock.
-    private readonly heavyFetchImpl: (input: string | Request | URL, init?: RequestInit) => Promise<Response> = undiciFetch as typeof fetch,
+    private readonly heavyFetchImpl: (
+      input: string | Request | URL,
+      init?: RequestInit & { dispatcher?: Agent },
+    ) => Promise<Response> = undiciFetch as unknown as (
+      input: string | Request | URL,
+      init?: RequestInit & { dispatcher?: Agent },
+    ) => Promise<Response>,
   ) {
     if (!this.baseUrl.trim()) {
       throw new Error(
@@ -104,8 +110,8 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // npm-undici fetch with its OWN Agent: Node's built-in fetch cannot
     // accept an npm-undici dispatcher (separate module instances; passing
     // one fails instantly with "fetch failed" — golden run #13).
-    const fetchFn = heavy ? this.heavyFetchImpl : this.fetchImpl;
-    const response = await fetchFn(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+    const url = `${this.baseUrl.replace(/\/+$/, "")}${path}`;
+    const init: RequestInit = {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -113,8 +119,13 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
-      ...(heavy ? { dispatcher: new Agent({ headersTimeout: timeoutMs }) } : {}),
-    });
+    };
+    const response = heavy
+      ? await this.heavyFetchImpl(url, {
+          ...init,
+          dispatcher: new Agent({ headersTimeout: timeoutMs }),
+        })
+      : await this.fetchImpl(url, init);
     const raw = await response.text();
     if (!response.ok) {
       throw new Error(

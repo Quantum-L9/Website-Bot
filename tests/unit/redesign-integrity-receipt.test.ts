@@ -108,7 +108,7 @@ void test("end-to-end convergence requires passed visual QA (golden run #60)", (
   // "passed" is the EvidenceGateStatus success value (ReleaseReceipt
   // SSOT); "verified" is not a valid status.
   assert.doesNotThrow(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }));
-  const failed = { ...receipt, visual_qa: { status: "skipped" } };
+  const failed = { ...receipt, visual_qa: { status: "skipped" as const } };
   assert.throws(
     () => validateRedesignExecutionIntegrityReceipt(failed, { requireVisualQa: true }),
     /visual_qa must be passed/,
