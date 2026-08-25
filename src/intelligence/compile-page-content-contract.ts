@@ -190,17 +190,30 @@ export function compilePageContentContract(
 
     // Unverifiable credential topics AND entities: the oracle's
     // fact_guardrails (claims_requiring_explicit_verified_fact) mark
-    // license/certification/award status as claims that need a verified
-    // fact. A coverage requirement in that set with no fact to back it can
-    // never be satisfied honestly — requiring it forces the generator to
-    // either invent the claim or write a disclaimer the validator rejects
+    // license/certification/award/availability status as claims that need a
+    // verified fact. A coverage requirement in that set with no fact to back
+    // it can never be satisfied honestly — requiring it forces the generator
+    // to either invent the claim or write a disclaimer the validator rejects
     // (topics: golden runs #19-#22; entities: golden run #42, where a
     // blueprint-invented "licensed contractor" entity forced the writer to
     // choose between an ungrounded credential claim and literal entity
-    // coverage). Drop such requirements from the coverage contract; the
-    // claim itself remains covered by claim grounding on the prose.
+    // coverage; topics again: golden run #43, where "no obligation" — a
+    // banned claim phrase — was simultaneously required by topic coverage
+    // and forbidden by claim grounding). Drop such requirements from the
+    // coverage contract; the claim itself remains covered by claim grounding
+    // on the prose.
+    //
+    // The availability/offer markers below mirror SEO-Bot's credential
+    // claim vocabulary (claim-grounding CREDENTIAL_CLAIM_TOKENS) so a
+    // coverage requirement can never demand a phrase the writer is
+    // forbidden to write ungrounded. Corpus backing keeps grounded phrases
+    // in the contract ("fully insured", "warranty", "free inspection",
+    // "24/7 emergency service available").
     const UNVERIFIABLE_TOPIC_MARKERS = [
       "licens", "certif", "accredit", "award", "bond", "years in business",
+      "obligat", "financing", "free estimat", "free inspect", "money-back",
+      "money back", "same-day", "same day", "24/7", "emergency servic",
+      "guarantee", "warrant", "insured",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)

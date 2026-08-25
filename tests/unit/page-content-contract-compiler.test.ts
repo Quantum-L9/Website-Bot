@@ -224,6 +224,52 @@ test("unverifiable credential entities are dropped from the coverage contract (g
   assert.ok(services.content_requirements.entities.includes("copper"));
 });
 
+test("unverifiable availability-claim topics are dropped unless corpus-backed (golden run #43)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({ required_topics: ["no obligation", "free inspection"] }),
+    ]),
+  );
+  // No fact asserts either phrase: both are dropped — a coverage requirement
+  // can never demand a banned claim phrase the writer is forbidden to write.
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  assert.deepEqual(services.content_requirements.topics, []);
+
+  // With a verified fact asserting "free inspection", the corpus-backed
+  // phrase stays in the contract; the ungrounded one still drops.
+  const factsWithInspection: VerifiedBusinessFact[] = [
+    ...facts,
+    {
+      fact_id: "f-insp",
+      key: "free_inspection",
+      value: "free inspection",
+      verified: true,
+      source_refs: ["crm"],
+    },
+  ];
+  const backed = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: factsWithInspection,
+    compilerVersion: "1.0.0",
+  });
+  const backedHome = backed.routes.find((r) => r.route_id === "home");
+  if (!backedHome) throw new Error("expected a compiled home route");
+  const backedServices = backedHome.sections.find((s) => s.section_id === "services");
+  if (!backedServices) throw new Error("expected a services section");
+  assert.deepEqual(backedServices.content_requirements.topics, ["free inspection"]);
+});
+
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(seoPayload(landscapeRef, [seoRequirement()]));
