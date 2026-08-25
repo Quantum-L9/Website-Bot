@@ -201,6 +201,29 @@ test("compiler places a required SEO requirement onto a compatible website slot"
   assert.ok(!services.allowed_fact_ids.includes("f-phone"));
 });
 
+test("unverifiable credential entities are dropped from the coverage contract (golden run #42)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({ required_entities: ["licensed contractor", "copper"] }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "licensed contractor" carries the unverifiable "licens" marker and no
+  // verified fact asserts it — requiring it would force an ungrounded claim.
+  assert.ok(!services.content_requirements.entities.includes("licensed contractor"));
+  assert.ok(services.content_requirements.entities.includes("copper"));
+});
+
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(seoPayload(landscapeRef, [seoRequirement()]));

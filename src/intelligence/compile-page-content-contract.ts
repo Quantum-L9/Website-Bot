@@ -188,14 +188,17 @@ export function compilePageContentContract(
       }
     }
 
-    // Unverifiable credential topics: the oracle's fact_guardrails
-    // (claims_requiring_explicit_verified_fact) mark license/certification/
-    // award status as claims that need a verified fact. A topic in that set
-    // with no fact to back it can never be covered honestly — requiring it
-    // would force the generator to either invent the claim or write a
-    // disclaimer the semantic validator rejects (golden runs #19-#22).
-    // Drop such topics from the coverage contract; the claim itself remains
-    // covered by claim grounding on the prose.
+    // Unverifiable credential topics AND entities: the oracle's
+    // fact_guardrails (claims_requiring_explicit_verified_fact) mark
+    // license/certification/award status as claims that need a verified
+    // fact. A coverage requirement in that set with no fact to back it can
+    // never be satisfied honestly — requiring it forces the generator to
+    // either invent the claim or write a disclaimer the validator rejects
+    // (topics: golden runs #19-#22; entities: golden run #42, where a
+    // blueprint-invented "licensed contractor" entity forced the writer to
+    // choose between an ungrounded credential claim and literal entity
+    // coverage). Drop such requirements from the coverage contract; the
+    // claim itself remains covered by claim grounding on the prose.
     const UNVERIFIABLE_TOPIC_MARKERS = [
       "licens", "certif", "accredit", "award", "bond", "years in business",
     ];
@@ -203,11 +206,11 @@ export function compilePageContentContract(
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
       .join(" ")
       .toLowerCase();
-    const isBacked = (topic: string): boolean =>
-      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => topic.toLowerCase().includes(marker)) ||
-      factCorpus.includes(topic.toLowerCase());
-    const filterTopics = (topics: string[]): string[] =>
-      uniq(topics).filter((topic) => topic.trim().length > 0 && isBacked(topic));
+    const isBacked = (value: string): boolean =>
+      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
+      factCorpus.includes(value.toLowerCase());
+    const filterBacked = (values: string[]): string[] =>
+      uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
 
     const sections = websiteRoute.sections.map((section) => {
       const requirements = requirementPlacement.get(section.section_id) ?? [];
@@ -219,8 +222,8 @@ export function compilePageContentContract(
         slots: [...section.content_slots],
         content_requirements: {
           requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
-          topics: filterTopics(requirements.flatMap((requirement) => requirement.required_topics)),
-          entities: uniq(requirements.flatMap((requirement) => requirement.required_entities)),
+          topics: filterBacked(requirements.flatMap((requirement) => requirement.required_topics)),
+          entities: filterBacked(requirements.flatMap((requirement) => requirement.required_entities)),
           questions: uniq(requirements.flatMap((requirement) => requirement.questions)),
         },
         allowed_fact_ids: uniq(allowedFacts.map((fact) => fact.fact_id)),
