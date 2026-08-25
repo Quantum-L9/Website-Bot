@@ -65,10 +65,10 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // observe heavy calls with a mock.
     private readonly heavyFetchImpl: (
       input: string | Request | URL,
-      init?: RequestInit & { dispatcher?: Agent },
+      init?: Omit<RequestInit, "dispatcher"> & { dispatcher?: Agent },
     ) => Promise<Response> = undiciFetch as unknown as (
       input: string | Request | URL,
-      init?: RequestInit & { dispatcher?: Agent },
+      init?: Omit<RequestInit, "dispatcher"> & { dispatcher?: Agent },
     ) => Promise<Response>,
   ) {
     if (!this.baseUrl.trim()) {
