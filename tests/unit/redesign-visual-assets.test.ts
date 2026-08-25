@@ -19,8 +19,10 @@ import {
 } from "../../src/stages/CompetitiveIntelligenceStage.js";
 import {
   ImageAssetPlanningStage,
+  mergeBlueprintAndSpecSlots,
   slotsFromVisualRequirements,
 } from "../../src/stages/ImageAssetPlanningStage.js";
+import type { ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
 import { BLUEPRINT_ROUTES, makeLandscape, makeWebsiteBlueprint } from "./redesign-fixtures.js";
 
 // A real 1x1 PNG so inspectImage decodes staged source assets.
@@ -114,6 +116,37 @@ void test("visual requirements project into planner slots with source-over-gener
   assert.equal(slot.placement, "/:hero");
   assert.equal(slot.required, true);
   assert.deepEqual(slot.preferredSources, ["provided", "source-site", "generated"]);
+});
+
+void test("spec slots with a placement already covered by the blueprint are dropped (golden run #54)", () => {
+  const blueprintSlots: ImageSlotSpec[] = [
+    {
+      id: "hero-global-logo",
+      placement: "global:logo",
+      required: false,
+      preferredSources: ["provided", "source-site"],
+    },
+  ];
+  const specSlots: ImageSlotSpec[] = [
+    {
+      id: "logo",
+      placement: "global:logo",
+      required: false,
+      preferredSources: ["provided", "source-site", "generated"],
+    },
+    {
+      id: "og-image",
+      placement: "global:og-image",
+      required: false,
+      preferredSources: ["generated"],
+    },
+  ];
+  const merged = mergeBlueprintAndSpecSlots(blueprintSlots, specSlots);
+  // The spec "logo" shares the blueprint's placement (different id) — the
+  // manifest's uniqueness key is the placement, so it must drop; the
+  // og-image slot is a genuine operator addition and stays.
+  assert.equal(merged.length, 2);
+  assert.deepEqual(merged.map((slot) => slot.id), ["hero-global-logo", "og-image"]);
 });
 
 void test("an authorized source photo outranks generation for a hero slot", async () => {

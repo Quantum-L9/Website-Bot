@@ -96,6 +96,29 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
   });
 }
 
+/**
+ * Merge blueprint-derived slots (the REDESIGN_IMPROVE visual authority, R11)
+ * with spec-declared slots. A spec slot is an operator addition only when
+ * the blueprint covers neither its id NOR its placement — the manifest's
+ * uniqueness key is the placement, so an id-only dedupe lets a blueprint
+ * slot and a spec slot with different ids but the same placement both
+ * resolve and the manifest validator then rejects the duplicate
+ * (golden run #54: "global:logo").
+ */
+export function mergeBlueprintAndSpecSlots(
+  blueprintSlots: ImageSlotSpec[],
+  specSlots: ImageSlotSpec[],
+): ImageSlotSpec[] {
+  const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
+  const blueprintPlacements = new Set(blueprintSlots.map((slot) => slot.placement));
+  return [
+    ...blueprintSlots,
+    ...specSlots.filter(
+      (slot) => !blueprintIds.has(slot.id) && !blueprintPlacements.has(slot.placement),
+    ),
+  ];
+}
+
 export class ImageAssetPlanningStage implements Stage {
   name = "image-asset-planning";
   version = "2.0.0";
@@ -194,8 +217,7 @@ export class ImageAssetPlanningStage implements Stage {
       );
     }
     const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
-    const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
-    return [...blueprintSlots, ...slots.filter((slot) => !blueprintIds.has(slot.id))];
+    return mergeBlueprintAndSpecSlots(blueprintSlots, slots);
   }
 
   private resolvePlannedAssets(
