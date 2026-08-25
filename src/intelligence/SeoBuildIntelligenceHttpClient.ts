@@ -65,11 +65,8 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // observe heavy calls with a mock.
     private readonly heavyFetchImpl: (
       input: string | Request | URL,
-      init?: Omit<RequestInit, "dispatcher"> & { dispatcher?: Agent },
-    ) => Promise<Response> = undiciFetch as unknown as (
-      input: string | Request | URL,
-      init?: Omit<RequestInit, "dispatcher"> & { dispatcher?: Agent },
-    ) => Promise<Response>,
+      init?: RequestInit,
+    ) => Promise<Response> = undiciFetch as typeof fetch,
   ) {
     if (!this.baseUrl.trim()) {
       throw new Error(
@@ -120,11 +117,14 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
     };
+    // The cast bridges npm-undici's Agent to the undici-types Dispatcher
+    // bundled with @types/node — same API, separate type lineages. The
+    // heavy transport is npm-undici fetch, which accepts its own Agent.
     const response = heavy
       ? await this.heavyFetchImpl(url, {
           ...init,
           dispatcher: new Agent({ headersTimeout: timeoutMs }),
-        })
+        } as unknown as RequestInit)
       : await this.fetchImpl(url, init);
     const raw = await response.text();
     if (!response.ok) {
