@@ -108,7 +108,11 @@ for (const pair of pairs) {
     const resp = await router.execute(
       {
         type: TaskType.SCREENSHOT_ANALYSIS,
-        complexity: "HIGH",
+        // The router's TaskDescriptor schema: lowercase enum value and a
+        // string clientId are both required (golden run #61: "HIGH" and a
+        // missing clientId were rejected before the first judgment).
+        complexity: "high",
+        clientId: "safehavenrr",
         requiresSearch: false,
       },
       judgeInstruction,
