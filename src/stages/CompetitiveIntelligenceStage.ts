@@ -96,13 +96,31 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
         "INTELLIGENCE_PARSE_FAILED",
         `${source}: pattern ${index} is not an object`,
       );
-    const disposition = String(entry.disposition ?? "");
-    if (!(ALLOWED_DISPOSITIONS as readonly string[]).includes(disposition)) {
+    // The model may emit a multi-part disposition ("PORT,MERGE_WITH_EXISTING").
+    // Split on commas/semicolons, validate each part against the allowed set,
+    // and keep the sorted unique joined form.
+    const rawDisposition = String(entry.disposition ?? "");
+    const dispositionParts = [...new Set(
+      rawDisposition
+        .split(/[,;]/)
+        .map((part) => part.trim())
+        .filter(Boolean),
+    )].sort();
+    if (dispositionParts.length === 0) {
       throw new BuildError(
         "INTELLIGENCE_PARSE_FAILED",
-        `${source}: pattern ${index} has invalid disposition ${JSON.stringify(disposition)}`,
+        `${source}: pattern ${index} has no disposition`,
       );
     }
+    for (const part of dispositionParts) {
+      if (!(ALLOWED_DISPOSITIONS as readonly string[]).includes(part)) {
+        throw new BuildError(
+          "INTELLIGENCE_PARSE_FAILED",
+          `${source}: pattern ${index} has invalid disposition ${JSON.stringify(rawDisposition)}`,
+        );
+      }
+    }
+    const disposition = dispositionParts.join(",");
     return {
       pattern_id: String(entry.pattern_id ?? `p-${index}`),
       evidence: String(entry.evidence ?? ""),
