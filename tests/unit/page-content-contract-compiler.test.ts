@@ -311,6 +311,38 @@ test("unverifiable response-time questions are dropped; fact-answerable question
   assert.ok(services.content_requirements.questions.includes("Do you offer free inspections?"));
 });
 
+test("quantity questions and statistical proofs are dropped unless corpus-backed (golden run #45)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        questions: ["How long do metal roofs last?", "What types of metal roofing do you install?"],
+        proof_needed: ["durability statistics", "energy savings", "lifespan data", "material options"],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // "How long do metal roofs last?" demands a lifespan number no fact
+  // asserts; "What types…" is answerable and stays.
+  assert.ok(!services.content_requirements.questions.includes("How long do metal roofs last?"));
+  assert.ok(services.content_requirements.questions.includes("What types of metal roofing do you install?"));
+  // Statistical proofs demand numbers the facts do not contain; qualitative
+  // proof classes stay.
+  assert.ok(!services.proof_requirements.includes("durability statistics"));
+  assert.ok(!services.proof_requirements.includes("energy savings"));
+  assert.ok(!services.proof_requirements.includes("lifespan data"));
+  assert.ok(services.proof_requirements.includes("material options"));
+});
+
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(seoPayload(landscapeRef, [seoRequirement()]));

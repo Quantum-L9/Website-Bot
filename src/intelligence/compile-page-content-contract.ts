@@ -220,6 +220,11 @@ export function compilePageContentContract(
       // only a verified fact can make.
       "respond", "response time", "how quickly", "how fast", "how soon",
       "turnaround",
+      // Quantity/cost commitments: "how long do metal roofs last?", "how
+      // much does it cost?" demand numbers the facts do not assert (golden
+      // run #45: the writer's lifespan number was grounded-scrubbed, leaving
+      // broken prose the semantic validator then flagged).
+      "how long", "how much", "how many", "cost",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
@@ -266,13 +271,19 @@ export function compilePageContentContract(
           ...requirements.flatMap((requirement) => requirement.proof_needed),
         ]).filter((proof) => {
           // Unverifiable proof classes: community involvement, awards,
-          // licensure, certifications — anything the frozen facts cannot
-          // assert. Requiring them forces the generator to invent claims
-          // the semantic validator then rejects (golden run #34, /about).
-          // Project/gallery proof (image-backed) is never filtered.
+          // licensure, certifications, statistics/percentages/lifespan data
+          // — anything the frozen facts cannot assert. Requiring them
+          // forces the generator to invent claims the semantic validator
+          // then rejects (golden run #34, /about; golden run #45,
+          // /services/metal-roofing, where "durability statistics" /
+          // "energy savings" / "lifespan data" demanded numbers the facts
+          // do not contain — the writer's invented lifespan number was
+          // grounded-scrubbed, leaving broken prose). Project/gallery
+          // proof (image-backed) is never filtered.
           const UNVERIFIABLE_PROOF_MARKERS = [
             "community", "involvement", "participation", "award",
             "certif", "licens", "bond", "membership", "accredit",
+            "statistic", "percentage", "lifespan", "savings",
           ];
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;
