@@ -1,0 +1,102 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+ INFO  Accepting connections at http://localhost:4173
+ HTTP  8/25/2026 1:01:06 PM ::1 GET /
+ HTTP  8/25/2026 1:01:06 PM ::1 Returned 200 in 26 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 7 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 2 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-asphalt-shingles.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-flat-roofing.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-metal-roofing.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-roof-inspection.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-roof-installation.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-roof-repair.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 3 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 5 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 3 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 5 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 5 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 5 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-roof-replacement.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 GET /images/hero-services-storm-damage.jpg
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 2 ms
+ HTTP  8/25/2026 1:01:52 PM ::1 Returned 200 in 2 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 6 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/hero.jpg
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/hero-services-asphalt-shingles.jpg
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/hero-services-flat-roofing.jpg
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/hero-services-metal-roofing.jpg
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 GET /images/hero-services-roof-inspection.jpg
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:38 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:40 PM ::1 GET /services/roof-replacement/
+ HTTP  8/25/2026 1:02:40 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:40 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:40 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:40 PM ::1 GET /images/hero-services-roof-replacement.jpg
+ HTTP  8/25/2026 1:02:40 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:40 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:40 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:41 PM ::1 GET /services/roof-replacement/
+ HTTP  8/25/2026 1:02:41 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:41 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:41 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:41 PM ::1 GET /images/hero-services-roof-replacement.jpg
+ HTTP  8/25/2026 1:02:41 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:41 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:41 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:43 PM ::1 GET /services/storm-damage/
+ HTTP  8/25/2026 1:02:43 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:43 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:43 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:43 PM ::1 GET /images/hero-services-storm-damage.jpg
+ HTTP  8/25/2026 1:02:43 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:43 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:43 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:45 PM ::1 GET /services/storm-damage/
+ HTTP  8/25/2026 1:02:45 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:45 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:45 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:45 PM ::1 GET /images/hero-services-storm-damage.jpg
+ HTTP  8/25/2026 1:02:45 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:45 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:45 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:47 PM ::1 GET /gallery/
+ HTTP  8/25/2026 1:02:47 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:47 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:47 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:02:47 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:47 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:48 PM ::1 GET /gallery/
+ HTTP  8/25/2026 1:02:48 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:48 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:02:48 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:02:48 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:02:48 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:03:34 PM ::1 GET /contact/
+ HTTP  8/25/2026 1:03:34 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:03:34 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:03:34 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:03:34 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:03:34 PM ::1 Returned 200 in 2 ms
+ HTTP  8/25/2026 1:04:20 PM ::1 GET /contact/
+ HTTP  8/25/2026 1:04:20 PM ::1 Returned 200 in 1 ms
+ HTTP  8/25/2026 1:04:20 PM ::1 GET /_astro/index.AXbOsrrJ.css
+ HTTP  8/25/2026 1:04:20 PM ::1 Returned 200 in 0 ms
+ HTTP  8/25/2026 1:04:20 PM ::1 GET /images/global-logo.webp
+ HTTP  8/25/2026 1:04:20 PM ::1 Returned 200 in 0 ms
+
+ INFO  Gracefully shutting down. Please wait...

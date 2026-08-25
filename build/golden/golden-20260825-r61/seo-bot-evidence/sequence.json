@@ -1,0 +1,45 @@
+{
+  "schema": "website-bot.golden-seo-bot-collection/v1",
+  "client_id": "safehavenrr",
+  "build_id": "golden-20260825-r61",
+  "collected_at": "2026-08-25T17:32:51.915Z",
+  "entries": [
+    {
+      "endpoint": "identity-snapshot",
+      "file": "identity-snapshot.json",
+      "status": "PASS",
+      "note": "local Website-Bot checkout identity captured"
+    },
+    {
+      "endpoint": "health",
+      "file": "health.json",
+      "status": "PASS",
+      "http_status": 200
+    },
+    {
+      "endpoint": "preflight",
+      "file": "preflight.json",
+      "status": "PASS",
+      "http_status": 200
+    },
+    {
+      "endpoint": "competitive-landscape",
+      "file": "competitive-landscape.json",
+      "status": "PASS",
+      "note": "persisted artifact competitive_landscape:bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653 read from the SEO-Bot store"
+    },
+    {
+      "endpoint": "seo-content-blueprint",
+      "file": "seo-content-blueprint.json",
+      "status": "PASS",
+      "note": "persisted artifact seo_content_blueprint:125d5ef99c0d01b6ff9b1090b913f52c22a3825bbcce69bd1f93e79efc3f2254 read from the SEO-Bot store"
+    },
+    {
+      "endpoint": "structured-content",
+      "file": "structured-content.json",
+      "status": "PASS",
+      "note": "persisted artifact structured_content_package:975c24f0edce6092fe6c17a988bc9a26d2fe3d5fb1df2a39cb19d6e144386006 read from the SEO-Bot store"
+    }
+  ],
+  "missing_producers": []
+}

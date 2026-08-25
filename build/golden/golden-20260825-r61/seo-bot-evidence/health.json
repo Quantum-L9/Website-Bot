@@ -1,0 +1,10 @@
+{
+  "status": "healthy",
+  "timestamp": "2026-08-25T17:32:52.200Z",
+  "uptime": 5517.896024041,
+  "components": {
+    "database": "connected",
+    "scheduler": "active"
+  },
+  "version": "1.0.0"
+}

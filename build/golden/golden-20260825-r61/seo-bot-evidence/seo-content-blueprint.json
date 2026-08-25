@@ -1,0 +1,5227 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "aeo_geo": {
+        "answer_targets": [
+          "What roofing services are available in Charlotte NC?",
+          "Who are the best roofing contractors in Charlotte?",
+          "How much does roof replacement cost in Charlotte?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "RoofingContractor",
+          "Service",
+          "Organization"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roofing services",
+          "roof replacement",
+          "roof repair",
+          "storm damage",
+          "emergency roofing",
+          "Charlotte roofing contractor",
+          "free inspection",
+          "workmanship warranty"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "North Carolina"
+        ],
+        "primary_query": "charlotte roofing",
+        "supporting_queries": [
+          "roof replacement",
+          "roof repair",
+          "storm damage repair",
+          "roof installation",
+          "roof inspection"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Charlotte' and 'Roofing'",
+          "Mention key services",
+          "Include business name",
+          "Stay under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight 6 years experience",
+          "Mention free inspection",
+          "Include phone number",
+          "Reference service areas",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What roofing services do you offer?",
+            "Do you provide emergency storm damage repair?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "fully insured",
+            "5-year workmanship warranty"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "service_overview"
+          ],
+          "requirement_id": "primary_services",
+          "required_topics": [
+            "roof replacement",
+            "roof repair",
+            "storm damage repair",
+            "roof installation",
+            "roof inspection"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Are you licensed and insured?",
+            "What warranty do you provide?"
+          ],
+          "proof_needed": [
+            "fully insured status",
+            "5-year workmanship warranty",
+            "manufacturer partnerships"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "trust_signals",
+          "required_topics": [
+            "fully insured",
+            "workmanship warranty",
+            "free inspection",
+            "24/7 emergency service"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you serve my area?",
+            "How long have you been in Charlotte?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "service area coverage"
+          ],
+          "target_slots": [
+            "local_relevance"
+          ],
+          "requirement_id": "local_presence",
+          "required_topics": [
+            "Charlotte roofing",
+            "local experience",
+            "service areas"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "Gastonia",
+            "Belmont",
+            "Lake Wylie",
+            "Mount Holly"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find trusted roofing contractor in Charlotte NC",
+        "secondary": [
+          "roof replacement Charlotte",
+          "roof repair Charlotte",
+          "roofing company near me",
+          "storm damage repair"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Direct users to detailed roof replacement information",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Connect to roof repair service details",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link to storm damage repair services",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Drive to free inspection contact form",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Build trust through company background",
+          "target_route_id": "/about"
+        }
+      ],
+      "acceptance_tests": [
+        "Business name appears in title",
+        "Phone number is clickable",
+        "Service areas are listed",
+        "Free inspection offer is prominent",
+        "Emergency availability is mentioned"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "emergency_response",
+          "description": "Competitors don't emphasize 24/7 emergency availability prominently",
+          "opportunity": "Highlight 24/7 emergency storm damage response as key differentiator",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        },
+        {
+          "gap_id": "warranty_emphasis",
+          "description": "Local competitors don't clearly communicate warranty terms",
+          "opportunity": "Prominently feature 5-year workmanship warranty as trust signal",
+          "donor_domains": [
+            "nathansroofrepairs.com",
+            "charlotteroofing.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest prices",
+        "guaranteed lowest cost",
+        "best roofing company",
+        "fastest service",
+        "unverified certifications"
+      ]
+    },
+    {
+      "path": "/about",
+      "aeo_geo": {
+        "answer_targets": [
+          "How long has Safe Haven Roofing been in business?",
+          "Is Safe Haven Roofing licensed and insured?",
+          "What areas does Safe Haven Roofing serve?"
+        ],
+        "schema_requirements": [
+          "Organization",
+          "LocalBusiness",
+          "Person"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "company history",
+          "team experience",
+          "licensing",
+          "insurance",
+          "certifications",
+          "local expertise",
+          "customer commitment"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "North Carolina",
+          "GAF",
+          "CertainTeed",
+          "Atlas"
+        ],
+        "primary_query": "about roofing company",
+        "supporting_queries": [
+          "roofing contractor experience",
+          "licensed insured roofer",
+          "company background",
+          "team qualifications"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'About' and business name",
+          "Mention Charlotte or local area",
+          "Reference experience or credentials",
+          "Stay under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight 6 years experience",
+          "Mention fully insured status",
+          "Reference local expertise",
+          "Include service commitment",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/about",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How long have you been in business?",
+            "What makes your company different?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "local market knowledge"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "company_story",
+          "required_topics": [
+            "company history",
+            "local expertise",
+            "customer commitment"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Are you properly licensed and insured?",
+            "What certifications do you have?"
+          ],
+          "proof_needed": [
+            "fully insured status",
+            "manufacturer partnerships",
+            "proper licensing"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "credentials",
+          "required_topics": [
+            "fully insured",
+            "licensing",
+            "certifications",
+            "manufacturer partnerships"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What guarantee do you provide on your work?",
+            "How do you ensure quality?"
+          ],
+          "proof_needed": [
+            "5-year workmanship warranty",
+            "quality processes"
+          ],
+          "target_slots": [
+            "trust",
+            "process"
+          ],
+          "requirement_id": "commitment",
+          "required_topics": [
+            "workmanship warranty",
+            "customer service",
+            "quality commitment"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Learn about roofing company credentials and experience",
+        "secondary": [
+          "roofing contractor background",
+          "company history",
+          "team qualifications",
+          "insurance verification"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect company background to service offerings",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Encourage contact after building trust",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Show proof of work quality",
+          "target_route_id": "/gallery"
+        },
+        {
+          "purpose": "Detail local service coverage",
+          "target_route_id": "/service-areas"
+        }
+      ],
+      "acceptance_tests": [
+        "Company founding story is clear",
+        "Insurance status is confirmed",
+        "Local experience is quantified",
+        "Team qualifications are mentioned",
+        "Service commitment is stated"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "personal_story",
+          "description": "Competitors lack personal connection and local story",
+          "opportunity": "Share founder story and local community connection",
+          "donor_domains": [
+            "nathansroofrepairs.com",
+            "charlotteroofing.com"
+          ]
+        },
+        {
+          "gap_id": "team_expertise",
+          "description": "Limited information about team qualifications and experience",
+          "opportunity": "Highlight team experience and ongoing training",
+          "donor_domains": [
+            "charlotteroofing.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "oldest roofing company",
+        "most experienced team",
+        "best in the industry",
+        "unverified awards",
+        "exaggerated experience claims"
+      ]
+    },
+    {
+      "path": "/contact",
+      "aeo_geo": {
+        "answer_targets": [
+          "How do I contact Safe Haven Roofing?",
+          "Does Safe Haven Roofing offer free inspections?",
+          "What is Safe Haven Roofing's phone number?"
+        ],
+        "schema_requirements": [
+          "ContactPoint",
+          "LocalBusiness",
+          "Service"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "free inspection",
+          "contact information",
+          "service request",
+          "emergency service",
+          "quote request",
+          "scheduling"
+        ],
+        "entities": [
+          "(704) 648-7252",
+          "info@safehavenrr.com",
+          "Charlotte NC",
+          "24/7 emergency service"
+        ],
+        "primary_query": "free roof inspection",
+        "supporting_queries": [
+          "contact roofer",
+          "roof inspection Charlotte",
+          "roofing quote",
+          "emergency roof repair"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Contact' or 'Free Inspection'",
+          "Mention Charlotte or local area",
+          "Include phone number if space allows",
+          "Stay under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight free inspection offer",
+          "Include phone number",
+          "Mention 24/7 emergency service",
+          "Reference quick response",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/contact",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How can I contact you?",
+            "Do you offer free inspections?"
+          ],
+          "proof_needed": [
+            "phone number",
+            "email address",
+            "free inspection offer"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "conversion"
+          ],
+          "requirement_id": "contact_methods",
+          "required_topics": [
+            "free inspection",
+            "contact information",
+            "phone number",
+            "email"
+          ],
+          "required_entities": [
+            "(704) 648-7252",
+            "info@safehavenrr.com"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you provide emergency service?",
+            "Can you help with storm damage?"
+          ],
+          "proof_needed": [
+            "24/7 availability",
+            "emergency response capability"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "service_overview"
+          ],
+          "requirement_id": "emergency_availability",
+          "required_topics": [
+            "24/7 emergency service",
+            "storm damage",
+            "emergency repair"
+          ],
+          "required_entities": [
+            "24/7 emergency service available"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you serve my area?",
+            "What areas do you cover?"
+          ],
+          "proof_needed": [
+            "comprehensive service area list"
+          ],
+          "target_slots": [
+            "local_relevance"
+          ],
+          "requirement_id": "service_areas",
+          "required_topics": [
+            "service areas",
+            "local coverage"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "Gastonia",
+            "Belmont",
+            "Lake Wylie",
+            "Mount Holly"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Get free roof inspection and quote",
+        "secondary": [
+          "contact roofing contractor",
+          "schedule roof inspection",
+          "get roofing quote",
+          "emergency roof repair"
+        ],
+        "journey_stage": "transactional"
+      },
+      "internal_links": [
+        {
+          "purpose": "Help users understand full service offerings before contacting",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Build additional trust before contact",
+          "target_route_id": "/about"
+        },
+        {
+          "purpose": "Answer common questions before contact",
+          "target_route_id": "/faq"
+        },
+        {
+          "purpose": "Confirm service area coverage",
+          "target_route_id": "/service-areas"
+        }
+      ],
+      "acceptance_tests": [
+        "Phone number is prominently displayed",
+        "Free inspection offer is clear",
+        "Contact form is functional",
+        "Emergency service availability is mentioned",
+        "Service areas are listed"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "response_time",
+          "description": "Competitors don't specify response times for inquiries",
+          "opportunity": "Promise specific response time for contact form submissions",
+          "donor_domains": [
+            "nathansroofrepairs.com",
+            "charlotteroofing.com"
+          ]
+        },
+        {
+          "gap_id": "inspection_process",
+          "description": "Limited explanation of what free inspection includes",
+          "opportunity": "Detail what customers can expect from free inspection",
+          "donor_domains": [
+            "owenscorning.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "instant response",
+        "immediate availability",
+        "guaranteed same-day service",
+        "lowest prices guaranteed"
+      ]
+    },
+    {
+      "path": "/faq",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does roof replacement cost in Charlotte?",
+          "What warranty does Safe Haven Roofing provide?",
+          "How long does roof replacement take?",
+          "When should I repair vs replace my roof?"
+        ],
+        "schema_requirements": [
+          "FAQPage",
+          "Question",
+          "Answer"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roofing costs",
+          "warranty coverage",
+          "insurance claims",
+          "repair vs replacement",
+          "inspection process",
+          "material options",
+          "timeline expectations"
+        ],
+        "entities": [
+          "5-year workmanship warranty",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "Charlotte NC",
+          "free inspection"
+        ],
+        "primary_query": "roofing questions",
+        "supporting_queries": [
+          "roof replacement cost",
+          "roof repair vs replacement",
+          "roofing warranty",
+          "insurance claims",
+          "roof inspection"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'FAQ' or 'Questions'",
+          "Reference roofing or specific topics",
+          "Mention Charlotte if space allows",
+          "Stay under 60 characters"
+        ],
+        "description_requirements": [
+          "Mention key question topics",
+          "Reference warranty and costs",
+          "Include local relevance",
+          "Encourage contact",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/faq",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How much does roof replacement cost?",
+            "Do you work with insurance?",
+            "What affects roofing costs?"
+          ],
+          "proof_needed": [
+            "transparent pricing approach",
+            "insurance claim experience"
+          ],
+          "target_slots": [
+            "faq",
+            "objection_handling"
+          ],
+          "requirement_id": "cost_questions",
+          "required_topics": [
+            "roofing costs",
+            "pricing factors",
+            "payment options",
+            "insurance coverage"
+          ],
+          "required_entities": [
+            "free inspection"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What warranty do you provide?",
+            "What does the warranty cover?",
+            "How long is the warranty?"
+          ],
+          "proof_needed": [
+            "5-year workmanship warranty",
+            "manufacturer warranty details"
+          ],
+          "target_slots": [
+            "faq",
+            "trust"
+          ],
+          "requirement_id": "warranty_questions",
+          "required_topics": [
+            "workmanship warranty",
+            "material warranties",
+            "warranty coverage"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty",
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How long does roof replacement take?",
+            "When should I repair vs replace?",
+            "What's included in inspection?"
+          ],
+          "proof_needed": [
+            "clear process explanation",
+            "realistic timeline expectations"
+          ],
+          "target_slots": [
+            "faq",
+            "process"
+          ],
+          "requirement_id": "process_questions",
+          "required_topics": [
+            "inspection process",
+            "project timeline",
+            "repair vs replacement",
+            "material selection"
+          ],
+          "required_entities": [
+            "free inspection"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Answer common roofing questions and concerns",
+        "secondary": [
+          "roofing cost questions",
+          "warranty information",
+          "insurance claims help",
+          "repair vs replacement"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Detail inspection service after FAQ mention",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Provide detailed insurance claim assistance information",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Detailed guidance on repair vs replacement decision",
+          "target_route_id": "/guides/repair-or-replace-roof-charlotte"
+        },
+        {
+          "purpose": "Encourage contact after answering questions",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Questions are relevant to local market",
+        "Answers include specific warranty terms",
+        "Insurance guidance is provided",
+        "Contact information is included",
+        "Material options are explained"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "insurance_guidance",
+          "description": "Limited detailed guidance on insurance claim process",
+          "opportunity": "Provide comprehensive insurance claim guidance and support information",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        },
+        {
+          "gap_id": "material_comparison",
+          "description": "Lack of detailed material comparison information",
+          "opportunity": "Compare different roofing materials with pros/cons for Charlotte climate",
+          "donor_domains": [
+            "owenscorning.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "guaranteed lowest prices",
+        "fastest completion times",
+        "best materials only",
+        "no-cost estimates beyond inspection"
+      ]
+    },
+    {
+      "path": "/gallery",
+      "aeo_geo": {
+        "answer_targets": [
+          "What roofing projects has Safe Haven completed in Charlotte?",
+          "Examples of roofing work in Charlotte NC"
+        ],
+        "schema_requirements": [
+          "ImageGallery schema",
+          "LocalBusiness schema with photos"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roofing gallery",
+          "completed projects",
+          "before after photos",
+          "roofing transformations",
+          "project portfolio"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "North Carolina",
+          "roofing projects",
+          "GAF",
+          "CertainTeed",
+          "Atlas"
+        ],
+        "primary_query": "roofing gallery charlotte",
+        "supporting_queries": [
+          "roofing before after photos",
+          "completed roofing projects",
+          "roofing work examples",
+          "charlotte roofing portfolio"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Charlotte' and 'roofing gallery'",
+          "Mention Safe Haven Roofing",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight completed projects",
+          "Include service areas",
+          "Mention free inspection",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/gallery",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What types of roofing projects has Safe Haven completed?",
+            "What do completed roofing projects look like?"
+          ],
+          "proof_needed": [
+            "project photos",
+            "material specifications",
+            "completion timeframes"
+          ],
+          "target_slots": [
+            "project_proof",
+            "service_overview"
+          ],
+          "requirement_id": "project_showcase",
+          "required_topics": [
+            "completed roofing projects",
+            "before after photos",
+            "roofing materials"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte",
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Where has Safe Haven completed roofing projects?"
+          ],
+          "proof_needed": [
+            "local project locations",
+            "service area coverage"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "trust"
+          ],
+          "requirement_id": "local_projects",
+          "required_topics": [
+            "Charlotte roofing projects",
+            "local service areas"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "Gastonia",
+            "Belmont",
+            "Matthews",
+            "Huntersville"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "roofing work examples",
+        "secondary": [
+          "before and after roofing",
+          "roofing portfolio",
+          "completed roofing projects"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to roof replacement service from replacement project examples",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to repair services from repair project examples",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Convert gallery visitors to consultation requests",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Link to storm damage services from storm repair projects",
+          "target_route_id": "/services/storm-damage"
+        }
+      ],
+      "acceptance_tests": [
+        "Gallery displays multiple project types",
+        "Local service areas are mentioned",
+        "Contact information is prominent",
+        "Project details include materials used"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "detailed_project_stories",
+          "description": "Competitors show basic galleries without project details or customer stories",
+          "opportunity": "Provide detailed project narratives with challenges overcome and customer satisfaction",
+          "donor_domains": [
+            "charlotteroofing.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "guaranteed lowest prices",
+        "best roofing company",
+        "unverified customer testimonials"
+      ]
+    },
+    {
+      "path": "/guides",
+      "aeo_geo": {
+        "answer_targets": [
+          "Charlotte roofing guides and tips",
+          "Roofing education resources in Charlotte"
+        ],
+        "schema_requirements": [
+          "Article schema for guides",
+          "FAQPage schema",
+          "LocalBusiness schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roofing guides",
+          "roofing education",
+          "roofing tips",
+          "roofing advice",
+          "charlotte roofing information"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "North Carolina",
+          "roofing guides",
+          "roofing education"
+        ],
+        "primary_query": "roofing guides charlotte",
+        "supporting_queries": [
+          "roofing tips charlotte",
+          "roof replacement guide",
+          "roofing advice",
+          "charlotte roofing information"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Charlotte roofing guides'",
+          "Mention educational content",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight expert guidance",
+          "Include local expertise",
+          "Mention free resources",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/guides",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What roofing guides are available?",
+            "How can I learn about roofing?"
+          ],
+          "proof_needed": [
+            "detailed guide content",
+            "expert roofing knowledge"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process"
+          ],
+          "requirement_id": "comprehensive_guides",
+          "required_topics": [
+            "roofing guides",
+            "roofing education",
+            "roofing process"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Why trust Safe Haven for roofing guidance?"
+          ],
+          "proof_needed": [
+            "local experience",
+            "roofing expertise"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "trust"
+          ],
+          "requirement_id": "local_expertise",
+          "required_topics": [
+            "Charlotte roofing expertise",
+            "local roofing knowledge"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "North Carolina",
+            "6 years experience"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "roofing education and guidance",
+        "secondary": [
+          "roofing tips",
+          "roofing advice",
+          "roofing information"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to specific cost guide",
+          "target_route_id": "/guides/roof-replacement-cost-charlotte"
+        },
+        {
+          "purpose": "Link to contractor selection guide",
+          "target_route_id": "/guides/how-to-choose-roofing-contractor-charlotte"
+        },
+        {
+          "purpose": "Link to storm damage guide",
+          "target_route_id": "/guides/storm-damage-roof-repair-charlotte"
+        },
+        {
+          "purpose": "Connect educational content to services",
+          "target_route_id": "/services"
+        }
+      ],
+      "acceptance_tests": [
+        "Multiple guide topics are covered",
+        "Local Charlotte context is provided",
+        "Expert credentials are mentioned",
+        "Guides link to relevant services"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_roofing_guides",
+          "description": "Generic roofing guides without Charlotte-specific considerations",
+          "opportunity": "Create Charlotte-specific roofing guides addressing local climate and regulations",
+          "donor_domains": [
+            "familyhandyman.com",
+            "owenscorning.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "only roofing experts in Charlotte",
+        "guaranteed advice",
+        "unverified statistics"
+      ]
+    },
+    {
+      "path": "/insurance-claims",
+      "aeo_geo": {
+        "answer_targets": [
+          "How to file roofing insurance claims in Charlotte",
+          "Storm damage insurance claims process"
+        ],
+        "schema_requirements": [
+          "Service schema for insurance assistance",
+          "LocalBusiness schema",
+          "FAQPage schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "insurance claims",
+          "storm damage claims",
+          "insurance assistance",
+          "claim process",
+          "insurance documentation"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "North Carolina",
+          "insurance claims",
+          "storm damage",
+          "free inspection"
+        ],
+        "primary_query": "roofing insurance claims charlotte",
+        "supporting_queries": [
+          "storm damage insurance claims",
+          "roofing insurance help",
+          "insurance claim assistance",
+          "charlotte roofing insurance"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'insurance claims' and 'Charlotte'",
+          "Mention roofing or storm damage",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Highlight claims assistance",
+          "Mention free inspection",
+          "Include emergency service",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/insurance-claims",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How does the insurance claims process work?",
+            "What documentation is needed for roofing claims?"
+          ],
+          "proof_needed": [
+            "claims process steps",
+            "documentation examples",
+            "success stories"
+          ],
+          "target_slots": [
+            "process",
+            "service_overview"
+          ],
+          "requirement_id": "claims_process",
+          "required_topics": [
+            "insurance claims process",
+            "storm damage assessment",
+            "documentation requirements"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "free inspection",
+            "fully insured"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Why choose Safe Haven for insurance claims?",
+            "What storm damage experience do they have?"
+          ],
+          "proof_needed": [
+            "storm damage expertise",
+            "emergency response capability"
+          ],
+          "target_slots": [
+            "differentiation",
+            "trust"
+          ],
+          "requirement_id": "storm_damage_expertise",
+          "required_topics": [
+            "storm damage expertise",
+            "insurance claim experience"
+          ],
+          "required_entities": [
+            "storm damage",
+            "24/7 emergency service",
+            "6 years experience"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "roofing insurance claim assistance",
+        "secondary": [
+          "insurance claim help",
+          "storm damage claims",
+          "roofing insurance process"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to storm damage services",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Link to inspection services for claims assessment",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Convert insurance claim inquiries to consultations",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Link to storm damage repair guide",
+          "target_route_id": "/guides/storm-damage-roof-repair-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Claims process is clearly explained",
+        "Emergency contact information is prominent",
+        "Free inspection offer is highlighted",
+        "Storm damage expertise is demonstrated"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "detailed_claims_guidance",
+          "description": "Competitors mention insurance work but lack detailed claims process guidance",
+          "opportunity": "Provide step-by-step insurance claims guidance specific to roofing",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "guaranteed claim approval",
+        "insurance fraud assistance",
+        "unverified claim success rates"
+      ]
+    },
+    {
+      "path": "/privacy",
+      "aeo_geo": {
+        "answer_targets": [
+          "Safe Haven Roofing privacy policy",
+          "How personal information is protected"
+        ],
+        "schema_requirements": [
+          "WebPage schema",
+          "Organization schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "privacy policy",
+          "data protection",
+          "personal information",
+          "website security",
+          "user rights"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "safehavenrr.com",
+          "privacy policy",
+          "personal data"
+        ],
+        "primary_query": "safe haven roofing privacy policy",
+        "supporting_queries": [
+          "privacy policy",
+          "data protection",
+          "personal information",
+          "website privacy"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Privacy Policy'",
+          "Mention Safe Haven Roofing",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Describe privacy protections",
+          "Mention data security",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/privacy",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How does Safe Haven protect personal information?",
+            "What data is collected and why?"
+          ],
+          "proof_needed": [
+            "privacy policy terms",
+            "data protection measures"
+          ],
+          "target_slots": [
+            "service_overview"
+          ],
+          "requirement_id": "legal_compliance",
+          "required_topics": [
+            "privacy policy",
+            "data collection",
+            "information use",
+            "user rights"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "safehavenrr.com"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How is contact information protected?"
+          ],
+          "proof_needed": [
+            "privacy protections for contact data"
+          ],
+          "target_slots": [
+            "trust"
+          ],
+          "requirement_id": "contact_privacy",
+          "required_topics": [
+            "contact information privacy",
+            "communication preferences"
+          ],
+          "required_entities": [
+            "(704) 648-7252",
+            "info@safehavenrr.com"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "privacy policy information",
+        "secondary": [
+          "data protection",
+          "privacy rights",
+          "information security"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to contact page for privacy-related inquiries",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Link back to homepage",
+          "target_route_id": "/"
+        }
+      ],
+      "acceptance_tests": [
+        "Privacy policy is comprehensive and clear",
+        "Contact information for privacy inquiries is provided",
+        "Data collection practices are explained",
+        "User rights are outlined"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "transparent_privacy_practices",
+          "description": "Many roofing companies lack clear privacy policies",
+          "opportunity": "Provide clear, comprehensive privacy policy that builds trust",
+          "donor_domains": []
+        }
+      ],
+      "forbidden_claims": [
+        "absolute data security guarantees",
+        "no data collection claims",
+        "unverified security measures"
+      ]
+    },
+    {
+      "path": "/service-areas",
+      "aeo_geo": {
+        "answer_targets": [
+          "What areas does Safe Haven Roofing serve?",
+          "Charlotte roofing service coverage"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "ServiceArea",
+          "GeoShape"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "service areas",
+          "local coverage",
+          "charlotte roofing",
+          "surrounding towns",
+          "geographic coverage"
+        ],
+        "entities": [
+          "Charlotte",
+          "Gastonia",
+          "Belmont",
+          "Lake Wylie",
+          "Mount Holly",
+          "Huntersville",
+          "Lowell",
+          "Weddington",
+          "Matthews",
+          "Waxhaw",
+          "Ballantyne",
+          "Indian Trail",
+          "Mooresville",
+          "Concord",
+          "Pineville",
+          "North Carolina"
+        ],
+        "primary_query": "charlotte roofing",
+        "supporting_queries": [
+          "roofing contractors charlotte nc",
+          "roofers near me",
+          "charlotte area roofing companies",
+          "roofing services charlotte"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Charlotte NC' and 'Service Areas'",
+          "Mention Safe Haven Roofing"
+        ],
+        "description_requirements": [
+          "List key service areas",
+          "Include phone number",
+          "Mention free inspection"
+        ]
+      },
+      "route_id": "/service-areas",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What areas do you serve?",
+            "Do you service my location?"
+          ],
+          "proof_needed": [
+            "specific town names",
+            "coverage map"
+          ],
+          "target_slots": [
+            "service_overview",
+            "local_relevance"
+          ],
+          "requirement_id": "service-area-coverage",
+          "required_topics": [
+            "service areas",
+            "geographic coverage"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "North Carolina"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Why choose a local roofer?",
+            "Do you know Charlotte area building codes?"
+          ],
+          "proof_needed": [
+            "years of local experience",
+            "local knowledge"
+          ],
+          "target_slots": [
+            "differentiation",
+            "trust"
+          ],
+          "requirement_id": "local-expertise",
+          "required_topics": [
+            "local experience",
+            "charlotte expertise"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find roofing services in specific Charlotte NC area locations",
+        "secondary": [
+          "roofing contractors near me",
+          "local roofing companies",
+          "Charlotte area roofers"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to main services from area coverage",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Enable contact from service area pages",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Link to specific Charlotte service area page",
+          "target_route_id": "/service-areas/charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "All 15 service areas are mentioned",
+        "Local phone number is displayed",
+        "Contact information is prominent"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "detailed-area-coverage",
+          "description": "Competitors lack detailed coverage maps and specific town information",
+          "opportunity": "Provide comprehensive area coverage details with local insights",
+          "donor_domains": [
+            "charlotteroofing.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest prices",
+        "best roofer",
+        "guaranteed lowest cost"
+      ]
+    },
+    {
+      "path": "/services",
+      "aeo_geo": {
+        "answer_targets": [
+          "What roofing services does Safe Haven offer?",
+          "Charlotte roofing company services"
+        ],
+        "schema_requirements": [
+          "Service",
+          "LocalBusiness",
+          "Offer"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roofing services",
+          "roof repair",
+          "roof replacement",
+          "roof installation",
+          "storm damage",
+          "roof inspection"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "asphalt shingles",
+          "flat roofing"
+        ],
+        "primary_query": "roof repair",
+        "supporting_queries": [
+          "roof replacement",
+          "roof installation",
+          "roof inspection",
+          "storm damage repair"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roofing Services Charlotte NC'",
+          "Mention Safe Haven Roofing"
+        ],
+        "description_requirements": [
+          "List main services",
+          "Include warranty information",
+          "Mention free inspection"
+        ]
+      },
+      "route_id": "/services",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What roofing services do you offer?",
+            "Do you do both repair and replacement?"
+          ],
+          "proof_needed": [
+            "service list",
+            "capabilities overview"
+          ],
+          "target_slots": [
+            "service_overview",
+            "primary_offer"
+          ],
+          "requirement_id": "comprehensive-services",
+          "required_topics": [
+            "roof repair",
+            "roof replacement",
+            "roof installation",
+            "roof inspection"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What brands do you work with?",
+            "Are you certified with manufacturers?"
+          ],
+          "proof_needed": [
+            "brand partnerships",
+            "certifications"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "brand-partnerships",
+          "required_topics": [
+            "roofing materials",
+            "manufacturer partnerships"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What warranty do you provide?",
+            "Is your work guaranteed?"
+          ],
+          "proof_needed": [
+            "warranty terms",
+            "coverage details"
+          ],
+          "target_slots": [
+            "trust",
+            "objection_handling"
+          ],
+          "requirement_id": "warranty-coverage",
+          "required_topics": [
+            "warranty",
+            "workmanship guarantee"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Discover comprehensive roofing services offered",
+        "secondary": [
+          "roof repair services",
+          "roof replacement services",
+          "roofing installation"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to detailed roof repair service page",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link to detailed roof replacement service page",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to asphalt shingle services",
+          "target_route_id": "/services/asphalt-shingles"
+        },
+        {
+          "purpose": "Link to flat roofing services",
+          "target_route_id": "/services/flat-roofing"
+        },
+        {
+          "purpose": "Enable service inquiries",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "All major services are listed",
+        "Warranty information is clear",
+        "Emergency service availability is mentioned"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "service-depth",
+          "description": "Major retailers focus on products, not comprehensive service offerings",
+          "opportunity": "Emphasize full-service capabilities and local expertise",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        },
+        {
+          "gap_id": "emergency-services",
+          "description": "Limited emphasis on 24/7 emergency availability",
+          "opportunity": "Highlight 24/7 emergency service availability",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest in Charlotte",
+        "best roofing company",
+        "guaranteed lowest prices"
+      ]
+    },
+    {
+      "path": "/services/asphalt-shingles",
+      "aeo_geo": {
+        "answer_targets": [
+          "Best asphalt shingles for Charlotte NC",
+          "Asphalt shingle installation process"
+        ],
+        "schema_requirements": [
+          "Service",
+          "Product",
+          "LocalBusiness"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "asphalt shingles",
+          "roof installation",
+          "shingle materials",
+          "manufacturer warranties",
+          "installation process"
+        ],
+        "entities": [
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "asphalt shingles",
+          "Charlotte",
+          "Safe Haven Roofing & Renovations"
+        ],
+        "primary_query": "roof installation",
+        "supporting_queries": [
+          "asphalt shingle installation",
+          "shingle roof replacement",
+          "asphalt roofing charlotte",
+          "GAF shingles"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Asphalt Shingle Roofing Charlotte NC'",
+          "Mention installation/replacement"
+        ],
+        "description_requirements": [
+          "Mention GAF, CertainTeed, Atlas",
+          "Include warranty information",
+          "Local focus"
+        ]
+      },
+      "route_id": "/services/asphalt-shingles",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What shingle brands do you install?",
+            "How long do asphalt shingles last?"
+          ],
+          "proof_needed": [
+            "brand certifications",
+            "installation expertise"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "shingle-expertise",
+          "required_topics": [
+            "asphalt shingles",
+            "installation process",
+            "material quality"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How do you install shingles?",
+            "What's the installation timeline?"
+          ],
+          "proof_needed": [
+            "process overview",
+            "quality standards"
+          ],
+          "target_slots": [
+            "process",
+            "trust"
+          ],
+          "requirement_id": "installation-process",
+          "required_topics": [
+            "installation steps",
+            "quality control",
+            "timeline"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Are asphalt shingles good for Charlotte weather?",
+            "How do they handle storms?"
+          ],
+          "proof_needed": [
+            "climate performance",
+            "local experience"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "objection_handling"
+          ],
+          "requirement_id": "climate-suitability",
+          "required_topics": [
+            "Charlotte climate",
+            "weather resistance",
+            "durability"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "North Carolina"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Learn about asphalt shingle roofing installation and replacement services",
+        "secondary": [
+          "asphalt shingle repair",
+          "shingle roof cost",
+          "best shingles for Charlotte"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link back to main services overview",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Cross-link to roof replacement services",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to comparison guide",
+          "target_route_id": "/guides/metal-roof-vs-shingles-charlotte"
+        },
+        {
+          "purpose": "Enable asphalt shingle service inquiries",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "All three brands are mentioned",
+        "Installation process is explained",
+        "Charlotte climate considerations are addressed"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "manufacturer-detail",
+          "description": "Competitors lack detailed manufacturer partnership information",
+          "opportunity": "Highlight specific GAF, CertainTeed, and Atlas partnerships and certifications",
+          "donor_domains": [
+            "owenscorning.com"
+          ]
+        },
+        {
+          "gap_id": "local-climate-focus",
+          "description": "Generic installation information without Charlotte-specific considerations",
+          "opportunity": "Emphasize Charlotte climate considerations and local building requirements",
+          "donor_domains": [
+            "familyhandyman.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest shingles",
+        "best shingle brand",
+        "lifetime guarantee"
+      ]
+    },
+    {
+      "path": "/services/flat-roofing",
+      "aeo_geo": {
+        "answer_targets": [
+          "Best flat roofing systems for Charlotte",
+          "Commercial flat roofing contractors Charlotte NC"
+        ],
+        "schema_requirements": [
+          "Service",
+          "LocalBusiness",
+          "CommercialService"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "flat roofing",
+          "commercial roofing",
+          "EPDM",
+          "TPO",
+          "modified bitumen",
+          "flat roof maintenance"
+        ],
+        "entities": [
+          "flat roofing",
+          "commercial buildings",
+          "Charlotte",
+          "Safe Haven Roofing & Renovations",
+          "EPDM",
+          "TPO"
+        ],
+        "primary_query": "roof installation",
+        "supporting_queries": [
+          "flat roof installation",
+          "flat roof repair",
+          "commercial roofing charlotte",
+          "flat roof replacement"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Flat Roofing Charlotte NC'",
+          "Mention commercial applications"
+        ],
+        "description_requirements": [
+          "List EPDM and TPO options",
+          "Mention commercial experience",
+          "Include maintenance services"
+        ]
+      },
+      "route_id": "/services/flat-roofing",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What flat roofing systems do you install?",
+            "Which is best for my building?"
+          ],
+          "proof_needed": [
+            "system types",
+            "material expertise"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "flat-roof-systems",
+          "required_topics": [
+            "flat roofing systems",
+            "material options",
+            "commercial applications"
+          ],
+          "required_entities": [
+            "EPDM",
+            "TPO",
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you work on commercial buildings?",
+            "Can you handle large flat roofs?"
+          ],
+          "proof_needed": [
+            "commercial experience",
+            "project capabilities"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "trust"
+          ],
+          "requirement_id": "commercial-focus",
+          "required_topics": [
+            "commercial roofing",
+            "business applications",
+            "durability"
+          ],
+          "required_entities": [
+            "commercial buildings"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do flat roofs need special maintenance?",
+            "How often should they be inspected?"
+          ],
+          "proof_needed": [
+            "maintenance services",
+            "inspection schedules"
+          ],
+          "target_slots": [
+            "process",
+            "objection_handling"
+          ],
+          "requirement_id": "maintenance-programs",
+          "required_topics": [
+            "flat roof maintenance",
+            "preventive care",
+            "inspection schedules"
+          ],
+          "required_entities": [
+            "maintenance programs"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find flat roofing installation, repair, and maintenance services",
+        "secondary": [
+          "commercial flat roof",
+          "flat roof repair",
+          "EPDM roofing",
+          "TPO roofing"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link back to main services overview",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Cross-link to inspection services for maintenance",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Link to flat roof repair services",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Enable flat roofing service inquiries",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Multiple flat roofing systems are explained",
+        "Commercial applications are emphasized",
+        "Maintenance programs are described"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "flat-roof-specialization",
+          "description": "Limited specialized flat roofing content from general contractors",
+          "opportunity": "Demonstrate specialized flat roofing expertise and commercial capabilities",
+          "donor_domains": [
+            "nathansroofrepairs.com"
+          ]
+        },
+        {
+          "gap_id": "maintenance-emphasis",
+          "description": "Competitors focus on installation but not ongoing maintenance",
+          "opportunity": "Emphasize comprehensive maintenance programs and preventive care",
+          "donor_domains": [
+            "phoenixroofingandrepair.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest flat roofing",
+        "never needs maintenance",
+        "permanent solution"
+      ]
+    },
+    {
+      "path": "/services/gutters",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does gutter installation cost in Charlotte?",
+          "What are the best gutters for Charlotte NC weather?",
+          "How often should gutters be cleaned in Charlotte?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "gutter installation",
+          "gutter repair",
+          "seamless gutters",
+          "downspout systems",
+          "gutter guards",
+          "water damage prevention",
+          "gutter maintenance"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "seamless aluminum gutters",
+          "downspouts",
+          "gutter guards",
+          "fascia boards",
+          "soffit"
+        ],
+        "primary_query": "gutter installation Charlotte NC",
+        "supporting_queries": [
+          "gutter repair Charlotte",
+          "seamless gutters Charlotte",
+          "gutter replacement Charlotte",
+          "downspout installation Charlotte",
+          "gutter cleaning Charlotte"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Gutter Installation & Repair'",
+          "Include 'Charlotte NC'",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Mention seamless gutters",
+          "Include service areas",
+          "Include phone number",
+          "Mention free inspection"
+        ]
+      },
+      "route_id": "/services/gutters",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What gutter services do you offer?",
+            "Do you install seamless gutters?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "fully insured",
+            "free inspection"
+          ],
+          "target_slots": [
+            "service_overview"
+          ],
+          "requirement_id": "gutter_services_overview",
+          "required_topics": [
+            "gutter installation",
+            "gutter repair",
+            "seamless gutters"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What materials do you use for gutters?",
+            "How do seamless gutters work?"
+          ],
+          "proof_needed": [
+            "quality materials",
+            "professional installation"
+          ],
+          "target_slots": [
+            "process",
+            "differentiation"
+          ],
+          "requirement_id": "gutter_materials_process",
+          "required_topics": [
+            "seamless gutters",
+            "aluminum gutters",
+            "gutter guards",
+            "downspout systems"
+          ],
+          "required_entities": [
+            "aluminum",
+            "seamless gutters",
+            "gutter guards"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "gutter installation and repair services",
+        "secondary": [
+          "gutter replacement",
+          "gutter cleaning",
+          "downspout repair",
+          "seamless gutters"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect gutter issues to roof repair needs",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link fascia and soffit work with gutter installation",
+          "target_route_id": "/services/siding-fascia-soffit"
+        },
+        {
+          "purpose": "Direct conversion for gutter service quotes",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets gutter-specific commercial intent",
+        "Local Charlotte relevance established",
+        "Service differentiation clear",
+        "Contact information prominent"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_gutter_expertise",
+          "description": "Competitors lack specific Charlotte area gutter expertise and local weather considerations",
+          "opportunity": "Emphasize local Charlotte weather patterns and gutter solutions for NC climate",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest prices",
+        "best in state",
+        "guaranteed lowest cost"
+      ]
+    },
+    {
+      "path": "/services/interior-renovations",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much do interior renovations cost in Charlotte?",
+          "What permits are needed for home renovations in Charlotte NC?",
+          "How long do interior renovations take?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "interior renovations",
+          "kitchen remodeling",
+          "bathroom renovation",
+          "flooring installation",
+          "drywall repair",
+          "painting",
+          "home improvement"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "kitchen renovation",
+          "bathroom remodeling",
+          "flooring",
+          "drywall",
+          "interior construction"
+        ],
+        "primary_query": "interior renovations Charlotte NC",
+        "supporting_queries": [
+          "home renovation Charlotte",
+          "kitchen remodeling Charlotte",
+          "bathroom renovation Charlotte",
+          "interior remodeling Charlotte",
+          "home improvement Charlotte"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Interior Renovations'",
+          "Include 'Charlotte NC'",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Mention kitchen and bathroom remodeling",
+          "Include service areas",
+          "Include phone number",
+          "Mention warranty"
+        ]
+      },
+      "route_id": "/services/interior-renovations",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What interior renovation services do you offer?",
+            "Do you do kitchen and bathroom remodeling?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "fully insured",
+            "5-year workmanship warranty"
+          ],
+          "target_slots": [
+            "service_overview",
+            "primary_offer"
+          ],
+          "requirement_id": "renovation_services_scope",
+          "required_topics": [
+            "interior renovations",
+            "kitchen remodeling",
+            "bathroom renovation"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What is your renovation process?",
+            "Do you warranty your interior work?"
+          ],
+          "proof_needed": [
+            "workmanship warranty",
+            "insurance coverage",
+            "local experience"
+          ],
+          "target_slots": [
+            "process",
+            "trust"
+          ],
+          "requirement_id": "renovation_process_quality",
+          "required_topics": [
+            "project management",
+            "quality materials",
+            "workmanship warranty"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty",
+            "fully insured"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "interior renovation and remodeling services",
+        "secondary": [
+          "kitchen remodeling",
+          "bathroom renovation",
+          "flooring installation",
+          "interior construction"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect to full service portfolio",
+          "target_route_id": "/services"
+        },
+        {
+          "purpose": "Showcase renovation project examples",
+          "target_route_id": "/gallery"
+        },
+        {
+          "purpose": "Direct conversion for renovation consultations",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets renovation commercial intent",
+        "Service scope clearly defined",
+        "Quality and warranty emphasized",
+        "Local Charlotte focus maintained"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "roofing_renovation_connection",
+          "description": "Competitors don't connect roofing expertise with interior renovation capabilities",
+          "opportunity": "Leverage roofing expertise to demonstrate comprehensive home improvement capabilities",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest renovations",
+        "fastest completion",
+        "guaranteed lowest price"
+      ]
+    },
+    {
+      "path": "/services/metal-roofing",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does metal roofing cost in Charlotte NC?",
+          "What are the best metal roofing materials for North Carolina?",
+          "How long do metal roofs last in Charlotte weather?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage",
+          "Product"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "metal roofing",
+          "steel roofing",
+          "aluminum roofing",
+          "metal roof installation",
+          "metal roof benefits",
+          "energy efficiency",
+          "durability"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "metal roofing",
+          "steel roofing",
+          "aluminum roofing",
+          "GAF",
+          "CertainTeed",
+          "Atlas"
+        ],
+        "primary_query": "metal roofing Charlotte NC",
+        "supporting_queries": [
+          "metal roof installation Charlotte",
+          "steel roofing Charlotte",
+          "metal roof replacement Charlotte",
+          "aluminum roofing Charlotte",
+          "metal roof repair Charlotte"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Metal Roofing'",
+          "Include 'Charlotte NC'",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Mention steel and aluminum options",
+          "Include service areas",
+          "Include phone number",
+          "Mention brand partnerships"
+        ]
+      },
+      "route_id": "/services/metal-roofing",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What types of metal roofing do you install?",
+            "What are the benefits of metal roofing?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "roofing brand partnerships",
+            "fully insured"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "metal_roofing_expertise",
+          "required_topics": [
+            "metal roofing",
+            "steel roofing",
+            "aluminum roofing",
+            "energy efficiency"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC",
+            "metal roofing"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How long do metal roofs last?",
+            "Are metal roofs energy efficient?",
+            "What brands do you use?"
+          ],
+          "proof_needed": [
+            "brand partnerships",
+            "workmanship warranty",
+            "local experience"
+          ],
+          "target_slots": [
+            "process",
+            "objection_handling"
+          ],
+          "requirement_id": "metal_roof_benefits_process",
+          "required_topics": [
+            "durability",
+            "energy efficiency",
+            "longevity",
+            "weather resistance"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas",
+            "5-year workmanship warranty"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "metal roofing installation and services",
+        "secondary": [
+          "metal roof replacement",
+          "steel roofing",
+          "aluminum roofing",
+          "metal roof repair"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect to general roofing installation services",
+          "target_route_id": "/services/roof-installation"
+        },
+        {
+          "purpose": "Link metal roofing as replacement option",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Educational content comparing roofing options",
+          "target_route_id": "/guides/metal-roof-vs-shingles-charlotte"
+        },
+        {
+          "purpose": "Direct conversion for metal roofing quotes",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets metal roofing commercial intent",
+        "Material options clearly presented",
+        "Brand partnerships highlighted",
+        "Local climate benefits emphasized"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_metal_roofing_expertise",
+          "description": "Competitors lack specific Charlotte climate considerations for metal roofing",
+          "opportunity": "Emphasize metal roofing benefits for North Carolina weather and energy costs",
+          "donor_domains": [
+            "owenscorning.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest metal roofing",
+        "best prices guaranteed",
+        "lifetime warranty"
+      ]
+    },
+    {
+      "path": "/services/outdoor-living",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much do outdoor living spaces cost in Charlotte?",
+          "What permits are needed for deck construction in Charlotte NC?",
+          "What are the best materials for outdoor living in North Carolina?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "outdoor living",
+          "deck construction",
+          "patio installation",
+          "hardscape design",
+          "outdoor kitchens",
+          "pergolas",
+          "outdoor entertainment"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "outdoor living spaces",
+          "deck construction",
+          "patio installation",
+          "hardscape",
+          "outdoor kitchens"
+        ],
+        "primary_query": "outdoor living Charlotte NC",
+        "supporting_queries": [
+          "deck construction Charlotte",
+          "patio installation Charlotte",
+          "outdoor kitchen Charlotte",
+          "hardscape Charlotte",
+          "outdoor living spaces Charlotte"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Outdoor Living & Hardscape'",
+          "Include 'Charlotte NC'",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Mention deck and patio services",
+          "Include service areas",
+          "Include phone number",
+          "Mention custom design"
+        ]
+      },
+      "route_id": "/services/outdoor-living",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What outdoor living services do you offer?",
+            "Do you build decks and patios?"
+          ],
+          "proof_needed": [
+            "6 years local experience",
+            "fully insured",
+            "5-year workmanship warranty"
+          ],
+          "target_slots": [
+            "service_overview",
+            "primary_offer"
+          ],
+          "requirement_id": "outdoor_living_services",
+          "required_topics": [
+            "outdoor living",
+            "deck construction",
+            "patio installation",
+            "hardscape design"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Do you do custom outdoor designs?",
+            "What materials do you use for outdoor projects?"
+          ],
+          "proof_needed": [
+            "workmanship warranty",
+            "local experience",
+            "insurance coverage"
+          ],
+          "target_slots": [
+            "process",
+            "differentiation"
+          ],
+          "requirement_id": "outdoor_project_expertise",
+          "required_topics": [
+            "custom design",
+            "quality materials",
+            "project management",
+            "outdoor entertainment"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty",
+            "fully insured"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "outdoor living space construction and hardscape services",
+        "secondary": [
+          "deck construction",
+          "patio installation",
+          "outdoor kitchen",
+          "hardscape design"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect indoor and outdoor renovation services",
+          "target_route_id": "/services/interior-renovations"
+        },
+        {
+          "purpose": "Showcase outdoor living project examples",
+          "target_route_id": "/gallery"
+        },
+        {
+          "purpose": "Direct conversion for outdoor living consultations",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets outdoor living commercial intent",
+        "Service scope clearly defined",
+        "Custom design capabilities emphasized",
+        "Local Charlotte focus maintained"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "roofing_outdoor_integration",
+          "description": "Competitors don't leverage roofing expertise for comprehensive outdoor living solutions",
+          "opportunity": "Connect roofing and construction expertise to outdoor living project capabilities",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "cheapest outdoor construction",
+        "fastest completion guaranteed",
+        "lowest prices in Charlotte"
+      ]
+    },
+    {
+      "path": "/services/roof-inspection",
+      "aeo_geo": {
+        "answer_targets": [
+          "What does a roof inspection include in Charlotte?",
+          "How much does roof inspection cost in NC?",
+          "When should I get my roof inspected?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof inspection process",
+          "inspection checklist",
+          "roof condition assessment",
+          "inspection report",
+          "preventive maintenance",
+          "roof safety",
+          "inspection frequency"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "North Carolina",
+          "roof inspector",
+          "inspection report",
+          "GAF",
+          "CertainTeed",
+          "Atlas"
+        ],
+        "primary_query": "roof inspection",
+        "supporting_queries": [
+          "roof inspection Charlotte",
+          "roof inspection NC",
+          "professional roof inspection",
+          "roof inspection cost",
+          "roof inspection services"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roof Inspection Charlotte NC'",
+          "Mention 'Free' inspection",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Highlight free inspection offer",
+          "Include Charlotte location",
+          "Mention experience and credentials"
+        ]
+      },
+      "route_id": "/services/roof-inspection",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How much does a roof inspection cost?"
+          ],
+          "proof_needed": [
+            "free inspection service"
+          ],
+          "target_slots": [
+            "primary_offer"
+          ],
+          "requirement_id": "free-inspection-offer",
+          "required_topics": [
+            "free inspection"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What does a roof inspection include?",
+            "How long does a roof inspection take?"
+          ],
+          "proof_needed": [
+            "detailed inspection process",
+            "comprehensive checklist"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process"
+          ],
+          "requirement_id": "inspection-process",
+          "required_topics": [
+            "inspection checklist",
+            "roof condition assessment",
+            "inspection report"
+          ],
+          "required_entities": [
+            "inspection report"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Why choose local roof inspectors?"
+          ],
+          "proof_needed": [
+            "years of local experience",
+            "knowledge of local conditions"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "differentiation"
+          ],
+          "requirement_id": "local-expertise",
+          "required_topics": [
+            "local experience",
+            "Charlotte weather conditions"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "6 years experience"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find professional roof inspection services in Charlotte, NC",
+        "secondary": [
+          "roof inspection cost",
+          "roof inspection checklist",
+          "when to get roof inspected",
+          "roof inspection report"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect inspection findings to repair services",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link to replacement when inspection reveals major issues",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Educational content about repair vs replacement decisions",
+          "target_route_id": "/guides/repair-or-replace-roof-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Free inspection offer prominently displayed",
+        "Inspection process clearly explained",
+        "Local Charlotte focus evident",
+        "Contact information easily accessible"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "detailed-inspection-process",
+          "description": "Competitors lack detailed explanation of inspection methodology",
+          "opportunity": "Provide comprehensive inspection process breakdown with visual aids",
+          "donor_domains": [
+            "owenscorning.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest prices",
+        "Best in Charlotte",
+        "Guaranteed lowest cost"
+      ]
+    },
+    {
+      "path": "/services/roof-installation",
+      "aeo_geo": {
+        "answer_targets": [
+          "How long does roof installation take in Charlotte?",
+          "What does roof installation cost in NC?",
+          "Do I need permits for roof installation in Charlotte?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "new roof installation",
+          "installation process",
+          "roofing materials",
+          "installation timeline",
+          "workmanship warranty",
+          "installation cost",
+          "permit requirements"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "5-year warranty",
+          "fully insured"
+        ],
+        "primary_query": "roof installation",
+        "supporting_queries": [
+          "roof installation Charlotte",
+          "new roof installation",
+          "roof installation cost",
+          "roofing contractors",
+          "roof installation process"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roof Installation Charlotte NC'",
+          "Mention quality materials",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Highlight material brands",
+          "Include warranty information",
+          "Mention Charlotte location and experience"
+        ]
+      },
+      "route_id": "/services/roof-installation",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What roofing materials do you install?",
+            "Which roofing brand is best?"
+          ],
+          "proof_needed": [
+            "certified installer status",
+            "material warranties"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "material-options",
+          "required_topics": [
+            "roofing materials",
+            "brand options"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What warranty do you provide?"
+          ],
+          "proof_needed": [
+            "5-year workmanship warranty",
+            "manufacturer warranties"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "warranty-coverage",
+          "required_topics": [
+            "workmanship warranty",
+            "material warranty"
+          ],
+          "required_entities": [
+            "5-year warranty"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How long does roof installation take?",
+            "What permits are needed?"
+          ],
+          "proof_needed": [
+            "detailed process steps",
+            "timeline estimates"
+          ],
+          "target_slots": [
+            "process",
+            "service_overview"
+          ],
+          "requirement_id": "installation-process",
+          "required_topics": [
+            "installation timeline",
+            "installation process",
+            "permit requirements"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find professional roof installation services in Charlotte, NC",
+        "secondary": [
+          "new roof installation",
+          "roof installation cost",
+          "roof installation process",
+          "roofing contractors Charlotte"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to specific shingle installation services",
+          "target_route_id": "/services/asphalt-shingles"
+        },
+        {
+          "purpose": "Connect to metal roof installation options",
+          "target_route_id": "/services/metal-roofing"
+        },
+        {
+          "purpose": "Educational content about installation timelines",
+          "target_route_id": "/guides/how-long-roof-replacement-takes-charlotte"
+        },
+        {
+          "purpose": "Help customers understand contractor selection",
+          "target_route_id": "/guides/how-to-choose-roofing-contractor-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Material options clearly presented",
+        "Warranty information prominent",
+        "Installation process explained",
+        "Local Charlotte focus maintained"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "installation-timeline-detail",
+          "description": "Competitors provide vague timeline information",
+          "opportunity": "Provide specific timeline breakdowns by roof size and complexity",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        },
+        {
+          "gap_id": "permit-guidance",
+          "description": "Limited information about permit requirements and process",
+          "opportunity": "Comprehensive permit guidance for Charlotte area",
+          "donor_domains": [
+            "familyhandyman.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Fastest installation",
+        "Cheapest materials",
+        "Best installer in Charlotte"
+      ]
+    },
+    {
+      "path": "/services/roof-repair",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does roof repair cost in Charlotte?",
+          "Do you provide emergency roof repair in NC?",
+          "When should I repair vs replace my roof?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage",
+          "EmergencyService"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof leak repair",
+          "emergency repairs",
+          "repair cost",
+          "repair vs replacement",
+          "common roof problems",
+          "repair process",
+          "preventive maintenance"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "24/7 emergency service",
+          "fully insured",
+          "5-year warranty"
+        ],
+        "primary_query": "roof repair",
+        "supporting_queries": [
+          "roof repair Charlotte",
+          "roof leak repair",
+          "emergency roof repair",
+          "roof repair cost",
+          "roof repair contractors"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roof Repair Charlotte NC'",
+          "Mention emergency service",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Highlight 24/7 emergency service",
+          "Include repair types",
+          "Mention Charlotte location and insurance"
+        ]
+      },
+      "route_id": "/services/roof-repair",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you provide emergency roof repair?"
+          ],
+          "proof_needed": [
+            "24/7 availability",
+            "emergency response capability"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "differentiation"
+          ],
+          "requirement_id": "emergency-service",
+          "required_topics": [
+            "emergency repairs",
+            "24/7 service"
+          ],
+          "required_entities": [
+            "24/7 emergency service"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What types of roof repairs do you do?",
+            "How do you fix roof leaks?"
+          ],
+          "proof_needed": [
+            "repair expertise",
+            "problem diagnosis capability"
+          ],
+          "target_slots": [
+            "service_overview",
+            "faq"
+          ],
+          "requirement_id": "common-repairs",
+          "required_topics": [
+            "roof leak repair",
+            "common roof problems",
+            "repair process"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Should I repair or replace my roof?",
+            "When is repair not enough?"
+          ],
+          "proof_needed": [
+            "honest assessment approach",
+            "cost-benefit analysis"
+          ],
+          "target_slots": [
+            "objection_handling",
+            "service_overview"
+          ],
+          "requirement_id": "repair-vs-replace",
+          "required_topics": [
+            "repair vs replacement",
+            "cost considerations"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find professional roof repair services in Charlotte, NC",
+        "secondary": [
+          "roof leak repair",
+          "emergency roof repair",
+          "roof repair cost",
+          "roof repair contractors"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect when repairs are insufficient",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to storm damage repair services",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Educational content about repair decisions",
+          "target_route_id": "/guides/repair-or-replace-roof-charlotte"
+        },
+        {
+          "purpose": "Connect to insurance claim assistance",
+          "target_route_id": "/insurance-claims"
+        }
+      ],
+      "acceptance_tests": [
+        "Emergency service prominently featured",
+        "Common repair types listed",
+        "Repair vs replacement guidance provided",
+        "Contact information easily accessible"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "emergency-response-detail",
+          "description": "Competitors lack specific emergency response information",
+          "opportunity": "Detailed emergency response process and availability",
+          "donor_domains": [
+            "nathansroofrepairs.com"
+          ]
+        },
+        {
+          "gap_id": "repair-decision-guidance",
+          "description": "Limited guidance on repair vs replacement decisions",
+          "opportunity": "Comprehensive decision framework for repair vs replacement",
+          "donor_domains": [
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest repairs",
+        "Fastest response time",
+        "Best repair company"
+      ]
+    },
+    {
+      "path": "/services/roof-replacement",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does roof replacement cost in Charlotte?",
+          "How long does roof replacement take in NC?",
+          "What's the best roofing material for Charlotte homes?"
+        ],
+        "schema_requirements": [
+          "LocalBusiness",
+          "Service",
+          "FAQPage"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof replacement process",
+          "replacement cost",
+          "replacement timeline",
+          "material selection",
+          "old roof removal",
+          "replacement vs repair",
+          "financing options"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "5-year warranty",
+          "fully insured",
+          "6 years experience"
+        ],
+        "primary_query": "roof replacement",
+        "supporting_queries": [
+          "roof replacement Charlotte",
+          "roof replacement cost",
+          "new roof Charlotte",
+          "roof replacement contractors",
+          "complete roof replacement"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roof Replacement Charlotte NC'",
+          "Mention quality materials",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Highlight material options",
+          "Include warranty information",
+          "Mention Charlotte experience and credentials"
+        ]
+      },
+      "route_id": "/services/roof-replacement",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What does roof replacement involve?",
+            "How long does roof replacement take?"
+          ],
+          "proof_needed": [
+            "detailed process steps",
+            "timeline estimates",
+            "cleanup procedures"
+          ],
+          "target_slots": [
+            "process",
+            "service_overview"
+          ],
+          "requirement_id": "replacement-process",
+          "required_topics": [
+            "roof replacement process",
+            "old roof removal",
+            "replacement timeline"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What roofing materials are available?",
+            "Which material is best for my home?"
+          ],
+          "proof_needed": [
+            "material options",
+            "brand partnerships",
+            "material warranties"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "material-selection",
+          "required_topics": [
+            "material selection",
+            "roofing brands"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How much does roof replacement cost?",
+            "Do you offer financing?"
+          ],
+          "proof_needed": [
+            "transparent pricing approach",
+            "cost factors explanation"
+          ],
+          "target_slots": [
+            "objection_handling",
+            "faq"
+          ],
+          "requirement_id": "cost-transparency",
+          "required_topics": [
+            "replacement cost",
+            "financing options",
+            "cost factors"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find professional roof replacement services in Charlotte, NC",
+        "secondary": [
+          "roof replacement cost",
+          "new roof installation",
+          "roof replacement contractors",
+          "roof replacement timeline"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect repair vs replacement decision",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link to specific shingle replacement options",
+          "target_route_id": "/services/asphalt-shingles"
+        },
+        {
+          "purpose": "Connect to metal roof replacement",
+          "target_route_id": "/services/metal-roofing"
+        },
+        {
+          "purpose": "Educational content about replacement costs",
+          "target_route_id": "/guides/roof-replacement-cost-charlotte"
+        },
+        {
+          "purpose": "Detailed timeline information",
+          "target_route_id": "/guides/how-long-roof-replacement-takes-charlotte"
+        },
+        {
+          "purpose": "Material comparison guidance",
+          "target_route_id": "/guides/metal-roof-vs-shingles-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Replacement process clearly explained",
+        "Material options presented",
+        "Cost information transparent",
+        "Timeline expectations set",
+        "Local Charlotte focus maintained"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "replacement-timeline-specifics",
+          "description": "Competitors provide vague replacement timelines",
+          "opportunity": "Specific timeline breakdowns by project size and complexity",
+          "donor_domains": [
+            "lowes.com",
+            "wildwoodroof.com"
+          ]
+        },
+        {
+          "gap_id": "material-comparison-detail",
+          "description": "Limited detailed material comparisons",
+          "opportunity": "Comprehensive material comparison with pros/cons",
+          "donor_domains": [
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest replacement",
+        "Fastest completion",
+        "Best replacement company"
+      ]
+    },
+    {
+      "path": "/services/siding-fascia-soffit",
+      "aeo_geo": {
+        "answer_targets": [
+          "Best siding repair company in Charlotte",
+          "Fascia and soffit repair near me",
+          "Siding installation Charlotte NC"
+        ],
+        "schema_requirements": [
+          "LocalBusiness schema",
+          "Service schema",
+          "FAQ schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "siding repair",
+          "fascia replacement",
+          "soffit installation",
+          "exterior home maintenance",
+          "storm damage siding",
+          "vinyl siding",
+          "fiber cement siding",
+          "wood siding repair"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "fascia boards",
+          "soffit vents",
+          "siding materials",
+          "exterior trim",
+          "home exterior",
+          "storm damage"
+        ],
+        "primary_query": "siding fascia soffit repair",
+        "supporting_queries": [
+          "siding repair Charlotte",
+          "fascia board replacement",
+          "soffit repair services",
+          "exterior trim repair",
+          "vinyl siding installation"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Siding, Fascia & Soffit Repair'",
+          "Include 'Charlotte, NC'",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Mention all three services",
+          "Include local area",
+          "Include contact information",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/services/siding-fascia-soffit",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What siding services do you offer?",
+            "Do you repair fascia and soffit?"
+          ],
+          "proof_needed": [
+            "service capabilities",
+            "local expertise"
+          ],
+          "target_slots": [
+            "service_overview"
+          ],
+          "requirement_id": "service-overview",
+          "required_topics": [
+            "siding repair",
+            "fascia replacement",
+            "soffit installation"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "Charlotte NC"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What types of siding do you work with?",
+            "What siding materials are best for Charlotte?"
+          ],
+          "proof_needed": [
+            "material expertise",
+            "brand partnerships"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "material-types",
+          "required_topics": [
+            "vinyl siding",
+            "fiber cement siding",
+            "wood siding repair"
+          ],
+          "required_entities": [
+            "siding materials"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Can you repair storm damaged siding?",
+            "Do you work with insurance for siding claims?"
+          ],
+          "proof_needed": [
+            "storm damage experience",
+            "insurance claim assistance"
+          ],
+          "target_slots": [
+            "service_overview",
+            "objection_handling"
+          ],
+          "requirement_id": "storm-damage",
+          "required_topics": [
+            "storm damage siding",
+            "exterior home maintenance"
+          ],
+          "required_entities": [
+            "storm damage"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "siding fascia soffit repair services",
+        "secondary": [
+          "exterior home repair",
+          "siding installation",
+          "fascia board repair",
+          "soffit ventilation"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Cross-sell roof and siding services",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Connect storm damage siding to roof damage",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Support insurance claim process for exterior damage",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Show siding and exterior work examples",
+          "target_route_id": "/gallery"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets siding repair commercial intent",
+        "Covers fascia and soffit services",
+        "Includes material options",
+        "Shows local Charlotte relevance",
+        "Provides clear service differentiation"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "comprehensive-exterior",
+          "description": "Competitors focus only on roofing, missing comprehensive exterior services",
+          "opportunity": "Position as full exterior specialist including siding, fascia, and soffit",
+          "donor_domains": [
+            "charlotteroofing.com",
+            "nathansroofrepairs.com"
+          ]
+        },
+        {
+          "gap_id": "material-expertise",
+          "description": "Limited discussion of different siding material options and benefits",
+          "opportunity": "Provide detailed material guidance and recommendations",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest prices",
+        "Fastest service",
+        "Only company",
+        "Best in state"
+      ]
+    },
+    {
+      "path": "/services/storm-damage",
+      "aeo_geo": {
+        "answer_targets": [
+          "Emergency storm damage repair Charlotte",
+          "Hail damage roof repair near me",
+          "Storm damage roofing contractor Charlotte NC"
+        ],
+        "schema_requirements": [
+          "LocalBusiness schema",
+          "EmergencyService schema",
+          "Service schema",
+          "FAQ schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "storm damage repair",
+          "hail damage restoration",
+          "wind damage roofing",
+          "emergency roofing services",
+          "insurance claims assistance",
+          "roof inspection after storm",
+          "temporary roof repairs"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "storm damage",
+          "hail damage",
+          "wind damage",
+          "insurance claims",
+          "emergency services",
+          "24/7 service"
+        ],
+        "primary_query": "storm damage repair",
+        "supporting_queries": [
+          "hail damage roof repair",
+          "wind damage roofing",
+          "emergency roof services",
+          "storm damage Charlotte",
+          "insurance roof claims"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Storm Damage Roof Repair'",
+          "Include 'Charlotte, NC'",
+          "Include emergency or 24/7 reference"
+        ],
+        "description_requirements": [
+          "Mention emergency availability",
+          "Include insurance assistance",
+          "Include local area",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/services/storm-damage",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you provide emergency storm damage repair?",
+            "Are you available 24/7 for storm damage?"
+          ],
+          "proof_needed": [
+            "24/7 availability",
+            "emergency response capability"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "service_overview"
+          ],
+          "requirement_id": "emergency-response",
+          "required_topics": [
+            "emergency roofing services",
+            "24/7 service"
+          ],
+          "required_entities": [
+            "Safe Haven Roofing & Renovations",
+            "emergency services",
+            "24/7 service"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Do you help with insurance claims?",
+            "Will you work directly with my insurance company?"
+          ],
+          "proof_needed": [
+            "insurance claim experience",
+            "adjuster relationships"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process",
+            "objection_handling"
+          ],
+          "requirement_id": "insurance-assistance",
+          "required_topics": [
+            "insurance claims assistance",
+            "roof inspection after storm"
+          ],
+          "required_entities": [
+            "insurance claims"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What types of storm damage do you repair?",
+            "Can you fix hail damage?",
+            "Do you repair wind damage?"
+          ],
+          "proof_needed": [
+            "storm damage expertise",
+            "repair capabilities"
+          ],
+          "target_slots": [
+            "service_overview",
+            "faq"
+          ],
+          "requirement_id": "damage-types",
+          "required_topics": [
+            "hail damage restoration",
+            "wind damage roofing",
+            "temporary roof repairs"
+          ],
+          "required_entities": [
+            "hail damage",
+            "wind damage"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "storm damage roof repair services",
+        "secondary": [
+          "hail damage repair",
+          "wind damage restoration",
+          "emergency roof repair",
+          "insurance claim assistance"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Connect storm damage to general roof repair services",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Promote post-storm roof inspections",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Detailed insurance claim assistance information",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Emergency contact for storm damage",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets storm damage commercial intent",
+        "Emphasizes emergency availability",
+        "Covers insurance claim assistance",
+        "Shows local Charlotte storm expertise",
+        "Provides clear damage type coverage"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "comprehensive-storm-services",
+          "description": "ServPro focuses on general storm services, not roofing-specific expertise",
+          "opportunity": "Position as roofing-specialized storm damage experts",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        },
+        {
+          "gap_id": "local-storm-knowledge",
+          "description": "National companies lack local Charlotte storm pattern knowledge",
+          "opportunity": "Emphasize local Charlotte weather expertise and storm history",
+          "donor_domains": [
+            "servpro.com",
+            "vk1call.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Guaranteed insurance approval",
+        "Fastest response time",
+        "Only storm damage company",
+        "Cheapest emergency service"
+      ]
+    },
+    {
+      "path": "/guides/how-long-roof-replacement-takes-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "How long does roof replacement take in Charlotte",
+          "Roof replacement timeline Charlotte NC",
+          "Average roof installation time"
+        ],
+        "schema_requirements": [
+          "Article schema",
+          "FAQ schema",
+          "HowTo schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof replacement timeline",
+          "roofing project phases",
+          "weather delays",
+          "permit requirements",
+          "material delivery",
+          "crew size impact",
+          "roof complexity factors",
+          "Charlotte weather considerations"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "roof replacement",
+          "timeline",
+          "weather delays",
+          "permits",
+          "roofing materials",
+          "project phases"
+        ],
+        "primary_query": "how long does roof replacement take",
+        "supporting_queries": [
+          "roof replacement timeline",
+          "roof installation time",
+          "roofing project duration",
+          "roof replacement process Charlotte",
+          "how long roof installation takes"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'How Long Does Roof Replacement Take'",
+          "Include 'Charlotte' or 'Charlotte NC'",
+          "Include year or current reference"
+        ],
+        "description_requirements": [
+          "Mention timeline information",
+          "Include Charlotte location",
+          "Reference local factors",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/guides/how-long-roof-replacement-takes-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How long does a typical roof replacement take?",
+            "What are the phases of roof replacement?"
+          ],
+          "proof_needed": [
+            "project timeline expertise",
+            "phase breakdown"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process"
+          ],
+          "requirement_id": "timeline-breakdown",
+          "required_topics": [
+            "roof replacement timeline",
+            "roofing project phases"
+          ],
+          "required_entities": [
+            "roof replacement",
+            "timeline",
+            "project phases"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How does Charlotte weather affect roof replacement timing?",
+            "What permits are needed in Charlotte?"
+          ],
+          "proof_needed": [
+            "local weather knowledge",
+            "permit expertise"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "objection_handling"
+          ],
+          "requirement_id": "charlotte-factors",
+          "required_topics": [
+            "Charlotte weather considerations",
+            "permit requirements"
+          ],
+          "required_entities": [
+            "Charlotte NC",
+            "weather delays",
+            "permits"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What can delay a roof replacement?",
+            "How does weather affect the timeline?"
+          ],
+          "proof_needed": [
+            "project management experience",
+            "delay mitigation strategies"
+          ],
+          "target_slots": [
+            "objection_handling",
+            "faq"
+          ],
+          "requirement_id": "delay-factors",
+          "required_topics": [
+            "weather delays",
+            "material delivery",
+            "roof complexity factors"
+          ],
+          "required_entities": [
+            "weather delays",
+            "roofing materials"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "roof replacement timeline information",
+        "secondary": [
+          "roof installation duration",
+          "roofing project planning",
+          "roof replacement process",
+          "Charlotte roofing timeline"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Convert timeline research to service inquiry",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Connect timeline to cost considerations",
+          "target_route_id": "/guides/roof-replacement-cost-charlotte"
+        },
+        {
+          "purpose": "Help choose contractor after timeline research",
+          "target_route_id": "/guides/how-to-choose-roofing-contractor-charlotte"
+        },
+        {
+          "purpose": "Get personalized timeline estimate",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets timeline informational intent",
+        "Provides specific Charlotte considerations",
+        "Covers potential delay factors",
+        "Offers realistic timeline expectations",
+        "Includes phase breakdown information"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local-timeline-specifics",
+          "description": "National retailers provide generic timelines without local considerations",
+          "opportunity": "Provide Charlotte-specific timeline factors and considerations",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        },
+        {
+          "gap_id": "detailed-phase-breakdown",
+          "description": "Competitors provide vague timeline estimates without detailed phases",
+          "opportunity": "Offer comprehensive phase-by-phase timeline breakdown",
+          "donor_domains": [
+            "owenscorning.com",
+            "familyhandyman.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Fastest roof replacement",
+        "Guaranteed timeline",
+        "Weather-proof scheduling",
+        "Shortest installation time"
+      ]
+    },
+    {
+      "path": "/guides/how-to-choose-roofing-contractor-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "How to choose roofing contractor in Charlotte",
+          "Best roofing contractor Charlotte NC",
+          "Roofing contractor checklist Charlotte"
+        ],
+        "schema_requirements": [
+          "Article schema",
+          "FAQ schema",
+          "HowTo schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "contractor licensing verification",
+          "insurance requirements",
+          "roofing contractor credentials",
+          "estimate comparison",
+          "contractor red flags",
+          "warranty considerations",
+          "local contractor benefits",
+          "BBB ratings",
+          "contractor references"
+        ],
+        "entities": [
+          "Safe Haven Roofing & Renovations",
+          "Charlotte NC",
+          "roofing contractor",
+          "licensing",
+          "insurance",
+          "warranties",
+          "credentials",
+          "references",
+          "BBB rating"
+        ],
+        "primary_query": "how to choose roofing contractor",
+        "supporting_queries": [
+          "best roofing contractor Charlotte",
+          "roofing contractor checklist",
+          "how to vet roofers",
+          "roofing contractor red flags",
+          "Charlotte roofing companies"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'How to Choose Roofing Contractor'",
+          "Include 'Charlotte' or 'Charlotte NC'",
+          "Include guidance or tips reference"
+        ],
+        "description_requirements": [
+          "Mention contractor selection",
+          "Include Charlotte location",
+          "Reference vetting process",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/guides/how-to-choose-roofing-contractor-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What should I look for in a roofing contractor?",
+            "How do I verify a contractor's credentials?"
+          ],
+          "proof_needed": [
+            "vetting expertise",
+            "credential verification process"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process"
+          ],
+          "requirement_id": "vetting-checklist",
+          "required_topics": [
+            "contractor licensing verification",
+            "insurance requirements",
+            "roofing contractor credentials"
+          ],
+          "required_entities": [
+            "roofing contractor",
+            "licensing",
+            "insurance",
+            "credentials"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What are red flags when choosing a roofer?",
+            "How do I spot roofing scams?"
+          ],
+          "proof_needed": [
+            "industry knowledge",
+            "scam awareness"
+          ],
+          "target_slots": [
+            "objection_handling",
+            "faq"
+          ],
+          "requirement_id": "red-flags",
+          "required_topics": [
+            "contractor red flags",
+            "estimate comparison"
+          ],
+          "required_entities": [
+            "roofing contractor"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Why choose a local Charlotte roofer?",
+            "What are the benefits of local contractors?"
+          ],
+          "proof_needed": [
+            "local expertise",
+            "community involvement"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "differentiation"
+          ],
+          "requirement_id": "local-advantages",
+          "required_topics": [
+            "local contractor benefits",
+            "Charlotte roofing companies"
+          ],
+          "required_entities": [
+            "Charlotte NC",
+            "Safe Haven Roofing & Renovations"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "roofing contractor selection guidance",
+        "secondary": [
+          "contractor vetting process",
+          "roofing company evaluation",
+          "contractor red flags",
+          "Charlotte roofer selection"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Demonstrate company credentials and qualifications",
+          "target_route_id": "/about"
+        },
+        {
+          "purpose": "Convert contractor research to service consideration",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Show quality work examples",
+          "target_route_id": "/gallery"
+        },
+        {
+          "purpose": "Encourage consultation after contractor research",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Page targets contractor selection informational intent",
+        "Provides actionable vetting guidance",
+        "Includes Charlotte-specific considerations",
+        "Covers red flags and warning signs",
+        "Offers credential verification steps"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "charlotte-specific-guidance",
+          "description": "Generic contractor advice without Charlotte-specific considerations",
+          "opportunity": "Provide Charlotte-specific contractor selection guidance including local regulations",
+          "donor_domains": [
+            "familyhandyman.com",
+            "owenscorning.com"
+          ]
+        },
+        {
+          "gap_id": "credential-verification",
+          "description": "Vague advice on checking contractors without specific verification steps",
+          "opportunity": "Offer detailed credential verification process and resources",
+          "donor_domains": [
+            "homedepot.com",
+            "lowes.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Only qualified contractor",
+        "Best contractor in Charlotte",
+        "Guaranteed best choice",
+        "Cheapest qualified contractor"
+      ]
+    },
+    {
+      "path": "/guides/metal-roof-vs-shingles-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "Which roofing material is better for Charlotte homes?",
+          "Metal roof vs shingles cost comparison",
+          "Best roofing material for North Carolina climate"
+        ],
+        "schema_requirements": [
+          "FAQ schema",
+          "Article schema",
+          "LocalBusiness schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "metal roofing",
+          "asphalt shingles",
+          "roofing materials",
+          "cost comparison",
+          "durability",
+          "energy efficiency",
+          "Charlotte climate",
+          "installation",
+          "maintenance"
+        ],
+        "entities": [
+          "Charlotte",
+          "North Carolina",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "Safe Haven Roofing & Renovations",
+          "metal roofing",
+          "asphalt shingles"
+        ],
+        "primary_query": "metal roof vs shingles",
+        "supporting_queries": [
+          "metal roofing Charlotte",
+          "asphalt shingles Charlotte",
+          "roof material comparison",
+          "best roofing material Charlotte NC"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Metal Roof vs Shingles'",
+          "Include 'Charlotte'",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Compare metal roofing and asphalt shingles",
+          "Mention Charlotte/NC",
+          "Include cost and durability",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/guides/metal-roof-vs-shingles-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Which is better metal roof or shingles?",
+            "How much more does metal roofing cost?",
+            "Do metal roofs last longer than shingles?"
+          ],
+          "proof_needed": [
+            "cost data",
+            "lifespan statistics",
+            "performance metrics"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "material_comparison",
+          "required_topics": [
+            "metal roofing",
+            "asphalt shingles",
+            "cost comparison",
+            "durability"
+          ],
+          "required_entities": [
+            "metal roofing",
+            "asphalt shingles"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What roofing material is best for Charlotte weather?",
+            "How do materials perform in NC humidity?"
+          ],
+          "proof_needed": [
+            "local weather data",
+            "material performance in regional conditions"
+          ],
+          "target_slots": [
+            "local_relevance"
+          ],
+          "requirement_id": "charlotte_climate",
+          "required_topics": [
+            "Charlotte climate",
+            "weather resistance"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "North Carolina"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Compare metal roofing vs asphalt shingles for Charlotte homes",
+        "secondary": [
+          "metal roof benefits",
+          "shingle roof advantages",
+          "roofing material costs",
+          "Charlotte climate considerations"
+        ],
+        "journey_stage": "informational"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to metal roofing service page",
+          "target_route_id": "/services/metal-roofing"
+        },
+        {
+          "purpose": "Link to asphalt shingle service page",
+          "target_route_id": "/services/asphalt-shingles"
+        },
+        {
+          "purpose": "Link to cost guide for detailed pricing",
+          "target_route_id": "/guides/roof-replacement-cost-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Covers both material types comprehensively",
+        "Includes Charlotte-specific considerations",
+        "Provides actionable comparison criteria",
+        "Links to relevant service pages"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_expertise",
+          "description": "Competitors lack Charlotte-specific material recommendations",
+          "opportunity": "Provide localized material guidance based on Charlotte climate and building codes",
+          "donor_domains": [
+            "homedepot.com",
+            "lowes.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest prices",
+        "Best contractor",
+        "Guaranteed lowest cost"
+      ]
+    },
+    {
+      "path": "/guides/repair-or-replace-roof-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "Should I repair or replace my roof?",
+          "How to decide between roof repair and replacement",
+          "Cost difference between roof repair and replacement in Charlotte"
+        ],
+        "schema_requirements": [
+          "FAQ schema",
+          "HowTo schema",
+          "LocalBusiness schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof repair",
+          "roof replacement",
+          "cost analysis",
+          "damage assessment",
+          "roof age",
+          "decision factors",
+          "Charlotte roofing"
+        ],
+        "entities": [
+          "Charlotte",
+          "North Carolina",
+          "Safe Haven Roofing & Renovations",
+          "roof inspection",
+          "storm damage",
+          "insurance claims"
+        ],
+        "primary_query": "repair or replace roof",
+        "supporting_queries": [
+          "roof repair vs replacement",
+          "when to replace roof Charlotte",
+          "roof repair cost Charlotte",
+          "roof replacement decision"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Repair or Replace'",
+          "Include 'Charlotte'",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Decision guidance for repair vs replacement",
+          "Mention Charlotte",
+          "Include cost considerations",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/guides/repair-or-replace-roof-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "When should I repair vs replace my roof?",
+            "How do I know if my roof needs replacement?",
+            "What factors determine repair vs replacement?"
+          ],
+          "proof_needed": [
+            "decision criteria",
+            "cost thresholds",
+            "damage indicators"
+          ],
+          "target_slots": [
+            "service_overview",
+            "process"
+          ],
+          "requirement_id": "decision_framework",
+          "required_topics": [
+            "decision factors",
+            "cost analysis",
+            "damage assessment"
+          ],
+          "required_entities": [
+            "roof inspection"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "How can I get my roof assessed?"
+          ],
+          "proof_needed": [
+            "free inspection offer"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "conversion"
+          ],
+          "requirement_id": "free_inspection",
+          "required_topics": [
+            "roof inspection"
+          ],
+          "required_entities": [
+            "free inspection"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Help Charlotte homeowners decide between roof repair vs replacement",
+        "secondary": [
+          "roof repair cost",
+          "roof replacement cost",
+          "when to replace roof",
+          "roof damage assessment"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to inspection service",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Link to repair services",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Link to replacement services",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to detailed cost information",
+          "target_route_id": "/guides/roof-replacement-cost-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Provides clear decision criteria",
+        "Includes cost considerations",
+        "Offers free inspection",
+        "Links to relevant services"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "decision_tool",
+          "description": "Competitors provide generic advice without actionable decision framework",
+          "opportunity": "Create clear decision matrix with local cost considerations",
+          "donor_domains": [
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Always cheapest option",
+        "Guaranteed best choice",
+        "One-size-fits-all recommendations"
+      ]
+    },
+    {
+      "path": "/guides/roof-replacement-cost-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "How much does roof replacement cost in Charlotte?",
+          "What factors affect roof replacement cost?",
+          "Average roof replacement cost North Carolina"
+        ],
+        "schema_requirements": [
+          "FAQ schema",
+          "Article schema",
+          "LocalBusiness schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "roof replacement cost",
+          "pricing factors",
+          "material costs",
+          "labor costs",
+          "Charlotte market",
+          "financing",
+          "insurance",
+          "warranties"
+        ],
+        "entities": [
+          "Charlotte",
+          "North Carolina",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "Safe Haven Roofing & Renovations",
+          "insurance claims"
+        ],
+        "primary_query": "roof replacement cost",
+        "supporting_queries": [
+          "roof replacement cost Charlotte",
+          "roofing prices Charlotte NC",
+          "how much does roof replacement cost",
+          "Charlotte roofing contractors"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Roof Replacement Cost'",
+          "Include 'Charlotte'",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Cost information for Charlotte roof replacement",
+          "Mention pricing factors",
+          "Include NC location",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/guides/roof-replacement-cost-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "How much does roof replacement cost in Charlotte?",
+            "What factors affect roofing costs?",
+            "What's included in roof replacement pricing?"
+          ],
+          "proof_needed": [
+            "cost ranges",
+            "pricing factors",
+            "material specifications"
+          ],
+          "target_slots": [
+            "service_overview",
+            "differentiation"
+          ],
+          "requirement_id": "cost_breakdown",
+          "required_topics": [
+            "pricing factors",
+            "material costs",
+            "labor costs"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What warranty comes with roof replacement?"
+          ],
+          "proof_needed": [
+            "warranty terms",
+            "coverage details"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "warranty_value",
+          "required_topics": [
+            "warranties"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Understand roof replacement costs in Charlotte market",
+        "secondary": [
+          "roofing cost factors",
+          "material costs",
+          "labor costs",
+          "financing options"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to replacement service page",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Link to insurance claims assistance",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Link to repair vs replace decision guide",
+          "target_route_id": "/guides/repair-or-replace-roof-charlotte"
+        }
+      ],
+      "acceptance_tests": [
+        "Provides realistic cost ranges",
+        "Explains pricing factors",
+        "Includes warranty information",
+        "Covers insurance considerations"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "transparent_pricing",
+          "description": "Competitors avoid specific cost information",
+          "opportunity": "Provide transparent cost ranges and factors for Charlotte market",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Lowest prices guaranteed",
+        "Cheapest in Charlotte",
+        "Fixed pricing without assessment"
+      ]
+    },
+    {
+      "path": "/guides/storm-damage-roof-repair-charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "How to get storm damage roof repair in Charlotte",
+          "What to do after storm damages roof",
+          "Emergency roof repair Charlotte NC"
+        ],
+        "schema_requirements": [
+          "FAQ schema",
+          "LocalBusiness schema",
+          "Service schema"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "storm damage",
+          "hail damage",
+          "emergency repair",
+          "insurance claims",
+          "damage assessment",
+          "Charlotte weather",
+          "24/7 service"
+        ],
+        "entities": [
+          "Charlotte",
+          "North Carolina",
+          "Safe Haven Roofing & Renovations",
+          "storm damage",
+          "insurance claims",
+          "24/7 emergency service"
+        ],
+        "primary_query": "storm damage roof repair",
+        "supporting_queries": [
+          "hail damage roof repair Charlotte",
+          "storm damage roofing Charlotte",
+          "emergency roof repair",
+          "roof storm damage insurance"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Storm Damage'",
+          "Include 'Charlotte'",
+          "Convey urgency",
+          "Under 60 characters"
+        ],
+        "description_requirements": [
+          "Emergency storm damage repair",
+          "Mention Charlotte/NC",
+          "Include insurance help",
+          "Under 160 characters"
+        ]
+      },
+      "route_id": "/guides/storm-damage-roof-repair-charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you provide emergency storm damage repair?",
+            "How quickly can you respond to storm damage?"
+          ],
+          "proof_needed": [
+            "24/7 availability",
+            "emergency response capability"
+          ],
+          "target_slots": [
+            "primary_offer",
+            "service_overview"
+          ],
+          "requirement_id": "emergency_response",
+          "required_topics": [
+            "emergency repair",
+            "24/7 service"
+          ],
+          "required_entities": [
+            "24/7 emergency service available"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "Do you help with insurance claims?",
+            "How does the insurance process work?"
+          ],
+          "proof_needed": [
+            "insurance claim assistance",
+            "process explanation"
+          ],
+          "target_slots": [
+            "process",
+            "trust"
+          ],
+          "requirement_id": "insurance_assistance",
+          "required_topics": [
+            "insurance claims"
+          ],
+          "required_entities": [
+            "insurance claims"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Get storm and hail damage roof repair in Charlotte",
+        "secondary": [
+          "storm damage assessment",
+          "insurance claims",
+          "emergency roof repair",
+          "hail damage repair"
+        ],
+        "journey_stage": "transactional"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to storm damage service page",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Link to insurance claims assistance",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Link to damage assessment service",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Link to emergency contact information",
+          "target_route_id": "/contact"
+        }
+      ],
+      "acceptance_tests": [
+        "Emphasizes emergency availability",
+        "Covers insurance claim process",
+        "Provides clear next steps",
+        "Includes local storm considerations"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_storm_expertise",
+          "description": "Competitors lack Charlotte-specific storm damage knowledge",
+          "opportunity": "Highlight local storm patterns and specialized Charlotte area damage response",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Guaranteed insurance approval",
+        "Fastest response time",
+        "Will beat any estimate"
+      ]
+    },
+    {
+      "path": "/service-areas/charlotte",
+      "aeo_geo": {
+        "answer_targets": [
+          "Best roofing contractor in Charlotte NC",
+          "Charlotte roofing company with 5-year warranty",
+          "24/7 emergency roof repair Charlotte",
+          "GAF certified roofer Charlotte NC",
+          "Free roof inspection Charlotte"
+        ],
+        "schema_requirements": [
+          "LocalBusiness schema with Charlotte address",
+          "Service schema for roofing services",
+          "Review schema for customer testimonials",
+          "FAQ schema for common Charlotte roofing questions"
+        ]
+      },
+      "targets": {
+        "topics": [
+          "Charlotte roofing services",
+          "local roofing contractor",
+          "North Carolina roofing",
+          "Charlotte area coverage",
+          "residential roofing Charlotte",
+          "commercial roofing Charlotte",
+          "emergency roof repair",
+          "storm damage restoration"
+        ],
+        "entities": [
+          "Charlotte",
+          "North Carolina",
+          "Safe Haven Roofing & Renovations",
+          "Mecklenburg County",
+          "GAF",
+          "CertainTeed",
+          "Atlas",
+          "Charlotte metro area"
+        ],
+        "primary_query": "charlotte roofing",
+        "supporting_queries": [
+          "roofing contractors Charlotte NC",
+          "roof repair Charlotte",
+          "roof replacement Charlotte",
+          "Charlotte roofers",
+          "storm damage repair Charlotte",
+          "roof installation Charlotte NC"
+        ]
+      },
+      "metadata": {
+        "title_requirements": [
+          "Include 'Charlotte' and 'roofing'",
+          "Mention key differentiator (warranty, emergency service, or experience)",
+          "Stay under 60 characters",
+          "Include business name"
+        ],
+        "description_requirements": [
+          "Highlight Charlotte-specific service",
+          "Include primary services (repair, replacement, storm damage)",
+          "Mention key benefits (warranty, free inspection, emergency service)",
+          "Include phone number",
+          "Stay under 160 characters"
+        ]
+      },
+      "route_id": "/service-areas/charlotte",
+      "requirements": [
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Why choose a local Charlotte roofer?",
+            "How long has Safe Haven served Charlotte?"
+          ],
+          "proof_needed": [
+            "Years of local experience",
+            "Service area coverage",
+            "Local project examples"
+          ],
+          "target_slots": [
+            "local_relevance",
+            "trust"
+          ],
+          "requirement_id": "local_service_proof",
+          "required_topics": [
+            "Charlotte service area",
+            "local experience"
+          ],
+          "required_entities": [
+            "Charlotte",
+            "6 years experience"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "FIRST_MATCH",
+          "questions": [
+            "What roofing services are available in Charlotte?",
+            "What brands do you install?"
+          ],
+          "proof_needed": [
+            "Service list",
+            "Brand partnerships",
+            "Warranty information"
+          ],
+          "target_slots": [
+            "service_overview",
+            "primary_offer"
+          ],
+          "requirement_id": "comprehensive_services",
+          "required_topics": [
+            "roof repair",
+            "roof replacement",
+            "storm damage",
+            "roof inspection"
+          ],
+          "required_entities": [
+            "GAF",
+            "CertainTeed",
+            "Atlas"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "Do you offer emergency roof repair in Charlotte?"
+          ],
+          "proof_needed": [
+            "Emergency service availability",
+            "Response time"
+          ],
+          "target_slots": [
+            "differentiation",
+            "trust"
+          ],
+          "requirement_id": "emergency_availability",
+          "required_topics": [
+            "24/7 emergency service",
+            "storm response"
+          ],
+          "required_entities": [
+            "24/7 emergency service"
+          ]
+        },
+        {
+          "required": true,
+          "placement": "ALL_MATCHES",
+          "questions": [
+            "What warranties do you offer?",
+            "Are you licensed and insured?"
+          ],
+          "proof_needed": [
+            "Insurance status",
+            "Warranty terms",
+            "Inspection policy"
+          ],
+          "target_slots": [
+            "trust",
+            "differentiation"
+          ],
+          "requirement_id": "quality_assurance",
+          "required_topics": [
+            "fully insured",
+            "workmanship warranty",
+            "free inspection"
+          ],
+          "required_entities": [
+            "5-year workmanship warranty",
+            "fully insured",
+            "free inspection"
+          ]
+        }
+      ],
+      "search_intent": {
+        "primary": "Find local roofing contractor in Charlotte, NC",
+        "secondary": [
+          "Charlotte roofing companies",
+          "roof repair Charlotte NC",
+          "roof replacement Charlotte",
+          "storm damage repair Charlotte"
+        ],
+        "journey_stage": "commercial"
+      },
+      "internal_links": [
+        {
+          "purpose": "Link to detailed roof repair services for Charlotte customers",
+          "target_route_id": "/services/roof-repair"
+        },
+        {
+          "purpose": "Connect to roof replacement service page for major projects",
+          "target_route_id": "/services/roof-replacement"
+        },
+        {
+          "purpose": "Direct to storm damage services relevant to Charlotte weather",
+          "target_route_id": "/services/storm-damage"
+        },
+        {
+          "purpose": "Link to free inspection service offering",
+          "target_route_id": "/services/roof-inspection"
+        },
+        {
+          "purpose": "Connect to insurance claim assistance for storm damage",
+          "target_route_id": "/insurance-claims"
+        },
+        {
+          "purpose": "Direct path to contact for Charlotte service requests",
+          "target_route_id": "/contact"
+        },
+        {
+          "purpose": "Showcase local Charlotte roofing projects",
+          "target_route_id": "/gallery"
+        }
+      ],
+      "acceptance_tests": [
+        "Page clearly identifies Charlotte as primary service area",
+        "Contact information prominently displays (704) 648-7252",
+        "All major roofing services are mentioned (repair, replacement, inspection, storm damage)",
+        "5-year workmanship warranty is clearly stated",
+        "24/7 emergency service availability is highlighted",
+        "Free inspection offer is prominently featured",
+        "GAF, CertainTeed, and Atlas brands are mentioned",
+        "Local experience (6 years) is referenced",
+        "Fully insured status is clearly stated",
+        "Page includes clear call-to-action for Charlotte customers"
+      ],
+      "competitive_gaps": [
+        {
+          "gap_id": "local_expertise_emphasis",
+          "description": "Competitors focus on general services without emphasizing deep Charlotte market knowledge",
+          "opportunity": "Highlight specific Charlotte weather challenges, local building codes, and neighborhood-specific roofing needs",
+          "donor_domains": [
+            "charlotteroofing.com"
+          ]
+        },
+        {
+          "gap_id": "comprehensive_storm_response",
+          "description": "Limited storm damage content compared to national brands",
+          "opportunity": "Develop detailed Charlotte-specific storm damage response and insurance claim assistance",
+          "donor_domains": [
+            "servpro.com"
+          ]
+        },
+        {
+          "gap_id": "brand_partnership_showcase",
+          "description": "Major retailers emphasize product selection over local installation expertise",
+          "opportunity": "Position as certified installer of premium brands with local expertise and warranty backing",
+          "donor_domains": [
+            "lowes.com",
+            "homedepot.com",
+            "owenscorning.com"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Cheapest prices",
+        "Best roofer in Charlotte",
+        "Guaranteed lowest price",
+        "Only certified contractor",
+        "Fastest service",
+        "Number one roofing company"
+      ]
+    }
+  ],
+  "schema": "l9://website-intelligence/seo-content-blueprint/v1",
+  "batch_size": 4,
+  "batch_count": 8,
+  "competitive_landscape_ref": {
+    "artifact_id": "competitive_landscape:bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653",
+    "artifact_type": "competitive_landscape",
+    "payload_digest": "bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653"
+  }
+}

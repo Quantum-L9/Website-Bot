@@ -1,0 +1,32 @@
+{
+  "health": {
+    "endpoint": "/health",
+    "http_status": 200,
+    "ok": true,
+    "reached": true
+  },
+  "preflight": {
+    "endpoint": "/api/build-intelligence/preflight",
+    "http_status": 200,
+    "ok": true,
+    "reached": true
+  },
+  "competitive-landscape": {
+    "endpoint": "/api/build-intelligence/competitive-landscape",
+    "attempted": false,
+    "source": "store",
+    "artifact_id": "competitive_landscape:bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653"
+  },
+  "seo-content-blueprint": {
+    "endpoint": "/api/build-intelligence/seo-content-blueprint",
+    "attempted": false,
+    "source": "store",
+    "artifact_id": "seo_content_blueprint:125d5ef99c0d01b6ff9b1090b913f52c22a3825bbcce69bd1f93e79efc3f2254"
+  },
+  "structured-content": {
+    "endpoint": "/api/build-intelligence/structured-content",
+    "attempted": false,
+    "source": "store",
+    "artifact_id": "structured_content_package:975c24f0edce6092fe6c17a988bc9a26d2fe3d5fb1df2a39cb19d6e144386006"
+  }
+}

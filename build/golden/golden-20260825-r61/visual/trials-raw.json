@@ -1,0 +1,2016 @@
+{
+  "schema": "l9.golden-visual-trials/v1",
+  "run_id": "golden-20260825-r61",
+  "trials": [
+    {
+      "trial_id": "___desktop__trial1",
+      "pair_id": "___desktop",
+      "route": "/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 1,
+          "conversion_clarity": 1,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 0,
+          "mobile_usability": 0,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B shows authentic roofing work imagery with workers on actual roof, providing stronger trust signals and credibility. Detailed service descriptions and warranty information enhance conversion clarity over A's minimal text approach."
+      },
+      "normalized_preference": "CANDIDATE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": -1,
+        "conversion_clarity": -1,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": 0,
+        "mobile_usability": 0,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
+        "image_b_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "___desktop__trial2",
+      "pair_id": "___desktop",
+      "route": "/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": -1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B has superior visual hierarchy with cleaner typography, better conversion clarity through prominent CTAs, and improved spacing. A has authentic roofing imagery but dense text blocks reduce readability."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": -1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
+        "image_b_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "___desktop__trial3",
+      "pair_id": "___desktop",
+      "route": "/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 1,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 0,
+          "mobile_usability": 0,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B provides authentic roofing imagery showing actual work, detailed service information, and better trust signals through comprehensive content. A relies on abstract dark background with minimal information."
+      },
+      "normalized_preference": "CANDIDATE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -1,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": 0,
+        "mobile_usability": 0,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "c497b4d96147917f957fd6f0ab5da0e4c06e639c93a1920491f355414f68fd09",
+        "image_b_hash": "68a47a598752d5112711e1db1752c81a62b2f02b77271a0df43332da12e801b3",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "___mobile__trial1",
+      "pair_id": "___mobile",
+      "route": "/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": -1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 1,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A has superior visual hierarchy with clear hero messaging, better spacing, and prominent CTAs. B shows navigation menu overlay obscuring content and cramped text layout despite having background imagery."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -1,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
+        "image_b_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "___mobile__trial2",
+      "pair_id": "___mobile",
+      "route": "/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B has cleaner visual hierarchy with prominent phone number, clear CTAs, better mobile spacing. A has cluttered navigation menu and less focused conversion elements despite background imagery."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 0,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
+        "image_b_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "___mobile__trial3",
+      "pair_id": "___mobile",
+      "route": "/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": -1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 1,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A has cleaner layout with prominent CTAs and better spacing. B shows navigation menu overlay but has cluttered text and poor contrast over background image."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -1,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: / — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "f539a1b05c3764d0533d74f73de24fb16c7ff6a6fcf50d8daeb3a08a305cbed4",
+        "image_b_hash": "1d130077364485c0009527c23a9576b0af5f056dad05ca48da7f7f0a44788d71",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___desktop__trial1",
+      "pair_id": "_services_roof-replacement___desktop",
+      "route": "/services/roof-replacement/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.7,
+        "dimensions": {
+          "visual_hierarchy": -1,
+          "brand_coherence": 0,
+          "conversion_clarity": -1,
+          "trust_and_credibility": 0,
+          "authentic_imagery": 1,
+          "content_readability": -1,
+          "information_density": 1,
+          "spacing_and_rhythm": -1,
+          "mobile_usability": 0,
+          "professional_polish": -1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A has cleaner visual hierarchy with prominent CTAs and better spacing. B provides more detailed content but suffers from text-heavy layout and weaker conversion focus."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 1,
+        "brand_coherence": 0,
+        "conversion_clarity": 1,
+        "trust_and_credibility": 0,
+        "authentic_imagery": -1,
+        "content_readability": 1,
+        "information_density": -1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.7,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
+        "image_b_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___desktop__trial2",
+      "pair_id": "_services_roof-replacement___desktop",
+      "route": "/services/roof-replacement/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B has superior visual hierarchy with cleaner layout, better spacing, prominent dual CTAs, and more balanced content-to-image ratio. A appears cramped with dense text blocks."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 0,
+        "professional_polish": 2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
+        "image_b_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___desktop__trial3",
+      "pair_id": "_services_roof-replacement___desktop",
+      "route": "/services/roof-replacement/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.7,
+        "dimensions": {
+          "visual_hierarchy": -1,
+          "brand_coherence": 0,
+          "conversion_clarity": -2,
+          "trust_and_credibility": -1,
+          "authentic_imagery": 1,
+          "content_readability": -1,
+          "information_density": 1,
+          "spacing_and_rhythm": -1,
+          "mobile_usability": 0,
+          "professional_polish": -1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A has clearer conversion focus with prominent dual CTAs and better visual balance. Image B has dense text blocks that reduce conversion clarity and visual hierarchy effectiveness."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 1,
+        "brand_coherence": 0,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": -1,
+        "content_readability": 1,
+        "information_density": -1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.7,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "a31cd0f42ace74845897353ab3734e867d19ea1ae994217b8bd417dbf25507d7",
+        "image_b_hash": "28cbbafbdd34ba0ae37a5ffe3bf1d1333ea3ef91ea0e85847f411c1ce0e339c9",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___mobile__trial1",
+      "pair_id": "_services_roof-replacement___mobile",
+      "route": "/services/roof-replacement/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 1,
+          "mobile_usability": 1,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A provides clear conversion path with prominent CTAs, authentic house imagery, and focused messaging. B shows navigation overlay obscuring content and lacks visual focal points for conversion."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -1,
+        "mobile_usability": -1,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
+        "image_b_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___mobile__trial2",
+      "pair_id": "_services_roof-replacement___mobile",
+      "route": "/services/roof-replacement/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B has superior visual hierarchy with clear heading prominence, better mobile spacing, authentic house imagery, and cleaner conversion flow with prominent CTAs versus A's cramped navigation overlay design."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
+        "image_b_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_roof-replacement___mobile__trial3",
+      "pair_id": "_services_roof-replacement___mobile",
+      "route": "/services/roof-replacement/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 1,
+          "mobile_usability": 1,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A provides clearer conversion path with prominent CTAs, authentic roof imagery, and better mobile layout. B shows navigation overlay obscuring content and lacks visual appeal despite more detailed text."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -1,
+        "mobile_usability": -1,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/roof-replacement/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "303d98430496a9d4a850aa1c07f8fcb955fb3470cfe246d0917a5244fb6f3008",
+        "image_b_hash": "2e54630c9b2b32122d0925ae9c82d129407b29816e08b3fb4e353c0fdcb556cf",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___desktop__trial1",
+      "pair_id": "_services_storm-damage___desktop",
+      "route": "/services/storm-damage/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.7,
+        "dimensions": {
+          "visual_hierarchy": -1,
+          "brand_coherence": 0,
+          "conversion_clarity": -1,
+          "trust_and_credibility": -1,
+          "authentic_imagery": -2,
+          "content_readability": -1,
+          "information_density": 0,
+          "spacing_and_rhythm": -1,
+          "mobile_usability": 0,
+          "professional_polish": -1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A shows actual storm damage with tarping work in progress, providing authentic visual proof of services. Image B shows an undamaged house that doesn't demonstrate storm repair capabilities or emergency response context."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 1,
+        "brand_coherence": 0,
+        "conversion_clarity": 1,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 0,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.7,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
+        "image_b_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___desktop__trial2",
+      "pair_id": "_services_storm-damage___desktop",
+      "route": "/services/storm-damage/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.7,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 0,
+          "spacing_and_rhythm": 1,
+          "mobile_usability": 0,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B shows actual storm damage with tarped roof, making service more credible. Clearer CTAs with 'Free Inspection' buttons. Better visual hierarchy with structured content sections and improved spacing."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 1,
+        "brand_coherence": 0,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 0,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.7,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
+        "image_b_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___desktop__trial3",
+      "pair_id": "_services_storm-damage___desktop",
+      "route": "/services/storm-damage/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.7,
+        "dimensions": {
+          "visual_hierarchy": -1,
+          "brand_coherence": 0,
+          "conversion_clarity": -1,
+          "trust_and_credibility": -1,
+          "authentic_imagery": -2,
+          "content_readability": -1,
+          "information_density": 1,
+          "spacing_and_rhythm": -1,
+          "mobile_usability": 0,
+          "professional_polish": -1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A shows actual storm damage with tarping and repair work, directly relevant to the service. Image B shows an undamaged house, creating disconnect between content and imagery for storm damage services."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 1,
+        "brand_coherence": 0,
+        "conversion_clarity": 1,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": -1,
+        "spacing_and_rhythm": 1,
+        "mobile_usability": 0,
+        "professional_polish": 1
+      },
+      "confidence": 0.7,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "f2f2f8d2c65fb5eca11e641cb302e525a5ed2f229949d3c5a7b2b486925ec515",
+        "image_b_hash": "94006ab14723f2a80ac28d4f6a67350fd4bc4566fbc0a9cc6a8d2e84105d48d5",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___mobile__trial1",
+      "pair_id": "_services_storm-damage___mobile",
+      "route": "/services/storm-damage/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A shows complete mobile layout with clear CTAs, proper spacing, and authentic roof repair imagery. B appears cut off with navigation overlay obscuring content and cramped text layout."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
+        "image_b_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___mobile__trial2",
+      "pair_id": "_services_storm-damage___mobile",
+      "route": "/services/storm-damage/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "DUPLICATED_MAJOR_SECTION"
+        ],
+        "short_reason": "B has cleaner hierarchy, better mobile spacing, and clearer CTAs despite duplicate buttons. A has cluttered navigation overlay and poor text contrast on background image."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 1,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "DUPLICATED_MAJOR_SECTION"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
+        "image_b_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_services_storm-damage___mobile__trial3",
+      "pair_id": "_services_storm-damage___mobile",
+      "route": "/services/storm-damage/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 1,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 1,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 1,
+          "professional_polish": 1
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A has clearer conversion path with prominent CTAs, better spacing, and authentic storm damage imagery. B shows expanded navigation menu obscuring main content and lacks visual focus on primary actions."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -1,
+        "brand_coherence": 0,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": -1,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -1,
+        "professional_polish": -1
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /services/storm-damage/ — critical=false\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "a0097b06b6ef376252790a4861dec9273c3695a8bcd32e86c1ec6bc0e0362d37",
+        "image_b_hash": "1b00069d4798e265df558204e8bf540a0b585b113bb60ea8527c06e2f0fbdaf2",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___desktop__trial1",
+      "pair_id": "_gallery___desktop",
+      "route": "/gallery/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A displays actual work portfolio with before/after photos in organized grid layout, directly fulfilling gallery purpose. Image B shows only text content without visual gallery elements."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": 0,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
+        "image_b_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___desktop__trial2",
+      "pair_id": "_gallery___desktop",
+      "route": "/gallery/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.85,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B shows actual roofing work with before/after photos in organized grid, fulfilling gallery purpose. A only displays text without visual portfolio content expected for gallery route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 0,
+        "professional_polish": 2
+      },
+      "confidence": 0.85,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
+        "image_b_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___desktop__trial3",
+      "pair_id": "_gallery___desktop",
+      "route": "/gallery/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A shows actual work portfolio with before/after photos in organized grid layout. Image B displays only text content without visual gallery elements expected for gallery route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": 0,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "8661959e8ddc3faf556af6c2b205823fb14b45f062f9c8c16cef65437764e3aa",
+        "image_b_hash": "bedef2c31bc7ff534e0d74e0b6627c4f510643fa497d996870856ea72367751e",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___mobile__trial1",
+      "pair_id": "_gallery___mobile",
+      "route": "/gallery/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 1,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A shows actual roofing work with before/after photos and clear CTAs. Image B is text-heavy without visual gallery content, missing the expected imagery for a gallery route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -1,
+        "mobile_usability": -2,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
+        "image_b_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___mobile__trial2",
+      "pair_id": "_gallery___mobile",
+      "route": "/gallery/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.85,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B shows actual roofing work with before/after photos and clear CTAs. A only displays text without visual proof of work quality for a gallery route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 2,
+        "authentic_imagery": 2,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
+      },
+      "confidence": 0.85,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
+        "image_b_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_gallery___mobile__trial3",
+      "pair_id": "_gallery___mobile",
+      "route": "/gallery/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 2,
+          "authentic_imagery": 2,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A shows actual roofing work with before/after photos and clear CTAs. Image B is text-heavy without visual gallery content for this gallery route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -2,
+        "authentic_imagery": -2,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /gallery/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "82c4d8dc3a8117bf289ffe6887907a327076c70889b3d67f3f422c27d16eb697",
+        "image_b_hash": "2849b574dc6376babb31332a31400cf31d3cd076a035ae0d247565115766804c",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___desktop__trial1",
+      "pair_id": "_contact___desktop",
+      "route": "/contact/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A provides clear conversion path with interactive form and prominent CTAs. Image B is text-heavy FAQ format without actionable contact elements, reducing conversion effectiveness for contact page purpose."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 0,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": 0,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
+        "image_b_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___desktop__trial2",
+      "pair_id": "_contact___desktop",
+      "route": "/contact/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.85,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 0,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B provides clear contact form with step-by-step process and prominent CTAs, while A shows dense text blocks without actionable contact elements for this critical contact route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 0,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 0,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 0,
+        "professional_polish": 2
+      },
+      "confidence": 0.85,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
+        "image_b_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___desktop__trial3",
+      "pair_id": "_contact___desktop",
+      "route": "/contact/",
+      "viewport": "desktop",
+      "run_id": "golden-20260825-r61",
+      "orientation": "BA",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 0,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "Image A provides clear conversion path with interactive form and prominent CTAs. Image B is text-heavy without actionable elements for contact conversion on this critical route."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 0,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": 0,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: desktop\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "745da9344f3e7a5952b9c25463bb0b30f08c8dece871169b85a75b6e8582b205",
+        "image_b_hash": "0e33aa5b876cb82064fe429d1f689294e094045ed77ad0fae06844318c42d902",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___mobile__trial1",
+      "pair_id": "_contact___mobile",
+      "route": "/contact/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A provides clear contact form with prominent CTAs and structured layout. B shows dense text blocks with poor mobile formatting and cramped spacing, making contact actions less accessible."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 0,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
+        "image_b_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___mobile__trial2",
+      "pair_id": "_contact___mobile",
+      "route": "/contact/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "A",
+      "orientation_map": {
+        "A": "CANDIDATE",
+        "B": "BASELINE"
+      },
+      "judge_json": {
+        "preference": "B",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "B has superior visual hierarchy with clear sections, better mobile spacing, prominent CTAs, and cleaner layout. A shows cramped text blocks and poor information organization for mobile contact page."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": 2,
+        "brand_coherence": 1,
+        "conversion_clarity": 2,
+        "trust_and_credibility": 1,
+        "authentic_imagery": 0,
+        "content_readability": 1,
+        "information_density": 1,
+        "spacing_and_rhythm": 2,
+        "mobile_usability": 2,
+        "professional_polish": 2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
+        "image_b_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    },
+    {
+      "trial_id": "_contact___mobile__trial3",
+      "pair_id": "_contact___mobile",
+      "route": "/contact/",
+      "viewport": "mobile",
+      "run_id": "golden-20260825-r61",
+      "orientation": "AB",
+      "orientation_map": {
+        "A": "BASELINE",
+        "B": "CANDIDATE"
+      },
+      "judge_json": {
+        "preference": "A",
+        "confidence": 0.8,
+        "dimensions": {
+          "visual_hierarchy": 2,
+          "brand_coherence": 1,
+          "conversion_clarity": 2,
+          "trust_and_credibility": 1,
+          "authentic_imagery": 0,
+          "content_readability": 1,
+          "information_density": 1,
+          "spacing_and_rhythm": 2,
+          "mobile_usability": 2,
+          "professional_polish": 2
+        },
+        "critical_defects_a": [
+          "NONE"
+        ],
+        "critical_defects_b": [
+          "NONE"
+        ],
+        "short_reason": "A provides clear contact form with prominent CTAs and structured layout. B shows dense text blocks with poor mobile formatting and cramped spacing, making contact actions less accessible."
+      },
+      "normalized_preference": "BASELINE",
+      "normalized_candidate_delta": {
+        "visual_hierarchy": -2,
+        "brand_coherence": -1,
+        "conversion_clarity": -2,
+        "trust_and_credibility": -1,
+        "authentic_imagery": 0,
+        "content_readability": -1,
+        "information_density": -1,
+        "spacing_and_rhythm": -2,
+        "mobile_usability": -2,
+        "professional_polish": -2
+      },
+      "confidence": 0.8,
+      "defects": {
+        "a": [
+          "NONE"
+        ],
+        "b": [
+          "NONE"
+        ]
+      },
+      "blind": true,
+      "judge_input_manifest": {
+        "prompt": "ROUTE PURPOSE: /contact/ — critical=true\nVIEWPORT: mobile\nEvaluate IMAGE A and IMAGE B below.",
+        "judge_instruction_hash": "e43f22b59c6fb9d189381dde626020f86b46a1bffdefa16c939be093f5924424",
+        "image_a_hash": "6dca2070ffc780154ea3cca6c98d78c7a5390689b85a9ab6d0196d2fd46fd70e",
+        "image_b_hash": "d404b342510a1d1d09f3d2da63e0f5734dd4a617e2a318382a59a574819148f6",
+        "no_identity_revealed": true,
+        "no_repo_names": true,
+        "no_prior_results": true
+      }
+    }
+  ]
+}

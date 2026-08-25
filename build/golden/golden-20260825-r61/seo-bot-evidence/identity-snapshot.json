@@ -1,0 +1,31 @@
+{
+  "schema": "website-bot.golden-identity-snapshot/v1",
+  "captured_at": "2026-08-25T17:32:52.157Z",
+  "website_bot": {
+    "sha": "4368b41c08f2d6f0a06dd5b725b5c8af250e5f5f",
+    "worktree_state": {
+      "status": "DIRTY",
+      "deterministic_identity": "db8d8bdfa650acfb95e3547c1bd98155424ca7a9df86c0bdb2f2bfa5e64e1c54"
+    },
+    "package_version": "3.1.0"
+  },
+  "llm_router": {
+    "package_version": "1.3.0",
+    "sha": "installed:1.3.0:fafab365ab1eb6e85a3bea7e4d77f4f6dc80a13d8e3c7ef59412a8479b43a040",
+    "worktree_state": {
+      "status": "DIRTY",
+      "deterministic_identity": "fafab365ab1eb6e85a3bea7e4d77f4f6dc80a13d8e3c7ef59412a8479b43a040"
+    }
+  },
+  "bot_interop": {
+    "website_bot_version": "1.2.0"
+  },
+  "seo_bot": {
+    "sha": "d06f99f48359a8da69b70c8e62b7199ddb850be7",
+    "checkout_dir": "/Users/macm2/SEO-Bot",
+    "worktree_state": {
+      "status": "DIRTY",
+      "deterministic_identity": "b55751429f3e08a516519c6a81f0667d9e432a3a85568e2cd37d4481d15a2e42"
+    }
+  }
+}

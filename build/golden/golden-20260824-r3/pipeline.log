@@ -1,0 +1,123 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 0 }
+[15:28:07.801] [32mINFO[39m (65124): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mversion[39m: "2.1.0"
+    [35mattempt[39m: 1
+[15:28:07.801] [32mINFO[39m (65124): [36mLoading domain spec[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mspecPath[39m: "fixtures/safehavenrr-golden-spec.yaml"
+[15:28:07.806] [32mINFO[39m (65124): [36mDomain spec loaded[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mclientId[39m: "safehavenrr"
+    [35mroutes[39m: 29
+    [35mvertical[39m: "roofing_construction"
+[15:28:07.820] [32mINFO[39m (65124): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mdurationMs[39m: 14
+    [35mevidenceRevision[39m: 2
+[15:28:07.820] [32mINFO[39m (65124): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mversion[39m: "3.0.0"
+    [35mattempt[39m: 1
+[15:28:07.820] [32mINFO[39m (65124): [36mUnknown resolution complete[39m
+    [35mmodule[39m: "stage:unknown-resolver"
+    [35mresolved[39m: 0
+    [35mtotal[39m: 0
+[15:28:07.834] [32mINFO[39m (65124): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mdurationMs[39m: 7
+    [35mevidenceRevision[39m: 3
+[15:28:07.834] [32mINFO[39m (65124): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[15:28:07.834] [32mINFO[39m (65124): [36mFetching competitive landscape from SEO-Bot[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mdonors[39m: 10
+    [35mqueries[39m: 6
+[15:29:06.246] [32mINFO[39m (65124): [36mCompetitive landscape sealed; beginning bounded donor acquisition[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mlandscapeId[39m: "competitive_landscape:caceab72c28b4bf409f157758c358632d43cffe4aac2bf277bfe305a7519c532"
+    [35mselected[39m: 10
+    [35mdomains[39m: 78
+[15:29:13.460] [33mWARN[39m (65124): [36mdonor failed minimum evidence policy; must be replaced[39m
+    [35mmodule[39m: "intelligence:donor-ingestion"
+    [35mdonor[39m: "thespruce.com"
+    [35mpages[39m: 0
+    [35mscreenshots[39m: 0
+[15:29:18.528] [33mWARN[39m (65124): [36mdonor failed minimum evidence policy; must be replaced[39m
+    [35mmodule[39m: "intelligence:donor-ingestion"
+    [35mdonor[39m: "charlotteroofing.com"
+    [35mpages[39m: 0
+    [35mscreenshots[39m: 0
+[15:29:37.071] [32mINFO[39m (65124): [36mDonor evidence acquisition complete (10/10)[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35maccepted[39m: 10
+    [35mcrawlManifests[39m: 10
+    [35mscreenshotSets[39m: 10
+[15:29:37.072] [33mWARN[39m (65124): [36mGoverned memory is not configured; continuing without hydration or promotion[39m
+    [35mmodule[39m: "service:memory"
+[15:29:37.075] [32mINFO[39m (65124): [36mLLM service initialized with @quantum-l9/llm-router[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+[15:29:40.537] [32mINFO[39m (65124): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 347
+    [35moutputTokens[39m: 342
+    [35mcostUsd[39m: 0.004288
+    [35mlatencyMs[39m: 3458
+    [35mrequestId[39m: "gen-1787599777-fXRXbNMvteXlXqSUAQYZ"
+[15:29:47.816] [32mINFO[39m (65124): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 210
+    [35moutputTokens[39m: 466
+    [35mcostUsd[39m: 0.005185
+    [35mlatencyMs[39m: 7277
+    [35mrequestId[39m: "gen-1787599780-Kx8LM7hjzN7qO8LW28QL"
+[15:29:57.806] [32mINFO[39m (65124): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 220
+    [35moutputTokens[39m: 382
+    [35mcostUsd[39m: 0.00437
+    [35mlatencyMs[39m: 9989
+    [35mrequestId[39m: "gen-1787599787-9x7ZsMR1BMYY2M0hWdYM"
+[15:30:03.757] [32mINFO[39m (65124): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 222
+    [35moutputTokens[39m: 457
+    [35mcostUsd[39m: 0.005125
+    [35mlatencyMs[39m: 5950
+    [35mrequestId[39m: "gen-1787599797-lAFDn9FeSPYcSGkoDrpR"
+[15:30:06.161] [32mINFO[39m (65124): [36mLLM task completed[39m
+    [35mmodule[39m: "service:llm"
+    [35mclientId[39m: "safehavenrr"
+    [35mstage[39m: "competitive-intelligence"
+    [35mprovider[39m: "openrouter"
+    [35mmodel[39m: "openai/gpt-4o"
+    [35minputTokens[39m: 270
+    [35moutputTokens[39m: 246
+    [35mcostUsd[39m: 0.003135
+    [35mlatencyMs[39m: 2404
+    [35mrequestId[39m: "gen-1787599803-NCA1ZulY4Lmd9lEYFHgW"

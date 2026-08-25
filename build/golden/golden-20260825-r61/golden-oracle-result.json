@@ -1,0 +1,216 @@
+{
+  "schema": "l9.golden-oracle-result/v1",
+  "case_id": "safehaven-redesign-golden-v1",
+  "evaluated_at": "2026-08-25T17:37:50.298Z",
+  "hard_gate_failures": [
+    {
+      "code": "WEBSITE_BLUEPRINT_INVALID",
+      "message": "WebsiteBuildBlueprint artifact_ref missing"
+    },
+    {
+      "code": "BLUEPRINT_VISUAL_REQUIREMENTS_MISSING",
+      "message": "WebsiteBuildBlueprint visual_requirements missing or empty"
+    },
+    {
+      "code": "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH",
+      "message": "WebsiteBuildBlueprint must reference exact landscape",
+      "evidence": {
+        "expected": "competitive_landscape:bb42715879e40937d4331fcd6c9b3af15a691d00b20afc24e8dbe0cdfbee1653"
+      }
+    },
+    {
+      "code": "SEO_BLUEPRINT_UNKNOWN_CONTENT_SLOT",
+      "message": "SEOContentBlueprint unknown content slots must be zero",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "SEO_BLUEPRINT_INVALID_INTERNAL_LINK_TARGET",
+      "message": "SEOContentBlueprint internal link targets must all be authorized",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "PCC_NONDETERMINISTIC",
+      "message": "page_content_contract.determinism evidence missing"
+    },
+    {
+      "code": "STRUCTURED_CONTENT_SCHEMA_INVALID",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "UNSUPPORTED_CONTENT_CLAIM",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "CONTENT_REQUIREMENT_UNSATISFIED",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "CONTENT_REPAIR_BUDGET_EXCEEDED",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "CONTENT_GENERATION_BUDGET_EXCEEDED",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "STRUCTURED_CONTENT_FORBIDDEN_SECTION_ALIAS",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "STRUCTURED_CONTENT_BLOCKS_REQUIRED",
+      "message": "structured_content.route_results evidence missing"
+    },
+    {
+      "code": "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED",
+      "message": "project-proof source asset counts evidence missing",
+      "evidence": {
+        "eligible_source_project_proof_count": 4,
+        "selected_source_project_proof_count": 4
+      }
+    },
+    {
+      "code": "REQUIRED_SOURCE_GALLERY_NOT_SELECTED",
+      "message": "gallery source asset counts evidence missing",
+      "evidence": {
+        "eligible_source_gallery_count": 1,
+        "selected_source_gallery_count": 1
+      }
+    },
+    {
+      "code": "PROVIDER_BYPASS_DETECTED",
+      "message": "All governed LLM operations must use LLM-Router",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "UNSUPPORTED_LLM_CAPABILITY_COMBINATION",
+      "message": "Unsupported LLM capability combinations are forbidden",
+      "evidence": {
+        "expected": 0
+      }
+    },
+    {
+      "code": "UNEXPECTED_SEARCH_ROUTING",
+      "message": "llm_audit.operations evidence missing"
+    },
+    {
+      "code": "SEARCH_POLICY_NOT_EXPLICIT",
+      "message": "llm_audit.operations evidence missing"
+    },
+    {
+      "code": "VISUAL_QA_ROUTER_AUDIT_MISSING",
+      "message": "llm_audit.operations.VISUAL_QA evidence missing"
+    },
+    {
+      "code": "CRITICAL_VISUAL_PAIR_REGRESSED",
+      "message": "/::mobile lost the blind pairwise comparison"
+    },
+    {
+      "code": "VISUAL_IMPROVEMENT_INSUFFICIENT",
+      "message": "Candidate must win at least 7/10 pair majorities",
+      "evidence": {
+        "majorityWins": 1
+      }
+    },
+    {
+      "code": "VISUAL_REGRESSION_TOO_BROAD",
+      "message": "Candidate may lose at most 2/10 visual pairs",
+      "evidence": {
+        "majorityLosses": 9
+      }
+    },
+    {
+      "code": "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT",
+      "message": "Candidate must receive at least 21/30 blind votes",
+      "evidence": {
+        "candidateVotes": 2,
+        "totalVotes": 30
+      }
+    },
+    {
+      "code": "VISUAL_WEIGHTED_MEAN_DELTA_INSUFFICIENT",
+      "message": "weighted mean delta -0.1410 below required 0.25",
+      "evidence": {
+        "weighted_mean_delta": -0.141,
+        "threshold": 0.25
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_DIMENSION_REGRESSED",
+      "message": "visual_hierarchy regressed",
+      "evidence": {
+        "mean": -0.06666666666666667
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_DIMENSION_REGRESSED",
+      "message": "conversion_clarity regressed",
+      "evidence": {
+        "mean": -0.16666666666666666
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_DIMENSION_REGRESSED",
+      "message": "trust_and_credibility regressed",
+      "evidence": {
+        "mean": -0.23333333333333334
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_DIMENSION_REGRESSED",
+      "message": "authentic_imagery regressed",
+      "evidence": {
+        "mean": -0.16666666666666666
+      }
+    },
+    {
+      "code": "CRITICAL_VISUAL_DIMENSION_REGRESSED",
+      "message": "mobile_usability regressed",
+      "evidence": {
+        "mean": -0.16666666666666666
+      }
+    }
+  ],
+  "blocking_inconclusive_states": [
+    {
+      "code": "VISUAL_WILSON_INTERVAL_INCONCLUSIVE",
+      "message": "95% Wilson lower bound 0.0185 does not strictly exceed 0.5; visual improvement unproven",
+      "evidence": {
+        "candidateVotes": 2,
+        "totalVotes": 30,
+        "lowerBound": 0.018476635327693364,
+        "required": 0.5,
+        "pass_gate": "VISUAL_CONFIDENCE_INTERVAL_INCONCLUSIVE"
+      },
+      "oracle_ids": [
+        "ORACLE-089",
+        "ORACLE-097"
+      ]
+    },
+    {
+      "code": "GOLDEN_ORACLE_BLOCKING_INCONCLUSIVE",
+      "message": "1 blocking inconclusive state(s) prevent GOLDEN_E2E_PASS_IMPROVED",
+      "evidence": [
+        "VISUAL_WILSON_INTERVAL_INCONCLUSIVE"
+      ],
+      "oracle_ids": [
+        "ORACLE-101"
+      ]
+    }
+  ],
+  "metrics": {
+    "candidate_visual_votes": 2,
+    "total_visual_votes": 30,
+    "visual_majority_wins": 1,
+    "visual_majority_losses": 9,
+    "visual_wilson_lower_bound": 0.018476635327693364,
+    "visual_weighted_mean_delta": -0.141,
+    "blocking_inconclusive_count": 2
+  },
+  "verdict": "GOLDEN_E2E_FAIL"
+}

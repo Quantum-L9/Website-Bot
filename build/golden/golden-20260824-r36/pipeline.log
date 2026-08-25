@@ -1,0 +1,49 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 0 }
+[22:20:21.069] [32mINFO[39m (28134): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mversion[39m: "2.1.0"
+    [35mattempt[39m: 1
+[22:20:21.069] [32mINFO[39m (28134): [36mLoading domain spec[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mspecPath[39m: "fixtures/safehavenrr-golden-spec.yaml"
+[22:20:21.076] [32mINFO[39m (28134): [36mDomain spec loaded[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mclientId[39m: "safehavenrr"
+    [35mroutes[39m: 29
+    [35mvertical[39m: "roofing_construction"
+[22:20:21.091] [32mINFO[39m (28134): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mdurationMs[39m: 17
+    [35mevidenceRevision[39m: 2
+[22:20:21.092] [32mINFO[39m (28134): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mversion[39m: "3.0.0"
+    [35mattempt[39m: 1
+[22:20:21.092] [32mINFO[39m (28134): [36mUnknown resolution complete[39m
+    [35mmodule[39m: "stage:unknown-resolver"
+    [35mresolved[39m: 0
+    [35mtotal[39m: 0
+[22:20:21.104] [32mINFO[39m (28134): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mdurationMs[39m: 6
+    [35mevidenceRevision[39m: 3
+[22:20:21.104] [32mINFO[39m (28134): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[22:20:21.127] [32mINFO[39m (28134): [36mFetching competitive landscape from SEO-Bot[39m
+    [35mmodule[39m: "stage:competitive-intelligence"
+    [35mdonors[39m: 10
+    [35mqueries[39m: 6
+Pipeline FAILED: SEO-Bot intelligence /api/build-intelligence/competitive-landscape failed (502): {"error":"DATAFORSEO_UNAVAILABLE","message":"DataForSEO request to /serp/google/organic/live/advanced failed: timeout of 30000ms exceeded"}
+[22:20:51.175] [31mERROR[39m (28134): [36mStage FAILED[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "competitive-intelligence"
+    [35mdurationMs[39m: 30030
+    error: "SEO-Bot intelligence /api/build-intelligence/competitive-landscape failed (502): {\"error\":\"DATAFORSEO_UNAVAILABLE\",\"message\":\"DataForSEO request to /serp/google/organic/live/advanced failed: timeout of 30000ms exceeded\"}"

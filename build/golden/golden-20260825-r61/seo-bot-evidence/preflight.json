@@ -1,0 +1,65 @@
+{
+  "preflight_id": "9512f84e-bd21-4787-aad0-7d80a7db0109",
+  "produced_at": "2026-08-25T17:32:52.210Z",
+  "checks": [
+    {
+      "name": "seo_bot_reachable",
+      "status": "PASS",
+      "detail": "preflight handler reached"
+    },
+    {
+      "name": "seo_bot_machine_auth",
+      "status": "PASS",
+      "detail": "machine secret present and request authenticated"
+    },
+    {
+      "name": "dataforseo_configured",
+      "status": "PASS",
+      "detail": "DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD present"
+    },
+    {
+      "name": "competitive_landscape_capability",
+      "status": "PASS",
+      "detail": "SERP evidence source configured"
+    },
+    {
+      "name": "llm_provider_configured",
+      "status": "PASS",
+      "detail": "OPENROUTER_API_KEY and PERPLEXITY_API_KEY present"
+    },
+    {
+      "name": "seo_content_blueprint_capability",
+      "status": "PASS",
+      "detail": "LLM strategy stack present and importable"
+    },
+    {
+      "name": "structured_content_capability",
+      "status": "PASS",
+      "detail": "structured-content LLM stack present"
+    },
+    {
+      "name": "bot_interop_compatible",
+      "status": "PASS",
+      "detail": "bot-interop 1.2.0 resolves; protocol constant matches"
+    },
+    {
+      "name": "llm_router_compatible",
+      "status": "PASS",
+      "detail": "llm-router 1.3.0 resolves; L9LLMRouter present"
+    }
+  ],
+  "status": "ready",
+  "service": "SEO-Bot",
+  "version": "unknown",
+  "bot_interop_version": "1.2.0",
+  "llm_router_version": "1.3.0",
+  "capabilities": {
+    "competitive_landscape": true,
+    "seo_content_blueprint": true,
+    "structured_content": true
+  },
+  "configuration": {
+    "dataforseo_configured": true,
+    "llm_provider_configured": true
+  }
+}
