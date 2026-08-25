@@ -67,10 +67,19 @@ function readJson(p) {
 
 /**
  * Identifier whitelist applied before any externally sourced id is echoed
- * into the printed result: strips everything outside [A-Za-z0-9._-].
+ * into the printed result. The output is rebuilt character-by-character
+ * from this constant alphabet (never sliced out of the input), so nothing
+ * outside [A-Za-z0-9._-] — and no tainted bytes — can reach the log sink.
  */
+const IDENTIFIER_ALPHABET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-";
 function sanitizeIdentifier(value) {
-  return String(value ?? "").replace(/[^A-Za-z0-9._-]/g, "").slice(0, 128);
+  let out = "";
+  for (const ch of String(value ?? "").slice(0, 128)) {
+    const idx = IDENTIFIER_ALPHABET.indexOf(ch);
+    if (idx >= 0) out += IDENTIFIER_ALPHABET[idx];
+  }
+  return out;
 }
 
 /* ------------------------------------------------------------------ *

@@ -137,7 +137,9 @@ function gitOutput(args, cwd) {
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
-      env: { ...process.env, PATH: FIXED_PATH },
+      // Minimal explicit environment: only the pinned PATH of fixed,
+      // unwriteable system directories — nothing inherited.
+      env: { PATH: FIXED_PATH },
     }).trim();
   } catch {
     return null;
