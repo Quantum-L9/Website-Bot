@@ -11,6 +11,8 @@ on:
 
 jobs:
   ci:
+    # pr-pipeline.yml declares no workflow_call secrets; passing one makes
+    # GitHub reject this caller at startup (zero jobs). The pipeline
+    # authenticates npm to the @quantum-l9 registry with its own
+    # GITHUB_TOKEN (packages: read), so no secret is needed here.
     uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@373bb6d26084e67ef76aaab95021364182a34ee7
-    secrets:
-      SDK_TOKEN: ${{ secrets.SDK_TOKEN }}
