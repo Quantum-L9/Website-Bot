@@ -18,7 +18,10 @@ on:
 
 env:
   L9_CORE_REF: "f88116503430aa18992b70d8d31063e34ff97ef1"
-  L9_PROFILE: "pr_fast"
+  # pr_fast only allows pull_request events; pushes to main must resolve
+  # under the merge profile or resolve-governance fails closed with
+  # "event 'push' is not allowed" (exit 2).
+  L9_PROFILE: ${{ github.event_name == 'pull_request' && 'pr_fast' || 'merge' }}
   L9_MATRIX_ID: "pr-semgrep"
 
 permissions:
