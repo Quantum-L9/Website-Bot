@@ -10,8 +10,17 @@
 # `inherit` for all, or named entries (preferred, least privilege).
 # See docs/DISTRIBUTION.md Appendix A.
 #
-# ACCESS: if this caller fails before any step runs, check the Actions policy on
-# THIS repo — see Appendix B. `gh api repos/OWNER/REPO/actions/permissions`
+# PERMISSIONS: each job MUST declare its own job-level `permissions:`. A called
+# workflow does not inherit the caller's default token scope — it declares what
+# it needs (governance-pr.yml wants `pull-requests: write`), and GitHub validates
+# that grant BEFORE the `if:` skip is evaluated. Omit the block and every run
+# ends `startup_failure` before a single step, with no log to read. That is what
+# happened here: every run of this workflow failed that way until 2026-08-27.
+# Peer reference: Quantum-L9/SEO-Bot/.github/workflows/governance.yml.
+#
+# ACCESS: if this caller fails before any step runs AND the jobs below already
+# declare permissions, check the Actions policy on THIS repo — see Appendix B.
+# `gh api repos/OWNER/REPO/actions/permissions`
 
 name: Governance
 
@@ -24,10 +33,16 @@ on:
 jobs:
   pr:
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
     uses: Quantum-L9/.github/.github/workflows/governance-pr.yml@v1
     # secrets: inherit
 
   issue:
     if: github.event_name == 'issues'
+    permissions:
+      contents: read
+      issues: write
     uses: Quantum-L9/.github/.github/workflows/governance-issue.yml@v1
     # secrets: inherit

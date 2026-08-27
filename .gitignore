@@ -27,7 +27,13 @@ coverage/
 .env
 .env.local
 .env.*.local
-.claude/settings.local.json
+# Container-injected agent-surface config (Cursor-Governance#281). The Claude
+# Code cloud session writes these into every consumer clone; nothing here has
+# ever been tracked (`git ls-files .claude .mcp.json` = 0, no history). Leaving
+# them unignored makes every session report a dirty tree and fails this repo's
+# ruff gate on an injected hook file that is not repo content.
+.claude/
+.mcp.json
 .l9-worktrees/
 
 # Safe Haven Golden run evidence and calibration fixtures (generated per run)
