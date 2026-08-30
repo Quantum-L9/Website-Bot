@@ -1,6 +1,8 @@
 # L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 node_modules/
 dist/
+!packages/graphiti-memory-client/dist/
+!packages/graphiti-memory-client/dist/**
 .astro/
 *.log
 build/
