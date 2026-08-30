@@ -71,7 +71,7 @@
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",
     "@quantum-l9/graphiti-memory-client": "file:packages/graphiti-memory-client",
-    "@quantum-l9/infisical-config": "git+https://github.com/Quantum-L9/infisical-config.git#331ef590a73dd208e705d99a1f5137fa094de910",
+    "@quantum-l9/infisical-config": "file:packages/infisical-config",
     "@quantum-l9/llm-router": "file:packages/llm-router",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
@@ -94,6 +94,7 @@
     "node": ">=20.19.0"
   },
   "overrides": {
-    "@quantum-l9/graphiti-memory-client": "file:packages/graphiti-memory-client"
+    "@quantum-l9/graphiti-memory-client": "file:packages/graphiti-memory-client",
+    "@quantum-l9/infisical-config": "file:packages/infisical-config"
   }
 }
