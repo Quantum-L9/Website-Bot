@@ -242,6 +242,7 @@ export function compilePageContentContract(
       "third party", "third-party", "experience indicator", "track record",
       "case stud", "testimonial", "client logo", "portfolio", "client brand",
       "collaboration example", "industry-specific example", "client example",
+      "client validation", "recognizable",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
