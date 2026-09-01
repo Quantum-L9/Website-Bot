@@ -14,6 +14,7 @@ import {
   canonicalJson,
   type CompetitiveLandscapeArtifact,
   type ContentSlot,
+  type PaletteAuthority,
   refForArtifact,
   sealIntelligenceArtifact,
   type VisualRequirement,
@@ -29,7 +30,6 @@ import {
   digestDesignAuthority,
   resolveDesignDirection,
 } from "./design-authority.js";
-import type { PaletteAuthority } from "@quantum-l9/bot-interop";
 
 /* ------------------------------------------------------------------ */
 /* Typed failures (WBV2-018)                                          */
