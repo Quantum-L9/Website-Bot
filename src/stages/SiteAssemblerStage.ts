@@ -470,7 +470,17 @@ export class SiteAssemblerStage implements Stage {
     );
     write(
       "src/lib/siteConfig.ts",
-      `// L9_META: layer=generated_site, role=site_configuration, status=generated, version=1.0.0\nexport const siteConfig = ${json(config)} as const;\n`,
+      // `as const` types absent values as the literal "" — the template
+      // components' truthiness guards then narrow to `never` and astro check
+      // fails (live run: quantumaipartners_com). The two optional keys are
+      // re-declared with a widening cast so they type as plain string.
+      `// L9_META: layer=generated_site, role=site_configuration, status=generated, version=1.0.0
+export const siteConfig = {
+  ...(${json(config)} as const),
+  leadFormAction: ${json(config.leadFormAction ?? "")} as string,
+  phone: ${json(config.phone ?? "")} as string,
+};
+`,
     );
 
     const tokens = config.designTokens;
