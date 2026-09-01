@@ -167,8 +167,19 @@ digest-identical for the canonical interop source set
 `publishConfig` are outside the canonical set.
 
 *Enforced by:* `scripts/validate-interop-parity.mjs` in both repos, comparing
-per-file sha256 against a committed manifest
-(`contracts/BOT_INTEROP_PARITY.json`); wired into `verify:all` and CI.
+per-file sha256 against the identical committed manifest
+(`contracts/BOT_INTEROP_PARITY.json`). Two repos that both pass are thereby
+proven identical to each other offline, with no cross-repo checkout.
+
+Wiring differs by repo, and both paths run under `verify:all`:
+- **Website-Bot** — the `interop:parity` npm script, called directly by
+  `verify:all`.
+- **SEO-Bot** — `tests/build-intelligence/design-blindness.test.ts` asserts
+  every file digest against the manifest, and the test suite is itself a
+  `verify:all` step. The standalone script is present and runnable
+  (`node scripts/validate-interop-parity.mjs`) but is deliberately not wired
+  into that repo's `package.json`, so this contract adds no edit to a file
+  several unrelated open PRs are already changing.
 
 ## WBV2-015 — NO DUAL-RUNTIME COMPATIBILITY
 
