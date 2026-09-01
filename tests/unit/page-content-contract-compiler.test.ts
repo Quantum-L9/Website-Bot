@@ -282,6 +282,38 @@ test("unverifiable availability-claim topics are dropped unless corpus-backed (g
   assert.deepEqual(backedServices.content_requirements.topics, ["free inspection"]);
 });
 
+test("proof-class topics are dropped when no verified fact can support them (quantumaipartners_com live run)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        required_topics: [
+          "measurable client outcomes",
+          "recognizable credibility signals",
+          "quantifiable achievements",
+          "third-party validation",
+          "experience indicators",
+          "evaluation methodology",
+        ],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // The proof-class topics cannot be covered without fabrication — the live
+  // run's generator failed closed on exactly these. Methodology coverage
+  // stays: it is honest and satisfiable.
+  assert.deepEqual(services.content_requirements.topics, ["evaluation methodology"]);
+});
+
 test("unverifiable response-time questions are dropped; fact-answerable questions stay (golden run #44)", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(

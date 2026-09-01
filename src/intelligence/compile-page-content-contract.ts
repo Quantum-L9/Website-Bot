@@ -229,6 +229,18 @@ export function compilePageContentContract(
       // comparative lifespan claims no fact asserts (golden run #49: the
       // guide route's comparison content was flagged as unsupported claims).
       "lifespan",
+      // Proof-class coverage: "measurable client outcomes", "recognizable
+      // credibility signals", "quantifiable achievements", "third-party
+      // validation", and "experience indicators" demand proof only a
+      // verified fact can supply. A client with no public case studies or
+      // credentials (live run: quantumaipartners_com) cannot cover them
+      // without fabrication, and the SEO-Bot generator/validator then fail
+      // closed on exactly the right grounds — the contract itself was
+      // unsatisfiable. Methodology phrasings stay in the contract; the
+      // claim-level guardrails still catch any ungrounded claim in prose.
+      "client outcom", "measurabl", "quantifiab", "credibility signal",
+      "third party", "third-party", "experience indicator", "track record",
+      "case stud", "testimonial", "client logo", "portfolio",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
