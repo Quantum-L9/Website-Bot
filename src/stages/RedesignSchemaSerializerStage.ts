@@ -65,7 +65,12 @@ export class RedesignSchemaSerializerStage implements Stage {
       typeof seo.site_url === "string" && seo.site_url.trim().length > 0
         ? normalizeSiteUrl(seo.site_url)
         : "";
-    const phone = typeof seo.phone === "string" ? seo.phone : "";
+    // An absent phone is an honest absence, not an empty value: the
+    // placeholder scan rejects empty schema values ("telephone":""), and a
+    // client without a verified phone (live run: quantumaipartners_com)
+    // must serialize schemas that omit the field entirely.
+    const phone =
+      typeof seo.phone === "string" && seo.phone.trim().length > 0 ? seo.phone : undefined;
 
     ctx.generatedSchemas.set("Organization", {
       "@context": "https://schema.org",
@@ -74,7 +79,7 @@ export class RedesignSchemaSerializerStage implements Stage {
       url: siteUrl,
       contactPoint: {
         "@type": "ContactPoint",
-        telephone: phone,
+        ...(phone ? { telephone: phone } : {}),
         contactType: "customer service",
         areaServed: geography.states,
       },
@@ -85,7 +90,7 @@ export class RedesignSchemaSerializerStage implements Stage {
       name: business_name,
       description: `${vertical} services in ${geography.states.join(", ")}`,
       url: siteUrl,
-      telephone: phone,
+      ...(phone ? { telephone: phone } : {}),
       address: {
         "@type": "PostalAddress",
         addressRegion: geography.primary_state,
