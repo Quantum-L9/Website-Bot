@@ -4,7 +4,9 @@ const SITE_ROOT = new URL("../../build/sites/quantumaipartners_com/", import.met
 const PORT = 4322;
 const preview = spawn("npx", ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
 process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
-// nosemgrep: react-insecure-request — loopback-only readiness probe against the local astro preview (127.0.0.1); no traffic leaves the machine.
+// Loopback-only readiness probe against the local astro preview
+// (127.0.0.1); no traffic leaves the machine.
+// nosemgrep
 for (let i = 0; i < 40; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/`); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
