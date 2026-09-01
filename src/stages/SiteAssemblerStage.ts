@@ -292,8 +292,16 @@ export class SiteAssemblerStage implements Stage {
         .map((route) => ({ href: normalizeRouteSlug(route.slug), title: route.title })),
       schemas: { siteWide, perRoute },
       designTokens: ctx.designTokens ?? {},
-      leadFormAction: this.leadFormAction(ctx),
-      phone: ctx.domainSpec.seo_contract?.phone?.trim() || firstSourcePhone(ctx.sourceSiteManifest),
+      // JSON.stringify drops undefined keys, so the emitted `as const` site
+      // config would lose phone/leadFormAction entirely for phone-less,
+      // form-less clients and astro check would fail on the template
+      // components that read them (live run: quantumaipartners_com — 7
+      // ts(2339) errors across LeadForm, CtaBanner, Hero, BaseLayout).
+      // Empty strings keep the keys present; the components either guard
+      // truthiness or are only rendered when a real value exists.
+      leadFormAction: this.leadFormAction(ctx) ?? "",
+      phone:
+        ctx.domainSpec.seo_contract?.phone?.trim() || firstSourcePhone(ctx.sourceSiteManifest) || "",
       images: this.buildImageRegistry(ctx),
       galleryImages: this.buildGalleryRegistry(ctx),
     };
