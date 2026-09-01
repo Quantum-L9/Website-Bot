@@ -1,9 +1,10 @@
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
-const SITE_ROOT = "/Users/macm2/Website-Bot/.l9-worktrees/qap-full-build/build/sites/quantumaipartners_com/";
+const SITE_ROOT = new URL("../../build/sites/quantumaipartners_com/", import.meta.url).pathname;
 const PORT = 4322;
 const preview = spawn("npx", ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
 process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
+// nosemgrep: react-insecure-request — loopback-only readiness probe against the local astro preview (127.0.0.1); no traffic leaves the machine.
 for (let i = 0; i < 40; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/`); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
