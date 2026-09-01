@@ -119,7 +119,69 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
     wom_flags: womFlags,
   };
   carryStructuredAssets(ds, flat);
+  carryBuildIntent(ds, flat);
+  carryClientVision(ds, flat);
+  carryDesignReferences(ds, flat);
+  carryStructuredDesignTokens(ds, flat);
   return flat;
+}
+
+const BUILD_INTENTS = ["COPY", "REDESIGN_IMPROVE"] as const;
+
+/**
+ * build_intent: carried from the rich spec when authored. Redesign clients
+ * must be able to declare the transformation intent in the same document that
+ * declares everything else; the flat file is generated, never hand-maintained,
+ * so hand-adding it there was the only alternative.
+ */
+function carryBuildIntent(ds: any, flat: DomainSpec): void {
+  const intent = ds.build_intent;
+  if (intent === undefined) return;
+  if (!BUILD_INTENTS.includes(intent)) {
+    throw new Error(
+      `build_intent must be one of ${BUILD_INTENTS.join("|")}, got ${JSON.stringify(intent)}`,
+    );
+  }
+  flat.build_intent = intent;
+}
+
+/**
+ * client_vision / design_references: first-party design authority blocks
+ * (ADR-0018, WBV2-003 / WBV2-004). Carried verbatim — fail-closed validation
+ * of a malformed declaration is the design-authority resolver's job at
+ * pipeline time, not the normalizer's.
+ */
+function carryClientVision(ds: any, flat: DomainSpec): void {
+  if (ds.client_vision === undefined) return;
+  if (!isObject(ds.client_vision)) throw new Error("client_vision must be an object");
+  flat.client_vision = ds.client_vision as DomainSpec["client_vision"];
+}
+
+function carryDesignReferences(ds: any, flat: DomainSpec): void {
+  if (ds.design_references === undefined) return;
+  if (!Array.isArray(ds.design_references)) throw new Error("design_references must be an array");
+  flat.design_references = ds.design_references as DomainSpec["design_references"];
+}
+
+/**
+ * Structured brand tokens: when the rich spec authors colors/typography as
+ * maps (rather than {{PLACEHOLDER}} strings), they are first-party resolved
+ * design the pipeline consumes directly (WBV2-007's first-party route).
+ * Placeholder strings keep the legacy pending → LLM-generated path.
+ */
+function carryStructuredDesignTokens(ds: any, flat: DomainSpec): void {
+  const brandTokens = ds.design?.brand_tokens ?? {};
+  const colors = brandTokens.colors;
+  const typography = brandTokens.typography;
+  if (isObject(colors) && Object.keys(colors).length > 0) {
+    flat.design = { ...flat.design, palette: colors as Record<string, string> };
+  }
+  if (isObject(typography)) {
+    const fonts: Record<string, string> = {};
+    if (typeof typography.heading === "string") fonts.font_heading = typography.heading;
+    if (typeof typography.body === "string") fonts.font_body = typography.body;
+    if (Object.keys(fonts).length > 0) flat.design = { ...flat.design, fonts };
+  }
 }
 
 function routeFromRequiredPage(
