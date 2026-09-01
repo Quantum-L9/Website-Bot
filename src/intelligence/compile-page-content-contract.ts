@@ -238,9 +238,10 @@ export function compilePageContentContract(
       // closed on exactly the right grounds — the contract itself was
       // unsatisfiable. Methodology phrasings stay in the contract; the
       // claim-level guardrails still catch any ungrounded claim in prose.
-      "client outcom", "measurabl", "quantifiab", "credibility signal",
+      "client outcom", "measurabl", "quantifiab", "quantified", "credibility signal",
       "third party", "third-party", "experience indicator", "track record",
-      "case stud", "testimonial", "client logo", "portfolio",
+      "case stud", "testimonial", "client logo", "portfolio", "client brand",
+      "collaboration example", "industry-specific example", "client example",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
