@@ -319,7 +319,20 @@ export function compilePageContentContract(
             // writer's attempt was scrubbed into "6 serving Charlotte"
             // residue and the validator kept the requirement unmet).
             "years of experience",
+            // Proof-demand family the blueprint rephrases per run:
+            // "quantified success metrics", "recognizable enterprise
+            // clients", "implementation success evidence", "business
+            // outcome tracking" (live runs, quantumaipartners_com).
+            "success", "outcom", "evidence", "metric", "enterprise",
+            "recogniz", "tracking", "client",
           ];
+          const proofSegments = proof.toLowerCase().split(/[\s_]+/).filter(Boolean);
+          // Same structural gate as coverage topics: multi-segment proof
+          // demands must be corpus-backed verbatim — the blacklist cannot
+          // exhaust the blueprint's rephrasing space.
+          if (proofSegments.length >= 3 && !factCorpus.includes(proof.toLowerCase())) {
+            return false;
+          }
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;
           }
