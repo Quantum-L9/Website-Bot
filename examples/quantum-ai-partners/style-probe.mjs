@@ -8,6 +8,9 @@ process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
 for (let i = 0; i < 40; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/`); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+// Loopback-only navigation probe against the local astro preview
+// (127.0.0.1); no traffic leaves the machine.
+// nosemgrep
 await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: "networkidle" });
 const probe = await page.evaluate(() => {
   const cs = getComputedStyle(document.body);
