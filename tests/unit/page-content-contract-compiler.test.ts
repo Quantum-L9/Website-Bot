@@ -294,6 +294,12 @@ test("proof-class topics are dropped when no verified fact can support them (qua
           "third-party validation",
           "experience indicators",
           "evaluation methodology",
+          // Structural-gate class: multi-segment proof-demand sentences the
+          // blueprint rephrases endlessly (live runs, attempt 11/18).
+          "measurable_transformation_examples",
+          "anonymized_outcome_examples",
+          "adaptable_framework_demonstration",
+          "step_by_step_industry_tailored_guides",
         ],
       }),
     ]),

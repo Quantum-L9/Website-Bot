@@ -250,8 +250,16 @@ export function compilePageContentContract(
       .join(" ")
       .toLowerCase();
     const isBacked = (value: string): boolean =>
-      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
-      factCorpus.includes(value.toLowerCase());
+      // (1) Marker gate: proof-class topics drop unless corpus-backed.
+      (!UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
+        factCorpus.includes(value.toLowerCase())) &&
+      // (2) Structural gate: the blueprint LLM rephrases proof demands into
+      // long topic sentences ("measurable_transformation_examples",
+      // "step_by_step_industry_tailored_guides") that no marker list can
+      // exhaust. Real coverage topics are short; any topic of 3+ word
+      // segments must be corpus-backed verbatim or it drops.
+      (value.toLowerCase().split(/[\s_]+/).filter(Boolean).length < 3 ||
+        factCorpus.includes(value.toLowerCase()));
     const filterBacked = (values: string[]): string[] =>
       uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
     // Questions are phrased as questions, so the full-string corpus check
