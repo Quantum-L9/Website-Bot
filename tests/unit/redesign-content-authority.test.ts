@@ -25,7 +25,7 @@ import {
 import { verifiedBusinessFactsFromSpec } from "../../src/intelligence/verified-business-facts.js";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
-import { ensureCanonicalSlotCoverage } from "../../src/stages/CompetitiveIntelligenceStage.js";
+import { ensureCanonicalSlotCoverage } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import { ContentGenerationStage } from "../../src/stages/ContentGenerationStage.js";
 import { RedesignContentAuthorityStage } from "../../src/stages/RedesignContentAuthorityStage.js";
 import { RedesignSchemaSerializerStage } from "../../src/stages/RedesignSchemaSerializerStage.js";

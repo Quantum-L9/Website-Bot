@@ -709,9 +709,9 @@ function buildWebsiteBlueprint(
   const blueprint = requireArtifact(ctx.websiteBlueprint, "WebsiteBuildBlueprint");
   const landscape = requireArtifact(ctx.competitiveLandscape, "CompetitiveLandscape");
   assertSameRef(
-    blueprint.payload.competitive_landscape_ref,
+    blueprint.payload.provenance.competitive_landscape_ref,
     landscape,
-    "WebsiteBuildBlueprint.competitive_landscape_ref",
+    "WebsiteBuildBlueprint.provenance.competitive_landscape_ref",
   );
   const requirements = blueprint.payload.visual_requirements ?? [];
   if (requirements.length === 0) {

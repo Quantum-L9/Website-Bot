@@ -14,9 +14,7 @@ import type { VisualRequirement } from "@quantum-l9/bot-interop";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import type { IngestedImage } from "../../src/pipeline/evidence/SourceSiteManifest.js";
-import {
-  deriveVisualRequirements,
-} from "../../src/stages/CompetitiveIntelligenceStage.js";
+import { deriveVisualRequirements } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import {
   ImageAssetPlanningStage,
   mergeBlueprintAndSpecSlots,

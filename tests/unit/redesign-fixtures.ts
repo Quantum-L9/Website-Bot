@@ -11,7 +11,7 @@ import {
   sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
   type WebsiteBuildBlueprintArtifact,
-  type WebsiteBuildBlueprintV1,
+  type WebsiteBuildBlueprintV2,
   refForArtifact,
 } from "@quantum-l9/bot-interop";
 import type { AcceptedDonorEvidence } from "../../src/intelligence/DonorIngestion.js";
@@ -88,7 +88,7 @@ export function makeDonorEvidence(domain: string): AcceptedDonorEvidence {
   };
 }
 
-export const BLUEPRINT_ROUTES: WebsiteBuildBlueprintV1["routes"] = [
+export const BLUEPRINT_ROUTES: WebsiteBuildBlueprintV2["routes"] = [
   {
     route_id: "/",
     path: "/",
@@ -119,14 +119,26 @@ export const BLUEPRINT_ROUTES: WebsiteBuildBlueprintV1["routes"] = [
 
 export function makeWebsiteBlueprint(
   landscape: CompetitiveLandscapeArtifact,
-  overrides?: Partial<WebsiteBuildBlueprintV1>,
+  overrides?: Partial<WebsiteBuildBlueprintV2>,
 ): WebsiteBuildBlueprintArtifact {
-  const payload: WebsiteBuildBlueprintV1 = {
+  const payload: WebsiteBuildBlueprintV2 = {
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint,
     build_intent: "REDESIGN_IMPROVE",
-    competitive_landscape_ref: refForArtifact(landscape),
-    baseline_digest: "b".repeat(64),
-    pattern_portfolio_digest: "d".repeat(64),
+    provenance: {
+      competitive_landscape_ref: refForArtifact(landscape),
+      baseline_digest: "b".repeat(64),
+      client_vision_digest: "c".repeat(64),
+      design_reference_intelligence_digest: "e".repeat(64),
+      pattern_portfolio_digest: "d".repeat(64),
+    },
+    design_direction: {
+      principles: [],
+      desired_attributes: [],
+      rejected_attributes: [],
+      reference_pattern_refs: [],
+      prohibited_transfers: [],
+      palette_authority: { source: "none", tokens: {}, observed_characteristics: [] },
+    },
     strategy: {
       experience_attributes: [],
       differentiation: [],
