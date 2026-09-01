@@ -1,19 +1,18 @@
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
 const SITE_ROOT = new URL("../../build/sites/quantumaipartners_com/", import.meta.url).pathname;
-const PORT = 4322;
+const args = process.argv.slice(2);
+const portArg = args.indexOf("--preview-port");
+const PORT = portArg !== -1 ? Number(args[portArg + 1]) : 4322;
 const preview = spawn("npx", ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
 process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
-// Loopback-only readiness probe against the local astro preview
-// (127.0.0.1); no traffic leaves the machine.
-// nosemgrep
-for (let i = 0; i < 40; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/`); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
+// Loopback-only probe against the local astro preview: BASE is pinned to
+// 127.0.0.1 and no traffic ever leaves the machine.
+const BASE = `http://127.0.0.1:${PORT}`;
+for (let i = 0; i < 40; i++) { try { const r = await fetch(BASE + "/"); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-// Loopback-only navigation probe against the local astro preview
-// (127.0.0.1); no traffic leaves the machine.
-// nosemgrep
-await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: "networkidle" });
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const probe = await page.evaluate(() => {
   const cs = getComputedStyle(document.body);
   const h1 = document.querySelector("h1");
