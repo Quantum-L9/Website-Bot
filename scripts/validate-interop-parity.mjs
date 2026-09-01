@@ -30,14 +30,14 @@ function canonicalSourceSet() {
 }
 
 function digestOf(name) {
-  return createHash("sha256").update(readFileSync(resolve(SRC_DIR, name))).digest("hex");
+  return createHash("sha256")
+    .update(readFileSync(resolve(SRC_DIR, name)))
+    .digest("hex");
 }
 
 const files = Object.fromEntries(canonicalSourceSet().map((name) => [name, digestOf(name)]));
 /** One digest over the whole set, so a single value identifies the contract. */
-const setDigest = createHash("sha256")
-  .update(JSON.stringify(files))
-  .digest("hex");
+const setDigest = createHash("sha256").update(JSON.stringify(files)).digest("hex");
 
 if (process.argv.includes("--write")) {
   const manifest = {
@@ -53,7 +53,9 @@ if (process.argv.includes("--write")) {
     files,
   };
   writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  process.stdout.write(`${JSON.stringify({ ok: true, wrote: MANIFEST_PATH, set_digest: setDigest })}\n`);
+  process.stdout.write(
+    `${JSON.stringify({ ok: true, wrote: MANIFEST_PATH, set_digest: setDigest })}\n`,
+  );
   process.exit(0);
 }
 
@@ -71,7 +73,9 @@ for (const [name, digest] of Object.entries(expected)) {
   if (!(name in files)) {
     problems.push(`MISSING  ${name} — manifest expects it, this repo does not ship it`);
   } else if (files[name] !== digest) {
-    problems.push(`DRIFT    ${name}\n           expected ${digest}\n           observed ${files[name]}`);
+    problems.push(
+      `DRIFT    ${name}\n           expected ${digest}\n           observed ${files[name]}`,
+    );
   }
 }
 for (const name of Object.keys(files)) {

@@ -11,7 +11,12 @@ import { join, relative, sep } from "node:path";
 
 const ROOT = process.cwd();
 
-/** Never scanned: build output, dependencies, and captured historical evidence. */
+/**
+ * Never scanned: build output, dependencies, generated runtime receipts, and
+ * captured historical evidence. `.l9/` holds gitignored PR-machinery output
+ * that echoes commit and PR text back into JSON — generated state, not source,
+ * so excluding it exempts nothing that is tracked.
+ */
 const SKIP_DIRS = new Set([
   ".git",
   "node_modules",
@@ -19,6 +24,7 @@ const SKIP_DIRS = new Set([
   "build",
   "coverage",
   ".astro",
+  ".l9",
   "WIP",
 ]);
 
