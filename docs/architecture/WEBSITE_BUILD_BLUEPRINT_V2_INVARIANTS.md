@@ -171,6 +171,16 @@ per-file sha256 against the identical committed manifest
 (`contracts/BOT_INTEROP_PARITY.json`). Two repos that both pass are thereby
 proven identical to each other offline, with no cross-repo checkout.
 
+The manifest covers two sets: the canonical interop source
+(`packages/bot-interop/src/*.ts`) and the **shared contract documents** every
+peer must commit byte-identically — currently
+`contracts/WEBSITE_INTELLIGENCE_LOCK.json`. The second set exists because the
+lock asserts in its own text that both peers commit the identical file, nothing
+checked that, and it drifted the first time one repo's JSON formatter reflowed
+it while the other repo had no formatter. A claim no gate enforces is a
+comment. The manifest itself is necessarily excluded — it cannot contain its
+own digest.
+
 Wiring differs by repo, and both paths run under `verify:all`:
 - **Website-Bot** — the `interop:parity` npm script, called directly by
   `verify:all`.
