@@ -7,8 +7,8 @@ unblocks it.
 ## Issue unblock (session reference)
 
 **Cluster:** user-scoped memory-required (no OPEN GitHub issue; Graphiti `GRAPHITI_MCP_TOKEN` alias)
-**Owning fix:** `feat/require-graphiti-memory` on Website-Bot + SEO-Bot
-**Next:** land PRs; keep SEO-Bot container on `L9_MEMORY_MODE=required` with host Graphiti tunnel
+**Owning fix:** https://github.com/Quantum-L9/Website-Bot/pull/175 and https://github.com/Quantum-L9/SEO-Bot/pull/89
+**Next:** land those PRs; keep SEO-Bot on `L9_MEMORY_MODE=required` with the host Graphiti tunnel
 **Pickup:** Graphiti PICKUP written 2026-09-02
 
 ---
