@@ -57,3 +57,10 @@ tests/golden/safehaven/fixtures/
 !reports/test-runs/**/evidence/
 !reports/test-runs/**/evidence/**
 !reports/test-runs/**/*.log
+# Re-ignore secrets even under tracked test-run reports (later rules win)
+reports/test-runs/**/.env
+reports/test-runs/**/.env.*
+reports/test-runs/**/*.pem
+reports/test-runs/**/*.key
+reports/test-runs/**/*secret*
+reports/test-runs/**/*credential*

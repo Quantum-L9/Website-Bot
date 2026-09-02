@@ -26,10 +26,10 @@ vision, and reference feedback only — **no design conclusions**.
 
 ```bash
 # Dry plan (validates spec, stage wiring, SEO-Bot preflight — no LLM spend, no mutations)
-npx tsx benchmarks/quantum-ai-partners/driver.ts --spec=benchmarks/quantum-ai-partners/domain_spec.yaml --mode=plan --redesign
+npx tsx reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/driver.ts --spec=reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/domain_spec.yaml --mode=plan --redesign
 
 # Real local-proof build (full REDESIGN_IMPROVE intelligence chain + Astro build)
-npx tsx benchmarks/quantum-ai-partners/driver.ts --spec=benchmarks/quantum-ai-partners/domain_spec.yaml --mode=local-proof --redesign
+npx tsx reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/driver.ts --spec=reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/domain_spec.yaml --mode=local-proof --redesign
 ```
 
 Output evidence (gitignored `build/benchmarks/quantum-ai-partners/`):

@@ -22,7 +22,7 @@
       "evidence": "lsof -iTCP:3100 (empty, observed during diagnosis)"
     },
     {
-      "fact": "Local SEO-Bot (sibling checkout /Users/ib-mac/SEO-Bot) fails config validation at startup: missing L9_MEMORY_TOKEN",
+      "fact": "Local SEO-Bot (sibling checkout <local SEO-Bot checkout>) fails config validation at startup: missing L9_MEMORY_TOKEN",
       "evidence": "evidence/seo-bot-dev-start.log (npm run dev output)"
     },
     {
@@ -81,11 +81,11 @@
       "impact": "An evidence bundle produced by the stock CLI cannot contain these three sealed artifacts."
     }
   ],
-  "production_code_mutation": "NONE (verified: only additive benchmark files committed; no src/, scripts/, packages/, astro_template/, or test files changed)",
+  "production_code_mutation": "NONE in src/, scripts/, packages/, astro_template/. This packaging PR also updates .gitignore and NodeNext specifiers in tests/unit/infisical-blank-env.test.ts and tests/unit/memory-credentials.test.ts.",
   "smallest_unblock_path": {
     "step_1": "Operator starts the SEO-Bot service on the configured loopback URL (canonical local port 3100, or the operator's usual local run), supplying L9_MEMORY_TOKEN and any DB/redis backing the local instance needs.",
     "step_2": "Alternatively, operator points SEO_BOT_URL at a running SEO-Bot instance with matching bot-interop and llm-router versions.",
-    "step_3": "Re-run: npx tsx benchmarks/quantum-ai-partners/driver.ts --spec=benchmarks/quantum-ai-partners/domain_spec.yaml --mode=local-proof --redesign"
+    "step_3": "Re-run: npx tsx reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/driver.ts --spec=reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/domain_spec.yaml --mode=local-proof --redesign"
   },
   "produced_at": "2026-09-01"
 }

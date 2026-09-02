@@ -43,7 +43,7 @@ these artifacts is claimed to exist; none is substituted with a narrative.
 
 ## Commit state
 
-Benchmark scaffolding (input, driver, README) is committed locally on `main`
-(commits `43923d8`, `137e565`, `4cea9e4`) — additive-only, no production file
-touched, no foreign dirty files scooped. Not pushed; publishing benchmark
-scaffolding is an operator decision via the sanctioned `make pr` path.
+Benchmark scaffolding (input, driver, README, validation evidence) is packaged
+in this PR under `reports/test-runs/quantum-ai-partners-20260901/`. The original
+local commits (`43923d8`, `137e565`, `4cea9e4`) were additive-only at run time;
+this PR also tracks `.gitignore` un-ignores and two NodeNext test specifiers.

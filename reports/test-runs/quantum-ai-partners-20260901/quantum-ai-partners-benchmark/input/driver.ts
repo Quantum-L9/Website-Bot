@@ -22,17 +22,17 @@ import {
   type BuildContext,
   type ExecutionMode,
   makeBuildId,
-} from "../../src/pipeline/BuildContext.js";
-import { parseBuildIntent, requireRedesignIntent } from "../../src/pipeline/BuildIntent.js";
-import { FileEvidenceStore } from "../../src/pipeline/evidence/FileEvidenceStore.js";
-import { MemoryEvidenceStore } from "../../src/pipeline/evidence/MemoryEvidenceStore.js";
+} from "../../../../../src/pipeline/BuildContext.js";
+import { parseBuildIntent, requireRedesignIntent } from "../../../../../src/pipeline/BuildIntent.js";
+import { FileEvidenceStore } from "../../../../../src/pipeline/evidence/FileEvidenceStore.js";
+import { MemoryEvidenceStore } from "../../../../../src/pipeline/evidence/MemoryEvidenceStore.js";
 import {
   buildFactoryExecutionPlan,
   executeFactoryPlan,
-} from "../../src/pipeline/FactoryExecutionPlan.js";
-import { validateDomainSpec } from "../../src/pipeline/validateDomainSpec.js";
-import { createWebsiteFactoryLLM } from "../../src/services/llm.js";
-import { hydrateSecretsIfConfigured } from "../../scripts/lib/hydrate-secrets.mjs";
+} from "../../../../../src/pipeline/FactoryExecutionPlan.js";
+import { validateDomainSpec } from "../../../../../src/pipeline/validateDomainSpec.js";
+import { createWebsiteFactoryLLM } from "../../../../../src/services/llm.js";
+import { hydrateSecretsIfConfigured } from "../../../../../scripts/lib/hydrate-secrets.mjs";
 
 // Same .env.local bootstrap as scripts/run-pipeline.ts: real environment
 // variables win; values are never logged. Absent file is a no-op.

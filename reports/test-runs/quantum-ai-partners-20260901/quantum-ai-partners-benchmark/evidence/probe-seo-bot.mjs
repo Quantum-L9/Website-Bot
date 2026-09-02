@@ -35,7 +35,7 @@ console.log(`SEO_BOT_URL configured: ${Boolean(url)}`);
 console.log(`SEO_BOT_API_KEY configured: ${Boolean(key)}`);
 if (!url) process.exit(0);
 
-let scheme = "unknown";
+let scheme;
 let hostClass = "unknown";
 try {
   const parsed = new URL(url);
@@ -56,8 +56,7 @@ try {
     signal: AbortSignal.timeout(20_000),
   });
   console.log(`/health reachable: yes (status ${res.status})`);
-  const body = await res.text();
-  console.log(`/health body prefix: ${body.slice(0, 120).replace(/\s+/g, " ")}`);
+  await res.arrayBuffer();
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   console.log(`/health reachable: no (${message.replaceAll(url, "<redacted>")})`);

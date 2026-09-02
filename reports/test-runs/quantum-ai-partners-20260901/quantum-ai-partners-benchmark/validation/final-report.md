@@ -9,9 +9,10 @@
 | Production HEAD (test subject, untouched) | `9a4a156ba9b67d392e4ee9f50810a44240536fde` — `feat(blueprint)!: replace WebsiteBuildBlueprintV1 with V2 single authority (#173)` |
 | HEAD at packaging (benchmark scaffolding only) | `4cea9e4ee024703c93d9635297703f8116659eaa` — three additive commits: `43923d8` (input + driver), `137e565` + `4cea9e4` (driver fixes) |
 
-No production file (`src/`, `scripts/`, `packages/`, `astro_template/`, `tests/`,
-`contracts/`, `schemas/`) was modified during this run. The only authored files
-are under `benchmarks/quantum-ai-partners/` (new directory).
+No production file (`src/`, `scripts/`, `packages/`, `astro_template/`,
+`contracts/`, `schemas/`) was modified during the 2026-09-01 run. This pack
+lives under `reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/`.
+The packaging PR also updates `.gitignore` and NodeNext specifiers in two unit tests.
 
 ## Final status
 
@@ -36,7 +37,7 @@ Evidence: `evidence/plan-mode-run.log`, `evidence/seo-bot-probe.log`,
    configured (`SEO_BOT_API_KEY` present too), but `GET /health` fails with
    `fetch failed` — nothing is listening.
 2. SEO-Bot's canonical local port 3100 has no listener (`lsof` empty).
-3. Starting the local SEO-Bot checkout (`npm run dev` in `/Users/ib-mac/SEO-Bot`)
+3. Starting the local SEO-Bot checkout (`npm run dev` in `<local SEO-Bot checkout>`)
    exits at config validation: **missing `L9_MEMORY_TOKEN`**.
 4. `L9_MEMORY_TOKEN` has no reference in the governance secrets registry
    (`~/.cursor-governance/ops/secrets`), so it is not resolvable from the
@@ -119,7 +120,7 @@ Recorded, not silently repaired (benchmark integrity rule):
    Postgres/Redis backing it needs locally; **or** points `SEO_BOT_URL` at a
    running SEO-Bot instance with matching `bot-interop` / `llm-router` versions.
 2. Re-run:
-   `npx tsx benchmarks/quantum-ai-partners/driver.ts --spec=benchmarks/quantum-ai-partners/domain_spec.yaml --mode=local-proof --redesign`
+   `npx tsx reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/driver.ts --spec=reports/test-runs/quantum-ai-partners-20260901/quantum-ai-partners-benchmark/input/domain_spec.yaml --mode=local-proof --redesign`
 3. The driver then captures the full intelligence chain and the pipeline builds
    the Astro site; the render/evaluate pass and ZIP packaging follow.
 
