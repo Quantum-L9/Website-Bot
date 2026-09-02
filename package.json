@@ -26,7 +26,7 @@
     "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
     "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
-    "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring && npm run recursive:schemas && npm run recursive:test",
+    "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run interop:parity && npm run blueprint:v1-eradication && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring && npm run recursive:schemas && npm run recursive:test",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",
     "provision:test": "npm run typecheck:provisioning && node scripts/run-site-factory-tests.mjs --scope=provisioning",
@@ -66,7 +66,9 @@
     "golden:safehaven:visual": "npx tsx scripts/run-safehaven-golden-visual.ts",
     "golden:safehaven:receipt": "npx tsx scripts/build-safehaven-real-golden-receipt.ts",
     "golden:safehaven:verify": "npx tsx scripts/run-safehaven-real-golden-verify.ts",
-    "golden:safehaven:bridge:test": "node --import tsx --test tests/unit/safehaven-real-golden-bridge.test.ts"
+    "golden:safehaven:bridge:test": "node --import tsx --test tests/unit/safehaven-real-golden-bridge.test.ts",
+    "interop:parity": "node scripts/validate-interop-parity.mjs",
+    "blueprint:v1-eradication": "node scripts/validate-blueprint-v1-eradication.mjs"
   },
   "dependencies": {
     "@quantum-l9/bot-interop": "file:packages/bot-interop",

@@ -114,7 +114,7 @@ export function assertWebsiteBlueprintLandscape(
   competitiveLandscape: CompetitiveLandscapeArtifact,
 ): void {
   const expected = competitiveLandscape.artifact_id;
-  const actual = websiteBlueprint.payload.competitive_landscape_ref.artifact_id;
+  const actual = websiteBlueprint.payload.provenance.competitive_landscape_ref.artifact_id;
   if (actual !== expected) {
     throw new Error(
       "INTEL_INPUT_HASH_MISMATCH: WebsiteBuildBlueprint references a different CompetitiveLandscape.",

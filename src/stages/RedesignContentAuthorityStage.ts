@@ -239,7 +239,7 @@ export class RedesignContentAuthorityStage implements Stage {
         "SEOContentBlueprint references a different CompetitiveLandscape than this run accepted",
       );
     }
-    if (!sameArtifactRef(blueprint.payload.competitive_landscape_ref, landscapeRef)) {
+    if (!sameArtifactRef(blueprint.payload.provenance.competitive_landscape_ref, landscapeRef)) {
       throw new BuildError(
         "COMPETITIVE_LANDSCAPE_MISMATCH",
         "WebsiteBuildBlueprint references a different CompetitiveLandscape than this run accepted",
