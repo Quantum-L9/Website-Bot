@@ -1,0 +1,31 @@
+# L9_META: layer=configuration, role=launch_env_non_secret_values, status=active, version=1.0.0
+# Committed operator-owned NON-SECRET defaults for the Website-Bot factory.
+# Loaded by scripts/verify-launch-env.mjs (process.env wins). Never put tokens here.
+#
+# Client production launch (domain verify, live form delivery, legal approval, CRM)
+# is DEFERRED until a complete client site exists — see mvp_deferred below.
+
+mvp_phase: factory
+operator:
+  SUPPORT_CONTACT_EMAIL: ib@quantumaipartners.com
+  SUPPORT_CONTACT_URL: https://github.com/Quantum-L9/Website-Bot
+  SECURITY_CONTACT_EMAIL: ib@quantumaipartners.com
+  SECURITY_DISCLOSURE_URL: https://github.com/Quantum-L9/Website-Bot/security
+  LEGAL_REVIEW_OWNER: Igor Beylin / Quantum AI Partners
+  PROJECT_LICENSE: UNLICENSED
+  LICENSE_CHOICE_REQUIRED: "false"
+  LICENSE_DISPLAY_REQUIRED: "false"
+  # Global Vercel team identifier (not a secret). Token stays in Infisical/AWS.
+  VERCEL_TEAM_ID: team_7xhAEDlnyubAWQ52s9cr97tg
+
+# Explicit deferred integrations (MVP). Claims for these require a later phase flip.
+mvp_deferred:
+  CRM_PROVIDER: none
+  CRM_TEST_MODE: "true"
+  FORM_PROVIDER: none
+  ANALYTICS_PROVIDER: none
+  LEGAL_DISCLAIMER_APPROVED: "false"
+  LEGAL_DISCLAIMER_VERSION: deferred-until-client-launch
+  DOMAIN_VERIFICATION_REQUIRED: "true"
+  # Per-client deploy identity — set in DomainSpec.deploy or env at provision time.
+  # CLIENT_VERCEL_PROJECT_ID / CLIENT_VERCEL_DEPLOY_HOOK are NOT factory MVP gates.

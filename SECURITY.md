@@ -1,34 +1,47 @@
 # Security
 
-## Secret Handling
+## Vulnerability reporting
 
-Never commit secrets. Do not place private API keys, tokens, CRM credentials, email credentials, or Vercel tokens in source files.
+| Field | Value |
+|-------|-------|
+| Security contact | `ib@quantumaipartners.com` |
+| Disclosure URL | https://github.com/Quantum-L9/Website-Bot/security |
+
+Canonical non-secret defaults also live in `config/launch-env.values.yaml`
+(`SECURITY_CONTACT_EMAIL`, `SECURITY_DISCLOSURE_URL`).
+
+## Secret handling
+
+Never commit secrets. Do not place private API keys, tokens, CRM credentials,
+email credentials, or Vercel tokens in source files.
 
 Use:
 
-- `.env.local` for local private values
-- Vercel environment variables for deployed environments
-- `.env.example` for names only
+- Infisical (ADR-0009) for runtime hydration
+- `.env.local` for local bootstrap / emergency overrides (gitignored)
+- `.env.example` for **names only**
+- `config/launch-env.values.yaml` for committed **non-secret** operator defaults
 
-## Client-Side Exposure Warning
+## Client-side exposure warning
 
-Variables prefixed with `PUBLIC_` can be exposed to browser code. Do not store secrets in `PUBLIC_*` variables.
+Variables prefixed with `PUBLIC_` can be exposed to browser code. Do not store
+secrets in `PUBLIC_*` variables.
 
-## Dependency Security
+## Dependency security
 
-Run dependency checks through npm-supported tooling or organization-approved scanners. Current repository evidence does not prove a specific enterprise scanner, so scanner choice is Unknown.
+Run dependency checks through npm-supported tooling or organization-approved
+scanners.
 
-## Vulnerability Reporting
-
-Security contact is Unknown. Until supplied, report security issues to the repository owner/operator through the active project channel.
-
-## Deployment Security
+## Deployment security
 
 - Preview-first deployment.
 - Production deployment requires explicit operator approval.
 - No hardcoded deployment tokens.
 - No deployment success claims without logs and URL evidence.
 
-## Secret Handling Contract
+## Deferred integrations
 
-Secrets must be supplied through environment variables or deployment secret storage only. Never commit `VERCEL_TOKEN`, `FORM_WEBHOOK_SECRET`, `CRM_CLIENT_SECRET`, `CRM_API_TOKEN`, or other CRM/API secrets. Security reporting remains Unknown until `SECURITY_CONTACT_EMAIL` or `SECURITY_DISCLOSURE_URL` is provided.
+CRM API tokens/secrets, form webhook secrets, and analytics credentials are
+**not** required for factory MVP. They are enforced only when the corresponding
+provider is claimed (`CRM_PROVIDER` ≠ `none`, form provider ≠ `none`, or
+`--client-launch`).

@@ -1,24 +1,24 @@
 run_metadata:
-  run_id: 3cd122f6-449a-485d-a9ad-2f97926adf3b
+  run_id: c62f4d85-3aef-49df-8ff7-53dc0346f158
   report_schema_version: 1.0.0
-  started_at: 2026-07-24T16:58:32.304Z
-  ended_at: 2026-07-24T16:58:38.062Z
-  duration: 5758
-  last_completed_stage: failure_analysis
+  started_at: 2026-08-12T14:57:27.683Z
+  ended_at: 2026-08-12T14:57:27.942Z
+  duration: 259
+  last_completed_stage: audit_report_generation
 execution_context:
   target_roots:
-    - /workspace
-  source_revision: ab7e99f65da282cb947ab2d95b34258da49c648c
+    - /Users/ib-mac/Website-Bot
+  source_revision: c0ee7eacc4837ecd29fce379f69aa856f6259fce
   running_revision: null
   target_environment: local
   environment_type: local
-  active_identity: cursoragent@cursor.com
+  active_identity: ib718@icloud.com
   preflight_commands:
-    - npm run typecheck
-    - npm run normalize-spec:check
-  e2e_commands: []
+    - node -e "require('node:fs').accessSync('astro_template/package.json')"
+  e2e_commands:
+    - npm --prefix astro_template run verify:rollback
   test_runner: node:test
-  test_runner_version: v22.14.0
+  test_runner_version: v22.15.0
   configuration_sources: &a1
     - package.json
     - tsconfig.json
@@ -34,6 +34,10 @@ execution_context:
     - http://localhost:4321
     - http://localhost:3000
   required_dependencies:
+    - "@quantum-l9/bot-interop"
+    - "@quantum-l9/graphiti-memory-client"
+    - "@quantum-l9/infisical-config"
+    - "@quantum-l9/llm-router"
     - better-sqlite3
     - drizzle-orm
     - inngest
@@ -47,11 +51,14 @@ execution_context:
     - tsx
     - typescript
   required_credentials:
+    - NODE_AUTH_TOKEN
     - PERPLEXITY_API_KEY
     - OPENROUTER_API_KEY
     - CLIENT_ID
     - MONTHLY_BUDGET_PER_CLIENT
     - WEEKLY_BUDGET_TARGET
+    - WEEKLY_BUDGET_HARD_CEILING
+    - LLM_PROVIDER_TIMEOUT_MS
     - SITE_URL
     - SITE_OUTPUT_DIR
     - SITE_BUILD_TIMEOUT_MS
@@ -61,16 +68,14 @@ execution_context:
     - CLIENT_GITHUB_REPO_ID
     - CLIENT_SOURCE_BRANCH
     - GITHUB_SITE_TOKEN
-    - CLIENT_VERCEL_PROJECT_ID
-    - CLIENT_VERCEL_DEPLOY_HOOK
     - VERCEL_TOKEN
     - VERCEL_TEAM_ID
     - VERCEL_TARGET
     - WEBSITE_BOT_ALLOW_PRODUCTION
     - VERCEL_POLL_INTERVAL_MS
     - VERCEL_MAX_POLLS
-    - VERCEL_ORG_ID
-    - VERCEL_PROJECT_ID
+    - CLIENT_VERCEL_PROJECT_ID
+    - CLIENT_VERCEL_DEPLOY_HOOK
     - PUBLIC_POSTHOG_KEY
     - POSTHOG_HOST
     - POSTHOG_PROJECT_ID
@@ -112,15 +117,23 @@ execution_context:
     - GITHUB_PROVISION_TOKEN
     - SEO_BOT_SITE_GITHUB_TOKEN
     - SEO_BOT_SITE_VERCEL_DEPLOY_HOOK
+    - L9_MEMORY_MODE
+    - L9_MEMORY_URL
+    - L9_MEMORY_TOKEN
+    - L9_MEMORY_TOKEN_BUDGET
+    - L9_MEMORY_MAX_RECORDS
+    - GEMINI_API_KEY
+    - IMAGE_GENERATION_MODEL
+    - IMAGE_GENERATION_BUDGET_USD
   evidence_root: build/evidence
 authority_sources:
   - source: package.json
-    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
+    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
     applicable_scope: execution_configuration
     precedence: 1
     verification_status: verified
   - source: tsconfig.json
-    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
+    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
     applicable_scope: execution_configuration
     precedence: 2
     verification_status: verified
@@ -130,17 +143,17 @@ authority_sources:
     precedence: 3
     verification_status: verified
   - source: config/launch-env.required.yaml
-    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
+    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
     applicable_scope: execution_configuration
     precedence: 4
     verification_status: verified
   - source: .github/workflows/ci.yml
-    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
+    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
     applicable_scope: execution_configuration
     precedence: 5
     verification_status: verified
   - source: Makefile
-    revision_or_version: ab7e99f65da282cb947ab2d95b34258da49c648c
+    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
     applicable_scope: execution_configuration
     precedence: 6
     verification_status: verified
@@ -151,322 +164,57 @@ authority_sources:
     verification_status: verified
 discovery_inventory:
   preflight_checks: &a2
-    - check_id: typecheck
-      check_name: TypeScript Type Check
+    - check_id: astro-template-present
+      check_name: Astro template package present
       blocking: true
-      command: npm run typecheck
-      working_directory: /workspace
+      command: node -e "require('node:fs').accessSync('astro_template/package.json')"
+      working_directory: /Users/ib-mac/Website-Bot
       status: Passed
       exit_code: 0
       termination_signal: null
-      started_at: 2026-07-24T16:58:32.320Z
-      ended_at: 2026-07-24T16:58:32.682Z
-      duration: 362
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - preflight_typecheck_stdout
-        - preflight_typecheck_stderr
-        - preflight_typecheck_execution_trace
-    - check_id: normalize-spec-check
-      check_name: Domain Spec Normalization Check
-      blocking: true
-      command: npm run normalize-spec:check
-      working_directory: /workspace
-      status: Passed
-      exit_code: 0
-      termination_signal: null
-      started_at: 2026-07-24T16:58:32.685Z
-      ended_at: 2026-07-24T16:58:33.147Z
-      duration: 462
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - preflight_normalize-spec-check_stdout
-        - preflight_normalize-spec-check_stderr
-        - preflight_normalize-spec-check_execution_trace
-    - check_id: evidence-schemas
-      check_name: Evidence Schema Validation
-      blocking: true
-      command: npm run evidence:schemas
-      working_directory: /workspace
-      status: Passed
-      exit_code: 0
-      termination_signal: null
-      started_at: 2026-07-24T16:58:33.148Z
-      ended_at: 2026-07-24T16:58:33.248Z
-      duration: 100
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - preflight_evidence-schemas_stdout
-        - preflight_evidence-schemas_stderr
-        - preflight_evidence-schemas_execution_trace
-    - check_id: launch-env-validation
-      check_name: Launch Environment Validation
-      blocking: false
-      command: npm run validate
-      working_directory: /workspace
-      status: Failed
-      exit_code: 1
-      termination_signal: null
-      started_at: 2026-07-24T16:58:33.249Z
-      ended_at: 2026-07-24T16:58:33.353Z
-      duration: 104
-      primary_failure_classification: PreflightFailure
-      contributing_causes:
-        - "Non-zero exit code: 1"
-      root_cause_group: null
-      evidence_references:
-        - preflight_launch-env-validation_stdout
-        - preflight_launch-env-validation_stderr
-        - preflight_launch-env-validation_execution_trace
-  e2e_suites:
-    - Factory Validation Suite
-    - Pipeline Validation Suite
-    - Site Validation Suite
-  required_e2e_tests: &a3
-    - suite_id: factory-validation
-      suite_name: Factory Validation Suite
-      test_id: site-validate
-      test_name: Site Factory Validation
-      attempt: 1
-      command_or_invocation: npm run site:validate
-      status: Passed
-      started_at: 2026-07-24T16:58:33.355Z
-      ended_at: 2026-07-24T16:58:33.851Z
-      duration: 496
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-validate_stdout
-        - e2e_site-validate_stderr
-        - e2e_site-validate_execution_trace
-    - suite_id: factory-validation
-      suite_name: Factory Validation Suite
-      test_id: evidence-test
-      test_name: Evidence System Tests
-      attempt: 1
-      command_or_invocation: npm run evidence:test
-      status: Passed
-      started_at: 2026-07-24T16:58:33.852Z
-      ended_at: 2026-07-24T16:58:34.733Z
-      duration: 881
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_evidence-test_stdout
-        - e2e_evidence-test_stderr
-        - e2e_evidence-test_execution_trace
-    - suite_id: factory-validation
-      suite_name: Factory Validation Suite
-      test_id: site-test-local
-      test_name: Local Site Factory Tests
-      attempt: 1
-      command_or_invocation: npm run site:test:local
-      status: Passed
-      started_at: 2026-07-24T16:58:34.734Z
-      ended_at: 2026-07-24T16:58:37.045Z
-      duration: 2311
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes:
-        - Warnings detected in output
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-test-local_stdout
-        - e2e_site-test-local_stderr
-        - e2e_site-test-local_execution_trace
-    - suite_id: pipeline-validation
-      suite_name: Pipeline Validation Suite
-      test_id: pipeline-plan
-      test_name: Pipeline Planning Test
-      attempt: 1
-      command_or_invocation: npm run pipeline:plan
-      status: Failed
-      started_at: 2026-07-24T16:58:37.046Z
-      ended_at: 2026-07-24T16:58:37.842Z
-      duration: 796
-      assertion_or_error: "Non-zero exit code: 1"
-      exit_code_or_runner_result: 1
-      primary_failure_classification: Unknown
-      contributing_causes:
-        - "Non-zero exit code: 1"
-      root_cause_group: null
-      evidence_references:
-        - e2e_pipeline-plan_stdout
-        - e2e_pipeline-plan_stderr
-        - e2e_pipeline-plan_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-preflight
-      test_name: Site Preflight Check
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/preflight.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:37.842Z
-      ended_at: 2026-07-24T16:58:37.869Z
-      duration: 27
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-preflight_stdout
-        - e2e_site-preflight_stderr
-        - e2e_site-preflight_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-source
-      test_name: Site Source Verification
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-source.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:37.870Z
-      ended_at: 2026-07-24T16:58:37.901Z
+      started_at: 2026-08-12T14:57:27.743Z
+      ended_at: 2026-08-12T14:57:27.774Z
       duration: 31
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
       evidence_references:
-        - e2e_site-verify-source_stdout
-        - e2e_site-verify-source_stderr
-        - e2e_site-verify-source_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-build
-      test_name: Site Build Verification
+        - preflight_astro-template-present_stdout
+        - preflight_astro-template-present_stderr
+        - preflight_astro-template-present_execution_trace
+  e2e_suites:
+    - Astro Template Site Validation
+  required_e2e_tests: &a3
+    - suite_id: site-template
+      suite_name: Astro Template Site Validation
+      test_id: verify-rollback
+      test_name: rollback site-template validation
       attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-build.mjs
+      command_or_invocation: npm --prefix astro_template run verify:rollback
       status: Passed
-      started_at: 2026-07-24T16:58:37.902Z
-      ended_at: 2026-07-24T16:58:37.927Z
-      duration: 25
+      started_at: 2026-08-12T14:57:27.778Z
+      ended_at: 2026-08-12T14:57:27.939Z
+      duration: 161
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
       evidence_references:
-        - e2e_site-verify-build_stdout
-        - e2e_site-verify-build_stderr
-        - e2e_site-verify-build_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-smoke
-      test_name: Site Smoke Tests
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-smoke.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:37.928Z
-      ended_at: 2026-07-24T16:58:37.953Z
-      duration: 25
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-verify-smoke_stdout
-        - e2e_site-verify-smoke_stderr
-        - e2e_site-verify-smoke_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-form
-      test_name: Site Form Verification
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-form.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:37.954Z
-      ended_at: 2026-07-24T16:58:37.979Z
-      duration: 25
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-verify-form_stdout
-        - e2e_site-verify-form_stderr
-        - e2e_site-verify-form_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-analytics
-      test_name: Site Analytics Verification
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-analytics.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:37.980Z
-      ended_at: 2026-07-24T16:58:38.007Z
-      duration: 27
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-verify-analytics_stdout
-        - e2e_site-verify-analytics_stderr
-        - e2e_site-verify-analytics_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-crm
-      test_name: Site CRM Verification
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-crm.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:38.007Z
-      ended_at: 2026-07-24T16:58:38.033Z
-      duration: 26
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-verify-crm_stdout
-        - e2e_site-verify-crm_stderr
-        - e2e_site-verify-crm_execution_trace
-    - suite_id: site-validation
-      suite_name: Site Validation Suite
-      test_id: site-verify-seo
-      test_name: Site SEO Verification
-      attempt: 1
-      command_or_invocation: cd examples/supplemental-insurance-pros/astro_site && node scripts/verify-seo.mjs
-      status: Passed
-      started_at: 2026-07-24T16:58:38.034Z
-      ended_at: 2026-07-24T16:58:38.059Z
-      duration: 25
-      assertion_or_error: null
-      exit_code_or_runner_result: 0
-      primary_failure_classification: null
-      contributing_causes: []
-      root_cause_group: null
-      evidence_references:
-        - e2e_site-verify-seo_stdout
-        - e2e_site-verify-seo_stderr
-        - e2e_site-verify-seo_execution_trace
+        - e2e_verify-rollback_stdout
+        - e2e_verify-rollback_stderr
+        - e2e_verify-rollback_execution_trace
   dynamic_inventory_items:
     - service-dependency:postgresql
     - service-dependency:sqlite
+    - credential-dependent:NODE_AUTH_TOKEN
     - credential-dependent:PERPLEXITY_API_KEY
     - credential-dependent:OPENROUTER_API_KEY
     - credential-dependent:CLIENT_ID
     - credential-dependent:MONTHLY_BUDGET_PER_CLIENT
     - credential-dependent:WEEKLY_BUDGET_TARGET
+    - credential-dependent:WEEKLY_BUDGET_HARD_CEILING
+    - credential-dependent:LLM_PROVIDER_TIMEOUT_MS
     - credential-dependent:SITE_URL
     - credential-dependent:SITE_OUTPUT_DIR
     - credential-dependent:SITE_BUILD_TIMEOUT_MS
@@ -476,16 +224,14 @@ discovery_inventory:
     - credential-dependent:CLIENT_GITHUB_REPO_ID
     - credential-dependent:CLIENT_SOURCE_BRANCH
     - credential-dependent:GITHUB_SITE_TOKEN
-    - credential-dependent:CLIENT_VERCEL_PROJECT_ID
-    - credential-dependent:CLIENT_VERCEL_DEPLOY_HOOK
     - credential-dependent:VERCEL_TOKEN
     - credential-dependent:VERCEL_TEAM_ID
     - credential-dependent:VERCEL_TARGET
     - credential-dependent:WEBSITE_BOT_ALLOW_PRODUCTION
     - credential-dependent:VERCEL_POLL_INTERVAL_MS
     - credential-dependent:VERCEL_MAX_POLLS
-    - credential-dependent:VERCEL_ORG_ID
-    - credential-dependent:VERCEL_PROJECT_ID
+    - credential-dependent:CLIENT_VERCEL_PROJECT_ID
+    - credential-dependent:CLIENT_VERCEL_DEPLOY_HOOK
     - credential-dependent:PUBLIC_POSTHOG_KEY
     - credential-dependent:POSTHOG_HOST
     - credential-dependent:POSTHOG_PROJECT_ID
@@ -527,23 +273,31 @@ discovery_inventory:
     - credential-dependent:GITHUB_PROVISION_TOKEN
     - credential-dependent:SEO_BOT_SITE_GITHUB_TOKEN
     - credential-dependent:SEO_BOT_SITE_VERCEL_DEPLOY_HOOK
+    - credential-dependent:L9_MEMORY_MODE
+    - credential-dependent:L9_MEMORY_URL
+    - credential-dependent:L9_MEMORY_TOKEN
+    - credential-dependent:L9_MEMORY_TOKEN_BUDGET
+    - credential-dependent:L9_MEMORY_MAX_RECORDS
+    - credential-dependent:GEMINI_API_KEY
+    - credential-dependent:IMAGE_GENERATION_MODEL
+    - credential-dependent:IMAGE_GENERATION_BUDGET_USD
   authoritative_skips: []
   inventory_sources: *a1
   inventory_status: complete
 preflight_summary:
-  discovered: 4
-  executable: 4
-  executed: 4
-  passed: 3
-  failed: 1
+  discovered: 1
+  executable: 1
+  executed: 1
+  passed: 1
+  failed: 0
   errors: 0
   timeouts: 0
   blocked: 0
   authoritatively_skipped: 0
   not_executed: 0
   unknown: 0
-  blocking_total: 3
-  blocking_passed: 3
+  blocking_total: 1
+  blocking_passed: 1
   gate_status: Passed
 preflight_results: *a2
 preflight_gate:
@@ -552,17 +306,14 @@ preflight_gate:
   blocking_unknowns: []
   e2e_authorized: true
   decision_evidence:
-    - preflight_typecheck_result
-    - preflight_normalize-spec-check_result
-    - preflight_evidence-schemas_result
-    - preflight_launch-env-validation_result
+    - preflight_astro-template-present_result
 e2e_summary:
-  discovered_suites: 3
-  discovered_required_tests: 12
-  executed_unique_tests: 12
-  execution_attempts: 12
-  passed: 11
-  failed: 1
+  discovered_suites: 1
+  discovered_required_tests: 1
+  executed_unique_tests: 1
+  execution_attempts: 1
+  passed: 1
+  failed: 0
   errors: 0
   timeouts: 0
   blocked_by_preflight_gate: 0
@@ -572,14 +323,14 @@ e2e_summary:
   authoritatively_skipped: 0
   unknown: 0
   runner_crashes: 0
-  gate_status: Failed
+  gate_status: Passed
 e2e_results: *a3
 coverage_reconciliation:
-  preflight_discovered_total: 4
-  preflight_accounted_total: 4
+  preflight_discovered_total: 1
+  preflight_accounted_total: 1
   preflight_reconciled: true
-  e2e_required_discovered_total: 12
-  e2e_required_accounted_total: 12
+  e2e_required_discovered_total: 1
+  e2e_required_accounted_total: 1
   e2e_reconciled: true
   dynamic_inventory_reconciliation: complete
   retry_accounting: complete
@@ -590,126 +341,41 @@ defects: []
 regressions: []
 unknowns: []
 evidence_manifest:
-  - evidence_id: preflight_typecheck
-    evidence_type: preflight_evidence
-    path_or_reference: build/evidence/preflight_typecheck.json
-    checksum: 344bbe2f0704ae5044d03b7bb5bce823806311e7eb03a0e64a120329da1ecd9c
-    redaction_status: original
-    availability_status: available
-  - evidence_id: preflight_normalize-spec-check
-    evidence_type: preflight_evidence
-    path_or_reference: build/evidence/preflight_normalize-spec-check.json
-    checksum: 6629ec6ac8b27abc999cf4e907caa923284bec53f0f1f18df5839cf3b1a60018
-    redaction_status: original
-    availability_status: available
-  - evidence_id: preflight_evidence-schemas
-    evidence_type: preflight_evidence
-    path_or_reference: build/evidence/preflight_evidence-schemas.json
-    checksum: 46bd9b88f8b9395b1f2b9b8e4ec18c6907dbf2108884a8da2389b218ddd8e95f
-    redaction_status: original
-    availability_status: available
-  - evidence_id: preflight_launch-env-validation
-    evidence_type: preflight_evidence
-    path_or_reference: build/evidence/preflight_launch-env-validation.json
-    checksum: 3cbaedec01a24563508e1c1715781691814335f5fa9b7dd310cb21955a6111b4
-    redaction_status: original
-    availability_status: available
-  - evidence_id: e2e_site-validate_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-validate_attempt_1.json
-    checksum: 1cbaabb1d8fc5471a0a262464dd446dae218cdd739e3a93d6ad43c059c0b534b
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_evidence-test_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_evidence-test_attempt_1.json
-    checksum: b21b1f1036e59fa29ed17215158e2ce2c2eeed74738387ec54fac95fb0d4a2ab
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-test-local_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-test-local_attempt_1.json
-    checksum: 5c2f430e0c251e0a713cf8846949c2664e0c6f3bb4b2ad40015e3eced0ac9647
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_pipeline-plan_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_pipeline-plan_attempt_1.json
-    checksum: ef9e004936cfe8408e45f1b2fba834e400723c211abef81763be2b1050b76c48
-    redaction_status: original
-    availability_status: available
-  - evidence_id: e2e_site-preflight_attempt_1
-    evidence_type: preflight_evidence
-    path_or_reference: build/evidence/e2e_site-preflight_attempt_1.json
-    checksum: ea60396d504cd038839587ad4e3a0c5cbe1412ede18ad9cad00755c54832febc
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-source_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-source_attempt_1.json
-    checksum: 9529a5eff89862da1b8be84de264e9a956d91cab94f53f4a15253b6b0dd6e3f2
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-build_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-build_attempt_1.json
-    checksum: 9a2f855bf9f028655f7f7445d154277291da6c880a93a606c1b31e2f727d3b27
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-smoke_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-smoke_attempt_1.json
-    checksum: e125b76631d9c140f78bdf6fe167959844ee5bfcfad7f3d007c682c9d6b5e7a9
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-form_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-form_attempt_1.json
-    checksum: 11d85ba56716b60755ee1c45ce7805724f412c3a94d0f0466ba883153b5fa860
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-analytics_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-analytics_attempt_1.json
-    checksum: 9199503a9857e65814289d5024212198b11bec1a48d3edf9637a98d2803fceb1
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-crm_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-crm_attempt_1.json
-    checksum: ed820810df21029fb3fc08febdb2879d406d9057b32ba6f393daed65eb9b5e2f
-    redaction_status: redacted
-    availability_status: available
-  - evidence_id: e2e_site-verify-seo_attempt_1
-    evidence_type: e2e_test_evidence
-    path_or_reference: build/evidence/e2e_site-verify-seo_attempt_1.json
-    checksum: 7878673594a690967e07141fbc3784b923987f54ac2715a6c3eab63f04cb3498
-    redaction_status: redacted
-    availability_status: available
+  - evidence_id: preflight_astro-template-present
+    evidence_type: command_execution
+    file_path: preflight_astro-template-present.json
+    checksum: fa62ea8de78aa80735b88cf0e1d79ee4b855d994df01c7585599a04a3192fbb4
+    file_size: 597
+    created_at: 2026-08-12T14:57:27.775Z
+    integrity_validated: true
+  - evidence_id: e2e_verify-rollback_attempt_1
+    evidence_type: command_execution
+    file_path: e2e_verify-rollback_attempt_1.json
+    checksum: 5e3f5e05f7e43bae0925b93a1939b0d11cb18bc5050b53fce17478fd2e741d71
+    file_size: 592
+    created_at: 2026-08-12T14:57:27.940Z
+    integrity_validated: true
 validation_gates:
   execution_context_resolved:
     status: Passed
     evidence_references:
-      - execution_context_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
+      - execution_context_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
   authoritative_inventory_resolved:
     status: Passed
     evidence_references:
-      - inventory_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
+      - inventory_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
   preparation_passed:
     status: Passed
     evidence_references:
-      - preparation_validation_3cd122f6-449a-485d-a9ad-2f97926adf3b
+      - preparation_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
   preflight_inventory_complete:
     status: Passed
     evidence_references: []
   preflight_passed:
     status: Passed
     evidence_references:
-      - preflight_gate_evaluation_fcd272b6-6098-46ef-b42d-881bc824e402
-      - preflight_typecheck_result
-      - preflight_normalize-spec-check_result
-      - preflight_evidence-schemas_result
-      - preflight_launch-env-validation_result
+      - preflight_gate_evaluation_df4870e4-8328-4228-9929-62bcae594a6b
+      - preflight_astro-template-present_result
   e2e_gate_enforced:
     status: Passed
     evidence_references: []
@@ -717,21 +383,10 @@ validation_gates:
     status: Passed
     evidence_references: []
   e2e_tests_passed:
-    status: Failed
+    status: Passed
     evidence_references:
-      - e2e_gate_evaluation_6eb44310-49ff-423b-bcfd-f9ac0d7c1864
-      - e2e_site-validate_result
-      - e2e_evidence-test_result
-      - e2e_site-test-local_result
-      - e2e_pipeline-plan_result
-      - e2e_site-preflight_result
-      - e2e_site-verify-source_result
-      - e2e_site-verify-build_result
-      - e2e_site-verify-smoke_result
-      - e2e_site-verify-form_result
-      - e2e_site-verify-analytics_result
-      - e2e_site-verify-crm_result
-      - e2e_site-verify-seo_result
+      - e2e_gate_evaluation_1d851c4a-f4bb-4693-ac68-f0102d83c8a6
+      - e2e_verify-rollback_result
   no_unauthorized_skips:
     status: Passed
     evidence_references: []
@@ -741,7 +396,7 @@ validation_gates:
   evidence_complete:
     status: Passed
     evidence_references:
-      - evidence_integrity_3cd122f6-449a-485d-a9ad-2f97926adf3b
+      - evidence_integrity_c62f4d85-3aef-49df-8ff7-53dc0346f158
   failure_classification_complete:
     status: Passed
     evidence_references: []
@@ -761,16 +416,16 @@ validation_gates:
     status: Passed
     evidence_references: []
 final_verdict:
-  status: FAIL
+  status: PASS
   preflight_status: Passed
-  e2e_status: Failed
+  e2e_status: Passed
   coverage_status: Passed
   evidence_status: Passed
-  required_failure_count: 2
+  required_failure_count: 0
   blocking_defect_ids: []
   unknown_count: 0
-  verdict_reason: 2 test failure(s) detected
+  verdict_reason: All required validation gates passed and no test failures detected
 minimum_safe_next_action:
-  action: FixTestFailure
-  blocker_or_failure: "E2E test pipeline-plan: Unknown"
-  expected_evidence: Test passes with expected assertions
+  action: NoActionRequired
+  blocker_or_failure: None
+  expected_evidence: Validation completed successfully

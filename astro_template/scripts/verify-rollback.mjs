@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { envVarsMatching, exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const checks = [];
@@ -22,18 +23,22 @@ checks.push(
   }),
 );
 
-// Check for version control (Git)
-const hasGitDir = exists(".git");
+// Template dirs often lack a nested .git; accept any git worktree (parent repo counts).
+const gitProbe = spawnSync("git", ["rev-parse", "--is-inside-work-tree"], {
+  encoding: "utf8",
+  cwd: process.cwd(),
+});
+const insideGitWorktree = gitProbe.status === 0 && String(gitProbe.stdout).trim() === "true";
 checks.push(
   result({
     check_id: "version-control-present",
     check_class: "rollback_capability",
-    target_artifact: ".git/",
-    expected_result: "Git repository initialized",
-    actual_result: hasGitDir ? "Git repository found" : "Git repository missing",
-    status: hasGitDir ? "PASS" : "FAIL",
+    target_artifact: "git worktree",
+    expected_result: "Git worktree available for rollback",
+    actual_result: insideGitWorktree ? "Inside git worktree" : "Not inside a git worktree",
+    status: insideGitWorktree ? "PASS" : "FAIL",
     severity: "high",
-    remediation_if_failed: "Initialize Git repository with: git init",
+    remediation_if_failed: "Run from a git checkout (template may live under the factory repo)",
   }),
 );
 

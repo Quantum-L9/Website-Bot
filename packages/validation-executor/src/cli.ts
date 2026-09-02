@@ -345,6 +345,8 @@ async function runValidation(options: any) {
   } else if (report.final_verdict.status === "INCOMPLETE") {
     process.exit(2);
   }
+  // Explicit exit on PASS — open logger handles otherwise keep the event loop alive.
+  process.exit(0);
 }
 
 async function cleanEvidence(options: any) {

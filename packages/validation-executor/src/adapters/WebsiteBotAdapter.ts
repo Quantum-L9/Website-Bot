@@ -53,6 +53,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
    *   - 'development' → FAST subset: quick static checks only (typecheck, spec
    *     normalization, evidence schemas, launch-env), skipping the heavier
    *     build/pipeline gates for a fast local smoke check.
+   *   - 'form' | 'analytics' | 'crm' | 'seo' | 'rollback' → site-template
+   *     structural checks under `astro_template/` only.
    *   - 'default' | 'ci' | 'staging' | 'production' | 'test' → FULL set: every
    *     preflight check, including the four blocking gates that mirror
    *     build-and-validate.yml, so the verdict tracks mergeability.
@@ -61,12 +63,27 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     return profile === "development";
   }
 
+  private isSiteTemplateProfile(profile?: string): boolean {
+    return ['form', 'analytics', 'crm', 'seo', 'rollback'].includes(profile ?? '');
+  }
+
   async discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]> {
     const checks: PreflightCheckDefinition[] = [];
     const packageJson = this.getPackageJson();
     const cwd = process.cwd();
     const fast = this.isFastProfile(profile);
     const hasScript = (name: string): boolean => Boolean(packageJson.scripts?.[name]);
+
+    if (this.isSiteTemplateProfile(profile)) {
+      checks.push({
+        check_id: 'astro-template-present',
+        check_name: 'Astro template package present',
+        blocking: true,
+        command: "node -e \"require('node:fs').accessSync('astro_template/package.json')\"",
+        working_directory: cwd,
+      });
+      return checks;
+    }
 
     // Core TypeScript compilation check (always required for Website-Bot)
     checks.push({
@@ -154,6 +171,18 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     const tests: E2ETestDefinition[] = [];
     const packageJson = this.getPackageJson();
     const fast = this.isFastProfile(profile);
+
+    if (this.isSiteTemplateProfile(profile) && profile) {
+      tests.push({
+        suite_id: 'site-template',
+        suite_name: 'Astro Template Site Validation',
+        test_id: `verify-${profile}`,
+        test_name: `${profile} site-template validation`,
+        attempt: 1,
+        command_or_invocation: `npm --prefix astro_template run verify:${profile}`,
+      });
+      return tests;
+    }
 
     // Core E2E tests - only add if scripts actually exist.
     // The fast (development) profile keeps only the essential site smoke test;
