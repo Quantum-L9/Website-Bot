@@ -20,6 +20,8 @@ import {
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import { createWebsiteFactoryLLM } from "../../src/services/llm.js";
 
+process.env.L9_MEMORY_MODE ??= "disabled";
+
 const BOTH_KEYS = {
   OPENROUTER_API_KEY: "or-key",
   PERPLEXITY_API_KEY: "px-key",

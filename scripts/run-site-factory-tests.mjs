@@ -41,8 +41,15 @@ if (files.length === 0) {
   console.error(`No tests found for scope: ${scope}`);
   process.exit(1);
 }
+const env = { ...process.env };
+if (
+  (scope === "local" || scope === "evidence" || scope === "provisioning") &&
+  !env.L9_MEMORY_MODE
+) {
+  env.L9_MEMORY_MODE = "disabled";
+}
 const result = spawnSync(process.execPath, ["--import", "tsx", "--test", ...files], {
   stdio: "inherit",
-  env: process.env,
+  env,
 });
 process.exit(result.status ?? 1);
