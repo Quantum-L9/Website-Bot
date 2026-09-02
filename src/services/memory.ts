@@ -8,33 +8,27 @@ import {
   type WriteReceipt,
 } from "@quantum-l9/graphiti-memory-client";
 import { createModuleLogger } from "../core/logger.js";
+import { resolveMemoryCredentials, resolveMemoryMode } from "./memory-credentials.js";
 
 const logger = createModuleLogger("service:memory");
-type MemoryMode = "disabled" | "optional" | "required";
 
 let client: GraphitiMemoryClient | null | undefined;
 
-function mode(): MemoryMode {
-  const value = process.env.L9_MEMORY_MODE ?? "optional";
-  if (value === "disabled" || value === "optional" || value === "required") return value;
-  throw new Error("L9_MEMORY_MODE must be disabled, optional, or required");
+function mode() {
+  return resolveMemoryMode();
 }
 
 function getClient(): GraphitiMemoryClient | null {
   if (client !== undefined) return client;
-  if (mode() === "disabled") {
+  const credentials = resolveMemoryCredentials();
+  if (!credentials) {
+    if (mode() !== "disabled") {
+      logger.warn("Governed memory is not configured; continuing without hydration or promotion");
+    }
     client = null;
     return client;
   }
-  const baseUrl = process.env.L9_MEMORY_URL;
-  const bearerToken = process.env.L9_MEMORY_TOKEN;
-  if (!baseUrl || !bearerToken) {
-    if (mode() === "required") throw new Error("L9_MEMORY_URL and L9_MEMORY_TOKEN are required");
-    logger.warn("Governed memory is not configured; continuing without hydration or promotion");
-    client = null;
-    return client;
-  }
-  client = new GraphitiMemoryClient({ baseUrl, bearerToken });
+  client = new GraphitiMemoryClient(credentials);
   return client;
 }
 

@@ -282,6 +282,44 @@ test("unverifiable availability-claim topics are dropped unless corpus-backed (g
   assert.deepEqual(backedServices.content_requirements.topics, ["free inspection"]);
 });
 
+test("proof-class topics are dropped when no verified fact can support them (quantumaipartners_com live run)", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        required_topics: [
+          "measurable client outcomes",
+          "recognizable credibility signals",
+          "quantifiable achievements",
+          "third-party validation",
+          "experience indicators",
+          "evaluation methodology",
+          // Structural-gate class: multi-segment proof-demand sentences the
+          // blueprint rephrases endlessly (live runs, attempt 11/18).
+          "measurable_transformation_examples",
+          "anonymized_outcome_examples",
+          "adaptable_framework_demonstration",
+          "step_by_step_industry_tailored_guides",
+        ],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  // The proof-class topics cannot be covered without fabrication — the live
+  // run's generator failed closed on exactly these. Methodology coverage
+  // stays: it is honest and satisfiable.
+  assert.deepEqual(services.content_requirements.topics, ["evaluation methodology"]);
+});
+
 test("unverifiable response-time questions are dropped; fact-answerable questions stay (golden run #44)", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(
@@ -372,6 +410,30 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
     assert.ok(!services.proof_requirements.includes(dropped), `proof should drop: ${dropped}`);
   }
   assert.ok(services.proof_requirements.includes("material options"));
+});
+
+test("image-backed multi-word proof requirements are kept without a textual fact", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        proof_needed: ["before and after photos", "step by step diagram", "quantified success metrics"],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  assert.ok(services.proof_requirements.includes("before and after photos"));
+  assert.ok(services.proof_requirements.includes("step by step diagram"));
+  assert.ok(!services.proof_requirements.includes("quantified success metrics"));
 });
 
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {

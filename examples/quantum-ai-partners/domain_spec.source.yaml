@@ -1,0 +1,691 @@
+domain_spec:
+  metadata:
+    spec_id: quantumaipartners_com
+    version: 1.0.0
+    created_date: 2026-09-01
+    status: build_ready
+    business_model_type: b2b_services
+    site_type: corporate_services_site
+    owner: Quantum AI Partners
+    source_files:
+      - likes_dislikes_reference_table_2026-09-01
+      - full_pipeline_brief_2026-09-01
+    revision_notes:
+      - First pipeline-ready spec for the Quantum AI Partners redesign build.
+      - Client likes/dislikes recorded as client_vision + design_references (ADR-0018 intake).
+      - No verified phone, address, credentials, or case studies exist yet; none are invented.
+      - Live site baseline (www.quantumaipartners.com) currently serves no usable content; nothing is preserved from it.
+  build_intent: REDESIGN_IMPROVE
+  identity:
+    business_name: Quantum AI Partners
+    legal_name: Quantum AI Partners
+    domain: quantumaipartners.com
+    canonical_url: https://www.quantumaipartners.com
+    tagline: Engineering-grade AI systems for business.
+    logo_status: none_deferred
+    brand_positioning:
+      one_liner: An AI consultancy and delivery partner for strategy, custom AI/LLM
+        systems, and production hardening — engineering-first, without hype.
+      category: ai_consulting
+      primary_value: Take organizations from AI intent to working, evaluated,
+        production-grade systems through a layered systems discipline.
+    contact_placeholders:
+      email: ib@quantumaipartners.com
+  market:
+    industry: artificial_intelligence
+    niche: ai_consulting
+    business_model: b2b
+    monetization_model:
+      - services
+    competitive_angle: Layered-systems AI engineering — strategy, build, and production
+      hardening as one continuous discipline, expressed without hype.
+    buying_triggers:
+      - llm_adoption_pressure
+      - automation_backlog
+      - ai_proof_of_concept_failed_to_reach_production
+      - talent_gap
+      - evaluation_and_guardrail_gaps
+      - integration_risk
+    objections:
+      - ai_hype_fatigue
+      - cost_uncertainty
+      - integration_risk
+      - data_privacy_concerns
+      - vendor_lock_in
+  audience:
+    primary_segments:
+      - name: enterprise_operators
+        priority: 1
+        intent: Integrate AI capabilities into existing production systems safely
+          and measurably.
+        conversion_path: homepage -> services -> contact
+      - name: mid_market_product_teams
+        priority: 2
+        intent: Ship AI features without building an internal ML organization.
+        conversion_path: homepage -> approach -> contact
+      - name: founders_and_startups
+        priority: 3
+        intent: Get from idea to a working, evaluated AI product quickly.
+        conversion_path: homepage -> services -> contact
+    secondary_segments:
+      - digital_agencies_needing_ai_depth
+      - fractional_cto_networks
+    excluded_segments:
+      - consumer_end_users
+    decision_makers:
+      - cto
+      - vp_engineering
+      - head_of_product
+      - founder
+    pain_points:
+      - llm_adoption_uncertainty
+      - integration_risk
+      - talent_gap
+      - evaluation_gaps
+      - cost_uncertainty
+      - ai_hype_fatigue
+      - data_privacy_concerns
+    trust_requirements:
+      - engineering_depth
+      - honest_scoping
+      - security_first
+      - no_hype_language
+      - clear_pricing_signals
+  offer:
+    core_offer: AI strategy, custom AI and LLM systems, and production hardening.
+    offer_type: service
+    service_lines:
+      - name: AI Strategy & Roadmaps
+        slug: ai-strategy
+        description: Assess readiness, prioritize use cases, and produce an
+          implementation roadmap with measurable milestones.
+        priority: 1
+      - name: Custom AI & LLM Systems
+        slug: custom-ai-systems
+        description: Design and build agentic systems, retrieval pipelines, and
+          model integrations with evaluations and guardrails.
+        priority: 2
+      - name: AI Modernization & MLOps
+        slug: ai-modernization
+        description: Harden prototypes into production — evaluation suites,
+          monitoring, and repeatable delivery paths.
+        priority: 3
+    proof_points: []
+    pricing_visibility: engagement_based
+    deliverables:
+      - strategy_roadmap
+      - working_prototype
+      - production_system
+      - evaluation_suite
+      - knowledge_transfer
+    guarantees: []
+  conversion:
+    primary_conversion:
+      label: Book an Intro Call
+      type: email_link
+      destination: mailto:ib@quantumaipartners.com
+    secondary_conversions:
+      - label: Email Us
+        type: email_link
+        destination: mailto:ib@quantumaipartners.com
+      - label: Explore Services
+        type: internal_link
+        destination: /services
+    cta_library:
+      - Book an Intro Call
+      - Email Us
+      - Explore Services
+      - See the Approach
+    lead_capture:
+      enabled: false
+      note: No lead form endpoint exists yet; conversion runs through email until
+        the operator supplies a form provider. Do not ship a dead form.
+    conversion_paths:
+      - audience_segment: enterprise_operators
+        entry_page: /
+        supporting_pages:
+          - /services
+          - /approach
+          - /faq
+        final_action: email_intro_call_request
+      - audience_segment: mid_market_product_teams
+        entry_page: /
+        supporting_pages:
+          - /approach
+          - /services
+          - /faq
+        final_action: email_intro_call_request
+      - audience_segment: founders_and_startups
+        entry_page: /
+        supporting_pages:
+          - /services
+          - /faq
+        final_action: email_intro_call_request
+  authority:
+    credibility_claims: []
+    experience: {}
+    licenses: []
+    testimonials_status: none
+    case_studies:
+      status: none_initial_launch
+      rule: Do not fabricate case studies, client names, or outcomes.
+  geography:
+    service_area_model: remote_first
+    primary_regions:
+      - US
+    excluded_regions: []
+    physical_locations: []
+    local_pages:
+      enabled: false
+      strategy: none
+      page_limit: 0
+    map_embed:
+      enabled: false
+      reason: remote_first_consultancy
+  content:
+    sitemap_strategy: focused_conversion
+    content_status: briefed
+    content_tone:
+      voice: precise_calm_engineering_no_hype
+      reading_level: plain_english_grade_8_to_10
+      banned_claims:
+        - guaranteed_roi
+        - performance_guarantees
+        - invented_client_names
+        - invented_case_studies
+        - trusted_by_claims
+        - agi_claims
+        - hallucination_free_guarantees
+        - fake_benchmarks
+    required_pages:
+      - path: /
+        purpose: Position the company, route the three audience segments, show the
+          layered services model, and capture email conversions.
+        template: homepage
+        priority: 1
+      - path: /services
+        title: Services
+        purpose: Explain the three service lines and how they compose into one
+          layered engagement.
+        template: services_page
+        priority: 2
+      - path: /approach
+        title: Approach
+        purpose: Explain the layered systems methodology — strategy, build,
+          production hardening — with real depth, no hype.
+        template: approach_page
+        priority: 3
+      - path: /about
+        title: About
+        purpose: State who Quantum AI Partners is and what it stands for, without
+          unverified credentials.
+        template: about_page
+        priority: 4
+      - path: /faq
+        title: FAQ
+        purpose: Answer cost, process, technology, security, and engagement questions.
+        template: faq_page
+        priority: 5
+      - path: /contact
+        title: Contact
+        purpose: Primary conversion page — email and intro-call path.
+        template: contact_page
+        priority: 6
+    page_templates:
+      - template_name: homepage
+        applies_to:
+          - /
+        required_sections:
+          - hero
+          - trust_bar
+          - services_overview
+          - differentiation
+          - process
+          - faq
+          - final_cta
+      - template_name: services_page
+        applies_to:
+          - /services
+        required_sections:
+          - hero
+          - services_overview
+          - engagement_models
+          - process
+          - faq
+          - cta
+      - template_name: approach_page
+        applies_to:
+          - /approach
+        required_sections:
+          - hero
+          - process
+          - principles
+          - stack
+          - faq
+          - cta
+      - template_name: about_page
+        applies_to:
+          - /about
+        required_sections:
+          - hero
+          - positioning
+          - trust_bar
+          - cta
+      - template_name: faq_page
+        applies_to:
+          - /faq
+        required_sections:
+          - hero
+          - faq
+          - cta
+      - template_name: contact_page
+        applies_to:
+          - /contact
+        required_sections:
+          - hero
+          - contact_options
+          - cta
+    faq_bank:
+      - question: What does Quantum AI Partners do?
+        answer_brief: "We are an AI consultancy and delivery partner: strategy and
+          roadmaps, custom AI and LLM systems, and production hardening — with
+          evaluations and guardrails at every layer."
+      - question: How does an engagement start?
+        answer_brief: An intro call, then a scoped assessment. You leave the
+          assessment with a roadmap, not a sales deck.
+      - question: How much does AI consulting cost?
+        answer_brief: Engagements are scoped per project after the assessment.
+          Pricing is transparent and tied to defined deliverables.
+      - question: How long does a project take?
+        answer_brief: It depends on scope. The roadmap defines phases and
+          milestones so progress is measurable from the start.
+      - question: Do you build AI agents?
+        answer_brief: Yes — agentic systems are part of custom AI work, always
+          with evaluations, guardrails, and human oversight paths.
+      - question: What technology do you work with?
+        answer_brief: Frontier and open LLMs through a routing layer, retrieval
+          pipelines, and deterministic evaluation harnesses. The Approach page
+          explains the stack layers.
+      - question: How do you handle data privacy and security?
+        answer_brief: "Security-first: minimal data footprint, NDAs on request,
+          and no unnecessary third-party data flows."
+      - question: What makes the approach different?
+        answer_brief: Layered systems thinking. Strategy, build, and production
+          hardening are one continuous engineering discipline — no hype, no
+          hand-waving.
+  seo:
+    seo_first: true
+    primary_keyword_cluster:
+      cluster_name: ai_consulting
+      target_page: /services
+      intent: service_provider
+      keywords:
+        - AI consulting
+        - AI consulting services
+        - AI consulting firm
+        - enterprise AI consulting
+    secondary_keyword_clusters:
+      - cluster_name: ai_implementation
+        target_page: /approach
+        intent: service_provider
+        keywords:
+          - AI implementation
+          - LLM integration
+          - custom AI development
+          - AI agent development
+      - cluster_name: ai_strategy
+        target_page: /services
+        intent: service_provider
+        keywords:
+          - AI strategy
+          - AI adoption roadmap
+          - AI readiness assessment
+      - cluster_name: ai_faq
+        target_page: /faq
+        intent: informational
+        keywords:
+          - AI consulting FAQ
+          - how much does AI consulting cost
+          - AI consulting engagement model
+      - cluster_name: brand
+        target_page: /about
+        intent: informational
+        keywords:
+          - Quantum AI Partners
+          - AI consultancy Quantum AI Partners
+    metadata_rules:
+      title_pattern: '{Primary Keyword} | Quantum AI Partners'
+      description_pattern: Engineering-grade {Topic} for {Audience} — AI strategy,
+        custom systems, and production hardening without the hype.
+    schema_rules:
+      - Organization
+      - ProfessionalService
+      - Service
+      - FAQPage
+      - BreadcrumbList
+      - WebSite
+    internal_linking_rules:
+      hub_pages:
+        - /
+        - /services
+        - /approach
+      spoke_pages:
+        - /about
+        - /faq
+        - /contact
+      prohibited_links:
+        - thin_city_pages_before_national_strategy_is_approved
+        - guaranteed_outcome_claim_pages
+    programmatic_seo:
+      enabled: false
+      reason: avoid_doorway_page_risk_until_core_site_validates
+    local_seo:
+      enabled: false
+      depth: none
+      location_page_strategy: none
+      city_pages: false
+  client_vision:
+    desired_outcomes:
+      - Position Quantum AI Partners as a distinctive, engineering-deep AI partner — never a generic AI consultancy template.
+      - Convert visitors into intro-call and email inquiries through a clear, low-friction path.
+      - Communicate layered-systems depth (strategy to build to production) without hype.
+    brand_attributes:
+      - distinctive
+      - graphically_rich
+      - engineering_deep
+      - calm
+      - precise
+      - no_hype
+    visual_preferences:
+      - dark_dramatic_canvas
+      - layered_depth_via_subtle_gradients
+      - electric_cyan_accent_family
+      - bold_hero_typography
+      - smooth_navigation
+      - generous_whitespace
+    liked_examples:
+      - "Palantir: distinctive, graphically stunning presentation"
+      - "Baseten: layered stack graphics that explain depth"
+      - "Modal: crisp technical product graphics"
+      - "NVIDIA App: smooth, easy navigation"
+      - "Linear: clean, restrained composition"
+    disliked_examples:
+      - "Mintlify: the client does not like Mintlify"
+      - "Vercel: the client calls the marketing site too lame"
+      - "Linear: too generic, no wow factor at all"
+      - "Modal: the purple-dominant color palette"
+    preserve: []
+    change:
+      - generic_minimal_saas_layout
+      - purple_dominant_palette
+      - hype_heavy_marketing_copy
+      - low_density_feature_laundry_landing_pages
+    conversion_priorities:
+      - intro_call_booking
+      - email_inquiry
+      - clear_pricing_signals
+      - no_dead_forms
+    explicit_constraints:
+      - dark_canvas_first
+      - no_purple_or_violet_accents
+      - distinctive_over_generic
+      - layered_depth_visuals
+      - wcag_aa_contrast
+      - fast_perceived_performance
+    palette:
+      primary: '#22D3EE'
+      secondary: '#38BDF8'
+      accent: '#A5F3FC'
+      background: '#0B0F17'
+      text: '#E6EDF7'
+  design_references:
+    - reference_id: palantir
+      url: https://www.palantir.com/
+      selection_reason: "Client likes: sweet design; different; graphically stunning."
+      evidence_refs:
+        - likes_dislikes_table_2026-09-01
+      principles:
+        layout:
+          - bold_focal_sections_with_strong_editorial_rhythm
+        hierarchy:
+          - single_dominant_hero_statement_per_page
+        interaction:
+          - restrained_smooth_motion
+        density:
+          - spacious_sections_with_high_impact_focal_areas
+        typography:
+          - strong_contrasting_display_scale
+        imagery:
+          - distinctive_abstract_technical_graphics
+        conversion:
+          - clear_primary_action_near_hero
+        positive:
+          - distinctive_visual_identity
+          - graphically_rich_presentation
+          - dark_canvas
+        negative: []
+    - reference_id: baseten
+      url: https://www.baseten.co/
+      selection_reason: "Client likes: cool graphics; shows layers; layers apply to
+        L9 and Quantum AI Partners."
+      evidence_refs:
+        - likes_dislikes_table_2026-09-01
+      principles:
+        layout:
+          - stacked_layer_sections_that_read_top_to_bottom
+        hierarchy:
+          - one_primary_concept_per_layer
+        interaction: []
+        density: []
+        typography: []
+        imagery:
+          - abstract_layered_stack_diagrams
+          - dimensional_depth_via_gradients
+        conversion:
+          - graphics_that_explain_the_product_model
+        positive:
+          - layered_stack_visual_motif
+          - dimensional_depth
+        negative: []
+    - reference_id: modal
+      url: https://modal.com/
+      selection_reason: Client likes the technical graphics; dislikes the color palette.
+      evidence_refs:
+        - likes_dislikes_table_2026-09-01
+      principles:
+        layout: []
+        hierarchy: []
+        interaction: []
+        density: []
+        typography: []
+        imagery:
+          - crisp_technical_product_graphics
+        conversion: []
+        positive:
+          - technical_product_graphics
+        negative:
+          - purple_violet_dominant_palette
+    - reference_id: nvidia_app
+      url: https://www.nvidia.com/en-us/software/nvidia-app/
+      selection_reason: "Client likes: smooth; easy to navigate; ranks super high."
+      evidence_refs:
+        - likes_dislikes_table_2026-09-01
+      principles:
+        layout: []
+        hierarchy:
+          - progressive_disclosure_with_clear_section_labeling
+        interaction:
+          - smooth_navigation
+          - fast_perceived_performance
+        density: []
+        typography: []
+        imagery: []
+        conversion:
+          - low_friction_primary_action
+        positive:
+          - smooth_navigation
+          - easy_to_navigate
+        negative: []
+    - reference_id: linear
+      url: https://linear.app/
+      selection_reason: Client likes the cleanliness but finds it too generic with no wow factor.
+      evidence_refs:
+        - likes_dislikes_table_2026-09-01
+      principles:
+        layout: []
+        hierarchy: []
+        interaction: []
+        density:
+          - restrained_clean_composition
+        typography: []
+        imagery: []
+        conversion: []
+        positive:
+          - clean_restrained_composition
+        negative:
+          - generic_minimal_saas_layout
+          - absence_of_distinctive_visual_identity
+    - reference_id: mintlify
+      url: https://www.mintlify.com/
+      accepted: false
+      rejection_reason: Client explicitly does not like Mintlify.
+    - reference_id: vercel
+      url: https://vercel.com/
+      accepted: false
+      rejection_reason: Client calls the marketing site too lame.
+  design:
+    design_status: resolved
+    visual_direction: dark_layered_systems_aesthetic
+    brand_tokens:
+      colors:
+        primary: '#22D3EE'
+        secondary: '#38BDF8'
+        accent: '#A5F3FC'
+        background: '#0B0F17'
+        text: '#E6EDF7'
+      typography:
+        heading: Space Grotesk
+        body: Inter
+      spacing: generous
+    layout_rules:
+      - mobile_first
+      - dark_canvas_with_layered_gradient_depth
+      - distinctive_hero_per_page_not_repeated_template
+      - clear_primary_cta_near_hero
+      - short_sections_with_generous_whitespace
+      - smooth_navigation
+      - no_visual_clutter
+      - no_purple_or_violet_accents
+      - no_generic_minimal_saas_grid
+    accessibility_rules:
+      wcag_target: WCAG_2_2_AA
+      contrast_required: true
+      keyboard_navigation_required: true
+      form_labels_required: true
+      focus_states_required: true
+      reduced_motion_supported: true
+  compliance:
+    compliance_required: false
+    regulated_industry: false
+    disclaimers: []
+    consent_rules:
+      contact_form_consent: false
+      sms_consent: false
+      email_marketing_consent: false
+      file_upload_consent: false
+    prohibited_claims:
+      - guaranteed_roi
+      - performance_guarantees
+      - invented_client_names
+      - invented_case_studies
+      - trusted_by_claims
+      - agi_claims
+      - hallucination_free_guarantees
+      - fake_benchmarks
+  integrations:
+    crm:
+      enabled: false
+      platform: none
+    analytics:
+      enabled: true
+      tools:
+        - Google Analytics 4
+        - Google Search Console
+    email:
+      notification_recipients:
+        - ib@quantumaipartners.com
+    payments:
+      enabled: false
+      platform: none
+    scheduling:
+      enabled: false
+      platform: none
+    forms:
+      enabled: false
+      note: Deferred until the operator supplies a form endpoint. Do not ship a dead form.
+    storage:
+      enabled: false
+    webhooks:
+      enabled: false
+  deployment:
+    framework: astro
+    host: vercel
+    dns_provider: unknown
+    repo_provider: unknown
+    ci_cd: vercel_preview_to_production
+    build_command: npm run build
+    output_directory: dist
+    environments:
+      - development
+      - preview
+      - production
+    launch_checklist:
+      - validate_dns_records
+      - connect_vercel_project
+      - confirm_ssl
+      - verify_astro_build
+      - install_analytics
+      - verify_search_console
+      - generate_sitemap_xml
+      - generate_robots_txt
+      - confirm_email_conversion_path
+  validation:
+    required_field_policy: allow_unknown_with_report
+    unknown_field_policy: label_unknown
+    blocking_gates:
+      - domain_matches_canonical_url
+      - seo_first_true
+      - homepage_exists
+      - primary_conversion_exists
+      - astro_framework_locked
+      - vercel_host_locked
+      - no_fabricated_case_studies
+    non_blocking_warnings:
+      - phone_unknown
+      - address_unknown
+      - form_endpoint_deferred
+      - logo_asset_deferred
+  assets:
+    generation:
+      enabled: true
+      model: gemini-2.5-flash-image
+      budgetUsd: 15
+      promptCompiler: default
+  experiments:
+    enabled: false
+  future_outputs:
+    enabled: true
+    asset_types:
+      - website
+      - seo_campaign
+      - blog_cluster
+      - case_study_pages_once_real_work_ships
+  notes:
+    - The first draft and uploaded source-website captures referenced by the
+      full-pipeline brief were not locatable on this machine; the likes/dislikes
+      table, the brief itself, and the (currently empty) live site are the
+      ingested evidence. Recorded as UNKNOWN, not invented.
+    - Contact email is the operator address used across the L9 toolchain; phone
+      and address remain UNKNOWN until the operator supplies them.
+    - No case studies, client names, credentials, or metrics are invented; the
+      pipeline's claim-grounding gates enforce this downstream.

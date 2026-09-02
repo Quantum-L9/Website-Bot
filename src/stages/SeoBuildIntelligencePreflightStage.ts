@@ -38,6 +38,19 @@ export class SeoBuildIntelligencePreflightStage implements Stage {
       return;
     }
 
+    // Plan mode documents "no generated files, runtime evidence files, or
+    // external mutations" — but redesign intelligence is inherently live:
+    // paid SERP evidence, donor crawls, and real LLM work, and the downstream
+    // redesign stages fail closed without real artifacts. Failing closed here
+    // makes that contract explicit instead of silently spending money during
+    // what the operator asked to be a dry-run.
+    if (ctx.dryRun) {
+      throw new BuildError(
+        "PLAN_MODE_UNSUPPORTED_FOR_REDESIGN",
+        "REDESIGN_IMPROVE has no network-free plan mode: competitive intelligence and content authority require live SEO-Bot and donor evidence. Run --mode=local-proof or higher.",
+      );
+    }
+
     // Fails closed with a mapped SEO_BOT_* BuildError code BEFORE the first
     // paid build-intelligence call (createCompetitiveLandscape) can be made.
     try {
