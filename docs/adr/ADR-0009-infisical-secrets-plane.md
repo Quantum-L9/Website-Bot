@@ -23,7 +23,11 @@ human paste, and left PostHog / deploy credentials outside a shared vault.
    - `scripts/verify-deploy-secrets.mjs`
    Secret **names in Infisical must match app env var names**.
 4. Loaders are **fail-soft** unless `INFISICAL_REQUIRED=true`. Local `.env` remains
-   an emergency override and never overwrites already-set vars.
+   an emergency override and never overwrites already-set **nonempty** vars.
+   Blank `KEY=` placeholders and empty vault rows are unset, not values — so
+   Infisical can backfill required secrets (`L9_MEMORY_TOKEN` / `GRAPHITI_MCP_TOKEN`)
+   instead of treating `KEY=` as a present empty credential. Memory itself is
+   required; blank does not mean optional.
 5. **No committed secret values.** `.env` / `.env.local` stay gitignored.
 6. **AWS Secrets Manager** (`openclaw-igorbot/infisical-website-bot`,
    `openclaw-igorbot/posthog`, etc.) is the **agent bootstrap / registry mirror**

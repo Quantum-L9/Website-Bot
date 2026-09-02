@@ -4,6 +4,13 @@ Tracked items that are intentionally **not** done yet because they depend on an
 external precondition (not on more code). Each lists the exact trigger that
 unblocks it.
 
+## Issue unblock (session reference)
+
+**Cluster:** user-scoped memory-required (no OPEN GitHub issue; Graphiti `GRAPHITI_MCP_TOKEN` alias)
+**Owning fix:** `feat/require-graphiti-memory` on Website-Bot + SEO-Bot
+**Next:** land PRs; keep SEO-Bot container on `L9_MEMORY_MODE=required` with host Graphiti tunnel
+**Pickup:** Graphiti PICKUP written 2026-09-02
+
 ---
 
 ## P4b — Wrap the pipeline in `infisical run` (CLI secrets baseline)
