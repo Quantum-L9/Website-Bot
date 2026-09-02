@@ -1,8 +1,9 @@
 launch_env_contract:
-  version: "2.0.0"
+  version: "2.1.0"
   project: "L9 Website Factory Bot"
-  policy: "fail_closed_for_production_launch"
+  policy: "fail_closed_for_factory_mvp_and_client_launch"
   values_must_not_be_fabricated: true
+  committed_non_secret_defaults: config/launch-env.values.yaml
   groups:
     llm_intelligence:
       required_for_launch: false
@@ -30,23 +31,26 @@ launch_env_contract:
         SECURITY_CONTACT_EMAIL: "Security disclosure email."
         SECURITY_DISCLOSURE_URL: "Optional disclosure URL."
     domain:
-      required_for_launch: true
+      required_for_launch: false
+      required_for_client_production_launch: true
       variables:
         PUBLIC_SITE_URL: "Canonical public site URL including scheme."
         PRODUCTION_DOMAIN: "Production domain expected to resolve to deployment."
         DOMAIN_VERIFICATION_REQUIRED: "Must remain true until domain check passes."
     form:
-      required_for_launch: true
+      required_for_launch: false
+      required_for_client_production_launch: true
       variables:
-        FORM_PROVIDER: "Provider name, e.g. webhook, formspree, custom, crm_proxy."
+        FORM_PROVIDER: "Provider name, e.g. none, webhook, formspree, custom, crm_proxy. MVP default: none."
         FORM_ENDPOINT_URL: "Server-side or trusted endpoint that receives lead submissions."
-        FORM_WEBHOOK_SECRET: "Secret for form webhook validation, stored only as secret."
+        FORM_WEBHOOK_SECRET: "Secret for form webhook validation, stored only as secret (Infisical)."
         LEAD_NOTIFICATION_EMAIL: "Lead notification recipient, if email routing is used."
     crm:
       required_for_launch: false
       required_for_crm_launch_claim: true
+      mvp_default: none
       variables:
-        CRM_PROVIDER: "CRM provider selector (e.g. acculynx, hubspot, salesforce, none). Chooses which CRM integration, if any, is used."
+        CRM_PROVIDER: "CRM provider selector (e.g. acculynx, hubspot, salesforce, none). MVP default none — not a factory blocker."
         CRM_API_BASE_URL: "CRM API base URL supplied by operator."
         CRM_CLIENT_ID: "CRM client id supplied by operator."
         CRM_CLIENT_SECRET: "CRM client secret supplied by operator (secret)."
@@ -63,14 +67,14 @@ launch_env_contract:
     vercel:
       required_for_deployment: true
       variables:
-        VERCEL_TOKEN: "Secret deployment token."
-        VERCEL_TEAM_ID: "Vercel team id for team-scoped deploys (global identifier)."
-        CLIENT_VERCEL_PROJECT_ID: "Per-client Vercel project id (or embed deploy.vercel_project_id in the DomainSpec)."
+        VERCEL_TOKEN: "Secret deployment token (Infisical/AWS — never commit)."
+        VERCEL_TEAM_ID: "Vercel team id for team-scoped deploys (global identifier; committed in launch-env.values.yaml)."
+        CLIENT_VERCEL_PROJECT_ID: "Per-client Vercel project id (DomainSpec.deploy or env). Not a factory MVP gate."
         CLIENT_VERCEL_DEPLOY_HOOK: "Optional per-client deploy hook; alternative to API token + project id."
         VERCEL_PRODUCTION_DEPLOYMENT: "Must be true only when production deploy is explicitly authorized."
-        # Retired (unused by VercelDeployStage / SiteAssemblerStage): VERCEL_ORG_ID, VERCEL_PROJECT_ID.
     legal:
-      required_for_launch: true
+      required_for_launch: false
+      required_for_client_production_launch: true
       variables:
         LEGAL_DISCLAIMER_APPROVED: "Must be true after legal/client approval."
         LEGAL_DISCLAIMER_VERSION: "Approved disclaimer version identifier."

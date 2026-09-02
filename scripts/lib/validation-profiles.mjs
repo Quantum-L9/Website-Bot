@@ -1,17 +1,39 @@
-// L9_META: layer=validation, role=profile_ssot, status=active, version=1.0.0
+// L9_META: layer=validation, role=profile_ssot, status=active, version=1.1.0
 /**
  * Canonical Website-Bot validation profile SSOT.
  * Tests assert package.json verify:* parity independently — do not mirror that list here.
+ *
+ * Site-level profiles (form/analytics/crm/seo/rollback) execute against
+ * `astro_template/` via WebsiteBotAdapter — not unimplemented stubs.
  */
 
-export const IMPLEMENTED_VALIDATION_PROFILES = ["preflight", "source", "build", "smoke"];
+export const FACTORY_VALIDATION_PROFILES = [
+  'preflight',
+  'source',
+  'build',
+  'smoke',
+];
 
-export const UNIMPLEMENTED_SITE_PROFILES = ["form", "analytics", "crm", "seo", "rollback"];
+/** Site-template structural profiles (cwd-scoped checks under astro_template/). */
+export const SITE_TEMPLATE_VALIDATION_PROFILES = [
+  'form',
+  'analytics',
+  'crm',
+  'seo',
+  'rollback',
+];
+
+/** @deprecated Empty — site profiles are implemented against astro_template. */
+export const UNIMPLEMENTED_SITE_PROFILES = [];
+
+export const IMPLEMENTED_VALIDATION_PROFILES = [
+  ...FACTORY_VALIDATION_PROFILES,
+  ...SITE_TEMPLATE_VALIDATION_PROFILES,
+];
 
 export const WEBSITE_BOT_VALIDATION_PROFILES = [
-  "default",
+  'default',
   ...IMPLEMENTED_VALIDATION_PROFILES,
-  ...UNIMPLEMENTED_SITE_PROFILES,
 ];
 
 /**
@@ -23,22 +45,14 @@ export const WEBSITE_BOT_VALIDATION_PROFILES = [
 export function resolveProfileRun(profile) {
   if (!profile || !WEBSITE_BOT_VALIDATION_PROFILES.includes(profile)) {
     return {
-      status: "INVALID_PROFILE",
+      status: 'INVALID_PROFILE',
       exitCode: 1,
       nonEvidence: true,
-      reason: "unknown_profile",
-    };
-  }
-  if (UNIMPLEMENTED_SITE_PROFILES.includes(profile)) {
-    return {
-      status: "INCOMPLETE",
-      exitCode: 2,
-      nonEvidence: true,
-      reason: "site_level_validation_unimplemented",
+      reason: 'unknown_profile',
     };
   }
   return {
-    status: "RUN",
+    status: 'RUN',
     exitCode: 0,
     nonEvidence: false,
     reason: null,
@@ -54,7 +68,7 @@ export function resolveProfileRun(profile) {
 export function collectWebsiteBotConfigErrors(options = {}) {
   const errors = [];
 
-  const timeout = Number.parseInt(options.timeout ?? "300000", 10);
+  const timeout = Number.parseInt(options.timeout ?? '300000', 10);
   if (Number.isNaN(timeout)) {
     errors.push(`Invalid timeout value '${options.timeout}': must be a number`);
   } else if (timeout < 1000) {
@@ -65,14 +79,14 @@ export function collectWebsiteBotConfigErrors(options = {}) {
 
   if (options.profile && !WEBSITE_BOT_VALIDATION_PROFILES.includes(options.profile)) {
     errors.push(
-      `Unknown Website-Bot profile '${options.profile}': valid profiles are ${WEBSITE_BOT_VALIDATION_PROFILES.join(", ")}`,
+      `Unknown Website-Bot profile '${options.profile}': valid profiles are ${WEBSITE_BOT_VALIDATION_PROFILES.join(', ')}`,
     );
   }
 
-  const validEnvironments = ["development", "staging", "production", "test", "ci"];
+  const validEnvironments = ['development', 'staging', 'production', 'test', 'ci'];
   if (options.environment && !validEnvironments.includes(options.environment)) {
     errors.push(
-      `Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(", ")}`,
+      `Unknown environment '${options.environment}': valid environments are ${validEnvironments.join(', ')}`,
     );
   }
 

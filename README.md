@@ -227,10 +227,16 @@ The remaining launch Unknowns are controlled through `.env.example`, `config/lau
 
 Before public launch, provide required support, security, domain, form, Vercel, legal approval, licensing, analytics, and CRM values through `.env.local` or Vercel Project Settings.
 
-Run:
+Factory MVP (contacts + license + global Vercel team; form/CRM/domain/legal deferred):
+
+```bash
+npm run validate
+```
+
+Public / client production launch (fails closed until form delivery, domain, and legal gates are satisfied):
 
 ```bash
 npm run verify:launch-env
 ```
 
-This fails closed until required launch values and approval gates are satisfied. `DRAFT_LEGAL_DISCLAIMER.md` is draft only until `LEGAL_DISCLAIMER_APPROVED=true` and `LEGAL_DISCLAIMER_VERSION` are set.
+`verify:launch-env` passes `--client-launch`. `DRAFT_LEGAL_DISCLAIMER.md` is draft only until `LEGAL_DISCLAIMER_APPROVED=true` and `LEGAL_DISCLAIMER_VERSION` are set.

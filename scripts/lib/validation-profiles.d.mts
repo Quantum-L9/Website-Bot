@@ -1,4 +1,7 @@
+export const FACTORY_VALIDATION_PROFILES: string[];
+export const SITE_TEMPLATE_VALIDATION_PROFILES: string[];
 export const IMPLEMENTED_VALIDATION_PROFILES: string[];
+/** @deprecated Empty — site profiles are implemented against astro_template. */
 export const UNIMPLEMENTED_SITE_PROFILES: string[];
 export const WEBSITE_BOT_VALIDATION_PROFILES: string[];
 

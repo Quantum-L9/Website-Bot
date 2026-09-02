@@ -177,6 +177,8 @@ async function runValidation(options: any) {
   } else if (report.final_verdict.status === "INCOMPLETE") {
     process.exit(2);
   }
+  // Explicit exit on PASS — pino / open handles otherwise keep the event loop alive.
+  process.exit(0);
 }
 
 function getProfilePreflightCommands(profile: string): string[] {
@@ -188,6 +190,12 @@ function getProfilePreflightCommands(profile: string): string[] {
     case "build":
     case "smoke":
       return baseCommands;
+    case 'form':
+    case 'analytics':
+    case 'crm':
+    case 'seo':
+    case 'rollback':
+      return ["node -e \"require('node:fs').accessSync('astro_template/package.json')\""];
     default:
       return [...baseCommands, "npm run evidence:schemas", "npm run validate"];
   }
@@ -203,6 +211,12 @@ function getProfileE2ECommands(profile: string): string[] {
       return ["npm run site:validate", "npm run evidence:test"];
     case "smoke":
       return ["npm run site:test:local"];
+    case "form":
+    case "analytics":
+    case "crm":
+    case "seo":
+    case "rollback":
+      return [`npm --prefix astro_template run verify:${profile}`];
     default:
       return [
         "npm run site:validate",
@@ -254,11 +268,11 @@ PROFILES:
   source      Source validation
   build       Build validation
   smoke       Smoke tests
-  form        Form validation (INCOMPLETE — site-level not implemented)
-  analytics   Analytics validation (INCOMPLETE — site-level not implemented)
-  crm         CRM validation (INCOMPLETE — site-level not implemented)
-  seo         SEO validation (INCOMPLETE — site-level not implemented)
-  rollback    Rollback validation (INCOMPLETE — site-level not implemented)
+  form        Form validation (astro_template structural checks)
+  analytics   Analytics validation (astro_template structural checks)
+  crm         CRM validation (astro_template structural checks)
+  seo         SEO validation (astro_template structural checks)
+  rollback    Rollback validation (astro_template structural checks)
 
 EXAMPLES:
   tsx scripts/validation-executor.ts run --profile preflight
