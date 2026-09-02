@@ -37,6 +37,7 @@ function ogSlot(): ImageSlotSpec {
     required: true,
     preferredSources: ["generated"],
     generation: { intent: "Brand social card" },
+    altText: "Authored social card for the client brand",
   };
 }
 
@@ -94,6 +95,7 @@ void test("generates only planned gaps, records evidence, and reuses cache on re
     await new ImageGenerationStage(generator).run(ctx);
     const resolved = ctx.resolvedImages?.get("global:og-image");
     assert.equal(resolved?.source, "generated");
+    assert.equal(resolved?.altText, "Authored social card for the client brand");
     assert.equal(resolved?.model, "test-gen");
     assert.ok(resolved?.promptHash);
     assert.equal(ctx.imageAssetManifest?.assets[0].source, "generated");

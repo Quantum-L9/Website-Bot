@@ -331,6 +331,29 @@ void test("deterministic schema serialization: repeat runs produce identical JSO
   assert.equal(faq.mainEntity.length, 1);
 });
 
+void test("absent phone serializes schemas without empty telephone values (quantumaipartners_com live run)", async () => {
+  const landscape = makeLandscape();
+  const blueprint = makeWebsiteBlueprint(landscape);
+  const seoBlueprint = makeSeoBlueprint(landscape);
+  const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
+  ctx.domainSpec = {
+    ...ctx.domainSpec,
+    seo_contract: { site_url: "test.example.com" },
+  };
+  await new RedesignContentAuthorityStage(() => new FakePort(seoBlueprint)).run(ctx);
+  await new StructuredContentProjectionStage().run(ctx);
+  await new RedesignSchemaSerializerStage().run(ctx);
+
+  const organization = ctx.generatedSchemas.get("Organization") as {
+    contactPoint: { telephone?: string };
+  };
+  const localBusiness = ctx.generatedSchemas.get("LocalBusiness") as {
+    telephone?: string;
+  };
+  assert.equal("telephone" in organization.contactPoint, false);
+  assert.equal("telephone" in localBusiness, false);
+});
+
 void test("legacy ContentGenerationStage trips LEGACY_CONTENT_AUTHORITY_USED under REDESIGN_IMPROVE", async () => {
   const ctx = makeCtx({
     redesignCounters: {

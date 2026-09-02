@@ -91,6 +91,17 @@ void test("COPY builds skip the preflight and record no evidence", async () => {
   assert.equal(ctx.seoBuildIntelligencePreflight, undefined);
 });
 
+void test("plan mode fails closed on REDESIGN_IMPROVE before any SEO-Bot contact", async () => {
+  const ctx = makeCtx({ dryRun: true });
+  const port = new PreflightOnlyPort();
+  await assert.rejects(
+    () => new SeoBuildIntelligencePreflightStage(() => port).run(ctx),
+    (error: unknown) =>
+      error instanceof BuildError && error.code === "PLAN_MODE_UNSUPPORTED_FOR_REDESIGN",
+  );
+  assert.deepEqual(port.calls, [], "plan mode must not touch SEO-Bot");
+});
+
 for (const code of [
   "SEO_BOT_UNREACHABLE",
   "SEO_BOT_AUTH_FAILED",

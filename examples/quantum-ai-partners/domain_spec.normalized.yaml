@@ -1,0 +1,289 @@
+client_id: quantumaipartners_com
+business_name: Quantum AI Partners
+vertical: ai_consulting
+geography:
+  primary_state: US
+  states:
+    - US
+design:
+  status: resolved
+  palette:
+    primary: "#22D3EE"
+    secondary: "#38BDF8"
+    accent: "#A5F3FC"
+    background: "#0B0F17"
+    text: "#E6EDF7"
+  fonts:
+    font_heading: Space Grotesk
+    font_body: Inter
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - trust_bar
+      - services_overview
+      - differentiation
+      - process
+      - faq
+      - final_cta
+  - slug: /services
+    title: Services
+    components:
+      - hero
+      - services_overview
+      - engagement_models
+      - process
+      - faq
+      - cta
+  - slug: /approach
+    title: Approach
+    components:
+      - hero
+      - process
+      - principles
+      - stack
+      - faq
+      - cta
+  - slug: /about
+    title: About
+    components:
+      - hero
+      - positioning
+      - trust_bar
+      - cta
+  - slug: /faq
+    title: FAQ
+    components:
+      - hero
+      - faq
+      - cta
+  - slug: /contact
+    title: Contact
+    components:
+      - hero
+      - contact_options
+      - cta
+seo_contract:
+  site_url: https://www.quantumaipartners.com
+  target_keywords:
+    - AI consulting
+    - AI consulting services
+    - AI consulting firm
+    - enterprise AI consulting
+    - AI implementation
+    - LLM integration
+    - custom AI development
+    - AI agent development
+    - AI strategy
+    - AI adoption roadmap
+    - AI readiness assessment
+    - AI consulting FAQ
+    - how much does AI consulting cost
+    - AI consulting engagement model
+    - Quantum AI Partners
+    - AI consultancy Quantum AI Partners
+  metadata_rules:
+    title_pattern: "{Primary Keyword} | Quantum AI Partners"
+    description_pattern: Engineering-grade {Topic} for {Audience} — AI strategy,
+      custom systems, and production hardening without the hype.
+  schema_rules:
+    - Organization
+    - ProfessionalService
+    - Service
+    - FAQPage
+    - BreadcrumbList
+    - WebSite
+  schema_application: per_route
+  internal_linking_rules:
+    hub_pages:
+      - /
+      - /services
+      - /approach
+    spoke_pages:
+      - /about
+      - /faq
+      - /contact
+    prohibited_links:
+      - thin_city_pages_before_national_strategy_is_approved
+      - guaranteed_outcome_claim_pages
+wom_flags: []
+assets:
+  generation:
+    enabled: true
+    model: gemini-2.5-flash-image
+    budgetUsd: 15
+    promptCompiler: default
+build_intent: REDESIGN_IMPROVE
+client_vision:
+  desired_outcomes:
+    - Position Quantum AI Partners as a distinctive, engineering-deep AI partner
+      — never a generic AI consultancy template.
+    - Convert visitors into intro-call and email inquiries through a clear,
+      low-friction path.
+    - Communicate layered-systems depth (strategy to build to production)
+      without hype.
+  brand_attributes:
+    - distinctive
+    - graphically_rich
+    - engineering_deep
+    - calm
+    - precise
+    - no_hype
+  visual_preferences:
+    - dark_dramatic_canvas
+    - layered_depth_via_subtle_gradients
+    - electric_cyan_accent_family
+    - bold_hero_typography
+    - smooth_navigation
+    - generous_whitespace
+  liked_examples:
+    - "Palantir: distinctive, graphically stunning presentation"
+    - "Baseten: layered stack graphics that explain depth"
+    - "Modal: crisp technical product graphics"
+    - "NVIDIA App: smooth, easy navigation"
+    - "Linear: clean, restrained composition"
+  disliked_examples:
+    - "Mintlify: the client does not like Mintlify"
+    - "Vercel: the client calls the marketing site too lame"
+    - "Linear: too generic, no wow factor at all"
+    - "Modal: the purple-dominant color palette"
+  preserve: []
+  change:
+    - generic_minimal_saas_layout
+    - purple_dominant_palette
+    - hype_heavy_marketing_copy
+    - low_density_feature_laundry_landing_pages
+  conversion_priorities:
+    - intro_call_booking
+    - email_inquiry
+    - clear_pricing_signals
+    - no_dead_forms
+  explicit_constraints:
+    - dark_canvas_first
+    - no_purple_or_violet_accents
+    - distinctive_over_generic
+    - layered_depth_visuals
+    - wcag_aa_contrast
+    - fast_perceived_performance
+  palette:
+    primary: "#22D3EE"
+    secondary: "#38BDF8"
+    accent: "#A5F3FC"
+    background: "#0B0F17"
+    text: "#E6EDF7"
+design_references:
+  - reference_id: palantir
+    url: https://www.palantir.com/
+    selection_reason: "Client likes: sweet design; different; graphically stunning."
+    evidence_refs:
+      - likes_dislikes_table_2026-09-01
+    principles:
+      layout:
+        - bold_focal_sections_with_strong_editorial_rhythm
+      hierarchy:
+        - single_dominant_hero_statement_per_page
+      interaction:
+        - restrained_smooth_motion
+      density:
+        - spacious_sections_with_high_impact_focal_areas
+      typography:
+        - strong_contrasting_display_scale
+      imagery:
+        - distinctive_abstract_technical_graphics
+      conversion:
+        - clear_primary_action_near_hero
+      positive:
+        - distinctive_visual_identity
+        - graphically_rich_presentation
+        - dark_canvas
+      negative: []
+  - reference_id: baseten
+    url: https://www.baseten.co/
+    selection_reason: "Client likes: cool graphics; shows layers; layers apply to L9
+      and Quantum AI Partners."
+    evidence_refs:
+      - likes_dislikes_table_2026-09-01
+    principles:
+      layout:
+        - stacked_layer_sections_that_read_top_to_bottom
+      hierarchy:
+        - one_primary_concept_per_layer
+      interaction: []
+      density: []
+      typography: []
+      imagery:
+        - abstract_layered_stack_diagrams
+        - dimensional_depth_via_gradients
+      conversion:
+        - graphics_that_explain_the_product_model
+      positive:
+        - layered_stack_visual_motif
+        - dimensional_depth
+      negative: []
+  - reference_id: modal
+    url: https://modal.com/
+    selection_reason: Client likes the technical graphics; dislikes the color palette.
+    evidence_refs:
+      - likes_dislikes_table_2026-09-01
+    principles:
+      layout: []
+      hierarchy: []
+      interaction: []
+      density: []
+      typography: []
+      imagery:
+        - crisp_technical_product_graphics
+      conversion: []
+      positive:
+        - technical_product_graphics
+      negative:
+        - purple_violet_dominant_palette
+  - reference_id: nvidia_app
+    url: https://www.nvidia.com/en-us/software/nvidia-app/
+    selection_reason: "Client likes: smooth; easy to navigate; ranks super high."
+    evidence_refs:
+      - likes_dislikes_table_2026-09-01
+    principles:
+      layout: []
+      hierarchy:
+        - progressive_disclosure_with_clear_section_labeling
+      interaction:
+        - smooth_navigation
+        - fast_perceived_performance
+      density: []
+      typography: []
+      imagery: []
+      conversion:
+        - low_friction_primary_action
+      positive:
+        - smooth_navigation
+        - easy_to_navigate
+      negative: []
+  - reference_id: linear
+    url: https://linear.app/
+    selection_reason: Client likes the cleanliness but finds it too generic with no wow factor.
+    evidence_refs:
+      - likes_dislikes_table_2026-09-01
+    principles:
+      layout: []
+      hierarchy: []
+      interaction: []
+      density:
+        - restrained_clean_composition
+      typography: []
+      imagery: []
+      conversion: []
+      positive:
+        - clean_restrained_composition
+      negative:
+        - generic_minimal_saas_layout
+        - absence_of_distinctive_visual_identity
+  - reference_id: mintlify
+    url: https://www.mintlify.com/
+    accepted: false
+    rejection_reason: Client explicitly does not like Mintlify.
+  - reference_id: vercel
+    url: https://vercel.com/
+    accepted: false
+    rejection_reason: Client calls the marketing site too lame.

@@ -229,14 +229,37 @@ export function compilePageContentContract(
       // comparative lifespan claims no fact asserts (golden run #49: the
       // guide route's comparison content was flagged as unsupported claims).
       "lifespan",
+      // Proof-class coverage: "measurable client outcomes", "recognizable
+      // credibility signals", "quantifiable achievements", "third-party
+      // validation", and "experience indicators" demand proof only a
+      // verified fact can supply. A client with no public case studies or
+      // credentials (live run: quantumaipartners_com) cannot cover them
+      // without fabrication, and the SEO-Bot generator/validator then fail
+      // closed on exactly the right grounds — the contract itself was
+      // unsatisfiable. Methodology phrasings stay in the contract; the
+      // claim-level guardrails still catch any ungrounded claim in prose.
+      "client outcom", "measurabl", "quantifiab", "quantified", "credibility signal",
+      "third party", "third-party", "experience indicator", "track record",
+      "case stud", "testimonial", "client logo", "portfolio", "client brand",
+      "collaboration example", "industry-specific example", "client example",
+      "client validation", "recognizable", "substantiat", "innovation",
+      "latest", "industry", "benefit", "prominent",
     ];
     const factCorpus = routeFacts
       .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
       .join(" ")
       .toLowerCase();
     const isBacked = (value: string): boolean =>
-      !UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
-      factCorpus.includes(value.toLowerCase());
+      // (1) Marker gate: proof-class topics drop unless corpus-backed.
+      (!UNVERIFIABLE_TOPIC_MARKERS.some((marker) => value.toLowerCase().includes(marker)) ||
+        factCorpus.includes(value.toLowerCase())) &&
+      // (2) Structural gate: the blueprint LLM rephrases proof demands into
+      // long topic sentences ("measurable_transformation_examples",
+      // "step_by_step_industry_tailored_guides") that no marker list can
+      // exhaust. Real coverage topics are short; any topic of 3+ word
+      // segments must be corpus-backed verbatim or it drops.
+      (value.toLowerCase().split(/[\s_]+/).filter(Boolean).length < 3 ||
+        factCorpus.includes(value.toLowerCase()));
     const filterBacked = (values: string[]): string[] =>
       uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
     // Questions are phrased as questions, so the full-string corpus check
@@ -296,7 +319,39 @@ export function compilePageContentContract(
             // writer's attempt was scrubbed into "6 serving Charlotte"
             // residue and the validator kept the requirement unmet).
             "years of experience",
+            // Proof-demand family the blueprint rephrases per run:
+            // "quantified success metrics", "recognizable enterprise
+            // clients", "implementation success evidence", "business
+            // outcome tracking" (live runs, quantumaipartners_com).
+            "success", "outcom", "evidence", "metric", "enterprise",
+            "recogniz", "tracking", "client",
           ];
+          const proofSegments = proof.toLowerCase().split(/[\s_]+/).filter(Boolean);
+          const IMAGE_BACKED_PROOF_MARKERS = [
+            "photo",
+            "photos",
+            "image",
+            "images",
+            "gallery",
+            "diagram",
+            "visual",
+            "before and after",
+            "before-and-after",
+          ];
+          const isImageBacked = IMAGE_BACKED_PROOF_MARKERS.some((marker) =>
+            proof.toLowerCase().includes(marker),
+          );
+          // Same structural gate as coverage topics: multi-segment proof
+          // demands must be corpus-backed verbatim — the blacklist cannot
+          // exhaust the blueprint's rephrasing space. Image/gallery proof is
+          // satisfiable without a textual fact, so it is never dropped here.
+          if (
+            proofSegments.length >= 3 &&
+            !factCorpus.includes(proof.toLowerCase()) &&
+            !isImageBacked
+          ) {
+            return false;
+          }
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {
             return true;
           }

@@ -130,8 +130,18 @@ export class ImageGenerationStage implements Stage {
 
     for (const planned of generatedSlots) {
       if (planned.resolution.source !== "generated") continue;
-      const slot = assets.imageSlots?.find((candidate) => candidate.id === planned.slotId);
-      if (!slot) continue;
+      // The plan is the slot authority: blueprint-driven slots exist only in
+      // the plan (the planner merges spec slots into it), so a redesign
+      // client with no spec-authored slots must still generate. Looking
+      // slots up in assets.imageSlots alone skipped every planned asset for
+      // quantumaipartners_com — 20 "generated", zero images shipped.
+      const specSlot = (assets.imageSlots ?? []).find((candidate) => candidate.id === planned.slotId);
+      const slot: ImageSlotSpec = {
+        id: planned.slotId,
+        placement: planned.placement,
+        required: planned.required,
+        ...(specSlot?.altText ? { altText: specSlot.altText } : {}),
+      };
       const brief = planned.resolution.compiledBrief;
       const compiled = compileImagePrompt(brief, { compiler, designTokens: ctx.designTokens });
       const fingerprint = createHash("sha256")
