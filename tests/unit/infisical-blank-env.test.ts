@@ -5,7 +5,7 @@ import {
   decideSecretInject,
   isBlankEnvValue,
   unsetBlankProcessEnv,
-} from "../../packages/infisical-config/src/secrets.ts";
+} from "../../packages/infisical-config/src/secrets.js";
 
 void test("blank env values are unset, not present", () => {
   assert.equal(isBlankEnvValue(undefined), true);
