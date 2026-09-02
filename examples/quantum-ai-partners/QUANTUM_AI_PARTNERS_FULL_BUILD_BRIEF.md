@@ -106,7 +106,7 @@ Dark layered-systems aesthetic: `#0B0F17` canvas, cyan accent family, Space Grot
 
 ## Production build result
 
-Final converged build (pipeline run 22 of 22; 21 evidence builds recorded, one per run): `npm ci` ✓, `astro check` ✓ (after the siteConfig widening fix), `astro build` ✓ — 6 pages, sitemap-index.xml. Build proof: all checks passed; release receipt `status: partial` with `missing_gates: [github_publication, vercel_deployment]` — exactly the local-proof boundary.
+Final locally observed build (pipeline run 22 of 22; 21 evidence builds recorded in that session, one per run): `npm ci`, `astro check` (after the siteConfig widening fix), and `astro build` succeeded on the operator machine — 6 pages, sitemap-index.xml. Those command results are not committed as CI receipts. The release receipt recorded `status: partial` with `missing_gates: [github_publication, vercel_deployment]` — the local-proof boundary.
 
 ## Browser E2E results
 

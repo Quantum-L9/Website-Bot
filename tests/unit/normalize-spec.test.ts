@@ -70,15 +70,35 @@ test("structured brand tokens become resolved first-party design", () => {
       design: {
         design_status: "resolved",
         brand_tokens: {
-          colors: { primary: "#0B0F17", accent: "#22D3EE" },
+          colors: { primary: "#0B0F17", secondary: "#111827", accent: "#22D3EE" },
           typography: { heading: "Space Grotesk", body: "Inter" },
         },
       },
     }),
   );
   assert.equal(flat.design.status, "resolved");
-  assert.deepEqual(flat.design.palette, { primary: "#0B0F17", accent: "#22D3EE" });
+  assert.deepEqual(flat.design.palette, {
+    primary: "#0B0F17",
+    secondary: "#111827",
+    accent: "#22D3EE",
+  });
   assert.deepEqual(flat.design.fonts, { font_heading: "Space Grotesk", font_body: "Inter" });
+});
+
+test("incomplete structured palettes stay pending and are not carried as resolved", () => {
+  const flat = buildFlatSpec(
+    rich({
+      design: {
+        design_status: "resolved",
+        brand_tokens: {
+          colors: { primary: "#0B0F17", accent: "#22D3EE" },
+          typography: { heading: "Space Grotesk", body: "Inter" },
+        },
+      },
+    }),
+  );
+  assert.equal(flat.design.status, "pending");
+  assert.equal(flat.design.palette, undefined);
 });
 
 test("placeholder brand tokens keep the legacy pending path", () => {

@@ -327,10 +327,29 @@ export function compilePageContentContract(
             "recogniz", "tracking", "client",
           ];
           const proofSegments = proof.toLowerCase().split(/[\s_]+/).filter(Boolean);
+          const IMAGE_BACKED_PROOF_MARKERS = [
+            "photo",
+            "photos",
+            "image",
+            "images",
+            "gallery",
+            "diagram",
+            "visual",
+            "before and after",
+            "before-and-after",
+          ];
+          const isImageBacked = IMAGE_BACKED_PROOF_MARKERS.some((marker) =>
+            proof.toLowerCase().includes(marker),
+          );
           // Same structural gate as coverage topics: multi-segment proof
           // demands must be corpus-backed verbatim — the blacklist cannot
-          // exhaust the blueprint's rephrasing space.
-          if (proofSegments.length >= 3 && !factCorpus.includes(proof.toLowerCase())) {
+          // exhaust the blueprint's rephrasing space. Image/gallery proof is
+          // satisfiable without a textual fact, so it is never dropped here.
+          if (
+            proofSegments.length >= 3 &&
+            !factCorpus.includes(proof.toLowerCase()) &&
+            !isImageBacked
+          ) {
             return false;
           }
           if (!UNVERIFIABLE_PROOF_MARKERS.some((marker) => proof.toLowerCase().includes(marker))) {

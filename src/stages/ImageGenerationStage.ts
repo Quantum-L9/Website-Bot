@@ -135,10 +135,12 @@ export class ImageGenerationStage implements Stage {
       // client with no spec-authored slots must still generate. Looking
       // slots up in assets.imageSlots alone skipped every planned asset for
       // quantumaipartners_com — 20 "generated", zero images shipped.
+      const specSlot = (assets.imageSlots ?? []).find((candidate) => candidate.id === planned.slotId);
       const slot: ImageSlotSpec = {
         id: planned.slotId,
         placement: planned.placement,
         required: planned.required,
+        ...(specSlot?.altText ? { altText: specSlot.altText } : {}),
       };
       const brief = planned.resolution.compiledBrief;
       const compiled = compileImagePrompt(brief, { compiler, designTokens: ctx.designTokens });

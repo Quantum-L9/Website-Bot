@@ -412,6 +412,30 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
   assert.ok(services.proof_requirements.includes("material options"));
 });
 
+test("image-backed multi-word proof requirements are kept without a textual fact", () => {
+  const website = sealWebsite(websitePayload(landscapeRef));
+  const seo = sealSeo(
+    seoPayload(landscapeRef, [
+      seoRequirement({
+        proof_needed: ["before and after photos", "step by step diagram", "quantified success metrics"],
+      }),
+    ]),
+  );
+  const contract = compilePageContentContract({
+    websiteBlueprint: website,
+    seoBlueprint: seo,
+    businessFacts: facts,
+    compilerVersion: "1.0.0",
+  });
+  const home = contract.routes.find((r) => r.route_id === "home");
+  if (!home) throw new Error("expected a compiled home route");
+  const services = home.sections.find((s) => s.section_id === "services");
+  if (!services) throw new Error("expected a services section");
+  assert.ok(services.proof_requirements.includes("before and after photos"));
+  assert.ok(services.proof_requirements.includes("step by step diagram"));
+  assert.ok(!services.proof_requirements.includes("quantified success metrics"));
+});
+
 test("compiler is deterministic — identical inputs produce byte-identical output", () => {
   const website = sealWebsite(websitePayload(landscapeRef));
   const seo = sealSeo(seoPayload(landscapeRef, [seoRequirement()]));

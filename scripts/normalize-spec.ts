@@ -66,6 +66,22 @@ function hasPlaceholder(v: unknown): boolean {
   return typeof v === "string" && v.includes("{{") && v.includes("}}");
 }
 
+function hasPlaceholderDeep(v: unknown): boolean {
+  if (typeof v === "string") return hasPlaceholder(v);
+  if (Array.isArray(v)) return v.some(hasPlaceholderDeep);
+  if (isObject(v)) return Object.values(v).some(hasPlaceholderDeep);
+  return false;
+}
+
+const REQUIRED_PALETTE_KEYS = ["primary", "secondary"] as const;
+
+function paletteIsComplete(colors: Record<string, unknown>): boolean {
+  return REQUIRED_PALETTE_KEYS.every((key) => {
+    const value = colors[key];
+    return typeof value === "string" && value.length > 0 && !hasPlaceholder(value);
+  });
+}
+
 export function buildFlatSpec(nested: unknown): DomainSpec {
   const ds = (
     isObject(nested) && "domain_spec" in nested ? (nested as any).domain_spec : nested
@@ -75,8 +91,13 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
 
   // design: pending if the design is a placeholder or any brand token is a placeholder.
   const brandTokens = ds.design?.brand_tokens ?? {};
+  const structuredColors = isObject(brandTokens.colors)
+    ? (brandTokens.colors as Record<string, unknown>)
+    : undefined;
   const designPending =
-    ds.design?.design_status === "placeholder" || Object.values(brandTokens).some(hasPlaceholder);
+    ds.design?.design_status === "placeholder" ||
+    hasPlaceholderDeep(brandTokens) ||
+    (structuredColors !== undefined && !paletteIsComplete(structuredColors));
 
   // routes: each required_page resolves its components from its page_template
   // (by template_name, else by applies_to), or from an explicit `sections` list
@@ -173,7 +194,7 @@ function carryStructuredDesignTokens(ds: any, flat: DomainSpec): void {
   const brandTokens = ds.design?.brand_tokens ?? {};
   const colors = brandTokens.colors;
   const typography = brandTokens.typography;
-  if (isObject(colors) && Object.keys(colors).length > 0) {
+  if (isObject(colors) && paletteIsComplete(colors as Record<string, unknown>)) {
     flat.design = { ...flat.design, palette: colors as Record<string, string> };
   }
   if (isObject(typography)) {
