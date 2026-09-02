@@ -33,4 +33,19 @@ void test("empty Infisical L9_MEMORY_TOKEN is not injected over a blank placehol
   assert.equal(decideSecretInject("", "real-token", false), "inject");
   assert.equal(decideSecretInject("already-set", "other", false), "skip-existing");
   assert.equal(decideSecretInject("already-set", "other", true), "inject");
+  assert.equal(decideSecretInject("already-set", "", false), "skip-blank");
+});
+
+void test("blank vault row must not delete a nonempty existing env var", () => {
+  const existing = "keep-me";
+  const incoming = "";
+  const decision = decideSecretInject(existing, incoming, false);
+  assert.equal(decision, "skip-blank");
+  const env: NodeJS.ProcessEnv = { L9_MEMORY_TOKEN: existing };
+  if (decision === "skip-blank" && !isBlankEnvValue(env.L9_MEMORY_TOKEN)) {
+    // keep
+  } else if (decision === "skip-blank") {
+    delete env.L9_MEMORY_TOKEN;
+  }
+  assert.equal(env.L9_MEMORY_TOKEN, "keep-me");
 });

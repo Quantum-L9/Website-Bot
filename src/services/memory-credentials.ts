@@ -74,8 +74,12 @@ export function resolveMemoryCredentials(
   applyGraphitiMachineAliases(env);
   const mode = resolveMemoryMode(env);
   if (mode === "disabled") return null;
-  const bearerToken = (env.L9_MEMORY_TOKEN ?? env.GRAPHITI_MCP_TOKEN)?.trim();
-  const baseUrl = (env.L9_MEMORY_URL ?? env.GRAPHITI_MCP_URL)?.trim() || DEFAULT_L9_MEMORY_URL;
+  const bearerToken = (
+    isBlankMemoryValue(env.L9_MEMORY_TOKEN) ? env.GRAPHITI_MCP_TOKEN : env.L9_MEMORY_TOKEN
+  )?.trim();
+  const baseUrl =
+    (isBlankMemoryValue(env.L9_MEMORY_URL) ? env.GRAPHITI_MCP_URL : env.L9_MEMORY_URL)?.trim() ||
+    DEFAULT_L9_MEMORY_URL;
   if (!bearerToken) {
     if (mode === "required") {
       throw new Error("L9_MEMORY_TOKEN or GRAPHITI_MCP_TOKEN is required when L9_MEMORY_MODE=required");

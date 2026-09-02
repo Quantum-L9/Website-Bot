@@ -45,6 +45,19 @@ void test("explicit L9_MEMORY_* wins over Graphiti aliases", () => {
   });
 });
 
+void test("blank L9_MEMORY_* placeholders fall through to Graphiti aliases", () => {
+  const resolved = resolveMemoryCredentials({
+    L9_MEMORY_TOKEN: "",
+    L9_MEMORY_URL: "   ",
+    GRAPHITI_MCP_TOKEN: "machine-token",
+    GRAPHITI_MCP_URL: "http://127.0.0.1:8100/mcp/",
+  });
+  assert.deepEqual(resolved, {
+    baseUrl: "http://127.0.0.1:8100/mcp/",
+    bearerToken: "machine-token",
+  });
+});
+
 void test("optional mode still degrades when no token exists", () => {
   assert.equal(resolveMemoryCredentials({ L9_MEMORY_MODE: "optional" }), null);
 });
