@@ -1,0 +1,616 @@
+# =====================================================================
+# Website-Bot Clean Capability Test — RAW CLIENT INPUT (preserved verbatim)
+# =====================================================================
+# This file is the raw operator input to the benchmark. It intentionally
+# contains business truth, client intent, inspiration URLs, and subjective
+# likes/dislikes. It must NOT contain design conclusions: Website-Bot must
+# perform the design interpretation itself.
+# =====================================================================
+
+role:
+  identity: website_build_capability_tester
+repository:
+  target: https://github.com/Quantum-L9/Website-Bot
+execution_mode: REAL_END_TO_END_WEBSITE_BUILD_TEST
+objective: >
+  Build a complete production-quality website for a fictional AI company,
+  Quantum AI Partners.
+  This is a clean capability test of Website-Bot.
+  The supplied input intentionally contains raw business truth, client intent,
+  inspiration URLs, and subjective likes/dislikes.
+  Website-Bot must perform the design interpretation itself.
+  It must acquire and analyze the references, distinguish positive inspiration
+  from negative/differentiation signals, synthesize design intelligence,
+  compile WebsiteBuildBlueprintV2, integrate the appropriate SEO-Bot
+  intelligence, build the actual website, render it, and evaluate the resulting
+  experience.
+  Do not precompile design conclusions into the input.
+
+# -------------------------------------------------------------------
+# BUSINESS TRUTH
+# -------------------------------------------------------------------
+business:
+  name: Quantum AI Partners
+  description: >
+    Quantum AI Partners helps mid-market and enterprise companies design,
+    deploy, and operationalize AI systems.
+    The company works across AI strategy, custom AI applications, agentic
+    workflows, data and knowledge systems, automation, model integration,
+    and AI-enabled business transformation.
+  audience:
+    - founders
+    - CEOs
+    - CTOs
+    - operations leaders
+    - enterprise technology teams
+  primary_conversion_action:
+    schedule a strategy conversation
+  goals:
+    - communicate serious technical capability
+    - establish enterprise credibility
+    - distinguish the company from generic AI consultancies
+    - make sophisticated AI systems understandable
+    - generate qualified strategy conversations
+business_truth_policy:
+  verified:
+    - company name
+    - business description
+    - audience
+    - service categories stated above
+    - primary conversion action
+  unknown:
+    - customer logos
+    - customer names
+    - customer counts
+    - revenue
+    - years in business
+    - employee count
+    - certifications
+    - awards
+    - partnerships
+    - case-study metrics
+    - performance statistics
+    - office locations
+  rule: >
+    UNKNOWN facts remain UNKNOWN.
+    Do not fabricate customers, logos, testimonials, statistics,
+    certifications, awards, partnerships, case studies, locations,
+    performance claims, or social proof.
+
+# -------------------------------------------------------------------
+# RAW CLIENT VISION
+# -------------------------------------------------------------------
+client_vision:
+  raw_feedback: |
+    I want Quantum AI Partners to feel like a serious AI systems company,
+    not another generic AI consulting agency.
+    It should feel modern, intelligent, technically sophisticated and premium.
+    I want someone running a serious company to land on the website and
+    immediately feel that we understand complex AI systems and can actually
+    build them.
+    At the same time, I do not want technical sophistication to mean making
+    the website complicated.
+    I like strong visual hierarchy, depth, excellent typography, interesting
+    technical graphics and high-quality motion.
+    I do not want the site to feel noisy, gimmicky or overloaded.
+    I want each important page to feel intentionally composed instead of
+    looking like the same template with different text dropped into it.
+    The website should feel expensive, confident and controlled.
+    Motion should help explain ideas or create atmosphere. It should not exist
+    just to show off.
+    I want an original identity. The reference sites are there to communicate
+    my taste and reactions, not to provide templates to copy.
+  hard_requirements:
+    - serious enterprise credibility
+    - sophisticated technical character
+    - clear information hierarchy
+    - excellent typography and spacing
+    - intentional visual storytelling
+    - high-quality responsive mobile experience
+    - meaningful differentiation between major pages
+    - clear primary conversion path
+    - accessible navigation and content
+    - production-quality execution
+  hard_avoid:
+    - generic AI consulting aesthetic
+    - generic SaaS template appearance
+    - endless grids of interchangeable cards
+    - stock AI imagery
+    - glowing brains
+    - gratuitous futuristic effects
+    - excessive gradients
+    - excessive visual density
+    - interaction for interaction's sake
+    - fake product UI
+    - fake customer logos
+    - fake statistics
+    - unsupported business claims
+    - copying another company's layout, code, text, graphics or branding
+
+# -------------------------------------------------------------------
+# CLIENT-SUPPLIED REFERENCES
+# -------------------------------------------------------------------
+design_references:
+  - url: https://www.palantir.com/
+    relationship:
+      type: adjacent_product_and_category_reference
+      differentiation_required: true
+    client_feedback: |
+      Palantir is relevant because we have some similarity in the kind of
+      sophisticated systems/product space we want to communicate.
+      I like the seriousness, technical credibility and sense that they build
+      substantial systems.
+      But I do NOT want Quantum AI Partners to look like Palantir.
+      Their website feels too busy to me.
+      I especially dislike the interface demonstrations with all the zooming.
+      There is too much visual activity and too much competing for my attention.
+      I want Quantum AI Partners to communicate comparable technical seriousness
+      while being calmer, clearer and easier to absorb.
+      We should differentiate from them rather than imitate them.
+      Motion should clarify concepts or add atmosphere, not turn the website
+      into a complicated interface demonstration.
+  - url: https://www.baseten.co/
+    client_feedback: |
+      I like that this feels connected to real AI infrastructure rather than
+      generic AI marketing.
+      I like the technical character and the way complicated systems can be
+      communicated visually.
+      I am interested in the sense of depth and sophistication.
+      I do not want Website-Bot to simply reproduce their visual system or
+      page structures.
+  - url: https://linear.app/
+    client_feedback: |
+      I like the polish, typography, spacing, motion quality and attention to
+      detail.
+      Everything feels intentional.
+      I do not want Quantum AI Partners to look like a project-management SaaS
+      product, though.
+      Take this as a quality benchmark rather than a category or layout model.
+  - url: https://www.anthropic.com/
+    client_feedback: |
+      I like the confidence and restraint.
+      I like that sophisticated technology does not require covering every
+      surface with visual effects.
+      The typography and editorial feeling are appealing.
+      I would not want Quantum AI Partners to become quite this minimal.
+      We should have more visual expression and systems storytelling.
+  - url: https://openai.com/
+    client_feedback: |
+      I like the confidence, premium execution, typography, imagery/media and
+      overall level of polish.
+      I like that the site can feel sophisticated without looking like a
+      conventional enterprise software template.
+      I do not want to imitate OpenAI's brand identity or visual language.
+
+# -------------------------------------------------------------------
+# REFERENCE POLICY
+# -------------------------------------------------------------------
+reference_policy:
+  client_supplied:
+    count: 5
+    preferred_minimum: 5
+    maximum: 10
+  system_selected:
+    minimum: 0
+    maximum: 5
+  portfolio_maximum: 10
+  rule: >
+    Treat every client-supplied reference as contextual evidence, not a
+    template.
+    Analyze why the client likes or dislikes each reference.
+    Distinguish:
+      - category relevance
+      - quality benchmark
+      - positive inspiration
+      - negative inspiration
+      - differentiation target
+      - interaction preference
+      - visual preference
+    Website-Bot may strategically add up to five references when additional
+    references would fill genuinely missing design dimensions.
+    Do not add references simply to reach ten.
+    For every system-selected reference, record:
+      - why it was selected
+      - which missing design dimension it fills
+      - how it complements the client-supplied portfolio
+
+# -------------------------------------------------------------------
+# TEST PURITY
+# -------------------------------------------------------------------
+test_integrity:
+  purpose: >
+    Test Website-Bot's actual ability to convert human design intent and
+    references into an excellent website.
+  input_boundary:
+    allowed:
+      - business truth
+      - business goals
+      - raw client language
+      - URLs
+      - likes
+      - dislikes
+      - explicit hard requirements
+      - explicit hard avoids
+    forbidden_precompiled_input:
+      - design tokens
+      - chosen colors
+      - chosen fonts
+      - visual_direction
+      - pre-derived design principles
+      - pre-analyzed reference intelligence
+      - manually authored DesignReferenceIntelligence
+      - manually authored ClientDesignIntent
+      - manually authored WebsiteBuildBlueprintV2
+      - predetermined component selection
+      - predetermined page compositions
+      - manually translated reference characteristics
+      - implementation-specific styling instructions
+  rule: >
+    Do not improve the test result by manually doing design-intelligence work
+    that belongs to Website-Bot.
+    The operator has expressed taste.
+    Website-Bot must interpret it.
+
+# -------------------------------------------------------------------
+# EXPECTED INTELLIGENCE PIPELINE
+# -------------------------------------------------------------------
+expected_execution:
+  - preserve_raw_client_input
+  - acquire_reference_evidence
+  - analyze_each_client_reference
+  - interpret_each_reference_relative_to_client_feedback
+  - classify_positive_negative_and_differentiation_signals
+  - determine_missing_design_dimensions
+  - strategically_select_additional_references_if_useful
+  - analyze_system_selected_references
+  - build_final_DesignReferenceSet
+  - produce_DesignReferenceIntelligence
+  - synthesize_client_relative_design_direction
+  - compile_ClientDesignIntent_or_current_canonical_equivalent
+  - obtain_current_SEO_Bot_competitive_intelligence
+  - compile_WebsiteBuildBlueprintV2
+  - compile_SEOContentBlueprint
+  - deterministically_compile_PageContentContract
+  - obtain_StructuredContentPackage
+  - realize_WebsiteBuildBlueprintV2
+  - generate_actual_site_source
+  - build_actual_site
+  - render_desktop_and_mobile_pages
+  - evaluate_rendered_experience
+  - perform_bounded_repairs_when_the_render_materially_violates_the_blueprint
+  - produce_final_evidence_bearing_receipt
+
+# -------------------------------------------------------------------
+# REFERENCE ANALYSIS REQUIREMENT
+# -------------------------------------------------------------------
+reference_analysis:
+  rule: >
+    Website-Bot must inspect available evidence from the actual references.
+    Client feedback describes the client's reaction.
+    It is not a substitute for analyzing the reference.
+  each_reference_must_produce:
+    - evidence_refs
+    - client_relationship
+    - observed_design_characteristics
+    - positive_patterns
+    - negative_patterns
+    - interaction_characteristics
+    - hierarchy_characteristics
+    - typography_characteristics
+    - imagery_characteristics
+    - layout_characteristics
+    - conversion_characteristics
+    - portable_principles
+    - prohibited_transfers
+    - differentiation_implications
+  prohibition: >
+    Do not copy raw reference expression.
+    Do not copy text, CSS, HTML, proprietary graphics, brand identity,
+    exact layouts, or concrete visual expression.
+
+# -------------------------------------------------------------------
+# DESIGN SYNTHESIS REQUIREMENT
+# -------------------------------------------------------------------
+design_synthesis:
+  rule: >
+    Do not simply average the five reference sites.
+    Determine what the combined evidence says about THIS client.
+    Contradictions are useful evidence.
+    For example, technical sophistication may be desired while Palantir's
+    interaction density is explicitly rejected.
+    The synthesis should resolve such tensions into an original design
+    direction rather than selecting one reference as the winner.
+  must_answer:
+    - what should Quantum AI Partners feel like
+    - what should it explicitly not feel like
+    - what design principles best express that distinction
+    - how should technical complexity be communicated without creating interface complexity
+    - what role should motion play
+    - what role should technical visualization play
+    - how should major pages differ compositionally
+    - how should the company differentiate visually from adjacent companies
+    - what must remain consistent across the entire experience
+
+# -------------------------------------------------------------------
+# PALETTE / VISUAL AUTHORITY
+# -------------------------------------------------------------------
+palette_policy:
+  rule: >
+    No source, competitor, donor, or reference-site palette is authoritative.
+    The client has supplied no explicit color requirement.
+    Website-Bot must derive an original palette from the synthesized design
+    direction.
+  forbidden:
+    - copying Palantir colors
+    - copying Baseten colors
+    - copying Linear colors
+    - copying Anthropic colors
+    - copying OpenAI colors
+    - inheriting colors from another site because they were observed
+
+# -------------------------------------------------------------------
+# CONTENT / SEO AUTHORITY
+# -------------------------------------------------------------------
+seo_boundary:
+  rule: >
+    Preserve the canonical Website-Bot / SEO-Bot authority split.
+    SEO-Bot owns competitive/search intelligence, SEOContentBlueprint and
+    StructuredContentPackage.
+    Website-Bot owns client design intent, design-reference intelligence,
+    WebsiteBuildBlueprintV2, deterministic PageContentContract compilation
+    and website realization.
+    SEOContentBlueprint must not become upstream design authority.
+
+# -------------------------------------------------------------------
+# ROUTES
+# -------------------------------------------------------------------
+content_scope:
+  candidate_routes:
+    - /
+    - /services
+    - /solutions
+    - /approach
+    - /about
+    - /contact
+  rule: >
+    Treat these as the expected business-information surface, not mandatory
+    identical templates.
+    Website-Bot and SEO-Bot may refine route identity when justified by
+    current architecture and evidence.
+    Avoid unnecessary route proliferation.
+
+# -------------------------------------------------------------------
+# NO SILENT REPAIR DURING BENCHMARK
+# -------------------------------------------------------------------
+benchmark_integrity:
+  production_code_mutation: FORBIDDEN_DURING_TEST
+  rule: >
+    This run evaluates the repository as it exists at test start.
+    Do not silently repair Website-Bot, SEO-Bot, LLM-Router, bot-interop,
+    pipeline stages, schemas, validators, generators, or tests during the run.
+  if_product_defect_encountered:
+    - stop at the failing boundary
+    - preserve all evidence produced before failure
+    - identify the exact failing component
+    - identify the causal defect
+    - classify final status as BLOCKED_BY_PRODUCT_DEFECT
+    - propose the smallest repair separately
+    - do not modify production code
+    - do not resume the benchmark after modifying production code
+  exception: >
+    Changes to the generated Quantum AI Partners website itself are permitted
+    as part of normal bounded realization/repair.
+
+# -------------------------------------------------------------------
+# ACTUAL WEBSITE REQUIRED
+# -------------------------------------------------------------------
+website_delivery:
+  rule: >
+    A blueprint is not a website.
+    A successful build brief is not a website.
+    Passing unit tests are not a website.
+    Completion requires the actual generated website source, production build,
+    and rendered evidence.
+  require:
+    - generated_source_tree
+    - production_build_output
+    - runnable_site
+    - rendered_pages
+
+# -------------------------------------------------------------------
+# VISUAL VALIDATION
+# -------------------------------------------------------------------
+visual_validation:
+  required: true
+  viewports:
+    desktop:
+      width: 1440
+    mobile:
+      width: 390
+  render_at_minimum:
+    - homepage_desktop
+    - homepage_mobile
+    - services_desktop
+    - solutions_desktop
+    - one_additional_representative_page
+  evaluate:
+    - first_impression
+    - visual_hierarchy
+    - composition
+    - typography
+    - spacing
+    - color_system
+    - imagery
+    - technical_visualization
+    - motion
+    - information_density
+    - page_to_page_variety
+    - visual_coherence
+    - mobile_quality
+    - conversion_clarity
+    - originality
+    - reference_alignment
+    - differentiation_from_Palantir
+    - generic_template_risk
+  critical_questions:
+    - Does this look like a serious AI systems company?
+    - Does it look expensive and intentional?
+    - Is it calmer and clearer than Palantir?
+    - Is technical complexity communicated without making the interface complicated?
+    - Does motion clarify rather than distract?
+    - Do major pages have meaningful compositional differences?
+    - Does it avoid generic SaaS/AI-consulting visual language?
+    - Is the result clearly its own identity?
+    - Would the client reasonably recognize their stated preferences in the result?
+  rule: >
+    Evaluate the rendered website, not merely its HTML, CSS, component names,
+    blueprint, or test results.
+
+# -------------------------------------------------------------------
+# FUNCTIONAL VALIDATION
+# -------------------------------------------------------------------
+functional_validation:
+  require:
+    - production build succeeds
+    - required routes resolve
+    - navigation works
+    - mobile navigation works
+    - primary CTA works
+    - internal links resolve
+    - images load
+    - images have appropriate alt treatment
+    - no fatal browser console errors
+    - no obvious horizontal overflow
+    - repository accessibility gates pass
+    - repository SEO gates pass
+
+# -------------------------------------------------------------------
+# EVIDENCE CHAIN
+# -------------------------------------------------------------------
+required_evidence_chain:
+  - raw_client_input
+  - final_design_reference_set
+  - reference_evidence
+  - per_reference_analysis
+  - system_reference_selection_if_any
+  - design_reference_intelligence
+  - design_synthesis
+  - client_design_intent_or_canonical_equivalent
+  - competitive_landscape
+  - website_build_blueprint_v2
+  - seo_content_blueprint
+  - page_content_contract
+  - structured_content_package
+  - generated_site_source
+  - production_build
+  - rendered_screenshots
+  - experience_evaluation
+  - functional_validation
+  - final_build_receipt
+
+# -------------------------------------------------------------------
+# OUTPUT BUNDLE
+# -------------------------------------------------------------------
+required_output:
+  format: ZIP
+  rule: >
+    Package the actual evidence and website files, not merely a narrative
+    summary of their existence.
+  minimum_contents:
+    input:
+      - client-input.yaml
+    reference_evidence:
+      - final-reference-set.json
+      - per-reference-analysis
+      - acquired-reference-evidence
+    intelligence:
+      - design-reference-intelligence.json
+      - design-synthesis.json
+      - client-design-intent.json_or_current_equivalent
+      - competitive-landscape.json
+    contracts:
+      - website-build-blueprint-v2.json
+      - seo-content-blueprint.json
+      - page-content-contract.json
+      - structured-content-package.json_or_current_equivalent
+    website:
+      - complete_generated_source
+      - production_build_output
+    renders:
+      - homepage-desktop.png
+      - homepage-mobile.png
+      - services-desktop.png
+      - solutions-desktop.png
+      - additional-representative-page.png
+    validation:
+      - experience-evaluation.json
+      - functional-validation.json
+      - build-receipt.json
+      - validation-summary.md
+  forbidden_substitution:
+    - build_brief_instead_of_site
+    - claims_that_files_exist_without_packaging_them
+    - test_results_instead_of_rendered_site
+    - screenshots_instead_of_source
+    - source_instead_of_screenshots
+
+# -------------------------------------------------------------------
+# FINAL STATUS
+# -------------------------------------------------------------------
+final_status:
+  allowed:
+    - PASS
+    - FAIL_DESIGN_QUALITY
+    - FAIL_FUNCTIONAL
+    - BLOCKED_BY_PRODUCT_DEFECT
+    - BLOCKED_BY_EXTERNAL_DEPENDENCY
+  PASS_requires:
+    - complete intelligence chain
+    - WebsiteBuildBlueprintV2
+    - actual generated website source
+    - successful production build
+    - rendered desktop evidence
+    - rendered mobile evidence
+    - functional validation
+    - rendered-experience evaluation
+    - required output ZIP
+  rule: >
+    Do not convert an incomplete run into PASS by describing what would have
+    happened next.
+
+# -------------------------------------------------------------------
+# FINAL REPORT
+# -------------------------------------------------------------------
+final_report:
+  include:
+    - repository_HEAD_tested
+    - final_status
+    - reference_sites_actually_acquired
+    - additional_references_selected_and_why
+    - design_intelligence_summary
+    - resulting_design_direction
+    - major_blueprint_decisions
+    - SEO_intelligence_used
+    - site_routes_built
+    - functional_validation_results
+    - visual_evaluation_results
+    - client_intent_alignment
+    - Palantir_differentiation_assessment
+    - remaining_defects
+    - output_ZIP_path
+  honesty_rule: >
+    Clearly distinguish observed evidence, derived judgment, and UNKNOWN.
+    Do not claim a capability was exercised when the corresponding evidence
+    artifact does not exist.
+
+operator_directive: >
+  Execute this as a clean benchmark against the current repository state.
+  Do not manually enrich DomainSpec with design conclusions before execution.
+  Do not translate the client's reference feedback into implementation
+  instructions.
+  Do not choose the design for Website-Bot.
+  Let the system earn the design.
+  If the repository cannot move from this raw input to the required next
+  artifact, stop there and identify that exact missing capability.
+  At completion, return the full evidence-bearing ZIP, including the actual
+  generated website.

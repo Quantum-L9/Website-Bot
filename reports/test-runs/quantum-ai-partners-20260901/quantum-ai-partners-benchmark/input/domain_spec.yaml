@@ -1,0 +1,224 @@
+# L9_META: layer=configuration, role=benchmark_input, status=active, version=1.0.0
+# Flat DomainSpec for the Quantum AI Partners clean capability test.
+#
+# TEST-PURITY NOTE: this spec carries ONLY raw first-party input.
+#   - client_vision fields contain the client's own words (likes, dislikes,
+#     requirements, avoids). No design tokens, no chosen colors/fonts, no
+#     derived design principles.
+#   - design_references carry the client's verbatim feedback as
+#     selection_reason. `principles` are intentionally OMITTED: translating
+#     reference characteristics is Website-Bot's job, not the operator's.
+#   - design.status is `pending`: Website-Bot must resolve the design itself.
+#   - geography is a required pipeline field; the client supplied no region,
+#     so the least specific value ("US" national service area) is used. This
+#     is a build-context assumption, not a business-truth claim.
+client_id: quantum-ai-partners
+business_name: Quantum AI Partners
+vertical: ai_systems_consulting
+geography:
+  states:
+    - US
+  primary_state: US
+design:
+  status: pending
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - trust_bar
+      - services_overview
+      - audience_paths
+      - cta
+  - slug: /services
+    title: Services
+    components:
+      - hero
+      - services_overview
+      - process
+      - faq
+  - slug: /solutions
+    title: Solutions
+    components:
+      - hero
+      - audience_paths
+      - services_overview
+      - cta
+  - slug: /approach
+    title: Approach
+    components:
+      - hero
+      - process
+      - trust_bar
+      - cta
+  - slug: /about
+    title: About
+    components:
+      - hero
+      - trust_bar
+      - cta
+  - slug: /contact
+    title: Contact
+    components:
+      - hero
+      - cta
+seo_contract:
+  # Fictional benchmark site URL (required pipeline parameter; the site is
+  # never deployed and the domain is not claimed as registered).
+  site_url: quantumaipartners.ai
+  target_keywords:
+    - enterprise AI systems implementation
+    - AI consulting for mid-market companies
+    - custom AI application development
+    - agentic AI workflow implementation
+    - AI strategy for executives
+    - AI operationalization services
+build_intent: REDESIGN_IMPROVE
+business_facts:
+  business_description: >-
+    Quantum AI Partners helps mid-market and enterprise companies design,
+    deploy, and operationalize AI systems. The company works across AI
+    strategy, custom AI applications, agentic workflows, data and knowledge
+    systems, automation, model integration, and AI-enabled business
+    transformation.
+  audience:
+    - founders
+    - CEOs
+    - CTOs
+    - operations leaders
+    - enterprise technology teams
+  service_categories:
+    - AI strategy
+    - custom AI applications
+    - agentic workflows
+    - data and knowledge systems
+    - automation
+    - model integration
+    - AI-enabled business transformation
+  primary_conversion_action: schedule a strategy conversation
+client_vision:
+  desired_outcomes:
+    - communicate serious technical capability
+    - establish enterprise credibility
+    - distinguish the company from generic AI consultancies
+    - make sophisticated AI systems understandable
+    - generate qualified strategy conversations
+  brand_attributes:
+    - a serious AI systems company
+    - not another generic AI consulting agency
+    - modern
+    - intelligent
+    - technically sophisticated
+    - premium
+    - expensive, confident and controlled
+  visual_preferences:
+    - strong visual hierarchy
+    - depth
+    - excellent typography
+    - interesting technical graphics
+    - high-quality motion
+    - each important page feels intentionally composed
+    - motion should help explain ideas or create atmosphere
+  liked_examples:
+    - https://www.palantir.com/
+    - https://www.baseten.co/
+    - https://linear.app/
+    - https://www.anthropic.com/
+    - https://openai.com/
+  preserve:
+    - technical seriousness, credibility and a sense of substantial systems
+    - connection to real AI infrastructure rather than generic AI marketing
+    - technical character and visual communication of complicated systems
+    - sense of depth and sophistication
+    - polish, typography, spacing, motion quality and attention to detail
+    - confidence and restraint
+    - premium execution and level of polish
+    - sophisticated without looking like a conventional enterprise software template
+  change:
+    - too busy
+    - interface demonstrations with all the zooming
+    - too much visual activity and too much competing for attention
+    - project-management SaaS product look
+    - too minimal
+    - imitate OpenAI's brand identity or visual language
+    - look like Palantir
+  conversion_priorities:
+    - schedule a strategy conversation
+  explicit_constraints:
+    - serious enterprise credibility
+    - sophisticated technical character
+    - clear information hierarchy
+    - excellent typography and spacing
+    - intentional visual storytelling
+    - high-quality responsive mobile experience
+    - meaningful differentiation between major pages
+    - clear primary conversion path
+    - accessible navigation and content
+    - production-quality execution
+    - no generic AI consulting aesthetic
+    - no generic SaaS template appearance
+    - no endless grids of interchangeable cards
+    - no stock AI imagery
+    - no glowing brains
+    - no gratuitous futuristic effects
+    - no excessive gradients
+    - no excessive visual density
+    - no interaction for interaction's sake
+    - no fake product UI
+    - no fake customer logos
+    - no fake statistics
+    - no unsupported business claims
+    - no copying another company's layout, code, text, graphics or branding
+    - not noisy, gimmicky or overloaded
+    - no motion that exists just to show off
+design_references:
+  - reference_id: palantir
+    url: https://www.palantir.com/
+    selection_reason: >
+      Palantir is relevant because we have some similarity in the kind of
+      sophisticated systems/product space we want to communicate. I like the
+      seriousness, technical credibility and sense that they build substantial
+      systems. But I do NOT want Quantum AI Partners to look like Palantir.
+      Their website feels too busy to me. I especially dislike the interface
+      demonstrations with all the zooming. There is too much visual activity
+      and too much competing for my attention. I want Quantum AI Partners to
+      communicate comparable technical seriousness while being calmer, clearer
+      and easier to absorb. We should differentiate from them rather than
+      imitate them. Motion should clarify concepts or add atmosphere, not turn
+      the website into a complicated interface demonstration.
+  - reference_id: baseten
+    url: https://www.baseten.co/
+    selection_reason: >
+      I like that this feels connected to real AI infrastructure rather than
+      generic AI marketing. I like the technical character and the way
+      complicated systems can be communicated visually. I am interested in the
+      sense of depth and sophistication. I do not want Website-Bot to simply
+      reproduce their visual system or page structures.
+  - reference_id: linear
+    url: https://linear.app/
+    selection_reason: >
+      I like the polish, typography, spacing, motion quality and attention to
+      detail. Everything feels intentional. I do not want Quantum AI Partners
+      to look like a project-management SaaS product, though. Take this as a
+      quality benchmark rather than a category or layout model.
+  - reference_id: anthropic
+    url: https://www.anthropic.com/
+    selection_reason: >
+      I like the confidence and restraint. I like that sophisticated technology
+      does not require covering every surface with visual effects. The
+      typography and editorial feeling are appealing. I would not want Quantum
+      AI Partners to become quite this minimal. We should have more visual
+      expression and systems storytelling.
+  - reference_id: openai
+    url: https://openai.com/
+    selection_reason: >
+      I like the confidence, premium execution, typography, imagery/media and
+      overall level of polish. I like that the site can feel sophisticated
+      without looking like a conventional enterprise software template. I do
+      not want to imitate OpenAI's brand identity or visual language.
+assets:
+  generation:
+    enabled: true
+    model: gemini-2.5-flash-image
+    budgetUsd: 1.5
+    promptCompiler: default
