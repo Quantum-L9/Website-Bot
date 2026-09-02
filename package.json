@@ -51,7 +51,7 @@
     "verify:crm": "npx tsx scripts/validation-executor.ts run --profile crm",
     "verify:seo": "npx tsx scripts/validation-executor.ts run --profile seo",
     "verify:rollback": "npx tsx scripts/validation-executor.ts run --profile rollback",
-    "verify:launch-env": "npm run validate",
+    "verify:launch-env": "node scripts/verify-launch-env.mjs --client-launch",
     "verify:deploy-secrets": "node scripts/verify-deploy-secrets.mjs",
     "verify:visual-qa": "node scripts/verify-visual-qa.mjs",
     "campaign": "npx tsx scripts/campaign.ts",

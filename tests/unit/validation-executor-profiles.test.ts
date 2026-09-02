@@ -86,7 +86,7 @@ void test('spawned site-template profiles do not exit INCOMPLETE non-evidence', 
       },
     );
     const out = `${result.stdout}\n${result.stderr}`;
-    assert.notEqual(result.status, 2, `${profile} must not exit INCOMPLETE; stderr=${result.stderr}`);
+    assert.equal(result.status, 0, `${profile} must exit 0; stderr=${result.stderr}`);
     assert.doesNotMatch(out, /site_level_validation_unimplemented/);
     assert.doesNotMatch(out, /"non_evidence": true/);
   }

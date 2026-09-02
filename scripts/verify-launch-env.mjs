@@ -34,8 +34,11 @@ function applyCommittedValues() {
   return { loaded: true, keys };
 }
 
-const valuesMeta = applyCommittedValues();
+// Operator .env.local / Infisical must land before committed YAML defaults,
+// otherwise applyCommittedValues() fills process.env and loadDotEnvLocal()
+// cannot override (it never overwrites existing keys).
 const hydrateMeta = await hydrateSecretsIfConfigured();
+const valuesMeta = applyCommittedValues();
 
 const invalidMarkers = new Set([
   '', 'UNKNOWN', 'Unknown', 'unknown',
@@ -96,6 +99,9 @@ const missingSecrets = secretsForLaunch.filter((key) => isMissing(process.env[ke
 
 const gateFailures = [];
 if (clientLaunch) {
+  if (!formProvider || formProvider === 'none') {
+    gateFailures.push('FORM_PROVIDER must be a real provider (not none) for client production launch.');
+  }
   if (process.env.LEGAL_DISCLAIMER_APPROVED !== 'true') {
     gateFailures.push('LEGAL_DISCLAIMER_APPROVED must be true for client production launch.');
   }

@@ -1,14 +1,14 @@
 run_metadata:
-  run_id: c62f4d85-3aef-49df-8ff7-53dc0346f158
+  run_id: 8a3153ad-c205-4d63-9dac-38301fc4d4c3
   report_schema_version: 1.0.0
-  started_at: 2026-08-12T14:57:27.683Z
-  ended_at: 2026-08-12T14:57:27.942Z
-  duration: 259
+  started_at: 2026-09-02T20:23:41.177Z
+  ended_at: 2026-09-02T20:23:41.443Z
+  duration: 266
   last_completed_stage: audit_report_generation
 execution_context:
   target_roots:
-    - /Users/ib-mac/Website-Bot
-  source_revision: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    - /Users/ib-mac/.l9/website-bot-worktrees/replay-launch-env-20260902T012107Z
+  source_revision: efc53128be341a1bddb1178839c7265dd61eff35
   running_revision: null
   target_environment: local
   environment_type: local
@@ -43,11 +43,13 @@ execution_context:
     - inngest
     - pg
     - pino
+    - undici
     - yaml
     - "@types/better-sqlite3"
     - "@types/node"
     - "@types/pg"
     - pino-pretty
+    - playwright
     - tsx
     - typescript
   required_credentials:
@@ -128,12 +130,12 @@ execution_context:
   evidence_root: build/evidence
 authority_sources:
   - source: package.json
-    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    revision_or_version: efc53128be341a1bddb1178839c7265dd61eff35
     applicable_scope: execution_configuration
     precedence: 1
     verification_status: verified
   - source: tsconfig.json
-    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    revision_or_version: efc53128be341a1bddb1178839c7265dd61eff35
     applicable_scope: execution_configuration
     precedence: 2
     verification_status: verified
@@ -143,17 +145,17 @@ authority_sources:
     precedence: 3
     verification_status: verified
   - source: config/launch-env.required.yaml
-    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    revision_or_version: efc53128be341a1bddb1178839c7265dd61eff35
     applicable_scope: execution_configuration
     precedence: 4
     verification_status: verified
   - source: .github/workflows/ci.yml
-    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    revision_or_version: efc53128be341a1bddb1178839c7265dd61eff35
     applicable_scope: execution_configuration
     precedence: 5
     verification_status: verified
   - source: Makefile
-    revision_or_version: c0ee7eacc4837ecd29fce379f69aa856f6259fce
+    revision_or_version: efc53128be341a1bddb1178839c7265dd61eff35
     applicable_scope: execution_configuration
     precedence: 6
     verification_status: verified
@@ -168,13 +170,13 @@ discovery_inventory:
       check_name: Astro template package present
       blocking: true
       command: node -e "require('node:fs').accessSync('astro_template/package.json')"
-      working_directory: /Users/ib-mac/Website-Bot
+      working_directory: /Users/ib-mac/.l9/website-bot-worktrees/replay-launch-env-20260902T012107Z
       status: Passed
       exit_code: 0
       termination_signal: null
-      started_at: 2026-08-12T14:57:27.743Z
-      ended_at: 2026-08-12T14:57:27.774Z
-      duration: 31
+      started_at: 2026-09-02T20:23:41.235Z
+      ended_at: 2026-09-02T20:23:41.263Z
+      duration: 28
       primary_failure_classification: null
       contributing_causes: []
       root_cause_group: null
@@ -192,9 +194,9 @@ discovery_inventory:
       attempt: 1
       command_or_invocation: npm --prefix astro_template run verify:rollback
       status: Passed
-      started_at: 2026-08-12T14:57:27.778Z
-      ended_at: 2026-08-12T14:57:27.939Z
-      duration: 161
+      started_at: 2026-09-02T20:23:41.265Z
+      ended_at: 2026-09-02T20:23:41.440Z
+      duration: 175
       assertion_or_error: null
       exit_code_or_runner_result: 0
       primary_failure_classification: null
@@ -344,37 +346,37 @@ evidence_manifest:
   - evidence_id: preflight_astro-template-present
     evidence_type: command_execution
     file_path: preflight_astro-template-present.json
-    checksum: fa62ea8de78aa80735b88cf0e1d79ee4b855d994df01c7585599a04a3192fbb4
+    checksum: 448038322ae63f76cfbd5a49452bbe150fdad3ec6bc43051766fc6d30eef3229
     file_size: 597
-    created_at: 2026-08-12T14:57:27.775Z
+    created_at: 2026-09-02T20:23:41.264Z
     integrity_validated: true
   - evidence_id: e2e_verify-rollback_attempt_1
     evidence_type: command_execution
     file_path: e2e_verify-rollback_attempt_1.json
-    checksum: 5e3f5e05f7e43bae0925b93a1939b0d11cb18bc5050b53fce17478fd2e741d71
+    checksum: 0b7fc2597a3ce6658cd428a261ab72e6b834a6de3b67bc1eb3a2294eeb311a1f
     file_size: 592
-    created_at: 2026-08-12T14:57:27.940Z
+    created_at: 2026-09-02T20:23:41.441Z
     integrity_validated: true
 validation_gates:
   execution_context_resolved:
     status: Passed
     evidence_references:
-      - execution_context_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
+      - execution_context_validation_8a3153ad-c205-4d63-9dac-38301fc4d4c3
   authoritative_inventory_resolved:
     status: Passed
     evidence_references:
-      - inventory_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
+      - inventory_validation_8a3153ad-c205-4d63-9dac-38301fc4d4c3
   preparation_passed:
     status: Passed
     evidence_references:
-      - preparation_validation_c62f4d85-3aef-49df-8ff7-53dc0346f158
+      - preparation_validation_8a3153ad-c205-4d63-9dac-38301fc4d4c3
   preflight_inventory_complete:
     status: Passed
     evidence_references: []
   preflight_passed:
     status: Passed
     evidence_references:
-      - preflight_gate_evaluation_df4870e4-8328-4228-9929-62bcae594a6b
+      - preflight_gate_evaluation_6838455d-8a03-4bda-a131-7a4803e0de1c
       - preflight_astro-template-present_result
   e2e_gate_enforced:
     status: Passed
@@ -385,7 +387,7 @@ validation_gates:
   e2e_tests_passed:
     status: Passed
     evidence_references:
-      - e2e_gate_evaluation_1d851c4a-f4bb-4693-ac68-f0102d83c8a6
+      - e2e_gate_evaluation_8456a3b2-ed7f-43d4-8873-415e25ee3ed9
       - e2e_verify-rollback_result
   no_unauthorized_skips:
     status: Passed
@@ -396,7 +398,7 @@ validation_gates:
   evidence_complete:
     status: Passed
     evidence_references:
-      - evidence_integrity_c62f4d85-3aef-49df-8ff7-53dc0346f158
+      - evidence_integrity_8a3153ad-c205-4d63-9dac-38301fc4d4c3
   failure_classification_complete:
     status: Passed
     evidence_references: []

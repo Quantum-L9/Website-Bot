@@ -41,7 +41,14 @@ function loadDotEnvLocal() {
     const key = trimmed.slice(0, eq).trim();
     if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
     if (process.env[key] !== undefined) continue;
-    process.env[key] = trimmed.slice(eq + 1);
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"'))
+      || (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
   }
 }
 
