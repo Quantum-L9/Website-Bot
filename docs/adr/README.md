@@ -68,6 +68,10 @@ No artifact has joint mutable ownership.
 - **Images:** optional `DomainSpec.assets`; image evidence outside the mandatory release chain (ADR-0015).
 - **Evidence spine:** `EvidenceStore` is authoritative; emitter does not repair missing proof (ADR-0016).
 - **LLM credentials:** required for generation claims, not for launch (ADR-0017).
+- **Blueprint authority:** exactly one active contract — `WebsiteBuildBlueprintV2`.
+  V1 is superseded and removed. `ClientVision` and `DesignReferenceIntelligence`
+  are first-party design authorities; observed palettes are non-authoritative
+  under `REDESIGN_IMPROVE` (ADR-0018).
 
 ## Related design docs (not ADRs)
 
@@ -79,4 +83,8 @@ Design notes that are not numbered decisions stay under
 
 The SEO-Bot side of the redesign-improve architecture is recorded in the SEO-Bot
 `adr/` series (ADR-0010–ADR-0014). Both packs share the
-`l9.website-intelligence/v1` protocol and `contracts/WEBSITE_INTELLIGENCE_LOCK.json`.
+`l9.website-intelligence/v1` protocol envelope and
+`contracts/WEBSITE_INTELLIGENCE_LOCK.json`, and both vendor the identical
+`bot-interop` source, mechanically proven by
+`scripts/validate-interop-parity.mjs` against
+`contracts/BOT_INTEROP_PARITY.json` (WBV2-014).

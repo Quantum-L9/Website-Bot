@@ -7,6 +7,11 @@ import type {
   StructuredContentPackageArtifact,
   WebsiteBuildBlueprintArtifact,
 } from "@quantum-l9/bot-interop";
+import type {
+  ClientVision,
+  DesignReferenceIntelligence,
+  DesignReferenceSet,
+} from "../intelligence/design-authority.js";
 import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
 import type { SeoBotPreflightResult } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
@@ -129,6 +134,56 @@ export interface DomainSpec {
   assets?: AssetSpec;
   /** Transformation intent. Legacy specs default to COPY; REDESIGN_IMPROVE must be explicit. */
   build_intent?: "COPY" | "REDESIGN_IMPROVE";
+  /**
+   * Explicit client design intent (ADR-0018, WBV2-003). Resolved into
+   * `ClientVision`, which outranks any inferred source/donor/reference
+   * observation. Omit the block entirely when the client stated nothing —
+   * a declared but empty vision is rejected rather than silently ignored.
+   */
+  client_vision?: ClientVisionSpec;
+  /**
+   * Design references the operator accepted or rejected on the client's
+   * behalf (WBV2-004). Accepted references contribute abstracted principles
+   * only; raw copy, markup, CSS and imagery never transfer.
+   */
+  design_references?: DesignReferenceSpec[];
+}
+
+/** Raw first-party client design intent, as written in the spec. */
+export interface ClientVisionSpec {
+  desired_outcomes?: string[];
+  brand_attributes?: string[];
+  visual_preferences?: string[];
+  liked_examples?: string[];
+  disliked_examples?: string[];
+  preserve?: string[];
+  change?: string[];
+  conversion_priorities?: string[];
+  explicit_constraints?: string[];
+  /** Explicit client color intent — the only client-side palette authority. */
+  palette?: Record<string, string>;
+}
+
+/** Raw first-party design reference entry, as written in the spec. */
+export interface DesignReferenceSpec {
+  reference_id: string;
+  url?: string;
+  /** Defaults to accepted; set false with a rejection_reason to record a rejection. */
+  accepted?: boolean;
+  selection_reason?: string;
+  rejection_reason?: string;
+  evidence_refs?: string[];
+  principles?: {
+    layout?: string[];
+    hierarchy?: string[];
+    interaction?: string[];
+    density?: string[];
+    typography?: string[];
+    imagery?: string[];
+    conversion?: string[];
+    positive?: string[];
+    negative?: string[];
+  };
 }
 
 /** A resolved image as exposed to the generated Astro site's siteConfig. */
@@ -201,6 +256,12 @@ export interface BuildContext {
    * REDESIGN_IMPROVE; every artifact is lineage-checked before use and the
    * counters prove the deterministic/zero-LLM invariants at runtime.
    */
+  /** Resolved explicit client design intent (WBV2-003). */
+  clientVision?: ClientVision;
+  /** Resolved accepted/rejected design reference portfolio (WBV2-004). */
+  designReferenceSet?: DesignReferenceSet;
+  /** Abstracted design principles derived from the accepted references. */
+  designReferenceIntelligence?: DesignReferenceIntelligence;
   competitiveLandscape?: CompetitiveLandscapeArtifact;
   /** Server-side ordering stamps proving preflight preceded the first
    * SEO build-intelligence call (oracle ORACLE-005). */

@@ -2,25 +2,27 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import {
-  type CompetitiveLandscapeArtifact,
-  type ContentSlot,
-  canonicalJson,
-  refForArtifact,
-  sealIntelligenceArtifact,
-  WEBSITE_INTELLIGENCE_SCHEMAS,
-  type VisualRequirement,
-  type WebsiteBlueprintRoute,
-  type WebsiteBlueprintSection,
-  type WebsiteBuildBlueprintArtifact,
-  type WebsiteBuildBlueprintV1,
-} from "@quantum-l9/bot-interop";
+import { type CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
+import {
+  abstractPaletteCharacteristics,
+  deriveDesignReferenceIntelligence,
+  resolveClientVision,
+  resolveDesignReferenceSet,
+  resolvePaletteAuthority,
+} from "../intelligence/design-authority.js";
 import {
   type AcceptedDonorEvidence,
   type DonorIngestor,
   HttpDonorIngestor,
 } from "../intelligence/DonorIngestion.js";
+import {
+  ALLOWED_DISPOSITIONS,
+  compileWebsiteBuildBlueprint,
+  type Disposition,
+  type HarvestedPattern,
+  type PatternPortfolio,
+} from "../intelligence/WebsiteBuildBlueprintCompiler.js";
 import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import {
@@ -33,33 +35,6 @@ import type { Stage } from "../pipeline/PipelineRunner.js";
 import { extractJson } from "../services/extractJson.js";
 
 const logger = createModuleLogger("stage:competitive-intelligence");
-
-const ALLOWED_DISPOSITIONS = [
-  "PORT",
-  "PORT_WITH_HARDENING",
-  "CONFIGURE",
-  "MERGE_WITH_EXISTING",
-  "KEEP_LOCAL",
-  "MIGRATION_CONTEXT",
-  "REJECT",
-  "UNKNOWN",
-] as const;
-type Disposition = (typeof ALLOWED_DISPOSITIONS)[number];
-
-interface HarvestedPattern {
-  pattern_id: string;
-  evidence: string;
-  invariant: string;
-  disposition: Disposition;
-  beneficiary_destination: string;
-  risk: string;
-  acceptance_test: string;
-  donor_frequency: number;
-}
-
-interface PatternPortfolio {
-  patterns: HarvestedPattern[];
-}
 
 const STATE_NAME: Record<string, string> = {
   AL: "Alabama,United States",
@@ -80,8 +55,14 @@ function canonicalLocationName(primaryState: string): string {
   return STATE_NAME[primaryState.trim().toUpperCase()] ?? "United States";
 }
 
-function digestOf(value: unknown): string {
-  return createHash("sha256").update(canonicalJson(value)).digest("hex");
+/**
+ * The observed source-site palette enters the blueprint as abstract
+ * characteristics and nothing else (WBV2-007). Concrete values stay in the
+ * source-site manifest, where they remain correct evidence and correct COPY
+ * input, and are simply not design authority for a redesign.
+ */
+function observedPaletteCharacteristics(ctx: BuildContext): string[] {
+  return abstractPaletteCharacteristics(ctx.sourceSiteManifest?.palette);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -280,341 +261,6 @@ export async function acquireAcceptedDonors(
   return accepted;
 }
 
-const CONTENT_SLOTS: readonly string[] = [
-  "primary_offer",
-  "service_overview",
-  "differentiation",
-  "trust",
-  "process",
-  "project_proof",
-  "local_relevance",
-  "objection_handling",
-  "faq",
-  "conversion",
-  "metadata",
-];
-
-function contentSlots(value: unknown): ContentSlot[] {
-  if (!Array.isArray(value)) return [];
-  return value.map(String).filter((slot): slot is ContentSlot => CONTENT_SLOTS.includes(slot));
-}
-
-function uniqueSlots(slots: ContentSlot[]): ContentSlot[] {
-  const seen = new Set<ContentSlot>();
-  const ordered: ContentSlot[] = [];
-  for (const slot of CONTENT_SLOTS) {
-    if (slots.includes(slot as ContentSlot) && !seen.has(slot as ContentSlot)) {
-      seen.add(slot as ContentSlot);
-      ordered.push(slot as ContentSlot);
-    }
-  }
-  return ordered;
-}
-
-/**
- * Spec-component → canonical slot hints. Used only to place missing slots on
- * the most relevant existing section; leftover slots still land on section 0.
- */
-function slotsForSpecComponent(component: string): ContentSlot[] {
-  const name = component.toLowerCase();
-  if (name.includes("hero")) return ["primary_offer"];
-  if (name.includes("service")) return ["service_overview", "primary_offer"];
-  if (name.includes("trust") || name.includes("warranty")) return ["trust"];
-  if (name.includes("faq")) return ["faq"];
-  if (name.includes("contact") || name.includes("cta") || name.includes("map"))
-    return ["conversion"];
-  if (name.includes("storm") || name.includes("area"))
-    return ["local_relevance", "objection_handling"];
-  if (name.includes("process")) return ["process"];
-  if (name.includes("gallery") || name.includes("project") || name.includes("proof"))
-    return ["project_proof"];
-  return [];
-}
-
-function sectionMatchesComponent(section: WebsiteBlueprintSection, component: string): boolean {
-  const needle = component.toLowerCase();
-  return (
-    section.section_id.toLowerCase() === needle ||
-    section.section_id.toLowerCase().includes(needle) ||
-    section.component_class.toLowerCase().includes(needle)
-  );
-}
-
-/**
- * Deterministic completeness for Campaign 7 PCC compilation: every sealed
- * route must expose the full canonical ContentSlot set. SEO-Bot may require
- * any of those slots; an LLM-sparse section list must not make a valid
- * required requirement unplaceable. CONTENT_REQUIREMENT_UNPLACED still
- * fires if a requirement targets a slot outside this closed set.
- */
-export function ensureCanonicalSlotCoverage(
-  sections: WebsiteBlueprintSection[],
-  specComponents: string[] = [],
-): WebsiteBlueprintSection[] {
-  const next: WebsiteBlueprintSection[] =
-    sections.length > 0
-      ? sections.map((section) => ({
-          ...section,
-          content_slots: uniqueSlots(section.content_slots),
-        }))
-      : [
-          {
-            section_id: "canonical-coverage",
-            component_class: "prose",
-            objective: "canonical content-slot coverage",
-            content_slots: [],
-            pattern_refs: [],
-            proof_requirements: [],
-          },
-        ];
-
-  for (const component of specComponents) {
-    const derived = slotsForSpecComponent(component);
-    if (derived.length === 0) continue;
-    const match = next.find((section) => sectionMatchesComponent(section, component)) ?? next[0];
-    match.content_slots = uniqueSlots([...match.content_slots, ...derived]);
-  }
-
-  const covered = new Set<ContentSlot>(next.flatMap((section) => section.content_slots));
-  const missing = CONTENT_SLOTS.filter((slot): slot is ContentSlot => !covered.has(slot as ContentSlot));
-  if (missing.length > 0) {
-    next[0].content_slots = uniqueSlots([...next[0].content_slots, ...missing]);
-  }
-
-  // Section-per-component parity: the projection stage maps spec component i
-  // onto generated section i (StructuredContentProjectionStage), so a
-  // blueprint with fewer sections than the spec's components can never
-  // project — golden run #51: /about had 1 LLM-produced blueprint section
-  // against 4 frozen spec components. The spec's component inventory is the
-  // section authority; pad with component-derived sections in spec order.
-  while (next.length < specComponents.length) {
-    const component = specComponents[next.length]!;
-    next.push({
-      section_id: `spec-component-${next.length + 1}`,
-      component_class: component.toLowerCase().replace(/\s+/g, "-"),
-      objective: component,
-      content_slots: slotsForSpecComponent(component),
-      pattern_refs: [],
-      proof_requirements: [],
-    });
-  }
-  return next;
-}
-
-function stringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.map(String) : [];
-}
-
-function strategyOf(value: unknown): WebsiteBuildBlueprintV1["strategy"] {
-  const row = isRecord(value) ? value : {};
-  return {
-    experience_attributes: stringArray(row.experience_attributes),
-    differentiation: stringArray(row.differentiation),
-    preserve: stringArray(row.preserve),
-    evolve: stringArray(row.evolve),
-    forbid: stringArray(row.forbid),
-  };
-}
-
-function guardrailsOf(value: unknown): WebsiteBuildBlueprintV1["content_guardrails"] {
-  const row = isRecord(value) ? value : {};
-  return { forbidden_claims: stringArray(row.forbidden_claims) };
-}
-
-function conversionOf(value: unknown): WebsiteBuildBlueprintV1["conversion"] {
-  const row = isRecord(value) ? value : {};
-  return {
-    primary_action:
-      typeof row.primary_action === "string" ? row.primary_action : "Request a free inspection",
-    secondary_actions: stringArray(row.secondary_actions),
-    persistent_mobile_action: row.persistent_mobile_action !== false,
-  };
-}
-
-/**
- * Deterministic blueprint-owned visual requirement derivation (Campaign 7
- * R11). The blueprint defines WHY and WHERE imagery is needed from route and
- * section structure; ImageAssetPlanning later selects WHICH eligible asset
- * satisfies each requirement. Never an LLM decision, never a planner default.
- */
-function pushHomeRequirement(
-  requirements: VisualRequirement[],
-  route: WebsiteBlueprintRoute,
-): void {
-  const isHome = route.path === "/" || route.route_id === "/";
-  if (!isHome) return;
-  requirements.push({
-    requirement_id: `vr-${route.route_id}-hero`,
-    route_id: route.route_id,
-    section_id: route.sections[0]?.section_id ?? "hero",
-    slot_id: `${route.route_id}:hero`,
-    role: "hero",
-    required: true,
-    min_count: 1,
-    preferred_provenance: ["source", "licensed", "generated"],
-    device_suitability: ["desktop", "mobile"],
-    composition_guidance: "above-fold hero establishing the trade and locality",
-  });
-}
-
-function pushSectionRequirements(
-  requirements: VisualRequirement[],
-  route: WebsiteBlueprintRoute,
-): void {
-  for (const section of route.sections) {
-    const slots = new Set(section.content_slots);
-    const component = section.component_class.toLowerCase();
-    if (slots.has("project_proof") || component.includes("gallery")) {
-      requirements.push({
-        requirement_id: `vr-${route.route_id}-${section.section_id}-proof`,
-        route_id: route.route_id,
-        section_id: section.section_id,
-        slot_id: `${route.route_id}:${section.section_id}:project_proof`,
-        role: component.includes("gallery") ? "gallery" : "project_proof",
-        required: false,
-        min_count: component.includes("gallery") ? 3 : 1,
-        preferred_provenance: ["source", "licensed", "generated"],
-        device_suitability: ["desktop", "mobile"],
-        composition_guidance: "authentic completed-work photography preferred",
-      });
-    }
-    if (slots.has("service_overview")) {
-      requirements.push({
-        requirement_id: `vr-${route.route_id}-${section.section_id}-service`,
-        route_id: route.route_id,
-        section_id: section.section_id,
-        slot_id: `${route.route_id}:${section.section_id}:service`,
-        role: "service",
-        required: false,
-        min_count: 1,
-        preferred_provenance: ["source", "licensed", "generated"],
-        device_suitability: ["desktop", "mobile"],
-      });
-    }
-    if (slots.has("trust")) {
-      requirements.push({
-        requirement_id: `vr-${route.route_id}-${section.section_id}-trust`,
-        route_id: route.route_id,
-        section_id: section.section_id,
-        slot_id: `${route.route_id}:${section.section_id}:trust`,
-        role: "trust",
-        required: false,
-        min_count: 1,
-        preferred_provenance: ["source", "licensed", "generated"],
-        device_suitability: ["desktop", "mobile"],
-      });
-    }
-  }
-}
-
-export function deriveVisualRequirements(routes: WebsiteBlueprintRoute[]): VisualRequirement[] {
-  const requirements: VisualRequirement[] = [
-    {
-      requirement_id: "vr-global-logo",
-      route_id: "global",
-      section_id: "global",
-      slot_id: "global:logo",
-      role: "logo",
-      required: true,
-      min_count: 1,
-      preferred_provenance: ["source", "generated"],
-      device_suitability: ["desktop", "mobile"],
-    },
-  ];
-  for (const route of routes) {
-    pushHomeRequirement(requirements, route);
-    pushSectionRequirements(requirements, route);
-  }
-  // Deterministic identity: one requirement per slot_id, stable order.
-  const bySlot = new Map<string, VisualRequirement>();
-  for (const requirement of requirements) {
-    if (!bySlot.has(requirement.slot_id)) bySlot.set(requirement.slot_id, requirement);
-  }
-  return [...bySlot.values()].sort((a, b) => a.slot_id.localeCompare(b.slot_id));
-}
-
-/** ADR-0004 BLUEPRINT GATE: structural validation before any design/content generation. */
-function assertBlueprintIdentity(
-  payload: WebsiteBuildBlueprintArtifact["payload"],
-  landscape: CompetitiveLandscapeArtifact,
-  portfolio: PatternPortfolio,
-): void {
-  if (payload.build_intent !== "REDESIGN_IMPROVE") {
-    throw new BuildError(
-      "BLUEPRINT_GATE_FAILED",
-      "blueprint build_intent must be REDESIGN_IMPROVE",
-    );
-  }
-  if (payload.competitive_landscape_ref.artifact_id !== refForArtifact(landscape).artifact_id) {
-    throw new BuildError(
-      "BLUEPRINT_GATE_FAILED",
-      "blueprint references a different competitive landscape",
-    );
-  }
-  if (payload.pattern_portfolio_digest !== digestOf(portfolio)) {
-    throw new BuildError("BLUEPRINT_GATE_FAILED", "blueprint pattern portfolio digest mismatch");
-  }
-}
-
-function assertBlueprintRouteSet(
-  payload: WebsiteBuildBlueprintArtifact["payload"],
-  expectedRoutes: Array<{ route_id: string; path: string; purpose: string }>,
-): void {
-  const expectedIds = new Set(expectedRoutes.map((route) => route.route_id));
-  const actualIds = new Set(payload.routes.map((route) => route.route_id));
-  if (actualIds.size !== expectedIds.size || [...expectedIds].some((id) => !actualIds.has(id))) {
-    throw new BuildError(
-      "BLUEPRINT_GATE_FAILED",
-      "blueprint route set must equal the spec route set",
-    );
-  }
-}
-
-function assertBlueprintPatternRefs(
-  payload: WebsiteBuildBlueprintArtifact["payload"],
-  portfolio: PatternPortfolio,
-): void {
-  const patternIds = new Set(portfolio.patterns.map((pattern) => pattern.pattern_id));
-  for (const route of payload.routes) {
-    for (const section of route.sections) {
-      for (const ref of section.pattern_refs) {
-        if (!patternIds.has(ref))
-          throw new BuildError(
-            "BLUEPRINT_GATE_FAILED",
-            `section ${section.section_id} references unknown pattern ${ref}`,
-          );
-      }
-    }
-  }
-}
-
-function assertAdoptedPatternTests(portfolio: PatternPortfolio): void {
-  const adopted = portfolio.patterns.filter(
-    (pattern) => !["REJECT", "UNKNOWN"].includes(pattern.disposition),
-  );
-  for (const pattern of adopted) {
-    if (!pattern.acceptance_test.trim()) {
-      throw new BuildError(
-        "BLUEPRINT_GATE_FAILED",
-        `adopted pattern ${pattern.pattern_id} lacks an acceptance test`,
-      );
-    }
-  }
-}
-
-function validateWebsiteBuildBlueprint(
-  blueprint: WebsiteBuildBlueprintArtifact,
-  landscape: CompetitiveLandscapeArtifact,
-  portfolio: PatternPortfolio,
-  expectedRoutes: Array<{ route_id: string; path: string; purpose: string }>,
-): void {
-  const payload = blueprint.payload;
-  assertBlueprintIdentity(payload, landscape, portfolio);
-  assertBlueprintRouteSet(payload, expectedRoutes);
-  assertBlueprintPatternRefs(payload, portfolio);
-  assertAdoptedPatternTests(portfolio);
-}
-
 export class CompetitiveIntelligenceStage implements Stage {
   name = "competitive-intelligence";
   version = "1.0.0";
@@ -793,9 +439,37 @@ export class CompetitiveIntelligenceStage implements Stage {
     if (portfolio.patterns.length === 0)
       throw new BuildError("INTELLIGENCE_PARSE_FAILED", "pattern synthesis produced no patterns");
 
-    // Website blueprint via the strategy op, with route identity re-asserted from
-    // the spec (the model cannot invent routes).
-    const routesContext = ctx.domainSpec.routes.map((route) => ({
+    // First-party design authorities (ADR-0018). Resolved from the frozen spec
+    // before the model is asked anything, so explicit client intent is already
+    // in hand when the model's proposal arrives and can outrank it (WBV2-019).
+    const clientVision = resolveClientVision(ctx.domainSpec);
+    const designReferenceSet = resolveDesignReferenceSet(ctx.domainSpec);
+    const designReferenceIntelligence = deriveDesignReferenceIntelligence(designReferenceSet);
+    ctx.clientVision = clientVision;
+    ctx.designReferenceSet = designReferenceSet;
+    ctx.designReferenceIntelligence = designReferenceIntelligence;
+
+    // WBV2-007: observed palettes contribute abstract characteristics only. A
+    // color becomes authoritative through explicit client intent or an explicit
+    // first-party design requirement — never because a crawler saw it.
+    const paletteAuthority = resolvePaletteAuthority({
+      spec: ctx.domainSpec,
+      clientVision,
+      observedCharacteristics: observedPaletteCharacteristics(ctx),
+    });
+    logger.info(
+      {
+        clientVisionDeclared: clientVision.declared,
+        acceptedReferences: designReferenceSet.accepted_references.length,
+        paletteAuthority: paletteAuthority.source,
+      },
+      "First-party design authorities resolved",
+    );
+
+    // The model contributes sections, strategy, guardrails and generic
+    // principles. Route identity stays spec-owned (WBV2-021) and the model sits
+    // at the bottom of the design priority ladder.
+    const specRoutes = ctx.domainSpec.routes.map((route) => ({
       route_id: route.slug,
       path: route.slug,
       purpose: route.title,
@@ -805,71 +479,44 @@ export class CompetitiveIntelligenceStage implements Stage {
       ctx,
       "WEBSITE_BLUEPRINT",
       "[intelligence] website build blueprint",
-      "You produce a website build blueprint: strategy, guardrails, conversion, and per-route sections referencing pattern portfolio ids. No layout/design/prose generation — abstractions only.",
-      `Pattern portfolio: ${JSON.stringify(portfolio)}\nRoutes (identity is fixed — you may only choose sections, objectives, content slots, pattern refs, and proof requirements): ${JSON.stringify(routesContext)}\nReturn ONLY JSON: {"strategy":{"experience_attributes":[],"differentiation":[],"preserve":[],"evolve":[],"forbid":[]},"content_guardrails":{"forbidden_claims":[]},"conversion":{"primary_action":"","secondary_actions":[],"persistent_mobile_action":true},"routes":[{"route_id","sections":[{"section_id","component_class","objective","content_slots":[],"pattern_refs":[],"proof_requirements":[]}]}],"acceptance_tests":[]}`,
+      "You produce a website build blueprint: strategy, guardrails, conversion, generic design principles, and per-route sections referencing pattern portfolio ids. No layout/design/prose generation — abstractions only. Never propose concrete colors; palette authority is not yours.",
+      `Pattern portfolio: ${JSON.stringify(portfolio)}\nClient design intent (authoritative — never contradict): ${JSON.stringify(
+        {
+          brand_attributes: clientVision.brand_attributes,
+          visual_preferences: clientVision.visual_preferences,
+          preserve: clientVision.preserve,
+          change: clientVision.change,
+          explicit_constraints: clientVision.explicit_constraints,
+        },
+      )}\nAccepted design-reference principles (abstract only): ${JSON.stringify({
+        layout: designReferenceIntelligence.layout_principles,
+        hierarchy: designReferenceIntelligence.hierarchy_principles,
+        positive: designReferenceIntelligence.positive_patterns,
+        negative: designReferenceIntelligence.negative_patterns,
+      })}\nRoutes (identity is fixed — you may only choose sections, objectives, content slots, pattern refs, and proof requirements): ${JSON.stringify(specRoutes)}\nReturn ONLY JSON: {"strategy":{"experience_attributes":[],"differentiation":[],"preserve":[],"evolve":[],"forbid":[]},"content_guardrails":{"forbidden_claims":[]},"conversion":{"primary_action":"","secondary_actions":[],"persistent_mobile_action":true},"design_principles":[],"routes":[{"route_id","sections":[{"section_id","component_class","objective","content_slots":[],"pattern_refs":[],"proof_requirements":[]}]}],"acceptance_tests":[]}`,
     );
-    const expectedRoutes = ctx.domainSpec.routes.map((route) => ({
-      route_id: route.slug,
-      path: route.slug,
-      purpose: route.title,
-      spec_components: route.components,
-    }));
-    const modelRoutes = (Array.isArray(model.routes) ? model.routes : []) as Array<
-      Record<string, unknown>
-    >;
-    const routes: WebsiteBlueprintRoute[] = expectedRoutes.map((expected) => {
-      const produced = modelRoutes.find((route) => route.route_id === expected.route_id);
-      const sections: WebsiteBlueprintSection[] = (
-        Array.isArray(produced?.sections) ? produced.sections : []
-      ).map((section, index) => {
-        const row = section as Record<string, unknown>;
-        return {
-          section_id: String(row.section_id ?? `s-${index}`),
-          component_class: String(row.component_class ?? "prose"),
-          objective: String(row.objective ?? ""),
-          content_slots: contentSlots(row.content_slots),
-          pattern_refs: Array.isArray(row.pattern_refs) ? row.pattern_refs.map(String) : [],
-          proof_requirements: Array.isArray(row.proof_requirements)
-            ? row.proof_requirements.map(String)
-            : [],
-        };
-      });
-      return {
-        route_id: expected.route_id,
-        path: expected.path,
-        purpose: expected.purpose,
-        sections: ensureCanonicalSlotCoverage(sections, expected.spec_components),
-      };
-    });
-    const payload: WebsiteBuildBlueprintV1 = {
-      schema: WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint,
-      build_intent: "REDESIGN_IMPROVE",
-      competitive_landscape_ref: refForArtifact(landscape),
-      baseline_digest: digestOf(ctx.domainSpec.routes),
-      pattern_portfolio_digest: digestOf(portfolio),
-      strategy: strategyOf(model.strategy),
-      content_guardrails: guardrailsOf(model.content_guardrails),
-      conversion: conversionOf(model.conversion),
-      routes,
-      visual_requirements: deriveVisualRequirements(routes),
-      acceptance_tests: stringArray(model.acceptance_tests),
-    };
-    const blueprint = sealIntelligenceArtifact({
-      artifact_type: "website_build_blueprint",
-      client_id: ctx.clientId,
-      build_id: ctx.buildId,
-      producer: { repo: "Website-Bot", version: "3.1.0" },
-      input_refs: [refForArtifact(landscape)],
-      payload,
+
+    // Compilation, sealing and the full blueprint gate belong to the compiler.
+    const blueprint = compileWebsiteBuildBlueprint({
+      clientId: ctx.clientId,
+      buildId: ctx.buildId,
+      producerVersion: "3.1.0",
+      specRoutes,
+      baseline: ctx.domainSpec.routes,
+      landscape,
+      patternPortfolio: portfolio,
+      clientVision,
+      designReferenceIntelligence,
+      paletteAuthority,
+      model,
     });
 
-    validateWebsiteBuildBlueprint(blueprint, landscape, portfolio, expectedRoutes);
     ctx.websiteBlueprint = blueprint;
-    // Persist the sealed artifact: the golden receipt adapter projects
-    // evidence from disk, and the runtime previously kept the blueprint in
-    // product memory only (golden run #61: WEBSITE_BLUEPRINT_INVALID —
-    // artifact_ref evidence missing). Written under the client asset root,
-    // the same root the adapter's candidate paths scan.
+    // Persist the sealed artifact: the golden receipt adapter projects evidence
+    // from disk, and the runtime previously kept the blueprint in product
+    // memory only (golden run #61: WEBSITE_BLUEPRINT_INVALID — artifact_ref
+    // evidence missing). Written under the client asset root, the same root the
+    // adapter's candidate paths scan.
     if (!ctx.dryRun) {
       const assetsDir = clientAssetRoot(ctx);
       mkdirSync(assetsDir, { recursive: true });
@@ -883,9 +530,10 @@ export class CompetitiveIntelligenceStage implements Stage {
       {
         artifactId: blueprint.artifact_id,
         patterns: portfolio.patterns.length,
-        routes: routes.length,
+        routes: blueprint.payload.routes.length,
+        paletteAuthority: blueprint.payload.design_direction.palette_authority.source,
       },
-      "Website build blueprint sealed and gated",
+      "WebsiteBuildBlueprintV2 sealed and gated",
     );
   }
 }

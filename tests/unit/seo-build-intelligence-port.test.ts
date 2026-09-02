@@ -9,7 +9,7 @@ import {
   refForArtifact,
   sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
-  type WebsiteBuildBlueprintV1,
+  type WebsiteBuildBlueprintV2,
 } from "@quantum-l9/bot-interop";
 import { assertWebsiteBlueprintLandscape } from "../../src/intelligence/SeoBuildIntelligencePort.js";
 
@@ -37,12 +37,24 @@ function landscapeArtifact() {
 }
 
 function websiteBlueprint(landscapeRef: ArtifactRef) {
-  const payload: WebsiteBuildBlueprintV1 = {
+  const payload: WebsiteBuildBlueprintV2 = {
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint,
     build_intent: "REDESIGN_IMPROVE",
-    competitive_landscape_ref: landscapeRef,
-    baseline_digest: "b".repeat(64),
-    pattern_portfolio_digest: "d".repeat(64),
+    provenance: {
+      competitive_landscape_ref: landscapeRef,
+      baseline_digest: "b".repeat(64),
+      client_vision_digest: "c".repeat(64),
+      design_reference_intelligence_digest: "e".repeat(64),
+      pattern_portfolio_digest: "d".repeat(64),
+    },
+    design_direction: {
+      principles: [],
+      desired_attributes: [],
+      rejected_attributes: [],
+      reference_pattern_refs: [],
+      prohibited_transfers: [],
+      palette_authority: { source: "none", tokens: {}, observed_characteristics: [] },
+    },
     strategy: {
       experience_attributes: [],
       differentiation: [],

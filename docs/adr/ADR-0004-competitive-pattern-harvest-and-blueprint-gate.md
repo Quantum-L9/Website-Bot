@@ -2,7 +2,17 @@
 # ADR-0004: Competitive Pattern Harvest and Blueprint Gate
 
 ## Status
-Accepted.
+Accepted, **amended by [ADR-0018](ADR-0018-website-build-blueprint-v2-single-authority.md)**.
+
+The harvest sequence, the bounded donor ingestion, the acceptance-test
+requirement and the BLUEPRINT GATE below all still stand. What changed is the
+artifact the gate seals: `WebsiteBuildBlueprintV1` is superseded and removed;
+the gate now seals `WebsiteBuildBlueprintV2`, and `CompetitiveLandscape` +
+`PatternPortfolio` are no longer its only semantic inputs — `ClientVision` and
+`DesignReferenceIntelligence` are first-class first-party authorities alongside
+them. Compilation moved from `CompetitiveIntelligenceStage` to
+`src/intelligence/WebsiteBuildBlueprintCompiler.ts`. Every mention of V1 below
+is historical.
 
 ## Date
 2026-08-14
