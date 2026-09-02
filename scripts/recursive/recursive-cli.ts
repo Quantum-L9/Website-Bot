@@ -11,6 +11,11 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join, resolve } from "node:path";
 import process from "node:process";
 import { TRUSTED_PATH } from "../../src/recursive/exec.js";
+// Hoisted from an inline `import("...").CampaignManifest` type argument:
+// that form is valid TypeScript but semgrep's grammar cannot parse it,
+// which failed the org CI provider on this whole file. `import type` is
+// fully erased, so the module's lazy `await import(...)` design is intact.
+import type { CampaignManifest } from "../../src/recursive/state/run-manifest.js";
 
 const STATE_ROOT = resolve(".l9/recursive");
 
@@ -175,9 +180,7 @@ async function commandResume(args: string[]): Promise<void> {
     console.error(`no manifest for run ${runId}`);
     process.exit(1);
   }
-  const manifest = store.read<import("../../src/recursive/state/run-manifest.js").CampaignManifest>(
-    `${runId}/campaign-manifest.json`,
-  );
+  const manifest = store.read<CampaignManifest>(`${runId}/campaign-manifest.json`);
   const ledger = new EventLedger(join(STATE_ROOT, runId, "events.jsonl"));
   const rebuilt = rebuildManifestFromLedger(manifest, ledger);
   console.log(

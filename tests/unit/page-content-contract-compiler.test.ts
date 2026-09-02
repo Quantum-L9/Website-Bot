@@ -11,7 +11,7 @@ import {
   type VerifiedBusinessFact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
   type WebsiteBuildBlueprintArtifact,
-  type WebsiteBuildBlueprintV1,
+  type WebsiteBuildBlueprintV2,
 } from "@quantum-l9/bot-interop";
 import {
   compilePageContentContract,
@@ -30,13 +30,25 @@ const otherLandscapeRef: ArtifactRef = {
   payload_digest: "c".repeat(64),
 };
 
-function websitePayload(landscape: ArtifactRef): WebsiteBuildBlueprintV1 {
+function websitePayload(landscape: ArtifactRef): WebsiteBuildBlueprintV2 {
   return {
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint,
     build_intent: "REDESIGN_IMPROVE",
-    competitive_landscape_ref: landscape,
-    baseline_digest: "b".repeat(64),
-    pattern_portfolio_digest: "d".repeat(64),
+    provenance: {
+      competitive_landscape_ref: landscape,
+      baseline_digest: "b".repeat(64),
+      client_vision_digest: "c".repeat(64),
+      design_reference_intelligence_digest: "e".repeat(64),
+      pattern_portfolio_digest: "d".repeat(64),
+    },
+    design_direction: {
+      principles: [],
+      desired_attributes: [],
+      rejected_attributes: [],
+      reference_pattern_refs: [],
+      prohibited_transfers: [],
+      palette_authority: { source: "none", tokens: {}, observed_characteristics: [] },
+    },
     strategy: {
       experience_attributes: ["fast", "trustworthy"],
       differentiation: ["same-day pickup"],
@@ -135,14 +147,14 @@ function seoPayload(
   };
 }
 
-function sealWebsite(payload: WebsiteBuildBlueprintV1): WebsiteBuildBlueprintArtifact {
+function sealWebsite(payload: WebsiteBuildBlueprintV2): WebsiteBuildBlueprintArtifact {
   return sealIntelligenceArtifact({
     artifact_type: "website_build_blueprint",
     client_id: "client-1",
     build_id: "build-1",
     producer: { repo: "Website-Bot", version: "3.1.0" },
     produced_at: "2026-08-14T00:00:00.000Z",
-    input_refs: [payload.competitive_landscape_ref],
+    input_refs: [payload.provenance.competitive_landscape_ref],
     payload,
   });
 }

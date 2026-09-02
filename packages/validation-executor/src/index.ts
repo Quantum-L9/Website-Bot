@@ -12,7 +12,26 @@ export { EvidenceCollector } from "./core/EvidenceCollector.js";
 export { PreflightEngine } from "./core/PreflightEngine.js";
 export { ValidationExecutor } from "./core/ValidationExecutor.js";
 
-export type * from "./types/index.js";
+// Enumerated rather than `export type *`: that TS 5.0 form is valid but
+// semgrep's TypeScript grammar cannot parse it, which failed the org CI
+// provider on this whole file. Every symbol below is type-only, so this is
+// exactly equivalent and emits no runtime re-export.
+export type {
+  E2EStatus,
+  E2ETestDefinition,
+  E2ETestResult,
+  ExecutionContext,
+  FinalVerdict,
+  PreflightCheck,
+  PreflightCheckDefinition,
+  PreflightStatus,
+  PrimaryFailureClassification,
+  RepositoryAdapter,
+  ValidationConfig,
+  ValidationExecutionReport,
+  ValidationGate,
+  ValidationGateStatus,
+} from "./types/index.js";
 
 // Convenience function for simple execution
 export async function executeValidation(

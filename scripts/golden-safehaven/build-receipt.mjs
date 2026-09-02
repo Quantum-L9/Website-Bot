@@ -680,13 +680,18 @@ const websiteBuildBlueprint = {};
   }
   if (found) {
     const payload = unwrapArtifact(found.json);
-    const landscapeRefId = firstDefined(payload, ["competitive_landscape_ref.artifact_id"]);
+    // V2 provenance path only. A V1 fallback here would be exactly the hidden
+    // dual-runtime shim WBV2-015 forbids: a stale V1 artifact must fail loudly,
+    // not be quietly projected into a receipt.
+    const landscapeRefId = firstDefined(payload, [
+      "provenance.competitive_landscape_ref.artifact_id",
+    ]);
     if (typeof landscapeRefId === "string" && landscapeRefId !== "") {
       // verifier compares refs with ===: must be the artifact_id STRING
       websiteBuildBlueprint.competitive_landscape_ref = landscapeRefId;
       track("website_build_blueprint.competitive_landscape_ref", found.label, found.digest, "sealed blueprint payload artifact_id");
     } else {
-      missing("website_build_blueprint.competitive_landscape_ref", found.label, "blueprint payload lacks competitive_landscape_ref.artifact_id");
+      missing("website_build_blueprint.competitive_landscape_ref", found.label, "blueprint payload lacks provenance.competitive_landscape_ref.artifact_id");
     }
     const sealedArtifactId =
       typeof payload?.artifact_id === "string" && payload.artifact_id !== ""
