@@ -1,0 +1,6 @@
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 19 }
+SEO_BOT_URL configured: true
+SEO_BOT_API_KEY configured: true
+SEO_BOT_URL scheme: http:
+SEO_BOT_URL host class: loopback
+/health reachable: no (fetch failed)

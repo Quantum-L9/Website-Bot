@@ -1,0 +1,44 @@
+Loaded secrets from Infisical { environment: 'prod', secretPath: '/', fetched: 20, injected: 19 }
+[23:27:13.178] [32mINFO[39m (6885): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mversion[39m: "2.1.0"
+    [35mattempt[39m: 1
+Pipeline FAILED: REDESIGN preflight failed: SEO-Bot /health unreachable: fetch failed
+[23:27:13.178] [32mINFO[39m (6885): [36mLoading domain spec[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mspecPath[39m: "benchmarks/quantum-ai-partners/domain_spec.yaml"
+[23:27:13.181] [32mINFO[39m (6885): [36mDomain spec loaded[39m
+    [35mmodule[39m: "stage:domain-spec-loader"
+    [35mclientId[39m: "quantum-ai-partners"
+    [35mroutes[39m: 6
+    [35mvertical[39m: "ai_systems_consulting"
+[23:27:13.181] [32mINFO[39m (6885): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "domain-spec-loader"
+    [35mdurationMs[39m: 4
+    [35mevidenceRevision[39m: 1
+[23:27:13.181] [32mINFO[39m (6885): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mversion[39m: "3.0.0"
+    [35mattempt[39m: 1
+[23:27:13.181] [32mINFO[39m (6885): [36mUnknown resolution complete[39m
+    [35mmodule[39m: "stage:unknown-resolver"
+    [35mresolved[39m: 0
+    [35mtotal[39m: 0
+[23:27:13.181] [32mINFO[39m (6885): [36mStage OK[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "unknown-resolver"
+    [35mdurationMs[39m: 0
+    [35mevidenceRevision[39m: 1
+[23:27:13.181] [32mINFO[39m (6885): [36mStage start[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "seo-build-intelligence-preflight"
+    [35mversion[39m: "1.0.0"
+    [35mattempt[39m: 1
+[23:27:13.185] [31mERROR[39m (6885): [36mStage FAILED[39m
+    [35mmodule[39m: "pipeline:runner"
+    [35mstage[39m: "seo-build-intelligence-preflight"
+    [35mdurationMs[39m: 4
+    error: "REDESIGN preflight failed: SEO-Bot /health unreachable: fetch failed"

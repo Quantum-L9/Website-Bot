@@ -1,0 +1,9 @@
+npm warn Unknown project config "always-auth". This will stop working in the next major version of npm.
+
+> l9-seo-bot@2.1.0 dev
+> tsx watch src/index.ts
+
+═══ L9 SEO Bot - Configuration Error ═══
+The following environment variables are missing or invalid:
+  L9_MEMORY_TOKEN: String must contain at least 1 character(s)
+═══════════════════════════════════════════

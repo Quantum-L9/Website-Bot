@@ -49,3 +49,11 @@ coverage/
 # Safe Haven Golden run evidence and calibration fixtures (generated per run)
 evidence/
 tests/golden/safehaven/fixtures/
+
+# Development test-run signals — always tracked (overrides *.log and evidence/)
+!reports/
+!reports/test-runs/
+!reports/test-runs/**
+!reports/test-runs/**/evidence/
+!reports/test-runs/**/evidence/**
+!reports/test-runs/**/*.log
