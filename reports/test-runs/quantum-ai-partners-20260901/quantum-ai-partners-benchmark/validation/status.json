@@ -1,0 +1,91 @@
+{
+  "benchmark": "website-bot-clean-capability-test",
+  "client": "quantum-ai-partners",
+  "repository_head_production_tested": "9a4a156ba9b67d392e4ee9f50810a44240536fde",
+  "repository_head_at_packaging": "4cea9e4ee024703c93d9635297703f8116659eaa (benchmark input commits 43923d8, 137e565, 4cea9e4 on top of production HEAD; see evidence/repo-head.txt)",
+  "final_status": "BLOCKED_BY_EXTERNAL_DEPENDENCY",
+  "failing_boundary": {
+    "pipeline_stage": "seo-build-intelligence-preflight",
+    "component": "SeoBuildIntelligencePreflightStage -> SeoBuildIntelligenceHttpClient.preflight()",
+    "operation": "GET {SEO_BOT_URL}/health",
+    "observed_error": "REDESIGN preflight failed: SEO-Bot /health unreachable: fetch failed",
+    "error_code": "SEO_BOT_UNREACHABLE"
+  },
+  "causal_defect": "The REDESIGN_IMPROVE topology fails closed before the first paid build-intelligence call when the SEO-Bot service is unreachable. The configured SEO_BOT_URL is a loopback (localhost) HTTP URL and nothing is listening there.",
+  "external_dependency_chain": [
+    {
+      "fact": "SEO_BOT_URL is configured (http scheme, loopback host) but GET /health returns fetch failed",
+      "evidence": "evidence/seo-bot-probe.log"
+    },
+    {
+      "fact": "SEO-Bot canonical local port 3100 has no listener",
+      "evidence": "lsof -iTCP:3100 (empty, observed during diagnosis)"
+    },
+    {
+      "fact": "Local SEO-Bot (sibling checkout /Users/ib-mac/SEO-Bot) fails config validation at startup: missing L9_MEMORY_TOKEN",
+      "evidence": "evidence/seo-bot-dev-start.log (npm run dev output)"
+    },
+    {
+      "fact": "L9_MEMORY_TOKEN has no reference in the governance secrets registry (ops/secrets)",
+      "evidence": "grep of ~/.cursor-governance/ops/secrets (no matches)"
+    },
+    {
+      "fact": "Docker daemon is not running; SEO-Bot's canonical containerized infra (postgres/redis/clickhouse) cannot come up without operator action",
+      "evidence": "docker ps -> 'Cannot connect to the Docker daemon'"
+    },
+    {
+      "fact": "Session Graphiti memory hydration is degraded (connection refused) - the memory plane this token belongs to is unreachable",
+      "evidence": "sessionStart hydration packet (DEGRADED)"
+    }
+  ],
+  "stages_completed": [
+    "domain-spec-loader (spec validated: 6 routes, REDESIGN_IMPROVE accepted)",
+    "unknown-resolver (0 WOM flags)"
+  ],
+  "stages_blocked": [
+    "seo-build-intelligence-preflight",
+    "competitive-intelligence",
+    "source-site-ingestion",
+    "design-intelligence",
+    "redesign-content-authority",
+    "structured-content-projection",
+    "redesign-schema-serializer",
+    "image-asset-planning",
+    "image-generation",
+    "placeholder-scan",
+    "site-assembler",
+    "image-validation",
+    "posthog-snippet",
+    "site-build",
+    "release-receipt",
+    "redesign-integrity-receipt",
+    "terminal-convergence"
+  ],
+  "capability_gaps_identified": [
+    {
+      "id": "GAP-1",
+      "title": "No pipeline stage acquires or analyzes client-supplied design-reference sites",
+      "detail": "DesignReferenceSpec.principles is operator-authored; deriveDesignReferenceIntelligence merges spec-declared principles only. The benchmark's expected pipeline steps 'acquire_reference_evidence' and 'analyze_each_client_reference' have no implementation stage. Real crawl+screenshot evidence acquisition (HttpDonorIngestor) exists only for SEO-Bot SERP-selected donor domains, not for client-supplied design_references URLs.",
+      "impact": "With a pure raw input (principles omitted per test purity), client references would contribute zero principles to DesignReferenceIntelligence and the sealed design direction."
+    },
+    {
+      "id": "GAP-2",
+      "title": "normalize-spec.ts drops redesign fields",
+      "detail": "buildFlatSpec constructs a fixed key set and does not carry client_vision, design_references, or build_intent from the rich authoring format into the flat spec. Redesign clients must hand-author the flat DomainSpec directly.",
+      "impact": "The documented authoring flow (rich source spec -> normalize -> consume) cannot express the redesign intelligence inputs."
+    },
+    {
+      "id": "GAP-3",
+      "title": "CLI does not persist SEO-Bot intelligence artifacts",
+      "detail": "CompetitiveLandscape, SEOContentBlueprint, and StructuredContentPackage live only in BuildContext memory; the CLI persists website-build-blueprint.json and page-content-contract.json only. The benchmark driver (benchmarks/quantum-ai-partners/driver.ts) captures them in-process.",
+      "impact": "An evidence bundle produced by the stock CLI cannot contain these three sealed artifacts."
+    }
+  ],
+  "production_code_mutation": "NONE (verified: only additive benchmark files committed; no src/, scripts/, packages/, astro_template/, or test files changed)",
+  "smallest_unblock_path": {
+    "step_1": "Operator starts the SEO-Bot service on the configured loopback URL (canonical local port 3100, or the operator's usual local run), supplying L9_MEMORY_TOKEN and any DB/redis backing the local instance needs.",
+    "step_2": "Alternatively, operator points SEO_BOT_URL at a running SEO-Bot instance with matching bot-interop and llm-router versions.",
+    "step_3": "Re-run: npx tsx benchmarks/quantum-ai-partners/driver.ts --spec=benchmarks/quantum-ai-partners/domain_spec.yaml --mode=local-proof --redesign"
+  },
+  "produced_at": "2026-09-01"
+}
