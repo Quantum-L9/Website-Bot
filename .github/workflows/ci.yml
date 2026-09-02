@@ -9,6 +9,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   ci:
     # pr-pipeline.yml declares no workflow_call secrets; passing one makes
@@ -16,3 +20,36 @@ jobs:
     # authenticates npm to the @quantum-l9 registry with its own
     # GITHUB_TOKEN (packages: read), so no secret is needed here.
     uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@373bb6d26084e67ef76aaab95021364182a34ee7
+
+  # Gate 5 analogue of SEO-Bot's live Postgres + Redis job on ci.yml.
+  # Website-Bot has no compose plane: better-sqlite3 is in-process. The
+  # reusable pr-pipeline job above is generic TS. Factory-local tests that
+  # actually open SQLite and assemble a site live in `site:test:local` and
+  # `pipeline:plan`. Without this sibling, a green `CI` check can mean
+  # "l9-ci-core passed" while the factory never ran under this workflow name.
+  # `run-site-factory-tests.mjs` already fail-closes on an empty file list
+  # (same skip-killer as SEO-Bot LIVE_SERVICES_REQUIRED=1).
+  gate5:
+    name: Gate 5 — site-factory local (SQLite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '20'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts && npm rebuild better-sqlite3
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gate 5 factory-local suite
+        run: |
+          npm run site:test:local
+          npm run pipeline:plan
+        env:
+          NODE_ENV: test
