@@ -7,7 +7,7 @@ import {
   parseGraphitiMachineAliases,
   resolveMemoryCredentials,
   resolveMemoryMode,
-} from "../../src/services/memory-credentials.ts";
+} from "../../src/services/memory-credentials.js";
 
 void test("memory defaults to required", () => {
   assert.equal(DEFAULT_L9_MEMORY_MODE, "required");
