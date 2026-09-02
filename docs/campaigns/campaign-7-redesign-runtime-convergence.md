@@ -1,5 +1,13 @@
 # Campaign 7 — REDESIGN_IMPROVE Runtime Convergence
 
+> **Historical record.** This campaign describes the `WebsiteBuildBlueprintV1`
+> era. V1 was superseded and removed by
+> [ADR-0018](../adr/ADR-0018-website-build-blueprint-v2-single-authority.md);
+> every V1 reference below is a historical supersession reference, not an
+> active contract. The R11 visual-requirement authority described here was
+> ported to V2 unchanged.
+
+
 **REDESIGN_EXECUTION_INTEGRITY: FAIL**
 
 The Website-Bot runtime graph is wired and fail-closed. The one completing Safe Haven seam (`safehavenrr-1786991794769`) reached a sealed PageContentContract, then died inside SEO-Bot `createStructuredContent`. No integrity receipt was emitted. Golden E2E is not authorized.
