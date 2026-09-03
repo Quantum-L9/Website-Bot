@@ -20,6 +20,7 @@
     "normalize-spec:check": "npx tsx scripts/normalize-spec.ts --check",
     "validate": "node scripts/verify-launch-env.mjs",
     "site:validate": "npx tsx scripts/validate-site-factory.ts --spec=fixtures/ci-test-spec.yaml",
+    "site:validate:build": "npx tsx scripts/validate-site-factory.ts --spec=fixtures/ci-test-spec.yaml --build",
     "site:test": "node scripts/run-site-factory-tests.mjs --scope=all",
     "site:test:local": "node scripts/run-site-factory-tests.mjs --scope=local",
     "site:test:github": "node scripts/run-site-factory-tests.mjs --scope=github",
