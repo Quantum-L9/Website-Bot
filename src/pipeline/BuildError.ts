@@ -59,6 +59,9 @@ export type BuildErrorCode =
   | "SEO_BOT_AUTH_FAILED"
   | "SEO_BOT_CAPABILITY_MISMATCH"
   | "SEO_BOT_ROUTER_VERSION_MISMATCH"
+  | "DESIGN_REFERENCE_UNACQUIRED"
+  | "REDESIGN_ARTIFACT_INVALID"
+  | "RENDERED_SITE_VALIDATION_FAILED"
   | "EVIDENCE_ARTIFACT_CORRUPT"
   | "EVIDENCE_CHAIN_INVALID"
   | "CHECKPOINT_INVALID"
@@ -131,6 +134,27 @@ export const BUILD_ERROR_POLICIES: Partial<Record<BuildErrorCode, BuildErrorPoli
     retry: "external-reverify",
     redactEvidence: true,
     remediation: "Reverify provider state or begin a new build identity.",
+  },
+  DESIGN_REFERENCE_UNACQUIRED: {
+    owner: "design-reference-acquisition",
+    retry: "external-reverify",
+    redactEvidence: false,
+    remediation:
+      "Every client-supplied design reference URL failed acquisition; the manifest names each URL and reason. Fix or replace the URLs (or author principles explicitly) and re-run.",
+  },
+  REDESIGN_ARTIFACT_INVALID: {
+    owner: "redesign-intelligence",
+    retry: "never",
+    redactEvidence: true,
+    remediation:
+      "A persisted redesign intelligence artifact failed digest, integrity, identity, or lineage verification. Treat it as corrupt and start a new build identity.",
+  },
+  RENDERED_SITE_VALIDATION_FAILED: {
+    owner: "rendered-site-validation",
+    retry: "after-input-fix",
+    redactEvidence: false,
+    remediation:
+      "The built site did not render correctly in a real browser; the validation report names every failing route, viewport, and check.",
   },
   HANDOFF_ACK_MISMATCH: {
     owner: "handoff-emitter",

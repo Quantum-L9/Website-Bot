@@ -12,6 +12,7 @@ import type {
   DesignReferenceIntelligence,
   DesignReferenceSet,
 } from "../intelligence/design-authority.js";
+import type { DesignReferenceAcquisitionManifest } from "../intelligence/DesignReferenceAcquisition.js";
 import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
 import type { SeoBotPreflightResult } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
@@ -258,6 +259,12 @@ export interface BuildContext {
    */
   /** Resolved explicit client design intent (WBV2-003). */
   clientVision?: ClientVision;
+  /**
+   * Acquisition + analysis ledger for client-supplied design references
+   * (design-reference-acquisition stage). Records what was fetched, what was
+   * observed, and what the system derived — provenance for the reference set.
+   */
+  designReferenceAcquisition?: DesignReferenceAcquisitionManifest;
   /** Resolved accepted/rejected design reference portfolio (WBV2-004). */
   designReferenceSet?: DesignReferenceSet;
   /** Abstracted design principles derived from the accepted references. */
@@ -328,6 +335,8 @@ export interface BuildContext {
   resolvedImages?: Map<string, ResolvedImageAsset>;
   /** Provenance warnings surfaced by image validation for release evidence. */
   imageProvenanceWarnings?: string[];
+  /** Browser render validation report path (rendered-site-validation stage). */
+  renderedSiteValidationPath?: string;
   baselineRanks?: Record<string, number | null>;
   visualQaPassed: boolean;
   /** Set by UnknownResolverStage when error-severity WOM flags are allowed through in advisory mode. Presence means the build is not publish-safe. */

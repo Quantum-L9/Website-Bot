@@ -77,18 +77,60 @@ export interface DesignReferencePrinciples {
   negative: string[];
 }
 
+/**
+ * Where a reference's principles came from. `operator_authored` is the legacy
+ * path (the operator hand-translated the reference); `system_derived` means the
+ * design-reference-acquisition stage fetched, observed and analyzed the actual
+ * reference; `none` means the reference contributed nothing (declared without
+ * principles and not acquired).
+ */
+export type DesignReferencePrincipleSource =
+  | "operator_authored"
+  | "system_derived"
+  | "operator_and_system"
+  | "none";
+
 export interface DesignReference {
   reference_id: string;
   url?: string;
   selection_reason: string;
   evidence_refs: string[];
   principles: DesignReferencePrinciples;
+  /** Present once the acquisition stage has run for this reference. */
+  acquisition?: {
+    status:
+      | "acquired"
+      | "no_url"
+      | "invalid_url"
+      | "forbidden_host"
+      | "unreachable"
+      | "not_html";
+    fetched_at: string;
+    final_url?: string;
+    content_digest?: string;
+    failure_reason?: string;
+  };
+  principle_source?: DesignReferencePrincipleSource;
+  /** System-derived interpretation (abstract; observed evidence vs preference). */
+  analysis?: {
+    client_relationship: string;
+    observed_design_characteristics: string[];
+    portable_principles: string[];
+    prohibited_transfers: string[];
+    differentiation_implications: string[];
+    analysis_digest: string;
+  };
 }
 
 export interface DesignReferenceSet {
   accepted_references: DesignReference[];
   rejected_references: Array<{ reference_id: string; url?: string; rejection_reason: string }>;
-  provenance: { source: "domain_spec"; declared: boolean };
+  provenance: { source: "domain_spec" | "domain_spec+acquisition"; declared: boolean };
+}
+
+/** Accepted references that carry a URL the acquisition stage must fetch. */
+export function acquirableReferences(set: DesignReferenceSet): DesignReference[] {
+  return set.accepted_references.filter((reference) => Boolean(reference.url?.trim()));
 }
 
 /* ------------------------------------------------------------------ */

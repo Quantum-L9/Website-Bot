@@ -38,6 +38,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
+import {
+  hydrateRedesignIntelligence,
+  persistRedesignArtifact,
+} from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 
@@ -122,6 +126,42 @@ export class RedesignContentAuthorityStage implements Stage {
         "redesign content authority requires successful SEO-Bot preflight evidence",
       );
     }
+    // Resume: reuse the persisted, lineage-verified content authority chain
+    // for THIS build instead of re-spending two paid SEO-Bot calls.
+    if (ctx.resume && !ctx.dryRun) {
+      const hydrated = hydrateRedesignIntelligence(ctx, [
+        "seo-content-blueprint",
+        "page-content-contract",
+        "pcc-determinism",
+        "structured-content-package",
+        "redesign-counters",
+      ]);
+      if (
+        hydrated.includes("seo-content-blueprint") &&
+        hydrated.includes("page-content-contract") &&
+        hydrated.includes("pcc-determinism") &&
+        hydrated.includes("structured-content-package")
+      ) {
+        this.assertSeoBlueprintLineage(
+          ctx,
+          ctx.seoContentBlueprint as NonNullable<BuildContext["seoContentBlueprint"]>,
+          blueprint,
+          landscape,
+          ctx.domainSpec.routes.map((route) => ({
+            route_id: route.slug,
+            path: route.slug,
+            purpose: route.title,
+          })),
+        );
+        this.validateStructuredContent(
+          ctx,
+          ctx.pageContentContract as PageContentContractArtifact,
+          ctx.structuredContentPackage as StructuredContentPackageArtifact,
+        );
+        logger.info({ hydrated }, "content authority chain reused from persisted redesign artifacts");
+        return;
+      }
+    }
     ctx.redesignCounters ??= {
       pageContentContractLlmCalls: 0,
       legacyContentGenerationCalls: 0,
@@ -148,6 +188,7 @@ export class RedesignContentAuthorityStage implements Stage {
     });
     this.assertSeoBlueprintLineage(ctx, seoBlueprint, blueprint, landscape, routes);
     ctx.seoContentBlueprint = seoBlueprint;
+    persistRedesignArtifact(ctx, "seo-content-blueprint", seoBlueprint);
     logger.info(
       { artifactId: seoBlueprint.artifact_id, routes: seoBlueprint.payload.routes.length },
       "SEOContentBlueprint accepted (lineage verified)",
@@ -162,6 +203,8 @@ export class RedesignContentAuthorityStage implements Stage {
       counters,
     );
     ctx.pageContentContract = contract;
+    persistRedesignArtifact(ctx, "page-content-contract", contract);
+    persistRedesignArtifact(ctx, "pcc-determinism", ctx.pccDeterminism);
     // Persist the sealed artifact for the golden receipt adapter (the
     // runtime previously kept the contract in product memory only —
     // golden run #61: ROUTE_SET_MISMATCH, PCC_NONDETERMINISTIC — because
@@ -188,6 +231,8 @@ export class RedesignContentAuthorityStage implements Stage {
     });
     this.validateStructuredContent(ctx, contract, contentPackage);
     ctx.structuredContentPackage = contentPackage;
+    persistRedesignArtifact(ctx, "structured-content-package", contentPackage);
+    persistRedesignArtifact(ctx, "redesign-counters", counters);
     logger.info(
       { artifactId: contentPackage.artifact_id, routes: contentPackage.payload.routes.length },
       "StructuredContentPackage accepted as final page prose authority",
