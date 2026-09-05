@@ -33,10 +33,7 @@
       "reason": "10 rows are not 10 companies",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "DUPLICATE_DONOR_DOMAIN",
-        "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH"
-      ],
+      "failure_codes": ["DUPLICATE_DONOR_DOMAIN", "DONOR_EVIDENCE_DOMAIN_SET_MISMATCH"],
       "harness_error": null
     },
     {
@@ -46,9 +43,7 @@
       "reason": "excluded domain cannot occupy donor position",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "FORBIDDEN_DONOR_CLASS"
-      ],
+      "failure_codes": ["FORBIDDEN_DONOR_CLASS"],
       "harness_error": null
     },
     {
@@ -58,9 +53,7 @@
       "reason": "donor visual evidence is required",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "DONOR_SCREENSHOT_INCOMPLETE"
-      ],
+      "failure_codes": ["DONOR_SCREENSHOT_INCOMPLETE"],
       "harness_error": null
     },
     {
@@ -70,9 +63,7 @@
       "reason": "preflight must precede first SEO build-intelligence call",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "SEO_PREFLIGHT_TOO_LATE"
-      ],
+      "failure_codes": ["SEO_PREFLIGHT_TOO_LATE"],
       "harness_error": null
     },
     {
@@ -82,10 +73,7 @@
       "reason": "partial SEO blueprint cannot seal",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "ROUTE_COUNT_MISMATCH",
-        "ROUTE_SET_MISMATCH"
-      ],
+      "failure_codes": ["ROUTE_COUNT_MISMATCH", "ROUTE_SET_MISMATCH"],
       "harness_error": null
     },
     {
@@ -95,9 +83,7 @@
       "reason": "unknown route violates route authority",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "ROUTE_SET_MISMATCH"
-      ],
+      "failure_codes": ["ROUTE_SET_MISMATCH"],
       "harness_error": null
     },
     {
@@ -107,9 +93,7 @@
       "reason": "WBB and SCB landscape lineage must match",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "SEO_BLUEPRINT_LANDSCAPE_MISMATCH"
-      ],
+      "failure_codes": ["SEO_BLUEPRINT_LANDSCAPE_MISMATCH"],
       "harness_error": null
     },
     {
@@ -119,9 +103,7 @@
       "reason": "PCC must be deterministic and zero-LLM",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "PCC_LLM_USED"
-      ],
+      "failure_codes": ["PCC_LLM_USED"],
       "harness_error": null
     },
     {
@@ -131,9 +113,7 @@
       "reason": "SCP must reference exact PCC",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
-      ],
+      "failure_codes": ["STRUCTURED_CONTENT_LINEAGE_MISMATCH"],
       "harness_error": null
     },
     {
@@ -156,9 +136,7 @@
       "reason": "one-repair budget",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "CONTENT_REPAIR_BUDGET_EXCEEDED"
-      ],
+      "failure_codes": ["CONTENT_REPAIR_BUDGET_EXCEEDED"],
       "harness_error": null
     },
     {
@@ -168,9 +146,7 @@
       "reason": "legacy content authority forbidden",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "LEGACY_CONTENT_AUTHORITY_USED"
-      ],
+      "failure_codes": ["LEGACY_CONTENT_AUTHORITY_USED"],
       "harness_error": null
     },
     {
@@ -180,9 +156,7 @@
       "reason": "redesign schema must remain deterministic",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
-      ],
+      "failure_codes": ["REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"],
       "harness_error": null
     },
     {
@@ -192,9 +166,7 @@
       "reason": "authorized required source photos cannot disappear",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
-      ],
+      "failure_codes": ["REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"],
       "harness_error": null
     },
     {
@@ -204,9 +176,7 @@
       "reason": "competitor assets are evidence only",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "DONOR_ASSET_REUSED"
-      ],
+      "failure_codes": ["DONOR_ASSET_REUSED"],
       "harness_error": null
     },
     {
@@ -216,9 +186,7 @@
       "reason": "Router policy plane must be version aligned",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "ROUTER_VERSION_MISMATCH"
-      ],
+      "failure_codes": ["ROUTER_VERSION_MISMATCH"],
       "harness_error": null
     },
     {
@@ -228,9 +196,7 @@
       "reason": "CONTENT_VALIDATION must not use fresh-search authority",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "CONTENT_VALIDATION_SEARCH_POLICY_VIOLATION"
-      ],
+      "failure_codes": ["CONTENT_VALIDATION_SEARCH_POLICY_VIOLATION"],
       "harness_error": null
     },
     {
@@ -290,9 +256,7 @@
       "reason": "homepage mobile is a protected critical pair",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "CRITICAL_VISUAL_PAIR_REGRESSED"
-      ],
+      "failure_codes": ["CRITICAL_VISUAL_PAIR_REGRESSED"],
       "harness_error": null
     },
     {
@@ -302,9 +266,7 @@
       "reason": "visual hierarchy may not regress",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
-      ],
+      "failure_codes": ["CRITICAL_VISUAL_DIMENSION_REGRESSED"],
       "harness_error": null
     },
     {
@@ -314,10 +276,7 @@
       "reason": "unsupported/prohibited business claim",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "UNSUPPORTED_BUSINESS_CLAIM",
-        "BUSINESS_PROHIBITION_VIOLATION"
-      ],
+      "failure_codes": ["UNSUPPORTED_BUSINESS_CLAIM", "BUSINESS_PROHIBITION_VIOLATION"],
       "harness_error": null
     },
     {
@@ -327,9 +286,7 @@
       "reason": "all 29 output routes must be reachable",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "SITE_REACHABILITY_INCOMPLETE"
-      ],
+      "failure_codes": ["SITE_REACHABILITY_INCOMPLETE"],
       "harness_error": null
     },
     {
@@ -339,9 +296,7 @@
       "reason": "command success cannot override a failed oracle property",
       "verifier_exit_code": 1,
       "verifier_verdict": "GOLDEN_E2E_FAIL",
-      "failure_codes": [
-        "UNSUPPORTED_BUSINESS_CLAIM"
-      ],
+      "failure_codes": ["UNSUPPORTED_BUSINESS_CLAIM"],
       "harness_error": null
     }
   ],

@@ -17,13 +17,39 @@
   "preflight": {
     "required": true,
     "must_precede_first_seo_build_intelligence_call": true,
-    "required_checks": ["seo_bot_reachable", "seo_bot_machine_auth", "competitive_landscape_capability", "seo_content_blueprint_capability", "structured_content_capability", "dataforseo_configured", "llm_provider_configured", "bot_interop_compatible", "llm_router_compatible"]
+    "required_checks": [
+      "seo_bot_reachable",
+      "seo_bot_machine_auth",
+      "competitive_landscape_capability",
+      "seo_content_blueprint_capability",
+      "structured_content_capability",
+      "dataforseo_configured",
+      "llm_provider_configured",
+      "bot_interop_compatible",
+      "llm_router_compatible"
+    ]
   },
   "execution_graph": {
     "build_intent": "REDESIGN_IMPROVE",
     "copy_fallback_used": false,
     "generic_fallback_used": false,
-    "required_ordered_subsequence": ["domain-spec-loader", "unknown-resolver", "seo-build-intelligence-preflight", "competitive-intelligence", "source-site-ingestion", "design-intelligence", "redesign-content-authority", "structured-content-projection", "redesign-schema-serializer", "image-asset-planning", "site-assembler", "site-build", "visual-qa", "redesign-integrity-receipt", "terminal-convergence"],
+    "required_ordered_subsequence": [
+      "domain-spec-loader",
+      "unknown-resolver",
+      "seo-build-intelligence-preflight",
+      "competitive-intelligence",
+      "source-site-ingestion",
+      "design-intelligence",
+      "redesign-content-authority",
+      "structured-content-projection",
+      "redesign-schema-serializer",
+      "image-asset-planning",
+      "site-assembler",
+      "site-build",
+      "visual-qa",
+      "redesign-integrity-receipt",
+      "terminal-convergence"
+    ],
     "forbidden_stages_under_redesign": ["content-generation", "schema-generator"]
   },
   "competitive_landscape": {
@@ -31,26 +57,216 @@
     "unique_normalized_domains": 10,
     "evidence_complete": true,
     "ranking_llm_calls": 0,
-    "every_selected_donor_requires": ["qualified_operating_company", "real_dataforseo_observation", "query_id", "rank", "url", "domain", "observed_at", "visibility_contribution"],
-    "forbidden_selected_classes": ["directory", "social", "publisher", "aggregator", "marketplace", "unknown"]
+    "every_selected_donor_requires": [
+      "qualified_operating_company",
+      "real_dataforseo_observation",
+      "query_id",
+      "rank",
+      "url",
+      "domain",
+      "observed_at",
+      "visibility_contribution"
+    ],
+    "forbidden_selected_classes": [
+      "directory",
+      "social",
+      "publisher",
+      "aggregator",
+      "marketplace",
+      "unknown"
+    ]
   },
   "donor_evidence": {
     "accepted_donors": 10,
     "crawl_sets": 10,
     "screenshot_sets": 10,
-    "per_donor": {"minimum_successful_pages": 1, "minimum_screenshots": 1, "require_evidence_digest": true, "require_timestamp": true, "raw_output_asset_reuse_allowed": false},
+    "per_donor": {
+      "minimum_successful_pages": 1,
+      "minimum_screenshots": 1,
+      "require_evidence_digest": true,
+      "require_timestamp": true,
+      "raw_output_asset_reuse_allowed": false
+    },
     "candidate_donor_asset_hash_matches": 0
   },
-  "website_blueprint": {"required": true, "must_reference_exact_competitive_landscape": true, "visual_asset_requirements_required": true},
-  "seo_content_blueprint": {"requested_routes": 29, "produced_routes": 29, "missing_routes": 0, "extra_routes": 0, "duplicate_routes": 0, "batch_size": 4, "expected_batch_count": 8, "must_reference_exact_competitive_landscape": true, "unknown_content_slots": 0, "invalid_internal_link_targets": 0},
-  "page_content_contract": {"requested_routes": 29, "produced_routes": 29, "llm_calls": 0, "landscape_refs_must_match": true, "route_sets_must_match": true, "unplaced_content_requirements": 0, "invalid_business_facts": 0, "determinism": {"required": true, "same_semantic_input_same_digest": true}},
-  "structured_content": {"requested_routes": 29, "produced_routes": 29, "missing_routes": 0, "extra_routes": 0, "must_reference_exact_page_content_contract": true, "schema_invalid_routes": 0, "unsupported_claims": 0, "failed_requirements": 0, "maximum_repairs_per_route": 1, "maximum_generation_calls_per_route": 2, "section_alias_fields_forbidden": ["content", "body", "copy", "paragraphs"], "all_section_prose_must_use_blocks": true},
-  "legacy_authority": {"legacy_content_generation_calls": 0, "legacy_schema_generation_calls": 0, "page_content_contract_llm_calls": 0, "redesign_schema_llm_calls": 0},
-  "source_assets": {"source_corpus_completed": true, "minimum_raw_source_images": 1, "minimum_authorized_reusable_images": 1, "minimum_selected_source_images": 1, "required_visual_slots_filled_fraction": 1.0, "unexplained_reusable_asset_loss": 0, "eligible_source_asset_precedence": ["SOURCE_CLIENT_OWNED", "SOURCE_LICENSED_REUSE", "GENERATED"], "forbidden_candidate_dispositions": ["SOURCE_REFERENCE_ONLY", "DONOR_REFERENCE_ONLY", "UNKNOWN"], "conditional_rules": [{"if": "eligible_source_project_proof_count > 0 && blueprint.project_proof_required", "then": "selected_source_project_proof_count > 0"}, {"if": "eligible_source_gallery_count > 0 && blueprint.gallery_required", "then": "selected_source_gallery_count > 0"}]},
-  "site_integrity": {"built_routes": 29, "reachable_routes": 29, "broken_internal_links": 0, "placeholder_count": 0, "per_route": {"http_200": true, "single_h1": true, "title_present": true, "meta_description_present": true, "canonical_present": true, "lang_present": true}, "unique_titles": 29, "unique_canonical_urls": 29},
-  "business_truth": {"unsupported_claim_count": 0, "phone_mismatch_count": 0, "email_mismatch_count": 0, "prohibition_violations": 0},
-  "llm_audit": {"direct_provider_bypass_count": 0, "required_policy": {"SEO_CONTENT_BLUEPRINT": {"searchRequired": false, "searchPolicySource": "EXPLICIT"}, "STRUCTURED_CONTENT_GENERATION": {"searchRequired": false, "searchPolicySource": "EXPLICIT"}, "CONTENT_VALIDATION": {"searchRequired": false, "searchPolicySource": "EXPLICIT"}, "VISUAL_QA": {"searchRequired": false}}, "unsupported_capability_combination_count": 0},
-  "visual_capture": {"required_pairs": 10, "routes": 5, "viewports": 2, "candidate_blank_capture_count": 0, "baseline_blank_capture_count": 0, "route_mismatch_count": 0, "viewport_mismatch_count": 0, "stale_capture_count": 0},
-  "visual_oracle": {"mode": "BLIND_PAIRED_MULTI_TRIAL", "trials_per_pair": 3, "randomize_left_right": true, "reveal_candidate_identity_to_judge": false, "dimensions": {"visual_hierarchy": 0.15, "brand_coherence": 0.10, "conversion_clarity": 0.15, "trust_and_credibility": 0.10, "authentic_imagery": 0.12, "content_readability": 0.10, "information_density": 0.07, "spacing_and_rhythm": 0.07, "mobile_usability": 0.08, "professional_polish": 0.06}, "score_scale": {"minimum": -2, "maximum": 2, "meaning": "-2 strongly A, -1 mildly A, 0 tie, +1 mildly B, +2 strongly B before orientation normalization"}, "pass": {"minimum_pair_majority_wins": 7, "maximum_pair_majority_losses": 2, "minimum_candidate_votes": 21, "total_votes": 30, "wilson_lower_bound_must_exceed": 0.5, "minimum_weighted_mean_delta": 0.25, "critical_pairs_may_not_lose": ["/::desktop", "/::mobile", "/gallery/::desktop", "/contact/::mobile"], "critical_dimensions_may_not_regress": ["visual_hierarchy", "conversion_clarity", "trust_and_credibility", "authentic_imagery", "mobile_usability"]}, "inconclusive": {"missing_trial": true, "judge_disagreement_without_majority": true, "wilson_interval_crosses_required_boundary": true}},
-  "final_verdict": {"pass_name": "GOLDEN_E2E_PASS_IMPROVED", "structural_only_name": "STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN", "fail_name": "GOLDEN_E2E_FAIL", "pass_requires": ["all_hard_gates_pass", "visual_oracle_pass", "no_inconclusive_blocking_dimension", "rendered_visual_qa_executed"]}
+  "website_blueprint": {
+    "required": true,
+    "must_reference_exact_competitive_landscape": true,
+    "visual_asset_requirements_required": true
+  },
+  "seo_content_blueprint": {
+    "requested_routes": 29,
+    "produced_routes": 29,
+    "missing_routes": 0,
+    "extra_routes": 0,
+    "duplicate_routes": 0,
+    "batch_size": 4,
+    "expected_batch_count": 8,
+    "must_reference_exact_competitive_landscape": true,
+    "unknown_content_slots": 0,
+    "invalid_internal_link_targets": 0
+  },
+  "page_content_contract": {
+    "requested_routes": 29,
+    "produced_routes": 29,
+    "llm_calls": 0,
+    "landscape_refs_must_match": true,
+    "route_sets_must_match": true,
+    "unplaced_content_requirements": 0,
+    "invalid_business_facts": 0,
+    "determinism": { "required": true, "same_semantic_input_same_digest": true }
+  },
+  "structured_content": {
+    "requested_routes": 29,
+    "produced_routes": 29,
+    "missing_routes": 0,
+    "extra_routes": 0,
+    "must_reference_exact_page_content_contract": true,
+    "schema_invalid_routes": 0,
+    "unsupported_claims": 0,
+    "failed_requirements": 0,
+    "maximum_repairs_per_route": 1,
+    "maximum_generation_calls_per_route": 2,
+    "section_alias_fields_forbidden": ["content", "body", "copy", "paragraphs"],
+    "all_section_prose_must_use_blocks": true
+  },
+  "legacy_authority": {
+    "legacy_content_generation_calls": 0,
+    "legacy_schema_generation_calls": 0,
+    "page_content_contract_llm_calls": 0,
+    "redesign_schema_llm_calls": 0
+  },
+  "source_assets": {
+    "source_corpus_completed": true,
+    "minimum_raw_source_images": 1,
+    "minimum_authorized_reusable_images": 1,
+    "minimum_selected_source_images": 1,
+    "required_visual_slots_filled_fraction": 1.0,
+    "unexplained_reusable_asset_loss": 0,
+    "eligible_source_asset_precedence": [
+      "SOURCE_CLIENT_OWNED",
+      "SOURCE_LICENSED_REUSE",
+      "GENERATED"
+    ],
+    "forbidden_candidate_dispositions": [
+      "SOURCE_REFERENCE_ONLY",
+      "DONOR_REFERENCE_ONLY",
+      "UNKNOWN"
+    ],
+    "conditional_rules": [
+      {
+        "if": "eligible_source_project_proof_count > 0 && blueprint.project_proof_required",
+        "then": "selected_source_project_proof_count > 0"
+      },
+      {
+        "if": "eligible_source_gallery_count > 0 && blueprint.gallery_required",
+        "then": "selected_source_gallery_count > 0"
+      }
+    ]
+  },
+  "site_integrity": {
+    "built_routes": 29,
+    "reachable_routes": 29,
+    "broken_internal_links": 0,
+    "placeholder_count": 0,
+    "per_route": {
+      "http_200": true,
+      "single_h1": true,
+      "title_present": true,
+      "meta_description_present": true,
+      "canonical_present": true,
+      "lang_present": true
+    },
+    "unique_titles": 29,
+    "unique_canonical_urls": 29
+  },
+  "business_truth": {
+    "unsupported_claim_count": 0,
+    "phone_mismatch_count": 0,
+    "email_mismatch_count": 0,
+    "prohibition_violations": 0
+  },
+  "llm_audit": {
+    "direct_provider_bypass_count": 0,
+    "required_policy": {
+      "SEO_CONTENT_BLUEPRINT": { "searchRequired": false, "searchPolicySource": "EXPLICIT" },
+      "STRUCTURED_CONTENT_GENERATION": {
+        "searchRequired": false,
+        "searchPolicySource": "EXPLICIT"
+      },
+      "CONTENT_VALIDATION": { "searchRequired": false, "searchPolicySource": "EXPLICIT" },
+      "VISUAL_QA": { "searchRequired": false }
+    },
+    "unsupported_capability_combination_count": 0
+  },
+  "visual_capture": {
+    "required_pairs": 10,
+    "routes": 5,
+    "viewports": 2,
+    "candidate_blank_capture_count": 0,
+    "baseline_blank_capture_count": 0,
+    "route_mismatch_count": 0,
+    "viewport_mismatch_count": 0,
+    "stale_capture_count": 0
+  },
+  "visual_oracle": {
+    "mode": "BLIND_PAIRED_MULTI_TRIAL",
+    "trials_per_pair": 3,
+    "randomize_left_right": true,
+    "reveal_candidate_identity_to_judge": false,
+    "dimensions": {
+      "visual_hierarchy": 0.15,
+      "brand_coherence": 0.1,
+      "conversion_clarity": 0.15,
+      "trust_and_credibility": 0.1,
+      "authentic_imagery": 0.12,
+      "content_readability": 0.1,
+      "information_density": 0.07,
+      "spacing_and_rhythm": 0.07,
+      "mobile_usability": 0.08,
+      "professional_polish": 0.06
+    },
+    "score_scale": {
+      "minimum": -2,
+      "maximum": 2,
+      "meaning": "-2 strongly A, -1 mildly A, 0 tie, +1 mildly B, +2 strongly B before orientation normalization"
+    },
+    "pass": {
+      "minimum_pair_majority_wins": 7,
+      "maximum_pair_majority_losses": 2,
+      "minimum_candidate_votes": 21,
+      "total_votes": 30,
+      "wilson_lower_bound_must_exceed": 0.5,
+      "minimum_weighted_mean_delta": 0.25,
+      "critical_pairs_may_not_lose": [
+        "/::desktop",
+        "/::mobile",
+        "/gallery/::desktop",
+        "/contact/::mobile"
+      ],
+      "critical_dimensions_may_not_regress": [
+        "visual_hierarchy",
+        "conversion_clarity",
+        "trust_and_credibility",
+        "authentic_imagery",
+        "mobile_usability"
+      ]
+    },
+    "inconclusive": {
+      "missing_trial": true,
+      "judge_disagreement_without_majority": true,
+      "wilson_interval_crosses_required_boundary": true
+    }
+  },
+  "final_verdict": {
+    "pass_name": "GOLDEN_E2E_PASS_IMPROVED",
+    "structural_only_name": "STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN",
+    "fail_name": "GOLDEN_E2E_FAIL",
+    "pass_requires": [
+      "all_hard_gates_pass",
+      "visual_oracle_pass",
+      "no_inconclusive_blocking_dimension",
+      "rendered_visual_qa_executed"
+    ]
+  }
 }

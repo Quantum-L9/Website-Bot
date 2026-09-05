@@ -32,7 +32,10 @@ function rich(overrides: Record<string, unknown> = {}) {
       },
       design: {
         design_status: "placeholder",
-        brand_tokens: { colors: "{{COLOR_TOKENS_PLACEHOLDER}}", typography: "{{TYPOGRAPHY_PLACEHOLDER}}" },
+        brand_tokens: {
+          colors: "{{COLOR_TOKENS_PLACEHOLDER}}",
+          typography: "{{TYPOGRAPHY_PLACEHOLDER}}",
+        },
       },
       ...overrides,
     },
@@ -55,14 +58,20 @@ test("carries client_vision verbatim into the flat spec", () => {
   );
   assert.deepEqual(flat.client_vision?.brand_attributes, ["calm"]);
   assert.deepEqual(flat.client_vision?.palette, { primary: "#112233" });
-  assert.throws(() => buildFlatSpec(rich({ client_vision: "not-an-object" })), /client_vision must be an object/);
+  assert.throws(
+    () => buildFlatSpec(rich({ client_vision: "not-an-object" })),
+    /client_vision must be an object/,
+  );
 });
 
 test("carries design_references verbatim into the flat spec", () => {
   const references = [{ reference_id: "linear", accepted: false, rejection_reason: "too generic" }];
   const flat = buildFlatSpec(rich({ design_references: references }));
   assert.deepEqual(flat.design_references, references);
-  assert.throws(() => buildFlatSpec(rich({ design_references: {} })), /design_references must be an array/);
+  assert.throws(
+    () => buildFlatSpec(rich({ design_references: {} })),
+    /design_references must be an array/,
+  );
 });
 
 test("REDESIGN raw client intent survives normalization verbatim (GAP-2 round trip)", () => {
@@ -73,7 +82,11 @@ test("REDESIGN raw client intent survives normalization verbatim (GAP-2 round tr
       url: "https://www.palantir.com/",
       selection_reason: "serious and credible, but too busy — differentiate rather than imitate",
     },
-    { reference_id: "linear", url: "https://linear.app/", selection_reason: "quality benchmark only" },
+    {
+      reference_id: "linear",
+      url: "https://linear.app/",
+      selection_reason: "quality benchmark only",
+    },
   ];
   const vision = {
     brand_attributes: ["serious AI systems company", "premium"],
@@ -81,7 +94,11 @@ test("REDESIGN raw client intent survives normalization verbatim (GAP-2 round tr
     liked_examples: ["https://www.palantir.com/", "https://linear.app/"],
   };
   const flat = buildFlatSpec(
-    rich({ build_intent: "REDESIGN_IMPROVE", client_vision: vision, design_references: references }),
+    rich({
+      build_intent: "REDESIGN_IMPROVE",
+      client_vision: vision,
+      design_references: references,
+    }),
   );
   assert.equal(flat.build_intent, "REDESIGN_IMPROVE");
   assert.deepEqual(flat.client_vision, vision);
@@ -97,8 +114,12 @@ test("REDESIGN raw client intent survives normalization verbatim (GAP-2 round tr
 });
 
 test("the Quantum AI Partners rich spec normalizes to its committed flat spec with intent intact", () => {
-  const source = parse(readFileSync("examples/quantum-ai-partners/domain_spec.source.yaml", "utf-8"));
-  const committed = parse(readFileSync("examples/quantum-ai-partners/domain_spec.normalized.yaml", "utf-8"));
+  const source = parse(
+    readFileSync("examples/quantum-ai-partners/domain_spec.source.yaml", "utf-8"),
+  );
+  const committed = parse(
+    readFileSync("examples/quantum-ai-partners/domain_spec.normalized.yaml", "utf-8"),
+  );
   const flat = buildFlatSpec(source);
   assert.deepEqual(flat, committed);
   assert.equal(flat.build_intent, "REDESIGN_IMPROVE");

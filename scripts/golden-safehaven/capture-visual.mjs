@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 /**
  * §17 VISUAL CAPTURE HARNESS — Safe Haven Golden E2E.
  *
@@ -21,7 +22,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(`--${name}`);
@@ -38,7 +38,9 @@ const candidateUrl = arg("candidate-url");
 const runId = arg("run-id");
 const outRoot = arg("out");
 if (!casePath || !baselineUrl || !candidateUrl || !runId || !outRoot) {
-  console.error("usage: capture-visual.mjs --case <case.json> --baseline-url <url> --candidate-url <url> --run-id <id> --out <dir> [--full-page] [--serve-baseline-dir <dir>]");
+  console.error(
+    "usage: capture-visual.mjs --case <case.json> --baseline-url <url> --candidate-url <url> --run-id <id> --out <dir> [--full-page] [--serve-baseline-dir <dir>]",
+  );
   process.exit(2);
 }
 
@@ -55,13 +57,29 @@ if (baselineDir) {
   // Serve a frozen baseline export locally: equivalence with a candidate
   // served locally (same host family, no CDN variance) and frozen authority.
   const { createServer } = await import("node:http");
-  const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
+  const mime = {
+    ".html": "text/html",
+    ".css": "text/css",
+    ".js": "text/javascript",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+  };
   baselineServer = createServer((req, res) => {
     let p = decodeURIComponent(new URL(req.url, "https://x").pathname);
     if (p.endsWith("/")) p += "index.html";
     const file = path.join(baselineDir, p);
-    if (!file.startsWith(path.resolve(baselineDir)) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-      res.writeHead(404); res.end(); return;
+    if (
+      !file.startsWith(path.resolve(baselineDir)) ||
+      !fs.existsSync(file) ||
+      fs.statSync(file).isDirectory()
+    ) {
+      res.writeHead(404);
+      res.end();
+      return;
     }
     res.writeHead(200, { "content-type": mime[path.extname(file)] ?? "application/octet-stream" });
     res.end(fs.readFileSync(file));
@@ -88,7 +106,10 @@ const manifest = {
   schema: "l9.golden-visual-capture-manifest/v1",
   run_id: runId,
   captured_at: new Date().toISOString(),
-  baseline: { url: baselineBase, source: baselineDir ? `frozen export ${baselineDir}` : baselineUrl },
+  baseline: {
+    url: baselineBase,
+    source: baselineDir ? `frozen export ${baselineDir}` : baselineUrl,
+  },
   candidate: { url: candidateUrl },
   viewports,
   pairs: [],
@@ -106,7 +127,9 @@ async function capture(url, route, viewport, side) {
   });
   const page = await context.newPage();
   const target = `${url}${route}`;
-  const resp = await page.goto(target, { waitUntil: "networkidle", timeout: 45_000 }).catch(() => null);
+  const resp = await page
+    .goto(target, { waitUntil: "networkidle", timeout: 45_000 })
+    .catch(() => null);
   const status = resp?.status() ?? null;
   if (status && status >= 400) {
     await context.close();
@@ -157,7 +180,9 @@ for (const sentinel of sentinels) {
         final_route: c.final_route,
         blank: c.blank,
       },
-      route_match: normalizeRoute(b.final_route) === normalizeRoute(sentinel.route) && normalizeRoute(c.final_route) === normalizeRoute(sentinel.route),
+      route_match:
+        normalizeRoute(b.final_route) === normalizeRoute(sentinel.route) &&
+        normalizeRoute(c.final_route) === normalizeRoute(sentinel.route),
       viewport_match: true, // context enforces; recorded for determinism
     };
     pairs.push(pair);
@@ -179,10 +204,16 @@ function normalizeRoute(p) {
 
 const blankCount = pairs.filter((p) => p.baseline.blank || p.candidate.blank).length;
 const mismatch = pairs.filter((p) => !p.route_match).length;
-console.log(JSON.stringify({
-  pairs: pairs.length,
-  blank_captures: blankCount,
-  route_mismatches: mismatch,
-  manifest: path.join(outRoot, "manifest.json"),
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      pairs: pairs.length,
+      blank_captures: blankCount,
+      route_mismatches: mismatch,
+      manifest: path.join(outRoot, "manifest.json"),
+    },
+    null,
+    2,
+  ),
+);
 process.exit(pairs.length === 10 ? 0 : 1);

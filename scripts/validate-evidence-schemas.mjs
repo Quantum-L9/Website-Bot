@@ -30,8 +30,7 @@ function resolveRef(root, ref) {
 }
 function validateObject(schema, value, path, validate) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return `${path} must be object`;
-  for (const key of schema.required ?? [])
-    if (!(key in value)) return `${path}.${key} is required`;
+  for (const key of schema.required ?? []) if (!(key in value)) return `${path}.${key} is required`;
   if (schema.additionalProperties === false)
     for (const key of Object.keys(value))
       if (!(key in (schema.properties ?? {}))) return `${path}.${key} is not allowed`;

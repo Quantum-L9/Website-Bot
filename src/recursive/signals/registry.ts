@@ -47,7 +47,11 @@ function equivalent(signal: EngineeringSignal, other: EngineeringSignal): boolea
   return true;
 }
 
-function weightedScore(weights: Record<string, number>, value: string | undefined, fallback: number): number {
+function weightedScore(
+  weights: Record<string, number>,
+  value: string | undefined,
+  fallback: number,
+): number {
   if (value === undefined) return fallback;
   return weights[value] ?? fallback;
 }
@@ -65,7 +69,11 @@ function priorityFor(score: number): SignalCluster["leverage"]["priority"] {
   return "P3";
 }
 
-function buildCluster(signals: EngineeringSignal[], signal: EngineeringSignal, index: number): SignalCluster {
+function buildCluster(
+  signals: EngineeringSignal[],
+  signal: EngineeringSignal,
+  index: number,
+): SignalCluster {
   const dimensions = [
     ...new Set(
       signals

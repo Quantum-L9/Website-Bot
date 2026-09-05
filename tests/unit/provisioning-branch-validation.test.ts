@@ -29,11 +29,7 @@ function branchError(sourceBranch: string): string | null {
 
 void test("accepts valid source branches", () => {
   for (const branch of ["main", "release/v1.0", "feature-1", "dev.2"]) {
-    assert.equal(
-      branchError(branch),
-      null,
-      `valid branch ${branch} should be accepted`,
-    );
+    assert.equal(branchError(branch), null, `valid branch ${branch} should be accepted`);
   }
 });
 

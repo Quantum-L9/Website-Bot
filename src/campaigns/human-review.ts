@@ -10,20 +10,20 @@ import type {
   HumanReviewReceipt,
   QualityDimension,
   QualityVerdict,
-} from './types.js';
+} from "./types.js";
 
-export const HUMAN_REVIEW_DECISIONS = ['APPROVED', 'REJECTED', 'APPROVE_WITH_NOTES'] as const;
+export const HUMAN_REVIEW_DECISIONS = ["APPROVED", "REJECTED", "APPROVE_WITH_NOTES"] as const;
 export type HumanReviewDecision = (typeof HUMAN_REVIEW_DECISIONS)[number];
 
 export const HUMAN_REVIEW_TAGS = [
-  'generic',
-  'weak_branding',
-  'weak_hero',
-  'too_busy',
-  'too_sparse',
-  'great_hierarchy',
-  'great_conversion',
-  'great_mobile',
+  "generic",
+  "weak_branding",
+  "weak_hero",
+  "too_busy",
+  "too_sparse",
+  "great_hierarchy",
+  "great_conversion",
+  "great_mobile",
 ] as const;
 export type HumanReviewTag = (typeof HUMAN_REVIEW_TAGS)[number];
 
@@ -43,10 +43,11 @@ export interface HumanReviewReceiptInput {
 }
 
 export function buildHumanReviewReceipt(input: HumanReviewReceiptInput): HumanReviewReceipt {
-  if (!input.receipt_id) throw new Error('receipt_id required');
-  if (!input.campaign_id || !input.candidate_id) throw new Error('campaign_id and candidate_id required');
+  if (!input.receipt_id) throw new Error("receipt_id required");
+  if (!input.campaign_id || !input.candidate_id)
+    throw new Error("campaign_id and candidate_id required");
   if (!(HUMAN_REVIEW_DECISIONS as readonly string[]).includes(input.decision)) {
-    throw new Error(`decision must be one of ${HUMAN_REVIEW_DECISIONS.join('|')}`);
+    throw new Error(`decision must be one of ${HUMAN_REVIEW_DECISIONS.join("|")}`);
   }
   const tags = [...new Set(input.tags ?? [])];
   for (const tag of tags) {
@@ -61,8 +62,8 @@ export function buildHumanReviewReceipt(input: HumanReviewReceiptInput): HumanRe
     unmeasured_signal_candidate: input.unmeasured_signal_candidate ?? null,
   });
   return {
-    schema: 'website-bot.human-review-receipt/v1',
-    schema_version: '1.0.0',
+    schema: "website-bot.human-review-receipt/v1",
+    schema_version: "1.0.0",
     receipt_id: input.receipt_id,
     campaign_id: input.campaign_id,
     candidate_id: input.candidate_id,
@@ -85,20 +86,20 @@ export function deriveHumanMachineGap(args: {
   machine_quality: Partial<Record<QualityDimension, QualityVerdict>>;
   unmeasured_signal_candidate: string | null;
 }): HumanMachineGap | null {
-  if (args.decision === 'APPROVED') return null;
+  if (args.decision === "APPROVED") return null;
   if (args.unmeasured_signal_candidate) {
     return {
-      human_reason: args.negatives.join('; ') || 'unspecified',
+      human_reason: args.negatives.join("; ") || "unspecified",
       machine_quality: args.machine_quality,
       unmeasured_signal_candidate: args.unmeasured_signal_candidate,
     };
   }
   const reasonToSignal: Record<string, string> = {
-    generic: 'brand_distinction',
-    weak_branding: 'brand_distinction',
-    weak_hero: 'hero_effectiveness',
-    too_busy: 'visual_density',
-    too_sparse: 'content_richness',
+    generic: "brand_distinction",
+    weak_branding: "brand_distinction",
+    weak_hero: "hero_effectiveness",
+    too_busy: "visual_density",
+    too_sparse: "content_richness",
   };
   for (const negative of args.negatives) {
     const signal = reasonToSignal[negative];

@@ -7,13 +7,13 @@ import type {
   StructuredContentPackageArtifact,
   WebsiteBuildBlueprintArtifact,
 } from "@quantum-l9/bot-interop";
+import type { DesignReferenceAcquisitionManifest } from "../intelligence/DesignReferenceAcquisition.js";
+import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
 import type {
   ClientVision,
   DesignReferenceIntelligence,
   DesignReferenceSet,
 } from "../intelligence/design-authority.js";
-import type { DesignReferenceAcquisitionManifest } from "../intelligence/DesignReferenceAcquisition.js";
-import type { AcceptedDonorEvidence } from "../intelligence/DonorIngestion.js";
 import type { SeoBotPreflightResult } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/types.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";

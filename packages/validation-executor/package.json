@@ -21,14 +21,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "keywords": [
-    "validation",
-    "testing",
-    "evidence",
-    "audit",
-    "preflight",
-    "e2e"
-  ],
+  "keywords": ["validation", "testing", "evidence", "audit", "preflight", "e2e"],
   "author": "Quantum L9",
   "license": "MIT",
   "dependencies": {
@@ -44,11 +37,7 @@
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
   },
-  "files": [
-    "dist/",
-    "schemas/",
-    "README.md"
-  ],
+  "files": ["dist/", "schemas/", "README.md"],
   "repository": {
     "type": "git",
     "url": "https://github.com/Quantum-L9/Website-Bot",

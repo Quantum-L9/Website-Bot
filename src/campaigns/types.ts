@@ -3,21 +3,15 @@
  * Learning-plane type system (design contract §4–§5).
  * Thin and reference-heavy: everything points back into the artifact DAG via ArtifactRef.
  */
-import type { ArtifactRef } from '@quantum-l9/bot-interop';
+import type { ArtifactRef } from "@quantum-l9/bot-interop";
 import type {
   ConfidenceClass,
   DimensionStatus,
   QualityDimension,
   QualityVerdict,
-} from './quality-dimensions.js';
+} from "./quality-dimensions.js";
 
-export { ArtifactRef };
-export type {
-  ConfidenceClass,
-  DimensionStatus,
-  QualityDimension,
-  QualityVerdict,
-};
+export type { ArtifactRef, ConfidenceClass, DimensionStatus, QualityDimension, QualityVerdict };
 
 /**
  * Shape-compatible reference for learning-plane artifacts. bot-interop's
@@ -42,35 +36,62 @@ export interface ArtifactRefLike {
 // Campaign state
 // ---------------------------------------------------------------------------
 
-export const CAMPAIGN_STATUSES = ['RUNNING', 'REVIEWABLE', 'EXHAUSTED', 'BLOCKED', 'APPROVED', 'REJECTED'] as const;
+export const CAMPAIGN_STATUSES = [
+  "RUNNING",
+  "REVIEWABLE",
+  "EXHAUSTED",
+  "BLOCKED",
+  "APPROVED",
+  "REJECTED",
+] as const;
 export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
 
-export const RUNNER_TERMINAL_STATES = ['REVIEWABLE', 'EXHAUSTED', 'BLOCKED', 'NO_PROGRESS', 'FATAL'] as const;
+export const RUNNER_TERMINAL_STATES = [
+  "REVIEWABLE",
+  "EXHAUSTED",
+  "BLOCKED",
+  "NO_PROGRESS",
+  "FATAL",
+] as const;
 export type RunnerTerminalState = (typeof RUNNER_TERMINAL_STATES)[number];
 
-export const MUTATION_LAYERS = ['INITIAL', 'INTELLIGENCE', 'BLUEPRINT', 'CONTENT', 'DESIGN', 'ASSET', 'ASSEMBLY', 'REPAIR'] as const;
+export const MUTATION_LAYERS = [
+  "INITIAL",
+  "INTELLIGENCE",
+  "BLUEPRINT",
+  "CONTENT",
+  "DESIGN",
+  "ASSET",
+  "ASSEMBLY",
+  "REPAIR",
+] as const;
 export type MutationLayer = (typeof MUTATION_LAYERS)[number];
 
-export const CANDIDATE_DISPOSITIONS = ['CHAMPION', 'REJECTED', 'SUPERSEDED', 'REVIEWABLE'] as const;
+export const CANDIDATE_DISPOSITIONS = ["CHAMPION", "REJECTED", "SUPERSEDED", "REVIEWABLE"] as const;
 export type CandidateDisposition = (typeof CANDIDATE_DISPOSITIONS)[number];
 
-export const HYPOTHESIS_OUTCOMES = ['CONFIRMED_FOR_CAMPAIGN', 'REJECTED', 'INCONCLUSIVE', 'CONTRADICTED'] as const;
+export const HYPOTHESIS_OUTCOMES = [
+  "CONFIRMED_FOR_CAMPAIGN",
+  "REJECTED",
+  "INCONCLUSIVE",
+  "CONTRADICTED",
+] as const;
 export type HypothesisOutcome = (typeof HYPOTHESIS_OUTCOMES)[number];
 
-export const MEMORY_SCOPES = ['RUN_LOCAL', 'SITE_CAMPAIGN', 'VERTICAL', 'GLOBAL'] as const;
+export const MEMORY_SCOPES = ["RUN_LOCAL", "SITE_CAMPAIGN", "VERTICAL", "GLOBAL"] as const;
 export type MemoryScope = (typeof MEMORY_SCOPES)[number];
 
 export const PROMOTION_STATES = [
-  'CAMPAIGN_LOCAL',
-  'SITE_CONFIRMED',
-  'VERTICAL_CANDIDATE',
-  'VERTICAL_CONFIRMED',
-  'GLOBAL_CANDIDATE',
-  'GLOBAL_CONFIRMED',
+  "CAMPAIGN_LOCAL",
+  "SITE_CONFIRMED",
+  "VERTICAL_CANDIDATE",
+  "VERTICAL_CONFIRMED",
+  "GLOBAL_CANDIDATE",
+  "GLOBAL_CONFIRMED",
 ] as const;
 export type PromotionState = (typeof PROMOTION_STATES)[number];
 
-export const PROMOTION_SCOPES = ['SITE', 'VERTICAL', 'GLOBAL'] as const;
+export const PROMOTION_SCOPES = ["SITE", "VERTICAL", "GLOBAL"] as const;
 export type PromotionScope = (typeof PROMOTION_SCOPES)[number];
 
 export interface CampaignBudget {
@@ -155,13 +176,13 @@ export interface HumanMachineGap {
 // ---------------------------------------------------------------------------
 
 export interface CampaignManifest {
-  schema: 'website-bot.campaign-manifest/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.campaign-manifest/v1";
+  schema_version: "1.0.0";
   campaign_id: string;
   source_url: string;
   site_slug: string;
   status: CampaignStatus;
-  convergence_target: 'REVIEWABLE';
+  convergence_target: "REVIEWABLE";
   context_signature: ContextSignature;
   baseline_ref: ArtifactRef | null;
   champion: {
@@ -184,15 +205,15 @@ export interface CampaignManifest {
   created_at: string;
   updated_at: string;
   integrity: {
-    algorithm: 'sha256';
+    algorithm: "sha256";
     payload_digest: string;
   };
 }
 
 export interface CandidateMutationPlan {
-  schema: 'website-bot.candidate-mutation-plan/v1';
-  schema_version: '1.0.0';
-  artifact_type: 'CandidateMutationPlan';
+  schema: "website-bot.candidate-mutation-plan/v1";
+  schema_version: "1.0.0";
+  artifact_type: "CandidateMutationPlan";
   candidate_id: string;
   parent_candidate_id: string | null;
   mutation: {
@@ -215,14 +236,14 @@ export interface CandidateMutationPlan {
   };
   mutation_signature: MutationSignature;
   integrity: {
-    algorithm: 'sha256';
+    algorithm: "sha256";
     payload_digest: string;
   };
 }
 
 export interface QualityDimensionResult {
-  schema: 'website-bot.quality-dimension-result/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.quality-dimension-result/v1";
+  schema_version: "1.0.0";
   dimension: QualityDimension;
   candidate_id: string;
   campaign_id: string;
@@ -242,8 +263,8 @@ export interface QualityDimensionResult {
 }
 
 export interface QualityDeltaIndex {
-  schema: 'website-bot.quality-delta-index/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.quality-delta-index/v1";
+  schema_version: "1.0.0";
   campaign_id: string;
   candidate_id: string;
   results: QualityDimensionResult[];
@@ -264,11 +285,11 @@ export interface ChampionDelta {
 }
 
 export interface CandidateEvaluation {
-  schema: 'website-bot.candidate-evaluation/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.candidate-evaluation/v1";
+  schema_version: "1.0.0";
   candidate_id: string;
   campaign_id: string;
-  evaluated_against: Array<'BASELINE' | 'CHAMPION'>;
+  evaluated_against: Array<"BASELINE" | "CHAMPION">;
   dimension_results: QualityDimensionResult[];
   groups: {
     target: QualityDimension[];
@@ -280,15 +301,15 @@ export interface CandidateEvaluation {
   reviewable: boolean;
   disposition: CandidateDisposition;
   integrity: {
-    algorithm: 'sha256';
+    algorithm: "sha256";
     payload_digest: string;
   };
 }
 
 export interface LearningEvent {
-  schema: 'website-bot.learning-event/v1';
-  schema_version: '1.0.0';
-  artifact_type: 'LearningEvent';
+  schema: "website-bot.learning-event/v1";
+  schema_version: "1.0.0";
+  artifact_type: "LearningEvent";
   learning_id: string;
   source: {
     campaign_id: string;
@@ -314,7 +335,7 @@ export interface LearningEvent {
     original_layer: MutationLayer;
     actual_layer: MutationLayer;
     original_confidence: number;
-    result: 'MISATTRIBUTED' | 'CONFIRMED';
+    result: "MISATTRIBUTED" | "CONFIRMED";
   } | null;
   scope_recommendation: MemoryScope;
   evidence_refs: string[];
@@ -327,14 +348,14 @@ export interface LearningEvent {
     context_similarity: number;
   };
   integrity: {
-    algorithm: 'sha256';
+    algorithm: "sha256";
     payload_digest: string;
   };
 }
 
 export interface PromotionCandidate {
-  schema: 'website-bot.promotion-candidate/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.promotion-candidate/v1";
+  schema_version: "1.0.0";
   promotion_id: string;
   learning_ids: string[];
   scope: PromotionScope;
@@ -351,17 +372,17 @@ export interface PromotionCandidate {
   acceptance_test: string;
   risk: string;
   human_approval_required: boolean;
-  status: 'PROPOSED' | 'APPROVED_BY_HUMAN' | 'REJECTED';
+  status: "PROPOSED" | "APPROVED_BY_HUMAN" | "REJECTED";
   promotion_state: PromotionState;
 }
 
 export interface HumanReviewReceipt {
-  schema: 'website-bot.human-review-receipt/v1';
-  schema_version: '1.0.0';
+  schema: "website-bot.human-review-receipt/v1";
+  schema_version: "1.0.0";
   receipt_id: string;
   campaign_id: string;
   candidate_id: string;
-  decision: 'APPROVED' | 'REJECTED' | 'APPROVE_WITH_NOTES';
+  decision: "APPROVED" | "REJECTED" | "APPROVE_WITH_NOTES";
   positives: string[];
   negatives: string[];
   blocking_negatives: string[];
@@ -389,7 +410,9 @@ export interface CampaignDeps {
     failure: FailureFingerprint;
     learnings: unknown[];
   }): Promise<CandidateMutationPlan>;
-  buildIncrementally(plan: CandidateMutationPlan): Promise<{ buildRef: LearningArtifactRef | null }>;
+  buildIncrementally(
+    plan: CandidateMutationPlan,
+  ): Promise<{ buildRef: LearningArtifactRef | null }>;
   runCheapestAdequateTests(plan: CandidateMutationPlan): Promise<{ viable: boolean }>;
   watch?: RunnerWatchSink;
 }

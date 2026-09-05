@@ -38,7 +38,7 @@ function stubContext(responses: string[]): { ctx: BuildContext; prompts: string[
 }
 
 void test("fenced FAQ JSON is recovered on the first attempt", async () => {
-  const { ctx, prompts } = stubContext(["```json\n" + FAQ_JSON + "\n```"]);
+  const { ctx, prompts } = stubContext([`\`\`\`json\n${FAQ_JSON}\n\`\`\``]);
   await new SchemaGeneratorStage().run(ctx);
   assert.equal(prompts.length, 1);
   const faq = ctx.generatedSchemas.get("FAQPage") as { mainEntity: unknown[] };

@@ -20,9 +20,10 @@ checks.push(
     check_class: "environment_config",
     target_artifact: ".env.example",
     expected_result: "Analytics environment variables defined",
-    actual_result: analyticsEnvVars.length > 0
-      ? `Found: ${analyticsEnvVars.join(", ")}`
-      : "No analytics environment variables found",
+    actual_result:
+      analyticsEnvVars.length > 0
+        ? `Found: ${analyticsEnvVars.join(", ")}`
+        : "No analytics environment variables found",
     status: analyticsEnvVars.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
     remediation_if_failed: "Define analytics configuration in .env.example",
@@ -47,7 +48,9 @@ if (exists("dist/index.html")) {
         check_class: "analytics_implementation",
         target_artifact: "dist/index.html",
         expected_result: "Analytics tracking code present",
-        actual_result: analyticsFound ? "Analytics tracking code found" : "No analytics tracking code found",
+        actual_result: analyticsFound
+          ? "Analytics tracking code found"
+          : "No analytics tracking code found",
         status: analyticsFound ? "PASS" : "UNKNOWN",
         severity: "medium",
         remediation_if_failed: "Add analytics tracking code to site",
@@ -62,14 +65,18 @@ if (exists("dist/index.html")) {
         check_class: "analytics_events",
         target_artifact: "dist/index.html",
         expected_result: "Event tracking setup present",
-        actual_result: hasEventTracking ? "Event tracking code found" : "No event tracking code found",
+        actual_result: hasEventTracking
+          ? "Event tracking code found"
+          : "No event tracking code found",
         status: hasEventTracking ? "PASS" : "UNKNOWN",
         severity: "low",
         remediation_if_failed: "Add event tracking for user interactions",
       }),
     );
   } catch (error) {
-    checks.push(fileReadErrorResult("analytics-check-failed", "dist/index.html", "Analytics", error));
+    checks.push(
+      fileReadErrorResult("analytics-check-failed", "dist/index.html", "Analytics", error),
+    );
   }
 } else {
   checks.push(

@@ -14,6 +14,7 @@ import {
   PlaywrightScreenshotCapturer,
   type ScreenshotCapturer,
 } from "../ingestion/ScreenshotCapturer.js";
+
 export { NoopScreenshotCapturer } from "../ingestion/ScreenshotCapturer.js";
 
 const logger = createModuleLogger("intelligence:donor-ingestion");
@@ -103,7 +104,11 @@ export class HttpDonorIngestor implements DonorIngestor {
         }
       } catch (error) {
         logger.warn(
-          { donor: request.domain, url, reason: error instanceof Error ? error.message : String(error) },
+          {
+            donor: request.domain,
+            url,
+            reason: error instanceof Error ? error.message : String(error),
+          },
           "donor page fetch failed; continuing bounded acquisition",
         );
       }
@@ -134,7 +139,7 @@ export class HttpDonorIngestor implements DonorIngestor {
       evidence_digest: evidenceDigest,
       crawl_manifest_path: manifestPath,
     };
-    writeFileSync(manifestPath, JSON.stringify(complete, null, 2) + "\n", "utf-8");
+    writeFileSync(manifestPath, `${JSON.stringify(complete, null, 2)}\n`, "utf-8");
     return complete;
   }
 
@@ -142,4 +147,3 @@ export class HttpDonorIngestor implements DonorIngestor {
     await this.screenshots.close();
   }
 }
-

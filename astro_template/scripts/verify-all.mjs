@@ -37,7 +37,7 @@ for (const [cmd, args] of commands) {
 // Write execution trace
 fs.writeFileSync(
   "validation/execution_trace.jsonl",
-  summary.map((row) => JSON.stringify(row)).join("\n") + "\n",
+  `${summary.map((row) => JSON.stringify(row)).join("\n")}\n`,
 );
 
 // Determine final status

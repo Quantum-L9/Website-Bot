@@ -41,7 +41,7 @@ export class JsonStore {
     const target = this.pathFor(relativePath);
     mkdirSync(dirname(target), { recursive: true });
     const temporary = `${target}.${randomBytes(6).toString("hex")}.tmp`;
-    writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n", "utf-8");
+    writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, "utf-8");
     renameSync(temporary, target);
   }
 

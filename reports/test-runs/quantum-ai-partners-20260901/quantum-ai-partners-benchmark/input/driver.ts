@@ -14,16 +14,21 @@
 // bundle must contain the actual artifacts, so this driver serializes them
 // to JSON after a successful run — the same in-process export the repo's
 // golden-runtime-evidence path performs for Safe Haven.
+
+import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { execSync } from "node:child_process";
 import { parse } from "yaml";
+import { hydrateSecretsIfConfigured } from "../../../../../scripts/lib/hydrate-secrets.mjs";
 import {
   type BuildContext,
   type ExecutionMode,
   makeBuildId,
 } from "../../../../../src/pipeline/BuildContext.js";
-import { parseBuildIntent, requireRedesignIntent } from "../../../../../src/pipeline/BuildIntent.js";
+import {
+  parseBuildIntent,
+  requireRedesignIntent,
+} from "../../../../../src/pipeline/BuildIntent.js";
 import { FileEvidenceStore } from "../../../../../src/pipeline/evidence/FileEvidenceStore.js";
 import { MemoryEvidenceStore } from "../../../../../src/pipeline/evidence/MemoryEvidenceStore.js";
 import {
@@ -32,7 +37,6 @@ import {
 } from "../../../../../src/pipeline/FactoryExecutionPlan.js";
 import { validateDomainSpec } from "../../../../../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../../../../../src/services/llm.js";
-import { hydrateSecretsIfConfigured } from "../../../../../scripts/lib/hydrate-secrets.mjs";
 
 // Same .env.local bootstrap as scripts/run-pipeline.ts: real environment
 // variables win; values are never logged. Absent file is a no-op.

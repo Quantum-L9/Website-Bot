@@ -11,16 +11,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import type { VisualRequirement } from "@quantum-l9/bot-interop";
-import type { BuildContext } from "../../src/pipeline/BuildContext.js";
+import { deriveVisualRequirements } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
+import type { BuildContext, ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import type { IngestedImage } from "../../src/pipeline/evidence/SourceSiteManifest.js";
-import { deriveVisualRequirements } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import {
   ImageAssetPlanningStage,
   mergeBlueprintAndSpecSlots,
   slotsFromVisualRequirements,
 } from "../../src/stages/ImageAssetPlanningStage.js";
-import type { ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
 import { BLUEPRINT_ROUTES, makeLandscape, makeWebsiteBlueprint } from "./redesign-fixtures.js";
 
 // A real 1x1 PNG so inspectImage decodes staged source assets.
@@ -29,7 +28,11 @@ const PNG_1X1 = Buffer.from(
   "base64",
 );
 
-function makeSourceImage(id: string, dir: string, overrides?: Partial<IngestedImage>): IngestedImage {
+function makeSourceImage(
+  id: string,
+  dir: string,
+  overrides?: Partial<IngestedImage>,
+): IngestedImage {
   const localPath = join(dir, `${id}.png`);
   writeFileSync(localPath, PNG_1X1);
   return {
@@ -48,7 +51,7 @@ function makeSourceImage(id: string, dir: string, overrides?: Partial<IngestedIm
   } as IngestedImage;
 }
 
-function makeCtx(dir: string, overrides?: Partial<BuildContext>): BuildContext {
+function makeCtx(_dir: string, overrides?: Partial<BuildContext>): BuildContext {
   return {
     buildId: "visual-test-build",
     clientId: "visual-test-client",
@@ -83,8 +86,8 @@ void test("deriveVisualRequirements produces a global logo and a required home h
   const requirements = deriveVisualRequirements(BLUEPRINT_ROUTES);
   const logo = requirements.find((entry) => entry.role === "logo");
   const hero = requirements.find((entry) => entry.role === "hero");
-  assert.ok(logo && logo.required && logo.route_id === "global");
-  assert.ok(hero && hero.required && hero.route_id === "/");
+  assert.ok(logo?.required && logo.route_id === "global");
+  assert.ok(hero?.required && hero.route_id === "/");
   const trust = requirements.find((entry) => entry.role === "trust");
   assert.ok(trust && !trust.required, "trust slot derived from trust content slot, optional");
 });
@@ -144,7 +147,10 @@ void test("spec slots with a placement already covered by the blueprint are drop
   // manifest's uniqueness key is the placement, so it must drop; the
   // og-image slot is a genuine operator addition and stays.
   assert.equal(merged.length, 2);
-  assert.deepEqual(merged.map((slot) => slot.id), ["hero-global-logo", "og-image"]);
+  assert.deepEqual(
+    merged.map((slot) => slot.id),
+    ["hero-global-logo", "og-image"],
+  );
 });
 
 void test("blueprint requirements sharing a role dedupe to one placement (golden run #58)", () => {

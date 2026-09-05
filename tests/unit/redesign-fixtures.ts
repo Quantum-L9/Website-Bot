@@ -6,13 +6,13 @@
 
 import {
   type CompetitiveLandscapeArtifact,
+  refForArtifact,
   type SEOContentBlueprintArtifact,
   type SEOContentBlueprintRoute,
   sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
   type WebsiteBuildBlueprintArtifact,
   type WebsiteBuildBlueprintV2,
-  refForArtifact,
 } from "@quantum-l9/bot-interop";
 import type { AcceptedDonorEvidence } from "../../src/intelligence/DonorIngestion.js";
 
@@ -147,7 +147,11 @@ export function makeWebsiteBlueprint(
       forbid: [],
     },
     content_guardrails: { forbidden_claims: [] },
-    conversion: { primary_action: "request_quote", secondary_actions: [], persistent_mobile_action: true },
+    conversion: {
+      primary_action: "request_quote",
+      secondary_actions: [],
+      persistent_mobile_action: true,
+    },
     routes: BLUEPRINT_ROUTES,
     visual_requirements: [],
     acceptance_tests: [],

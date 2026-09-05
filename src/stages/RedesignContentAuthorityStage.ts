@@ -15,15 +15,17 @@
 // here is the FINAL page prose authority — Website-Bot never rewrites it.
 
 import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   assertIntelligenceArtifactIntegrity,
   canonicalJson,
   type PageContentContractArtifact,
   type PageContentContractV1,
   refForArtifact,
+  type StructuredContentPackageArtifact,
   sameArtifactRef,
   sealIntelligenceArtifact,
-  type StructuredContentPackageArtifact,
   type VerifiedBusinessFact,
 } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
@@ -34,8 +36,6 @@ import {
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import type { SeoBuildIntelligencePort } from "../intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../intelligence/verified-business-facts.js";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
 import {
@@ -64,10 +64,7 @@ function pccPayloadDigest(payload: PageContentContractV1): string {
  * increments the named counter and fails the build closed
  * (FORBIDDEN_LLM_OPERATION). This is runtime proof, not a convention.
  */
-function forbiddenLlm(
-  operation: string,
-  onCall: () => void,
-): WebsiteFactoryLLM {
+function forbiddenLlm(operation: string, onCall: () => void): WebsiteFactoryLLM {
   const reject = (): never => {
     onCall();
     throw new BuildError(
@@ -158,7 +155,10 @@ export class RedesignContentAuthorityStage implements Stage {
           ctx.pageContentContract as PageContentContractArtifact,
           ctx.structuredContentPackage as StructuredContentPackageArtifact,
         );
-        logger.info({ hydrated }, "content authority chain reused from persisted redesign artifacts");
+        logger.info(
+          { hydrated },
+          "content authority chain reused from persisted redesign artifacts",
+        );
         return;
       }
     }

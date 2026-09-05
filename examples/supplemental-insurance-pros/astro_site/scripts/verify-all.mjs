@@ -29,7 +29,7 @@ for (const [cmd, args] of commands) {
 }
 fs.writeFileSync(
   "validation/execution_trace.jsonl",
-  summary.map((row) => JSON.stringify(row)).join("\n") + "\n",
+  `${summary.map((row) => JSON.stringify(row)).join("\n")}\n`,
 );
 console.log(
   JSON.stringify(

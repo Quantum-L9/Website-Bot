@@ -1,19 +1,19 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { test } from "node:test";
 import {
-  normalizeRoute,
-  normalizeRouteSet,
-  normalizeDomain,
-  donorDirToken,
-  joinSelectedDonors,
+  canonicalStringify,
   deriveFallbackFlags,
   derivePreflightChecks,
-  visualRequirementRoles,
-  normalizeAssetDisposition,
-  canonicalStringify,
   distPathForRoute,
+  donorDirToken,
   firstDefined,
+  joinSelectedDonors,
+  normalizeAssetDisposition,
+  normalizeDomain,
+  normalizeRoute,
+  normalizeRouteSet,
+  visualRequirementRoles,
 } from "./normalize.mjs";
 
 test("normalizeRoute produces verifier-compatible canonical routes", () => {
@@ -29,10 +29,12 @@ test("normalizeRoute produces verifier-compatible canonical routes", () => {
 });
 
 test("normalizeRouteSet is sorted and deduplicated", () => {
-  assert.deepEqual(
-    normalizeRouteSet(["/services/", "/", "/services/", "about", "/faq/"]),
-    ["/", "/about", "/faq", "/services"],
-  );
+  assert.deepEqual(normalizeRouteSet(["/services/", "/", "/services/", "about", "/faq/"]), [
+    "/",
+    "/about",
+    "/faq",
+    "/services",
+  ]);
   assert.deepEqual(normalizeRouteSet(undefined), []);
   assert.deepEqual(normalizeRouteSet(null), []);
 });
@@ -60,9 +62,33 @@ test("donorDirToken matches the runtime ingestor's sha12 convention", () => {
 test("joinSelectedDonors joins observations, picks lowest rank, derives qualification", () => {
   const landscape = {
     observations: [
-      { observation_id: "o1", query_id: "q1", rank: 2, url: "https://rival-a.example.com/2", domain: "rival-a.example.com", observed_at: "2026-08-01T00:00:00Z", source: "dataforseo" },
-      { observation_id: "o2", query_id: "q1", rank: 1, url: "https://rival-a.example.com/", domain: "rival-a.example.com", observed_at: "2026-08-01T00:00:00Z", source: "dataforseo" },
-      { observation_id: "o3", query_id: "q2", rank: 1, url: "https://rival-b.example.com/", domain: "rival-b.example.com", observed_at: "2026-08-01T00:00:00Z", source: "dataforseo" },
+      {
+        observation_id: "o1",
+        query_id: "q1",
+        rank: 2,
+        url: "https://rival-a.example.com/2",
+        domain: "rival-a.example.com",
+        observed_at: "2026-08-01T00:00:00Z",
+        source: "dataforseo",
+      },
+      {
+        observation_id: "o2",
+        query_id: "q1",
+        rank: 1,
+        url: "https://rival-a.example.com/",
+        domain: "rival-a.example.com",
+        observed_at: "2026-08-01T00:00:00Z",
+        source: "dataforseo",
+      },
+      {
+        observation_id: "o3",
+        query_id: "q2",
+        rank: 1,
+        url: "https://rival-b.example.com/",
+        domain: "rival-b.example.com",
+        observed_at: "2026-08-01T00:00:00Z",
+        source: "dataforseo",
+      },
     ],
     domains: [
       { domain: "rival-a.example.com", aggregate_visibility: 42, observation_ids: ["o1", "o2"] },
@@ -95,7 +121,15 @@ test("joinSelectedDonors joins observations, picks lowest rank, derives qualific
 test("joinSelectedDonors records a non-dataforseo observation source honestly", () => {
   const landscape = {
     observations: [
-      { observation_id: "o1", query_id: "q1", rank: 1, url: "https://x.example.com/", domain: "x.example.com", observed_at: "t", source: "manual" },
+      {
+        observation_id: "o1",
+        query_id: "q1",
+        rank: 1,
+        url: "https://x.example.com/",
+        domain: "x.example.com",
+        observed_at: "t",
+        source: "manual",
+      },
     ],
     selected_donors: [{ domain: "x.example.com", observation_ids: ["o1"] }],
     exclusions: [],
@@ -126,10 +160,30 @@ test("joinSelectedDonors marks excluded donors unqualified and leaves missing fi
 test("joinSelectedDonors sums observation visibility contributions when present", () => {
   const landscape = {
     observations: [
-      { observation_id: "o1", query_id: "q1", rank: 1, url: "https://x.example.com/", domain: "x.example.com", observed_at: "t", source: "dataforseo", visibility_contribution: 10 },
-      { observation_id: "o2", query_id: "q1", rank: 2, url: "https://x.example.com/p2", domain: "x.example.com", observed_at: "t", source: "dataforseo", visibility_contribution: 5 },
+      {
+        observation_id: "o1",
+        query_id: "q1",
+        rank: 1,
+        url: "https://x.example.com/",
+        domain: "x.example.com",
+        observed_at: "t",
+        source: "dataforseo",
+        visibility_contribution: 10,
+      },
+      {
+        observation_id: "o2",
+        query_id: "q1",
+        rank: 2,
+        url: "https://x.example.com/p2",
+        domain: "x.example.com",
+        observed_at: "t",
+        source: "dataforseo",
+        visibility_contribution: 5,
+      },
     ],
-    selected_donors: [{ domain: "x.example.com", aggregate_visibility: 99, observation_ids: ["o1", "o2"] }],
+    selected_donors: [
+      { domain: "x.example.com", aggregate_visibility: 99, observation_ids: ["o1", "o2"] },
+    ],
   };
   const [row] = joinSelectedDonors(landscape);
   assert.equal(row.visibility_contribution, 15);
@@ -142,10 +196,10 @@ test("deriveFallbackFlags is fail-closed and legacy-stage-aware", () => {
   assert.deepEqual(deriveFallbackFlags({ intentEvidence: undefined, stageRuns: [] }), {});
 
   // REDESIGN_IMPROVE proven, no legacy stages -> false/false
-  assert.deepEqual(
-    deriveFallbackFlags({ intentEvidence: "REDESIGN_IMPROVE", stageRuns: [] }),
-    { copy_fallback_used: false, generic_fallback_used: false },
-  );
+  assert.deepEqual(deriveFallbackFlags({ intentEvidence: "REDESIGN_IMPROVE", stageRuns: [] }), {
+    copy_fallback_used: false,
+    generic_fallback_used: false,
+  });
 
   // content-generation ran ok -> copy fallback used
   assert.deepEqual(
@@ -247,10 +301,10 @@ test("visualRequirementRoles handles array and keyed-object shapes", () => {
     visualRequirementRoles([{ role: "hero" }, { role: "gallery" }, { role: "project-proof" }]),
     ["hero", "gallery", "project-proof"],
   );
-  assert.deepEqual(
-    visualRequirementRoles({ hero: [{ src: "a" }], gallery: [{ src: "b" }] }),
-    ["gallery", "hero"],
-  );
+  assert.deepEqual(visualRequirementRoles({ hero: [{ src: "a" }], gallery: [{ src: "b" }] }), [
+    "gallery",
+    "hero",
+  ]);
   assert.deepEqual(visualRequirementRoles([{ slot_role: "hero" }, { role: "" }]), ["hero"]);
   // no role evidence -> empty, never a defaulted value
   assert.deepEqual(visualRequirementRoles([]), []);
@@ -261,10 +315,22 @@ test("visualRequirementRoles handles array and keyed-object shapes", () => {
 
 test("normalizeAssetDisposition maps manifest entries into the oracle taxonomy", () => {
   assert.equal(normalizeAssetDisposition({ source: "generated" }), "GENERATED");
-  assert.equal(normalizeAssetDisposition({ source: "provided", disposition: "approved-client-owned" }), "SOURCE_CLIENT_OWNED");
-  assert.equal(normalizeAssetDisposition({ source: "source-site", disposition: "reference-only" }), "SOURCE_REFERENCE_ONLY");
-  assert.equal(normalizeAssetDisposition({ source: "provided", disposition: "reference-only" }), "DONOR_REFERENCE_ONLY");
-  assert.equal(normalizeAssetDisposition({ source: "source-site", disposition: "unknown-rights" }), "UNKNOWN");
+  assert.equal(
+    normalizeAssetDisposition({ source: "provided", disposition: "approved-client-owned" }),
+    "SOURCE_CLIENT_OWNED",
+  );
+  assert.equal(
+    normalizeAssetDisposition({ source: "source-site", disposition: "reference-only" }),
+    "SOURCE_REFERENCE_ONLY",
+  );
+  assert.equal(
+    normalizeAssetDisposition({ source: "provided", disposition: "reference-only" }),
+    "DONOR_REFERENCE_ONLY",
+  );
+  assert.equal(
+    normalizeAssetDisposition({ source: "source-site", disposition: "unknown-rights" }),
+    "UNKNOWN",
+  );
   // rejected and unclassifiable entries never become a PASS
   assert.equal(normalizeAssetDisposition({ source: "source-site", disposition: "rejected" }), null);
   assert.equal(normalizeAssetDisposition({}), null);

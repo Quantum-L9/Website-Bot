@@ -6,12 +6,10 @@
  * Levels 1–4 compose probe providers over QualityDimensionResults and evidence
  * refs. Probe providers for full rendering are campaign-runtime concerns.
  */
-import type {
-  CandidateMutationPlan,
-  QualityDeltaIndex,
-} from './types.js';
-import { assertMutationEnvelope, type BuildDiffEntry } from './mutation-plan.js';
-import { assertFrontier, type AttemptedStage } from './invalidation-frontier.js';
+
+import { type AttemptedStage, assertFrontier } from "./invalidation-frontier.js";
+import { assertMutationEnvelope, type BuildDiffEntry } from "./mutation-plan.js";
+import type { CandidateMutationPlan, QualityDeltaIndex } from "./types.js";
 
 export type LadderLevel = 0 | 1 | 2 | 3 | 4;
 
@@ -75,50 +73,66 @@ export async function runTestLadder(input: RunTestLadderInput): Promise<LadderLe
   return results;
 }
 
-export function runLevel0(plan: CandidateMutationPlan, evidence: LadderEvidence): LadderLevelResult {
+export function runLevel0(
+  plan: CandidateMutationPlan,
+  evidence: LadderEvidence,
+): LadderLevelResult {
   const notes: string[] = [];
 
   const envelopeViolations = assertMutationEnvelope(plan, evidence.diff);
   if (envelopeViolations.length > 0) {
-    notes.push(...envelopeViolations.map(violation => `envelope: ${violation}`));
+    notes.push(...envelopeViolations.map((violation) => `envelope: ${violation}`));
   }
   const frontierViolations = assertFrontier(plan.mutation.layer, evidence.attempted_stages);
   if (frontierViolations.length > 0) {
-    notes.push(...frontierViolations.map(({ stage }) => `frontier: reused stage recomputed: ${stage}`));
+    notes.push(
+      ...frontierViolations.map(({ stage }) => `frontier: reused stage recomputed: ${stage}`),
+    );
   }
-  if (!evidence.build_passed) notes.push('artifact: build did not pass');
-  if (!evidence.business_facts_passed) notes.push('lineage: business facts did not pass');
-  if (!evidence.artifact_lineage_passed) notes.push('lineage: artifact lineage did not pass');
-  if (!evidence.blueprint_conformance_passed) notes.push('contract: blueprint conformance did not pass');
-  if (!evidence.seo_content_contract_passed) notes.push('contract: seo content contract did not pass');
+  if (!evidence.build_passed) notes.push("artifact: build did not pass");
+  if (!evidence.business_facts_passed) notes.push("lineage: business facts did not pass");
+  if (!evidence.artifact_lineage_passed) notes.push("lineage: artifact lineage did not pass");
+  if (!evidence.blueprint_conformance_passed)
+    notes.push("contract: blueprint conformance did not pass");
+  if (!evidence.seo_content_contract_passed)
+    notes.push("contract: seo content contract did not pass");
   if (evidence.forbidden_claims_present.length > 0) {
-    notes.push(`forbidden claims present: ${evidence.forbidden_claims_present.join(', ')}`);
+    notes.push(`forbidden claims present: ${evidence.forbidden_claims_present.join(", ")}`);
   }
   if (evidence.content_slots_missing.length > 0) {
-    notes.push(`content slots missing: ${evidence.content_slots_missing.join(', ')}`);
+    notes.push(`content slots missing: ${evidence.content_slots_missing.join(", ")}`);
   }
 
   return { level: 0, passed: notes.length === 0, notes };
 }
 
 /** Default probes for Levels 1–4: dimension-based gating over available results. */
-async function defaultProvider(input: LadderProbeInput): Promise<{ passed: boolean; notes: string[] }> {
+async function defaultProvider(
+  input: LadderProbeInput,
+): Promise<{ passed: boolean; notes: string[] }> {
   const index = input.index;
   if (!index) {
-    return { passed: false, notes: [`level ${input.level}: no QualityDeltaIndex available for evaluation`] };
+    return {
+      passed: false,
+      notes: [`level ${input.level}: no QualityDeltaIndex available for evaluation`],
+    };
   }
   const notes: string[] = [];
   const failed = index.aggregate.hard_gate_failures;
   if (failed.length > 0) {
-    notes.push(`level ${input.level}: hard-gate failures: ${failed.join(', ')}`);
+    notes.push(`level ${input.level}: hard-gate failures: ${failed.join(", ")}`);
     return { passed: false, notes };
   }
   if (input.level >= 2 && index.aggregate.inconclusive.length > 0) {
-    notes.push(`level ${input.level}: inconclusive dimensions: ${index.aggregate.inconclusive.join(', ')}`);
+    notes.push(
+      `level ${input.level}: inconclusive dimensions: ${index.aggregate.inconclusive.join(", ")}`,
+    );
     return { passed: false, notes };
   }
   if (input.level === 4 && index.aggregate.regressions_vs_champion.length > 0) {
-    notes.push(`level 4: regressions vs champion: ${index.aggregate.regressions_vs_champion.join(', ')}`);
+    notes.push(
+      `level 4: regressions vs champion: ${index.aggregate.regressions_vs_champion.join(", ")}`,
+    );
     return { passed: false, notes };
   }
   return { passed: true, notes };

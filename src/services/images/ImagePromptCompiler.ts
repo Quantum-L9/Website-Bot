@@ -41,7 +41,7 @@ export function compileImagePrompt(
       "Editorial, cinematic photograph with confident negative space and natural light.",
     );
   }
-  sentences.push(brief.intent.trim().replace(/\.$/, "") + ".");
+  sentences.push(`${brief.intent.trim().replace(/\.$/, "")}.`);
   if (brief.subject) sentences.push(`Subject: ${brief.subject}.`);
   if (brief.composition) sentences.push(`Composition: ${brief.composition}.`);
   if (brief.style) sentences.push(`Style: ${brief.style}.`);

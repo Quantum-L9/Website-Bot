@@ -19,9 +19,10 @@ checks.push(
     check_class: "environment_config",
     target_artifact: ".env.example",
     expected_result: "Form-related environment variables defined",
-    actual_result: formEnvVars.length > 0
-      ? `Found: ${formEnvVars.join(", ")}`
-      : "No form environment variables found",
+    actual_result:
+      formEnvVars.length > 0
+        ? `Found: ${formEnvVars.join(", ")}`
+        : "No form environment variables found",
     status: formEnvVars.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
     remediation_if_failed: "Define form endpoint and webhook configuration in .env.example",
@@ -44,9 +45,10 @@ checks.push(
     check_class: "file_structure",
     target_artifact: "src/ form files",
     expected_result: "Form-related files exist",
-    actual_result: formFiles.length > 0
-      ? `Found: ${formFiles.slice(0, 3).join(", ")}${formSuffix}`
-      : "No form files found",
+    actual_result:
+      formFiles.length > 0
+        ? `Found: ${formFiles.slice(0, 3).join(", ")}${formSuffix}`
+        : "No form files found",
     status: formFiles.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
     remediation_if_failed: "Create form components or contact pages",
@@ -60,7 +62,10 @@ if (exists("dist")) {
     const indexHtml = exists("dist/index.html") ? readText("dist/index.html") : "";
     hasFormValidation = indexHtml.includes("required") || indexHtml.includes("validation");
   } catch (error) {
-    console.warn(`[verify-form] Unable to read form validation from dist/index.html:`, error instanceof Error ? error.message : String(error));
+    console.warn(
+      `[verify-form] Unable to read form validation from dist/index.html:`,
+      error instanceof Error ? error.message : String(error),
+    );
   }
 
   checks.push(
@@ -69,7 +74,9 @@ if (exists("dist")) {
       check_class: "form_validation",
       target_artifact: "dist/index.html",
       expected_result: "HTML form validation attributes present",
-      actual_result: hasFormValidation ? "Validation attributes found" : "No validation attributes found",
+      actual_result: hasFormValidation
+        ? "Validation attributes found"
+        : "No validation attributes found",
       status: hasFormValidation ? "PASS" : "UNKNOWN",
       severity: "low",
       remediation_if_failed: "Add required and validation attributes to form fields",

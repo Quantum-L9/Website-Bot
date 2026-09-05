@@ -73,10 +73,7 @@ export class SeoBotPreflightError extends Error {
     | "SEO_BOT_AUTH_FAILED"
     | "SEO_BOT_CAPABILITY_MISMATCH"
     | "SEO_BOT_ROUTER_VERSION_MISMATCH";
-  constructor(
-    code: SeoBotPreflightError["code"],
-    message: string,
-  ) {
+  constructor(code: SeoBotPreflightError["code"], message: string) {
     super(message);
     this.name = "SeoBotPreflightError";
     this.code = code;

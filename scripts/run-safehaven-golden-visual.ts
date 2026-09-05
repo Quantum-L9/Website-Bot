@@ -22,8 +22,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "
 import { dirname, resolve } from "node:path";
 import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
-export const SAFEHAVEN_GOLDEN_VISUAL_SCHEMA =
-  "l9.safehaven-golden-visual-evidence/v1" as const;
+export const SAFEHAVEN_GOLDEN_VISUAL_SCHEMA = "l9.safehaven-golden-visual-evidence/v1" as const;
 
 /* =========================================================
  * TYPES
@@ -201,7 +200,10 @@ export function normalizePreference(
   if (rawPreference === "TIE") return "TIE";
   if (rawPreference === "A") return orientation.A;
   if (rawPreference === "B") return orientation.B;
-  throw new GoldenVisualError("VISUAL_RAW_PREFERENCE_INVALID", `unusable preference ${rawPreference}`);
+  throw new GoldenVisualError(
+    "VISUAL_RAW_PREFERENCE_INVALID",
+    `unusable preference ${rawPreference}`,
+  );
 }
 
 export function normalizeDelta(
@@ -248,11 +250,18 @@ export function parseJudgeResponse(
   dimensionNames: string[],
   scoreScale: { minimum: number; maximum: number },
 ): VisualTrialEvidence["raw_judge"] {
-  const fenced = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const fenced = raw
+    .trim()
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/, "")
+    .trim();
   const start = fenced.indexOf("{");
   const end = fenced.lastIndexOf("}");
   if (start < 0 || end <= start) {
-    throw new GoldenVisualError("VISUAL_RAW_JUDGE_EVIDENCE_MISSING", "judge returned no JSON object");
+    throw new GoldenVisualError(
+      "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
+      "judge returned no JSON object",
+    );
   }
   let parsed: unknown;
   try {
@@ -266,7 +275,11 @@ export function parseJudgeResponse(
   const value = parsed as Record<string, unknown>;
   const preference = value.preference;
   if (preference !== "A" && preference !== "B" && preference !== "TIE") {
-    throw new GoldenVisualError("VISUAL_RAW_PREFERENCE_INVALID", "judge preference must be A|B|TIE", preference);
+    throw new GoldenVisualError(
+      "VISUAL_RAW_PREFERENCE_INVALID",
+      "judge preference must be A|B|TIE",
+      preference,
+    );
   }
   const dimensions = value.dimensions;
   if (typeof dimensions !== "object" || dimensions === null) {
@@ -276,7 +289,10 @@ export function parseJudgeResponse(
   for (const name of dimensionNames) {
     const score = (dimensions as Record<string, unknown>)[name];
     if (typeof score !== "number" || !Number.isFinite(score)) {
-      throw new GoldenVisualError("VISUAL_RAW_DIMENSION_MISSING", `judge omitted dimension ${name}`);
+      throw new GoldenVisualError(
+        "VISUAL_RAW_DIMENSION_MISSING",
+        `judge omitted dimension ${name}`,
+      );
     }
     if (score < scoreScale.minimum || score > scoreScale.maximum) {
       throw new GoldenVisualError(
@@ -367,7 +383,9 @@ export function summarizeSite(
       observation.canonical.trim() !== "" &&
       observation.lang.trim() !== "",
   ).length;
-  const observedPaths = new Set(observations.map((observation) => normalizeRoute(observation.route)));
+  const observedPaths = new Set(
+    observations.map((observation) => normalizeRoute(observation.route)),
+  );
   let brokenInternalLinks = 0;
   for (const observation of observations) {
     for (const link of observation.internal_links) {
@@ -379,7 +397,8 @@ export function summarizeSite(
     reachable_routes: reachable,
     broken_internal_links: brokenInternalLinks,
     unique_titles: new Set(observations.map((o) => o.title.trim()).filter(Boolean)).size,
-    unique_canonical_urls: new Set(observations.map((o) => o.canonical.trim()).filter(Boolean)).size,
+    unique_canonical_urls: new Set(observations.map((o) => o.canonical.trim()).filter(Boolean))
+      .size,
     per_route: observations.map((observation) => ({
       route: observation.route,
       http_status: observation.http_status,
@@ -440,16 +459,20 @@ interface BrowserPort {
  * never be silently downgraded to "no finding".
  */
 class PlaywrightBrowserPort implements BrowserPort {
-  private browser: {
-    newContext(options: unknown): Promise<unknown>;
-    close(): Promise<void>;
-  } | undefined;
+  private browser:
+    | {
+        newContext(options: unknown): Promise<unknown>;
+        close(): Promise<void>;
+      }
+    | undefined;
 
   private async ensureBrowser(): Promise<NonNullable<PlaywrightBrowserPort["browser"]>> {
     if (this.browser) return this.browser;
     const specifier = "playwright";
     const module_ = (await import(specifier)) as {
-      chromium: { launch(options?: unknown): Promise<NonNullable<PlaywrightBrowserPort["browser"]>> };
+      chromium: {
+        launch(options?: unknown): Promise<NonNullable<PlaywrightBrowserPort["browser"]>>;
+      };
     };
     this.browser = await module_.chromium.launch({ headless: true });
     return this.browser;
@@ -458,7 +481,10 @@ class PlaywrightBrowserPort implements BrowserPort {
   private async withPage<T>(
     url: string,
     viewport: GoldenViewport,
-    action: (page: Record<string, (...args: never[]) => Promise<unknown>>, response: unknown) => Promise<T>,
+    action: (
+      page: Record<string, (...args: never[]) => Promise<unknown>>,
+      response: unknown,
+    ) => Promise<T>,
   ): Promise<T> {
     const browser = await this.ensureBrowser();
     const context = (await browser.newContext({
@@ -466,11 +492,13 @@ class PlaywrightBrowserPort implements BrowserPort {
       deviceScaleFactor: viewport.device_scale_factor,
     })) as { newPage(): Promise<unknown>; close(): Promise<void> };
     try {
-      const page = (await context.newPage()) as Record<string, (...args: never[]) => Promise<unknown>>;
-      const response = await (page.goto as unknown as (
-        target: string,
-        options: unknown,
-      ) => Promise<unknown>)(url, { waitUntil: "networkidle", timeout: 45_000 });
+      const page = (await context.newPage()) as Record<
+        string,
+        (...args: never[]) => Promise<unknown>
+      >;
+      const response = await (
+        page.goto as unknown as (target: string, options: unknown) => Promise<unknown>
+      )(url, { waitUntil: "networkidle", timeout: 45_000 });
       return await action(page, response);
     } finally {
       await context.close();
@@ -537,7 +565,11 @@ export interface JudgeCallResult {
 }
 
 export interface JudgePort {
-  judge(systemPrompt: string, userPrompt: string, imageDataUris: string[]): Promise<JudgeCallResult>;
+  judge(
+    systemPrompt: string,
+    userPrompt: string,
+    imageDataUris: string[],
+  ): Promise<JudgeCallResult>;
 }
 
 /**
@@ -546,25 +578,27 @@ export interface JudgePort {
  * the Router's own routing resolution, never an assertion by this script.
  */
 class RouterJudgePort implements JudgePort {
-  private router: {
-    initClient(clientId: string): Promise<void>;
-    route(task: unknown): { searchRequired: boolean; searchPolicySource: string };
-    execute(
-      task: unknown,
-      systemPrompt: string,
-      userPrompt: string,
-      options?: { images?: string[] },
-    ): Promise<{
-      content: string;
-      provider: string;
-      model: string;
-      requestId?: string;
-      inputTokens: number;
-      outputTokens: number;
-      cost: number;
-      latencyMs: number;
-    }>;
-  } | undefined;
+  private router:
+    | {
+        initClient(clientId: string): Promise<void>;
+        route(task: unknown): { searchRequired: boolean; searchPolicySource: string };
+        execute(
+          task: unknown,
+          systemPrompt: string,
+          userPrompt: string,
+          options?: { images?: string[] },
+        ): Promise<{
+          content: string;
+          provider: string;
+          model: string;
+          requestId?: string;
+          inputTokens: number;
+          outputTokens: number;
+          cost: number;
+          latencyMs: number;
+        }>;
+      }
+    | undefined;
 
   private taskType = "visual_qa";
 
@@ -572,7 +606,11 @@ class RouterJudgePort implements JudgePort {
 
   private requireEnv(name: string): string {
     const value = process.env[name]?.trim();
-    if (!value) throw new GoldenVisualError("LLM_CONFIG_MISSING", `${name} is required for VISUAL_QA judging`);
+    if (!value)
+      throw new GoldenVisualError(
+        "LLM_CONFIG_MISSING",
+        `${name} is required for VISUAL_QA judging`,
+      );
     return value;
   }
 
@@ -612,7 +650,9 @@ class RouterJudgePort implements JudgePort {
       images: imageDataUris,
     };
     const resolution = router.route(task);
-    const response = await router.execute(task, systemPrompt, userPrompt, { images: imageDataUris });
+    const response = await router.execute(task, systemPrompt, userPrompt, {
+      images: imageDataUris,
+    });
     return {
       content: response.content,
       provider: String(response.provider),
@@ -831,17 +871,25 @@ export async function collectRenderedEvidence(
   }
 
   if (pairs.length !== oracle.visual_capture.required_pairs) {
-    throw new GoldenVisualError("VISUAL_CAPTURE_INCOMPLETE", "visual pair count violates the oracle", {
-      expected: oracle.visual_capture.required_pairs,
-      actual: pairs.length,
-    });
+    throw new GoldenVisualError(
+      "VISUAL_CAPTURE_INCOMPLETE",
+      "visual pair count violates the oracle",
+      {
+        expected: oracle.visual_capture.required_pairs,
+        actual: pairs.length,
+      },
+    );
   }
   const totalTrials = pairs.reduce((sum, pair) => sum + pair.trials.length, 0);
   if (totalTrials !== oracle.visual_capture.required_pairs * trialsPerPair) {
-    throw new GoldenVisualError("VISUAL_ORACLE_MISSING_TRIAL", "blind trial count violates the oracle", {
-      expected: oracle.visual_capture.required_pairs * trialsPerPair,
-      actual: totalTrials,
-    });
+    throw new GoldenVisualError(
+      "VISUAL_ORACLE_MISSING_TRIAL",
+      "blind trial count violates the oracle",
+      {
+        expected: oracle.visual_capture.required_pairs * trialsPerPair,
+        actual: totalTrials,
+      },
+    );
   }
 
   return {
@@ -891,7 +939,8 @@ export async function main(argv: string[]): Promise<void> {
   const casePath = argumentValue(argv, "case") ?? "tests/golden/safehaven/case.json";
   const testCase = readJson(casePath) as { source_url?: string };
   const baselineUrl = argumentValue(argv, "baseline-url") ?? testCase.source_url;
-  if (!baselineUrl) throw new GoldenVisualError("BASELINE_URL_MISSING", "no baseline URL available");
+  if (!baselineUrl)
+    throw new GoldenVisualError("BASELINE_URL_MISSING", "no baseline URL available");
 
   const outputPath = argumentValue(argv, "out") ?? "evidence/safehaven-golden-visual.json";
   const browser = new PlaywrightBrowserPort();

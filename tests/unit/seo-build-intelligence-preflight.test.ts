@@ -54,8 +54,10 @@ function makeCtx(overrides?: Partial<BuildContext>): BuildContext {
 
 class PreflightOnlyPort implements SeoBuildIntelligencePort {
   calls: string[] = [];
-  constructor(private readonly impl: () => Promise<SeoBotPreflightResult> = async () =>
-    makePreflightSnapshot()) {}
+  constructor(
+    private readonly impl: () => Promise<SeoBotPreflightResult> = async () =>
+      makePreflightSnapshot(),
+  ) {}
   async preflight(): Promise<SeoBotPreflightResult> {
     this.calls.push("preflight");
     return this.impl();

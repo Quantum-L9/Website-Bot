@@ -8,22 +8,22 @@
 // from reaching the sealed verifier.
 
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test, { after } from "node:test";
-import { parse } from "yaml";
 import {
   refForArtifact,
-  sealIntelligenceArtifact,
   type StructuredContentPackageArtifact,
+  sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
+import { parse } from "yaml";
 import {
-  mergeGoldenReceipt,
-  assertVisualEvidence,
   assertSeoAudit,
+  assertVisualEvidence,
   GoldenReceiptMergeError,
+  mergeGoldenReceipt,
 } from "../../scripts/build-safehaven-real-golden-receipt.js";
 import {
   buildSafeHavenRuntimeEvidence,
@@ -37,11 +37,11 @@ import {
   normalizePreference,
   orientationForTrial,
   parseJudgeResponse,
+  type RenderedRouteObservation,
   resolveInternalPath,
   scanBusinessTruth,
   summarizeBusinessTruth,
   summarizeSite,
-  type RenderedRouteObservation,
 } from "../../scripts/run-safehaven-golden-visual.js";
 import { compilePageContentContract } from "../../src/intelligence/compile-page-content-contract.js";
 import { verifiedBusinessFactsFromSpec } from "../../src/intelligence/verified-business-facts.js";
@@ -62,7 +62,10 @@ const ORACLE_PATH = resolve(REPO_ROOT, "tests/golden/safehaven/oracle.json");
 const SPEC_PATH = resolve(REPO_ROOT, "tests/golden/safehaven/domain_spec.normalized.yaml");
 
 const testCase = JSON.parse(readFileSync(CASE_PATH, "utf-8")) as Record<string, never>;
-const oracle = JSON.parse(readFileSync(ORACLE_PATH, "utf-8")) as Record<string, Record<string, never>>;
+const oracle = JSON.parse(readFileSync(ORACLE_PATH, "utf-8")) as Record<
+  string,
+  Record<string, never>
+>;
 
 const LOCAL_ROUTER_VERSION = installedPackageVersion("@quantum-l9", "llm-router", REPO_ROOT);
 const LOCAL_INTEROP_VERSION = installedPackageVersion("@quantum-l9", "bot-interop", REPO_ROOT);
@@ -411,15 +414,35 @@ function makeGoldenContext(): BuildContext {
       warnings: [],
     },
     sourceAssetDecisions: [
-      { assetPath: "/tmp/a.jpg", decision: "SELECTED", reason: "selected for blueprint visual slot hero", slotId: "hero" },
+      {
+        assetPath: "/tmp/a.jpg",
+        decision: "SELECTED",
+        reason: "selected for blueprint visual slot hero",
+        slotId: "hero",
+      },
     ],
     imageAssetPlan: {
       schema: "website-bot.image-asset-plan/v1",
       version: "1.0.0",
       assets: [
-        { slotId: "hero", placement: "/:hero", required: true, resolution: { source: "source-site", candidateId: "img-1", score: 1 } },
-        { slotId: "project_proof", placement: "/:proof", required: true, resolution: { source: "source-site", candidateId: "img-1", score: 1 } },
-        { slotId: "gallery", placement: "/:gallery", required: true, resolution: { source: "source-site", candidateId: "img-1", score: 1 } },
+        {
+          slotId: "hero",
+          placement: "/:hero",
+          required: true,
+          resolution: { source: "source-site", candidateId: "img-1", score: 1 },
+        },
+        {
+          slotId: "project_proof",
+          placement: "/:proof",
+          required: true,
+          resolution: { source: "source-site", candidateId: "img-1", score: 1 },
+        },
+        {
+          slotId: "gallery",
+          placement: "/:gallery",
+          required: true,
+          resolution: { source: "source-site", candidateId: "img-1", score: 1 },
+        },
       ],
     },
     imageAssetManifest: {
@@ -654,8 +677,7 @@ void test("semantic events are emitted only when the runtime fact behind them ex
     names.indexOf("seo-build-intelligence-preflight:PASS") <
       names.indexOf("seo:createCompetitiveLandscape"),
   );
-  const requiredStages = oracle.execution_graph
-    .required_ordered_subsequence as unknown as string[];
+  const requiredStages = oracle.execution_graph.required_ordered_subsequence as unknown as string[];
   for (const required of requiredStages) {
     assert.ok(names.includes(required), `missing stage event ${required}`);
   }
@@ -741,7 +763,10 @@ void test("an unusable judge preference is rejected", () => {
 
 const CASE_ROUTES = testCase.routes as unknown as string[];
 
-function makeObservation(route: string, overrides?: Partial<RenderedRouteObservation>): RenderedRouteObservation {
+function makeObservation(
+  route: string,
+  overrides?: Partial<RenderedRouteObservation>,
+): RenderedRouteObservation {
   return {
     route,
     http_status: 200,
@@ -758,7 +783,10 @@ function makeObservation(route: string, overrides?: Partial<RenderedRouteObserva
   };
 }
 
-function makeObservations(overrides?: Partial<RenderedRouteObservation>, index = 0): RenderedRouteObservation[] {
+function makeObservations(
+  overrides?: Partial<RenderedRouteObservation>,
+  index = 0,
+): RenderedRouteObservation[] {
   return CASE_ROUTES.map((route, position) =>
     position === index && overrides ? makeObservation(route, overrides) : makeObservation(route),
   );
@@ -788,10 +816,7 @@ void test("a route with zero or two H1s is not counted as reachable", () => {
 });
 
 void test("duplicate titles and duplicate canonicals are visible in the summary", () => {
-  const duplicateTitle = summarizeSite(
-    makeObservations({ title: "Safe Haven /" }, 1),
-    CASE_ROUTES,
-  );
+  const duplicateTitle = summarizeSite(makeObservations({ title: "Safe Haven /" }, 1), CASE_ROUTES);
   assert.equal(duplicateTitle.unique_titles, 28);
   const duplicateCanonical = summarizeSite(
     makeObservations({ canonical: "https://candidate.example.com/" }, 1),
@@ -945,9 +970,7 @@ function makeRenderedEvidence(runId: string): Record<string, unknown> {
           orientation,
           raw_judge: JSON.parse(judgeJson(orientation.B === "CANDIDATE" ? "B" : "A", 1)),
           normalized_preference: "CANDIDATE",
-          normalized_candidate_delta: Object.fromEntries(
-            DIMENSION_NAMES.map((name) => [name, 1]),
-          ),
+          normalized_candidate_delta: Object.fromEntries(DIMENSION_NAMES.map((name) => [name, 1])),
           audit_id: auditId,
         };
       });
@@ -1117,18 +1140,27 @@ void test("a pair captured at an unknown viewport is rejected", async () => {
 void test("a wrong trial count is rejected", async () => {
   const inputs = await makeMergeInputs();
   const pairs = (inputs.rendered.visual as { pairs: Array<Record<string, unknown>> }).pairs;
-  (pairs[0] as { trials: unknown[] }).trials = (pairs[0] as { trials: unknown[] }).trials.slice(0, 2);
+  (pairs[0] as { trials: unknown[] }).trials = (pairs[0] as { trials: unknown[] }).trials.slice(
+    0,
+    2,
+  );
   expectMergeHalt(inputs, "VISUAL_ORACLE_MISSING_TRIAL");
 });
 
 void test("a trial without orientation or raw judge evidence is rejected", async () => {
   const withoutOrientation = await makeMergeInputs();
-  const pairsA = (withoutOrientation.rendered.visual as { pairs: Array<{ trials: Array<Record<string, unknown>> }> }).pairs;
+  const pairsA = (
+    withoutOrientation.rendered.visual as {
+      pairs: Array<{ trials: Array<Record<string, unknown>> }>;
+    }
+  ).pairs;
   delete pairsA[0]?.trials[0]?.orientation;
   expectMergeHalt(withoutOrientation, "VISUAL_ORIENTATION_MISSING");
 
   const withoutRawJudge = await makeMergeInputs();
-  const pairsB = (withoutRawJudge.rendered.visual as { pairs: Array<{ trials: Array<Record<string, unknown>> }> }).pairs;
+  const pairsB = (
+    withoutRawJudge.rendered.visual as { pairs: Array<{ trials: Array<Record<string, unknown>> }> }
+  ).pairs;
   delete pairsB[0]?.trials[0]?.raw_judge;
   expectMergeHalt(withoutRawJudge, "VISUAL_RAW_JUDGE_EVIDENCE_MISSING");
 });

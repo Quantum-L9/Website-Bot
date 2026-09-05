@@ -133,7 +133,10 @@ void test("updates the branch ref non-forcibly to the new commit (force: false)"
 
 void test("bootstraps a missing branch with a root commit (golden run #57)", async () => {
   const ctx = fixtureContext({
-    deploy: { github_repo: "example/disposable-site", source_branch: "golden-safehaven-2026-08-24" },
+    deploy: {
+      github_repo: "example/disposable-site",
+      source_branch: "golden-safehaven-2026-08-24",
+    },
   });
   await new SiteAssemblerStage().run(ctx);
   const source = digestDirectory(ctx.outputDir, { exclude: isSourceDigestExcluded });

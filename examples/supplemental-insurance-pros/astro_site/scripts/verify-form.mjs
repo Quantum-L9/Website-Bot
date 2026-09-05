@@ -56,7 +56,8 @@ rows.push(
     actual_result: destinationDetail,
     status: destinationStatus,
     severity: "critical",
-    remediation_if_failed: "Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.",
+    remediation_if_failed:
+      "Wire LeadForm action to PUBLIC_FORM_ENDPOINT or configure delivery provider.",
   }),
 );
 writeJsonl("validation/form_checks.jsonl", rows);

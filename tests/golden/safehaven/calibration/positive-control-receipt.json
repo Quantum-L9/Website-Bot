@@ -321,12 +321,8 @@
     "artifact_ref": "wbb-ref",
     "competitive_landscape_ref": "landscape-ref",
     "visual_requirements": {
-      "hero": [
-        "authentic imagery"
-      ],
-      "sections": [
-        "gallery"
-      ]
+      "hero": ["authentic imagery"],
+      "sections": ["gallery"]
     },
     "project_proof_required": false,
     "gallery_required": false
@@ -923,11 +919,7 @@
     "required_visual_slots_filled_fraction": 1,
     "donor_asset_hash_matches": 0,
     "source_corpus_completed": true,
-    "candidate_dispositions": [
-      "SOURCE_CLIENT_OWNED",
-      "SOURCE_LICENSED_REUSE",
-      "GENERATED"
-    ],
+    "candidate_dispositions": ["SOURCE_CLIENT_OWNED", "SOURCE_LICENSED_REUSE", "GENERATED"],
     "eligible_source_project_proof_count": 0,
     "selected_source_project_proof_count": 0,
     "eligible_source_gallery_count": 0,

@@ -136,9 +136,7 @@ export class ClientSourcePublishStage implements Stage {
     });
   }
 
-  private async requireBuildProof(
-    ctx: BuildContext,
-  ): Promise<{
+  private async requireBuildProof(ctx: BuildContext): Promise<{
     storedBuild: NonNullable<Awaited<ReturnType<BuildContext["evidenceStore"]["readBuild"]>>>;
     currentSource: ReturnType<typeof digestDirectory>;
   }> {
@@ -271,7 +269,14 @@ export class ClientSourcePublishStage implements Stage {
         .map((item) => [normalizeManagedPath(item.path as string), item.sha as string]),
     );
     const previousManifest = await this.readPreviousManifest(githubRepo, sourceBranch, headers);
-    return { refUrl, previousHeadSha, baseTreeSha, remoteBlobs, previousManifest, branchExists: true };
+    return {
+      refUrl,
+      previousHeadSha,
+      baseTreeSha,
+      remoteBlobs,
+      previousManifest,
+      branchExists: true,
+    };
   }
 
   private assertTargetOwnership(previousManifest: GeneratedManifest, clientId: string): void {

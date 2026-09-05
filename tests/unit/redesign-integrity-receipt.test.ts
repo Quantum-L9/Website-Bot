@@ -42,11 +42,11 @@ function completeCtx(overrides?: Partial<BuildContext>): BuildContext {
     websiteBlueprint: blueprint,
     seoContentBlueprint: seoBlueprint,
     pageContentContract: {
-      artifact_id: "page_content_contract:" + "1".repeat(64),
+      artifact_id: `page_content_contract:${"1".repeat(64)}`,
       integrity: { algorithm: "sha256", payload_digest: "1".repeat(64) },
     },
     structuredContentPackage: {
-      artifact_id: "structured_content_package:" + "2".repeat(64),
+      artifact_id: `structured_content_package:${"2".repeat(64)}`,
       integrity: { algorithm: "sha256", payload_digest: "2".repeat(64) },
     },
     acceptedDonors: Array.from({ length: 10 }, (_, index) =>
@@ -107,7 +107,9 @@ void test("end-to-end convergence requires passed visual QA (golden run #60)", (
   const receipt = emitRedesignExecutionIntegrityReceipt(completeCtx());
   // "passed" is the EvidenceGateStatus success value (ReleaseReceipt
   // SSOT); "verified" is not a valid status.
-  assert.doesNotThrow(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }));
+  assert.doesNotThrow(() =>
+    validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }),
+  );
   const failed = { ...receipt, visual_qa: { status: "skipped" as const } };
   assert.throws(
     () => validateRedesignExecutionIntegrityReceipt(failed, { requireVisualQa: true }),
@@ -145,13 +147,17 @@ void test("receipt validation rejects nine donors", () => {
   const receipt = validReceipt();
   receipt.qualified_donor_count = 9;
   receipt.donors = receipt.donors.slice(0, 9);
-  assert.throws(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }));
+  assert.throws(() =>
+    validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }),
+  );
 });
 
 void test("receipt validation rejects a donor without screenshots", () => {
   const receipt = validReceipt();
   receipt.donors[3].screenshots = 0;
-  assert.throws(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }));
+  assert.throws(() =>
+    validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }),
+  );
 });
 
 void test("receipt validation rejects nonzero LLM counters", () => {
@@ -174,14 +180,18 @@ void test("receipt validation rejects nonzero LLM counters", () => {
 void test("receipt validation rejects required visual slots below 100%", () => {
   const receipt = validReceipt();
   receipt.visual.required_visual_slots_filled_pct = 50;
-  assert.throws(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }));
+  assert.throws(() =>
+    validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }),
+  );
 });
 
 void test("receipt validation requires passed visual QA for end-to-end", () => {
   const receipt = validReceipt();
   receipt.visual_qa.status = "pending";
   validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false });
-  assert.throws(() => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }));
+  assert.throws(() =>
+    validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: true }),
+  );
 });
 
 // ---- Redesign plan topology (matrix B) -------------------------------------

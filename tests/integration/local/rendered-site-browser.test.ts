@@ -31,7 +31,10 @@ function writeSite(dist: string, options: { broken: boolean }): void {
       }`,
     ),
   );
-  writeFileSync(join(dist, "services", "index.html"), page("Services", `<h1>Services</h1>${PROSE}`));
+  writeFileSync(
+    join(dist, "services", "index.html"),
+    page("Services", `<h1>Services</h1>${PROSE}`),
+  );
   writeFileSync(join(dist, "robots.txt"), "User-agent: *\nAllow: /\n");
   if (!options.broken) writeFileSync(join(dist, "sitemap-index.xml"), "<sitemapindex/>");
 }
@@ -55,7 +58,10 @@ void test("a well-formed built site renders and validates on desktop and mobile"
     assert.equal(result.summary.renders, 4);
     assert.ok(result.browser.version);
     for (const route of result.routes) {
-      assert.ok(route.screenshot_path && existsSync(route.screenshot_path), `screenshot for ${route.route}@${route.viewport}`);
+      assert.ok(
+        route.screenshot_path && existsSync(route.screenshot_path),
+        `screenshot for ${route.route}@${route.viewport}`,
+      );
       assert.deepEqual(route.console_errors, []);
     }
   } finally {
@@ -78,11 +84,20 @@ void test("a site with overflow, a broken image, a dangling link and no sitemap 
     });
     assert.equal(result.status, "FAIL");
     const mobile = result.routes.find((route) => route.viewport === "mobile")!;
-    const failed = new Set(mobile.checks.filter((check) => check.status === "FAIL").map((check) => check.name));
-    for (const expected of ["no_horizontal_overflow", "images_loaded", "internal_links_resolve", "no_failed_requests"]) {
+    const failed = new Set(
+      mobile.checks.filter((check) => check.status === "FAIL").map((check) => check.name),
+    );
+    for (const expected of [
+      "no_horizontal_overflow",
+      "images_loaded",
+      "internal_links_resolve",
+      "no_failed_requests",
+    ]) {
       assert.ok(failed.has(expected), `${expected} must fail: ${JSON.stringify([...failed])}`);
     }
-    assert.ok(result.site_checks.some((check) => check.name === "sitemap_index" && check.status === "FAIL"));
+    assert.ok(
+      result.site_checks.some((check) => check.name === "sitemap_index" && check.status === "FAIL"),
+    );
   } finally {
     rmSync(dist, { recursive: true, force: true });
     rmSync(shots, { recursive: true, force: true });

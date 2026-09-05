@@ -7,8 +7,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  assertPaletteNonAuthority,
   assertNoRawExpressionTransfer,
+  assertPaletteNonAuthority,
   assertProvenanceCompleteness,
   assertWebsiteBuildBlueprintProducer,
   assertWebsiteBuildBlueprintV2,
@@ -105,7 +105,10 @@ void test("WBV2-009: a placeholder digest is not provenance", () => {
   const placeholder = reseal((payload) => {
     (payload.provenance as Record<string, unknown>).client_vision_digest = "unknown";
   });
-  assert.throws(() => assertWebsiteBuildBlueprintV2(placeholder), /BLUEPRINT_PROVENANCE_INCOMPLETE/);
+  assert.throws(
+    () => assertWebsiteBuildBlueprintV2(placeholder),
+    /BLUEPRINT_PROVENANCE_INCOMPLETE/,
+  );
 });
 
 void test("WBV2-009: a missing provenance block fails closed", () => {

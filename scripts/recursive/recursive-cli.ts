@@ -94,7 +94,7 @@ async function runRealE2E(specPath: string, runId: string): Promise<void> {
   };
   writeFileSync(
     statePath(runId, "e2e-run-report.json"),
-    JSON.stringify(report, null, 2) + "\n",
+    `${JSON.stringify(report, null, 2)}\n`,
     "utf-8",
   );
   if ((result.status ?? 1) !== 0) {
