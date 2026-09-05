@@ -7,6 +7,9 @@
 import { refForArtifact } from "../contracts/digest.js";
 import type { EngineeringSignal, RecursiveArtifactRef } from "../contracts/types.js";
 
+/** The three-level scale the leverage fields share (typescript:S4323). */
+type LeverageScale = "HIGH" | "MEDIUM" | "LOW";
+
 type LeverageSeverity = "BLOCKING" | "HIGH" | "MEDIUM" | "LOW";
 
 export interface SignalCluster {
@@ -18,10 +21,10 @@ export interface SignalCluster {
   confidence: "VERY_HIGH" | "HIGH" | "MEDIUM" | "LOW";
   leverage: {
     severity: LeverageSeverity;
-    recurrence: "HIGH" | "MEDIUM" | "LOW";
+    recurrence: LeverageScale;
     reach: EngineeringSignal["reach"];
-    humanReviewImpact: "HIGH" | "MEDIUM" | "LOW";
-    implementationRisk: "HIGH" | "MEDIUM" | "LOW";
+    humanReviewImpact: LeverageScale;
+    implementationRisk: LeverageScale;
     priority: "P0" | "P1" | "P2" | "P3";
   };
 }

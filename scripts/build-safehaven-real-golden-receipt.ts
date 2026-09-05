@@ -15,6 +15,7 @@
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
 export const GOLDEN_RUN_RECEIPT_SCHEMA = "l9.golden-run-receipt/v1" as const;
 export const SEO_LLM_AUDIT_SCHEMA = "l9.seo-bot-run-llm-audit/v1" as const;
@@ -51,7 +52,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 export function normalizeRoute(value: string): string {
   const trimmed = String(value).trim();
   if (trimmed === "/") return "/";
-  return trimmed.replace(/\/+$/, "") || "/";
+  return stripTrailingSlashes(trimmed) || "/";
 }
 
 export function readJson(path: string, code: string): unknown {
@@ -241,8 +242,9 @@ export function assertVisualEvidence(
     if (pair.candidate_run_id !== runId) {
       halt("STALE_VISUAL_CAPTURE", `${key} was captured for a different run`, pair.candidate_run_id);
     }
-    const viewport = viewports.find((entry) => entry.id === pair.viewport);
-    if (!viewport) halt("VISUAL_VIEWPORT_MISMATCH", `${key} uses an unknown viewport`);
+    if (!viewports.some((entry) => entry.id === pair.viewport)) {
+      halt("VISUAL_VIEWPORT_MISMATCH", `${key} uses an unknown viewport`);
+    }
     const trialsPerPair = (oracle.visual_oracle as { trials_per_pair: number }).trials_per_pair;
     const trials = pair.trials;
     if (!Array.isArray(trials) || trials.length !== trialsPerPair) {

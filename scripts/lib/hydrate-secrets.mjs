@@ -39,7 +39,7 @@ function loadDotEnvLocal() {
     if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
     const eq = trimmed.indexOf('=');
     const key = trimmed.slice(0, eq).trim();
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
+    if (!/^[A-Za-z_]\w*$/.test(key)) continue;
     if (process.env[key] !== undefined) continue;
     let value = trimmed.slice(eq + 1).trim();
     if (

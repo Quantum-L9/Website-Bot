@@ -7,6 +7,7 @@
 // dropped.
 
 import type { InspectedImage } from "../services/images/ImageInspector.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 export interface SourceImagePolicy {
   maxBytes: number;
@@ -92,7 +93,7 @@ export function normalizeUrl(rawUrl: string): string {
   kept.sort(([a], [b]) => a.localeCompare(b));
   for (const [key, value] of kept) url.searchParams.append(key, value);
   if (url.pathname.length > 1 && url.pathname.endsWith("/"))
-    url.pathname = url.pathname.replace(/\/+$/, "");
+    url.pathname = stripTrailingSlashes(url.pathname);
   url.pathname = url.pathname.replace(/\/{2,}/g, "/");
   return url.toString();
 }

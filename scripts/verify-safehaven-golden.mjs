@@ -56,13 +56,14 @@
  *   visual.pairs[] ({route, viewport, candidate_blank, baseline_blank, route_match, viewport_match, captured_run_id, trials[]})
  *   visual.pairs[i].trials[j].{normalized_preference, normalized_candidate_delta{}, judge_input_manifest, blind}
  */
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readJsonWithinRoot } from "./lib/repo-path.mjs";
 
 const ROOT = process.cwd();
-function readJson(p) {
-  return JSON.parse(fs.readFileSync(path.resolve(ROOT, p), "utf8"));
+/** Parse a JSON input, refusing anything that resolves outside the checkout. */
+function readJson(candidatePath, label) {
+  return readJsonWithinRoot(ROOT, candidatePath, label);
 }
 
 /**
@@ -873,9 +874,11 @@ function createVerifier(oracle) {
 
 /** Deterministic end-to-end run. Returns { result, exitCode }. */
 export function runVerifier(casePath, receiptPath, oraclePath = process.env.SAFEHAVEN_ORACLE_PATH ?? "tests/golden/safehaven/oracle.json") {
-  const oracle = readJson(oraclePath);
-  const testCase = readJson(casePath);
-  const receipt = readJson(receiptPath);
+  // runVerifier is exported and all three parameters are caller-supplied, so
+  // each read proves containment inside the checkout before it opens anything.
+  const oracle = readJson(oraclePath, "oracle path");
+  const testCase = readJson(casePath, "case path");
+  const receipt = readJson(receiptPath, "receipt path");
   const verifier = createVerifier(oracle);
   const result = verifier.verify(receipt, testCase);
   return { result, exitCode: result.verdict === "GOLDEN_E2E_PASS_IMPROVED" ? 0 : 1 };

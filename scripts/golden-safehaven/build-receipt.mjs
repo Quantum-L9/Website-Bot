@@ -45,7 +45,35 @@ import {
   canonicalStringify,
   distPathForRoute,
   sha256Of,
+  compareCodeUnits,
 } from "./lib/normalize.mjs";
+import { stripHtmlTags } from "../../src/lib/text-trim.mjs";
+
+/**
+ * A checkpoint's status in the receipt vocabulary. A lookup, not a chain of
+ * conditions — an unrecognized status is reported as itself so a new one from
+ * the pipeline is visible rather than silently bucketed (javascript:S3358).
+ */
+function checkpointVerdict(status) {
+  if (status === "passed") return "PASS";
+  if (status === "failed") return "FAIL";
+  return String(status ?? "UNKNOWN");
+}
+
+/** The same status in the stage-row vocabulary, where anything else is "skipped". */
+function checkpointStageStatus(status) {
+  if (status === "passed") return "ok";
+  if (status === "failed") return "failed";
+  return "skipped";
+}
+
+/** The first argument that is a non-empty string, or undefined. */
+function firstNonEmptyString(...candidates) {
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate !== "") return candidate;
+  }
+  return undefined;
+}
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -252,7 +280,7 @@ const checkpoints = (() => {
         return { stage: f.replace(/\.json$/, ""), found: r.found, json: r.json };
       })
       .filter((c) => c.found)
-      .sort((a, b) => a.stage < b.stage ? -1 : 1);
+      .sort((a, b) => compareCodeUnits(a.stage, b.stage));
   } catch {
     return [];
   }
@@ -424,7 +452,7 @@ if (dbStages && dbStages.length) {
 }
 for (const cp of checkpoints) {
   if (stageEventRecords.some((e) => e.stage === cp.stage)) continue;
-  const status = cp.json?.status === "passed" ? "PASS" : cp.json?.status === "failed" ? "FAIL" : String(cp.json?.status ?? "UNKNOWN");
+  const status = checkpointVerdict(cp.json?.status);
   stageEventRecords.push({
     stage: cp.stage,
     name: status === "PASS" ? cp.stage : `${cp.stage}:${status}`,
@@ -528,7 +556,9 @@ if (redesignReceipt) {
 // stage evidence for fallback derivation (DB rows + checkpoint statuses)
 const stageRows = [];
 if (dbStages) for (const row of dbStages) stageRows.push({ stage_name: row.stage_name, status: row.status });
-if (!dbStages) for (const cp of checkpoints) stageRows.push({ stage_name: cp.stage, status: cp.json?.status === "passed" ? "ok" : cp.json?.status === "failed" ? "failed" : "skipped" });
+if (!dbStages)
+  for (const cp of checkpoints)
+    stageRows.push({ stage_name: cp.stage, status: checkpointStageStatus(cp.json?.status) });
 
 const fallbackFlags = deriveFallbackFlags({
   intentEvidence: run.build_intent ?? null,
@@ -694,11 +724,7 @@ const websiteBuildBlueprint = {};
       missing("website_build_blueprint.competitive_landscape_ref", found.label, "blueprint payload lacks provenance.competitive_landscape_ref.artifact_id");
     }
     const sealedArtifactId =
-      typeof payload?.artifact_id === "string" && payload.artifact_id !== ""
-        ? payload.artifact_id
-        : typeof found.json?.artifact_id === "string" && found.json.artifact_id !== ""
-          ? found.json.artifact_id
-          : null;
+      firstNonEmptyString(payload?.artifact_id, found.json?.artifact_id) ?? null;
     if (sealedArtifactId) {
       websiteBuildBlueprint.artifact_ref = sealedArtifactId;
       track("website_build_blueprint.artifact_ref", found.label, found.digest, "sealed blueprint artifact_id");
@@ -996,9 +1022,9 @@ if (imageAssetManifest.found) {
   assets.selected_source_images = new Set(sourceSiteAssets.map((a) => a.sha256)).size;
   // Manifest dispositions are translated into the oracle taxonomy
   // (eligible_source_asset_precedence / forbidden_candidate_dispositions).
-  assets.candidate_dispositions = [...new Set(assetsList.map(normalizeAssetDisposition).filter(Boolean))].sort(
-    (a, b) => (a < b ? -1 : a > b ? 1 : 0),
-  );
+  assets.candidate_dispositions = [
+    ...new Set(assetsList.map(normalizeAssetDisposition).filter(Boolean)),
+  ].sort(compareCodeUnits);
   track("assets.authorized_reusable_images", "image-asset-manifest.json", imageAssetManifest.digest, "source-site assets with approved-client-owned disposition");
   track("assets.selected_source_images", "image-asset-manifest.json", imageAssetManifest.digest, "source-site assets present in the final manifest");
   track("assets.candidate_dispositions", "image-asset-manifest.json", imageAssetManifest.digest, "manifest dispositions mapped to the oracle taxonomy");
@@ -1114,10 +1140,10 @@ const siteScan = (() => {
     try {
       if (!fs.existsSync(file)) continue;
       const html = fs.readFileSync(file, "utf8");
-      const text = html
+      const withoutScripts = html
         .replace(/<script[\s\S]*?<\/script>/gi, " ")
-        .replace(/<style[\s\S]*?<\/style>/gi, " ")
-        .replace(/<[^>]+>/g, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ");
+      const text = stripHtmlTags(withoutScripts)
         .replace(/&nbsp;/gi, " ")
         .replace(/&amp;/gi, "&")
         .replace(/&#39;/gi, "'")
@@ -1138,7 +1164,7 @@ const siteScan = (() => {
         const digits = p.replace(/\D/g, "").replace(/^1/, "");
         if (digits !== phoneDigits && digits.length >= 10) findings.phoneMismatches.push({ route, phone: p });
       }
-      const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) ?? [];
+      const emails = text.match(/[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,253}\.[a-zA-Z]{2,63}/g) ?? [];
       for (const e of emails) {
         if (e.toLowerCase() !== verifiedEmail) findings.emailMismatches.push({ route, email: e });
       }
@@ -1290,7 +1316,11 @@ const visual = {};
       if (pairTrials.length) row.trials = pairTrials;
       outPairs.push(row);
     }
-    outPairs.sort((a, b) => (a.route < b.route ? -1 : a.route > b.route ? 1 : a.viewport < b.viewport ? -1 : 1));
+    // Route first, then viewport — a two-key ordering, not a chain of
+    // conditions (javascript:S3358).
+    outPairs.sort(
+      (a, b) => compareCodeUnits(a.route, b.route) || compareCodeUnits(a.viewport, b.viewport),
+    );
     visual.pairs = outPairs;
     track("visual.pairs", "derived", sha256Of(canonicalStringify({ manifest: manifestFile.digest, trials: trialsFile.digest })), "projected from visual harness manifest + normalized trials");
   } else {

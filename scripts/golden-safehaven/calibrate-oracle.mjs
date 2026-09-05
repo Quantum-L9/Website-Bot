@@ -141,8 +141,12 @@ function buildPositiveReceipt() {
     ["/gallery/", "desktop"], ["/gallery/", "mobile"],
     ["/contact/", "desktop"], ["/contact/", "mobile"],
   ]) pairs.push(visualPair(route, viewport, ["CANDIDATE", "CANDIDATE", "CANDIDATE"]));
-  pairs.push(visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]));
-  pairs.push(visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]));
+  // Two split-vote pairs on the same route/viewport, pushed together
+  // (javascript:S7778).
+  pairs.push(
+    visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]),
+    visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]),
+  );
 
   return {
     identity: {

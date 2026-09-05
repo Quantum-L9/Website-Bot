@@ -136,9 +136,18 @@ if (isCI) {
   status = 'FAIL_CLOSED';
 }
 
+/**
+ * Which contract this run is judged against. CI outranks the client-launch
+ * flag; the factory MVP profile is the default (javascript:S3358).
+ */
+function reportMode() {
+  if (isCI) return 'ci';
+  return clientLaunch ? 'client_production' : 'factory_mvp';
+}
+
 const report = {
   validation_scope: 'launch_env_contract',
-  mode: isCI ? 'ci' : (clientLaunch ? 'client_production' : 'factory_mvp'),
+  mode: reportMode(),
   timestamp_utc: new Date().toISOString(),
   required_checked: requiredForLaunch.length,
   secrets_checked: secretsForLaunch.length,

@@ -1,10 +1,11 @@
 import { spawn } from "node:child_process";
+import { resolveNodeTool } from "../../scripts/lib/exec-path.mjs";
 import { chromium } from "playwright";
 const SITE_ROOT = new URL("../../build/sites/quantumaipartners_com/", import.meta.url).pathname;
 const args = process.argv.slice(2);
 const portArg = args.indexOf("--preview-port");
 const PORT = portArg !== -1 ? Number(args[portArg + 1]) : 4322;
-const preview = spawn("npx", ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
+const preview = spawn(resolveNodeTool("npx"), ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
 process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
 // Loopback-only probe against the local astro preview: BASE is pinned to
 // 127.0.0.1 and no traffic ever leaves the machine.

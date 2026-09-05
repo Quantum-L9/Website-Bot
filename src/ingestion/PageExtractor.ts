@@ -6,6 +6,8 @@
 // linked assets, and JSON-LD image fields. Pure and DOM-library-free (regex over
 // markup); good enough for real marketing sites and fully deterministic in CI.
 
+import { stripHtmlTags } from "../lib/text-trim.mjs";
+
 export type ImageOrigin =
   | "img"
   | "srcset"
@@ -59,7 +61,7 @@ function decodeEntities(value: string): string {
 }
 
 function stripTags(html: string): string {
-  return decodeEntities(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " "));
+  return decodeEntities(stripHtmlTags(html).replace(/\s+/g, " "));
 }
 
 function attr(tag: string, name: string): string | undefined {

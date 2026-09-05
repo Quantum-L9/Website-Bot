@@ -9,6 +9,7 @@
 //   node --import tsx examples/quantum-ai-partners/e2e.mjs
 //   node --import tsx examples/quantum-ai-partners/e2e.mjs --preview-port 4321
 import { spawn } from "node:child_process";
+import { resolveNodeTool } from "../../scripts/lib/exec-path.mjs";
 import { mkdirSync, existsSync } from "node:fs";
 import { chromium } from "playwright";
 
@@ -37,7 +38,7 @@ const routes = [
 ];
 
 const preview = spawn(
-  "npx",
+  resolveNodeTool("npx"),
   ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"],
   {
     cwd: SITE_ROOT,

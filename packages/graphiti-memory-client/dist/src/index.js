@@ -1,4 +1,17 @@
 import { randomUUID } from 'node:crypto';
+/**
+ * Drop every trailing "/" in one backward pass.
+ *
+ * `replace(/\/+$/, '')` looks equivalent and is not: an end-anchored quantifier
+ * is retried from every start position, so a path with a long run of slashes
+ * costs O(n²) (typescript:S8786).
+ */
+function stripTrailingSlashes(value) {
+    let end = value.length;
+    while (end > 0 && value[end - 1] === '/')
+        end -= 1;
+    return value.slice(0, end);
+}
 export class MemoryRpcError extends Error {
     code;
     data;
@@ -32,7 +45,7 @@ export class GraphitiMemoryClient {
         const parsed = new URL(config.baseUrl);
         if (!['http:', 'https:'].includes(parsed.protocol))
             throw new RangeError('baseUrl must use http or https');
-        const normalizedPath = parsed.pathname.replace(/\/+$/, '');
+        const normalizedPath = stripTrailingSlashes(parsed.pathname);
         parsed.pathname = normalizedPath.endsWith('/mcp') ? normalizedPath : `${normalizedPath}/mcp`;
         parsed.search = '';
         parsed.hash = '';

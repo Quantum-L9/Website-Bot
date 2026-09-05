@@ -22,12 +22,31 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ContentSlot } from "@quantum-l9/bot-interop";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
+import { resolveSystemCommand } from "./exec-path.mjs";
 
 export const SAFEHAVEN_RUNTIME_EVIDENCE_SCHEMA =
   "l9.safehaven-real-runtime-evidence/v1" as const;
 
 export const SAFEHAVEN_EXTERNAL_IDENTITY_SCHEMA =
   "l9.golden-external-identity/v1" as const;
+
+/**
+ * Deterministic, locale-independent string ordering for evidence arrays.
+ *
+ * Every array sorted with this lands in a receipt that is compared and hashed
+ * across machines, so the order has to be a property of the data alone.
+ * `String.localeCompare` is not: its result depends on the host locale and ICU
+ * version, which would make two runs of the same build disagree. UTF-16
+ * code-unit order is stable everywhere and is exactly what the previous bare
+ * `.sort()` calls produced, so receipts written before this change still
+ * compare equal. Passing it explicitly is also what `Array#sort` wants — the
+ * default comparator stringifies its operands, which is a silent hazard on any
+ * array that later stops being all-strings.
+ */
+const byCodeUnit = (a: string, b: string): number => {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+};
 
 /**
  * Canonical ContentSlot vocabulary. `satisfies` locks this list to the
@@ -311,11 +330,24 @@ export interface GitIdentityProbe {
   diff(): string;
 }
 
+/*
+ * Resolved from a fixed set of system directories, never from `$PATH`. The
+ * SHA and worktree state below ARE the receipt's identity claim, so a `git`
+ * shim earlier on `$PATH` than the real one would forge exactly the facts this
+ * module exists to attest (typescript:S4036).
+ *
+ * Memoized on first use rather than resolved at module load: callers that
+ * inject their own `GitIdentityProbe` — every unit test here does — must not
+ * have importing this module depend on a git binary being present.
+ */
+let gitBin: string | null = null;
+const resolveGitBin = (): string => (gitBin ??= resolveSystemCommand("git"));
+
 const defaultGitProbe: GitIdentityProbe = {
-  headSha: () => execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
+  headSha: () => execFileSync(resolveGitBin(), ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
   porcelainStatus: () =>
-    execFileSync("git", ["status", "--porcelain"], { encoding: "utf-8" }),
-  diff: () => execFileSync("git", ["diff", "HEAD"], { encoding: "utf-8" }),
+    execFileSync(resolveGitBin(), ["status", "--porcelain"], { encoding: "utf-8" }),
+  diff: () => execFileSync(resolveGitBin(), ["diff", "HEAD"], { encoding: "utf-8" }),
 };
 
 /**
@@ -335,7 +367,7 @@ export function localRepositoryIdentity(
     .split("\n")
     .map((line) => line.trimEnd())
     .filter((line) => line.trim() !== "")
-    .sort();
+    .sort(byCodeUnit);
   if (dirtyLines.length === 0) {
     return { sha, worktree_state: "CLEAN" };
   }
@@ -691,8 +723,8 @@ function assertDonorDomainSetEquality(
   landscape: SafeHavenRealRuntimeEvidence["competitive_landscape"],
   evidence: SafeHavenRealRuntimeEvidence["donor_evidence"],
 ): void {
-  const selected = landscape.selected_donors.map((d) => d.normalized_domain).sort();
-  const evidenced = evidence.map((d) => d.domain).sort();
+  const selected = landscape.selected_donors.map((d) => d.normalized_domain).sort(byCodeUnit);
+  const evidenced = evidence.map((d) => d.domain).sort(byCodeUnit);
   if (JSON.stringify(selected) !== JSON.stringify(evidenced)) {
     halt(
       "DONOR_EVIDENCE_INCOMPLETE",
@@ -926,7 +958,7 @@ function buildStructuredContent(
       schema_errors: schemaErrors,
       unsupported_claims: 0,
       failed_requirements: 0,
-      section_alias_fields: [...aliases].sort(),
+      section_alias_fields: [...aliases].sort(byCodeUnit),
       prose_without_blocks: proseWithoutBlocks,
     };
   });
@@ -1047,7 +1079,7 @@ function buildAssets(ctx: Ctx): SafeHavenRealRuntimeEvidence["assets"] {
     donor_asset_hash_matches: donorAssetHashMatches,
     candidate_dispositions: [
       ...new Set(assetManifest.assets.map((asset) => asset.disposition)),
-    ].sort(),
+    ].sort(byCodeUnit),
     eligible_source_project_proof_count: eligiblePhotos,
     selected_source_project_proof_count: selectedSourceForRole("project_proof"),
     eligible_source_gallery_count: eligiblePhotos,
