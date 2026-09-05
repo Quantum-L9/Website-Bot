@@ -63,6 +63,32 @@ void test("a declared client_vision is normalized deterministically", () => {
   );
 });
 
+// L2-S8-001: likes/dislikes alone are a declared vision, not "states nothing".
+const feedbackOnlyVisions: Array<[string, DomainSpec["client_vision"]]> = [
+  ["likes only", { liked_examples: ["the calm pacing of reference A"] }],
+  ["dislikes only", { disliked_examples: ["cluttered contractor sites"] }],
+  ["mixed feedback", { liked_examples: ["A"], disliked_examples: ["B"] }],
+];
+for (const [label, vision] of feedbackOnlyVisions) {
+  void test(`a client_vision stating ${label} is a declared vision`, () => {
+    const resolved = resolveClientVision(spec({ client_vision: vision }));
+    assert.equal(resolved.declared, true);
+    assert.equal(resolved.liked_examples.length + resolved.disliked_examples.length > 0, true);
+  });
+}
+
+// L2-S11-001: conversion_priorities is ordered — index 0 is the primary action.
+void test("conversion_priorities keeps the client's order (first entry is primary)", () => {
+  const vision = resolveClientVision(
+    spec({
+      client_vision: {
+        conversion_priorities: ["Request a free inspection", "Call now", "Call now"],
+      },
+    }),
+  );
+  assert.deepEqual(vision.conversion_priorities, ["Request a free inspection", "Call now"]);
+});
+
 void test("WBV2-018: a declared but empty client_vision fails closed", () => {
   assert.throws(
     () => resolveClientVision(spec({ client_vision: {} } as Partial<DomainSpec>)),

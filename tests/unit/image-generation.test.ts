@@ -12,6 +12,7 @@ import type {
   ImageGenerator,
 } from "../../src/services/images/ImageGenerator.js";
 import { compileImagePrompt } from "../../src/services/images/ImagePromptCompiler.js";
+import { planImageAssets } from "../../src/services/images/ImageAssetPlanner.js";
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
 import { ImageGenerationStage } from "../../src/stages/ImageGenerationStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
@@ -143,6 +144,30 @@ void test("generation fails closed when the budget is exhausted", async () => {
       () => new ImageGenerationStage(new CountingGenerator(1)).run(ctx),
       /budget exceeded/i,
     );
+  } finally {
+    cleanupContext(ctx);
+    rmSync(resolve("build", "assets", ctx.clientId), { recursive: true, force: true });
+  }
+});
+
+// L2-S14-001: a spec with NO `assets` block still reaches generation under
+// REDESIGN_IMPROVE (the blueprint's visual requirements demand it). The stage
+// crashed with a TypeError reading `assets.generation` instead of generating.
+void test("generation works for a spec that declares no assets block", async () => {
+  const ctx = fixtureContext({ client_id: "gen-no-assets-client" });
+  assert.equal(ctx.domainSpec.assets, undefined);
+  ctx.imageAssetPlan = planImageAssets({
+    slots: [ogSlot()],
+    provided: [],
+    sourceCandidates: [],
+    generationEnabled: true,
+  });
+  assert.equal(ctx.imageAssetPlan.assets[0]?.resolution.source, "generated");
+  const generator = new CountingGenerator(0);
+  try {
+    await new ImageGenerationStage(generator).run(ctx);
+    assert.equal(generator.calls, 1);
+    assert.equal(ctx.imageAssetManifest?.assets[0]?.source, "generated");
   } finally {
     cleanupContext(ctx);
     rmSync(resolve("build", "assets", ctx.clientId), { recursive: true, force: true });
