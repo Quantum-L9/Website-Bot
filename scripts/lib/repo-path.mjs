@@ -15,6 +15,7 @@
 // canonical form shows that.
 
 import { realpathSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 /**
@@ -45,30 +46,62 @@ function canonicalize(target) {
 }
 
 /**
- * Resolve `candidate` against `root` and prove the result stays inside it.
+ * True when `resolved` is `base` or lives under it.
  *
- * @param {string} root absolute repository root
+ * @param {string} base canonical absolute directory
+ * @param {string} resolved canonical absolute path
+ * @returns {boolean}
+ */
+function isWithin(base, resolved) {
+  const relative = path.relative(base, resolved);
+  // "" is the base itself; ".." escapes upward; an absolute result means the
+  // two are on different volumes and share no ancestor at all.
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+/**
+ * Resolve `candidate` and prove the result stays inside one of `roots`.
+ *
+ * The first root is the resolution base, so a relative argument keeps meaning
+ * "relative to the repository". The rest only widen what is *accepted*: these
+ * CLIs are driven by tests that build a mutated fixture in `os.tmpdir()` and
+ * hand it to the verifier, which is a supported way to call them, so the temp
+ * directory is a legitimate second base. What stays refused is everything
+ * else — `../../etc/passwd`, `~/.ssh/id_rsa`, an absolute path into another
+ * checkout — which is the actual finding.
+ *
+ * @param {string | readonly string[]} roots absolute base directory, or bases
+ *   with the resolution base first
  * @param {string} candidate caller-supplied path, relative or absolute
  * @param {string} label name of the argument, for the error message
- * @returns {string} absolute, canonical path guaranteed to be within `root`
- * @throws {Error} when `candidate` resolves outside `root`
+ * @returns {string} absolute, canonical path inside one of `roots`
+ * @throws {Error} when `candidate` resolves outside every root
  */
-export function resolveWithinRoot(root, candidate, label) {
+export function resolveWithinRoot(roots, candidate, label) {
   if (typeof candidate !== "string" || candidate === "") {
-    throw new Error(`PATH_OUTSIDE_REPOSITORY: ${label} must be a non-empty path`);
+    throw new Error(`PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must be a non-empty path`);
   }
-  const canonicalRoot = canonicalize(path.resolve(root));
-  const resolved = canonicalize(path.resolve(canonicalRoot, candidate));
-  const relative = path.relative(canonicalRoot, resolved);
-  // `relative` is "" for the root itself, starts with ".." for anything above
-  // it, and is absolute when the two live on different volumes.
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    throw new Error(
-      `PATH_OUTSIDE_REPOSITORY: ${label} must stay inside the repository root; ` +
-        `refusing ${JSON.stringify(candidate)}`,
-    );
+  const bases = (Array.isArray(roots) ? roots : [roots]).map((r) => canonicalize(path.resolve(r)));
+  if (bases.length === 0) {
+    throw new Error(`PATH_OUTSIDE_ALLOWED_ROOTS: ${label} has no permitted root`);
   }
-  return resolved;
+  const resolved = canonicalize(path.resolve(bases[0], candidate));
+  if (bases.some((base) => isWithin(base, resolved))) return resolved;
+  throw new Error(
+    `PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must stay inside ${bases.join(" or ")}; ` +
+      `refusing ${JSON.stringify(candidate)}`,
+  );
+}
+
+/**
+ * The bases these CLIs accept: the repository, plus the OS temp directory that
+ * their own test harness stages mutated fixtures in.
+ *
+ * @param {string} root absolute repository root
+ * @returns {readonly string[]} resolution base first, then the extra bases
+ */
+export function cliPathRoots(root) {
+  return [root, os.tmpdir()];
 }
 
 /**

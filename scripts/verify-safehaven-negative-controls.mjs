@@ -3,8 +3,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { resolveWithinRoot } from "./lib/repo-path.mjs";
+import { cliPathRoots, resolveWithinRoot } from "./lib/repo-path.mjs";
 const ROOT = process.cwd();
+const PATH_ROOTS = cliPathRoots(ROOT);
 const casePath =
   process.argv[2] ??
   "tests/golden/safehaven/case.json";
@@ -26,7 +27,7 @@ if (!positiveReceiptPath) {
 }
 function readJson(p) {
   return JSON.parse(
-    fs.readFileSync(resolveWithinRoot(ROOT, p, "input path"), "utf8")
+    fs.readFileSync(resolveWithinRoot(PATH_ROOTS, p, "input path"), "utf8")
   );
 }
 function clone(value) {
@@ -64,10 +65,10 @@ function runVerifier(receiptPath) {
     [
       // Same containment as readJson: these three are argv-controlled, and the
       // first of them is the script this process is about to execute.
-      resolveWithinRoot(ROOT, verifierPath, "verifier path"),
-      resolveWithinRoot(ROOT, casePath, "case path"),
+      resolveWithinRoot(PATH_ROOTS, verifierPath, "verifier path"),
+      resolveWithinRoot(PATH_ROOTS, casePath, "case path"),
       receiptPath,
-      resolveWithinRoot(ROOT, oraclePath, "oracle path")
+      resolveWithinRoot(PATH_ROOTS, oraclePath, "oracle path")
     ],
     {
       cwd: ROOT,

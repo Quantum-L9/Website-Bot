@@ -22,6 +22,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ContentSlot } from "@quantum-l9/bot-interop";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
+import { resolveSystemCommand } from "./exec-path.mjs";
 
 export const SAFEHAVEN_RUNTIME_EVIDENCE_SCHEMA =
   "l9.safehaven-real-runtime-evidence/v1" as const;
@@ -329,11 +330,24 @@ export interface GitIdentityProbe {
   diff(): string;
 }
 
+/*
+ * Resolved from a fixed set of system directories, never from `$PATH`. The
+ * SHA and worktree state below ARE the receipt's identity claim, so a `git`
+ * shim earlier on `$PATH` than the real one would forge exactly the facts this
+ * module exists to attest (typescript:S4036).
+ *
+ * Memoized on first use rather than resolved at module load: callers that
+ * inject their own `GitIdentityProbe` — every unit test here does — must not
+ * have importing this module depend on a git binary being present.
+ */
+let gitBin: string | null = null;
+const resolveGitBin = (): string => (gitBin ??= resolveSystemCommand("git"));
+
 const defaultGitProbe: GitIdentityProbe = {
-  headSha: () => execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
+  headSha: () => execFileSync(resolveGitBin(), ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
   porcelainStatus: () =>
-    execFileSync("git", ["status", "--porcelain"], { encoding: "utf-8" }),
-  diff: () => execFileSync("git", ["diff", "HEAD"], { encoding: "utf-8" }),
+    execFileSync(resolveGitBin(), ["status", "--porcelain"], { encoding: "utf-8" }),
+  diff: () => execFileSync(resolveGitBin(), ["diff", "HEAD"], { encoding: "utf-8" }),
 };
 
 /**
