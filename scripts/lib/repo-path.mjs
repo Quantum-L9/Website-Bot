@@ -15,7 +15,6 @@
 // canonical form shows that.
 
 import { realpathSync } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 
 /**
@@ -99,17 +98,6 @@ export function resolveWithinRoot(roots, candidate, label) {
     `PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must stay inside ${bases.join(" or ")}; ` +
       `refusing ${JSON.stringify(candidate)}`,
   );
-}
-
-/**
- * The bases these CLIs accept: the repository, plus the OS temp directory that
- * their own test harness stages mutated fixtures in.
- *
- * @param {string} root absolute repository root
- * @returns {readonly string[]} resolution base first, then the extra bases
- */
-export function cliPathRoots(root) {
-  return [root, os.tmpdir()];
 }
 
 /**

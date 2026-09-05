@@ -59,10 +59,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cliPathRoots, resolveWithinRoot } from "./lib/repo-path.mjs";
+import { resolveWithinRoot } from "./lib/repo-path.mjs";
 
 const ROOT = process.cwd();
-const PATH_ROOTS = cliPathRoots(ROOT);
 /** Reads a path already contained by resolveWithinRoot at the entry point. */
 function readJson(containedPath) {
   return JSON.parse(fs.readFileSync(containedPath, "utf8"));
@@ -880,9 +879,9 @@ export function runVerifier(casePath, receiptPath, oraclePath = process.env.SAFE
   // parameters are caller-supplied, so every path is proven inside the
   // repository (or the tmpdir the harness stages fixtures in) here, once,
   // before anything reads it.
-  const oracle = readJson(resolveWithinRoot(PATH_ROOTS, oraclePath, "oracle path"));
-  const testCase = readJson(resolveWithinRoot(PATH_ROOTS, casePath, "case path"));
-  const receipt = readJson(resolveWithinRoot(PATH_ROOTS, receiptPath, "receipt path"));
+  const oracle = readJson(resolveWithinRoot(ROOT, oraclePath, "oracle path"));
+  const testCase = readJson(resolveWithinRoot(ROOT, casePath, "case path"));
+  const receipt = readJson(resolveWithinRoot(ROOT, receiptPath, "receipt path"));
   const verifier = createVerifier(oracle);
   const result = verifier.verify(receipt, testCase);
   return { result, exitCode: result.verdict === "GOLDEN_E2E_PASS_IMPROVED" ? 0 : 1 };

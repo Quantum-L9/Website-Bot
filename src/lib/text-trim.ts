@@ -9,23 +9,11 @@
 // (SonarCloud typescript:S8786). These scan once from the relevant end and
 // slice, which is both linear and easier to read than the pattern it replaces.
 
-/** Count of characters at the end of `value` that satisfy `matches`. */
-function trailingRun(value: string, matches: (char: string) => boolean): number {
-  let length = 0;
-  while (length < value.length && matches(value[value.length - 1 - length]!)) length += 1;
-  return length;
-}
-
-/** Count of characters at the start of `value` that satisfy `matches`. */
-function leadingRun(value: string, matches: (char: string) => boolean): number {
-  let length = 0;
-  while (length < value.length && matches(value[length]!)) length += 1;
-  return length;
-}
-
 /** `value` without its trailing "/" run. Replaces `.replace(/\/+$/, "")`. */
 export function stripTrailingSlashes(value: string): string {
-  return value.slice(0, value.length - trailingRun(value, (char) => char === "/"));
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
 }
 
 /**
@@ -36,8 +24,10 @@ export function stripTrailingSlashes(value: string): string {
  */
 export function trimChars(value: string, chars: string): string {
   const set = new Set(chars);
-  const inSet = (char: string): boolean => set.has(char);
-  const start = leadingRun(value, inSet);
+  let start = 0;
+  while (start < value.length && set.has(value[start]!)) start += 1;
   if (start === value.length) return "";
-  return value.slice(start, value.length - trailingRun(value, inSet));
+  let end = value.length;
+  while (end > start && set.has(value[end - 1]!)) end -= 1;
+  return value.slice(start, end);
 }

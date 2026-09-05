@@ -6,12 +6,10 @@ import {
   provenanceSeal
 } from "./lib/safehaven-synthetic-provenance.mjs";
 import {
-  cliPathRoots,
   relativeToRoot,
   resolveWithinRoot
 } from "./lib/repo-path.mjs";
 const ROOT = process.cwd();
-const PATH_ROOTS = cliPathRoots(ROOT);
 const casePath =
   process.argv[2] ??
   "tests/golden/safehaven/case.json";
@@ -37,7 +35,7 @@ const BOT_INTEROP_VERSION =
 function readJson(filePath) {
   return JSON.parse(
     fs.readFileSync(
-      resolveWithinRoot(PATH_ROOTS, filePath, "input path"),
+      resolveWithinRoot(ROOT, filePath, "input path"),
       "utf8"
     )
   );
@@ -1193,7 +1191,7 @@ const receipt = {
  * ======================================================= */
 const absoluteOutput =
   resolveWithinRoot(
-    PATH_ROOTS,
+    ROOT,
     outputPath,
     "output path"
   );

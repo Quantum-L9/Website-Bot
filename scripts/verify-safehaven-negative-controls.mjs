@@ -3,9 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { cliPathRoots, resolveWithinRoot } from "./lib/repo-path.mjs";
+import { resolveWithinRoot } from "./lib/repo-path.mjs";
 const ROOT = process.cwd();
-const PATH_ROOTS = cliPathRoots(ROOT);
 const casePath =
   process.argv[2] ??
   "tests/golden/safehaven/case.json";
@@ -64,10 +63,10 @@ function runVerifier(receiptPath) {
     [
       // Same containment as readJson: these three are argv-controlled, and the
       // first of them is the script this process is about to execute.
-      resolveWithinRoot(PATH_ROOTS, verifierPath, "verifier path"),
-      resolveWithinRoot(PATH_ROOTS, casePath, "case path"),
+      resolveWithinRoot(ROOT, verifierPath, "verifier path"),
+      resolveWithinRoot(ROOT, casePath, "case path"),
       receiptPath,
-      resolveWithinRoot(PATH_ROOTS, oraclePath, "oracle path")
+      resolveWithinRoot(ROOT, oraclePath, "oracle path")
     ],
     {
       cwd: ROOT,
@@ -482,8 +481,8 @@ if (CONTROLS.length !== 25) {
     `negative-control inventory corrupt: ${CONTROLS.length}`
   );
 }
-const oracle = readJson(resolveWithinRoot(PATH_ROOTS, oraclePath, "oracle path"));
-const positive = readJson(resolveWithinRoot(PATH_ROOTS, positiveReceiptPath, "positive receipt path"));
+const oracle = readJson(resolveWithinRoot(ROOT, oraclePath, "oracle path"));
+const positive = readJson(resolveWithinRoot(ROOT, positiveReceiptPath, "positive receipt path"));
 const tempDir =
   fs.mkdtempSync(
     path.join(

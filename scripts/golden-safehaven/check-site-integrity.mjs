@@ -231,11 +231,11 @@ function aggregate(mode, { perRoute, broken, redirects }) {
     placeholder_count: placeholderFindings.length,
     placeholder_findings: placeholderFindings
       .map((f) => ({ route: f.route, ...f.placeholder }))
-      .sort((a, b) => compareCodeUnits(a.route, b.route)),
+      .toSorted((a, b) => compareCodeUnits(a.route, b.route)),
     unique_titles: new Set(titles).size,
     unique_canonical_urls: new Set(canonicals).size,
-    duplicate_titles: duplicateTitles.sort((a, b) => compareCodeUnits(a.title, b.title)),
-    duplicate_canonicals: duplicateCanonicals.sort((a, b) =>
+    duplicate_titles: duplicateTitles.toSorted((a, b) => compareCodeUnits(a.title, b.title)),
+    duplicate_canonicals: duplicateCanonicals.toSorted((a, b) =>
       compareCodeUnits(a.canonical, b.canonical),
     ),
     per_route: perRoute,
