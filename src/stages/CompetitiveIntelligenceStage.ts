@@ -6,6 +6,7 @@ import { type CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
 import {
   abstractPaletteCharacteristics,
+  acquirableReferences,
   deriveDesignReferenceIntelligence,
   resolveClientVision,
   resolveDesignReferenceSet,
@@ -31,6 +32,10 @@ import {
 } from "../intelligence/SeoBuildIntelligencePort.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
+import {
+  hydrateRedesignIntelligence,
+  persistRedesignArtifact,
+} from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { extractJson } from "../services/extractJson.js";
 
@@ -302,6 +307,29 @@ export class CompetitiveIntelligenceStage implements Stage {
       );
     }
 
+    // Resume: a persisted, integrity-verified landscape + donor evidence +
+    // sealed blueprint for THIS build is reused instead of re-spending against
+    // SEO-Bot, the crawler, and the model.
+    if (ctx.resume && !ctx.dryRun) {
+      const hydrated = hydrateRedesignIntelligence(ctx, [
+        "competitive-landscape",
+        "accepted-donors",
+        "seo-bot-ordering",
+        "website-build-blueprint",
+        "client-vision",
+        "design-reference-set",
+        "design-reference-intelligence",
+      ]);
+      if (
+        hydrated.includes("competitive-landscape") &&
+        hydrated.includes("accepted-donors") &&
+        hydrated.includes("website-build-blueprint")
+      ) {
+        logger.info({ hydrated }, "competitive intelligence reused from persisted redesign artifacts");
+        return;
+      }
+    }
+
     const port = this.portFactory(ctx);
 
     // Preflight BEFORE the first SEO-Bot build-intelligence call (oracle
@@ -365,6 +393,9 @@ export class CompetitiveIntelligenceStage implements Stage {
     if (ctx.seoBotOrdering) {
       ctx.seoBotOrdering.landscape_produced_at = landscape.produced_at;
     }
+    // Persist the paid, sealed artifact the moment it is accepted (GAP-3).
+    persistRedesignArtifact(ctx, "competitive-landscape", landscape);
+    persistRedesignArtifact(ctx, "seo-bot-ordering", ctx.seoBotOrdering);
     logger.info(
       {
         landscapeId: landscape.artifact_id,
@@ -389,6 +420,7 @@ export class CompetitiveIntelligenceStage implements Stage {
       await ingestor.close();
     }
     ctx.acceptedDonors = accepted;
+    persistRedesignArtifact(ctx, "accepted-donors", accepted);
     logger.info(
       {
         accepted: accepted.length,
@@ -439,15 +471,16 @@ export class CompetitiveIntelligenceStage implements Stage {
     if (portfolio.patterns.length === 0)
       throw new BuildError("INTELLIGENCE_PARSE_FAILED", "pattern synthesis produced no patterns");
 
-    // First-party design authorities (ADR-0018). Resolved from the frozen spec
-    // before the model is asked anything, so explicit client intent is already
-    // in hand when the model's proposal arrives and can outrank it (WBV2-019).
-    const clientVision = resolveClientVision(ctx.domainSpec);
-    const designReferenceSet = resolveDesignReferenceSet(ctx.domainSpec);
-    const designReferenceIntelligence = deriveDesignReferenceIntelligence(designReferenceSet);
-    ctx.clientVision = clientVision;
-    ctx.designReferenceSet = designReferenceSet;
-    ctx.designReferenceIntelligence = designReferenceIntelligence;
+    // First-party design authorities (ADR-0018). The design-reference-
+    // acquisition stage resolves them from the frozen spec AND acquires /
+    // analyzes every client reference URL; this stage consumes that result so
+    // explicit client intent and observed reference evidence are both in hand
+    // before the model is asked anything (WBV2-019). Resolving from the spec
+    // here is only legitimate when nothing needed acquiring — a spec that
+    // declares reference URLs without acquisition evidence fails closed
+    // rather than silently building on operator-authored principles alone.
+    const { clientVision, designReferenceSet, designReferenceIntelligence } =
+      resolveDesignAuthorities(ctx);
 
     // WBV2-007: observed palettes contribute abstract characteristics only. A
     // color becomes authoritative through explicit client intent or an explicit
@@ -512,6 +545,7 @@ export class CompetitiveIntelligenceStage implements Stage {
     });
 
     ctx.websiteBlueprint = blueprint;
+    persistRedesignArtifact(ctx, "website-build-blueprint", blueprint);
     // Persist the sealed artifact: the golden receipt adapter projects evidence
     // from disk, and the runtime previously kept the blueprint in product
     // memory only (golden run #61: WEBSITE_BLUEPRINT_INVALID — artifact_ref
@@ -536,6 +570,42 @@ export class CompetitiveIntelligenceStage implements Stage {
       "WebsiteBuildBlueprintV2 sealed and gated",
     );
   }
+}
+
+/**
+ * Resolve the design authorities this stage compiles from. Prefers the
+ * acquisition stage's resolved results; falls back to the spec only when no
+ * client reference required acquisition (no URL-bearing accepted reference).
+ */
+export function resolveDesignAuthorities(ctx: BuildContext): {
+  clientVision: NonNullable<BuildContext["clientVision"]>;
+  designReferenceSet: NonNullable<BuildContext["designReferenceSet"]>;
+  designReferenceIntelligence: NonNullable<BuildContext["designReferenceIntelligence"]>;
+} {
+  if (ctx.clientVision && ctx.designReferenceSet && ctx.designReferenceIntelligence) {
+    return {
+      clientVision: ctx.clientVision,
+      designReferenceSet: ctx.designReferenceSet,
+      designReferenceIntelligence: ctx.designReferenceIntelligence,
+    };
+  }
+  const clientVision = ctx.clientVision ?? resolveClientVision(ctx.domainSpec);
+  const declared = ctx.designReferenceSet ?? resolveDesignReferenceSet(ctx.domainSpec);
+  const acquirable = acquirableReferences(declared);
+  if (acquirable.length > 0 && declared.provenance.source === "domain_spec" && !ctx.dryRun) {
+    throw new BuildError(
+      "DESIGN_REFERENCE_UNACQUIRED",
+      `${acquirable.length} client design reference URL(s) were declared but never acquired; the design-reference-acquisition stage must run before competitive intelligence (${acquirable
+        .map((reference) => reference.reference_id)
+        .join(", ")})`,
+    );
+  }
+  const designReferenceIntelligence =
+    ctx.designReferenceIntelligence ?? deriveDesignReferenceIntelligence(declared);
+  ctx.clientVision = clientVision;
+  ctx.designReferenceSet = declared;
+  ctx.designReferenceIntelligence = designReferenceIntelligence;
+  return { clientVision, designReferenceSet: declared, designReferenceIntelligence };
 }
 
 function defaultPort(ctx: BuildContext): SeoBuildIntelligencePort {

@@ -10,6 +10,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
+import { persistRedesignArtifact } from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import {
   emitRedesignExecutionIntegrityReceipt,
   validateRedesignExecutionIntegrityReceipt,
@@ -39,6 +40,7 @@ export class RedesignIntegrityReceiptStage implements Stage {
     mkdirSync(dir, { recursive: true });
     const path = resolve(dir, "redesign-integrity-receipt.json");
     writeFileSync(path, `${JSON.stringify(receipt, null, 2)}\n`, "utf-8");
+    persistRedesignArtifact(ctx, "redesign-integrity-receipt", receipt);
     logger.info(
       {
         path,

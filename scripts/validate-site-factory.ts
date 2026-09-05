@@ -6,12 +6,19 @@ import type { BuildContext } from "../src/pipeline/BuildContext.js";
 import { parseBuildIntent } from "../src/pipeline/BuildIntent.js";
 import { FileEvidenceStore } from "../src/pipeline/evidence/FileEvidenceStore.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
+import { RenderedSiteValidationStage } from "../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../src/stages/SiteAssemblerStage.js";
+import { SiteBuildStage } from "../src/stages/SiteBuildStage.js";
 import { validateGeneratedSite } from "../src/validation/validate-generated-site.js";
 
 const specPath =
   process.argv.find((argument) => argument.startsWith("--spec="))?.slice("--spec=".length) ??
   "fixtures/ci-test-spec.yaml";
+// --build: after structural validation, run the REAL production build
+// (npm install + astro check + astro build) and render every route in a real
+// browser — the LLM-free proof that generated source → production build →
+// rendered site works end to end for the given spec.
+const realBuild = process.argv.includes("--build");
 const parsed = parse(readFileSync(specPath, "utf-8")) as unknown;
 const spec = validateDomainSpec(parsed, specPath);
 const buildId = `structural-${Date.now()}`;
@@ -71,6 +78,10 @@ try {
   validateGeneratedSite(ctx.outputDir, spec.routes);
   if (!ctx.assemblyManifest?.sourceDigest)
     throw new Error("Assembly manifest source digest was not produced");
+  if (realBuild) {
+    await new SiteBuildStage().run(ctx);
+    await new RenderedSiteValidationStage().run(ctx);
+  }
   console.log(
     JSON.stringify(
       {
@@ -78,6 +89,14 @@ try {
         outputDir: ctx.outputDir,
         routes: spec.routes.length,
         sourceDigest: ctx.assemblyManifest.sourceDigest,
+        ...(realBuild
+          ? {
+              build: "passed",
+              distDir: ctx.distDir,
+              distDigest: ctx.buildProof?.distDigest,
+              renderedSiteValidation: ctx.renderedSiteValidationPath,
+            }
+          : {}),
       },
       null,
       2,

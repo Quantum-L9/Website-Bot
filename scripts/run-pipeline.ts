@@ -14,6 +14,7 @@ import {
   buildFactoryExecutionPlan,
   executeFactoryPlan,
 } from "../src/pipeline/FactoryExecutionPlan.js";
+import { redesignIntelligenceDir } from "../src/pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
@@ -231,6 +232,10 @@ try {
   console.log(`Pipeline complete. Build: ${ctx.buildId}. Mode: ${mode}`);
   if (ctx.outputDir) console.log(`Generated source: ${ctx.outputDir}`);
   if (!dryRun) console.log(`Evidence root: ${ctx.evidenceStore.rootDir}`);
+  if (!dryRun && ctx.buildIntent === "REDESIGN_IMPROVE")
+    console.log(`Redesign intelligence artifacts: ${redesignIntelligenceDir(ctx)}`);
+  if (ctx.renderedSiteValidationPath)
+    console.log(`Rendered-site validation: ${ctx.renderedSiteValidationPath}`);
   const buildProof = await ctx.evidenceStore.readBuild();
   const publication = await ctx.evidenceStore.readPublication();
   const deployment = await ctx.evidenceStore.readDeployment();

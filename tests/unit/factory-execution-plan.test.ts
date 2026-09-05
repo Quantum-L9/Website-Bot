@@ -52,6 +52,7 @@ test("end-to-end plan owns the complete proof-gated topology", () => {
     "image-validation",
     "posthog-snippet",
     "site-build",
+    "rendered-site-validation",
     "client-source-publish",
     "vercel-deploy",
     "release-receipt",

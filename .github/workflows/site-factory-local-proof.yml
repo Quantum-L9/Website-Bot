@@ -39,6 +39,10 @@ jobs:
       - run: npm ci --no-audit --no-fund --ignore-scripts && npm rebuild better-sqlite3
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # local-proof now ends with rendered-site-validation (every route rendered
+      # in headless Chromium); the browser binary is a hard requirement.
+      - name: Install Playwright Chromium
+        run: npx --no-install playwright install --with-deps chromium
       - name: Validate and stage DomainSpec path
         if: ${{ inputs.spec_path != '' }}
         env:

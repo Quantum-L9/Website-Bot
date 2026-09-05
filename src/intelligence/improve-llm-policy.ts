@@ -9,6 +9,7 @@ import { TaskComplexity, type TaskDescriptor, TaskType } from "@quantum-l9/llm-r
  */
 export type WebsiteImproveLlmOperation =
   | "DONOR_NUGGET_EXTRACTION"
+  | "DESIGN_REFERENCE_ANALYSIS"
   | "VISUAL_PATTERN_ANALYSIS"
   | "PATTERN_SYNTHESIS"
   | "WEBSITE_BLUEPRINT"
@@ -21,6 +22,16 @@ export const WEBSITE_IMPROVE_LLM_POLICY: Record<WebsiteImproveLlmOperation, Poli
     type: TaskType.EXTRACTION,
     complexity: TaskComplexity.HIGH,
     expectedOutputTokens: 3500,
+    requiresReasoning: true,
+    requiresSearch: false,
+  },
+  DESIGN_REFERENCE_ANALYSIS: {
+    // Interprets deterministic OBSERVED evidence about a client-supplied
+    // reference relative to the client's own reaction, and emits abstract
+    // principles only (WBV2-004). Strategic reasoning, no search, no page copy.
+    type: TaskType.STRATEGIC_REASONING,
+    complexity: TaskComplexity.HIGH,
+    expectedOutputTokens: 3000,
     requiresReasoning: true,
     requiresSearch: false,
   },

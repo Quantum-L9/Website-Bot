@@ -4,6 +4,7 @@ import { ClientSourcePublishStage } from "../stages/ClientSourcePublishStage.js"
 import { CompetitiveIntelligenceStage } from "../stages/CompetitiveIntelligenceStage.js";
 import { ContentGenerationStage } from "../stages/ContentGenerationStage.js";
 import { DesignIntelligenceStage } from "../stages/DesignIntelligenceStage.js";
+import { DesignReferenceAcquisitionStage } from "../stages/DesignReferenceAcquisitionStage.js";
 import { DomainSpecLoaderStage } from "../stages/DomainSpecLoaderStage.js";
 import { HandoffEmitterStage } from "../stages/HandoffEmitterStage.js";
 import { ImageAssetPlanningStage } from "../stages/ImageAssetPlanningStage.js";
@@ -17,6 +18,7 @@ import { RedesignIntegrityReceiptStage } from "../stages/RedesignIntegrityReceip
 import { RedesignSchemaSerializerStage } from "../stages/RedesignSchemaSerializerStage.js";
 import { ReleaseReceiptFinalizerStage } from "../stages/ReleaseReceiptFinalizerStage.js";
 import { ReleaseReceiptStage } from "../stages/ReleaseReceiptStage.js";
+import { RenderedSiteValidationStage } from "../stages/RenderedSiteValidationStage.js";
 import { SchemaGeneratorStage } from "../stages/SchemaGeneratorStage.js";
 import { SEOBaselineStage } from "../stages/SEOBaselineStage.js";
 import { SeoBuildIntelligencePreflightStage } from "../stages/SeoBuildIntelligencePreflightStage.js";
@@ -76,6 +78,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "site-assembler",
     "posthog-snippet",
     "site-build",
+    "rendered-site-validation",
     "release-receipt",
   ],
   "publish-proof": [
@@ -88,6 +91,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "site-assembler",
     "posthog-snippet",
     "site-build",
+    "rendered-site-validation",
     "client-source-publish",
     "release-receipt",
   ],
@@ -101,6 +105,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "site-assembler",
     "posthog-snippet",
     "site-build",
+    "rendered-site-validation",
     "client-source-publish",
     "vercel-deploy",
     "release-receipt",
@@ -219,6 +224,7 @@ export class TerminalConvergenceStage implements Stage {
  */
 const REDESIGN_ADDED_MANDATORY = [
   "seo-build-intelligence-preflight",
+  "design-reference-acquisition",
   "competitive-intelligence",
   "redesign-content-authority",
   "structured-content-projection",
@@ -262,7 +268,15 @@ export function buildFactoryExecutionPlan(
     // The readiness proof precedes the first paid build-intelligence call;
     // ordering here IS the guarantee, and CompetitiveIntelligenceStage
     // fails closed if it ever runs without the resulting evidence.
-    stages.push(new SeoBuildIntelligencePreflightStage(), new CompetitiveIntelligenceStage());
+    // Client-supplied design references are acquired and analyzed by
+    // repository-owned code between the readiness proof and the first paid
+    // SEO-Bot call: an unreachable SEO-Bot still fails before any Website-Bot
+    // LLM spend, and competitive-intelligence consumes resolved authorities.
+    stages.push(
+      new SeoBuildIntelligencePreflightStage(),
+      new DesignReferenceAcquisitionStage(),
+      new CompetitiveIntelligenceStage(),
+    );
   }
   stages.push(new SourceSiteIngestionStage(), new DesignIntelligenceStage());
   if (redesign) {
@@ -284,7 +298,9 @@ export function buildFactoryExecutionPlan(
     new ImageValidationStage(),
     new PostHogSnippetStage(),
   );
-  if (options.mode !== "plan") stages.push(new SiteBuildStage());
+  // The production build is not terminal success: every route is rendered in a
+  // real browser and validated before any receipt or publication.
+  if (options.mode !== "plan") stages.push(new SiteBuildStage(), new RenderedSiteValidationStage());
   if (options.mode === "publish-proof" || options.mode === "end-to-end")
     stages.push(new ClientSourcePublishStage());
   if (options.mode === "end-to-end") stages.push(new VercelDeployStage());
