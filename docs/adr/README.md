@@ -27,6 +27,8 @@ These decisions remain authoritative until superseded by a numbered ADR.
 | [ADR-0015](ADR-0015-image-and-source-ingestion.md) | Image and Source-Ingestion Pipeline | accepted | 2026-08-14 |
 | [ADR-0016](ADR-0016-release-evidence-spine.md) | Release Evidence Spine | accepted | 2026-07-20 |
 | [ADR-0017](ADR-0017-generation-claims-require-llm-credentials.md) | LLM Credentials Required for Generation Claims, Not Launch | accepted | 2026-08-14 |
+| [ADR-0018](ADR-0018-website-build-blueprint-v2-single-authority.md) | WebsiteBuildBlueprintV2 as the Single Blueprint Authority | accepted | 2026-09-01 |
+| [ADR-0019](ADR-0019-retire-five-push-campaign-pack.md) | Retire the Five-Push Campaign Pack | accepted | 2026-09-02 |
 
 ADR-0001–ADR-0005 are the `redesign-improve/v1` pack (accepted 2026-08-14).
 ADR-0006–0007 and ADR-0015–0017 were extracted from archived sources under [`docs/archive/`](../archive/README.md).
@@ -72,6 +74,9 @@ No artifact has joint mutable ownership.
   V1 is superseded and removed. `ClientVision` and `DesignReferenceIntelligence`
   are first-party design authorities; observed palettes are non-authoritative
   under `REDESIGN_IMPROVE` (ADR-0018).
+- **Program sequencing:** the `website-bot-five-push-v1` campaign pack is retired;
+  redesign program planning starts from the ADR-0018 authority map and Campaign 7
+  state. The verifier is never the implementer (ADR-0019).
 
 ## Related design docs (not ADRs)
 
