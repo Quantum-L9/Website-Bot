@@ -389,7 +389,15 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
 
     const viewports = [...(options.viewports ?? DEFAULT_RENDER_VIEWPORTS)];
     const served = await this.server.start(options.distDir);
-    const browser = await mod.chromium.launch({ headless: true });
+    let browser: Browser;
+    try {
+      browser = await mod.chromium.launch({ headless: true });
+    } catch (error) {
+      // A failed launch must not leak the loopback server: an open listener
+      // keeps the process alive after the typed failure below is reported.
+      await served.close();
+      throw error;
+    }
     mkdirSync(options.screenshotDir, { recursive: true });
     const routes: RouteRenderResult[] = [];
     try {

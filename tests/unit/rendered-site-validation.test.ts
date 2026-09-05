@@ -18,6 +18,7 @@ import { runInNewContext } from "node:vm";
 import {
   evaluateRouteFacts,
   PAGE_FACTS_EXPRESSION,
+  PlaywrightSiteRenderer,
   type RenderedPageFacts,
   type RenderedSiteValidationReport,
   RENDERED_SITE_VALIDATION_SCHEMA,
@@ -150,6 +151,48 @@ void test("the loopback static server serves dist and 404s everything else", asy
   } finally {
     await served.close();
     rmSync(dist, { recursive: true, force: true });
+  }
+});
+
+void test("a failed browser launch closes the loopback server instead of leaking it", async () => {
+  // [L2-S17-002] With no Chromium binary the launch rejects; the server that
+  // was started first must be closed on that path or the listener keeps the
+  // test process alive (the CI hang on Build and Validate).
+  const dist = mkdtempSync(join(tmpdir(), "dist-"));
+  const shots = mkdtempSync(join(tmpdir(), "shots-"));
+  const noBrowsers = mkdtempSync(join(tmpdir(), "no-browsers-"));
+  const previous = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  process.env.PLAYWRIGHT_BROWSERS_PATH = noBrowsers;
+  const events: string[] = [];
+  const server = {
+    async start(directory: string) {
+      events.push(`start:${directory}`);
+      return {
+        baseUrl: "http://127.0.0.1:1",
+        close: async () => {
+          events.push("close");
+        },
+      };
+    },
+  } as unknown as StaticDistServer;
+  try {
+    await assert.rejects(
+      new PlaywrightSiteRenderer(server).render({
+        buildId: "b",
+        clientId: "c",
+        distDir: dist,
+        routes: [{ slug: "/", title: "Home" }],
+        screenshotDir: shots,
+      }),
+      /Executable doesn't exist|browser unavailable/,
+    );
+    assert.deepEqual(events, [`start:${dist}`, "close"]);
+  } finally {
+    if (previous === undefined) delete process.env.PLAYWRIGHT_BROWSERS_PATH;
+    else process.env.PLAYWRIGHT_BROWSERS_PATH = previous;
+    rmSync(dist, { recursive: true, force: true });
+    rmSync(shots, { recursive: true, force: true });
+    rmSync(noBrowsers, { recursive: true, force: true });
   }
 });
 
