@@ -20,7 +20,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { stripTrailingSlashes } from "./lib/text-trim.mjs";
+import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
 export const SAFEHAVEN_GOLDEN_VISUAL_SCHEMA =
   "l9.safehaven-golden-visual-evidence/v1" as const;

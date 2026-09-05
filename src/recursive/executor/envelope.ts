@@ -4,7 +4,7 @@
 // diff touching a forbidden or control-plane path is rejected outright.
 import type { PEPack } from "../contracts/types.js";
 import { CONTROL_PLANE_PATHS } from "../state/constants.js";
-import { stripTrailingSlashes } from "../../lib/text-trim.js";
+import { stripTrailingSlashes } from "../../lib/text-trim.mjs";
 
 export interface ProposedPatch {
   changedFiles: string[];

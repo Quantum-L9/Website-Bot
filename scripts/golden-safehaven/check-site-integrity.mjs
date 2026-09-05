@@ -28,7 +28,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { compareCodeUnits, normalizeRoute, distPathForRoute } from "./lib/normalize.mjs";
-import { stripTrailingSlashes } from "../lib/text-trim.mjs";
+import { stripTrailingSlashes } from "../../src/lib/text-trim.mjs";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);

@@ -6,6 +6,7 @@ import {
   provenanceSeal
 } from "./lib/safehaven-synthetic-provenance.mjs";
 import {
+  readJsonWithinRoot,
   relativeToRoot,
   resolveWithinRoot
 } from "./lib/repo-path.mjs";
@@ -33,12 +34,7 @@ const BOT_INTEROP_VERSION =
  * IO
  * ======================================================= */
 function readJson(filePath) {
-  return JSON.parse(
-    fs.readFileSync(
-      resolveWithinRoot(ROOT, filePath, "input path"),
-      "utf8"
-    )
-  );
+  return readJsonWithinRoot(ROOT, filePath, "input path");
 }
 function fail(message, evidence) {
   const detail =

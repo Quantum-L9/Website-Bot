@@ -12,7 +12,7 @@ import {
   isSourceDigestExcluded,
   normalizeRelativePath,
 } from "../services/hashing.js";
-import { trimChars } from "../lib/text-trim.js";
+import { trimChars } from "../lib/text-trim.mjs";
 
 export interface RouteContract {
   slug: string;

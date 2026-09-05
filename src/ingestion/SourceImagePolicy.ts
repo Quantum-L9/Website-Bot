@@ -7,7 +7,7 @@
 // dropped.
 
 import type { InspectedImage } from "../services/images/ImageInspector.js";
-import { stripTrailingSlashes } from "../lib/text-trim.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 export interface SourceImagePolicy {
   maxBytes: number;

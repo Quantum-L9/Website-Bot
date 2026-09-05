@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { resolveWithinRoot } from "./lib/repo-path.mjs";
+import { readJsonWithinRoot, resolveWithinRoot } from "./lib/repo-path.mjs";
 const ROOT = process.cwd();
 const casePath =
   process.argv[2] ??
@@ -24,9 +23,9 @@ if (!positiveReceiptPath) {
   );
   process.exit(2);
 }
-/** Reads a path already contained by resolveWithinRoot at the entry point. */
-function readJson(containedPath) {
-  return JSON.parse(fs.readFileSync(containedPath, "utf8"));
+/** Parse a JSON input, refusing anything that resolves outside the checkout. */
+function readJson(candidatePath, label) {
+  return readJsonWithinRoot(ROOT, candidatePath, label);
 }
 function clone(value) {
   return structuredClone(value);
@@ -481,15 +480,14 @@ if (CONTROLS.length !== 25) {
     `negative-control inventory corrupt: ${CONTROLS.length}`
   );
 }
-const oracle = readJson(resolveWithinRoot(ROOT, oraclePath, "oracle path"));
-const positive = readJson(resolveWithinRoot(ROOT, positiveReceiptPath, "positive receipt path"));
-const tempDir =
-  fs.mkdtempSync(
-    path.join(
-      os.tmpdir(),
-      "safehaven-golden-negative-"
-    )
-  );
+const oracle = readJson(oraclePath, "oracle path");
+const positive = readJson(positiveReceiptPath, "positive receipt path");
+// Inside the checkout, not os.tmpdir(): the mutated receipts below are passed
+// to the verifier subprocess, which refuses to read anything outside the
+// repository. build/ is gitignored.
+const scratchRoot = path.join(ROOT, "build", "test-tmp");
+fs.mkdirSync(scratchRoot, { recursive: true });
+const tempDir = fs.mkdtempSync(path.join(scratchRoot, "safehaven-golden-negative-"));
 try {
   const base1 = runVerifier(
     path.resolve(ROOT, positiveReceiptPath)

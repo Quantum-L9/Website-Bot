@@ -14,7 +14,7 @@
 // matters, because a symlink inside the root can point outside it and only the
 // canonical form shows that.
 
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -70,12 +70,11 @@ function isWithin(base, resolved) {
  * Resolve `candidate` and prove the result stays inside one of `roots`.
  *
  * The first root is the resolution base, so a relative argument keeps meaning
- * "relative to the repository". The rest only widen what is *accepted*: these
- * CLIs are driven by tests that build a mutated fixture in `os.tmpdir()` and
- * hand it to the verifier, which is a supported way to call them, so the temp
- * directory is a legitimate second base. What stays refused is everything
- * else — `../../etc/passwd`, `~/.ssh/id_rsa`, an absolute path into another
- * checkout — which is the actual finding.
+ * "relative to the repository". In practice there is exactly one root — the
+ * checkout — because the test harnesses stage their fixtures inside it; the
+ * array form remains so a caller can be explicit about that. Refused:
+ * `../../etc/passwd`, `~/.ssh/id_rsa`, `/tmp/anything`, and an absolute path
+ * into a sibling directory that merely shares a prefix.
  *
  * @param {string | readonly string[]} roots absolute base directory, or bases
  *   with the resolution base first
@@ -98,6 +97,36 @@ export function resolveWithinRoot(roots, candidate, label) {
     `PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must stay inside ${bases.join(" or ")}; ` +
       `refusing ${JSON.stringify(candidate)}`,
   );
+}
+
+/**
+ * Parse a JSON file that must live inside `root`.
+ *
+ * The containment check and the read are deliberately in one function: these
+ * CLIs take their inputs from `process.argv`, and a guard that sits in a
+ * different function from the `readFileSync` it protects is a guard that can be
+ * bypassed by the next caller who forgets it — and is invisible to any reader,
+ * human or static, looking at the sink (SonarCloud jssecurity:S8707).
+ *
+ * @param {string} root absolute repository root
+ * @param {string} candidate caller-supplied path, relative or absolute
+ * @param {string} label name of the argument, for the error message
+ * @returns {unknown} the parsed document
+ * @throws {Error} when `candidate` resolves outside `root`
+ */
+export function readJsonWithinRoot(root, candidate, label) {
+  if (typeof candidate !== "string" || candidate === "") {
+    throw new Error(`PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must be a non-empty path`);
+  }
+  const base = canonicalize(path.resolve(root));
+  const resolved = canonicalize(path.resolve(base, candidate));
+  if (!isWithin(base, resolved)) {
+    throw new Error(
+      `PATH_OUTSIDE_ALLOWED_ROOTS: ${label} must stay inside ${base}; ` +
+        `refusing ${JSON.stringify(candidate)}`,
+    );
+  }
+  return JSON.parse(readFileSync(resolved, "utf8"));
 }
 
 /**

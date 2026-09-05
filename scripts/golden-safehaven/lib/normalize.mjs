@@ -9,7 +9,7 @@
  * absent rather than fabricating a value (fail closed).
  */
 import { createHash } from "node:crypto";
-import { stripTrailingSlashes, trimEndWhere } from "../../lib/text-trim.mjs";
+import { stripTrailingSlashes, trimEndWhere } from "../../../src/lib/text-trim.mjs";
 
 /**
  * Deterministic code-unit comparator. Explicitly locale-independent so

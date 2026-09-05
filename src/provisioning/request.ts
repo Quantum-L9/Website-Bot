@@ -14,7 +14,7 @@ export interface ProvisionableDomainSpec {
 }
 
 import { assertEnvRef } from "./secret-ref.js";
-import { trimChars } from "../lib/text-trim.js";
+import { trimChars } from "../lib/text-trim.mjs";
 
 const OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]{1,100}$/;

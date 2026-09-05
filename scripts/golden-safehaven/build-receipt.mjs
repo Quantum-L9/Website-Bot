@@ -47,7 +47,7 @@ import {
   sha256Of,
   compareCodeUnits,
 } from "./lib/normalize.mjs";
-import { stripHtmlTags } from "../lib/text-trim.mjs";
+import { stripHtmlTags } from "../../src/lib/text-trim.mjs";
 
 /**
  * A checkpoint's status in the receipt vocabulary. A lookup, not a chain of

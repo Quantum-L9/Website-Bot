@@ -17,7 +17,7 @@ import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { StageCheckpoint } from "../pipeline/StageCheckpoint.js";
 import { recordWebsiteRelease } from "../services/memory.js";
 import { normalizeRouteSlug } from "../validation/validate-generated-site.js";
-import { stripTrailingSlashes } from "../lib/text-trim.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 const logger = createModuleLogger("stage:handoff-emitter");
 const CONVENIENCE_OUTPUT_PATH = "contracts/website_factory_integration.yaml";

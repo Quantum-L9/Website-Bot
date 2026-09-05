@@ -17,7 +17,7 @@
 //     secret is missing or authenticates as invalid.
 
 import net from "node:net";
-import { stripTrailingSlashes } from "./lib/text-trim.mjs";
+import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
 const STRICT = process.argv.includes("--strict");
 const TIMEOUT_MS = 12_000;

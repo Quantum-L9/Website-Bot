@@ -5,7 +5,7 @@ import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { stripMarkdownDecorators } from "../services/content/plainText.js";
 import { assembleSourceSection, matchSourcePage } from "../services/content/sourceCopy.js";
-import { trimChars } from "../lib/text-trim.js";
+import { trimChars } from "../lib/text-trim.mjs";
 
 const logger = createModuleLogger("stage:content-generation");
 const MIN_WORDS = 80;

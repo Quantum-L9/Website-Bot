@@ -17,7 +17,7 @@ import {
   type SEOContentBlueprintRequest,
   type StructuredContentRequest,
 } from "./SeoBuildIntelligencePort.js";
-import { stripTrailingSlashes } from "../lib/text-trim.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 /**
  * HTTP transport for the SEO-Bot build-time intelligence seam
