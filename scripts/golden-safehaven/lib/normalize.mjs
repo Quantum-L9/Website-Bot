@@ -9,6 +9,7 @@
  * absent rather than fabricating a value (fail closed).
  */
 import { createHash } from "node:crypto";
+import { stripTrailingSlashes, trimEndWhere } from "../../../src/lib/text-trim.mjs";
 
 /**
  * Deterministic code-unit comparator. Explicitly locale-independent so
@@ -27,7 +28,7 @@ export function normalizeRoute(value) {
   const trimmed = value.trim();
   if (!trimmed) return "/";
   const withLeading = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  const stripped = withLeading.replace(/\/+$/, "");
+  const stripped = stripTrailingSlashes(withLeading);
   return stripped || "/";
 }
 
@@ -51,7 +52,7 @@ export function normalizeDomain(value) {
   v = v.split(/[/?#]/)[0];
   v = v.replace(/^www\./, "");
   v = v.replace(/:\d+$/, "");
-  v = v.replace(/[.\s]+$/, "");
+  v = trimEndWhere(v, (char) => /[.\s]/.test(char));
   return v;
 }
 

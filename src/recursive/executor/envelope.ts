@@ -4,6 +4,7 @@
 // diff touching a forbidden or control-plane path is rejected outright.
 import type { PEPack } from "../contracts/types.js";
 import { CONTROL_PLANE_PATHS } from "../state/constants.js";
+import { stripTrailingSlashes } from "../../lib/text-trim.mjs";
 
 export interface ProposedPatch {
   changedFiles: string[];
@@ -17,7 +18,7 @@ export interface EnvelopeVerdict {
 
 function pathWithin(relativePath: string, prefix: string): boolean {
   const normalized = relativePath.replaceAll("\\", "/");
-  const trimmed = prefix.replaceAll("\\", "/").replace(/\/+$/, "");
+  const trimmed = stripTrailingSlashes(prefix.replaceAll("\\", "/"));
   return normalized === trimmed || normalized.startsWith(`${trimmed}/`);
 }
 

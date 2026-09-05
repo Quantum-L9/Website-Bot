@@ -16,7 +16,9 @@ jobs:
       actions: read
       checks: write
       contents: read
-    secrets: inherit
+    # No `secrets: inherit` — the nightly kernel declares no `on.workflow_call.secrets`
+    # and uses only the automatic GITHUB_TOKEN, so inheriting would hand it every
+    # repository secret for nothing (SonarCloud githubactions:S7635).
     with:
       python-version: "3.12"
       run-extended-tests: true

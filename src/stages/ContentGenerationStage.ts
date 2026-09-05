@@ -5,6 +5,7 @@ import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { stripMarkdownDecorators } from "../services/content/plainText.js";
 import { assembleSourceSection, matchSourcePage } from "../services/content/sourceCopy.js";
+import { trimChars } from "../lib/text-trim.mjs";
 
 const logger = createModuleLogger("stage:content-generation");
 const MIN_WORDS = 80;
@@ -17,20 +18,13 @@ const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).
 const bannedClaim = (value: string) =>
   BANNED_CLAIMS.find((claim) => value.toLowerCase().includes(claim));
 const sectionKey = (component: string) =>
-  component
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+  trimChars(component.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), "_");
 const minWordsFor = (component: string) =>
   SHORT_SECTIONS.test(sectionKey(component)) ? SHORT_SECTION_MIN_WORDS : MIN_WORDS;
 
 function stripHeadlineMarkup(headline: string): string {
-  return headline
-    .replace(/^\*\*(.*)\*\*$/s, "$1")
-    .replace(/^__(.*)__$/s, "$1")
-    .replace(/^\*+|\*+$/g, "")
-    .trim();
+  const unwrapped = headline.replace(/^\*\*(.*)\*\*$/s, "$1").replace(/^__(.*)__$/s, "$1");
+  return trimChars(unwrapped, "*").trim();
 }
 
 function parseHeadlineAndBody(content: string): { headline: string; body: string } {

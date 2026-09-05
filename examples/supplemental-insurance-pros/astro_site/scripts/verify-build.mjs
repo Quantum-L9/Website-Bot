@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
-import { exists, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import { exists, resolveNodeTool, result, statusFromRows, writeJsonl } from "./lib.mjs";
 
 const rows = [];
 const hasNodeModules = fs.existsSync("node_modules/.bin/astro");
@@ -18,7 +18,7 @@ if (!hasNodeModules) {
     }),
   );
 } else {
-  const run = spawnSync("npm", ["run", "build"], { encoding: "utf8" });
+  const run = spawnSync(resolveNodeTool("npm"), ["run", "build"], { encoding: "utf8" });
   fs.mkdirSync("validation", { recursive: true });
   fs.writeFileSync("validation/build_output.txt", `${run.stdout}\n${run.stderr}`);
   rows.push(

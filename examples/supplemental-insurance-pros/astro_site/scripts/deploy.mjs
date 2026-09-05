@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { resolveNodeTool } from "./lib.mjs";
 
 const mode = process.argv.includes("--prod") ? "production" : "preview";
 const required = ["VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"];
@@ -9,7 +10,7 @@ if (missing.length) {
   );
   process.exit(2);
 }
-const preflight = spawnSync("npm", ["run", "verify:all"], { stdio: "inherit" });
+const preflight = spawnSync(resolveNodeTool("npm"), ["run", "verify:all"], { stdio: "inherit" });
 if (preflight.status !== 0) {
   console.error(
     JSON.stringify({ status: "BLOCKED", reason: "verification_failed_before_deploy" }, null, 2),
@@ -17,5 +18,5 @@ if (preflight.status !== 0) {
   process.exit(preflight.status || 1);
 }
 const args = mode === "production" ? ["vercel", "--prod", "--yes"] : ["vercel", "--yes"];
-const deploy = spawnSync("npx", args, { stdio: "inherit", env: process.env });
+const deploy = spawnSync(resolveNodeTool("npx"), args, { stdio: "inherit", env: process.env });
 process.exit(deploy.status || 0);

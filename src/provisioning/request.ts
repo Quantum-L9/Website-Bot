@@ -14,6 +14,7 @@ export interface ProvisionableDomainSpec {
 }
 
 import { assertEnvRef } from "./secret-ref.js";
+import { trimChars } from "../lib/text-trim.mjs";
 
 const OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]{1,100}$/;
@@ -36,11 +37,7 @@ function isValidSourceBranch(value: string): boolean {
 }
 
 export function slugifyProvisioningName(value: string): string {
-  const slug = value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
+  const slug = trimChars(value.toLowerCase().replace(/[^a-z0-9]+/g, "-"), "-").slice(0, 80);
   if (!slug) throw new Error("client_id cannot be normalized into a provisioning name");
   return slug;
 }

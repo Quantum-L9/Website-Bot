@@ -17,6 +17,7 @@ import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { StageCheckpoint } from "../pipeline/StageCheckpoint.js";
 import { recordWebsiteRelease } from "../services/memory.js";
 import { normalizeRouteSlug } from "../validation/validate-generated-site.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 const logger = createModuleLogger("stage:handoff-emitter");
 const CONVENIENCE_OUTPUT_PATH = "contracts/website_factory_integration.yaml";
@@ -183,7 +184,8 @@ export class HandoffEmitterStage implements Stage {
       return;
     }
 
-    const seoBotUrl = process.env.SEO_BOT_URL?.replace(/\/+$/, "");
+    const rawSeoBotUrl = process.env.SEO_BOT_URL;
+    const seoBotUrl = rawSeoBotUrl === undefined ? undefined : stripTrailingSlashes(rawSeoBotUrl);
     const seoBotKey = process.env.SEO_BOT_API_KEY;
     if (!seoBotUrl || !seoBotKey) {
       throw new BuildError(
