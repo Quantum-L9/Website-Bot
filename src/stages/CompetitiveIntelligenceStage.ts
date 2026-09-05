@@ -1,12 +1,9 @@
+// L9_META: layer=stage, role=competitive_intelligence, stage_index=3, status=active, version=1.0.0
+import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
+import { type CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
-import {
-  type AcceptedDonorEvidence,
-  type DonorIngestor,
-  HttpDonorIngestor,
-} from "../intelligence/DonorIngestion.js";
 import {
   abstractPaletteCharacteristics,
   acquirableReferences,
@@ -15,12 +12,11 @@ import {
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../intelligence/design-authority.js";
-import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
-import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import {
-  SeoBotPreflightError,
-  type SeoBuildIntelligencePort,
-} from "../intelligence/SeoBuildIntelligencePort.js";
+  type AcceptedDonorEvidence,
+  type DonorIngestor,
+  HttpDonorIngestor,
+} from "../intelligence/DonorIngestion.js";
 import {
   ALLOWED_DISPOSITIONS,
   compileWebsiteBuildBlueprint,
@@ -28,6 +24,12 @@ import {
   type HarvestedPattern,
   type PatternPortfolio,
 } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
+import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
+import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
+import {
+  SeoBotPreflightError,
+  type SeoBuildIntelligencePort,
+} from "../intelligence/SeoBuildIntelligencePort.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import {
@@ -88,15 +90,14 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
     // Split on commas/semicolons, validate each part against the allowed set,
     // and keep the sorted unique joined form. Only string dispositions are
     // meaningful — any other shape falls through to the no-disposition error.
-    const rawDisposition = typeof entry.disposition === "string" ? entry.disposition : "";
-    const dispositionParts = [
-      ...new Set(
-        rawDisposition
-          .split(/[,;]/)
-          .map((part) => part.trim())
-          .filter(Boolean),
-      ),
-    ].sort((a, b) => a.localeCompare(b));
+    const rawDisposition =
+      typeof entry.disposition === "string" ? entry.disposition : "";
+    const dispositionParts = [...new Set(
+      rawDisposition
+        .split(/[,;]/)
+        .map((part) => part.trim())
+        .filter(Boolean),
+    )].sort((a, b) => a.localeCompare(b));
     if (dispositionParts.length === 0) {
       throw new BuildError(
         "INTELLIGENCE_PARSE_FAILED",
@@ -324,10 +325,7 @@ export class CompetitiveIntelligenceStage implements Stage {
         hydrated.includes("accepted-donors") &&
         hydrated.includes("website-build-blueprint")
       ) {
-        logger.info(
-          { hydrated },
-          "competitive intelligence reused from persisted redesign artifacts",
-        );
+        logger.info({ hydrated }, "competitive intelligence reused from persisted redesign artifacts");
         return;
       }
     }
@@ -344,7 +342,10 @@ export class CompetitiveIntelligenceStage implements Stage {
       preflightSnapshot = await port.preflight();
     } catch (error) {
       if (error instanceof SeoBotPreflightError) {
-        throw new BuildError(error.code, `REDESIGN preflight failed: ${error.message}`);
+        throw new BuildError(
+          error.code,
+          `REDESIGN preflight failed: ${error.message}`,
+        );
       }
       throw error;
     }
@@ -607,7 +608,7 @@ export function resolveDesignAuthorities(ctx: BuildContext): {
   return { clientVision, designReferenceSet: declared, designReferenceIntelligence };
 }
 
-function defaultPort(_ctx: BuildContext): SeoBuildIntelligencePort {
+function defaultPort(ctx: BuildContext): SeoBuildIntelligencePort {
   return new SeoBuildIntelligenceHttpClient(
     process.env.SEO_BOT_URL?.trim() ?? "",
     process.env.SEO_BOT_API_KEY?.trim() ?? "",

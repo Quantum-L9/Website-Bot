@@ -13,16 +13,12 @@ import test from "node:test";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import { RenderedSiteValidationStage } from "../../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
-import {
-  type CommandResult,
-  type CommandRunner,
-  SiteBuildStage,
-} from "../../src/stages/SiteBuildStage.js";
+import { type CommandResult, type CommandRunner, SiteBuildStage } from "../../src/stages/SiteBuildStage.js";
 import {
   evaluateRouteFacts,
-  RENDERED_SITE_VALIDATION_SCHEMA,
   type RenderedPageFacts,
   type RenderedSiteValidationReport,
+  RENDERED_SITE_VALIDATION_SCHEMA,
   resolveDistFile,
   type SiteRenderer,
   StaticDistServer,
@@ -41,18 +37,11 @@ class FakeBuildRunner implements CommandRunner {
       }
       writeFileSync(join(options.cwd, "dist", "sitemap-index.xml"), "<sitemapindex/>", "utf-8");
     }
-    return {
-      stdout: command === "npm" && args[0] === "--version" ? "10.9.2\n" : "",
-      stderr: "",
-      durationMs: 1,
-    };
+    return { stdout: command === "npm" && args[0] === "--version" ? "10.9.2\n" : "", stderr: "", durationMs: 1 };
   }
 }
 
-function report(
-  status: "PASS" | "FAIL",
-  ctx: { buildId: string; clientId: string },
-): RenderedSiteValidationReport {
+function report(status: "PASS" | "FAIL", ctx: { buildId: string; clientId: string }): RenderedSiteValidationReport {
   return {
     schema: RENDERED_SITE_VALIDATION_SCHEMA,
     build_id: ctx.buildId,
@@ -69,25 +58,15 @@ function report(
         viewport: "desktop",
         url: "http://127.0.0.1:0/",
         http_status: 200,
-        console_errors:
-          status === "FAIL" ? ["Uncaught ReferenceError: hydrate is not defined"] : [],
+        console_errors: status === "FAIL" ? ["Uncaught ReferenceError: hydrate is not defined"] : [],
         failed_requests: [],
         checks: [
-          {
-            name: "no_console_errors",
-            status,
-            detail: status === "FAIL" ? "hydration error" : "clean",
-          },
+          { name: "no_console_errors", status, detail: status === "FAIL" ? "hydration error" : "clean" },
         ],
         status,
       },
     ],
-    summary: {
-      routes: 1,
-      renders: 1,
-      passed: status === "PASS" ? 1 : 0,
-      failed: status === "PASS" ? 0 : 1,
-    },
+    summary: { routes: 1, renders: 1, passed: status === "PASS" ? 1 : 0, failed: status === "PASS" ? 0 : 1 },
     status,
   };
 }
@@ -146,14 +125,8 @@ void test("route checks pass on healthy facts and name every defect otherwise", 
     mkdirSync(join(dist, route), { recursive: true });
     writeFileSync(join(dist, route, "index.html"), "<html/>");
   }
-  const healthy = evaluateRouteFacts(healthyFacts(), 200, [], [], dist, {
-    slug: "/",
-    title: "Home",
-  });
-  assert.ok(
-    healthy.every((check) => check.status === "PASS"),
-    JSON.stringify(healthy),
-  );
+  const healthy = evaluateRouteFacts(healthyFacts(), 200, [], [], dist, { slug: "/", title: "Home" });
+  assert.ok(healthy.every((check) => check.status === "PASS"), JSON.stringify(healthy));
 
   const broken = evaluateRouteFacts(
     {
@@ -170,62 +143,44 @@ void test("route checks pass on healthy facts and name every defect otherwise", 
     dist,
     { slug: "/", title: "Home" },
   );
-  const failed = new Set(
-    broken.filter((check) => check.status === "FAIL").map((check) => check.name),
+  const failed = new Set(broken.filter((check) => check.status === "FAIL").map((check) => check.name));
+  assert.deepEqual(
+    [...failed].sort(),
+    [
+      "images_have_alt",
+      "images_loaded",
+      "internal_links_resolve",
+      "no_console_errors",
+      "no_failed_requests",
+      "no_horizontal_overflow",
+      "single_h1",
+      "structured_data_parses",
+    ],
   );
-  assert.deepEqual([...failed].sort(), [
-    "images_have_alt",
-    "images_loaded",
-    "internal_links_resolve",
-    "no_console_errors",
-    "no_failed_requests",
-    "no_horizontal_overflow",
-    "single_h1",
-    "structured_data_parses",
-  ]);
-  assert.match(
-    broken.find((check) => check.name === "internal_links_resolve")!.detail,
-    /\/pricing/,
-  );
+  assert.match(broken.find((check) => check.name === "internal_links_resolve")!.detail, /\/pricing/);
   rmSync(dist, { recursive: true, force: true });
 });
 
 void test("stage: requires build evidence, persists the report, and fails closed on a failing render", async () => {
   const ctx = fixtureContext();
   try {
-    const noBuild = new RenderedSiteValidationStage({
-      async render() {
-        return report("PASS", ctx);
-      },
-    });
+    const noBuild = new RenderedSiteValidationStage({ async render() { return report("PASS", ctx); } });
     await assert.rejects(
       () => noBuild.run(ctx),
       (error: unknown) => error instanceof BuildError && error.code === "EVIDENCE_ARTIFACT_MISSING",
     );
 
     await new SiteAssemblerStage().run(ctx);
-    await new SiteBuildStage(
-      new FakeBuildRunner(ctx.domainSpec.routes.map((route) => route.slug)),
-    ).run(ctx);
+    await new SiteBuildStage(new FakeBuildRunner(ctx.domainSpec.routes.map((route) => route.slug))).run(ctx);
 
-    const passing: SiteRenderer = {
-      async render() {
-        return report("PASS", ctx);
-      },
-    };
+    const passing: SiteRenderer = { async render() { return report("PASS", ctx); } };
     await new RenderedSiteValidationStage(passing).run(ctx);
     assert.ok(ctx.renderedSiteValidationPath && existsSync(ctx.renderedSiteValidationPath));
-    const persisted = JSON.parse(
-      readFileSync(ctx.renderedSiteValidationPath, "utf-8"),
-    ) as RenderedSiteValidationReport;
+    const persisted = JSON.parse(readFileSync(ctx.renderedSiteValidationPath, "utf-8")) as RenderedSiteValidationReport;
     assert.equal(persisted.schema, RENDERED_SITE_VALIDATION_SCHEMA);
     assert.equal(persisted.status, "PASS");
 
-    const failing: SiteRenderer = {
-      async render() {
-        return report("FAIL", ctx);
-      },
-    };
+    const failing: SiteRenderer = { async render() { return report("FAIL", ctx); } };
     await assert.rejects(
       () => new RenderedSiteValidationStage(failing).run(ctx),
       (error: unknown) =>
