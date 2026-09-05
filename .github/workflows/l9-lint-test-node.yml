@@ -30,7 +30,7 @@ on:
 
 # ── CONFIGURABLE: agent sets these during activation ───────────────────────────
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   PACKAGE_MANAGER: "npm"
   SOURCE_DIR: "."
   HAS_TYPESCRIPT: "true"
