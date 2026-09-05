@@ -520,9 +520,15 @@ export const siteConfig = {
       });
       const routeSchemas = config.schemas.perRoute[slug] ?? [];
       const routeDescription = `${route.title} | ${ctx.domainSpec.business_name}`;
+      // Exactly one H1 per rendered page (rendered-site single_h1 gate). The hero
+      // section owns it when present; otherwise the layout renders the route
+      // title as the page heading (L2-S16-001).
+      const pageHeading = sections.some((section) => section.name === "hero")
+        ? ""
+        : ` pageHeading={${json(route.title)}}`;
       write(
         pagePath,
-        `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} />)}\n</BaseLayout>\n`,
+        `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} />)}\n</BaseLayout>\n`,
       );
     }
   }

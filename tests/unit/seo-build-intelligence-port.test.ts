@@ -249,6 +249,34 @@ test("preflight maps 401 to SEO_BOT_AUTH_FAILED", async () => {
   );
 });
 
+// L2-S3-001: the producer's own readiness verdict outranks the subset of
+// fields this client re-checks. A snapshot whose every client-visible field
+// says "yes" but whose status is not "ready" (a failed or undeterminable check
+// the client has no field for) must be rejected, naming the offending checks.
+for (const status of ["not_ready", "degraded", "ok"] as const) {
+  test(`preflight rejects a snapshot whose producer status is ${JSON.stringify(status)}`, async () => {
+    const snapshot = preflightSnapshot({
+      status,
+      checks: [
+        { name: "seo_bot_reachable", status: "PASS", detail: "" },
+        { name: "seo_bot_machine_auth", status: status === "degraded" ? "UNKNOWN" : "FAIL", detail: "" },
+      ],
+    });
+    const client = preflightClient((url) => {
+      if (url.endsWith("/health")) return healthOk();
+      return new Response(JSON.stringify(snapshot), { status: 200 });
+    });
+    await assert.rejects(
+      () => client.preflight(),
+      (error: unknown) =>
+        error instanceof SeoBotPreflightError &&
+        error.code === "SEO_BOT_CAPABILITY_MISMATCH" &&
+        error.message.includes(status) &&
+        /seo_bot_machine_auth=(FAIL|UNKNOWN)/.test(error.message),
+    );
+  });
+}
+
 test("preflight maps a missing capability to SEO_BOT_CAPABILITY_MISMATCH", async () => {
   const snapshot = preflightSnapshot({
     capabilities: {
