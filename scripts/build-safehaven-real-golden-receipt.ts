@@ -15,6 +15,7 @@
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { stripTrailingSlashes } from "./lib/text-trim.mjs";
 
 export const GOLDEN_RUN_RECEIPT_SCHEMA = "l9.golden-run-receipt/v1" as const;
 export const SEO_LLM_AUDIT_SCHEMA = "l9.seo-bot-run-llm-audit/v1" as const;
@@ -51,7 +52,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 export function normalizeRoute(value: string): string {
   const trimmed = String(value).trim();
   if (trimmed === "/") return "/";
-  return trimmed.replace(/\/+$/, "") || "/";
+  return stripTrailingSlashes(trimmed) || "/";
 }
 
 export function readJson(path: string, code: string): unknown {

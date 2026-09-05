@@ -12,6 +12,7 @@ import {
   isSourceDigestExcluded,
   normalizeRelativePath,
 } from "../services/hashing.js";
+import { trimChars } from "../lib/text-trim.js";
 
 export interface RouteContract {
   slug: string;
@@ -76,11 +77,7 @@ export function normalizeRouteSlug(slug: string): string {
 }
 
 export function normalizeComponentName(component: string): string {
-  const normalized = component
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+  const normalized = trimChars(component.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), "_");
   if (!normalized)
     throw new BuildError(
       "VALIDATION_FAILED",

@@ -20,6 +20,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { stripTrailingSlashes } from "./lib/text-trim.mjs";
 
 export const SAFEHAVEN_GOLDEN_VISUAL_SCHEMA =
   "l9.safehaven-golden-visual-evidence/v1" as const;
@@ -162,7 +163,7 @@ export class GoldenVisualError extends Error {
 export function normalizeRoute(value: string): string {
   const trimmed = String(value).trim();
   if (trimmed === "/") return "/";
-  return trimmed.replace(/\/+$/, "") || "/";
+  return stripTrailingSlashes(trimmed) || "/";
 }
 
 export function digitsOnly(value: string): string {
@@ -322,7 +323,10 @@ export function scanBusinessTruth(
       findings.push({ route, kind: "phone", detail: match[1] ?? "" });
     }
   }
-  for (const match of html.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)) {
+  // Bounded by the protocol's own limits — RFC 5321 caps a local-part at 64
+  // octets and RFC 1035 a DNS label at 63 — so no real address stops matching
+  // and the futile backtracking before "@" and "." is capped (typescript:S8786).
+  for (const match of html.matchAll(/[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}/g)) {
     const observed = match[0].toLowerCase();
     if (observed !== facts.email.toLowerCase()) {
       findings.push({ route, kind: "email", detail: match[0] });

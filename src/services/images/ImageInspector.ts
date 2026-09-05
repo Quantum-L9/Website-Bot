@@ -106,8 +106,11 @@ function readWebpDimensions(bytes: Uint8Array): { width: number; height: number 
 }
 
 function readSvgDimensions(text: string): { width: number; height: number } {
-  const widthMatch = /\bwidth\s*=\s*["']?\s*([\d.]+)/i.exec(text);
-  const heightMatch = /\bheight\s*=\s*["']?\s*([\d.]+)/i.exec(text);
+  // `\s*["']?\s*` was two adjacent optional whitespace runs, so a run of
+  // spaces could be split between them many ways on a near miss
+  // (typescript:S8786). Attaching the space to the quote leaves one split.
+  const widthMatch = /\bwidth\s*=(?:\s*["'])?\s*([\d.]+)/i.exec(text);
+  const heightMatch = /\bheight\s*=(?:\s*["'])?\s*([\d.]+)/i.exec(text);
   if (widthMatch && heightMatch) {
     return { width: Math.round(Number(widthMatch[1])), height: Math.round(Number(heightMatch[1])) };
   }

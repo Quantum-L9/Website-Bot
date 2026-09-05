@@ -59,7 +59,32 @@ function decodeEntities(value: string): string {
 }
 
 function stripTags(html: string): string {
-  return decodeEntities(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " "));
+  // Scanned rather than matched with `/<[^>]+>/g`. ">" is never in that class,
+  // so once the greedy run stops, every backtrack step is futile — and the
+  // engine still tries them all, once per start position, which is quadratic on
+  // any document containing a stray "<" (typescript:S8786). Bounding the run
+  // would fix the cost and change the result: a `<img src="data:...">` tag runs
+  // to tens of kilobytes, and past the bound it would stop being stripped and
+  // spill base64 into the extracted text.
+  let stripped = "";
+  let cursor = 0;
+  for (;;) {
+    const open = html.indexOf("<", cursor);
+    if (open === -1) break;
+    const close = html.indexOf(">", open + 1);
+    if (close === -1) break;
+    if (close === open + 1) {
+      // "<>" has nothing between the angle brackets, so it is not a tag and the
+      // original pattern left it alone.
+      stripped += html.slice(cursor, open + 1);
+      cursor = open + 1;
+      continue;
+    }
+    stripped += `${html.slice(cursor, open)} `;
+    cursor = close + 1;
+  }
+  stripped += html.slice(cursor);
+  return decodeEntities(stripped.replace(/\s+/g, " "));
 }
 
 function attr(tag: string, name: string): string | undefined {

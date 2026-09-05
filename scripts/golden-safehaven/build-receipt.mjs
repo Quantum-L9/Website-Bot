@@ -46,6 +46,7 @@ import {
   distPathForRoute,
   sha256Of,
 } from "./lib/normalize.mjs";
+import { stripHtmlTags } from "../lib/text-trim.mjs";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -1114,10 +1115,10 @@ const siteScan = (() => {
     try {
       if (!fs.existsSync(file)) continue;
       const html = fs.readFileSync(file, "utf8");
-      const text = html
+      const withoutScripts = html
         .replace(/<script[\s\S]*?<\/script>/gi, " ")
-        .replace(/<style[\s\S]*?<\/style>/gi, " ")
-        .replace(/<[^>]+>/g, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ");
+      const text = stripHtmlTags(withoutScripts)
         .replace(/&nbsp;/gi, " ")
         .replace(/&amp;/gi, "&")
         .replace(/&#39;/gi, "'")
@@ -1138,7 +1139,7 @@ const siteScan = (() => {
         const digits = p.replace(/\D/g, "").replace(/^1/, "");
         if (digits !== phoneDigits && digits.length >= 10) findings.phoneMismatches.push({ route, phone: p });
       }
-      const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) ?? [];
+      const emails = text.match(/[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,253}\.[a-zA-Z]{2,63}/g) ?? [];
       for (const e of emails) {
         if (e.toLowerCase() !== verifiedEmail) findings.emailMismatches.push({ route, email: e });
       }

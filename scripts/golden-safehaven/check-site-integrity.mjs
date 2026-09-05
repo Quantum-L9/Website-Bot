@@ -28,6 +28,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeRoute, distPathForRoute } from "./lib/normalize.mjs";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -149,7 +150,7 @@ function resolveInternalPath(href) {
 
 // ---- url mode ----
 async function checkUrl() {
-  const base = urlBase.replace(/\/+$/, "");
+  const base = stripTrailingSlashes(urlBase);
   const perRoute = [];
   const redirects = [];
   const broken = [];
