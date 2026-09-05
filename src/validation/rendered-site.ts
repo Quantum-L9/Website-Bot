@@ -299,7 +299,11 @@ export function evaluateSiteChecks(distDir: string): RenderCheck[] {
 /* Playwright renderer                                                 */
 /* ------------------------------------------------------------------ */
 
-const PAGE_FACTS_SCRIPT = `() => {
+/**
+ * Browser-side fact collector. Kept as source text so no transpiler helper can
+ * leak into the page; the exported EXPRESSION below is what is evaluated.
+ */
+const PAGE_FACTS_FUNCTION = `() => {
   const h1s = Array.from(document.querySelectorAll("h1"));
   const nav = document.querySelector("nav[aria-label='Primary'], header nav, nav");
   const meta = document.querySelector("meta[name='description']");
@@ -329,6 +333,15 @@ const PAGE_FACTS_SCRIPT = `() => {
     ),
   };
 }`;
+
+/**
+ * `page.evaluate(string)` evaluates the string as an EXPRESSION. A function
+ * expression evaluates to the function object (serialized as undefined) and is
+ * never called, so every route reported "page facts unavailable" in a real
+ * browser (L2-S17-001). The collector is therefore invoked inside the
+ * expression itself.
+ */
+export const PAGE_FACTS_EXPRESSION = `(${PAGE_FACTS_FUNCTION})()`;
 
 function safeName(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "root";
@@ -376,7 +389,15 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
 
     const viewports = [...(options.viewports ?? DEFAULT_RENDER_VIEWPORTS)];
     const served = await this.server.start(options.distDir);
-    const browser = await mod.chromium.launch({ headless: true });
+    let browser: Browser;
+    try {
+      browser = await mod.chromium.launch({ headless: true });
+    } catch (error) {
+      // A failed launch must not leak the loopback server: an open listener
+      // keeps the process alive after the typed failure below is reported.
+      await served.close();
+      throw error;
+    }
     mkdirSync(options.screenshotDir, { recursive: true });
     const routes: RouteRenderResult[] = [];
     try {
@@ -457,7 +478,7 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
         timeout: options.navigationTimeoutMs ?? 30_000,
       });
       httpStatus = response?.status() ?? 0;
-      facts = await page.evaluate<RenderedPageFacts>(PAGE_FACTS_SCRIPT);
+      facts = await page.evaluate<RenderedPageFacts>(PAGE_FACTS_EXPRESSION);
       screenshotPath = resolve(
         options.screenshotDir,
         `${safeName(slug === "/" ? "home" : slug)}-${viewport.name}.png`,

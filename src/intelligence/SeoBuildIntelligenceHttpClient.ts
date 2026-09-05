@@ -190,7 +190,23 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       );
     }
 
-    // 3. Required API capabilities + provider configuration.
+    // 3. Producer verdict. `status` is SEO-Bot's own fold of every runtime
+    //    check it ran; the field checks below re-verify only the subset this
+    //    client has fields for. A producer that reports itself not ready
+    //    (a FAIL or UNKNOWN check this client cannot see) is never admitted on
+    //    the strength of that subset (L2-S3-001).
+    if (snapshot.status !== "ready") {
+      const failed = (snapshot.checks ?? [])
+        .filter((check) => check.status !== "PASS")
+        .map((check) => `${check.name}=${check.status}`);
+      throw new SeoBotPreflightError(
+        "SEO_BOT_CAPABILITY_MISMATCH",
+        `SEO-Bot reports readiness ${JSON.stringify(snapshot.status)}, not "ready"` +
+          (failed.length > 0 ? ` (${failed.join(", ")})` : ""),
+      );
+    }
+
+    // 4. Required API capabilities + provider configuration.
     const capabilities = snapshot.capabilities ?? ({} as SeoBotPreflightResult["capabilities"]);
     const missingCapabilities = [
       !capabilities.competitive_landscape && "competitive_landscape",
@@ -211,7 +227,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       );
     }
 
-    // 4. bot-interop compatibility — both bots must speak the same schema line.
+    // 5. bot-interop compatibility — both bots must speak the same schema line.
     const localInterop = scopedPkgVersion("@quantum-l9", "bot-interop");
     if (snapshot.bot_interop_version !== localInterop) {
       throw new SeoBotPreflightError(
@@ -220,7 +236,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       );
     }
 
-    // 5. Router patch equality with the locally pinned promoted patch.
+    // 6. Router patch equality with the locally pinned promoted patch.
     const localRouter = scopedPkgVersion("@quantum-l9", "llm-router");
     if (snapshot.llm_router_version !== localRouter) {
       throw new SeoBotPreflightError(

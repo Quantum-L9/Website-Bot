@@ -14,8 +14,11 @@ import { BuildError } from "../../src/pipeline/BuildError.js";
 import { RenderedSiteValidationStage } from "../../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { type CommandResult, type CommandRunner, SiteBuildStage } from "../../src/stages/SiteBuildStage.js";
+import { runInNewContext } from "node:vm";
 import {
   evaluateRouteFacts,
+  PAGE_FACTS_EXPRESSION,
+  PlaywrightSiteRenderer,
   type RenderedPageFacts,
   type RenderedSiteValidationReport,
   RENDERED_SITE_VALIDATION_SCHEMA,
@@ -89,6 +92,38 @@ function healthyFacts(): RenderedPageFacts {
   };
 }
 
+// L2-S17-001: Playwright evaluates a string as an EXPRESSION. The collector
+// must therefore be a self-invoking expression, never a bare function source
+// (which evaluates to the function object, serializes as undefined, and made
+// every real-browser render fail with "page facts unavailable").
+void test("the page-facts expression invokes the collector when evaluated as an expression", () => {
+  const element = (text = "") => ({
+    textContent: text,
+    getAttribute: () => "",
+    hasAttribute: () => false,
+    querySelectorAll: () => [] as unknown[],
+  });
+  const document = {
+    title: "Home",
+    body: { innerText: "hello world" },
+    documentElement: { scrollWidth: 1200 },
+    images: [] as unknown[],
+    querySelector: (selector: string) => (selector.includes("main") ? element() : null),
+    querySelectorAll: (selector: string) => (selector === "h1" ? [element("Home")] : []),
+  };
+  const facts = runInNewContext(PAGE_FACTS_EXPRESSION, {
+    document,
+    window: { innerWidth: 1200 },
+    Array,
+    Boolean,
+  }) as RenderedPageFacts | undefined;
+  assert.ok(facts && typeof facts === "object", "expression must evaluate to the facts object, not a function");
+  assert.equal(facts.title, "Home");
+  assert.equal(facts.h1_count, 1);
+  assert.equal(facts.has_main, true);
+  assert.equal(facts.inner_width, 1200);
+});
+
 void test("resolveDistFile maps routes to index.html and refuses traversal", () => {
   const dist = mkdtempSync(join(tmpdir(), "dist-"));
   mkdirSync(join(dist, "about"), { recursive: true });
@@ -116,6 +151,48 @@ void test("the loopback static server serves dist and 404s everything else", asy
   } finally {
     await served.close();
     rmSync(dist, { recursive: true, force: true });
+  }
+});
+
+void test("a failed browser launch closes the loopback server instead of leaking it", async () => {
+  // [L2-S17-002] With no Chromium binary the launch rejects; the server that
+  // was started first must be closed on that path or the listener keeps the
+  // test process alive (the CI hang on Build and Validate).
+  const dist = mkdtempSync(join(tmpdir(), "dist-"));
+  const shots = mkdtempSync(join(tmpdir(), "shots-"));
+  const noBrowsers = mkdtempSync(join(tmpdir(), "no-browsers-"));
+  const previous = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  process.env.PLAYWRIGHT_BROWSERS_PATH = noBrowsers;
+  const events: string[] = [];
+  const server = {
+    async start(directory: string) {
+      events.push(`start:${directory}`);
+      return {
+        baseUrl: "http://127.0.0.1:1",
+        close: async () => {
+          events.push("close");
+        },
+      };
+    },
+  } as unknown as StaticDistServer;
+  try {
+    await assert.rejects(
+      new PlaywrightSiteRenderer(server).render({
+        buildId: "b",
+        clientId: "c",
+        distDir: dist,
+        routes: [{ slug: "/", title: "Home" }],
+        screenshotDir: shots,
+      }),
+      /Executable doesn't exist|browser unavailable/,
+    );
+    assert.deepEqual(events, [`start:${dist}`, "close"]);
+  } finally {
+    if (previous === undefined) delete process.env.PLAYWRIGHT_BROWSERS_PATH;
+    else process.env.PLAYWRIGHT_BROWSERS_PATH = previous;
+    rmSync(dist, { recursive: true, force: true });
+    rmSync(shots, { recursive: true, force: true });
+    rmSync(noBrowsers, { recursive: true, force: true });
   }
 });
 
