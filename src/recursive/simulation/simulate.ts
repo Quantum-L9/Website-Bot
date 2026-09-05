@@ -88,11 +88,11 @@ export async function runSimulatedThreeWaveProof(
     // has byte-verifiable ground truth that must stay unchanged across waves.
     writeFileSync(
       join(repository, "package.json"),
-      JSON.stringify(
+      `${JSON.stringify(
         { name: "recursive-simulation-target", version: "0.1.0", scripts: {} },
         null,
         2,
-      ) + "\n",
+      )}\n`,
       "utf-8",
     );
     execTrusted("git", ["-C", repository, "add", "-A"]);

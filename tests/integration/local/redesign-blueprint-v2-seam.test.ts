@@ -22,8 +22,11 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import type { AcceptedDonorEvidence, DonorIngestor } from "../../../src/intelligence/DonorIngestion.js";
 import { compilePageContentContract } from "../../../src/intelligence/compile-page-content-contract.js";
+import type {
+  AcceptedDonorEvidence,
+  DonorIngestor,
+} from "../../../src/intelligence/DonorIngestion.js";
 import type { SeoBuildIntelligencePort } from "../../../src/intelligence/SeoBuildIntelligencePort.js";
 import { assertWebsiteBlueprintLandscape } from "../../../src/intelligence/SeoBuildIntelligencePort.js";
 import type { BuildContext } from "../../../src/pipeline/BuildContext.js";
@@ -243,9 +246,7 @@ void test("REDESIGN runs end-to-end through V2 with no V1 dependency", async () 
   // The first-party authorities were live in the run, not decorative.
   assert.equal(ctx.clientVision?.declared, false);
   assert.equal(ctx.designReferenceSet?.accepted_references.length, 1);
-  assert.deepEqual(ctx.designReferenceIntelligence?.layout_principles, [
-    "proof above the fold",
-  ]);
+  assert.deepEqual(ctx.designReferenceIntelligence?.layout_principles, ["proof above the fold"]);
   assert.ok(
     blueprint.payload.design_direction.principles.includes("proof above the fold"),
     "accepted reference principles must reach the sealed design direction",

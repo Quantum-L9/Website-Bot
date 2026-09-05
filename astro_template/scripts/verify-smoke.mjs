@@ -51,7 +51,10 @@ if (exists("dist")) {
       check_class: "static_assets",
       target_artifact: "dist/ static files",
       expected_result: "Common static files present",
-      actual_result: staticFiles.length > 0 ? `Found: ${staticFiles.join(", ")}` : "No common static files found",
+      actual_result:
+        staticFiles.length > 0
+          ? `Found: ${staticFiles.join(", ")}`
+          : "No common static files found",
       status: staticFiles.length > 0 ? "PASS" : "UNKNOWN",
       severity: "low",
       remediation_if_failed: "Consider adding favicon.ico, robots.txt",

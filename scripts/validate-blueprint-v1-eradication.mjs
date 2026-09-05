@@ -6,7 +6,7 @@
 // compatibility shims that would quietly resurrect it. Historical documents may
 // name V1 only as superseded architecture, and each such file must be listed
 // here explicitly — the allow-list is the record of every remaining mention.
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const ROOT = process.cwd();

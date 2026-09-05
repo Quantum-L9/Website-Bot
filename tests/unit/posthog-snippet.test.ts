@@ -1,9 +1,9 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
-import { readFileSync } from "fs";
-import { join } from "path";
 import { PostHogSnippetStage } from "../../src/stages/PostHogSnippetStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { validateGeneratedSite } from "../../src/validation/validate-generated-site.js";

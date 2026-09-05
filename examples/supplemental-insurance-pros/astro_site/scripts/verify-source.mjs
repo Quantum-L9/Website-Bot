@@ -69,7 +69,8 @@ for (const rel of files) {
       actual_result: bad ? "disallowed implementation marker found" : "clean",
       status: bad ? "FAIL" : "PASS",
       severity: bad ? "high" : "low",
-      remediation_if_failed: "Replace disallowed marker with complete implementation or documented Unknown.",
+      remediation_if_failed:
+        "Replace disallowed marker with complete implementation or documented Unknown.",
     }),
   );
 }

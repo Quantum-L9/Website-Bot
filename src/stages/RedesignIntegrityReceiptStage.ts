@@ -10,11 +10,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
-import { persistRedesignArtifact } from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import {
   emitRedesignExecutionIntegrityReceipt,
   validateRedesignExecutionIntegrityReceipt,
 } from "../pipeline/evidence/RedesignExecutionIntegrityReceipt.js";
+import { persistRedesignArtifact } from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 
 const logger = createModuleLogger("stage:redesign-integrity-receipt");

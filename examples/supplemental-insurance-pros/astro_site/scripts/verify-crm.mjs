@@ -34,7 +34,8 @@ rows.push(
     actual_result: endpoint.includes("UNKNOWN") ? "UNKNOWN_DECLARED" : "CONFIGURED",
     status: endpoint.includes("UNKNOWN") ? "UNKNOWN" : "PASS",
     severity: "high",
-    remediation_if_failed: "Configure PUBLIC_CRM_ENDPOINT and credential storage before live CRM test.",
+    remediation_if_failed:
+      "Configure PUBLIC_CRM_ENDPOINT and credential storage before live CRM test.",
   }),
 );
 writeJsonl("validation/crm_checks.jsonl", rows);

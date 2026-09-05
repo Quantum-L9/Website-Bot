@@ -11,13 +11,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "COMPETITIVE_EVIDENCE_INCOMPLETE",
-        "DUPLICATE_DONOR_DOMAIN"
-      ],
-      "expected_semantic_hit": [
-        "COMPETITIVE_EVIDENCE_INCOMPLETE"
-      ],
+      "observed_codes": ["COMPETITIVE_EVIDENCE_INCOMPLETE", "DUPLICATE_DONOR_DOMAIN"],
+      "expected_semantic_hit": ["COMPETITIVE_EVIDENCE_INCOMPLETE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -27,12 +22,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "DUPLICATE_DONOR_DOMAIN"
-      ],
-      "expected_semantic_hit": [
-        "DUPLICATE_DONOR_DOMAIN"
-      ],
+      "observed_codes": ["DUPLICATE_DONOR_DOMAIN"],
+      "expected_semantic_hit": ["DUPLICATE_DONOR_DOMAIN"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -42,12 +33,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "FORBIDDEN_DONOR_CLASS"
-      ],
-      "expected_semantic_hit": [
-        "FORBIDDEN_DONOR_CLASS"
-      ],
+      "observed_codes": ["FORBIDDEN_DONOR_CLASS"],
+      "expected_semantic_hit": ["FORBIDDEN_DONOR_CLASS"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -57,12 +44,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "DONOR_SCREENSHOT_INCOMPLETE"
-      ],
-      "expected_semantic_hit": [
-        "DONOR_SCREENSHOT_INCOMPLETE"
-      ],
+      "observed_codes": ["DONOR_SCREENSHOT_INCOMPLETE"],
+      "expected_semantic_hit": ["DONOR_SCREENSHOT_INCOMPLETE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -72,13 +55,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "SEO_PREFLIGHT_TOO_LATE",
-        "REQUIRED_STAGE_ORDER_VIOLATION"
-      ],
-      "expected_semantic_hit": [
-        "SEO_PREFLIGHT_TOO_LATE"
-      ],
+      "observed_codes": ["SEO_PREFLIGHT_TOO_LATE", "REQUIRED_STAGE_ORDER_VIOLATION"],
+      "expected_semantic_hit": ["SEO_PREFLIGHT_TOO_LATE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -88,12 +66,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "ROUTE_SET_MISMATCH"
-      ],
-      "expected_semantic_hit": [
-        "ROUTE_SET_MISMATCH"
-      ],
+      "observed_codes": ["ROUTE_SET_MISMATCH"],
+      "expected_semantic_hit": ["ROUTE_SET_MISMATCH"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -103,12 +77,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "ROUTE_SET_MISMATCH"
-      ],
-      "expected_semantic_hit": [
-        "ROUTE_SET_MISMATCH"
-      ],
+      "observed_codes": ["ROUTE_SET_MISMATCH"],
+      "expected_semantic_hit": ["ROUTE_SET_MISMATCH"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -118,12 +88,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"
-      ],
-      "expected_semantic_hit": [
-        "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"
-      ],
+      "observed_codes": ["WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"],
+      "expected_semantic_hit": ["WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -133,13 +99,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "PCC_LLM_USED",
-        "PCC_LLM_USED"
-      ],
-      "expected_semantic_hit": [
-        "PCC_LLM_USED"
-      ],
+      "observed_codes": ["PCC_LLM_USED", "PCC_LLM_USED"],
+      "expected_semantic_hit": ["PCC_LLM_USED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -149,12 +110,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
-      ],
-      "expected_semantic_hit": [
-        "STRUCTURED_CONTENT_LINEAGE_MISMATCH"
-      ],
+      "observed_codes": ["STRUCTURED_CONTENT_LINEAGE_MISMATCH"],
+      "expected_semantic_hit": ["STRUCTURED_CONTENT_LINEAGE_MISMATCH"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -181,12 +138,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "CONTENT_REPAIR_BUDGET_EXCEEDED"
-      ],
-      "expected_semantic_hit": [
-        "CONTENT_REPAIR_BUDGET_EXCEEDED"
-      ],
+      "observed_codes": ["CONTENT_REPAIR_BUDGET_EXCEEDED"],
+      "expected_semantic_hit": ["CONTENT_REPAIR_BUDGET_EXCEEDED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -196,12 +149,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "LEGACY_CONTENT_AUTHORITY_USED"
-      ],
-      "expected_semantic_hit": [
-        "LEGACY_CONTENT_AUTHORITY_USED"
-      ],
+      "observed_codes": ["LEGACY_CONTENT_AUTHORITY_USED"],
+      "expected_semantic_hit": ["LEGACY_CONTENT_AUTHORITY_USED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -211,12 +160,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
-      ],
-      "expected_semantic_hit": [
-        "REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"
-      ],
+      "observed_codes": ["REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"],
+      "expected_semantic_hit": ["REDESIGN_SCHEMA_LLM_AUTHORITY_VIOLATION"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -226,12 +171,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
-      ],
-      "expected_semantic_hit": [
-        "REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"
-      ],
+      "observed_codes": ["REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"],
+      "expected_semantic_hit": ["REQUIRED_SOURCE_PROJECT_PROOF_NOT_SELECTED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -241,12 +182,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "DONOR_ASSET_REUSED"
-      ],
-      "expected_semantic_hit": [
-        "DONOR_ASSET_REUSED"
-      ],
+      "observed_codes": ["DONOR_ASSET_REUSED"],
+      "expected_semantic_hit": ["DONOR_ASSET_REUSED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -256,12 +193,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "ROUTER_VERSION_MISMATCH"
-      ],
-      "expected_semantic_hit": [
-        "ROUTER_VERSION_MISMATCH"
-      ],
+      "observed_codes": ["ROUTER_VERSION_MISMATCH"],
+      "expected_semantic_hit": ["ROUTER_VERSION_MISMATCH"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -271,12 +204,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "UNEXPECTED_SEARCH_ROUTING"
-      ],
-      "expected_semantic_hit": [
-        "UNEXPECTED_SEARCH_ROUTING"
-      ],
+      "observed_codes": ["UNEXPECTED_SEARCH_ROUTING"],
+      "expected_semantic_hit": ["UNEXPECTED_SEARCH_ROUTING"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -295,9 +224,7 @@
         "VISUAL_VIEWPORT_MISMATCH",
         "STALE_VISUAL_CAPTURE"
       ],
-      "expected_semantic_hit": [
-        "VISUAL_CAPTURE_INCOMPLETE"
-      ],
+      "expected_semantic_hit": ["VISUAL_CAPTURE_INCOMPLETE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -327,12 +254,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "CRITICAL_VISUAL_PAIR_REGRESSED"
-      ],
-      "expected_semantic_hit": [
-        "CRITICAL_VISUAL_PAIR_REGRESSED"
-      ],
+      "observed_codes": ["CRITICAL_VISUAL_PAIR_REGRESSED"],
+      "expected_semantic_hit": ["CRITICAL_VISUAL_PAIR_REGRESSED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -342,12 +265,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
-      ],
-      "expected_semantic_hit": [
-        "CRITICAL_VISUAL_DIMENSION_REGRESSED"
-      ],
+      "observed_codes": ["CRITICAL_VISUAL_DIMENSION_REGRESSED"],
+      "expected_semantic_hit": ["CRITICAL_VISUAL_DIMENSION_REGRESSED"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -376,12 +295,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "SITE_REACHABILITY_INCOMPLETE"
-      ],
-      "expected_semantic_hit": [
-        "SITE_REACHABILITY_INCOMPLETE"
-      ],
+      "observed_codes": ["SITE_REACHABILITY_INCOMPLETE"],
+      "expected_semantic_hit": ["SITE_REACHABILITY_INCOMPLETE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     },
@@ -391,12 +306,8 @@
       "expected": "FAIL",
       "rejected": true,
       "exit_code": 1,
-      "observed_codes": [
-        "SITE_REACHABILITY_INCOMPLETE"
-      ],
-      "expected_semantic_hit": [
-        "SITE_REACHABILITY_INCOMPLETE"
-      ],
+      "observed_codes": ["SITE_REACHABILITY_INCOMPLETE"],
+      "expected_semantic_hit": ["SITE_REACHABILITY_INCOMPLETE"],
       "semantic_ok": true,
       "verdict": "GOLDEN_E2E_FAIL"
     }

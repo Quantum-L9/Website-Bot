@@ -12,8 +12,8 @@ import {
   type CompetitiveLandscapeArtifact,
   type PageContentContractArtifact,
   refForArtifact,
-  sealIntelligenceArtifact,
   type StructuredContentPackageArtifact,
+  sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
 import { compilePageContentContract } from "../../src/intelligence/compile-page-content-contract.js";
@@ -96,7 +96,9 @@ function sealedChain() {
           route_id: "/",
           path: "/",
           metadata: { title: "Home", description: "d" },
-          sections: [{ section_id: "hero", heading: "H", blocks: [{ kind: "paragraph", text: "p" }] }],
+          sections: [
+            { section_id: "hero", heading: "H", blocks: [{ kind: "paragraph", text: "p" }] },
+          ],
           faqs: [],
           internal_links: [],
           schema_content_inputs: {},
@@ -109,7 +111,13 @@ function sealedChain() {
         failed_requirements: [],
       },
       route_evidence: [
-        { route_id: "/", repair_attempts: 0, generation_calls: 1, validation_calls: 1, schema_errors: 0 },
+        {
+          route_id: "/",
+          repair_attempts: 0,
+          generation_calls: 1,
+          validation_calls: 1,
+          schema_errors: 0,
+        },
       ],
     },
   });
@@ -143,7 +151,11 @@ void test("a tampered artifact, a foreign build identity, and a broken lineage a
 
   // Tamper with the file after the index recorded its digest.
   const path = resolve(redesignIntelligenceDir(ctx), "competitive-landscape.json");
-  writeFileSync(path, readFileSync(path, "utf-8").replace("evidence_complete", "evidence_complete_x"), "utf-8");
+  writeFileSync(
+    path,
+    readFileSync(path, "utf-8").replace("evidence_complete", "evidence_complete_x"),
+    "utf-8",
+  );
   assert.throws(
     () => loadRedesignArtifact(ctx, "competitive-landscape", { sealed: "competitive_landscape" }),
     (error: unknown) => error instanceof BuildError && error.code === "REDESIGN_ARTIFACT_INVALID",
@@ -155,7 +167,10 @@ void test("a tampered artifact, a foreign build identity, and a broken lineage a
   const other = ctxFor("some-other-build");
   writeFileSync(
     resolve(redesignIntelligenceDir(other), "index.json").replace("some-other-build", BUILD_ID),
-    readFileSync(resolve(redesignIntelligenceDir(ctx), "index.json"), "utf-8").replace(BUILD_ID, "some-other-build"),
+    readFileSync(resolve(redesignIntelligenceDir(ctx), "index.json"), "utf-8").replace(
+      BUILD_ID,
+      "some-other-build",
+    ),
     "utf-8",
   );
   assert.throws(
@@ -165,7 +180,9 @@ void test("a tampered artifact, a foreign build identity, and a broken lineage a
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
 
   // Lineage: a persisted SEO blueprint that references a DIFFERENT landscape.
-  const foreignLandscape = makeLandscape({ donorDomains: Array.from({ length: 10 }, (_, i) => `other-${i}.example.com`) });
+  const foreignLandscape = makeLandscape({
+    donorDomains: Array.from({ length: 10 }, (_, i) => `other-${i}.example.com`),
+  });
   persistRedesignArtifact(ctx, "competitive-landscape", foreignLandscape);
   persistRedesignArtifact(ctx, "seo-content-blueprint", seoBlueprint);
   assert.throws(
@@ -182,13 +199,23 @@ void test("dry runs persist nothing", () => {
 });
 
 void test("resume: competitive intelligence reuses the persisted chain and never calls SEO-Bot", async () => {
-  const ctx = ctxFor(BUILD_ID, { resume: true, seoBuildIntelligencePreflight: { status: "ready" } as never });
+  const ctx = ctxFor(BUILD_ID, {
+    resume: true,
+    seoBuildIntelligencePreflight: { status: "ready" } as never,
+  });
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
   const { landscape, blueprint } = sealedChain();
   persistRedesignArtifact(ctx, "competitive-landscape", landscape);
-  persistRedesignArtifact(ctx, "accepted-donors", Array.from({ length: 10 }, (_, i) => makeDonorEvidence(`donor-${i}.example.com`)));
+  persistRedesignArtifact(
+    ctx,
+    "accepted-donors",
+    Array.from({ length: 10 }, (_, i) => makeDonorEvidence(`donor-${i}.example.com`)),
+  );
   persistRedesignArtifact(ctx, "website-build-blueprint", blueprint);
-  persistRedesignArtifact(ctx, "seo-bot-ordering", { preflight_produced_at: "a", landscape_produced_at: "b" });
+  persistRedesignArtifact(ctx, "seo-bot-ordering", {
+    preflight_produced_at: "a",
+    landscape_produced_at: "b",
+  });
 
   const calls: string[] = [];
   const port: SeoBuildIntelligencePort = {
@@ -227,7 +254,10 @@ void test("resume: competitive intelligence reuses the persisted chain and never
 });
 
 void test("resume: content authority reuses the persisted, lineage-verified chain", async () => {
-  const ctx = ctxFor(BUILD_ID, { resume: true, seoBuildIntelligencePreflight: { status: "ready" } as never });
+  const ctx = ctxFor(BUILD_ID, {
+    resume: true,
+    seoBuildIntelligencePreflight: { status: "ready" } as never,
+  });
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
   const chain = sealedChain();
   ctx.competitiveLandscape = chain.landscape;
@@ -277,6 +307,9 @@ void test("resume: content authority reuses the persisted, lineage-verified chai
     "structured-content-package",
   ]);
   assert.equal(hydrated.length, 5);
-  assert.equal(fresh.pageContentContract?.payload.inputs.website_build_blueprint.artifact_id, chain.blueprint.artifact_id);
+  assert.equal(
+    fresh.pageContentContract?.payload.inputs.website_build_blueprint.artifact_id,
+    chain.blueprint.artifact_id,
+  );
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
 });

@@ -190,11 +190,11 @@ function getProfilePreflightCommands(profile: string): string[] {
     case "build":
     case "smoke":
       return baseCommands;
-    case 'form':
-    case 'analytics':
-    case 'crm':
-    case 'seo':
-    case 'rollback':
+    case "form":
+    case "analytics":
+    case "crm":
+    case "seo":
+    case "rollback":
       return ["node -e \"require('node:fs').accessSync('astro_template/package.json')\""];
     default:
       return [...baseCommands, "npm run evidence:schemas", "npm run validate"];

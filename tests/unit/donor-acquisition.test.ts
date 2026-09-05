@@ -56,7 +56,11 @@ void test("9 usable donors fail closed even when a tenth candidate exists but is
 
 void test("10 usable donors pass with full evidence and DONOR_REFERENCE_ONLY disposition", async () => {
   const landscape = makeLandscape();
-  const accepted = await acquireAcceptedDonors(landscape, new FakeIngestor(() => true), "/tmp/none");
+  const accepted = await acquireAcceptedDonors(
+    landscape,
+    new FakeIngestor(() => true),
+    "/tmp/none",
+  );
   assert.equal(accepted.length, 10);
   for (const donor of accepted) {
     assert.ok(donor.pages.length >= 1, `${donor.domain} must carry crawl evidence`);

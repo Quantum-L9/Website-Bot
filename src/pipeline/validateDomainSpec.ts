@@ -25,8 +25,7 @@ function validOptionalString(value: unknown): boolean {
 
 function validOptionalEnvRef(value: unknown): boolean {
   return (
-    value === undefined ||
-    (typeof value === "string" && /^env:\/\/[A-Z][A-Z0-9_]*$/.test(value))
+    value === undefined || (typeof value === "string" && /^env:\/\/[A-Z][A-Z0-9_]*$/.test(value))
   );
 }
 
@@ -274,7 +273,8 @@ function validateProvidedImages(
       `assets.providedImages[${index}].intendedPlacement, when present, must be a non-empty string`,
     );
     if (typeof image.id === "string") {
-      if (seen.has(image.id)) errors.push(`assets.providedImages contains duplicate id ${image.id}`);
+      if (seen.has(image.id))
+        errors.push(`assets.providedImages contains duplicate id ${image.id}`);
       seen.add(image.id);
     }
   });
@@ -356,9 +356,9 @@ function validateImageSlots(
   }
   const seenIds = new Set<string>();
   const seenPlacements = new Set<string>();
-  imageSlots.forEach((slot, index) =>
-    validateImageSlot(slot, index, errors, check, seenIds, seenPlacements),
-  );
+  imageSlots.forEach((slot, index) => {
+    validateImageSlot(slot, index, errors, check, seenIds, seenPlacements);
+  });
 }
 
 function validateGeneration(
@@ -439,7 +439,7 @@ function describeError(error: unknown): string {
 function checkRouteShape(
   route: Record<string, unknown>,
   index: number,
-  errors: string[],
+  _errors: string[],
   check: (condition: boolean, message: string) => void,
 ): void {
   check(
@@ -482,7 +482,7 @@ function checkRouteSlugUniqueness(
 
 function checkRouteComponentNames(
   route: Record<string, unknown>,
-  index: number,
+  _index: number,
   errors: string[],
 ): void {
   if (!Array.isArray(route.components)) return;
@@ -522,7 +522,9 @@ function validateRoutes(
     return;
   }
   const seen = new Set<string>();
-  routes.forEach((route, index) => validateRoute(route, index, seen, errors, check));
+  routes.forEach((route, index) => {
+    validateRoute(route, index, seen, errors, check);
+  });
 }
 
 function validateDesign(
@@ -548,10 +550,7 @@ function validateDesign(
   );
 }
 
-function validateVercelDeployHook(
-  deployHook: unknown,
-  errors: string[],
-): void {
+function validateVercelDeployHook(deployHook: unknown, errors: string[]): void {
   if (typeof deployHook !== "string") {
     errors.push("deploy.vercel_deploy_hook, when present, must be a string");
     return;
@@ -587,11 +586,7 @@ function validateDeploy(
     validOptionalString(deploy.source_branch),
     "deploy.source_branch, when present, must be a non-empty string",
   );
-  validateOptionalEnvRef(
-    deploy.publish_credential_ref,
-    "deploy.publish_credential_ref",
-    check,
-  );
+  validateOptionalEnvRef(deploy.publish_credential_ref, "deploy.publish_credential_ref", check);
   check(
     validOptionalString(deploy.vercel_project_id),
     "deploy.vercel_project_id, when present, must be a non-empty string",

@@ -56,7 +56,8 @@ for (const page of pages) {
       check_class: "seo_runtime_validation",
       target_artifact: page,
       expected_result: "page passes title and description",
-      actual_result: hasTitle && hasDescription ? "title+description" : "missing title or description",
+      actual_result:
+        hasTitle && hasDescription ? "title+description" : "missing title or description",
       status: hasTitle && hasDescription ? "PASS" : "FAIL",
       severity: "high",
       remediation_if_failed: "Pass title and description into BaseLayout.",

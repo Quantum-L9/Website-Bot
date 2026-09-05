@@ -37,8 +37,8 @@ function looksLikeWebsiteBot(packageJson: any, fs: typeof import("node:fs")): bo
     packageJson.name?.includes("website-bot") ||
     packageJson.name?.includes("Website-Bot") ||
     fs.existsSync("astro_template") ||
-    packageJson.dependencies?.["astro"] ||
-    packageJson.devDependencies?.["astro"]
+    packageJson.dependencies?.astro ||
+    packageJson.devDependencies?.astro
   );
 }
 
@@ -52,11 +52,7 @@ async function loadExplicitAdapter(repositoryType: string): Promise<RepositoryAd
         "WebsiteBotAdapter",
       );
     case "seo-bot":
-      return await tryLoadAdapter(
-        "./adapters/SeoBotAdapter.js",
-        "SeoBotAdapter",
-        "SeoBotAdapter",
-      );
+      return await tryLoadAdapter("./adapters/SeoBotAdapter.js", "SeoBotAdapter", "SeoBotAdapter");
     case "default":
       return new DefaultRepositoryAdapter();
     default:
@@ -67,7 +63,11 @@ async function loadExplicitAdapter(repositoryType: string): Promise<RepositoryAd
 
 async function autoDetectAdapter(
   fs: typeof import("node:fs"),
-  packageJson: { name?: string; dependencies?: Record<string, string>; devDependencies?: Record<string, string> },
+  packageJson: {
+    name?: string;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  },
 ): Promise<RepositoryAdapter | null> {
   // Check for SEO-Bot patterns
   if (looksLikeSeoBot(packageJson, fs)) {
@@ -117,7 +117,7 @@ const logger = createLogger("ValidationExecutorCLI");
 
 // Default adapter implementation for CLI usage
 class DefaultRepositoryAdapter implements RepositoryAdapter {
-  async resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext> {
+  async resolveExecutionContext(_config: ValidationConfig): Promise<ExecutionContext> {
     // This would be implemented by specific repository adapters
     throw new Error(
       "Repository adapter not implemented - use a specific adapter for your repository type",
@@ -137,7 +137,7 @@ class DefaultRepositoryAdapter implements RepositoryAdapter {
     return executeAdapterCommand(command, workingDir);
   }
 
-  async storeEvidence(evidenceId: string, data: any) {
+  async storeEvidence(evidenceId: string, _data: any) {
     // Default evidence storage - would be customized by specific adapters
     return `evidence/${evidenceId}.json`;
   }
@@ -374,7 +374,7 @@ COMMANDS:
 
 OPTIONS:
   -p, --profile <profile>      Validation profile to use (default: default)
-  -e, --environment <env>      Target environment  
+  -e, --environment <env>      Target environment
   --evidence-root <path>       Evidence storage directory (default: validation)
   -o, --output <file>          Report output file (default: validation_report.yaml)
   --timeout <ms>               Command timeout in milliseconds (default: 300000)

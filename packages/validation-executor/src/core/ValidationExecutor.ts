@@ -63,7 +63,10 @@ export class ValidationExecutor {
       }
 
       // Step 2: Discovery inventory
-      const evidenceCollector = await EvidenceCollector.create(this.adapter, executionContext.evidence_root);
+      const evidenceCollector = await EvidenceCollector.create(
+        this.adapter,
+        executionContext.evidence_root,
+      );
 
       this.logger.info("Step 2: Starting inventory discovery");
       const preflightCheckDefinitions = await this.adapter.discoverPreflightChecks(
@@ -339,7 +342,7 @@ export class ValidationExecutor {
   }
 
   private async validatePreparation(
-    context: any,
+    _context: any,
   ): Promise<{ status: ValidationGateStatus; evidence_references: string[] }> {
     // Validate dependencies, credentials, etc.
     // For now, assume preparation passes if context is valid
@@ -349,7 +352,7 @@ export class ValidationExecutor {
     };
   }
 
-  private async analyzeFailures(results: any[]) {
+  private async analyzeFailures(_results: any[]) {
     // Implement failure analysis logic
     return {
       rootCauseGroups: [],
@@ -378,7 +381,7 @@ export class ValidationExecutor {
     };
   }
 
-  private validateEvidenceIntegrity(manifest: any[]): {
+  private validateEvidenceIntegrity(_manifest: any[]): {
     status: ValidationGateStatus;
     evidence_references: string[];
   } {

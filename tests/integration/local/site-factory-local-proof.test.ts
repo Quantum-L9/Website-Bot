@@ -1,9 +1,9 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
-import { mkdirSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
 import { SiteAssemblerStage } from "../../../src/stages/SiteAssemblerStage.js";
 import {
   type CommandResult,

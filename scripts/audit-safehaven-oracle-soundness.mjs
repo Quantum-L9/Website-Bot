@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 /**
  * ORACLE SOUNDNESS AUDIT — absence mutation testing.
  *
@@ -27,7 +28,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
 // CLI-controlled paths are canonicalized and then validated against the
@@ -42,7 +42,10 @@ function resolveUnder(root, candidate) {
 }
 const casePath = resolveUnder(ROOT, process.argv[2] ?? "tests/golden/safehaven/case.json");
 const verifier = resolveUnder(ROOT, process.argv[3] ?? "scripts/verify-safehaven-golden.mjs");
-const outPath = resolveUnder(ROOT, process.argv[4] ?? "tests/golden/safehaven/oracle-soundness.json");
+const outPath = resolveUnder(
+  ROOT,
+  process.argv[4] ?? "tests/golden/safehaven/oracle-soundness.json",
+);
 
 /** Minimal skeleton. Unrelated gates fail loudly; we only read per-probe codes. */
 function skeleton() {
@@ -52,23 +55,60 @@ function skeleton() {
       seo_bot: { sha: "b".repeat(40), llm_router_version: "1.1.3" },
       llm_router: { sha: "c".repeat(40), package_version: "1.1.3" },
     },
-    run: { build_intent: "REDESIGN_IMPROVE", copy_fallback_used: false, generic_fallback_used: false },
-    events: [{ name: "seo-build-intelligence-preflight:PASS" }, { name: "seo:createCompetitiveLandscape" }],
-    competitive_landscape: { selected_donors: [], evidence_complete: true, ranking_llm_calls: 0, artifact_ref: "ref" },
+    run: {
+      build_intent: "REDESIGN_IMPROVE",
+      copy_fallback_used: false,
+      generic_fallback_used: false,
+    },
+    events: [
+      { name: "seo-build-intelligence-preflight:PASS" },
+      { name: "seo:createCompetitiveLandscape" },
+    ],
+    competitive_landscape: {
+      selected_donors: [],
+      evidence_complete: true,
+      ranking_llm_calls: 0,
+      artifact_ref: "ref",
+    },
     donor_evidence: Array.from({ length: 10 }, (_, i) => ({
-      domain: `d${i}.com`, successful_pages: 1, screenshots: 1, evidence_digest: "dig",
+      domain: `d${i}.com`,
+      successful_pages: 1,
+      screenshots: 1,
+      evidence_digest: "dig",
     })),
     website_build_blueprint: { competitive_landscape_ref: "ref" },
-    seo_content_blueprint: { routes: [], competitive_landscape_ref: "ref", batch_size: 4, batch_count: 8 },
-    page_content_contract: { routes: [], artifact_ref: "pcc", llm_calls: 0, unplaced_requirements: 0 },
-    structured_content: { routes: [], page_content_contract_ref: "pcc", route_results: [{ route_id: "/" }] },
+    seo_content_blueprint: {
+      routes: [],
+      competitive_landscape_ref: "ref",
+      batch_size: 4,
+      batch_count: 8,
+    },
+    page_content_contract: {
+      routes: [],
+      artifact_ref: "pcc",
+      llm_calls: 0,
+      unplaced_requirements: 0,
+    },
+    structured_content: {
+      routes: [],
+      page_content_contract_ref: "pcc",
+      route_results: [{ route_id: "/" }],
+    },
     legacy: { content_generation_calls: 0, schema_llm_calls: 0 },
     assets: {
-      raw_source_images: 5, authorized_reusable_images: 3, selected_source_images: 2,
-      unexplained_reusable_asset_loss: 0, required_visual_slots_filled_fraction: 1, donor_asset_hash_matches: 0,
+      raw_source_images: 5,
+      authorized_reusable_images: 3,
+      selected_source_images: 2,
+      unexplained_reusable_asset_loss: 0,
+      required_visual_slots_filled_fraction: 1,
+      donor_asset_hash_matches: 0,
     },
     site: { routes: [], reachable_routes: 29, broken_internal_links: 0, placeholder_count: 0 },
-    business_truth: { unsupported_claim_count: 0, phone_mismatch_count: 0, email_mismatch_count: 0 },
+    business_truth: {
+      unsupported_claim_count: 0,
+      phone_mismatch_count: 0,
+      email_mismatch_count: 0,
+    },
     llm_audit: {
       direct_provider_bypass_count: 0,
       operations: {
@@ -79,7 +119,9 @@ function skeleton() {
     },
     visual: {
       pairs: Array.from({ length: 10 }, () => ({
-        route: "/", viewport: "desktop", trials: [{}, {}, {}],
+        route: "/",
+        viewport: "desktop",
+        trials: [{}, {}, {}],
       })),
     },
   };
@@ -146,46 +188,253 @@ const CONTAINER_GUARDS = {
  */
 const PROBES = [
   { id: "ORACLE-001", code: "IDENTITY_SHA_MISSING", path: "identity.website_bot.sha", bad: "" },
-  { id: "ORACLE-002", code: "ROUTER_VERSION_MISMATCH", path: "identity.seo_bot.llm_router_version", bad: "9.9.9" },
+  {
+    id: "ORACLE-002",
+    code: "ROUTER_VERSION_MISMATCH",
+    path: "identity.seo_bot.llm_router_version",
+    bad: "9.9.9",
+  },
   { id: "ORACLE-008", code: "WRONG_BUILD_INTENT", path: "run.build_intent", bad: "COPY" },
   { id: "ORACLE-009", code: "COPY_FALLBACK_USED", path: "run.copy_fallback_used", bad: true },
   { id: "ORACLE-010", code: "GENERIC_FALLBACK_USED", path: "run.generic_fallback_used", bad: true },
-  { id: "ORACLE-015", code: "COMPETITIVE_EVIDENCE_NOT_COMPLETE", path: "competitive_landscape.evidence_complete", bad: false },
-  { id: "ORACLE-016", code: "COMPETITIVE_RANKING_LLM_USED", path: "competitive_landscape.ranking_llm_calls", bad: 1 },
-  { id: "ORACLE-020", code: "DONOR_CRAWL_INCOMPLETE", path: "donor_evidence.0.successful_pages", bad: 0, container: "donor_evidence" },
-  { id: "ORACLE-021", code: "DONOR_SCREENSHOT_INCOMPLETE", path: "donor_evidence.0.screenshots", bad: 0, container: "donor_evidence" },
-  { id: "ORACLE-022", code: "DONOR_DIGEST_MISSING", path: "donor_evidence.0.evidence_digest", bad: "", container: "donor_evidence" },
-  { id: "ORACLE-025", code: "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH", path: "website_build_blueprint.competitive_landscape_ref", bad: "other" },
-  { id: "ORACLE-030", code: "SEO_BATCH_SIZE_DRIFT", path: "seo_content_blueprint.batch_size", bad: 5 },
-  { id: "ORACLE-031", code: "SEO_BATCH_COUNT_INVALID", path: "seo_content_blueprint.batch_count", bad: 7 },
-  { id: "ORACLE-032", code: "SEO_BLUEPRINT_LANDSCAPE_MISMATCH", path: "seo_content_blueprint.competitive_landscape_ref", bad: "other" },
+  {
+    id: "ORACLE-015",
+    code: "COMPETITIVE_EVIDENCE_NOT_COMPLETE",
+    path: "competitive_landscape.evidence_complete",
+    bad: false,
+  },
+  {
+    id: "ORACLE-016",
+    code: "COMPETITIVE_RANKING_LLM_USED",
+    path: "competitive_landscape.ranking_llm_calls",
+    bad: 1,
+  },
+  {
+    id: "ORACLE-020",
+    code: "DONOR_CRAWL_INCOMPLETE",
+    path: "donor_evidence.0.successful_pages",
+    bad: 0,
+    container: "donor_evidence",
+  },
+  {
+    id: "ORACLE-021",
+    code: "DONOR_SCREENSHOT_INCOMPLETE",
+    path: "donor_evidence.0.screenshots",
+    bad: 0,
+    container: "donor_evidence",
+  },
+  {
+    id: "ORACLE-022",
+    code: "DONOR_DIGEST_MISSING",
+    path: "donor_evidence.0.evidence_digest",
+    bad: "",
+    container: "donor_evidence",
+  },
+  {
+    id: "ORACLE-025",
+    code: "WEBSITE_BLUEPRINT_LANDSCAPE_MISMATCH",
+    path: "website_build_blueprint.competitive_landscape_ref",
+    bad: "other",
+  },
+  {
+    id: "ORACLE-030",
+    code: "SEO_BATCH_SIZE_DRIFT",
+    path: "seo_content_blueprint.batch_size",
+    bad: 5,
+  },
+  {
+    id: "ORACLE-031",
+    code: "SEO_BATCH_COUNT_INVALID",
+    path: "seo_content_blueprint.batch_count",
+    bad: 7,
+  },
+  {
+    id: "ORACLE-032",
+    code: "SEO_BLUEPRINT_LANDSCAPE_MISMATCH",
+    path: "seo_content_blueprint.competitive_landscape_ref",
+    bad: "other",
+  },
   { id: "ORACLE-037", code: "PCC_LLM_USED", path: "page_content_contract.llm_calls", bad: 1 },
-  { id: "ORACLE-038", code: "CONTENT_REQUIREMENT_UNPLACED", path: "page_content_contract.unplaced_requirements", bad: 1 },
-  { id: "ORACLE-042", code: "STRUCTURED_CONTENT_LINEAGE_MISMATCH", path: "structured_content.page_content_contract_ref", bad: "other" },
-  { id: "ORACLE-043", code: "STRUCTURED_CONTENT_SCHEMA_INVALID", path: "structured_content.route_results.0.schema_errors", bad: 1, container: "structured_content.route_results" },
-  { id: "ORACLE-044", code: "UNSUPPORTED_CONTENT_CLAIM", path: "structured_content.route_results.0.unsupported_claims", bad: 1, container: "structured_content.route_results" },
-  { id: "ORACLE-045", code: "CONTENT_REQUIREMENT_UNSATISFIED", path: "structured_content.route_results.0.failed_requirements", bad: 1, container: "structured_content.route_results" },
-  { id: "ORACLE-046", code: "CONTENT_REPAIR_BUDGET_EXCEEDED", path: "structured_content.route_results.0.repair_attempts", bad: 2, container: "structured_content.route_results" },
-  { id: "ORACLE-047", code: "CONTENT_GENERATION_BUDGET_EXCEEDED", path: "structured_content.route_results.0.generation_calls", bad: 3, container: "structured_content.route_results" },
-  { id: "ORACLE-050", code: "LEGACY_CONTENT_AUTHORITY_USED", path: "legacy.content_generation_calls", bad: 1, container: "legacy" },
-  { id: "ORACLE-051", code: "LEGACY_SCHEMA_AUTHORITY_USED", path: "legacy.schema_llm_calls", bad: 1, container: "legacy" },
-  { id: "ORACLE-054", code: "SOURCE_ASSET_CORPUS_EMPTY", path: "assets.raw_source_images", bad: 0, container: "assets" },
-  { id: "ORACLE-055", code: "AUTHORIZED_SOURCE_ASSETS_MISSING", path: "assets.authorized_reusable_images", bad: 0, container: "assets" },
-  { id: "ORACLE-056", code: "SOURCE_IMAGE_REUSE_MISSING", path: "assets.selected_source_images", bad: 0, container: "assets" },
-  { id: "ORACLE-057", code: "SOURCE_ASSET_REUSE_UNEXPLAINED", path: "assets.unexplained_reusable_asset_loss", bad: 1, container: "assets" },
-  { id: "ORACLE-058", code: "VISUAL_ASSET_REQUIREMENT_UNSATISFIED", path: "assets.required_visual_slots_filled_fraction", bad: 0.5, container: "assets" },
-  { id: "ORACLE-024", code: "DONOR_ASSET_REUSED", path: "assets.donor_asset_hash_matches", bad: 1, container: "assets" },
-  { id: "ORACLE-063", code: "SITE_REACHABILITY_INCOMPLETE", path: "site.reachable_routes", bad: 28, container: "site" },
-  { id: "ORACLE-064", code: "BROKEN_INTERNAL_LINKS", path: "site.broken_internal_links", bad: 1, container: "site" },
-  { id: "ORACLE-065", code: "PLACEHOLDER_FOUND", path: "site.placeholder_count", bad: 1, container: "site" },
-  { id: "ORACLE-069", code: "UNSUPPORTED_BUSINESS_CLAIM", path: "business_truth.unsupported_claim_count", bad: 1, container: "business_truth" },
-  { id: "ORACLE-070", code: "PHONE_TRUTH_MISMATCH", path: "business_truth.phone_mismatch_count", bad: 1, container: "business_truth" },
-  { id: "ORACLE-071", code: "EMAIL_TRUTH_MISMATCH", path: "business_truth.email_mismatch_count", bad: 1, container: "business_truth" },
-  { id: "ORACLE-073", code: "PROVIDER_BYPASS_DETECTED", path: "llm_audit.direct_provider_bypass_count", bad: 1, container: "llm_audit" },
-  { id: "ORACLE-074", code: "UNEXPECTED_SEARCH_ROUTING", path: "llm_audit.operations.SEO_CONTENT_BLUEPRINT.0.searchRequired", bad: true, container: "llm_audit.operations" },
-  { id: "ORACLE-075", code: "SEARCH_POLICY_NOT_EXPLICIT", path: "llm_audit.operations.STRUCTURED_CONTENT_GENERATION.0.searchPolicySource", bad: "TASK_DEFAULT", container: "llm_audit.operations" },
-  { id: "ORACLE-076", code: "UNEXPECTED_SEARCH_ROUTING", path: "llm_audit.operations.CONTENT_VALIDATION.0.searchRequired", bad: true, container: "llm_audit.operations" },
-  { id: "ORACLE-085", code: "VISUAL_TRIAL_INCOMPLETE", path: "visual.pairs.0.trials", bad: [1, 2], container: "visual.pairs" },
+  {
+    id: "ORACLE-038",
+    code: "CONTENT_REQUIREMENT_UNPLACED",
+    path: "page_content_contract.unplaced_requirements",
+    bad: 1,
+  },
+  {
+    id: "ORACLE-042",
+    code: "STRUCTURED_CONTENT_LINEAGE_MISMATCH",
+    path: "structured_content.page_content_contract_ref",
+    bad: "other",
+  },
+  {
+    id: "ORACLE-043",
+    code: "STRUCTURED_CONTENT_SCHEMA_INVALID",
+    path: "structured_content.route_results.0.schema_errors",
+    bad: 1,
+    container: "structured_content.route_results",
+  },
+  {
+    id: "ORACLE-044",
+    code: "UNSUPPORTED_CONTENT_CLAIM",
+    path: "structured_content.route_results.0.unsupported_claims",
+    bad: 1,
+    container: "structured_content.route_results",
+  },
+  {
+    id: "ORACLE-045",
+    code: "CONTENT_REQUIREMENT_UNSATISFIED",
+    path: "structured_content.route_results.0.failed_requirements",
+    bad: 1,
+    container: "structured_content.route_results",
+  },
+  {
+    id: "ORACLE-046",
+    code: "CONTENT_REPAIR_BUDGET_EXCEEDED",
+    path: "structured_content.route_results.0.repair_attempts",
+    bad: 2,
+    container: "structured_content.route_results",
+  },
+  {
+    id: "ORACLE-047",
+    code: "CONTENT_GENERATION_BUDGET_EXCEEDED",
+    path: "structured_content.route_results.0.generation_calls",
+    bad: 3,
+    container: "structured_content.route_results",
+  },
+  {
+    id: "ORACLE-050",
+    code: "LEGACY_CONTENT_AUTHORITY_USED",
+    path: "legacy.content_generation_calls",
+    bad: 1,
+    container: "legacy",
+  },
+  {
+    id: "ORACLE-051",
+    code: "LEGACY_SCHEMA_AUTHORITY_USED",
+    path: "legacy.schema_llm_calls",
+    bad: 1,
+    container: "legacy",
+  },
+  {
+    id: "ORACLE-054",
+    code: "SOURCE_ASSET_CORPUS_EMPTY",
+    path: "assets.raw_source_images",
+    bad: 0,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-055",
+    code: "AUTHORIZED_SOURCE_ASSETS_MISSING",
+    path: "assets.authorized_reusable_images",
+    bad: 0,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-056",
+    code: "SOURCE_IMAGE_REUSE_MISSING",
+    path: "assets.selected_source_images",
+    bad: 0,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-057",
+    code: "SOURCE_ASSET_REUSE_UNEXPLAINED",
+    path: "assets.unexplained_reusable_asset_loss",
+    bad: 1,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-058",
+    code: "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",
+    path: "assets.required_visual_slots_filled_fraction",
+    bad: 0.5,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-024",
+    code: "DONOR_ASSET_REUSED",
+    path: "assets.donor_asset_hash_matches",
+    bad: 1,
+    container: "assets",
+  },
+  {
+    id: "ORACLE-063",
+    code: "SITE_REACHABILITY_INCOMPLETE",
+    path: "site.reachable_routes",
+    bad: 28,
+    container: "site",
+  },
+  {
+    id: "ORACLE-064",
+    code: "BROKEN_INTERNAL_LINKS",
+    path: "site.broken_internal_links",
+    bad: 1,
+    container: "site",
+  },
+  {
+    id: "ORACLE-065",
+    code: "PLACEHOLDER_FOUND",
+    path: "site.placeholder_count",
+    bad: 1,
+    container: "site",
+  },
+  {
+    id: "ORACLE-069",
+    code: "UNSUPPORTED_BUSINESS_CLAIM",
+    path: "business_truth.unsupported_claim_count",
+    bad: 1,
+    container: "business_truth",
+  },
+  {
+    id: "ORACLE-070",
+    code: "PHONE_TRUTH_MISMATCH",
+    path: "business_truth.phone_mismatch_count",
+    bad: 1,
+    container: "business_truth",
+  },
+  {
+    id: "ORACLE-071",
+    code: "EMAIL_TRUTH_MISMATCH",
+    path: "business_truth.email_mismatch_count",
+    bad: 1,
+    container: "business_truth",
+  },
+  {
+    id: "ORACLE-073",
+    code: "PROVIDER_BYPASS_DETECTED",
+    path: "llm_audit.direct_provider_bypass_count",
+    bad: 1,
+    container: "llm_audit",
+  },
+  {
+    id: "ORACLE-074",
+    code: "UNEXPECTED_SEARCH_ROUTING",
+    path: "llm_audit.operations.SEO_CONTENT_BLUEPRINT.0.searchRequired",
+    bad: true,
+    container: "llm_audit.operations",
+  },
+  {
+    id: "ORACLE-075",
+    code: "SEARCH_POLICY_NOT_EXPLICIT",
+    path: "llm_audit.operations.STRUCTURED_CONTENT_GENERATION.0.searchPolicySource",
+    bad: "TASK_DEFAULT",
+    container: "llm_audit.operations",
+  },
+  {
+    id: "ORACLE-076",
+    code: "UNEXPECTED_SEARCH_ROUTING",
+    path: "llm_audit.operations.CONTENT_VALIDATION.0.searchRequired",
+    bad: true,
+    container: "llm_audit.operations",
+  },
+  {
+    id: "ORACLE-085",
+    code: "VISUAL_TRIAL_INCOMPLETE",
+    path: "visual.pairs.0.trials",
+    bad: [1, 2],
+    container: "visual.pairs",
+  },
 ];
 
 const results = [];
@@ -206,7 +455,9 @@ for (const p of PROBES) {
     delPath(noC, p.container);
     const codes = codesFor(noC, `${p.id}-nocontainer`);
     firesNoContainer = codes.has(p.code);
-    guardCode = Object.hasOwn(CONTAINER_GUARDS, p.container) ? CONTAINER_GUARDS[p.container] : undefined;
+    guardCode = Object.hasOwn(CONTAINER_GUARDS, p.container)
+      ? CONTAINER_GUARDS[p.container]
+      : undefined;
     if (guardCode) guardFires = codes.has(guardCode);
   }
 
@@ -217,7 +468,9 @@ for (const p of PROBES) {
   else verdict = guardFires === true ? "VACUOUS_GUARDED" : "VACUOUS_UNGUARDED";
 
   results.push({
-    oracle_id: p.id, failure_code: p.code, evidence_path: p.path,
+    oracle_id: p.id,
+    failure_code: p.code,
+    evidence_path: p.path,
     container_path: p.container ?? null,
     fires_when_value_bad: firesPresent,
     fires_when_field_absent: firesAbsent,
@@ -246,7 +499,10 @@ const report = {
   vacuous_but_backstopped: guarded.map((r) => r.oracle_id),
   inert_properties: inert.map((r) => r.oracle_id),
   probes: results,
-  verdict: vac.length === 0 && inert.length === 0 ? "ORACLE_SOUNDNESS_COMPLETE" : "ORACLE_SOUNDNESS_INCOMPLETE",
+  verdict:
+    vac.length === 0 && inert.length === 0
+      ? "ORACLE_SOUNDNESS_COMPLETE"
+      : "ORACLE_SOUNDNESS_INCOMPLETE",
 };
 fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
 
@@ -260,11 +516,15 @@ if (unguarded.length) {
   console.log("\nUNGUARDED (absent evidence passes and NOTHING else catches it):");
   for (const r of unguarded) {
     const via = r.fires_when_field_absent === false ? "field absent" : "container absent";
-    console.log(`  ${r.oracle_id}  ${r.failure_code}  <- ${via}: ${r.container_path ?? r.evidence_path}`);
+    console.log(
+      `  ${r.oracle_id}  ${r.failure_code}  <- ${via}: ${r.container_path ?? r.evidence_path}`,
+    );
   }
 }
 if (guarded.length) {
-  console.log("\nGUARDED (property not independently enforced, but a count gate rejects the receipt):");
+  console.log(
+    "\nGUARDED (property not independently enforced, but a count gate rejects the receipt):",
+  );
   for (const r of guarded) {
     console.log(`  ${r.oracle_id}  ${r.failure_code}  <- guard ${r.container_guard_code}`);
   }

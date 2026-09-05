@@ -85,7 +85,11 @@ export interface MergeInputs {
 
 function assertRuntimeShape(runtime: Record<string, unknown>): void {
   if (runtime.schema !== "l9.safehaven-real-runtime-evidence/v1") {
-    halt("RUNTIME_EVIDENCE_INVALID", "runtime evidence schema is not l9.safehaven-real-runtime-evidence/v1", runtime.schema);
+    halt(
+      "RUNTIME_EVIDENCE_INVALID",
+      "runtime evidence schema is not l9.safehaven-real-runtime-evidence/v1",
+      runtime.schema,
+    );
   }
   for (const section of [
     "identity",
@@ -108,7 +112,10 @@ function assertRuntimeShape(runtime: Record<string, unknown>): void {
   }
   const unresolved = runtime.unresolved_external_dependencies;
   if (!Array.isArray(unresolved)) {
-    halt("RUNTIME_EVIDENCE_INVALID", "runtime evidence must declare unresolved_external_dependencies");
+    halt(
+      "RUNTIME_EVIDENCE_INVALID",
+      "runtime evidence must declare unresolved_external_dependencies",
+    );
   }
   const identity = runtime.identity as Record<string, unknown>;
   for (const repo of ["website_bot", "seo_bot", "llm_router"]) {
@@ -121,15 +128,28 @@ function assertRuntimeShape(runtime: Record<string, unknown>): void {
 
 function assertRenderedShape(rendered: Record<string, unknown>): void {
   if (rendered.schema !== "l9.safehaven-golden-visual-evidence/v1") {
-    halt("RENDERED_EVIDENCE_INVALID", "rendered evidence schema is not l9.safehaven-golden-visual-evidence/v1", rendered.schema);
+    halt(
+      "RENDERED_EVIDENCE_INVALID",
+      "rendered evidence schema is not l9.safehaven-golden-visual-evidence/v1",
+      rendered.schema,
+    );
   }
   if (rendered.rendered_visual_qa_executed !== true) {
-    halt("RENDERED_VISUAL_QA_NOT_EXECUTED", "rendered evidence does not record an executed visual QA pass");
+    halt(
+      "RENDERED_VISUAL_QA_NOT_EXECUTED",
+      "rendered evidence does not record an executed visual QA pass",
+    );
   }
-  if (!isObject(rendered.site) || !Array.isArray((rendered.site as Record<string, unknown>).per_route)) {
+  if (
+    !isObject(rendered.site) ||
+    !Array.isArray((rendered.site as Record<string, unknown>).per_route)
+  ) {
     halt("RENDERED_EVIDENCE_INVALID", "rendered evidence carries no per-route site observations");
   }
-  if (!isObject(rendered.visual) || !Array.isArray((rendered.visual as Record<string, unknown>).pairs)) {
+  if (
+    !isObject(rendered.visual) ||
+    !Array.isArray((rendered.visual as Record<string, unknown>).pairs)
+  ) {
     halt("VISUAL_EVIDENCE_MISSING", "rendered evidence carries no visual pairs");
   }
 }
@@ -159,7 +179,11 @@ export function assertSeoAudit(
       halt("LLM_AUDIT_OPERATION_MISSING", `SEO audit has no ${operation} calls`);
     }
     for (const call of calls) {
-      if (!isObject(call) || call.searchRequired !== false || call.searchPolicySource !== "EXPLICIT") {
+      if (
+        !isObject(call) ||
+        call.searchRequired !== false ||
+        call.searchPolicySource !== "EXPLICIT"
+      ) {
         halt(
           `${operation}_SEARCH_POLICY_VIOLATION`,
           `${operation} call must record searchRequired=false and searchPolicySource=EXPLICIT`,
@@ -168,7 +192,10 @@ export function assertSeoAudit(
       }
     }
   }
-  for (const counter of ["direct_provider_bypass_count", "unsupported_capability_combination_count"]) {
+  for (const counter of [
+    "direct_provider_bypass_count",
+    "unsupported_capability_combination_count",
+  ]) {
     if (typeof seoAudit[counter] !== "number") {
       halt("SEO_AUDIT_INVALID", `SEO audit is missing ${counter}`);
     }
@@ -185,10 +212,18 @@ export function assertSameRun(inputs: MergeInputs): { runId: string; caseId: str
     halt("CASE_ID_MISSING", "case.json carries no case_id");
   }
   if (inputs.runtime.case_id !== caseId) {
-    halt("CASE_ID_MISMATCH", "runtime evidence belongs to a different case", inputs.runtime.case_id);
+    halt(
+      "CASE_ID_MISMATCH",
+      "runtime evidence belongs to a different case",
+      inputs.runtime.case_id,
+    );
   }
   if (inputs.rendered.case_id !== caseId) {
-    halt("CASE_ID_MISMATCH", "rendered evidence belongs to a different case", inputs.rendered.case_id);
+    halt(
+      "CASE_ID_MISMATCH",
+      "rendered evidence belongs to a different case",
+      inputs.rendered.case_id,
+    );
   }
   const run = inputs.runtime.run as Record<string, unknown>;
   const runId = run.run_id;
@@ -205,7 +240,10 @@ export function assertSameRun(inputs: MergeInputs): { runId: string; caseId: str
 }
 
 export function assertUnresolvedDependenciesResolved(runtime: Record<string, unknown>): void {
-  const unresolved = runtime.unresolved_external_dependencies as Array<{ field: string; owner: string }>;
+  const unresolved = runtime.unresolved_external_dependencies as Array<{
+    field: string;
+    owner: string;
+  }>;
   if (unresolved.length > 0) {
     halt(
       "EXTERNAL_DEPENDENCY_UNRESOLVED",
@@ -240,7 +278,11 @@ export function assertVisualEvidence(
     seen.add(key);
     if (!expectedKeys.has(key)) halt("VISUAL_PAIR_SET_MISMATCH", `unexpected visual pair ${key}`);
     if (pair.candidate_run_id !== runId) {
-      halt("STALE_VISUAL_CAPTURE", `${key} was captured for a different run`, pair.candidate_run_id);
+      halt(
+        "STALE_VISUAL_CAPTURE",
+        `${key} was captured for a different run`,
+        pair.candidate_run_id,
+      );
     }
     if (!viewports.some((entry) => entry.id === pair.viewport)) {
       halt("VISUAL_VIEWPORT_MISMATCH", `${key} uses an unknown viewport`);
@@ -253,12 +295,16 @@ export function assertVisualEvidence(
       });
     }
     for (const [index, trial] of trials.entries()) {
-      if (!isObject(trial)) halt("VISUAL_ORACLE_MISSING_TRIAL", `${key} trial ${index + 1} is not an object`);
+      if (!isObject(trial))
+        halt("VISUAL_ORACLE_MISSING_TRIAL", `${key} trial ${index + 1} is not an object`);
       if (!isObject(trial.orientation)) {
         halt("VISUAL_ORIENTATION_MISSING", `${key} trial ${index + 1} carries no orientation`);
       }
       if (!isObject(trial.raw_judge)) {
-        halt("VISUAL_RAW_JUDGE_EVIDENCE_MISSING", `${key} trial ${index + 1} carries no raw judge output`);
+        halt(
+          "VISUAL_RAW_JUDGE_EVIDENCE_MISSING",
+          `${key} trial ${index + 1} carries no raw judge output`,
+        );
       }
     }
   }
@@ -279,10 +325,12 @@ export function assertSiteRouteSet(
     const route = normalizeRoute(row.route);
     if (observed.has(route)) halt("DUPLICATE_ROUTE", `rendered evidence repeats route ${route}`);
     observed.add(route);
-    if (!expected.has(route)) halt("ROUTE_SET_MISMATCH", `rendered evidence contains unexpected route ${route}`);
+    if (!expected.has(route))
+      halt("ROUTE_SET_MISMATCH", `rendered evidence contains unexpected route ${route}`);
   }
   for (const route of expected) {
-    if (!observed.has(route)) halt("SITE_ROUTE_MISSING", `rendered evidence is missing route ${route}`);
+    if (!observed.has(route))
+      halt("SITE_ROUTE_MISSING", `rendered evidence is missing route ${route}`);
   }
   const built = (runtime.site_build as { routes: string[] }).routes.map(normalizeRoute);
   const builtSet = new Set(built);
@@ -304,7 +352,11 @@ export function assertPccDigests(runtime: Record<string, unknown>): void {
     determinism.digest_run_1 !== determinism.digest_run_2 ||
     determinism.same_semantic_input_same_digest !== true
   ) {
-    halt("PCC_DIGEST_MISMATCH", "PageContentContract determinism proof is absent or unequal", determinism);
+    halt(
+      "PCC_DIGEST_MISMATCH",
+      "PageContentContract determinism proof is absent or unequal",
+      determinism,
+    );
   }
 }
 
@@ -419,13 +471,18 @@ function argumentValue(argv: string[], name: string): string | undefined {
 
 export function main(argv: string[]): void {
   if (process.env.GOLDEN_CALIBRATION_MODE) {
-    halt("GOLDEN_CALIBRATION_MODE_SET", "a real Golden receipt must never be assembled in calibration mode");
+    halt(
+      "GOLDEN_CALIBRATION_MODE_SET",
+      "a real Golden receipt must never be assembled in calibration mode",
+    );
   }
   const casePath = argumentValue(argv, "case") ?? "tests/golden/safehaven/case.json";
   const oraclePath = argumentValue(argv, "oracle") ?? "tests/golden/safehaven/oracle.json";
-  const runtimePath = argumentValue(argv, "runtime") ?? "evidence/safehaven-real-runtime-evidence.json";
+  const runtimePath =
+    argumentValue(argv, "runtime") ?? "evidence/safehaven-real-runtime-evidence.json";
   const renderedPath = argumentValue(argv, "visual") ?? "evidence/safehaven-golden-visual.json";
-  const seoAuditPath = argumentValue(argv, "seo-llm-audit") ?? "evidence/safehaven-seo-llm-audit.json";
+  const seoAuditPath =
+    argumentValue(argv, "seo-llm-audit") ?? "evidence/safehaven-seo-llm-audit.json";
   const outputPath = argumentValue(argv, "out") ?? "evidence/safehaven-real-golden-receipt.json";
 
   const receipt = mergeGoldenReceipt({

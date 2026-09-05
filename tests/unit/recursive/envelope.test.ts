@@ -9,7 +9,7 @@ import { compilePEPack } from "../../../src/recursive/pepack/compiler.js";
 import { clusterSignals, selectEligibleCluster } from "../../../src/recursive/signals/registry.js";
 import { sha256Text } from "../../../src/services/hashing.js";
 
-function packForSubsystem(subsystem: string) {
+function packForSubsystem(_subsystem: string) {
   const receipt: ReleaseReceipt = {
     schema: "website-bot.release-receipt/v2",
     receipt_id: "rr-env",

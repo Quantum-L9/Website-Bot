@@ -182,7 +182,7 @@ export class PreflightEngine {
     }
 
     // Analyze output for specific failure types
-    const combinedOutput = (stdout + "\n" + stderr).toLowerCase();
+    const combinedOutput = `${stdout}\n${stderr}`.toLowerCase();
 
     // Check for timeout first (exit code 124 is standard timeout exit code)
     if (
@@ -239,7 +239,7 @@ export class PreflightEngine {
   /**
    * Identify contributing causes from command output
    */
-  private identifyContributingCauses(exitCode: number, stdout: string, stderr: string): string[] {
+  private identifyContributingCauses(exitCode: number, _stdout: string, stderr: string): string[] {
     const causes = [];
 
     if (exitCode !== 0) {

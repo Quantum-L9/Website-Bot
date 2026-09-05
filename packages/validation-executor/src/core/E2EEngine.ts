@@ -192,7 +192,7 @@ export class E2EEngine {
     }
 
     // Analyze output for specific failure types
-    const combinedOutput = (stdout + "\n" + stderr).toLowerCase();
+    const combinedOutput = `${stdout}\n${stderr}`.toLowerCase();
 
     // Look for assertion failures first. Spans between keywords are bounded
     // (S8786): assertion diagnostics pair their keywords within a few
@@ -208,12 +208,12 @@ export class E2EEngine {
     ];
 
     for (const pattern of assertionPatterns) {
-      const match = pattern.exec(stdout + "\n" + stderr);
+      const match = pattern.exec(`${stdout}\n${stderr}`);
       if (match) {
         return {
           status: "Failed",
           classification: "AssertionFailure",
-          assertionError: this.extractAssertionError(stdout + "\n" + stderr),
+          assertionError: this.extractAssertionError(`${stdout}\n${stderr}`),
         };
       }
     }
@@ -229,7 +229,7 @@ export class E2EEngine {
       return {
         status: "Failed",
         classification: "ApplicationRuntimeFailure",
-        assertionError: this.extractErrorMessage(stdout + "\n" + stderr),
+        assertionError: this.extractErrorMessage(`${stdout}\n${stderr}`),
       };
     }
 
@@ -339,7 +339,7 @@ export class E2EEngine {
       causes.push(`Non-zero exit code: ${exitCode}`);
     }
 
-    const output = (stdout + "\n" + stderr).toLowerCase();
+    const output = `${stdout}\n${stderr}`.toLowerCase();
 
     if (output.includes("warning")) {
       causes.push("Warnings detected in output");

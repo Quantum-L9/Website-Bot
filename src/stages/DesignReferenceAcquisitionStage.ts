@@ -34,8 +34,8 @@ import {
 } from "../intelligence/DesignReferenceAcquisition.js";
 import {
   acquirableReferences,
-  deriveDesignReferenceIntelligence,
   DesignAuthorityError,
+  deriveDesignReferenceIntelligence,
   resolveClientVision,
   resolveDesignReferenceSet,
 } from "../intelligence/design-authority.js";
@@ -71,7 +71,10 @@ export class DesignReferenceAcquisitionStage implements Stage {
 
   async run(ctx: BuildContext): Promise<void> {
     if (ctx.buildIntent !== "REDESIGN_IMPROVE") {
-      logger.info({ intent: ctx.buildIntent }, "not a redesign build; reference acquisition skipped");
+      logger.info(
+        { intent: ctx.buildIntent },
+        "not a redesign build; reference acquisition skipped",
+      );
       return;
     }
 
@@ -159,7 +162,10 @@ export class DesignReferenceAcquisitionStage implements Stage {
         "DESIGN_REFERENCE_UNACQUIRED",
         `none of the ${manifest.summary.with_url} client-supplied design reference URL(s) could be acquired: ${manifest.references
           .filter((entry) => entry.status !== "acquired")
-          .map((entry) => `${entry.reference_id} (${entry.status}: ${entry.failure_reason ?? "no url"})`)
+          .map(
+            (entry) =>
+              `${entry.reference_id} (${entry.status}: ${entry.failure_reason ?? "no url"})`,
+          )
           .join("; ")}`,
       );
     }

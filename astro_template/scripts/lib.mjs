@@ -109,19 +109,18 @@ export function result(optionsOrCheckId, ...legacyArgs) {
     status,
     severity = "medium",
     remediation_if_failed = "",
-  } =
-    typeof optionsOrCheckId === "object" && optionsOrCheckId !== null
-      ? optionsOrCheckId
-      : {
-          check_id: optionsOrCheckId,
-          check_class: legacyArgs[0],
-          target_artifact: legacyArgs[1],
-          expected_result: legacyArgs[2],
-          actual_result: legacyArgs[3],
-          status: legacyArgs[4],
-          severity: legacyArgs[5] ?? "medium",
-          remediation_if_failed: legacyArgs[6] ?? "",
-        };
+  } = typeof optionsOrCheckId === "object" && optionsOrCheckId !== null
+    ? optionsOrCheckId
+    : {
+        check_id: optionsOrCheckId,
+        check_class: legacyArgs[0],
+        target_artifact: legacyArgs[1],
+        expected_result: legacyArgs[2],
+        actual_result: legacyArgs[3],
+        status: legacyArgs[4],
+        severity: legacyArgs[5] ?? "medium",
+        remediation_if_failed: legacyArgs[6] ?? "",
+      };
 
   return {
     check_id,
@@ -221,7 +220,7 @@ export function writeJsonl(relativePath, rows) {
   fs.mkdirSync(path.dirname(path.join(root, relativePath)), { recursive: true });
   fs.writeFileSync(
     path.join(root, relativePath),
-    rows.map((row) => JSON.stringify(row)).join("\n") + "\n",
+    `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`,
   );
 }
 

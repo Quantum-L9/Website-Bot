@@ -6,7 +6,11 @@
   "parent_candidate_id": null,
   "mutation": {
     "layer": "DESIGN",
-    "target_paths": ["tokens.cta.primary.background", "tokens.cta.primary.foreground", "components.hero.primary_cta"],
+    "target_paths": [
+      "tokens.cta.primary.background",
+      "tokens.cta.primary.foreground",
+      "components.hero.primary_cta"
+    ],
     "forbidden_paths": [
       "WebsiteBuildBlueprint.routes",
       "WebsiteBuildBlueprint.sections",

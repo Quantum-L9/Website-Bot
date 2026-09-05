@@ -17,7 +17,10 @@ function textOnlyResponse(): Response {
   return new Response(
     JSON.stringify({
       candidates: [
-        { content: { role: "model", parts: [{ text: "I cannot generate that image." }] }, finishReason: "SAFETY" },
+        {
+          content: { role: "model", parts: [{ text: "I cannot generate that image." }] },
+          finishReason: "SAFETY",
+        },
       ],
       promptFeedback: { blockReason: "SAFETY" },
     }),

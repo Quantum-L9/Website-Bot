@@ -8,8 +8,8 @@
 // the new behavior on both sides of the intent boundary.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { DesignIntelligenceStage } from "../../src/stages/DesignIntelligenceStage.js";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
+import { DesignIntelligenceStage } from "../../src/stages/DesignIntelligenceStage.js";
 import { makeLandscape, makeWebsiteBlueprint } from "./redesign-fixtures.js";
 
 const SOURCE_PALETTE = {
@@ -53,9 +53,10 @@ function makeCtx(overrides: Partial<BuildContext> = {}): BuildContext {
   } as unknown as BuildContext;
 }
 
-function blueprintWithPalette(
-  authority: { source: "none" | "client_vision" | "first_party_design_spec"; tokens: Record<string, string> },
-) {
+function blueprintWithPalette(authority: {
+  source: "none" | "client_vision" | "first_party_design_spec";
+  tokens: Record<string, string>;
+}) {
   const landscape = makeLandscape();
   const base = makeWebsiteBlueprint(landscape);
   return {

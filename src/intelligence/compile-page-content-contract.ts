@@ -112,7 +112,9 @@ export function compilePageContentContract(
 
   validateFacts(input.businessFacts);
 
-  if (!sameArtifactRef(website.provenance.competitive_landscape_ref, seo.competitive_landscape_ref)) {
+  if (
+    !sameArtifactRef(website.provenance.competitive_landscape_ref, seo.competitive_landscape_ref)
+  ) {
     throw new PageContentContractCompileError(
       "COMPETITIVE_LANDSCAPE_MISMATCH",
       "Website and SEO blueprints were produced from different CompetitiveLandscape artifacts.",
@@ -212,19 +214,41 @@ export function compilePageContentContract(
     // in the contract ("fully insured", "warranty", "free inspection",
     // "24/7 emergency service available").
     const UNVERIFIABLE_TOPIC_MARKERS = [
-      "licens", "certif", "accredit", "award", "bond", "years in business",
-      "obligat", "financing", "free estimat", "free inspect", "money-back",
-      "money back", "same-day", "same day", "24/7", "emergency servic",
-      "guarantee", "warrant", "insured",
+      "licens",
+      "certif",
+      "accredit",
+      "award",
+      "bond",
+      "years in business",
+      "obligat",
+      "financing",
+      "free estimat",
+      "free inspect",
+      "money-back",
+      "money back",
+      "same-day",
+      "same day",
+      "24/7",
+      "emergency servic",
+      "guarantee",
+      "warrant",
+      "insured",
       // Response-time commitments: an answer to "how quickly?" is a promise
       // only a verified fact can make.
-      "respond", "response time", "how quickly", "how fast", "how soon",
+      "respond",
+      "response time",
+      "how quickly",
+      "how fast",
+      "how soon",
       "turnaround",
       // Quantity/cost commitments: "how long do metal roofs last?", "how
       // much does it cost?" demand numbers the facts do not assert (golden
       // run #45: the writer's lifespan number was grounded-scrubbed, leaving
       // broken prose the semantic validator then flagged).
-      "how long", "how much", "how many", "cost",
+      "how long",
+      "how much",
+      "how many",
+      "cost",
       // Lifespan/comparison topics: "lifespan comparison" invites
       // comparative lifespan claims no fact asserts (golden run #49: the
       // guide route's comparison content was flagged as unsupported claims).
@@ -238,15 +262,37 @@ export function compilePageContentContract(
       // closed on exactly the right grounds — the contract itself was
       // unsatisfiable. Methodology phrasings stay in the contract; the
       // claim-level guardrails still catch any ungrounded claim in prose.
-      "client outcom", "measurabl", "quantifiab", "quantified", "credibility signal",
-      "third party", "third-party", "experience indicator", "track record",
-      "case stud", "testimonial", "client logo", "portfolio", "client brand",
-      "collaboration example", "industry-specific example", "client example",
-      "client validation", "recognizable", "substantiat", "innovation",
-      "latest", "industry", "benefit", "prominent",
+      "client outcom",
+      "measurabl",
+      "quantifiab",
+      "quantified",
+      "credibility signal",
+      "third party",
+      "third-party",
+      "experience indicator",
+      "track record",
+      "case stud",
+      "testimonial",
+      "client logo",
+      "portfolio",
+      "client brand",
+      "collaboration example",
+      "industry-specific example",
+      "client example",
+      "client validation",
+      "recognizable",
+      "substantiat",
+      "innovation",
+      "latest",
+      "industry",
+      "benefit",
+      "prominent",
     ];
     const factCorpus = routeFacts
-      .map((fact) => `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`)
+      .map(
+        (fact) =>
+          `${fact.key} ${Array.isArray(fact.value) ? fact.value.join(" ") : String(fact.value)}`,
+      )
       .join(" ")
       .toLowerCase();
     const isBacked = (value: string): boolean =>
@@ -258,7 +304,10 @@ export function compilePageContentContract(
       // "step_by_step_industry_tailored_guides") that no marker list can
       // exhaust. Real coverage topics are short; any topic of 3+ word
       // segments must be corpus-backed verbatim or it drops.
-      (value.toLowerCase().split(/[\s_]+/).filter(Boolean).length < 3 ||
+      (value
+        .toLowerCase()
+        .split(/[\s_]+/)
+        .filter(Boolean).length < 3 ||
         factCorpus.includes(value.toLowerCase()));
     const filterBacked = (values: string[]): string[] =>
       uniq(values).filter((value) => value.trim().length > 0 && isBacked(value));
@@ -289,7 +338,9 @@ export function compilePageContentContract(
         content_requirements: {
           requirement_ids: uniq(requirements.map((requirement) => requirement.requirement_id)),
           topics: filterBacked(requirements.flatMap((requirement) => requirement.required_topics)),
-          entities: filterBacked(requirements.flatMap((requirement) => requirement.required_entities)),
+          entities: filterBacked(
+            requirements.flatMap((requirement) => requirement.required_entities),
+          ),
           questions: filterQuestions(requirements.flatMap((requirement) => requirement.questions)),
         },
         allowed_fact_ids: uniq(allowedFacts.map((fact) => fact.fact_id)),
@@ -310,10 +361,23 @@ export function compilePageContentContract(
           // efficiency ratings" / "local weather data"). Project/gallery
           // proof (image-backed) is never filtered.
           const UNVERIFIABLE_PROOF_MARKERS = [
-            "community", "involvement", "participation", "award",
-            "certif", "licens", "bond", "membership", "accredit",
-            "statistic", "percentage", "lifespan", "savings",
-            "cost", "rating", "data", "threshold",
+            "community",
+            "involvement",
+            "participation",
+            "award",
+            "certif",
+            "licens",
+            "bond",
+            "membership",
+            "accredit",
+            "statistic",
+            "percentage",
+            "lifespan",
+            "savings",
+            "cost",
+            "rating",
+            "data",
+            "threshold",
             // The magnitude phrase itself is a banned claim token — a proof
             // demanding it can never be satisfied (golden run #53: the
             // writer's attempt was scrubbed into "6 serving Charlotte"
@@ -323,10 +387,19 @@ export function compilePageContentContract(
             // "quantified success metrics", "recognizable enterprise
             // clients", "implementation success evidence", "business
             // outcome tracking" (live runs, quantumaipartners_com).
-            "success", "outcom", "evidence", "metric", "enterprise",
-            "recogniz", "tracking", "client",
+            "success",
+            "outcom",
+            "evidence",
+            "metric",
+            "enterprise",
+            "recogniz",
+            "tracking",
+            "client",
           ];
-          const proofSegments = proof.toLowerCase().split(/[\s_]+/).filter(Boolean);
+          const proofSegments = proof
+            .toLowerCase()
+            .split(/[\s_]+/)
+            .filter(Boolean);
           const IMAGE_BACKED_PROOF_MARKERS = [
             "photo",
             "photos",

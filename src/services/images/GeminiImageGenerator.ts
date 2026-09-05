@@ -50,9 +50,7 @@ export class GeminiImageGenerator implements ImageGenerator {
       const result = await this.generateOnce(request);
       if (result) return result;
     }
-    throw new Error(
-      "Gemini image generation returned no inline image data after one retry",
-    );
+    throw new Error("Gemini image generation returned no inline image data after one retry");
   }
 
   private async generateOnce(

@@ -7,8 +7,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   abstractPaletteCharacteristics,
-  deriveDesignReferenceIntelligence,
   DesignAuthorityError,
+  deriveDesignReferenceIntelligence,
   digestDesignAuthority,
   resolveClientVision,
   resolveDesignDirection,
@@ -100,7 +100,9 @@ void test("WBV2-018: a malformed client_vision fails closed rather than degradin
   assert.throws(
     () =>
       resolveClientVision(
-        spec({ client_vision: { brand_attributes: "trustworthy" } } as unknown as Partial<DomainSpec>),
+        spec({
+          client_vision: { brand_attributes: "trustworthy" },
+        } as unknown as Partial<DomainSpec>),
       ),
     /CLIENT_VISION_INVALID/,
   );
@@ -212,7 +214,9 @@ void test("WBV2-019: client intent outranks reference and pattern tiers", () => 
 
 void test("WBV2-019: a lower authority cannot reintroduce what the client rejected", () => {
   const clientVision = resolveClientVision(
-    spec({ client_vision: { change: ["carousel heroes"], brand_attributes: ["calm"] } } as Partial<DomainSpec>),
+    spec({
+      client_vision: { change: ["carousel heroes"], brand_attributes: ["calm"] },
+    } as Partial<DomainSpec>),
   );
   const direction = resolveDesignDirection({
     clientVision,

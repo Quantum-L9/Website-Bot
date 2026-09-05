@@ -9,23 +9,23 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   refForArtifact,
-  sealIntelligenceArtifact,
   type SEOContentBlueprintArtifact,
   type StructuredContentPackageArtifact,
   type StructuredContentPackageV1,
+  sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
 import { compilePageContentContract } from "../../src/intelligence/compile-page-content-contract.js";
-import {
-  type SeoBotPreflightResult,
-  type SeoBuildIntelligencePort,
-  type SEOContentBlueprintRequest,
-  type StructuredContentRequest,
+import type {
+  SEOContentBlueprintRequest,
+  SeoBotPreflightResult,
+  SeoBuildIntelligencePort,
+  StructuredContentRequest,
 } from "../../src/intelligence/SeoBuildIntelligencePort.js";
 import { verifiedBusinessFactsFromSpec } from "../../src/intelligence/verified-business-facts.js";
+import { ensureCanonicalSlotCoverage } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
-import { ensureCanonicalSlotCoverage } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import { ContentGenerationStage } from "../../src/stages/ContentGenerationStage.js";
 import { RedesignContentAuthorityStage } from "../../src/stages/RedesignContentAuthorityStage.js";
 import { RedesignSchemaSerializerStage } from "../../src/stages/RedesignSchemaSerializerStage.js";
@@ -261,7 +261,7 @@ void test("an SCP referencing a different PCC is rejected (STRUCTURED_CONTENT_LI
         ...payload,
         page_content_contract_ref: {
           artifact_type: "page_content_contract",
-          artifact_id: "page_content_contract:" + "9".repeat(64),
+          artifact_id: `page_content_contract:${"9".repeat(64)}`,
           payload_digest: "9".repeat(64),
         },
       })),
@@ -379,7 +379,10 @@ void test("legacy SchemaGeneratorStage trips FORBIDDEN_LLM_OPERATION under REDES
 });
 
 void test("ensureCanonicalSlotCoverage covers every canonical slot even from an empty LLM section list", () => {
-  const covered = ensureCanonicalSlotCoverage([], ["hero", "services-overview", "faq", "contact-form"]);
+  const covered = ensureCanonicalSlotCoverage(
+    [],
+    ["hero", "services-overview", "faq", "contact-form"],
+  );
   const slots = new Set(covered.flatMap((section) => section.content_slots));
   for (const slot of [
     "primary_offer",
@@ -396,7 +399,10 @@ void test("ensureCanonicalSlotCoverage covers every canonical slot even from an 
   ] as const) {
     assert.ok(slots.has(slot), `missing slot ${slot}`);
   }
-  const again = ensureCanonicalSlotCoverage([], ["hero", "services-overview", "faq", "contact-form"]);
+  const again = ensureCanonicalSlotCoverage(
+    [],
+    ["hero", "services-overview", "faq", "contact-form"],
+  );
   assert.deepEqual(covered, again);
 });
 

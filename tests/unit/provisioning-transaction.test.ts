@@ -1,10 +1,10 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
 import { ProvisioningCoordinator } from "../../src/provisioning/ProvisioningCoordinator.js";
 import { SpecDeploymentWriter } from "../../src/provisioning/SpecDeploymentWriter.js";
 import type {

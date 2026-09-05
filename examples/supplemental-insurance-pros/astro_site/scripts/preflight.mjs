@@ -54,7 +54,9 @@ for (const scriptName of requiredScripts) {
       check_class: "command_wiring",
       target_artifact: "package.json",
       expected_result: `${scriptName} command wired`,
-      actual_result: packageJson.scripts?.[scriptName] ? packageJson.scripts[scriptName] : "MISSING",
+      actual_result: packageJson.scripts?.[scriptName]
+        ? packageJson.scripts[scriptName]
+        : "MISSING",
       status: packageJson.scripts?.[scriptName] ? "PASS" : "FAIL",
       severity: "critical",
       remediation_if_failed: `Add package.json script ${scriptName}.`,

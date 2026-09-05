@@ -42,7 +42,7 @@ export class EventLedger {
   }
 
   private append(record: LedgerRecord): void {
-    appendFileSync(this.path, JSON.stringify(record) + "\n", "utf-8");
+    appendFileSync(this.path, `${JSON.stringify(record)}\n`, "utf-8");
   }
 
   /**

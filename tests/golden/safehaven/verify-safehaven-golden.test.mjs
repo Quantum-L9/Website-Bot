@@ -14,20 +14,21 @@
  *   - missing oracle config fails closed (hard FAIL) or blocking
  *     inconclusive (never hard FAIL) per closure missing_behavior
  */
-import { test } from "node:test";
+
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { test } from "node:test";
 import {
-  wilsonLowerBound,
-  normalizePreference,
-  weightedMeanDelta,
-  criticalPairKey,
-  compareRouteMultiset,
-  orderedSubsequenceViolations,
   classifyVerdict,
+  compareRouteMultiset,
+  criticalPairKey,
+  normalizePreference,
+  orderedSubsequenceViolations,
   runVerifier,
+  weightedMeanDelta,
+  wilsonLowerBound,
 } from "../../../scripts/verify-safehaven-golden.mjs";
 
 const ROOT = process.cwd();
@@ -169,7 +170,7 @@ function buildPositiveReceipt() {
     evidence_digest: `dig-${i}`,
     crawled_at: "2026-08-19T00:00:00Z",
   }));
-  const perRoute = ROUTES.map((route, i) => ({
+  const perRoute = ROUTES.map((route, _i) => ({
     route,
     http_status: 200,
     h1_count: 1,
@@ -329,16 +330,24 @@ test("boundary crossing produces a blocking inconclusive state, never a hard FAI
   const { result, exitCode } = runVerifier(CASE, tempReceipt(receipt), oracle);
   assert.equal(exitCode, 1, "STRUCTURAL verdict must exit non-zero");
   assert.equal(result.hard_gate_failures.length, 0, "boundary crossing is not a hard FAIL");
-  const wilson = result.blocking_inconclusive_states.find((s) => s.code === "VISUAL_WILSON_INTERVAL_INCONCLUSIVE");
+  const wilson = result.blocking_inconclusive_states.find(
+    (s) => s.code === "VISUAL_WILSON_INTERVAL_INCONCLUSIVE",
+  );
   assert.ok(wilson, "Wilson boundary crossing must be recorded as blocking inconclusive");
   assert.equal(result.verdict, "STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN");
 });
 
 test("classifyVerdict: GOLDEN requires zero failures AND zero inconclusive states", () => {
   assert.equal(classifyVerdict([], []), "GOLDEN_E2E_PASS_IMPROVED");
-  assert.equal(classifyVerdict([], [{ code: "VISUAL_PAIR_NO_MAJORITY" }]), "STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN");
+  assert.equal(
+    classifyVerdict([], [{ code: "VISUAL_PAIR_NO_MAJORITY" }]),
+    "STRUCTURAL_E2E_PASS_VISUAL_UNPROVEN",
+  );
   assert.equal(classifyVerdict([{ code: "BROKEN_INTERNAL_LINKS" }], []), "GOLDEN_E2E_FAIL");
-  assert.equal(classifyVerdict([{ code: "BROKEN_INTERNAL_LINKS" }], [{ code: "X" }]), "GOLDEN_E2E_FAIL");
+  assert.equal(
+    classifyVerdict([{ code: "BROKEN_INTERNAL_LINKS" }], [{ code: "X" }]),
+    "GOLDEN_E2E_FAIL",
+  );
 });
 
 /* ---------------- 3. A/B orientation normalizer ---------------- */
@@ -413,7 +422,9 @@ test("ORACLE-091: critical dimension regression is read dynamically", () => {
     })),
   }));
   const { result } = runVerifier(CASE, tempReceipt(receipt), oracle);
-  assert.ok(result.hard_gate_failures.some((f) => f.code === "CRITICAL_VISUAL_DIMENSION_REGRESSED"));
+  assert.ok(
+    result.hard_gate_failures.some((f) => f.code === "CRITICAL_VISUAL_DIMENSION_REGRESSED"),
+  );
 });
 
 test("ORACLE-091: dimension no longer critical in oracle does not fire", () => {
@@ -429,13 +440,18 @@ test("ORACLE-091: dimension no longer critical in oracle does not fire", () => {
     })),
   }));
   const { result } = runVerifier(CASE, tempReceipt(receipt), oracle);
-  assert.ok(!result.hard_gate_failures.some((f) => f.code === "CRITICAL_VISUAL_DIMENSION_REGRESSED"));
+  assert.ok(
+    !result.hard_gate_failures.some((f) => f.code === "CRITICAL_VISUAL_DIMENSION_REGRESSED"),
+  );
 });
 
 /* ---------------- 5. multiset route comparison (ORACLE-033) ---------------- */
 
 test("compareRouteMultiset detects a duplicated route (set comparison would not)", () => {
-  const { duplicates, missing, extra } = compareRouteMultiset(["/a/", "/a/", "/b/"], ["/a/", "/b/"]);
+  const { duplicates, missing, extra } = compareRouteMultiset(
+    ["/a/", "/a/", "/b/"],
+    ["/a/", "/b/"],
+  );
   assert.deepEqual(duplicates, [["/a", 1]]);
   assert.equal(missing.length, 0);
   assert.equal(extra.length, 0);
@@ -465,7 +481,10 @@ test("orderedSubsequenceViolations: correct order passes including the alias bin
 
 test("orderedSubsequenceViolations: missing stage is reported", () => {
   const events = STAGE_EVENTS.filter((name) => name !== "site-build").map((name) => ({ name }));
-  const violations = orderedSubsequenceViolations(baseOracle.execution_graph.required_ordered_subsequence, events);
+  const violations = orderedSubsequenceViolations(
+    baseOracle.execution_graph.required_ordered_subsequence,
+    events,
+  );
   const missing = violations.find((v) => v.code === "REQUIRED_STAGE_MISSING");
   assert.ok(missing, "missing stage must be reported");
   assert.equal(missing.stage, "site-build");
@@ -478,7 +497,10 @@ test("orderedSubsequenceViolations: reordered stage is reported", () => {
   const idxAssembler = events.indexOf("site-assembler");
   events[idxBuild] = "site-assembler";
   events[idxAssembler] = "site-build";
-  const violations = orderedSubsequenceViolations(baseOracle.execution_graph.required_ordered_subsequence, events.map((name) => ({ name })));
+  const violations = orderedSubsequenceViolations(
+    baseOracle.execution_graph.required_ordered_subsequence,
+    events.map((name) => ({ name })),
+  );
   const reordered = violations.find((v) => v.code === "REQUIRED_STAGE_ORDER_VIOLATION");
   assert.ok(reordered, "reordered stage must be reported");
   assert.equal(reordered.stage, "site-build");

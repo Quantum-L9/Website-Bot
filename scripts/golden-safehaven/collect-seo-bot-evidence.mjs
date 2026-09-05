@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 /**
  * §SEO-BOT SEAM COLLECTOR — persists SEO-Bot's in-memory build-intelligence
  * evidence into the run evidence store so the receipt adapter can project it.
@@ -37,8 +39,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import pg from "pg";
 
 /** Endpoint name -> SEO-Bot store artifact_type. */
@@ -132,8 +132,9 @@ function compareCodeUnits(a, b) {
 // directories — never resolved through PATH — and with a minimal explicit
 // environment, so the subprocess cannot be hijacked via a writable PATH
 // entry. Identity capture stays fail-soft: no usable git binary => null.
-const GIT_BINARY = ["/usr/bin/git", "/usr/local/bin/git", "/opt/homebrew/bin/git", "/bin/git"]
-  .find((candidate) => fs.existsSync(candidate));
+const GIT_BINARY = ["/usr/bin/git", "/usr/local/bin/git", "/opt/homebrew/bin/git", "/bin/git"].find(
+  (candidate) => fs.existsSync(candidate),
+);
 function gitOutput(args, cwd) {
   if (!GIT_BINARY) return null;
   try {
@@ -160,23 +161,32 @@ function identitySnapshot() {
   const head = gitOutput(["rev-parse", "HEAD"], root);
   const porcelain = gitOutput(["status", "--porcelain"], root);
   const pkg = readJsonOrNull(path.join(root, "package.json"));
-  const routerPkg = readJsonOrNull(path.join(root, "node_modules/@quantum-l9/llm-router/package.json"));
-  const interopPkg = readJsonOrNull(path.join(root, "node_modules/@quantum-l9/bot-interop/package.json"));
+  const routerPkg = readJsonOrNull(
+    path.join(root, "node_modules/@quantum-l9/llm-router/package.json"),
+  );
+  const interopPkg = readJsonOrNull(
+    path.join(root, "node_modules/@quantum-l9/bot-interop/package.json"),
+  );
   const seoBotHead = seoBotCheckout ? gitOutput(["rev-parse", "HEAD"], seoBotCheckout) : null;
   // worktree_state per repository: null when the dir is not a git checkout
   // (installed npm packages usually are not) — the adapter fails closed on
   // null, never defaulting a state. A dirty checkout is recorded as the
   // ORACLE-003 object form {status, deterministic_identity} — the
   // deterministic identity is the digest of the porcelain status itself.
-  const seoBotPorcelain = seoBotCheckout ? gitOutput(["status", "--porcelain"], seoBotCheckout) : null;
+  const seoBotPorcelain = seoBotCheckout
+    ? gitOutput(["status", "--porcelain"], seoBotCheckout)
+    : null;
   const routerDir = path.join(root, "node_modules/@quantum-l9/llm-router");
   // git walks UP from the router dir into the Website-Bot worktree, so a
   // bare rev-parse there reports the WRONG identity (golden run #61:
   // llm_router.sha equaled the Website-Bot HEAD). Only a real git checkout
   // (its own .git, not the parent's) qualifies as a checkout identity.
   const routerIsOwnCheckout =
-    fs.existsSync(path.join(routerDir, ".git")) && gitOutput(["rev-parse", "--show-toplevel"], routerDir) === routerDir;
-  const routerPorcelain = routerIsOwnCheckout ? gitOutput(["status", "--porcelain"], routerDir) : null;
+    fs.existsSync(path.join(routerDir, ".git")) &&
+    gitOutput(["rev-parse", "--show-toplevel"], routerDir) === routerDir;
+  const routerPorcelain = routerIsOwnCheckout
+    ? gitOutput(["status", "--porcelain"], routerDir)
+    : null;
   const routerHead = routerIsOwnCheckout ? gitOutput(["rev-parse", "HEAD"], routerDir) : null;
   const worktreeState = (porcelain) => {
     if (porcelain === null) return null;
@@ -209,7 +219,11 @@ function identitySnapshot() {
     for (const f of files) {
       h.update(f)
         .update("\0")
-        .update(createHash("sha256").update(fs.readFileSync(path.join(dir, f))).digest("hex"))
+        .update(
+          createHash("sha256")
+            .update(fs.readFileSync(path.join(dir, f)))
+            .digest("hex"),
+        )
         .update("\n");
     }
     return h.digest("hex");
@@ -258,7 +272,11 @@ function record(endpoint, file, status, httpStatus = null, note = null) {
 }
 
 function missingEnv(name) {
-  return { field_group: "SEO_BOT", producer: name, reason: `${name} is not set in the environment` };
+  return {
+    field_group: "SEO_BOT",
+    producer: name,
+    reason: `${name} is not set in the environment`,
+  };
 }
 
 async function httpJson(method, urlPath, body) {
@@ -281,7 +299,7 @@ async function httpJson(method, urlPath, body) {
   return { http_status: res.status, ok: res.ok, payload };
 }
 
-async function saveResponse(endpoint, file, response) {
+async function saveResponse(_endpoint, file, response) {
   fs.writeFileSync(path.join(outDir, file), `${JSON.stringify(response.payload ?? {}, null, 2)}\n`);
   return response.ok ? "PASS" : "FAIL";
 }
@@ -289,7 +307,10 @@ async function saveResponse(endpoint, file, response) {
 const fetchMeta = {};
 
 async function run() {
-  fs.writeFileSync(path.join(outDir, "identity-snapshot.json"), `${JSON.stringify(identitySnapshot(), null, 2)}\n`);
+  fs.writeFileSync(
+    path.join(outDir, "identity-snapshot.json"),
+    `${JSON.stringify(identitySnapshot(), null, 2)}\n`,
+  );
   sequence.entries.push({
     endpoint: "identity-snapshot",
     file: "identity-snapshot.json",
@@ -320,7 +341,9 @@ async function run() {
       )}\n`,
     );
     writeSequence();
-    console.warn(`collect-seo-bot-evidence: SEO_BOT_URL/SEO_BOT_API_KEY missing; recorded ${sequence.missing_producers.length} missing producers`);
+    console.warn(
+      `collect-seo-bot-evidence: SEO_BOT_URL/SEO_BOT_API_KEY missing; recorded ${sequence.missing_producers.length} missing producers`,
+    );
     return;
   }
 
@@ -329,7 +352,10 @@ async function run() {
     const h = await httpJson("GET", "/health");
     fetchMeta.health = { endpoint: "/health", http_status: h.http_status, ok: h.ok, reached: true };
     record("health", "health.json", h.ok ? "PASS" : "FAIL", h.http_status);
-    fs.writeFileSync(path.join(outDir, "health.json"), `${JSON.stringify(h.payload ?? {}, null, 2)}\n`);
+    fs.writeFileSync(
+      path.join(outDir, "health.json"),
+      `${JSON.stringify(h.payload ?? {}, null, 2)}\n`,
+    );
   } catch (err) {
     fetchMeta.health = { endpoint: "/health", reached: false, error: String(err?.cause ?? err) };
     record("health", "health.json", "FAIL", null, "unreachable");
@@ -338,11 +364,20 @@ async function run() {
   // preflight (mandatory when env present)
   try {
     const p = await httpJson("GET", "/api/build-intelligence/preflight");
-    fetchMeta.preflight = { endpoint: "/api/build-intelligence/preflight", http_status: p.http_status, ok: p.ok, reached: true };
+    fetchMeta.preflight = {
+      endpoint: "/api/build-intelligence/preflight",
+      http_status: p.http_status,
+      ok: p.ok,
+      reached: true,
+    };
     const status = await saveResponse("preflight", "preflight.json", p);
     record("preflight", "preflight.json", status, p.http_status);
   } catch (err) {
-    fetchMeta.preflight = { endpoint: "/api/build-intelligence/preflight", reached: false, error: String(err?.cause ?? err) };
+    fetchMeta.preflight = {
+      endpoint: "/api/build-intelligence/preflight",
+      reached: false,
+      error: String(err?.cause ?? err),
+    };
     record("preflight", "preflight.json", "FAIL", null, "unreachable");
   }
 
@@ -361,13 +396,30 @@ async function run() {
       // the endpoint recorded SKIPPED.
       const fromStore = await readArtifactFromStore(name, buildId);
       if (fromStore) {
-        fetchMeta[name] = { endpoint: urlPath, attempted: false, source: "store", artifact_id: fromStore.artifact_id };
+        fetchMeta[name] = {
+          endpoint: urlPath,
+          attempted: false,
+          source: "store",
+          artifact_id: fromStore.artifact_id,
+        };
         const status = await saveResponse(name, `${name}.json`, { ...fromStore, ok: true });
-        record(name, `${name}.json`, status, null, `persisted artifact ${fromStore.artifact_id} read from the SEO-Bot store`);
+        record(
+          name,
+          `${name}.json`,
+          status,
+          null,
+          `persisted artifact ${fromStore.artifact_id} read from the SEO-Bot store`,
+        );
         continue;
       }
       fetchMeta[name] = { endpoint: urlPath, attempted: false };
-      record(name, `${name}.json`, "SKIPPED", null, `no --${name.replace("-", "-")}-request file supplied`);
+      record(
+        name,
+        `${name}.json`,
+        "SKIPPED",
+        null,
+        `no --${name.replace("-", "-")}-request file supplied`,
+      );
       continue;
     }
     let body;
@@ -393,7 +445,9 @@ async function run() {
   const pass = sequence.entries.filter((e) => e.status === "PASS").length;
   const failed = sequence.entries.filter((e) => e.status === "FAIL").length;
   const skipped = sequence.entries.filter((e) => e.status === "SKIPPED").length;
-  console.log(`collect-seo-bot-evidence: ${pass} PASS / ${failed} FAIL / ${skipped} SKIPPED -> ${outDir}`);
+  console.log(
+    `collect-seo-bot-evidence: ${pass} PASS / ${failed} FAIL / ${skipped} SKIPPED -> ${outDir}`,
+  );
 }
 
 function writeSequence() {

@@ -70,8 +70,12 @@ for (const [pairId, ts] of byPair) {
   let c = 0;
   let b = 0;
   for (const t of ts) {
-    if (t.normalized_preference === "CANDIDATE") { c += 1; candidateVotes += 1; }
-    else if (t.normalized_preference === "BASELINE") { b += 1; }
+    if (t.normalized_preference === "CANDIDATE") {
+      c += 1;
+      candidateVotes += 1;
+    } else if (t.normalized_preference === "BASELINE") {
+      b += 1;
+    }
     totalVotes += 1;
     for (const [d, v] of Object.entries(t.normalized_candidate_delta ?? {})) {
       dimSums.set(d, (dimSums.get(d) ?? 0) + Number(v));
@@ -127,7 +131,9 @@ const aggregate = {
   critical_dimensions: {
     required: criticalDims,
     means: Object.fromEntries(criticalDims.map((d) => [d, dimensionMeans[d] ?? null])),
-    regressed: criticalDims.filter((d) => (dimensionMeans[d] ?? null) !== null && dimensionMeans[d] < 0),
+    regressed: criticalDims.filter(
+      (d) => (dimensionMeans[d] ?? null) !== null && dimensionMeans[d] < 0,
+    ),
     unmeasured: criticalDims.filter((d) => !(d in dimensionMeans)),
   },
   gates: {
@@ -141,18 +147,27 @@ const aggregate = {
 };
 
 fs.mkdirSync(outRoot, { recursive: true });
-fs.writeFileSync(path.join(outRoot, "normalized-results.json"), `${JSON.stringify({ schema: "l9.golden-visual-normalized/v1", run_id: trialsFile.run_id, trials }, null, 2)}\n`);
+fs.writeFileSync(
+  path.join(outRoot, "normalized-results.json"),
+  `${JSON.stringify({ schema: "l9.golden-visual-normalized/v1", run_id: trialsFile.run_id, trials }, null, 2)}\n`,
+);
 fs.writeFileSync(path.join(outRoot, "aggregate.json"), `${JSON.stringify(aggregate, null, 2)}\n`);
-console.log(JSON.stringify({
-  candidate_visual_votes: candidateVotes,
-  total_visual_votes: totalVotes,
-  majority_wins: majorityWins,
-  majority_losses: majorityLosses,
-  wilson_lower_bound: Number(lowerBound.toFixed(4)),
-  weighted_mean_delta: Number(weightedMeanDelta.toFixed(4)),
-  weight_sum_valid: weightSumValid,
-  critical_pair_regressions: aggregate.critical_pairs.regressed,
-  critical_dimension_regressions: aggregate.critical_dimensions.regressed,
-  unmeasured_critical_dimensions: aggregate.critical_dimensions.unmeasured,
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      candidate_visual_votes: candidateVotes,
+      total_visual_votes: totalVotes,
+      majority_wins: majorityWins,
+      majority_losses: majorityLosses,
+      wilson_lower_bound: Number(lowerBound.toFixed(4)),
+      weighted_mean_delta: Number(weightedMeanDelta.toFixed(4)),
+      weight_sum_valid: weightSumValid,
+      critical_pair_regressions: aggregate.critical_pairs.regressed,
+      critical_dimension_regressions: aggregate.critical_dimensions.regressed,
+      unmeasured_critical_dimensions: aggregate.critical_dimensions.unmeasured,
+    },
+    null,
+    2,
+  ),
+);
 process.exit(0);

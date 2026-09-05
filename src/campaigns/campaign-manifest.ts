@@ -5,11 +5,26 @@
  * process can die at any point and resume safely. A torn manifest is never
  * loadable as valid state.
  */
-import { mkdirSync, readFileSync, renameSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { sha256Hex } from './semantic-digest.js';
-import type { ArtifactRef } from '@quantum-l9/bot-interop';
-import { CAMPAIGN_STATUSES, DEFAULT_CAMPAIGN_BUDGET, type CampaignBudget, type CampaignManifest, type CampaignStatus, type ContextSignature } from './types.js';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join } from "node:path";
+import type { ArtifactRef } from "@quantum-l9/bot-interop";
+import { sha256Hex } from "./semantic-digest.js";
+import {
+  CAMPAIGN_STATUSES,
+  type CampaignBudget,
+  type CampaignManifest,
+  type CampaignStatus,
+  type ContextSignature,
+  DEFAULT_CAMPAIGN_BUDGET,
+} from "./types.js";
 
 export interface NewCampaignInput {
   campaign_id: string;
@@ -22,18 +37,18 @@ export interface NewCampaignInput {
 }
 
 export function buildCampaignManifest(input: NewCampaignInput): CampaignManifest {
-  if (!input.campaign_id) throw new Error('campaign_id required');
-  if (!input.source_url) throw new Error('source_url required');
+  if (!input.campaign_id) throw new Error("campaign_id required");
+  if (!input.source_url) throw new Error("source_url required");
   const now = input.now ?? new Date().toISOString();
   const budget: CampaignBudget = { ...DEFAULT_CAMPAIGN_BUDGET, ...input.budget };
-  const payload: Omit<CampaignManifest, 'integrity'> = {
-    schema: 'website-bot.campaign-manifest/v1',
-    schema_version: '1.0.0',
+  const payload: Omit<CampaignManifest, "integrity"> = {
+    schema: "website-bot.campaign-manifest/v1",
+    schema_version: "1.0.0",
     campaign_id: input.campaign_id,
     source_url: input.source_url,
     site_slug: input.site_slug,
-    status: 'RUNNING',
-    convergence_target: 'REVIEWABLE',
+    status: "RUNNING",
+    convergence_target: "REVIEWABLE",
     context_signature: input.context_signature,
     baseline_ref: input.baseline_ref ?? null,
     champion: null,
@@ -53,23 +68,30 @@ export function buildCampaignManifest(input: NewCampaignInput): CampaignManifest
     updated_at: now,
   };
   const digest = sha256Hex(JSON.stringify(payload));
-  return { ...payload, integrity: { algorithm: 'sha256', payload_digest: digest } };
+  return { ...payload, integrity: { algorithm: "sha256", payload_digest: digest } };
 }
 
 export function validateCampaignManifest(value: unknown): string[] {
-  if (typeof value !== 'object' || value === null) return ['not an object'];
+  if (typeof value !== "object" || value === null) return ["not an object"];
   const manifest = value as Partial<CampaignManifest>;
   const errors: string[] = [];
-  if (manifest.schema !== 'website-bot.campaign-manifest/v1') errors.push('schema must be website-bot.campaign-manifest/v1');
-  if (!manifest.campaign_id) errors.push('campaign_id required');
-  if (!manifest.source_url) errors.push('source_url required');
+  if (manifest.schema !== "website-bot.campaign-manifest/v1")
+    errors.push("schema must be website-bot.campaign-manifest/v1");
+  if (!manifest.campaign_id) errors.push("campaign_id required");
+  if (!manifest.source_url) errors.push("source_url required");
   if (manifest.status && !(CAMPAIGN_STATUSES as readonly string[]).includes(manifest.status)) {
-    errors.push(`status must be one of ${CAMPAIGN_STATUSES.join('|')}`);
+    errors.push(`status must be one of ${CAMPAIGN_STATUSES.join("|")}`);
   }
   if (manifest.budget) {
-    for (const key of ['max_candidate_builds', 'max_targeted_repairs_per_candidate', 'max_blueprint_replans', 'max_content_regenerations', 'stop_after_no_improvement_rounds'] as const) {
+    for (const key of [
+      "max_candidate_builds",
+      "max_targeted_repairs_per_candidate",
+      "max_blueprint_replans",
+      "max_content_regenerations",
+      "stop_after_no_improvement_rounds",
+    ] as const) {
       const budgetValue = manifest.budget[key];
-      if (typeof budgetValue !== 'number' || !Number.isInteger(budgetValue) || budgetValue < 0) {
+      if (typeof budgetValue !== "number" || !Number.isInteger(budgetValue) || budgetValue < 0) {
         errors.push(`budget.${key} must be a non-negative integer`);
       }
     }
@@ -81,13 +103,13 @@ export function validateCampaignManifest(value: unknown): string[] {
 export function assertCampaignManifestIntegrity(manifest: CampaignManifest): void {
   const { integrity, ...payload } = manifest;
   const digest = sha256Hex(JSON.stringify(payload));
-  if (integrity.algorithm !== 'sha256' || integrity.payload_digest !== digest) {
-    throw new Error('campaign manifest integrity mismatch');
+  if (integrity.algorithm !== "sha256" || integrity.payload_digest !== digest) {
+    throw new Error("campaign manifest integrity mismatch");
   }
 }
 
 export function manifestPathOf(campaignRoot: string): string {
-  return join(campaignRoot, 'campaign-manifest.json');
+  return join(campaignRoot, "campaign-manifest.json");
 }
 
 export function atomicWriteManifest(campaignRoot: string, manifest: CampaignManifest): void {
@@ -95,7 +117,7 @@ export function atomicWriteManifest(campaignRoot: string, manifest: CampaignMani
   mkdirSync(campaignRoot, { recursive: true });
   const target = manifestPathOf(campaignRoot);
   const temp = `${target}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(temp, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  writeFileSync(temp, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   renameSync(temp, target);
 }
 
@@ -104,7 +126,7 @@ export function loadCampaignManifest(campaignRoot: string): CampaignManifest {
   if (!existsSync(target)) throw new Error(`No campaign manifest at ${target}`);
   let raw: string;
   try {
-    raw = readFileSync(target, 'utf8');
+    raw = readFileSync(target, "utf8");
   } catch (error) {
     throw new Error(`Cannot read campaign manifest at ${target}: ${String(error)}`);
   }
@@ -115,27 +137,34 @@ export function loadCampaignManifest(campaignRoot: string): CampaignManifest {
     throw new Error(`Campaign manifest at ${target} is not valid JSON: ${String(error)}`);
   }
   const errors = validateCampaignManifest(parsed);
-  if (errors.length > 0) throw new Error(`Invalid campaign manifest at ${target}: ${errors.join('; ')}`);
+  if (errors.length > 0)
+    throw new Error(`Invalid campaign manifest at ${target}: ${errors.join("; ")}`);
   assertCampaignManifestIntegrity(parsed as CampaignManifest);
   return parsed as CampaignManifest;
 }
 
 export function updateCampaignManifest(
   manifest: CampaignManifest,
-  changes: Partial<Omit<CampaignManifest, 'integrity' | 'schema' | 'schema_version' | 'campaign_id' | 'created_at'>>,
+  changes: Partial<
+    Omit<CampaignManifest, "integrity" | "schema" | "schema_version" | "campaign_id" | "created_at">
+  >,
   now?: string,
 ): CampaignManifest {
   const { integrity: _previousIntegrity, ...rest } = manifest;
-  const payload: Omit<CampaignManifest, 'integrity'> = {
+  const payload: Omit<CampaignManifest, "integrity"> = {
     ...rest,
     ...changes,
     updated_at: now ?? new Date().toISOString(),
   };
   const digest = sha256Hex(JSON.stringify(payload));
-  return { ...payload, integrity: { algorithm: 'sha256', payload_digest: digest } };
+  return { ...payload, integrity: { algorithm: "sha256", payload_digest: digest } };
 }
 
-export function transitionCampaignStatus(manifest: CampaignManifest, status: CampaignStatus, now?: string): CampaignManifest {
+export function transitionCampaignStatus(
+  manifest: CampaignManifest,
+  status: CampaignStatus,
+  now?: string,
+): CampaignManifest {
   return updateCampaignManifest(manifest, { status }, now);
 }
 
@@ -148,7 +177,7 @@ export function campaignRootOf(baseRoot: string, siteSlug: string, campaignId: s
 export function cleanStaleTempFiles(campaignRoot: string): void {
   if (!existsSync(campaignRoot)) return;
   for (const entry of readdirSync(campaignRoot)) {
-    if (entry.startsWith('campaign-manifest.json.tmp-')) {
+    if (entry.startsWith("campaign-manifest.json.tmp-")) {
       rmSync(join(campaignRoot, entry), { force: true });
     }
   }

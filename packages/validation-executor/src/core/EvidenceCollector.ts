@@ -54,7 +54,10 @@ export class EvidenceCollector {
    * Create an EvidenceCollector with its evidence directory ensured.
    * Replaces the former async fire-and-forget in the constructor (S7059).
    */
-  static async create(adapter: RepositoryAdapter, evidenceRoot: string): Promise<EvidenceCollector> {
+  static async create(
+    adapter: RepositoryAdapter,
+    evidenceRoot: string,
+  ): Promise<EvidenceCollector> {
     const instance = new EvidenceCollector(adapter, evidenceRoot);
     await instance.initializeAsync();
     return instance;
@@ -121,16 +124,8 @@ export class EvidenceCollector {
    * Store execution trace evidence
    */
   async storeExecutionTrace(options: ExecutionTraceOptions): Promise<string> {
-    const {
-      command,
-      workingDirectory,
-      exitCode,
-      stdout,
-      stderr,
-      duration,
-      startedAt,
-      endedAt,
-    } = options;
+    const { command, workingDirectory, exitCode, stdout, stderr, duration, startedAt, endedAt } =
+      options;
     const traceId = `execution_trace_${randomUUID()}`;
 
     const trace = {
@@ -420,7 +415,7 @@ export class EvidenceCollector {
     }
 
     const truncated = output.substring(0, maxLength);
-    return truncated + `\n\n[OUTPUT TRUNCATED - Original length: ${output.length} characters]`;
+    return `${truncated}\n\n[OUTPUT TRUNCATED - Original length: ${output.length} characters]`;
   }
 
   private getRelevantEnvVars(): Record<string, string> {
