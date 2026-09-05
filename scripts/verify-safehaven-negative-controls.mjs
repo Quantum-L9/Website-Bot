@@ -25,10 +25,9 @@ if (!positiveReceiptPath) {
   );
   process.exit(2);
 }
-function readJson(p) {
-  return JSON.parse(
-    fs.readFileSync(resolveWithinRoot(PATH_ROOTS, p, "input path"), "utf8")
-  );
+/** Reads a path already contained by resolveWithinRoot at the entry point. */
+function readJson(containedPath) {
+  return JSON.parse(fs.readFileSync(containedPath, "utf8"));
 }
 function clone(value) {
   return structuredClone(value);
@@ -483,8 +482,8 @@ if (CONTROLS.length !== 25) {
     `negative-control inventory corrupt: ${CONTROLS.length}`
   );
 }
-const oracle = readJson(oraclePath);
-const positive = readJson(positiveReceiptPath);
+const oracle = readJson(resolveWithinRoot(PATH_ROOTS, oraclePath, "oracle path"));
+const positive = readJson(resolveWithinRoot(PATH_ROOTS, positiveReceiptPath, "positive receipt path"));
 const tempDir =
   fs.mkdtempSync(
     path.join(

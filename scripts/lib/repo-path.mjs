@@ -48,15 +48,23 @@ function canonicalize(target) {
 /**
  * True when `resolved` is `base` or lives under it.
  *
+ * The prefix test carries the separator — `startsWith(base)` alone would accept
+ * "/repo-evil" for a base of "/repo" — and both operands are already canonical,
+ * so no ".." or symlink survives to be compared.
+ *
  * @param {string} base canonical absolute directory
  * @param {string} resolved canonical absolute path
  * @returns {boolean}
  */
 function isWithin(base, resolved) {
-  const relative = path.relative(base, resolved);
-  // "" is the base itself; ".." escapes upward; an absolute result means the
-  // two are on different volumes and share no ancestor at all.
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  // Normalize both first. A prefix test on un-normalized operands is wrong in
+  // both directions: it accepts "/repo/../etc" against "/repo", and rejects
+  // "/repo" against a base written "/repo/".
+  const normalizedBase = path.resolve(base);
+  const normalizedPath = path.resolve(resolved);
+  if (normalizedPath === normalizedBase) return true;
+  const prefix = normalizedBase.endsWith(path.sep) ? normalizedBase : normalizedBase + path.sep;
+  return normalizedPath.startsWith(prefix);
 }
 
 /**

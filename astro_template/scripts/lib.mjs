@@ -9,22 +9,18 @@ export const configPath = path.join(root, "config", "runtime-verification.config
  *
  * Spawning a bare name delegates the choice of binary to `$PATH`, so whatever
  * is earliest on it wins — and these verifiers report on the integrity of a
- * deployment, so a shim that answers on their behalf defeats the point of
- * running them. Resolution is restricted to root-owned system directories;
- * `$PATH` is never consulted. `<NAME>_BIN` (e.g. `GIT_BIN`) overrides it for
- * layouts these directories do not cover, and must itself be absolute.
+ * deployment, so a shim answering on their behalf defeats the point of running
+ * them. Resolution is restricted to root-owned system directories; `$PATH` is
+ * never consulted. `GIT_BIN` and friends override it for layouts these
+ * directories do not cover, and must be absolute.
  */
-const SYSTEM_BIN_DIRS = ["/usr/bin", "/bin", "/usr/local/bin", "/opt/homebrew/bin"];
-
 export function resolveSystemCommand(name) {
   const override = process.env[`${name.toUpperCase()}_BIN`];
   if (override) {
-    if (!path.isAbsolute(override)) {
-      throw new Error(`${name.toUpperCase()}_BIN must be an absolute path`);
-    }
+    if (!path.isAbsolute(override)) throw new Error(`${name.toUpperCase()}_BIN must be absolute`);
     return override;
   }
-  for (const dir of SYSTEM_BIN_DIRS) {
+  for (const dir of ["/usr/bin", "/bin", "/usr/local/bin", "/opt/homebrew/bin"]) {
     const candidate = path.join(dir, name);
     try {
       if (fs.statSync(candidate).isFile()) return candidate;
@@ -32,35 +28,7 @@ export function resolveSystemCommand(name) {
       // not here; try the next trusted directory
     }
   }
-  throw new Error(
-    `${name} not found in ${SYSTEM_BIN_DIRS.join(", ")}; ` +
-      `set ${name.toUpperCase()}_BIN to its absolute path`,
-  );
-}
-
-/**
- * Absolute path to a tool that ships with the running Node install (`npm`,
- * `npx`). Derived from `process.execPath` rather than `$PATH` so the tool
- * always matches the interpreter already executing this script.
- */
-export function resolveNodeTool(name) {
-  const override = process.env[`${name.toUpperCase()}_BIN`];
-  if (override) {
-    if (!path.isAbsolute(override)) {
-      throw new Error(`${name.toUpperCase()}_BIN must be an absolute path`);
-    }
-    return override;
-  }
-  const candidate = path.join(path.dirname(process.execPath), name);
-  try {
-    if (fs.statSync(candidate).isFile()) return candidate;
-  } catch {
-    // fall through to the error below
-  }
-  throw new Error(
-    `${name} not found next to ${process.execPath}; ` +
-      `set ${name.toUpperCase()}_BIN to its absolute path`,
-  );
+  throw new Error(`${name} not found in a trusted system directory`);
 }
 
 export function readJson(filePath) {
