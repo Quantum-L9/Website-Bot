@@ -112,7 +112,10 @@ export class ImageGenerationStage implements Stage {
       return;
     }
 
-    const assets = ctx.domainSpec.assets as AssetSpec;
+    // A spec without an `assets` block is legitimate: under REDESIGN_IMPROVE the
+    // blueprint's visual requirements, not the spec, decide that imagery must be
+    // generated (L2-S14-001).
+    const assets: AssetSpec = ctx.domainSpec.assets ?? {};
     ctx.resolvedImages ??= new Map();
     const generator =
       this.generatorOverride ?? createImageGenerator({ model: assets.generation?.model });
