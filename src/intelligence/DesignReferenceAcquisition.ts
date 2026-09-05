@@ -53,6 +53,7 @@ import {
   type DesignReferenceSet,
 } from "./design-authority.js";
 import { websiteImproveTask } from "./improve-llm-policy.js";
+import { textField } from "../lib/coerce-text.js";
 
 const logger = createModuleLogger("intelligence:design-reference-acquisition");
 
@@ -214,7 +215,9 @@ function isHtml(contentType: string | undefined): boolean {
 /* ------------------------------------------------------------------ */
 
 function countMatches(html: string, pattern: RegExp): number {
-  return (html.match(pattern) ?? []).length;
+  // matchAll rather than String#match: the pattern is global, and this wants
+  // the number of matches rather than a captured group (typescript:S6594).
+  return [...html.matchAll(pattern)].length;
 }
 
 function classify<T extends string>(
@@ -225,6 +228,31 @@ function classify<T extends string>(
 ): T {
   if (value < low) return labels[0];
   if (value < high) return labels[1];
+  return labels[2];
+}
+
+/**
+ * Bucket an exact count as none / exactly one / more than one. The sibling of
+ * classify() for the cases where the boundaries are counts rather than
+ * thresholds, so neither has to be written as a ternary chain
+ * (typescript:S3358).
+ */
+/**
+ * Where a reference's design principles came from. A 2x2 truth table over two
+ * independent facts, which reads as four named outcomes rather than a nested
+ * ternary (typescript:S3358).
+ */
+function principleSource(
+  hasAnalysis: boolean,
+  operatorAuthored: boolean,
+): "operator_and_system" | "system_derived" | "operator_authored" | "none" {
+  if (hasAnalysis) return operatorAuthored ? "operator_and_system" : "system_derived";
+  return operatorAuthored ? "operator_authored" : "none";
+}
+
+function classifyCount<T extends string>(count: number, labels: [T, T, T]): T {
+  if (count === 0) return labels[0];
+  if (count === 1) return labels[1];
   return labels[2];
 }
 
@@ -255,10 +283,6 @@ export function observeDesignCharacteristics(
   const animationRules =
     countMatches(css, /\banimation(?:-name)?\s*:/gi) + countMatches(css, /@keyframes\b/gi);
   const transitionRules = countMatches(css, /\btransition(?:-property)?\s*:/gi);
-  const buttonLike = countMatches(
-    html,
-    /<(?:a|button)\b[^>]*class\s*=\s*["'][^"']*\b(?:btn|button|cta)\b[^"']*["'][^>]*>/gi,
-  );
   const aboveFoldButtons = countMatches(
     html.slice(0, 24_000),
     /<(?:a|button)\b[^>]*class\s*=\s*["'][^"']*\b(?:btn|button|cta)\b[^"']*["'][^>]*>/gi,
@@ -283,7 +307,7 @@ export function observeDesignCharacteristics(
     css_transition_rule_count: transitionRules,
     words_per_heading: wordsPerHeading,
     density: classify(wordsPerHeading, 25, 70, ["sparse", "moderate", "dense"]),
-    hierarchy: h1Count === 0 ? "no-h1" : h1Count === 1 ? "single-h1" : "multi-h1",
+    hierarchy: classifyCount(h1Count, ["no-h1", "single-h1", "multi-h1"]),
     motion: classify(motionScore, 3, 15, ["static", "restrained-motion", "motion-heavy"]),
     media_emphasis:
       wordCount === 0
@@ -293,8 +317,7 @@ export function observeDesignCharacteristics(
             "balanced",
             "media-led",
           ]),
-    conversion_prominence:
-      aboveFoldButtons === 0 ? "none" : aboveFoldButtons === 1 ? "single-primary" : "multiple",
+    conversion_prominence: classifyCount(aboveFoldButtons, ["none", "single-primary", "multiple"]),
     palette_characteristics: abstractPaletteCharacteristics(
       observedPalette
         ? (observedPalette as unknown as Record<string, string | undefined>)
@@ -538,7 +561,7 @@ export function parseDesignReferenceAnalysis(
   evidence: DesignReferenceEvidence,
 ): DesignReferenceAnalysis {
   if (!isRecord(raw)) throw new DesignReferenceAnalysisError("analysis must be a JSON object");
-  const relationship = String(raw.client_relationship ?? "");
+  const relationship = textField(raw.client_relationship);
   if (!(CLIENT_REFERENCE_RELATIONSHIPS as readonly string[]).includes(relationship)) {
     throw new DesignReferenceAnalysisError(
       `client_relationship must be one of ${CLIENT_REFERENCE_RELATIONSHIPS.join("|")}`,
@@ -730,13 +753,7 @@ export function applyAcquisitionToReferenceSet(
             ...(evidence.failure_reason ? { failure_reason: evidence.failure_reason } : {}),
           }
         : { status: "no_url", fetched_at: manifest.acquired_at },
-      principle_source: analysis
-        ? operatorAuthored
-          ? "operator_and_system"
-          : "system_derived"
-        : operatorAuthored
-          ? "operator_authored"
-          : "none",
+      principle_source: principleSource(Boolean(analysis), operatorAuthored),
       ...(analysis
         ? {
             analysis: {

@@ -27,7 +27,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeRoute, distPathForRoute } from "./lib/normalize.mjs";
+import { compareCodeUnits, normalizeRoute, distPathForRoute } from "./lib/normalize.mjs";
+import { stripTrailingSlashes } from "../../src/lib/text-trim.mjs";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -149,11 +150,10 @@ function resolveInternalPath(href) {
 
 // ---- url mode ----
 async function checkUrl() {
-  const base = urlBase.replace(/\/+$/, "");
+  const base = stripTrailingSlashes(urlBase);
   const perRoute = [];
   const redirects = [];
   const broken = [];
-  const unique = new Map();
   const statusCache = new Map();
   for (const { raw, normalized } of routeEntries) {
     const url = `${base}${normalized === "/" ? "/" : normalized}`;
@@ -192,7 +192,6 @@ async function checkUrl() {
         if ((statusCache.get(key) ?? 0) >= 400) broken.push({ route: raw, href, status: statusCache.get(key) });
       }
     }
-    unique.set(raw, parsed);
   }
   return { perRoute, broken, redirects, base };
 }
@@ -226,17 +225,19 @@ function aggregate(mode, { perRoute, broken, redirects }) {
     routes: perRoute.map((r) => r.route),
     reachable_routes: reachable.length,
     broken_internal_links: brokenLinks.length,
-    broken_link_targets: [...new Set(brokenLinks.map((b) => `${b.route} -> ${b.href}`))].sort(
-      (a, b) => (a < b ? -1 : a > b ? 1 : 0),
-    ),
+    broken_link_targets: [
+      ...new Set(brokenLinks.map((b) => `${b.route} -> ${b.href}`)),
+    ].sort(compareCodeUnits),
     placeholder_count: placeholderFindings.length,
     placeholder_findings: placeholderFindings
       .map((f) => ({ route: f.route, ...f.placeholder }))
-      .sort((a, b) => (a.route < b.route ? -1 : a.route > b.route ? 1 : 0)),
+      .toSorted((a, b) => compareCodeUnits(a.route, b.route)),
     unique_titles: new Set(titles).size,
     unique_canonical_urls: new Set(canonicals).size,
-    duplicate_titles: duplicateTitles.sort((a, b) => (a.title < b.title ? -1 : 1)),
-    duplicate_canonicals: duplicateCanonicals.sort((a, b) => (a.canonical < b.canonical ? -1 : 1)),
+    duplicate_titles: duplicateTitles.toSorted((a, b) => compareCodeUnits(a.title, b.title)),
+    duplicate_canonicals: duplicateCanonicals.toSorted((a, b) =>
+      compareCodeUnits(a.canonical, b.canonical),
+    ),
     per_route: perRoute,
     redirects,
   };

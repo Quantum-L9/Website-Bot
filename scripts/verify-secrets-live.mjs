@@ -17,6 +17,7 @@
 //     secret is missing or authenticates as invalid.
 
 import net from "node:net";
+import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
 const STRICT = process.argv.includes("--strict");
 const TIMEOUT_MS = 12_000;
@@ -202,7 +203,7 @@ async function seoBot() {
   const u = "SEO_BOT_URL",
     k = "SEO_BOT_API_KEY";
   if (!present(u)) return record(`${u}+${k}`, "seo", "missing");
-  const base = String(val(u)).replace(/\/+$/, "");
+  const base = stripTrailingSlashes(String(val(u)));
   const r = await http(`${base}/health`, {
     headers: present(k) ? { Authorization: `Bearer ${val(k)}`, "x-api-key": val(k) } : {},
   });

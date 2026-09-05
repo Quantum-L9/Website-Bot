@@ -114,7 +114,6 @@ export async function runSimulatedThreeWaveProof(
     execTrusted("git", ["-C", repository, "remote", "add", "origin", remote]);
     execTrusted("git", ["-C", repository, "push", "--quiet", "origin", "main"]);
 
-    const seenShas: string[] = [v0];
     let wave = 0;
 
     // Each wave discovers exactly one material defect on a distinct subsystem,
@@ -142,7 +141,6 @@ export async function runSimulatedThreeWaveProof(
         wave += 1;
         const status = "succeeded";
         const receipt = fixtureReleaseReceipt({ status, commitSha: revisionSha, wave });
-        seenShas.push(revisionSha);
         const defect = WAVE_DEFECTS[wave];
         return {
           deployedSha: revisionSha,

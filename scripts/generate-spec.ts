@@ -24,6 +24,7 @@ import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { extractJson } from "../src/services/extractJson.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { buildCrawlIdentity, overlayCrawlIdentity } from "../src/services/spec/crawlIdentity.js";
+import { textField } from "../src/lib/coerce-text.js";
 
 // ── CLI argument parsing ──
 
@@ -165,6 +166,12 @@ const parsed: Record<string, unknown> = overlayCrawlIdentity(
 
 // Inject assets block when requested
 if (withAssets) {
+  // Read once through textField: these land in image-generation prompts, and a
+  // bare String() on the unknown-typed record would put "[object Object]" into
+  // one if the crawl or the LLM fill ever returned a shape instead of a string
+  // (typescript:S6551).
+  const businessName = textField(parsed.business_name, clientId);
+  const vertical = textField(parsed.vertical, "business");
   const routeSlugs = (
     ((parsed as Record<string, unknown>).routes as Array<{ slug: string }>) ?? []
   ).map((r) => r.slug);
@@ -177,7 +184,7 @@ if (withAssets) {
       aspectRatio: "1:1",
       imageSize: "1K",
       generation: {
-        intent: `Company logo for ${String((parsed as Record<string, unknown>).business_name ?? clientId)}`,
+        intent: `Company logo for ${businessName}`,
       },
     },
     {
@@ -188,7 +195,7 @@ if (withAssets) {
       aspectRatio: "16:9",
       imageSize: "2K",
       generation: {
-        intent: `Professional Open Graph social preview image for ${String((parsed as Record<string, unknown>).business_name ?? clientId)}`,
+        intent: `Professional Open Graph social preview image for ${businessName}`,
       },
     },
     {
@@ -199,8 +206,8 @@ if (withAssets) {
       aspectRatio: "16:9",
       imageSize: "2K",
       generation: {
-        intent: `Hero image for a ${String((parsed as Record<string, unknown>).vertical ?? "business")} company homepage`,
-        subject: (parsed as Record<string, unknown>).business_name as string,
+        intent: `Hero image for a ${vertical} company homepage`,
+        subject: businessName,
         style: "professional, modern, trustworthy",
       },
     },

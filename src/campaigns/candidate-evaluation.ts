@@ -124,7 +124,7 @@ function viewportForDimension(dimension: QualityDimension): string {
 function buildChampionDelta(
   index: QualityDeltaIndex,
   championIndex: QualityDeltaIndex,
-  targetDimension: QualityDimension | null,
+  targetDimension: QualityDimension | null = null,
 ): ChampionDelta {
   const dimension = targetDimension ?? "conversion.primary_cta";
   const challenger = index.results.find((result) => result.dimension === dimension);

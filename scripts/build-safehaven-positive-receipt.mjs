@@ -5,6 +5,11 @@ import {
   SYNTHETIC_NAMESPACE,
   provenanceSeal
 } from "./lib/safehaven-synthetic-provenance.mjs";
+import {
+  readJsonWithinRoot,
+  relativeToRoot,
+  resolveWithinRoot
+} from "./lib/repo-path.mjs";
 const ROOT = process.cwd();
 const casePath =
   process.argv[2] ??
@@ -29,12 +34,7 @@ const BOT_INTEROP_VERSION =
  * IO
  * ======================================================= */
 function readJson(filePath) {
-  return JSON.parse(
-    fs.readFileSync(
-      path.resolve(ROOT, filePath),
-      "utf8"
-    )
-  );
+  return readJsonWithinRoot(ROOT, filePath, "input path");
 }
 function fail(message, evidence) {
   const detail =
@@ -1186,9 +1186,10 @@ const receipt = {
  * WRITE
  * ======================================================= */
 const absoluteOutput =
-  path.resolve(
+  resolveWithinRoot(
     ROOT,
-    outputPath
+    outputPath,
+    "output path"
   );
 fs.mkdirSync(
   path.dirname(absoluteOutput),
@@ -1221,7 +1222,7 @@ console.log(
       schema:
         "l9.golden-positive-control-build-result/v1",
       output:
-        path.relative(
+        relativeToRoot(
           ROOT,
           absoluteOutput
         ),

@@ -95,7 +95,7 @@ export class SourceCrawler {
     }
   }
 
-  private pageValidator = async (url: string): Promise<void> => {
+  private readonly pageValidator = async (url: string): Promise<void> => {
     if (this.opts.allowPrivateHosts) {
       assertProtocol(url);
       return;
@@ -107,7 +107,7 @@ export class SourceCrawler {
     await this.assertResolvedSafe(parsed.hostname);
   };
 
-  private imageValidator = async (url: string): Promise<void> => {
+  private readonly imageValidator = async (url: string): Promise<void> => {
     if (this.opts.allowPrivateHosts) {
       assertProtocol(url);
       return;

@@ -18,6 +18,7 @@ import {
   type SeoBuildIntelligencePort,
   type StructuredContentRequest,
 } from "./SeoBuildIntelligencePort.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 /**
  * HTTP transport for the SEO-Bot build-time intelligence seam
@@ -106,7 +107,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     // npm-undici fetch with its OWN Agent: Node's built-in fetch cannot
     // accept an npm-undici dispatcher (separate module instances; passing
     // one fails instantly with "fetch failed" — golden run #13).
-    const url = `${this.baseUrl.replace(/\/+$/, "")}${path}`;
+    const url = `${stripTrailingSlashes(this.baseUrl)}${path}`;
     const init: RequestInit = {
       method: "POST",
       headers: {
@@ -136,7 +137,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
 
   private async get(path: string): Promise<Response> {
     try {
-      return await this.fetchImpl(`${this.baseUrl.replace(/\/+$/, "")}${path}`, {
+      return await this.fetchImpl(`${stripTrailingSlashes(this.baseUrl)}${path}`, {
         headers: { Authorization: `Bearer ${this.apiKey}` },
         signal: AbortSignal.timeout(120_000),
       });

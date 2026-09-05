@@ -4,6 +4,29 @@ import path from "node:path";
 export const root = process.cwd();
 export const configPath = path.join(root, "config", "runtime-verification.config.json");
 
+/**
+ * Absolute path to a tool that ships with the running Node install (`npm`,
+ * `npx`). Derived from `process.execPath` rather than `$PATH`, so the tool
+ * always belongs to the interpreter already executing this script — which is
+ * what makes it correct under nvm, corepack and Homebrew, where the `npx`
+ * first on `$PATH` need not match the running node. `NPM_BIN` / `NPX_BIN`
+ * override it and must be absolute.
+ */
+export function resolveNodeTool(name) {
+  const override = process.env[`${name.toUpperCase()}_BIN`];
+  if (override) {
+    if (!path.isAbsolute(override)) throw new Error(`${name.toUpperCase()}_BIN must be absolute`);
+    return override;
+  }
+  const candidate = path.join(path.dirname(process.execPath), name);
+  try {
+    if (fs.statSync(candidate).isFile()) return candidate;
+  } catch {
+    // fall through to the error below
+  }
+  throw new Error(`${name} not found next to ${process.execPath}`);
+}
+
 export function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }

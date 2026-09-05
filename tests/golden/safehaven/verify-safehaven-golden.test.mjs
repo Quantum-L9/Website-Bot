@@ -39,17 +39,33 @@ const baseCase = JSON.parse(fs.readFileSync(CASE, "utf8"));
 const ROUTES = baseCase.routes;
 const baseOracle = JSON.parse(fs.readFileSync(ORACLE, "utf8"));
 
-/** Write a mutated oracle copy to a temp path; returns the path. */
+/**
+ * Scratch directory for staged fixtures, inside the repository.
+ *
+ * These used to go to os.tmpdir(), which forced the verifier's path
+ * containment to accept a second root outside the repo. Staging them here
+ * instead lets the production invariant be the strict one — a Golden verifier
+ * reads nothing outside the checkout — without weakening any assertion below.
+ * build/ is gitignored.
+ */
+const SCRATCH_DIR = path.join(process.cwd(), "build", "test-tmp");
+fs.mkdirSync(SCRATCH_DIR, { recursive: true });
+
+function scratchPath(prefix) {
+  return path.join(SCRATCH_DIR, `${prefix}-${Math.random().toString(36).slice(2)}.json`);
+}
+
+/** Write a mutated oracle copy to a scratch path; returns the path. */
 function tempOracle(mutate) {
   const copy = structuredClone(baseOracle);
   mutate(copy);
-  const p = path.join(os.tmpdir(), `oracle-${Math.random().toString(36).slice(2)}.json`);
+  const p = scratchPath("oracle");
   fs.writeFileSync(p, JSON.stringify(copy));
   return p;
 }
 
 function tempReceipt(receipt) {
-  const p = path.join(os.tmpdir(), `receipt-${Math.random().toString(36).slice(2)}.json`);
+  const p = scratchPath("receipt");
   fs.writeFileSync(p, JSON.stringify(receipt));
   return p;
 }

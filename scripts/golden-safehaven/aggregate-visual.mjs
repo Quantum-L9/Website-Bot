@@ -15,6 +15,17 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/**
+ * Three trials per pair, so two agreeing votes decide it. Written as a lookup
+ * rather than a ternary chain so "no majority" is a stated outcome rather than
+ * the fall-through (javascript:S3358).
+ */
+function majorityVerdict(candidateVotes, baselineVotes) {
+  if (candidateVotes >= 2) return "CANDIDATE";
+  if (baselineVotes >= 2) return "BASELINE";
+  return "NO_MAJORITY";
+}
+
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
   return i < 0 ? null : process.argv[i + 1];
@@ -71,7 +82,7 @@ for (const [pairId, ts] of byPair) {
       dimCounts.set(d, (dimCounts.get(d) ?? 0) + 1);
     }
   }
-  const majority = c >= 2 ? "CANDIDATE" : b >= 2 ? "BASELINE" : "NO_MAJORITY";
+  const majority = majorityVerdict(c, b);
   if (majority === "CANDIDATE") majorityWins += 1;
   if (majority === "BASELINE") majorityLosses += 1;
   const key = `${ts[0].route}::${ts[0].viewport}`;

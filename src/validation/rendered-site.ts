@@ -107,6 +107,16 @@ const MIME: Record<string, string> = {
 };
 
 /** Resolve a request path to a file inside dist/, or undefined (404). */
+/**
+ * Human-readable detail for the broken-image check: three states — nothing to
+ * check, everything loaded, or the list that did not (typescript:S3358).
+ */
+function imageCheckDetail(imageCount: number, broken: ReadonlyArray<{ src: string }>): string {
+  if (imageCount === 0) return "no images on route";
+  if (broken.length === 0) return `${imageCount} image(s) loaded`;
+  return `broken: ${broken.map((image) => image.src).join(", ")}`;
+}
+
 export function resolveDistFile(distDir: string, requestPath: string): string | undefined {
   let pathname: string;
   try {
@@ -229,11 +239,7 @@ export function evaluateRouteFacts(
   push(
     "images_loaded",
     brokenImages.length === 0,
-    facts.images.length === 0
-      ? "no images on route"
-      : brokenImages.length === 0
-        ? `${facts.images.length} image(s) loaded`
-        : `broken: ${brokenImages.map((image) => image.src).join(", ")}`,
+    imageCheckDetail(facts.images.length, brokenImages),
   );
   const missingAlt = facts.images.filter((image) => image.alt === null);
   push(

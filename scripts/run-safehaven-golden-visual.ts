@@ -20,6 +20,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { stripTrailingSlashes } from "../src/lib/text-trim.mjs";
 
 export const SAFEHAVEN_GOLDEN_VISUAL_SCHEMA = "l9.safehaven-golden-visual-evidence/v1" as const;
 
@@ -161,7 +162,7 @@ export class GoldenVisualError extends Error {
 export function normalizeRoute(value: string): string {
   const trimmed = String(value).trim();
   if (trimmed === "/") return "/";
-  return trimmed.replace(/\/+$/, "") || "/";
+  return stripTrailingSlashes(trimmed) || "/";
 }
 
 export function digitsOnly(value: string): string {
@@ -302,7 +303,7 @@ export function parseJudgeResponse(
     scores[name] = score;
   }
   const stringArray = (input: unknown): string[] =>
-    Array.isArray(input) ? input.map((entry) => String(entry)) : [];
+    Array.isArray(input) ? input.map(String) : [];
   return {
     preference,
     confidence: typeof value.confidence === "number" ? value.confidence : 0,
@@ -338,7 +339,10 @@ export function scanBusinessTruth(
       findings.push({ route, kind: "phone", detail: match[1] ?? "" });
     }
   }
-  for (const match of html.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)) {
+  // Bounded by the protocol's own limits — RFC 5321 caps a local-part at 64
+  // octets and RFC 1035 a DNS label at 63 — so no real address stops matching
+  // and the futile backtracking before "@" and "." is capped (typescript:S8786).
+  for (const match of html.matchAll(/[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}/g)) {
     const observed = match[0].toLowerCase();
     if (observed !== facts.email.toLowerCase()) {
       findings.push({ route, kind: "email", detail: match[0] });
@@ -801,7 +805,7 @@ export async function collectRenderedEvidence(
         if (trialIndex === 0) trialOne = orientation;
         const imageA = orientation.A === "CANDIDATE" ? candidateShot : baselineShot;
         const imageB = orientation.B === "CANDIDATE" ? candidateShot : baselineShot;
-        const auditId = `golden-visual-${normalizeRoute(sentinel.route).replace(/\//g, "_") || "root"}-${viewport.id}-trial-${trialIndex + 1}`;
+        const auditId = `golden-visual-${normalizeRoute(sentinel.route).replaceAll("/", "_") || "root"}-${viewport.id}-trial-${trialIndex + 1}`;
         const result = await judge.judge(
           judgePrompt,
           [
@@ -926,7 +930,7 @@ export async function main(argv: string[]): Promise<void> {
   }
   const candidateUrl = argumentValue(argv, "candidate-url");
   const candidateRunId = argumentValue(argv, "run-id");
-  if (!candidateUrl || !/^https:\/\//.test(candidateUrl)) {
+  if (!candidateUrl?.startsWith("https://")) {
     throw new GoldenVisualError("CANDIDATE_URL_INVALID", "--candidate-url must be an HTTPS URL");
   }
   if (!candidateRunId?.trim()) {

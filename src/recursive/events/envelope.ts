@@ -38,7 +38,7 @@ export function buildEvent(input: {
   causationId: string;
   source: string;
   evidenceRefs?: RecursiveEngineeringEvent["evidenceRefs"];
-  subject?: RecursiveEngineeringEvent["subject"];
+  subject?: NonNullable<RecursiveEngineeringEvent["subject"]>;
   occurredAt?: string;
 }): RecursiveEngineeringEvent {
   const occurredAt = input.occurredAt ?? new Date().toISOString();

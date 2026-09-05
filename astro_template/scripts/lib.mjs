@@ -4,6 +4,33 @@ import path from "node:path";
 export const root = process.cwd();
 export const configPath = path.join(root, "config", "runtime-verification.config.json");
 
+/**
+ * Absolute path to a system command such as `git`.
+ *
+ * Spawning a bare name delegates the choice of binary to `$PATH`, so whatever
+ * is earliest on it wins — and these verifiers report on the integrity of a
+ * deployment, so a shim answering on their behalf defeats the point of running
+ * them. Resolution is restricted to root-owned system directories; `$PATH` is
+ * never consulted. `GIT_BIN` and friends override it for layouts these
+ * directories do not cover, and must be absolute.
+ */
+export function resolveSystemCommand(name) {
+  const override = process.env[`${name.toUpperCase()}_BIN`];
+  if (override) {
+    if (!path.isAbsolute(override)) throw new Error(`${name.toUpperCase()}_BIN must be absolute`);
+    return override;
+  }
+  for (const dir of ["/usr/bin", "/bin", "/usr/local/bin", "/opt/homebrew/bin"]) {
+    const candidate = path.join(dir, name);
+    try {
+      if (fs.statSync(candidate).isFile()) return candidate;
+    } catch {
+      // not here; try the next trusted directory
+    }
+  }
+  throw new Error(`${name} not found in a trusted system directory`);
+}
+
 export function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }

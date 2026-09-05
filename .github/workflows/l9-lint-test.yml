@@ -62,10 +62,24 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
+          # Lifecycle scripts stay off: this step runs with a registry token in
+          # NODE_AUTH_TOKEN, so a dependency postinstall would execute with it
+          # in reach (githubactions:S6505). A lockfile is required rather than
+          # optional so the installed versions are the reviewed ones and an
+          # accidentally deleted lockfile fails loudly instead of silently
+          # resolving fresh releases (githubactions:S8543).
           case "${PACKAGE_MANAGER}" in
-            npm)  if [ -f package-lock.json ]; then npm ci; else npm install; fi ;;
-            pnpm) corepack enable && (if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi) ;;
-            yarn) corepack enable && (if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else yarn install; fi) ;;
+            npm)
+              [ -f package-lock.json ] || { echo "::error::package-lock.json is required for a reproducible install"; exit 1; }
+              npm ci --ignore-scripts ;;
+            pnpm)
+              corepack enable
+              [ -f pnpm-lock.yaml ] || { echo "::error::pnpm-lock.yaml is required for a reproducible install"; exit 1; }
+              pnpm install --frozen-lockfile --ignore-scripts ;;
+            yarn)
+              corepack enable
+              [ -f yarn.lock ] || { echo "::error::yarn.lock is required for a reproducible install"; exit 1; }
+              YARN_ENABLE_SCRIPTS=false yarn install --frozen-lockfile ;;
             *) echo "::error::unknown PACKAGE_MANAGER ${PACKAGE_MANAGER}" && exit 1 ;;
           esac
         env:
@@ -76,19 +90,30 @@ jobs:
           set -euo pipefail
           if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts && require('./package.json').scripts.lint ? 0 : 1)" 2>/dev/null; then
             ${PACKAGE_MANAGER} run lint
+          elif [ -x node_modules/.bin/eslint ]; then
+            # Local binary only. `npx --yes` would install and run an unpinned
+            # eslint plus its lifecycle scripts on demand (githubactions:S6505).
+            node_modules/.bin/eslint "${SOURCE_DIR}" --max-warnings=0
           else
-            npx --yes eslint "${SOURCE_DIR}" --max-warnings=0
+            echo "::error::no lint script and no local eslint; add a lint script or declare eslint in devDependencies"
+            exit 1
           fi
 
       - name: tsc --noEmit
         if: env.HAS_TYPESCRIPT == 'true'
         run: |
           set -euo pipefail
-          if [ -f tsconfig.json ]; then
-            npx --yes tsc --noEmit -p tsconfig.json
-          else
+          if [ ! -f tsconfig.json ]; then
             echo "::notice::no tsconfig.json found, skipping type check"
+            exit 0
           fi
+          # Use the typescript resolved by the lockfile above. `npx --yes` would
+          # fetch and run an unpinned package on demand (githubactions:S6505).
+          if [ ! -x node_modules/.bin/tsc ]; then
+            echo "::error::HAS_TYPESCRIPT=true but typescript is not a declared dependency; add it to devDependencies"
+            exit 1
+          fi
+          node_modules/.bin/tsc --noEmit -p tsconfig.json
 
   test:
     name: Test Suite
@@ -123,10 +148,24 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
+          # Lifecycle scripts stay off: this step runs with a registry token in
+          # NODE_AUTH_TOKEN, so a dependency postinstall would execute with it
+          # in reach (githubactions:S6505). A lockfile is required rather than
+          # optional so the installed versions are the reviewed ones and an
+          # accidentally deleted lockfile fails loudly instead of silently
+          # resolving fresh releases (githubactions:S8543).
           case "${PACKAGE_MANAGER}" in
-            npm)  if [ -f package-lock.json ]; then npm ci; else npm install; fi ;;
-            pnpm) corepack enable && (if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi) ;;
-            yarn) corepack enable && (if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else yarn install; fi) ;;
+            npm)
+              [ -f package-lock.json ] || { echo "::error::package-lock.json is required for a reproducible install"; exit 1; }
+              npm ci --ignore-scripts ;;
+            pnpm)
+              corepack enable
+              [ -f pnpm-lock.yaml ] || { echo "::error::pnpm-lock.yaml is required for a reproducible install"; exit 1; }
+              pnpm install --frozen-lockfile --ignore-scripts ;;
+            yarn)
+              corepack enable
+              [ -f yarn.lock ] || { echo "::error::yarn.lock is required for a reproducible install"; exit 1; }
+              YARN_ENABLE_SCRIPTS=false yarn install --frozen-lockfile ;;
             *) echo "::error::unknown PACKAGE_MANAGER ${PACKAGE_MANAGER}" && exit 1 ;;
           esac
         env:

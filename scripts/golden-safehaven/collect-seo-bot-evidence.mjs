@@ -188,12 +188,18 @@ function identitySnapshot() {
     ? gitOutput(["status", "--porcelain"], routerDir)
     : null;
   const routerHead = routerIsOwnCheckout ? gitOutput(["rev-parse", "HEAD"], routerDir) : null;
-  const worktreeState = (p) =>
-    p === null
-      ? null
-      : p === ""
-        ? "CLEAN"
-        : { status: "DIRTY", deterministic_identity: createHash("sha256").update(p).digest("hex") };
+  const worktreeState = (porcelain) => {
+    if (porcelain === null) return null;
+    if (porcelain === "") return "CLEAN";
+    return {
+      status: "DIRTY",
+      deterministic_identity: createHash("sha256").update(porcelain).digest("hex"),
+    };
+  };
+  /** A registry-installed package has no HEAD, so its digest stands in for one. */
+  const installedSha = (pkg, digest) => (digest ? `installed:${pkg.version}:${digest}` : null);
+  const installedWorktree = (digest) =>
+    digest ? { status: "DIRTY", deterministic_identity: digest } : null;
   // Deterministic identity of a registry-installed package: version plus a
   // digest over every installed file — real evidence of the exact bytes
   // that ran, for packages that carry no git metadata.
@@ -233,16 +239,10 @@ function identitySnapshot() {
     },
     llm_router: {
       package_version: routerPkg?.version ?? null,
-      sha: routerIsOwnCheckout
-        ? routerHead
-        : routerInstalledDigest
-          ? `installed:${routerPkg.version}:${routerInstalledDigest}`
-          : null,
+      sha: routerIsOwnCheckout ? routerHead : installedSha(routerPkg, routerInstalledDigest),
       worktree_state: routerIsOwnCheckout
         ? worktreeState(routerPorcelain)
-        : routerInstalledDigest
-          ? { status: "DIRTY", deterministic_identity: routerInstalledDigest }
-          : null,
+        : installedWorktree(routerInstalledDigest),
     },
     bot_interop: { website_bot_version: interopPkg?.version ?? null },
     seo_bot: {

@@ -1,5 +1,14 @@
 import { spawnSync } from "node:child_process";
-import { envVarsMatching, exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import {
+  envVarsMatching,
+  exists,
+  parseEnvExample,
+  readText,
+  resolveSystemCommand,
+  result,
+  statusFromRows,
+  writeJsonl,
+} from "./lib.mjs";
 
 const checks = [];
 
@@ -24,7 +33,7 @@ checks.push(
 );
 
 // Template dirs often lack a nested .git; accept any git worktree (parent repo counts).
-const gitProbe = spawnSync("git", ["rev-parse", "--is-inside-work-tree"], {
+const gitProbe = spawnSync(resolveSystemCommand("git"), ["rev-parse", "--is-inside-work-tree"], {
   encoding: "utf8",
   cwd: process.cwd(),
 });

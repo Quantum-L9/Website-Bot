@@ -30,6 +30,7 @@ import {
   digestDesignAuthority,
   resolveDesignDirection,
 } from "./design-authority.js";
+import { textField } from "../lib/coerce-text.js";
 
 /* ------------------------------------------------------------------ */
 /* Typed failures (WBV2-018)                                          */
@@ -412,9 +413,9 @@ function buildRoutes(
     ).map((section, index) => {
       const row = section as Record<string, unknown>;
       return {
-        section_id: String(row.section_id ?? `s-${index}`),
-        component_class: String(row.component_class ?? "prose"),
-        objective: String(row.objective ?? ""),
+        section_id: textField(row.section_id, `s-${index}`),
+        component_class: textField(row.component_class, "prose"),
+        objective: textField(row.objective),
         content_slots: contentSlots(row.content_slots),
         pattern_refs: Array.isArray(row.pattern_refs) ? row.pattern_refs.map(String) : [],
         proof_requirements: Array.isArray(row.proof_requirements)
