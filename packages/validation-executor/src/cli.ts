@@ -374,7 +374,7 @@ COMMANDS:
 
 OPTIONS:
   -p, --profile <profile>      Validation profile to use (default: default)
-  -e, --environment <env>      Target environment  
+  -e, --environment <env>      Target environment
   --evidence-root <path>       Evidence storage directory (default: validation)
   -o, --output <file>          Report output file (default: validation_report.yaml)
   --timeout <ms>               Command timeout in milliseconds (default: 300000)
