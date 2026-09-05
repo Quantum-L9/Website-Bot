@@ -14,8 +14,10 @@ import { BuildError } from "../../src/pipeline/BuildError.js";
 import { RenderedSiteValidationStage } from "../../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { type CommandResult, type CommandRunner, SiteBuildStage } from "../../src/stages/SiteBuildStage.js";
+import { runInNewContext } from "node:vm";
 import {
   evaluateRouteFacts,
+  PAGE_FACTS_EXPRESSION,
   type RenderedPageFacts,
   type RenderedSiteValidationReport,
   RENDERED_SITE_VALIDATION_SCHEMA,
@@ -88,6 +90,38 @@ function healthyFacts(): RenderedPageFacts {
     json_ld_blocks: ['{"@context":"https://schema.org"}'],
   };
 }
+
+// L2-S17-001: Playwright evaluates a string as an EXPRESSION. The collector
+// must therefore be a self-invoking expression, never a bare function source
+// (which evaluates to the function object, serializes as undefined, and made
+// every real-browser render fail with "page facts unavailable").
+void test("the page-facts expression invokes the collector when evaluated as an expression", () => {
+  const element = (text = "") => ({
+    textContent: text,
+    getAttribute: () => "",
+    hasAttribute: () => false,
+    querySelectorAll: () => [] as unknown[],
+  });
+  const document = {
+    title: "Home",
+    body: { innerText: "hello world" },
+    documentElement: { scrollWidth: 1200 },
+    images: [] as unknown[],
+    querySelector: (selector: string) => (selector.includes("main") ? element() : null),
+    querySelectorAll: (selector: string) => (selector === "h1" ? [element("Home")] : []),
+  };
+  const facts = runInNewContext(PAGE_FACTS_EXPRESSION, {
+    document,
+    window: { innerWidth: 1200 },
+    Array,
+    Boolean,
+  }) as RenderedPageFacts | undefined;
+  assert.ok(facts && typeof facts === "object", "expression must evaluate to the facts object, not a function");
+  assert.equal(facts.title, "Home");
+  assert.equal(facts.h1_count, 1);
+  assert.equal(facts.has_main, true);
+  assert.equal(facts.inner_width, 1200);
+});
 
 void test("resolveDistFile maps routes to index.html and refuses traversal", () => {
   const dist = mkdtempSync(join(tmpdir(), "dist-"));
