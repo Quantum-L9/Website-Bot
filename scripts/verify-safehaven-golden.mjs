@@ -59,10 +59,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWithinRoot } from "./lib/repo-path.mjs";
 
 const ROOT = process.cwd();
 function readJson(p) {
-  return JSON.parse(fs.readFileSync(path.resolve(ROOT, p), "utf8"));
+  return JSON.parse(fs.readFileSync(resolveWithinRoot(ROOT, p, "input path"), "utf8"));
 }
 
 /**

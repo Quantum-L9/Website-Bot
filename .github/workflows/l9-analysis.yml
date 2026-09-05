@@ -23,13 +23,14 @@ env:
   # "event 'push' is not allowed" (exit 2).
   L9_PROFILE: ${{ github.event_name == 'pull_request' && 'pr_fast' || 'merge' }}
   L9_MATRIX_ID: "pr-semgrep"
+  # Pinned provider version — analysis output must not change because PyPI moved.
+  SEMGREP_VERSION: "1.176.1"
 
+# Workflow-level default is read-only. `checks: write` and the `security-events:
+# write` that publish-analysis.yml needs for its SARIF upload are granted per job
+# below, so no job carries a write scope it does not use (githubactions:S8233).
 permissions:
   contents: read
-  checks: write
-  # Required by publish-analysis.yml (SARIF upload). Without this grant the
-  # reusable workflow is rejected at startup and zero jobs are created.
-  security-events: write
 
 concurrency:
   group: l9-analysis-${{ github.workflow }}-${{ github.ref }}
@@ -87,7 +88,10 @@ jobs:
         if: steps.gov.outputs.enabled == 'true'
         run: |
           set -euo pipefail
-          pip install --upgrade pip semgrep
+          # Pinned + wheel-only: an unpinned install resolves a different
+          # provider on every run, and a source distribution would execute its
+          # own setup script on this runner (githubactions:S8544, S8541).
+          pip install --only-binary :all: "semgrep==${SEMGREP_VERSION}"
           mkdir -p "artifacts/raw/semgrep/${L9_MATRIX_ID}"
           echo "provider-version=$(semgrep --version)" >> "$GITHUB_OUTPUT"
           semgrep scan \
@@ -104,6 +108,7 @@ jobs:
             --quiet || true
         env:
           L9_MATRIX_ID: ${{ env.L9_MATRIX_ID }}
+          SEMGREP_VERSION: ${{ env.SEMGREP_VERSION }}
 
       - id: sdk
         name: Provision immutable SDK

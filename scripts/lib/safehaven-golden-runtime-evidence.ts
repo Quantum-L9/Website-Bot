@@ -30,6 +30,24 @@ export const SAFEHAVEN_EXTERNAL_IDENTITY_SCHEMA =
   "l9.golden-external-identity/v1" as const;
 
 /**
+ * Deterministic, locale-independent string ordering for evidence arrays.
+ *
+ * Every array sorted with this lands in a receipt that is compared and hashed
+ * across machines, so the order has to be a property of the data alone.
+ * `String.localeCompare` is not: its result depends on the host locale and ICU
+ * version, which would make two runs of the same build disagree. UTF-16
+ * code-unit order is stable everywhere and is exactly what the previous bare
+ * `.sort()` calls produced, so receipts written before this change still
+ * compare equal. Passing it explicitly is also what `Array#sort` wants — the
+ * default comparator stringifies its operands, which is a silent hazard on any
+ * array that later stops being all-strings.
+ */
+const byCodeUnit = (a: string, b: string): number => {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+};
+
+/**
  * Canonical ContentSlot vocabulary. `satisfies` locks this list to the
  * bot-interop contract: if SEO-Bot's slot vocabulary changes, this file stops
  * compiling instead of silently mis-counting unknown slots.
@@ -335,7 +353,7 @@ export function localRepositoryIdentity(
     .split("\n")
     .map((line) => line.trimEnd())
     .filter((line) => line.trim() !== "")
-    .sort();
+    .sort(byCodeUnit);
   if (dirtyLines.length === 0) {
     return { sha, worktree_state: "CLEAN" };
   }
@@ -691,8 +709,8 @@ function assertDonorDomainSetEquality(
   landscape: SafeHavenRealRuntimeEvidence["competitive_landscape"],
   evidence: SafeHavenRealRuntimeEvidence["donor_evidence"],
 ): void {
-  const selected = landscape.selected_donors.map((d) => d.normalized_domain).sort();
-  const evidenced = evidence.map((d) => d.domain).sort();
+  const selected = landscape.selected_donors.map((d) => d.normalized_domain).sort(byCodeUnit);
+  const evidenced = evidence.map((d) => d.domain).sort(byCodeUnit);
   if (JSON.stringify(selected) !== JSON.stringify(evidenced)) {
     halt(
       "DONOR_EVIDENCE_INCOMPLETE",
@@ -926,7 +944,7 @@ function buildStructuredContent(
       schema_errors: schemaErrors,
       unsupported_claims: 0,
       failed_requirements: 0,
-      section_alias_fields: [...aliases].sort(),
+      section_alias_fields: [...aliases].sort(byCodeUnit),
       prose_without_blocks: proseWithoutBlocks,
     };
   });
@@ -1047,7 +1065,7 @@ function buildAssets(ctx: Ctx): SafeHavenRealRuntimeEvidence["assets"] {
     donor_asset_hash_matches: donorAssetHashMatches,
     candidate_dispositions: [
       ...new Set(assetManifest.assets.map((asset) => asset.disposition)),
-    ].sort(),
+    ].sort(byCodeUnit),
     eligible_source_project_proof_count: eligiblePhotos,
     selected_source_project_proof_count: selectedSourceForRole("project_proof"),
     eligible_source_gallery_count: eligiblePhotos,
