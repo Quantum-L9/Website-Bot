@@ -38,6 +38,7 @@ import {
 } from "../pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { extractJson } from "../services/extractJson.js";
+import { textField } from "../lib/coerce-text.js";
 
 const logger = createModuleLogger("stage:competitive-intelligence");
 
@@ -114,13 +115,13 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
     }
     const disposition = dispositionParts.join(",");
     return {
-      pattern_id: String(entry.pattern_id ?? `p-${index}`),
-      evidence: String(entry.evidence ?? ""),
-      invariant: String(entry.invariant ?? ""),
+      pattern_id: textField(entry.pattern_id, `p-${index}`),
+      evidence: textField(entry.evidence),
+      invariant: textField(entry.invariant),
       disposition: disposition as Disposition,
-      beneficiary_destination: String(entry.beneficiary_destination ?? entry.beneficiary ?? ""),
-      risk: String(entry.risk ?? ""),
-      acceptance_test: String(entry.acceptance_test ?? ""),
+      beneficiary_destination: textField(entry.beneficiary_destination ?? entry.beneficiary),
+      risk: textField(entry.risk),
+      acceptance_test: textField(entry.acceptance_test),
       donor_frequency: Number(entry.donor_frequency ?? 1),
     };
   });

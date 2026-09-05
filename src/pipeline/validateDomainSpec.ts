@@ -7,6 +7,7 @@ import {
 } from "../validation/validate-generated-site.js";
 import type { DomainSpec } from "./BuildContext.js";
 import { BuildError } from "./BuildError.js";
+import { textField } from "../lib/coerce-text.js";
 
 const NESTED_MARKERS = ["identity", "market", "audience", "offer", "compliance", "conversion"];
 
@@ -321,7 +322,7 @@ function validateImageSlot(
     `assets.imageSlots[${index}].aspectRatio must look like "16:9"`,
   );
   check(
-    slot.imageSize === undefined || IMAGE_SIZES.has(String(slot.imageSize)),
+    slot.imageSize === undefined || IMAGE_SIZES.has(textField(slot.imageSize)),
     `assets.imageSlots[${index}].imageSize must be 1K|2K|4K`,
   );
   if (slot.generation !== undefined) {

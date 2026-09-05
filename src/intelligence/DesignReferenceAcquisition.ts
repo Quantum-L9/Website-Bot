@@ -50,6 +50,7 @@ import {
   type DesignReferenceSet,
 } from "./design-authority.js";
 import { websiteImproveTask } from "./improve-llm-policy.js";
+import { textField } from "../lib/coerce-text.js";
 
 const logger = createModuleLogger("intelligence:design-reference-acquisition");
 
@@ -533,7 +534,7 @@ export function parseDesignReferenceAnalysis(
   evidence: DesignReferenceEvidence,
 ): DesignReferenceAnalysis {
   if (!isRecord(raw)) throw new DesignReferenceAnalysisError("analysis must be a JSON object");
-  const relationship = String(raw.client_relationship ?? "");
+  const relationship = textField(raw.client_relationship);
   if (!(CLIENT_REFERENCE_RELATIONSHIPS as readonly string[]).includes(relationship)) {
     throw new DesignReferenceAnalysisError(
       `client_relationship must be one of ${CLIENT_REFERENCE_RELATIONSHIPS.join("|")}`,
