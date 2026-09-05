@@ -222,6 +222,31 @@ function classify<T extends string>(value: number, low: number, high: number, la
 }
 
 /**
+ * Bucket an exact count as none / exactly one / more than one. The sibling of
+ * classify() for the cases where the boundaries are counts rather than
+ * thresholds, so neither has to be written as a ternary chain
+ * (typescript:S3358).
+ */
+/**
+ * Where a reference's design principles came from. A 2x2 truth table over two
+ * independent facts, which reads as four named outcomes rather than a nested
+ * ternary (typescript:S3358).
+ */
+function principleSource(
+  hasAnalysis: boolean,
+  operatorAuthored: boolean,
+): "operator_and_system" | "system_derived" | "operator_authored" | "none" {
+  if (hasAnalysis) return operatorAuthored ? "operator_and_system" : "system_derived";
+  return operatorAuthored ? "operator_authored" : "none";
+}
+
+function classifyCount<T extends string>(count: number, labels: [T, T, T]): T {
+  if (count === 0) return labels[0];
+  if (count === 1) return labels[1];
+  return labels[2];
+}
+
+/**
  * Reduce a fetched page (+ any collected CSS) to abstract characteristics.
  * Pure and deterministic over its inputs; identical HTML yields identical
  * characteristics on every run.
@@ -279,7 +304,7 @@ export function observeDesignCharacteristics(
     css_transition_rule_count: transitionRules,
     words_per_heading: wordsPerHeading,
     density: classify(wordsPerHeading, 25, 70, ["sparse", "moderate", "dense"]),
-    hierarchy: h1Count === 0 ? "no-h1" : h1Count === 1 ? "single-h1" : "multi-h1",
+    hierarchy: classifyCount(h1Count, ["no-h1", "single-h1", "multi-h1"]),
     motion: classify(motionScore, 3, 15, ["static", "restrained-motion", "motion-heavy"]),
     media_emphasis:
       wordCount === 0
@@ -289,8 +314,7 @@ export function observeDesignCharacteristics(
             "balanced",
             "media-led",
           ]),
-    conversion_prominence:
-      aboveFoldButtons === 0 ? "none" : aboveFoldButtons === 1 ? "single-primary" : "multiple",
+    conversion_prominence: classifyCount(aboveFoldButtons, ["none", "single-primary", "multiple"]),
     palette_characteristics: abstractPaletteCharacteristics(
       observedPalette ? (observedPalette as unknown as Record<string, string | undefined>) : undefined,
     ),
@@ -723,13 +747,7 @@ export function applyAcquisitionToReferenceSet(
             ...(evidence.failure_reason ? { failure_reason: evidence.failure_reason } : {}),
           }
         : { status: "no_url", fetched_at: manifest.acquired_at },
-      principle_source: analysis
-        ? operatorAuthored
-          ? "operator_and_system"
-          : "system_derived"
-        : operatorAuthored
-          ? "operator_authored"
-          : "none",
+      principle_source: principleSource(Boolean(analysis), operatorAuthored),
       ...(analysis
         ? {
             analysis: {

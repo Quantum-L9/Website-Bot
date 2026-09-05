@@ -559,6 +559,16 @@ export function digestDesignAuthority(value: unknown): string {
 /* ------------------------------------------------------------------ */
 
 /** Relative luminance of a hex color, or null when it is not parseable hex. */
+/**
+ * WCAG contrast band for a computed ratio. AAA is 7:1, AA is 4.5:1; below AA is
+ * low contrast. Named rather than a ternary chain so the standard's two
+ * thresholds are visible (typescript:S3358).
+ */
+function contrastBand(ratio: number): string {
+  if (ratio >= 7) return "high-contrast";
+  return ratio >= 4.5 ? "readable-contrast" : "low-contrast";
+}
+
 function hexLuminance(value: string): number | null {
   const hex = value.trim().replace(/^#/, "");
   const expanded =
@@ -600,7 +610,8 @@ export function abstractPaletteCharacteristics(
     // WCAG contrast ratio between the two observed luminances.
     const [lighter, darker] = background > text ? [background, text] : [text, background];
     const ratio = (lighter + 0.05) / (darker + 0.05);
-    characteristics.push(ratio >= 7 ? "high-contrast" : ratio >= 4.5 ? "readable-contrast" : "low-contrast");
+    // WCAG AAA is 7:1 and AA is 4.5:1; anything under AA is low contrast.
+    characteristics.push(contrastBand(ratio));
   }
   const primary = observed.primary ? hexLuminance(observed.primary) : null;
   if (primary !== null && background !== null) {
