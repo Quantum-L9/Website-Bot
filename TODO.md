@@ -6,10 +6,10 @@ unblocks it.
 
 ## Issue unblock (session reference)
 
-**Cluster:** user-scoped memory-required (no OPEN GitHub issue; Graphiti `GRAPHITI_MCP_TOKEN` alias)
-**Owning fix:** https://github.com/Quantum-L9/Website-Bot/pull/175 and https://github.com/Quantum-L9/SEO-Bot/pull/89
-**Next:** land those PRs; keep SEO-Bot on `L9_MEMORY_MODE=required` with the host Graphiti tunnel
-**Pickup:** Graphiti PICKUP written 2026-09-02
+**Cluster:** Quantum-L9/Website-Bot#183
+**Owning fix:** https://github.com/Quantum-L9/Website-Bot/pull/187
+**Next:** merge PR 187; confirm Gate 5 / validate on Node 22
+**Pickup:** Graphiti PICKUP written 2026-09-05
 
 ---
 
