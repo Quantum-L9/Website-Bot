@@ -68,7 +68,7 @@ const routePurpose = new Map(
 function makeRng(seedStr) {
   let h = 2166136261 >>> 0;
   for (const c of seedStr) {
-    h ^= c.charCodeAt(0);
+    h ^= c.codePointAt(0);
     h = Math.imul(h, 16777619) >>> 0;
   }
   return () => {

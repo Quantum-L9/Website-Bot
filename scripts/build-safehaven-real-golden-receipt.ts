@@ -242,8 +242,9 @@ export function assertVisualEvidence(
     if (pair.candidate_run_id !== runId) {
       halt("STALE_VISUAL_CAPTURE", `${key} was captured for a different run`, pair.candidate_run_id);
     }
-    const viewport = viewports.find((entry) => entry.id === pair.viewport);
-    if (!viewport) halt("VISUAL_VIEWPORT_MISMATCH", `${key} uses an unknown viewport`);
+    if (!viewports.some((entry) => entry.id === pair.viewport)) {
+      halt("VISUAL_VIEWPORT_MISMATCH", `${key} uses an unknown viewport`);
+    }
     const trialsPerPair = (oracle.visual_oracle as { trials_per_pair: number }).trials_per_pair;
     const trials = pair.trials;
     if (!Array.isArray(trials) || trials.length !== trialsPerPair) {

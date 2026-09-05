@@ -287,7 +287,7 @@ export function parseJudgeResponse(
     scores[name] = score;
   }
   const stringArray = (input: unknown): string[] =>
-    Array.isArray(input) ? input.map((entry) => String(entry)) : [];
+    Array.isArray(input) ? input.map(String) : [];
   return {
     preference,
     confidence: typeof value.confidence === "number" ? value.confidence : 0,
@@ -765,7 +765,7 @@ export async function collectRenderedEvidence(
         if (trialIndex === 0) trialOne = orientation;
         const imageA = orientation.A === "CANDIDATE" ? candidateShot : baselineShot;
         const imageB = orientation.B === "CANDIDATE" ? candidateShot : baselineShot;
-        const auditId = `golden-visual-${normalizeRoute(sentinel.route).replace(/\//g, "_") || "root"}-${viewport.id}-trial-${trialIndex + 1}`;
+        const auditId = `golden-visual-${normalizeRoute(sentinel.route).replaceAll("/", "_") || "root"}-${viewport.id}-trial-${trialIndex + 1}`;
         const result = await judge.judge(
           judgePrompt,
           [
@@ -882,7 +882,7 @@ export async function main(argv: string[]): Promise<void> {
   }
   const candidateUrl = argumentValue(argv, "candidate-url");
   const candidateRunId = argumentValue(argv, "run-id");
-  if (!candidateUrl || !/^https:\/\//.test(candidateUrl)) {
+  if (!candidateUrl?.startsWith("https://")) {
     throw new GoldenVisualError("CANDIDATE_URL_INVALID", "--candidate-url must be an HTTPS URL");
   }
   if (!candidateRunId?.trim()) {

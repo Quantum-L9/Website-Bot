@@ -195,7 +195,7 @@ export async function main(argv: string[]): Promise<void> {
   }
 
   // ---- phase 3 --------------------------------------------------------
-  if (!/^https:\/\//.test(options.candidateUrl)) {
+  if (!options.candidateUrl.startsWith("https://")) {
     fail(3, "CANDIDATE_URL_INVALID", "--candidate-url must be an HTTPS URL");
   }
 

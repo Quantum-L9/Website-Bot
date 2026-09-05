@@ -154,7 +154,6 @@ async function checkUrl() {
   const perRoute = [];
   const redirects = [];
   const broken = [];
-  const unique = new Map();
   const statusCache = new Map();
   for (const { raw, normalized } of routeEntries) {
     const url = `${base}${normalized === "/" ? "/" : normalized}`;
@@ -193,7 +192,6 @@ async function checkUrl() {
         if ((statusCache.get(key) ?? 0) >= 400) broken.push({ route: raw, href, status: statusCache.get(key) });
       }
     }
-    unique.set(raw, parsed);
   }
   return { perRoute, broken, redirects, base };
 }

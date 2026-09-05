@@ -21,7 +21,7 @@ WT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$WT"
 
 # ---- Production deploy guard (fail closed, no way around it here) ----
-if [ "${VERCEL_TARGET:-}" = "production" ] || [ "${WEBSITE_BOT_ALLOW_PRODUCTION:-}" = "true" ]; then
+if [[ "${VERCEL_TARGET:-}" == "production" || "${WEBSITE_BOT_ALLOW_PRODUCTION:-}" == "true" ]]; then
   echo "REFUSED: this golden-run orchestrator never deploys to production." >&2
   exit 2
 fi
@@ -30,7 +30,7 @@ export VERCEL_TARGET="preview"
 # Operator-provisioned secrets (gitignored). Exported for every child script;
 # values never logged. run-pipeline.ts also loads it itself.
 set -a
-[ -f .env.local ] && source .env.local
+[[ -f .env.local ]] && source .env.local
 set +a
 
 RUN_ID="${L9_GOLDEN_RUN_ID:?set L9_GOLDEN_RUN_ID}"

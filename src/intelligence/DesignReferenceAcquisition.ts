@@ -212,7 +212,9 @@ function isHtml(contentType: string | undefined): boolean {
 /* ------------------------------------------------------------------ */
 
 function countMatches(html: string, pattern: RegExp): number {
-  return (html.match(pattern) ?? []).length;
+  // matchAll rather than String#match: the pattern is global, and this wants
+  // the number of matches rather than a captured group (typescript:S6594).
+  return [...html.matchAll(pattern)].length;
 }
 
 function classify<T extends string>(value: number, low: number, high: number, labels: [T, T, T]): T {
@@ -276,10 +278,6 @@ export function observeDesignCharacteristics(
   );
   const animationRules = countMatches(css, /\banimation(?:-name)?\s*:/gi) + countMatches(css, /@keyframes\b/gi);
   const transitionRules = countMatches(css, /\btransition(?:-property)?\s*:/gi);
-  const buttonLike = countMatches(
-    html,
-    /<(?:a|button)\b[^>]*class\s*=\s*["'][^"']*\b(?:btn|button|cta)\b[^"']*["'][^>]*>/gi,
-  );
   const aboveFoldButtons = countMatches(
     html.slice(0, 24_000),
     /<(?:a|button)\b[^>]*class\s*=\s*["'][^"']*\b(?:btn|button|cta)\b[^"']*["'][^>]*>/gi,
