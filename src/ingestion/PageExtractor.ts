@@ -171,7 +171,9 @@ function headingBefore(
 function collectImageNode(node: unknown, baseUrl: string, urls: string[]): void {
   if (!node) return;
   if (Array.isArray(node)) {
-    node.forEach((entry) => collectImageNode(entry, baseUrl, urls));
+    node.forEach((entry) => {
+      collectImageNode(entry, baseUrl, urls);
+    });
     return;
   }
   if (typeof node !== "object") return;

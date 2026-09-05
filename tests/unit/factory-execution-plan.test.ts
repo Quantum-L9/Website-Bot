@@ -119,9 +119,7 @@ test("REDESIGN preflight precedes competitive intelligence", () => {
   assert.ok(
     names.indexOf("competitive-intelligence") < names.indexOf("redesign-content-authority"),
   );
-  assert.ok(
-    names.indexOf("unknown-resolver") < names.indexOf("seo-build-intelligence-preflight"),
-  );
+  assert.ok(names.indexOf("unknown-resolver") < names.indexOf("seo-build-intelligence-preflight"));
   assert.ok(
     plan.mandatoryStages.includes("seo-build-intelligence-preflight"),
     "seo-build-intelligence-preflight must be mandatory under REDESIGN_IMPROVE",

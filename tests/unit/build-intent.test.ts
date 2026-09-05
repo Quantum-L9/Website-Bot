@@ -63,10 +63,7 @@ test("recursive:improve run spec binds REDESIGN_IMPROVE even when the fixture ha
     clientId: "recursive-client",
   });
   assert.equal(spec.build_intent, "REDESIGN_IMPROVE");
-  assert.equal(
-    (spec.seo_contract as Record<string, unknown>).site_url,
-    "www.example.com",
-  );
+  assert.equal((spec.seo_contract as Record<string, unknown>).site_url, "www.example.com");
   const sourceSite = (spec.assets as Record<string, Record<string, unknown>>).sourceSite;
   assert.equal(sourceSite.enabled, true);
   assert.equal(sourceSite.url, "https://www.example.com");

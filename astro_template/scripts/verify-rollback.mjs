@@ -1,5 +1,13 @@
 import { spawnSync } from "node:child_process";
-import { envVarsMatching, exists, parseEnvExample, readText, result, statusFromRows, writeJsonl } from "./lib.mjs";
+import {
+  envVarsMatching,
+  exists,
+  parseEnvExample,
+  readText,
+  result,
+  statusFromRows,
+  writeJsonl,
+} from "./lib.mjs";
 
 const checks = [];
 
@@ -14,9 +22,10 @@ checks.push(
     check_class: "deployment_config",
     target_artifact: ".env.example",
     expected_result: "Deployment configuration variables defined",
-    actual_result: deploymentEnvVars.length > 0
-      ? `Found: ${deploymentEnvVars.slice(0, 3).join(", ")}${deploymentSuffix}`
-      : "No deployment variables found",
+    actual_result:
+      deploymentEnvVars.length > 0
+        ? `Found: ${deploymentEnvVars.slice(0, 3).join(", ")}${deploymentSuffix}`
+        : "No deployment variables found",
     status: deploymentEnvVars.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
     remediation_if_failed: "Define deployment configuration for rollback capability",
@@ -63,7 +72,9 @@ if (exists("package.json")) {
         check_class: "rollback_scripts",
         target_artifact: "package.json scripts",
         expected_result: "Deployment scripts available",
-        actual_result: hasRollbackScripts ? `Scripts: ${deployScripts.join(", ")}` : "No deployment scripts found",
+        actual_result: hasRollbackScripts
+          ? `Scripts: ${deployScripts.join(", ")}`
+          : "No deployment scripts found",
         status: hasRollbackScripts ? "PASS" : "UNKNOWN",
         severity: "medium",
         remediation_if_failed: "Add deployment scripts to package.json",
@@ -97,7 +108,10 @@ for (const docFile of docFiles) {
       break;
     }
   } catch (error) {
-    console.warn(`[verify-rollback] Unable to read documentation file ${docFile}:`, error instanceof Error ? error.message : String(error));
+    console.warn(
+      `[verify-rollback] Unable to read documentation file ${docFile}:`,
+      error instanceof Error ? error.message : String(error),
+    );
   }
 }
 
@@ -107,7 +121,9 @@ checks.push(
     check_class: "rollback_docs",
     target_artifact: "Documentation files",
     expected_result: "Rollback procedure documented",
-    actual_result: hasRollbackDocs ? "Rollback documentation found" : "No rollback documentation found",
+    actual_result: hasRollbackDocs
+      ? "Rollback documentation found"
+      : "No rollback documentation found",
     status: hasRollbackDocs ? "PASS" : "UNKNOWN",
     severity: "low",
     remediation_if_failed: "Document rollback procedures in README.md or DEPLOYMENT.md",
@@ -129,12 +145,14 @@ checks.push(
     check_class: "rollback_safety",
     target_artifact: "Test mode configuration",
     expected_result: "Test/staging environment variables defined",
-    actual_result: testModeVars.length > 0
-      ? `Test vars: ${testModeVars.slice(0, 2).join(", ")}${testModeSuffix}`
-      : "No test mode configuration found",
+    actual_result:
+      testModeVars.length > 0
+        ? `Test vars: ${testModeVars.slice(0, 2).join(", ")}${testModeSuffix}`
+        : "No test mode configuration found",
     status: testModeVars.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
-    remediation_if_failed: "Define test/staging environment configuration for safe rollback testing",
+    remediation_if_failed:
+      "Define test/staging environment configuration for safe rollback testing",
   }),
 );
 

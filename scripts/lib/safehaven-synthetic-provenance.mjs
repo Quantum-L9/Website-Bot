@@ -48,17 +48,8 @@ export const SEAL_DOMAIN = "l9.safehaven.synthetic-provenance/v1";
  * they never resolve and are never registrable, so a real crawl, a real
  * screenshot, or a real DataForSEO observation can never produce one.
  */
-export const RESERVED_TLDS = [
-  "invalid",
-  "test",
-  "example",
-  "localhost"
-];
-export const RESERVED_DOMAINS = [
-  "example.com",
-  "example.net",
-  "example.org"
-];
+export const RESERVED_TLDS = ["invalid", "test", "example", "localhost"];
+export const RESERVED_DOMAINS = ["example.com", "example.net", "example.org"];
 
 /*
  * A real SHA-1 is 40 nibbles drawn from 16 symbols and carries roughly 15
@@ -133,8 +124,7 @@ export function hostOf(value) {
       return null;
     }
   }
-  const bareHost =
-    /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
+  const bareHost = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
   if (bareHost.test(trimmed)) {
     return trimmed.toLowerCase();
   }
@@ -169,9 +159,9 @@ export function walkStrings(value, visit, pathParts = []) {
     return;
   }
   if (Array.isArray(value)) {
-    value.forEach((entry, index) =>
-      walkStrings(entry, visit, [...pathParts, `[${index}]`])
-    );
+    value.forEach((entry, index) => {
+      walkStrings(entry, visit, [...pathParts, `[${index}]`]);
+    });
     return;
   }
   if (value && typeof value === "object") {

@@ -15,19 +15,17 @@
 // or recorded as `null` and named in `unresolved_external_dependencies` so the
 // receipt merger fails closed until the owning repository supplies it.
 
-import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ContentSlot } from "@quantum-l9/bot-interop";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 
-export const SAFEHAVEN_RUNTIME_EVIDENCE_SCHEMA =
-  "l9.safehaven-real-runtime-evidence/v1" as const;
+export const SAFEHAVEN_RUNTIME_EVIDENCE_SCHEMA = "l9.safehaven-real-runtime-evidence/v1" as const;
 
-export const SAFEHAVEN_EXTERNAL_IDENTITY_SCHEMA =
-  "l9.golden-external-identity/v1" as const;
+export const SAFEHAVEN_EXTERNAL_IDENTITY_SCHEMA = "l9.golden-external-identity/v1" as const;
 
 /**
  * Canonical ContentSlot vocabulary. `satisfies` locks this list to the
@@ -235,11 +233,7 @@ export class SafeHavenRuntimeEvidenceError extends Error {
   }
 }
 
-function halt(
-  code: SafeHavenRuntimeEvidenceErrorCode,
-  message: string,
-  evidence?: unknown,
-): never {
+function halt(code: SafeHavenRuntimeEvidenceErrorCode, message: string, evidence?: unknown): never {
   throw new SafeHavenRuntimeEvidenceError(code, message, evidence);
 }
 
@@ -313,8 +307,7 @@ export interface GitIdentityProbe {
 
 const defaultGitProbe: GitIdentityProbe = {
   headSha: () => execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
-  porcelainStatus: () =>
-    execFileSync("git", ["status", "--porcelain"], { encoding: "utf-8" }),
+  porcelainStatus: () => execFileSync("git", ["status", "--porcelain"], { encoding: "utf-8" }),
   diff: () => execFileSync("git", ["diff", "HEAD"], { encoding: "utf-8" }),
 };
 
@@ -323,9 +316,10 @@ const defaultGitProbe: GitIdentityProbe = {
  * recorded explicitly with a deterministic digest over the porcelain status
  * and the full diff, so the receipt states exactly what was uncommitted.
  */
-export function localRepositoryIdentity(
-  probe: GitIdentityProbe = defaultGitProbe,
-): { sha: string; worktree_state: WorktreeState } {
+export function localRepositoryIdentity(probe: GitIdentityProbe = defaultGitProbe): {
+  sha: string;
+  worktree_state: WorktreeState;
+} {
   const sha = probe.headSha();
   if (!FULL_SHA.test(sha)) {
     halt("IDENTITY_SHA_INVALID", "Website-Bot HEAD is not a full 40-character git SHA", sha);
@@ -474,7 +468,11 @@ export function readSeoExecutionMetadata(path: string | undefined): SeoExecution
     const rows: NonNullable<SeoExecutionMetadata["structured_content"]>["route_results"] = [];
     for (const raw of execution.structured_content.route_results) {
       if (!isObject(raw)) {
-        halt("SEO_EXECUTION_METADATA_INVALID", "structured_content.route_results entry invalid", raw);
+        halt(
+          "SEO_EXECUTION_METADATA_INVALID",
+          "structured_content.route_results entry invalid",
+          raw,
+        );
       }
       if (!nonNegativeInteger(raw.repair_attempts) || !nonNegativeInteger(raw.generation_calls)) {
         halt(
@@ -527,10 +525,17 @@ function assertSameRef(
     ref.artifact_id !== artifact.artifact_id ||
     ref.payload_digest !== artifact.integrity.payload_digest
   ) {
-    halt("REDESIGN_EVIDENCE_MISSING", `${label} does not reference the artifact this run accepted`, {
-      referenced: ref,
-      accepted: { artifact_id: artifact.artifact_id, payload_digest: artifact.integrity.payload_digest },
-    });
+    halt(
+      "REDESIGN_EVIDENCE_MISSING",
+      `${label} does not reference the artifact this run accepted`,
+      {
+        referenced: ref,
+        accepted: {
+          artifact_id: artifact.artifact_id,
+          payload_digest: artifact.integrity.payload_digest,
+        },
+      },
+    );
   }
 }
 
@@ -570,26 +575,66 @@ function buildPreflight(
   }
   const statusOk = /^(ok|pass|ready|healthy|passed)$/i.test(String(snapshot.status ?? ""));
   const conditions: Array<[string, boolean, unknown]> = [
-    ["seo_bot_reachable", statusOk && String(snapshot.service ?? "").trim() !== "", snapshot.status],
-    ["seo_bot_machine_auth", statusOk && String(snapshot.version ?? "").trim() !== "", snapshot.version],
-    ["competitive_landscape_capability", snapshot.capabilities?.competitive_landscape === true, snapshot.capabilities],
-    ["seo_content_blueprint_capability", snapshot.capabilities?.seo_content_blueprint === true, snapshot.capabilities],
-    ["structured_content_capability", snapshot.capabilities?.structured_content === true, snapshot.capabilities],
-    ["dataforseo_configured", snapshot.configuration?.dataforseo_configured === true, snapshot.configuration],
-    ["llm_provider_configured", snapshot.configuration?.llm_provider_configured === true, snapshot.configuration],
-    ["bot_interop_compatible", snapshot.bot_interop_version === localInterop, {
-      seo_bot: snapshot.bot_interop_version,
-      website_bot: localInterop,
-    }],
-    ["llm_router_compatible", snapshot.llm_router_version === localRouter, {
-      seo_bot: snapshot.llm_router_version,
-      website_bot: localRouter,
-    }],
+    [
+      "seo_bot_reachable",
+      statusOk && String(snapshot.service ?? "").trim() !== "",
+      snapshot.status,
+    ],
+    [
+      "seo_bot_machine_auth",
+      statusOk && String(snapshot.version ?? "").trim() !== "",
+      snapshot.version,
+    ],
+    [
+      "competitive_landscape_capability",
+      snapshot.capabilities?.competitive_landscape === true,
+      snapshot.capabilities,
+    ],
+    [
+      "seo_content_blueprint_capability",
+      snapshot.capabilities?.seo_content_blueprint === true,
+      snapshot.capabilities,
+    ],
+    [
+      "structured_content_capability",
+      snapshot.capabilities?.structured_content === true,
+      snapshot.capabilities,
+    ],
+    [
+      "dataforseo_configured",
+      snapshot.configuration?.dataforseo_configured === true,
+      snapshot.configuration,
+    ],
+    [
+      "llm_provider_configured",
+      snapshot.configuration?.llm_provider_configured === true,
+      snapshot.configuration,
+    ],
+    [
+      "bot_interop_compatible",
+      snapshot.bot_interop_version === localInterop,
+      {
+        seo_bot: snapshot.bot_interop_version,
+        website_bot: localInterop,
+      },
+    ],
+    [
+      "llm_router_compatible",
+      snapshot.llm_router_version === localRouter,
+      {
+        seo_bot: snapshot.llm_router_version,
+        website_bot: localRouter,
+      },
+    ],
   ];
   const checks: Array<{ name: string; status: "PASS" }> = [];
   for (const [name, proven, evidence] of conditions) {
     if (!proven) {
-      halt("PREFLIGHT_EVIDENCE_MISSING", `preflight check ${name} is not proven by the snapshot`, evidence);
+      halt(
+        "PREFLIGHT_EVIDENCE_MISSING",
+        `preflight check ${name} is not proven by the snapshot`,
+        evidence,
+      );
     }
     checks.push({ name, status: "PASS" });
   }
@@ -667,7 +712,9 @@ function buildCompetitiveLandscape(
 function buildDonorEvidence(ctx: Ctx): SafeHavenRealRuntimeEvidence["donor_evidence"] {
   const donors = requireArtifact(ctx.acceptedDonors, "accepted donor evidence");
   return donors.map((donor) => {
-    const successfulPages = donor.pages.filter((page) => page.status >= 200 && page.status < 300).length;
+    const successfulPages = donor.pages.filter(
+      (page) => page.status >= 200 && page.status < 300,
+    ).length;
     if (successfulPages < 1) {
       halt("DONOR_EVIDENCE_INCOMPLETE", `donor ${donor.domain} has no successfully crawled page`);
     }
@@ -797,8 +844,7 @@ function buildPageContentContract(ctx: Ctx): SafeHavenRealRuntimeEvidence["page_
   const counters = requireArtifact(ctx.redesignCounters, "redesign counters");
   const determinism = ctx.pccDeterminism;
   if (
-    !determinism ||
-    !determinism.digestRun1 ||
+    !determinism?.digestRun1 ||
     !determinism.digestRun2 ||
     determinism.sameSemanticInputSameDigest !== true ||
     determinism.digestRun1 !== determinism.digestRun2
@@ -817,7 +863,10 @@ function buildPageContentContract(ctx: Ctx): SafeHavenRealRuntimeEvidence["page_
       (route) => route.route_id === seoRoute.route_id,
     );
     if (!contractRoute) {
-      halt("REDESIGN_EVIDENCE_MISSING", `PageContentContract is missing route ${seoRoute.route_id}`);
+      halt(
+        "REDESIGN_EVIDENCE_MISSING",
+        `PageContentContract is missing route ${seoRoute.route_id}`,
+      );
     }
     const placed = new Set(
       contractRoute.sections.flatMap((section) => section.content_requirements.requirement_ids),
@@ -1029,7 +1078,8 @@ function buildAssets(ctx: Ctx): SafeHavenRealRuntimeEvidence["assets"] {
   );
   const selectedSourceForRole = (role: string): number =>
     plan.assets.filter(
-      (asset) => roleBySlotId.get(asset.slotId) === role && asset.resolution.source === "source-site",
+      (asset) =>
+        roleBySlotId.get(asset.slotId) === role && asset.resolution.source === "source-site",
     ).length;
   const galleryLedgerSelections = decisions.filter(
     (entry) => entry.decision === "SELECTED" && entry.slotId === "gallery",
@@ -1037,8 +1087,7 @@ function buildAssets(ctx: Ctx): SafeHavenRealRuntimeEvidence["assets"] {
 
   return {
     source_corpus_completed:
-      manifest.pages.length > 0 &&
-      ctx.stageResults.get("source-site-ingestion")?.ok === true,
+      manifest.pages.length > 0 && ctx.stageResults.get("source-site-ingestion")?.ok === true,
     raw_source_images: rawSourceImages,
     authorized_reusable_images: decisions.length - rejectedAsMissing,
     selected_source_images: selectedSourceImages,
@@ -1299,7 +1348,10 @@ export function validateSafeHavenRuntimeEvidence(
     determinism.digest_run_1 !== determinism.digest_run_2 ||
     determinism.same_semantic_input_same_digest !== true
   ) {
-    halt("PCC_DETERMINISM_EVIDENCE_MISSING", "runtime evidence lacks a valid PCC determinism proof");
+    halt(
+      "PCC_DETERMINISM_EVIDENCE_MISSING",
+      "runtime evidence lacks a valid PCC determinism proof",
+    );
   }
 }
 

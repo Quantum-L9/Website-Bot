@@ -395,8 +395,8 @@ export class AuditReporter {
 
   private detectDynamicInventoryItems(
     executionContext: any,
-    preflightResults: any[],
-    e2eResults: any[],
+    _preflightResults: any[],
+    _e2eResults: any[],
   ): string[] {
     const dynamicItems = [];
 

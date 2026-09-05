@@ -7,7 +7,7 @@ import { ok, strictEqual } from "node:assert";
 import { describe, test } from "node:test";
 import { EvidenceCollector } from "../../src/core/EvidenceCollector.js";
 import { PreflightEngine } from "../../src/core/PreflightEngine.js";
-import type { PreflightCheck, ValidationGateStatus } from "../../src/types/index.js";
+import type { PreflightCheck } from "../../src/types/index.js";
 import {
   assertions,
   createMockPreflightChecks,

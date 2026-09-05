@@ -64,7 +64,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   }
 
   private isSiteTemplateProfile(profile?: string): boolean {
-    return ['form', 'analytics', 'crm', 'seo', 'rollback'].includes(profile ?? '');
+    return ["form", "analytics", "crm", "seo", "rollback"].includes(profile ?? "");
   }
 
   async discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]> {
@@ -76,8 +76,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
 
     if (this.isSiteTemplateProfile(profile)) {
       checks.push({
-        check_id: 'astro-template-present',
-        check_name: 'Astro template package present',
+        check_id: "astro-template-present",
+        check_name: "Astro template package present",
         blocking: true,
         command: "node -e \"require('node:fs').accessSync('astro_template/package.json')\"",
         working_directory: cwd,
@@ -174,8 +174,8 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
 
     if (this.isSiteTemplateProfile(profile) && profile) {
       tests.push({
-        suite_id: 'site-template',
-        suite_name: 'Astro Template Site Validation',
+        suite_id: "site-template",
+        suite_name: "Astro Template Site Validation",
         test_id: `verify-${profile}`,
         test_name: `${profile} site-template validation`,
         attempt: 1,

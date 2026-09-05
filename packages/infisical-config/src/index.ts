@@ -1,20 +1,21 @@
 // @quantum-l9/infisical-config — shared Infisical secret loader.
 // Consumers: `import { loadSecrets, refreshSecrets, installSighupReload, startRefreshInterval } from '@quantum-l9/infisical-config'`
+
+export type { SecretInjectDecision } from "./secrets.js";
 export {
+  decideSecretInject,
+  envFlag,
+  installSighupReload,
+  isBlankEnvValue,
   loadSecrets,
   refreshSecrets,
-  installSighupReload,
   startRefreshInterval,
-  envFlag,
-  isBlankEnvValue,
   unsetBlankProcessEnv,
-  decideSecretInject,
-} from './secrets.js';
+} from "./secrets.js";
 export type {
   LoadSecretsOptions,
   LoadSecretsResult,
+  Logger,
   RefreshSecretsOptions,
   RefreshSecretsResult,
-  Logger,
-} from './types.js';
-export type { SecretInjectDecision } from './secrets.js';
+} from "./types.js";

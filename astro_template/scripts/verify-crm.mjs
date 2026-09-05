@@ -12,9 +12,10 @@ checks.push(
     check_class: "environment_config",
     target_artifact: ".env.example",
     expected_result: "CRM environment variables defined",
-    actual_result: crmEnvVars.length > 0
-      ? `Found: ${crmEnvVars.join(", ")}`
-      : "No CRM environment variables found",
+    actual_result:
+      crmEnvVars.length > 0
+        ? `Found: ${crmEnvVars.join(", ")}`
+        : "No CRM environment variables found",
     status: crmEnvVars.length > 0 ? "PASS" : "UNKNOWN",
     severity: "medium",
     remediation_if_failed: "Define CRM provider and API configuration in .env.example",
@@ -73,7 +74,10 @@ if (crmProvider) {
         check_class: "crm_provider_config",
         target_artifact: `${crmProvider} configuration`,
         expected_result: `Required variables: ${required.join(", ")}`,
-        actual_result: missing.length === 0 ? "All required variables defined" : `Missing: ${missing.join(", ")}`,
+        actual_result:
+          missing.length === 0
+            ? "All required variables defined"
+            : `Missing: ${missing.join(", ")}`,
         status: missing.length === 0 ? "PASS" : "FAIL",
         severity: "high",
         remediation_if_failed: `Define missing CRM variables: ${missing.join(", ")}`,
@@ -83,7 +87,7 @@ if (crmProvider) {
 }
 
 // Check test mode configuration
-const testModeVar = envVars["CRM_TEST_MODE"];
+const testModeVar = envVars.CRM_TEST_MODE;
 checks.push(
   result({
     check_id: "crm-test-mode-configured",

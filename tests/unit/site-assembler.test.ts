@@ -1,7 +1,6 @@
 // L9_META: layer=source, role=tracked_file, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
-import test from "node:test";
 import {
   existsSync,
   mkdirSync,
@@ -11,9 +10,10 @@ import {
   renameSync,
   rmSync,
   writeFileSync,
-} from "fs";
-import { tmpdir } from "os";
-import { basename, dirname, join } from "path";
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join } from "node:path";
+import test from "node:test";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";

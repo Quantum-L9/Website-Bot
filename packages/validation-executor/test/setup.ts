@@ -198,7 +198,7 @@ export class MockRepositoryAdapter {
     };
   }
 
-  async storeEvidence(evidenceId: string, data: any): Promise<string> {
+  async storeEvidence(evidenceId: string, _data: any): Promise<string> {
     return `mock-evidence-${evidenceId}`;
   }
 

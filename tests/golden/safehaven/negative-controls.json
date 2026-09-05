@@ -2,31 +2,156 @@
   "schema": "l9.golden-oracle-negative-controls/v1",
   "case_id": "safehaven-redesign-golden-v1",
   "required_mutations": [
-    {"id":"NC-01","mutation":"selected_donor_count = 9","expected":"FAIL","reason":"exact-10 donor invariant"},
-    {"id":"NC-02","mutation":"two selected donors normalize to same domain","expected":"FAIL","reason":"10 rows are not 10 companies"},
-    {"id":"NC-03","mutation":"one selected donor class = directory","expected":"FAIL","reason":"excluded domain cannot occupy donor position"},
-    {"id":"NC-04","mutation":"one donor screenshot set missing","expected":"FAIL","reason":"SERP identity is not donor visual evidence"},
-    {"id":"NC-05","mutation":"competitive-landscape call timestamp precedes preflight PASS","expected":"FAIL","reason":"expensive dependency use occurred before readiness gate"},
-    {"id":"NC-06","mutation":"SEOContentBlueprint route count = 28","expected":"FAIL","reason":"partial site cannot seal"},
-    {"id":"NC-07","mutation":"SEOContentBlueprint contains one unknown route","expected":"FAIL","reason":"route-set authority violation"},
-    {"id":"NC-08","mutation":"SEOContentBlueprint CompetitiveLandscape ref differs from WebsiteBuildBlueprint","expected":"FAIL","reason":"cross-authority lineage violation"},
-    {"id":"NC-09","mutation":"PageContentContract llm_calls = 1","expected":"FAIL","reason":"PCC must be deterministic"},
-    {"id":"NC-10","mutation":"StructuredContentPackage PCC hash differs by one byte","expected":"FAIL","reason":"exact contract lineage required"},
-    {"id":"NC-11","mutation":"StructuredContent route has section.content but no section.blocks","expected":"FAIL","reason":"malformed producer output must not normalize silently"},
-    {"id":"NC-12","mutation":"one route repair_attempts = 2","expected":"FAIL","reason":"bounded one-repair contract"},
-    {"id":"NC-13","mutation":"legacy_content_generation_calls = 1","expected":"FAIL","reason":"Website-Bot cannot regain final prose authority"},
-    {"id":"NC-14","mutation":"redesign_schema_llm_calls = 1","expected":"FAIL","reason":"redesign schema authority must be deterministic"},
-    {"id":"NC-15","mutation":"eligible source project photos > 0, selected source photos = 0, rejection reasons = []","expected":"FAIL","reason":"authorized source photography cannot silently disappear"},
-    {"id":"NC-16","mutation":"candidate asset hash equals DONOR_REFERENCE_ONLY asset hash","expected":"FAIL","reason":"competitor assets are evidence only"},
-    {"id":"NC-17","mutation":"Website-Bot and SEO-Bot record different installed Router versions","expected":"FAIL","reason":"runtime policy plane must be version-aligned"},
-    {"id":"NC-18","mutation":"CONTENT_VALIDATION searchRequired = true","expected":"FAIL","reason":"strategic validation must not accidentally become fresh-search authority"},
-    {"id":"NC-19","mutation":"visual QA did not execute","expected":"FAIL","reason":"structural success cannot assert visual improvement"},
-    {"id":"NC-20","mutation":"candidate wins only 6 of 10 visual pair majorities","expected":"FAIL","reason":"insufficient evidence of material aesthetic improvement"},
-    {"id":"NC-21","mutation":"candidate loses homepage mobile pair","expected":"FAIL","reason":"critical conversion surface regressed"},
-    {"id":"NC-22","mutation":"visual hierarchy aggregate delta < 0","expected":"FAIL","reason":"critical visual dimension regressed"},
-    {"id":"NC-23","mutation":"candidate contains phrase 'decades of experience'","expected":"FAIL","reason":"contradicts frozen verified six-year baseline"},
-    {"id":"NC-24","mutation":"28 of 29 output routes reachable","expected":"FAIL","reason":"route completeness is all-or-nothing"},
-    {"id":"NC-25","mutation":"pipeline exit = 0 but one hard oracle property = false","expected":"FAIL","reason":"command success is never final authority"}
+    {
+      "id": "NC-01",
+      "mutation": "selected_donor_count = 9",
+      "expected": "FAIL",
+      "reason": "exact-10 donor invariant"
+    },
+    {
+      "id": "NC-02",
+      "mutation": "two selected donors normalize to same domain",
+      "expected": "FAIL",
+      "reason": "10 rows are not 10 companies"
+    },
+    {
+      "id": "NC-03",
+      "mutation": "one selected donor class = directory",
+      "expected": "FAIL",
+      "reason": "excluded domain cannot occupy donor position"
+    },
+    {
+      "id": "NC-04",
+      "mutation": "one donor screenshot set missing",
+      "expected": "FAIL",
+      "reason": "SERP identity is not donor visual evidence"
+    },
+    {
+      "id": "NC-05",
+      "mutation": "competitive-landscape call timestamp precedes preflight PASS",
+      "expected": "FAIL",
+      "reason": "expensive dependency use occurred before readiness gate"
+    },
+    {
+      "id": "NC-06",
+      "mutation": "SEOContentBlueprint route count = 28",
+      "expected": "FAIL",
+      "reason": "partial site cannot seal"
+    },
+    {
+      "id": "NC-07",
+      "mutation": "SEOContentBlueprint contains one unknown route",
+      "expected": "FAIL",
+      "reason": "route-set authority violation"
+    },
+    {
+      "id": "NC-08",
+      "mutation": "SEOContentBlueprint CompetitiveLandscape ref differs from WebsiteBuildBlueprint",
+      "expected": "FAIL",
+      "reason": "cross-authority lineage violation"
+    },
+    {
+      "id": "NC-09",
+      "mutation": "PageContentContract llm_calls = 1",
+      "expected": "FAIL",
+      "reason": "PCC must be deterministic"
+    },
+    {
+      "id": "NC-10",
+      "mutation": "StructuredContentPackage PCC hash differs by one byte",
+      "expected": "FAIL",
+      "reason": "exact contract lineage required"
+    },
+    {
+      "id": "NC-11",
+      "mutation": "StructuredContent route has section.content but no section.blocks",
+      "expected": "FAIL",
+      "reason": "malformed producer output must not normalize silently"
+    },
+    {
+      "id": "NC-12",
+      "mutation": "one route repair_attempts = 2",
+      "expected": "FAIL",
+      "reason": "bounded one-repair contract"
+    },
+    {
+      "id": "NC-13",
+      "mutation": "legacy_content_generation_calls = 1",
+      "expected": "FAIL",
+      "reason": "Website-Bot cannot regain final prose authority"
+    },
+    {
+      "id": "NC-14",
+      "mutation": "redesign_schema_llm_calls = 1",
+      "expected": "FAIL",
+      "reason": "redesign schema authority must be deterministic"
+    },
+    {
+      "id": "NC-15",
+      "mutation": "eligible source project photos > 0, selected source photos = 0, rejection reasons = []",
+      "expected": "FAIL",
+      "reason": "authorized source photography cannot silently disappear"
+    },
+    {
+      "id": "NC-16",
+      "mutation": "candidate asset hash equals DONOR_REFERENCE_ONLY asset hash",
+      "expected": "FAIL",
+      "reason": "competitor assets are evidence only"
+    },
+    {
+      "id": "NC-17",
+      "mutation": "Website-Bot and SEO-Bot record different installed Router versions",
+      "expected": "FAIL",
+      "reason": "runtime policy plane must be version-aligned"
+    },
+    {
+      "id": "NC-18",
+      "mutation": "CONTENT_VALIDATION searchRequired = true",
+      "expected": "FAIL",
+      "reason": "strategic validation must not accidentally become fresh-search authority"
+    },
+    {
+      "id": "NC-19",
+      "mutation": "visual QA did not execute",
+      "expected": "FAIL",
+      "reason": "structural success cannot assert visual improvement"
+    },
+    {
+      "id": "NC-20",
+      "mutation": "candidate wins only 6 of 10 visual pair majorities",
+      "expected": "FAIL",
+      "reason": "insufficient evidence of material aesthetic improvement"
+    },
+    {
+      "id": "NC-21",
+      "mutation": "candidate loses homepage mobile pair",
+      "expected": "FAIL",
+      "reason": "critical conversion surface regressed"
+    },
+    {
+      "id": "NC-22",
+      "mutation": "visual hierarchy aggregate delta < 0",
+      "expected": "FAIL",
+      "reason": "critical visual dimension regressed"
+    },
+    {
+      "id": "NC-23",
+      "mutation": "candidate contains phrase 'decades of experience'",
+      "expected": "FAIL",
+      "reason": "contradicts frozen verified six-year baseline"
+    },
+    {
+      "id": "NC-24",
+      "mutation": "28 of 29 output routes reachable",
+      "expected": "FAIL",
+      "reason": "route completeness is all-or-nothing"
+    },
+    {
+      "id": "NC-25",
+      "mutation": "pipeline exit = 0 but one hard oracle property = false",
+      "expected": "FAIL",
+      "reason": "command success is never final authority"
+    }
   ],
-  "meta_acceptance": {"all_negative_controls_must_be_rejected": true, "false_acceptance_count": 0}
+  "meta_acceptance": { "all_negative_controls_must_be_rejected": true, "false_acceptance_count": 0 }
 }

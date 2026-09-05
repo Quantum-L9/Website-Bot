@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createHash } from "node:crypto";
 /**
  * Fixture builder for the golden adapter's end-to-end test.
  *
@@ -17,7 +18,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
 import Database from "better-sqlite3";
 
 const CASE = JSON.parse(fs.readFileSync(path.resolve("tests/golden/safehaven/case.json"), "utf8"));
@@ -70,7 +70,8 @@ const ROUTE_TITLES = {
   "/guides/": "Roofing Guides | Charlotte NC",
   "/guides/repair-or-replace-roof-charlotte/": "Repair or Replace Your Roof? | Guide",
   "/guides/how-long-roof-replacement-takes-charlotte/": "How Long Roof Replacement Takes | Guide",
-  "/guides/how-to-choose-roofing-contractor-charlotte/": "How to Choose a Roofing Contractor | Guide",
+  "/guides/how-to-choose-roofing-contractor-charlotte/":
+    "How to Choose a Roofing Contractor | Guide",
   "/guides/metal-roof-vs-shingles-charlotte/": "Metal Roof vs Shingles | Guide",
   "/guides/roof-replacement-cost-charlotte/": "Roof Replacement Cost | Guide",
   "/guides/storm-damage-roof-repair-charlotte/": "Storm Damage Roof Repair | Guide",
@@ -155,7 +156,10 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     "redesign-integrity-receipt",
     "terminal-convergence",
   ],
-  competitive_landscape: { artifact_id: LANDSCAPE_ARTIFACT_ID, payload_digest: LANDSCAPE_PAYLOAD_DIGEST },
+  competitive_landscape: {
+    artifact_id: LANDSCAPE_ARTIFACT_ID,
+    payload_digest: LANDSCAPE_PAYLOAD_DIGEST,
+  },
   qualified_donor_count: 10,
   donors: [
     "charlotte-roofmasters.com",
@@ -169,9 +173,15 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     "gastoniaroofing.com",
     "southparkroofs.com",
   ],
-  seo_content_blueprint: { artifact_id: BLUEPRINT_ARTIFACT_ID, payload_digest: BLUEPRINT_PAYLOAD_DIGEST },
+  seo_content_blueprint: {
+    artifact_id: BLUEPRINT_ARTIFACT_ID,
+    payload_digest: BLUEPRINT_PAYLOAD_DIGEST,
+  },
   page_content_contract: { artifact_id: PCC_ARTIFACT_ID, payload_digest: PCC_PAYLOAD_DIGEST },
-  structured_content_package: { artifact_id: STRUCTURED_ARTIFACT_ID, payload_digest: STRUCTURED_PAYLOAD_DIGEST },
+  structured_content_package: {
+    artifact_id: STRUCTURED_ARTIFACT_ID,
+    payload_digest: STRUCTURED_PAYLOAD_DIGEST,
+  },
   counters: {
     page_content_contract_llm_calls: 0,
     legacy_content_generation_calls: 0,
@@ -206,7 +216,13 @@ writeJson(path.join(ASSETS, "intelligence", "website-build-blueprint.json"), {
   build_id: BUILD_ID,
   producer: { repo: "Website-Bot", version: "3.1.0" },
   produced_at: "2026-08-24T12:00:00.000Z",
-  input_refs: [{ artifact_type: "competitive_landscape", artifact_id: LANDSCAPE_ARTIFACT_ID, payload_digest: LANDSCAPE_PAYLOAD_DIGEST }],
+  input_refs: [
+    {
+      artifact_type: "competitive_landscape",
+      artifact_id: LANDSCAPE_ARTIFACT_ID,
+      payload_digest: LANDSCAPE_PAYLOAD_DIGEST,
+    },
+  ],
   payload: {
     schema: "l9://website-intelligence/website-build-blueprint/v2",
     build_intent: "REDESIGN_IMPROVE",
@@ -229,13 +245,48 @@ writeJson(path.join(ASSETS, "intelligence", "website-build-blueprint.json"), {
       prohibited_transfers: [],
       palette_authority: { source: "none", tokens: {}, observed_characteristics: [] },
     },
-    strategy: { experience_attributes: [], differentiation: [], preserve: [], evolve: [], forbid: [] },
+    strategy: {
+      experience_attributes: [],
+      differentiation: [],
+      preserve: [],
+      evolve: [],
+      forbid: [],
+    },
     content_guardrails: { forbidden_claims: [] },
-    conversion: { primary_action: "Call (704) 648-7252", secondary_actions: [], persistent_mobile_action: true },
-    routes: ROUTES.map((r) => ({ route_id: r, path: r, purpose: "frozen case route", sections: [] })),
+    conversion: {
+      primary_action: "Call (704) 648-7252",
+      secondary_actions: [],
+      persistent_mobile_action: true,
+    },
+    routes: ROUTES.map((r) => ({
+      route_id: r,
+      path: r,
+      purpose: "frozen case route",
+      sections: [],
+    })),
     visual_requirements: [
-      { requirement_id: "vr-hero", route_id: "/", section_id: "hero", slot_id: "hero-1", role: "hero", required: true, min_count: 1, preferred_provenance: ["source", "generated"], device_suitability: ["desktop", "mobile"] },
-      { requirement_id: "vr-gallery", route_id: "/gallery/", section_id: "gallery", slot_id: "gallery-1", role: "gallery", required: true, min_count: 4, preferred_provenance: ["source", "generated"], device_suitability: ["desktop", "mobile"] },
+      {
+        requirement_id: "vr-hero",
+        route_id: "/",
+        section_id: "hero",
+        slot_id: "hero-1",
+        role: "hero",
+        required: true,
+        min_count: 1,
+        preferred_provenance: ["source", "generated"],
+        device_suitability: ["desktop", "mobile"],
+      },
+      {
+        requirement_id: "vr-gallery",
+        route_id: "/gallery/",
+        section_id: "gallery",
+        slot_id: "gallery-1",
+        role: "gallery",
+        required: true,
+        min_count: 4,
+        preferred_provenance: ["source", "generated"],
+        device_suitability: ["desktop", "mobile"],
+      },
     ],
     acceptance_tests: [],
   },
@@ -251,16 +302,35 @@ writeJson(path.join(ASSETS, "intelligence", "page-content-contract.json"), {
   build_id: BUILD_ID,
   producer: { repo: "Website-Bot", version: "3.1.0" },
   produced_at: "2026-08-24T12:00:00.000Z",
-  input_refs: [{ artifact_type: "seo_content_blueprint", artifact_id: BLUEPRINT_ARTIFACT_ID, payload_digest: BLUEPRINT_PAYLOAD_DIGEST }],
+  input_refs: [
+    {
+      artifact_type: "seo_content_blueprint",
+      artifact_id: BLUEPRINT_ARTIFACT_ID,
+      payload_digest: BLUEPRINT_PAYLOAD_DIGEST,
+    },
+  ],
   payload: {
     schema: "l9://website-intelligence/page-content-contract/v1",
     compiler: { name: "website-content-contract-compiler", version: "1.0.0", warnings: [] },
     inputs: {
-      website_build_blueprint: { artifact_type: "website_build_blueprint", artifact_id: "x", payload_digest: "y" },
-      seo_content_blueprint: { artifact_type: "seo_content_blueprint", artifact_id: BLUEPRINT_ARTIFACT_ID, payload_digest: BLUEPRINT_PAYLOAD_DIGEST },
+      website_build_blueprint: {
+        artifact_type: "website_build_blueprint",
+        artifact_id: "x",
+        payload_digest: "y",
+      },
+      seo_content_blueprint: {
+        artifact_type: "seo_content_blueprint",
+        artifact_id: BLUEPRINT_ARTIFACT_ID,
+        payload_digest: BLUEPRINT_PAYLOAD_DIGEST,
+      },
       business_facts_digest: sha256Of("facts"),
     },
-    routes: ROUTES.map((r) => ({ route_id: r, path: r, purpose: "frozen case route", sections: [] })),
+    routes: ROUTES.map((r) => ({
+      route_id: r,
+      path: r,
+      purpose: "frozen case route",
+      sections: [],
+    })),
     unplaced_requirements: 0,
     invalid_business_facts: 0,
     // ORACLE determinism: the sealed PCC persists both semantic digests so the
@@ -292,12 +362,22 @@ const donorScreenshotHashes = [];
 for (let i = 0; i < DONOR_DOMAINS.length; i++) {
   const domain = DONOR_DOMAINS[i];
   const dir = path.join(ASSETS, "donor-evidence", donorToken(domain));
-  const screenshot = path.join(dir, "screenshots", `${sha256Of(`shot-${domain}`).slice(0, 12)}.png`);
+  const screenshot = path.join(
+    dir,
+    "screenshots",
+    `${sha256Of(`shot-${domain}`).slice(0, 12)}.png`,
+  );
   fs.mkdirSync(path.dirname(screenshot), { recursive: true });
   fs.writeFileSync(screenshot, Buffer.from(`donor screenshot fixture ${domain}`, "utf8"));
   donorScreenshotHashes.push(sha256File(screenshot));
   const pages = [
-    { url: `https://${domain}/`, status: 200, content_digest: sha256Of(`page-${domain}`), content_bytes: 2048, fetched_at: "2026-08-20T10:00:00.000Z" },
+    {
+      url: `https://${domain}/`,
+      status: 200,
+      content_digest: sha256Of(`page-${domain}`),
+      content_bytes: 2048,
+      fetched_at: "2026-08-20T10:00:00.000Z",
+    },
   ];
   writeJson(path.join(dir, "crawl-manifest.json"), {
     schema: "website-bot.donor-evidence/v1",
@@ -343,12 +423,23 @@ const landscapeArtifact = {
   input_refs: [],
   payload: {
     schema: "l9://website-intelligence/competitive-landscape/v1",
-    market: { niche: "roofing", country: "US", language: "en", device: "desktop", location_name: "Charlotte, NC" },
+    market: {
+      niche: "roofing",
+      country: "US",
+      language: "en",
+      device: "desktop",
+      location_name: "Charlotte, NC",
+    },
     query_portfolio: [
       { query_id: "q-1", query: "roofing companies charlotte nc", intent: "local", weight: 1 },
       { query_id: "q-2", query: "roof repair charlotte", intent: "commercial", weight: 1 },
       { query_id: "q-3", query: "roof replacement charlotte nc", intent: "commercial", weight: 1 },
-      { query_id: "q-4", query: "storm damage roof repair charlotte", intent: "transactional", weight: 1 },
+      {
+        query_id: "q-4",
+        query: "storm damage roof repair charlotte",
+        intent: "transactional",
+        weight: 1,
+      },
     ],
     observations,
     domains: selectedDonors.map((d) => ({ ...d, qualifying_query_ids: ["q-1"] })),
@@ -370,7 +461,13 @@ const blueprintArtifact = {
   build_id: BUILD_ID,
   producer: { repo: "SEO-Bot", version: "2.4.0" },
   produced_at: "2026-08-24T11:31:00.000Z",
-  input_refs: [{ artifact_type: "competitive_landscape", artifact_id: LANDSCAPE_ARTIFACT_ID, payload_digest: LANDSCAPE_PAYLOAD_DIGEST }],
+  input_refs: [
+    {
+      artifact_type: "competitive_landscape",
+      artifact_id: LANDSCAPE_ARTIFACT_ID,
+      payload_digest: LANDSCAPE_PAYLOAD_DIGEST,
+    },
+  ],
   payload: {
     schema: "l9://website-intelligence/seo-content-blueprint/v1",
     competitive_landscape_ref: {
@@ -409,7 +506,13 @@ const structuredArtifact = {
   build_id: BUILD_ID,
   producer: { repo: "SEO-Bot", version: "2.4.0" },
   produced_at: "2026-08-24T11:40:00.000Z",
-  input_refs: [{ artifact_type: "page_content_contract", artifact_id: PCC_ARTIFACT_ID, payload_digest: PCC_PAYLOAD_DIGEST }],
+  input_refs: [
+    {
+      artifact_type: "page_content_contract",
+      artifact_id: PCC_ARTIFACT_ID,
+      payload_digest: PCC_PAYLOAD_DIGEST,
+    },
+  ],
   payload: {
     schema: "l9://website-intelligence/structured-content-package/v1",
     page_content_contract_ref: {
@@ -422,7 +525,11 @@ const structuredArtifact = {
       path: r,
       metadata: { title: titleFor(r), description: `${titleFor(r)} — Charlotte NC roofing.` },
       sections: [
-        { section_id: "s1", heading: titleFor(r), blocks: [{ kind: "paragraph", text: `Safe Haven Roofing & Renovations serves ${r}` }] },
+        {
+          section_id: "s1",
+          heading: titleFor(r),
+          blocks: [{ kind: "paragraph", text: `Safe Haven Roofing & Renovations serves ${r}` }],
+        },
       ],
       faqs: [],
       internal_links: [],
@@ -454,7 +561,11 @@ writeJson(path.join(SEO_DIR, "preflight.json"), {
   version: "2.4.0",
   bot_interop_version: "1.2.0",
   llm_router_version: "1.3.0",
-  capabilities: { competitive_landscape: true, seo_content_blueprint: true, structured_content: true },
+  capabilities: {
+    competitive_landscape: true,
+    seo_content_blueprint: true,
+    structured_content: true,
+  },
   configuration: { dataforseo_configured: true, llm_provider_configured: true },
   sha: "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
   direct_provider_bypass_count: 0,
@@ -469,17 +580,49 @@ writeJson(path.join(SEO_DIR, "preflight.json"), {
 writeJson(path.join(SEO_DIR, "identity-snapshot.json"), {
   schema: "website-bot.golden-identity-snapshot/v1",
   captured_at: "2026-08-24T12:01:00.000Z",
-  website_bot: { sha: "0123456789abcdef0123456789abcdef01234567", worktree_state: "CLEAN", package_version: "3.1.0" },
-  llm_router: { package_version: "1.3.0", sha: "f0e1d2c3b4a5968778695a4b3c2d1e0f12345678", worktree_state: "CLEAN" },
+  website_bot: {
+    sha: "0123456789abcdef0123456789abcdef01234567",
+    worktree_state: "CLEAN",
+    package_version: "3.1.0",
+  },
+  llm_router: {
+    package_version: "1.3.0",
+    sha: "f0e1d2c3b4a5968778695a4b3c2d1e0f12345678",
+    worktree_state: "CLEAN",
+  },
   bot_interop: { website_bot_version: "1.2.0" },
-  seo_bot: { sha: "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678", checkout_dir: null, worktree_state: "CLEAN" },
+  seo_bot: {
+    sha: "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    checkout_dir: null,
+    worktree_state: "CLEAN",
+  },
 });
 writeJson(path.join(SEO_DIR, "fetch-meta.json"), {
   health: { endpoint: "/health", http_status: 200, ok: true, reached: true },
-  preflight: { endpoint: "/api/build-intelligence/preflight", http_status: 200, ok: true, reached: true },
-  "competitive-landscape": { endpoint: "/api/build-intelligence/competitive-landscape", http_status: 200, ok: true, reached: true },
-  "seo-content-blueprint": { endpoint: "/api/build-intelligence/seo-content-blueprint", http_status: 200, ok: true, reached: true },
-  "structured-content": { endpoint: "/api/build-intelligence/structured-content", http_status: 200, ok: true, reached: true },
+  preflight: {
+    endpoint: "/api/build-intelligence/preflight",
+    http_status: 200,
+    ok: true,
+    reached: true,
+  },
+  "competitive-landscape": {
+    endpoint: "/api/build-intelligence/competitive-landscape",
+    http_status: 200,
+    ok: true,
+    reached: true,
+  },
+  "seo-content-blueprint": {
+    endpoint: "/api/build-intelligence/seo-content-blueprint",
+    http_status: 200,
+    ok: true,
+    reached: true,
+  },
+  "structured-content": {
+    endpoint: "/api/build-intelligence/structured-content",
+    http_status: 200,
+    ok: true,
+    reached: true,
+  },
 });
 writeJson(path.join(SEO_DIR, "sequence.json"), {
   schema: "website-bot.golden-seo-bot-collection/v1",
@@ -490,9 +633,24 @@ writeJson(path.join(SEO_DIR, "sequence.json"), {
     { endpoint: "identity-snapshot", file: "identity-snapshot.json", status: "PASS" },
     { endpoint: "health", file: "health.json", status: "PASS", http_status: 200 },
     { endpoint: "preflight", file: "preflight.json", status: "PASS", http_status: 200 },
-    { endpoint: "competitive-landscape", file: "competitive-landscape.json", status: "PASS", http_status: 200 },
-    { endpoint: "seo-content-blueprint", file: "seo-content-blueprint.json", status: "PASS", http_status: 200 },
-    { endpoint: "structured-content", file: "structured-content.json", status: "PASS", http_status: 200 },
+    {
+      endpoint: "competitive-landscape",
+      file: "competitive-landscape.json",
+      status: "PASS",
+      http_status: 200,
+    },
+    {
+      endpoint: "seo-content-blueprint",
+      file: "seo-content-blueprint.json",
+      status: "PASS",
+      http_status: 200,
+    },
+    {
+      endpoint: "structured-content",
+      file: "structured-content.json",
+      status: "PASS",
+      http_status: 200,
+    },
   ],
   missing_producers: [],
 });
@@ -524,10 +682,72 @@ writeJson(path.join(EVIDENCE, "image-asset-manifest.json"), {
   clientId: CLIENT_ID,
   generatedAt: "2026-08-24T11:50:00.000Z",
   assets: [
-    { slotId: "hero-1", placement: "/", role: "hero", source: "source-site", sourceUrl: `${CASE.source_url}/images/project-1.jpg`, originalPath: "images/project-1.jpg", outputPath: "images/hero-1.jpg", mimeType: "image/jpeg", width: 1200, height: 800, byteLength: 100001, sha256: sha256Of("selected-hero"), disposition: "approved-client-owned", provenanceWarnings: [] },
-    { slotId: "gallery-1", placement: "/gallery/", role: "gallery", source: "source-site", sourceUrl: `${CASE.source_url}/images/project-2.jpg`, originalPath: "images/project-2.jpg", outputPath: "images/gallery-1.jpg", mimeType: "image/jpeg", width: 1200, height: 800, byteLength: 100002, sha256: sha256Of("selected-gallery"), disposition: "approved-client-owned", provenanceWarnings: [] },
-    { slotId: "proof-1", placement: "/services/", role: "project-proof", source: "generated", outputPath: "images/proof-1.jpg", mimeType: "image/jpeg", width: 1200, height: 800, byteLength: 100004, sha256: sha256Of("generated-proof"), promptHash: sha256Of("proof-prompt").slice(0, 16), model: "fixture", estimatedCostUsd: 0.01, disposition: "reference-only", provenanceWarnings: [] },
-    { slotId: "about-1", placement: "/about/", role: "about", source: "generated", outputPath: "images/about-1.jpg", mimeType: "image/jpeg", width: 1200, height: 800, byteLength: 100003, sha256: sha256Of("generated-about"), promptHash: sha256Of("prompt").slice(0, 16), model: "fixture", estimatedCostUsd: 0.01, disposition: "reference-only", provenanceWarnings: [] },
+    {
+      slotId: "hero-1",
+      placement: "/",
+      role: "hero",
+      source: "source-site",
+      sourceUrl: `${CASE.source_url}/images/project-1.jpg`,
+      originalPath: "images/project-1.jpg",
+      outputPath: "images/hero-1.jpg",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 800,
+      byteLength: 100001,
+      sha256: sha256Of("selected-hero"),
+      disposition: "approved-client-owned",
+      provenanceWarnings: [],
+    },
+    {
+      slotId: "gallery-1",
+      placement: "/gallery/",
+      role: "gallery",
+      source: "source-site",
+      sourceUrl: `${CASE.source_url}/images/project-2.jpg`,
+      originalPath: "images/project-2.jpg",
+      outputPath: "images/gallery-1.jpg",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 800,
+      byteLength: 100002,
+      sha256: sha256Of("selected-gallery"),
+      disposition: "approved-client-owned",
+      provenanceWarnings: [],
+    },
+    {
+      slotId: "proof-1",
+      placement: "/services/",
+      role: "project-proof",
+      source: "generated",
+      outputPath: "images/proof-1.jpg",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 800,
+      byteLength: 100004,
+      sha256: sha256Of("generated-proof"),
+      promptHash: sha256Of("proof-prompt").slice(0, 16),
+      model: "fixture",
+      estimatedCostUsd: 0.01,
+      disposition: "reference-only",
+      provenanceWarnings: [],
+    },
+    {
+      slotId: "about-1",
+      placement: "/about/",
+      role: "about",
+      source: "generated",
+      outputPath: "images/about-1.jpg",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 800,
+      byteLength: 100003,
+      sha256: sha256Of("generated-about"),
+      promptHash: sha256Of("prompt").slice(0, 16),
+      model: "fixture",
+      estimatedCostUsd: 0.01,
+      disposition: "reference-only",
+      provenanceWarnings: [],
+    },
   ],
   digest: sha256Of("image-manifest"),
 });
@@ -629,7 +849,9 @@ db.exec(`
     index_revision INTEGER NOT NULL, updated_at TEXT NOT NULL
   );
 `);
-db.prepare("INSERT INTO builds (id, client_id, status, started_at, completed_at, deploy_url, dry_run) VALUES (?,?,?,?,?,?,0)").run(
+db.prepare(
+  "INSERT INTO builds (id, client_id, status, started_at, completed_at, deploy_url, dry_run) VALUES (?,?,?,?,?,?,0)",
+).run(
   BUILD_ID,
   CLIENT_ID,
   "completed",
@@ -637,13 +859,42 @@ db.prepare("INSERT INTO builds (id, client_id, status, started_at, completed_at,
   "2026-08-24T12:00:00.000Z",
   "https://candidate.example.com",
 );
-const insertStage = db.prepare("INSERT INTO stage_runs (build_id, stage_name, status, duration_ms, error_msg, ran_at) VALUES (?,?,?,?,?,?)");
+const insertStage = db.prepare(
+  "INSERT INTO stage_runs (build_id, stage_name, status, duration_ms, error_msg, ran_at) VALUES (?,?,?,?,?,?)",
+);
 STAGES.forEach((stage, i) => {
-  insertStage.run(BUILD_ID, stage, "ok", 1000 + i, null, `2026-08-24T10:${String(i).padStart(2, "0")}:00.000Z`);
+  insertStage.run(
+    BUILD_ID,
+    stage,
+    "ok",
+    1000 + i,
+    null,
+    `2026-08-24T10:${String(i).padStart(2, "0")}:00.000Z`,
+  );
 });
-const insertUsage = db.prepare("INSERT INTO llm_usage (build_id, stage, task_type, model, input_tokens, output_tokens, cost_usd, recorded_at) VALUES (?,?,?,?,?,?,?,?)");
-insertUsage.run(BUILD_ID, "redesign-content-authority", "WEBSITE_BLUEPRINT", "fixture-router/1.3.0", 1000, 2000, 0.01, "2026-08-24T10:05:00.000Z");
-insertUsage.run(BUILD_ID, "redesign-schema-serializer", "STRUCTURED_CONTENT_GENERATION", "fixture-router/1.3.0", 500, 1000, 0.005, "2026-08-24T10:07:00.000Z");
+const insertUsage = db.prepare(
+  "INSERT INTO llm_usage (build_id, stage, task_type, model, input_tokens, output_tokens, cost_usd, recorded_at) VALUES (?,?,?,?,?,?,?,?)",
+);
+insertUsage.run(
+  BUILD_ID,
+  "redesign-content-authority",
+  "WEBSITE_BLUEPRINT",
+  "fixture-router/1.3.0",
+  1000,
+  2000,
+  0.01,
+  "2026-08-24T10:05:00.000Z",
+);
+insertUsage.run(
+  BUILD_ID,
+  "redesign-schema-serializer",
+  "STRUCTURED_CONTENT_GENERATION",
+  "fixture-router/1.3.0",
+  500,
+  1000,
+  0.005,
+  "2026-08-24T10:07:00.000Z",
+);
 db.close();
 
 // ---------------------------------------------------------------------------
@@ -660,8 +911,20 @@ for (const route of sentinels) {
       viewport: vp.id,
       critical: CASE.visual_sentinels.find((s) => s.route === route)?.critical ?? false,
       run_id: `fixture-run-${BUILD_ID}`,
-      baseline: { file: "baseline/b.png", hash: sha256Of(`base-${route}-${vp.id}`), status: 200, final_route: route, blank: false },
-      candidate: { file: "candidate/c.png", hash: sha256Of(`cand-${route}-${vp.id}`), status: 200, final_route: route, blank: false },
+      baseline: {
+        file: "baseline/b.png",
+        hash: sha256Of(`base-${route}-${vp.id}`),
+        status: 200,
+        final_route: route,
+        blank: false,
+      },
+      candidate: {
+        file: "candidate/c.png",
+        hash: sha256Of(`cand-${route}-${vp.id}`),
+        status: 200,
+        final_route: route,
+        blank: false,
+      },
       route_match: true,
       viewport_match: true,
     });
@@ -705,7 +968,13 @@ for (let p = 0; p < pairs.length; p++) {
       orientation_map: { A: "CANDIDATE", B: "BASELINE" },
       blind: true,
       judge_input_manifest: JUDGE_INPUT_MANIFEST,
-      judge_json: { preference: "A", confidence: 0.95, dimensions: delta, critical_defects_a: [], critical_defects_b: [] },
+      judge_json: {
+        preference: "A",
+        confidence: 0.95,
+        dimensions: delta,
+        critical_defects_a: [],
+        critical_defects_b: [],
+      },
       normalized_preference: "CANDIDATE",
       normalized_candidate_delta: delta,
       confidence: 0.95,

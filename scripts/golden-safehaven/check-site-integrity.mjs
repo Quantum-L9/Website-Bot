@@ -27,7 +27,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeRoute, distPathForRoute } from "./lib/normalize.mjs";
+import { distPathForRoute, normalizeRoute } from "./lib/normalize.mjs";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -57,12 +57,8 @@ const routeEntries = routes.map((raw) => ({ raw, normalized: normalizeRoute(raw)
 function parseHtml(html) {
   const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) ?? [])[1];
   const metaDesc =
-    (html.match(
-      /<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i,
-    ) ?? [])[1] ??
-    (html.match(
-      /<meta[^>]+content=["']([^"']*)["'][^>]+name=["']description["']/i,
-    ) ?? [])[1];
+    (html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i) ?? [])[1] ??
+    (html.match(/<meta[^>]+content=["']([^"']*)["'][^>]+name=["']description["']/i) ?? [])[1];
   const canonical =
     (html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']*)["']/i) ?? [])[1] ??
     (html.match(/<link[^>]+href=["']([^"']*)["'][^>]+rel=["']canonical["']/i) ?? [])[1];
@@ -97,8 +93,11 @@ function scanPlaceholders(html) {
   const findings = [];
   for (const { patternId, regex } of PLACEHOLDER_PATTERNS) {
     const re = new RegExp(regex.source, "gi");
-    let m;
-    while ((m = re.exec(html)) !== null) findings.push({ pattern_id: patternId, match: m[0] });
+    let m = re.exec(html);
+    while (m !== null) {
+      findings.push({ pattern_id: patternId, match: m[0] });
+      m = re.exec(html);
+    }
   }
   return findings;
 }
@@ -189,7 +188,8 @@ async function checkUrl() {
         if (!key) continue;
         const target = new URL(href, finalUrl);
         if (!allowExternal && target.origin !== new URL(finalUrl).origin) continue;
-        if ((statusCache.get(key) ?? 0) >= 400) broken.push({ route: raw, href, status: statusCache.get(key) });
+        if ((statusCache.get(key) ?? 0) >= 400)
+          broken.push({ route: raw, href, status: statusCache.get(key) });
       }
     }
     unique.set(raw, parsed);
@@ -197,7 +197,7 @@ async function checkUrl() {
   return { perRoute, broken, redirects, base };
 }
 
-function collectInternalHrefs(html, baseUrl) {
+function collectInternalHrefs(html, _baseUrl) {
   const hrefs = [...html.matchAll(/\bhref=["']([^"']*)["']/gi)].map((m) => m[1]);
   return hrefs.filter(
     (h) => !/^(mailto:|tel:|sms:|javascript:|data:)/i.test(h) && h !== "#" && h !== "",
@@ -215,7 +215,9 @@ function aggregate(mode, { perRoute, broken, redirects }) {
   for (const t of titles) titleCounts.set(t, (titleCounts.get(t) ?? 0) + 1);
   const canonicalCounts = new Map();
   for (const c of canonicals) canonicalCounts.set(c, (canonicalCounts.get(c) ?? 0) + 1);
-  const duplicateTitles = [...titleCounts].filter(([, n]) => n > 1).map(([t, n]) => ({ title: t, count: n }));
+  const duplicateTitles = [...titleCounts]
+    .filter(([, n]) => n > 1)
+    .map(([t, n]) => ({ title: t, count: n }));
   const duplicateCanonicals = [...canonicalCounts]
     .filter(([, n]) => n > 1)
     .map(([c, n]) => ({ canonical: c, count: n }));
@@ -242,7 +244,9 @@ function aggregate(mode, { perRoute, broken, redirects }) {
   };
 }
 
-const out = siteDir ? aggregate("dist", checkDist()) : await checkUrl().then((r) => aggregate("url", r));
+const out = siteDir
+  ? aggregate("dist", checkDist())
+  : await checkUrl().then((r) => aggregate("url", r));
 fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
 fs.writeFileSync(path.resolve(outPath), `${JSON.stringify(out, null, 2)}\n`);
 console.log(

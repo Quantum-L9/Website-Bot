@@ -10,11 +10,11 @@ import {
 import { parseBuildIntent, requireRedesignIntent } from "../src/pipeline/BuildIntent.js";
 import { FileEvidenceStore } from "../src/pipeline/evidence/FileEvidenceStore.js";
 import { MemoryEvidenceStore } from "../src/pipeline/evidence/MemoryEvidenceStore.js";
+import { redesignIntelligenceDir } from "../src/pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import {
   buildFactoryExecutionPlan,
   executeFactoryPlan,
 } from "../src/pipeline/FactoryExecutionPlan.js";
-import { redesignIntelligenceDir } from "../src/pipeline/evidence/RedesignIntelligenceArtifacts.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
@@ -102,8 +102,9 @@ const goldenArguments = Object.fromEntries(
 ) as Record<(typeof goldenArgumentNames)[number], string | undefined>;
 const goldenRequested = goldenArgumentNames.some((name) => goldenArguments[name] !== undefined);
 if (goldenRequested) {
-  const missing = (["golden-case", "golden-oracle", "golden-identity", "golden-runtime-out"] as const)
-    .filter((name) => !goldenArguments[name]?.trim());
+  const missing = (
+    ["golden-case", "golden-oracle", "golden-identity", "golden-runtime-out"] as const
+  ).filter((name) => !goldenArguments[name]?.trim());
   if (missing.length > 0)
     throw new Error(
       `Golden export requires all of --golden-case, --golden-oracle, --golden-identity, --golden-runtime-out (missing: ${missing.join(", ")})`,

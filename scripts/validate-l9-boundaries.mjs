@@ -112,10 +112,16 @@ export function walkRoots(roots, options = {}) {
  */
 function resolveClassificationLocations() {
   if (existsSync(resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml"))) {
-    return { contextRoot: repoRoot, classificationPath: resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml") };
+    return {
+      contextRoot: repoRoot,
+      classificationPath: resolve(repoRoot, "BOUNDARY_CLASSIFICATION.yaml"),
+    };
   }
   if (existsSync(resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml"))) {
-    return { contextRoot: packRoot, classificationPath: resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml") };
+    return {
+      contextRoot: packRoot,
+      classificationPath: resolve(packRoot, "BOUNDARY_CLASSIFICATION.yaml"),
+    };
   }
   throw new Error("BOUNDARY_CLASSIFICATION.yaml not found at repository root or pack root");
 }

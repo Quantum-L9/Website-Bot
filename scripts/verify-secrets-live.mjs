@@ -90,7 +90,7 @@ function record(name, kind, verdict, detail) {
 
 // --- GitHub tokens: /user proves auth; x-oauth-scopes shows granted scopes ---
 function httpErrSuffix(r) {
-  return r.err ? ":" + r.err : "";
+  return r.err ? `:${r.err}` : "";
 }
 
 function authVerdict(r, invalidCodes = [401]) {
@@ -241,12 +241,7 @@ async function inngest() {
         data: { source: "ci-secret-doctor" },
       }),
     });
-    record(
-      name,
-      "inngest",
-      inngestVerdict(r),
-      "emitted 1 labeled test event",
-    );
+    record(name, "inngest", inngestVerdict(r), "emitted 1 labeled test event");
   } else record(name, "inngest", "missing");
   record(
     "INNGEST_SIGNING_KEY",
@@ -333,7 +328,7 @@ async function main() {
       pad(r.verdict, 26),
       r.detail,
     );
-  console.log("\n" + JSON.stringify(summary, null, 2));
+  console.log(`\n${JSON.stringify(summary, null, 2)}`);
 
   if (STRICT && summary.required_failures.length) {
     console.error(`\nSTRICT: required secret failures: ${summary.required_failures.join(", ")}`);

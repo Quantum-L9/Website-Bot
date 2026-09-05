@@ -91,7 +91,7 @@ class FakeAdapter implements RepositoryAdapter {
     };
   }
 
-  async storeEvidence(evidenceId: string, data: unknown): Promise<string> {
+  async storeEvidence(evidenceId: string, _data: unknown): Promise<string> {
     return `evidence/${evidenceId}.json`;
   }
 }

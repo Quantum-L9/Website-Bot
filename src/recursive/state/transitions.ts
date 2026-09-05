@@ -196,19 +196,14 @@ function applyScopeInsufficient(
   state: WaveState,
   h: TransitionHandlers,
 ): TransitionResult {
-  if (state.phase !== "VERIFY")
-    return h.reject(`scope verdict is not due in phase ${state.phase}`);
+  if (state.phase !== "VERIFY") return h.reject(`scope verdict is not due in phase ${state.phase}`);
   manifest.state.status = "PATCH_VALIDATION_FAILED";
   h.stamp();
   return { applied: true, status: manifest.state.status };
 }
 
-function applyVerificationPassed(
-  state: WaveState,
-  h: TransitionHandlers,
-): TransitionResult {
-  if (state.phase !== "VERIFY")
-    return h.reject(`verification is not due in phase ${state.phase}`);
+function applyVerificationPassed(state: WaveState, h: TransitionHandlers): TransitionResult {
+  if (state.phase !== "VERIFY") return h.reject(`verification is not due in phase ${state.phase}`);
   h.ensure();
   state.phase = "MERGE";
   h.stamp();
@@ -220,8 +215,7 @@ function applyVerificationFailed(
   state: WaveState,
   h: TransitionHandlers,
 ): TransitionResult {
-  if (state.phase !== "VERIFY")
-    return h.reject(`verification is not due in phase ${state.phase}`);
+  if (state.phase !== "VERIFY") return h.reject(`verification is not due in phase ${state.phase}`);
   manifest.state.status = "PATCH_VALIDATION_FAILED";
   h.stamp();
   return { applied: true, status: manifest.state.status };

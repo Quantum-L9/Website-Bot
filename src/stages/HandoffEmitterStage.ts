@@ -164,7 +164,10 @@ export class HandoffEmitterStage implements Stage {
     }
   }
 
-  private async persistHandoff(ctx: BuildContext, contract: WebsiteFactoryHandoffV3): Promise<void> {
+  private async persistHandoff(
+    ctx: BuildContext,
+    contract: WebsiteFactoryHandoffV3,
+  ): Promise<void> {
     const handoffRecord = await ctx.evidenceStore.writeHandoff(contract);
     mkdirSync(dirname(this.outputPath), { recursive: true });
     const header = `# Convenience copy only. Authoritative evidence: ${ctx.evidenceStore.rootDir}/${handoffRecord.relativePath}\n`;
@@ -175,7 +178,10 @@ export class HandoffEmitterStage implements Stage {
     );
   }
 
-  private async registerSeoBot(ctx: BuildContext, contract: WebsiteFactoryHandoffV3): Promise<void> {
+  private async registerSeoBot(
+    ctx: BuildContext,
+    contract: WebsiteFactoryHandoffV3,
+  ): Promise<void> {
     if (!ctx.autoRegisterSeoBot) {
       logger.info(
         "SEO-Bot auto-registration disabled; handoff evidence emitted without activation",

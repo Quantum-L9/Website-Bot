@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 /**
  * §18–19 BLIND PAIRWISE VISUAL JUDGE — Safe Haven Golden E2E.
  *
@@ -23,7 +24,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -39,7 +39,14 @@ const manifest = JSON.parse(fs.readFileSync(path.join(visualDir, "manifest.json"
 const testCase = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), casePath), "utf8"));
 const judgeInstruction = fs.readFileSync(path.resolve(process.cwd(), judgeMd), "utf8");
 
-const routerPath = path.join(process.cwd(), "node_modules", "@quantum-l9", "llm-router", "dist", "index.js");
+const routerPath = path.join(
+  process.cwd(),
+  "node_modules",
+  "@quantum-l9",
+  "llm-router",
+  "dist",
+  "index.js",
+);
 const { L9LLMRouter, TaskType } = await import(routerPath);
 
 const router = new L9LLMRouter({
@@ -72,9 +79,11 @@ function makeRng(seedStr) {
     h = Math.imul(h, 16777619) >>> 0;
   }
   return () => {
-    h ^= h << 13; h >>>= 0;
+    h ^= h << 13;
+    h >>>= 0;
     h ^= h >> 17;
-    h ^= h << 5; h >>>= 0;
+    h ^= h << 5;
+    h >>>= 0;
     return h / 4294967296;
   };
 }
@@ -84,7 +93,7 @@ function flip(o) {
 }
 // "A" = candidate shown as IMAGE A, "B" = candidate shown as IMAGE B —
 // the single-letter value every consumer below tests against.
-function orientationFor(pair, rng) {
+function orientationFor(_pair, rng) {
   return rng() < 0.5 ? "A" : "B";
 }
 
@@ -93,8 +102,12 @@ const pairs = manifest.pairs.slice(0, maxPairs);
 
 for (const pair of pairs) {
   const rng = makeRng(`${manifest.run_id}:${pair.pair_id}`);
-  const baseB64 = fs.readFileSync(path.join(visualDir, "captures", pair.baseline.file)).toString("base64");
-  const candB64 = fs.readFileSync(path.join(visualDir, "captures", pair.candidate.file)).toString("base64");
+  const baseB64 = fs
+    .readFileSync(path.join(visualDir, "captures", pair.baseline.file))
+    .toString("base64");
+  const candB64 = fs
+    .readFileSync(path.join(visualDir, "captures", pair.candidate.file))
+    .toString("base64");
   const orientations = [orientationFor(pair, rng), null, null];
   orientations[1] = flip(orientations[0]);
   orientations[2] = orientationFor(pair, rng);
@@ -109,8 +122,8 @@ for (const pair of pairs) {
     };
 
     const userPrompt = [
-      "ROUTE PURPOSE: " + routePurpose.get(pair.pair_id),
-      "VIEWPORT: " + pair.viewport,
+      `ROUTE PURPOSE: ${routePurpose.get(pair.pair_id)}`,
+      `VIEWPORT: ${pair.viewport}`,
       "Evaluate IMAGE A and IMAGE B below.",
     ].join("\n");
 
@@ -187,10 +200,15 @@ for (const pair of pairs) {
         no_prior_results: true,
       },
     });
-    console.log(`[trial] ${pair.pair_id} t${t + 1} orient=${orientation} pref=${normalizedPreference} conf=${judge.confidence ?? "-"}`);
+    console.log(
+      `[trial] ${pair.pair_id} t${t + 1} orient=${orientation} pref=${normalizedPreference} conf=${judge.confidence ?? "-"}`,
+    );
   }
 }
 
-fs.writeFileSync(outFile, `${JSON.stringify({ schema: "l9.golden-visual-trials/v1", run_id: manifest.run_id, trials }, null, 2)}\n`);
+fs.writeFileSync(
+  outFile,
+  `${JSON.stringify({ schema: "l9.golden-visual-trials/v1", run_id: manifest.run_id, trials }, null, 2)}\n`,
+);
 console.log(`wrote ${trials.length} trials -> ${outFile}`);
 process.exit(trials.length === pairs.length * 3 ? 0 : 1);

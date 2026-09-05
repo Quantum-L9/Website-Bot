@@ -1,20 +1,21 @@
 // L9_META: layer=intelligence, role=seo_bot_http_client, status=active, version=1.0.0
+
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   assertIntelligenceArtifactIntegrity,
   type CompetitiveLandscapeArtifact,
   type SEOContentBlueprintArtifact,
   type StructuredContentPackageArtifact,
 } from "@quantum-l9/bot-interop";
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Agent, fetch as undiciFetch } from "undici";
 import {
+  type CompetitiveLandscapeRequest,
+  type SEOContentBlueprintRequest,
   SeoBotPreflightError,
   type SeoBotPreflightResult,
   type SeoBuildIntelligencePort,
-  type CompetitiveLandscapeRequest,
-  type SEOContentBlueprintRequest,
   type StructuredContentRequest,
 } from "./SeoBuildIntelligencePort.js";
 
@@ -69,9 +70,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     ) => Promise<Response> = undiciFetch as typeof fetch,
   ) {
     if (!this.baseUrl.trim()) {
-      throw new Error(
-        "SEO_BOT_URL is required for the SEO-Bot intelligence seam (fail-closed)",
-      );
+      throw new Error("SEO_BOT_URL is required for the SEO-Bot intelligence seam (fail-closed)");
     }
     if (!this.apiKey.trim()) {
       throw new Error(
@@ -175,10 +174,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
         snapshotResponse.status === 401 || snapshotResponse.status === 403
           ? "SEO_BOT_AUTH_FAILED"
           : "SEO_BOT_UNREACHABLE";
-      throw new SeoBotPreflightError(
-        code,
-        `SEO-Bot preflight failed (${snapshotResponse.status})`,
-      );
+      throw new SeoBotPreflightError(code, `SEO-Bot preflight failed (${snapshotResponse.status})`);
     }
     let snapshot: SeoBotPreflightResult;
     try {

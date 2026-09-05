@@ -8,12 +8,7 @@ import { describe, test } from "node:test";
 import { EvidenceCollector } from "../../src/core/EvidenceCollector.js";
 import { PreflightEngine } from "../../src/core/PreflightEngine.js";
 import { ValidationExecutor } from "../../src/core/ValidationExecutor.js";
-import type {
-  E2ETestDefinition,
-  E2ETestResult,
-  FinalVerdict,
-  PreflightCheck,
-} from "../../src/types/index.js";
+import type { E2ETestDefinition, PreflightCheck } from "../../src/types/index.js";
 import {
   assertions,
   createMockConfig,

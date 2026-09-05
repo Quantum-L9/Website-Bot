@@ -7,6 +7,8 @@
  * page_archetype, component, vertical, failure_fingerprint.
  * Ranking: context-signature similarity vs the querying campaign.
  */
+
+import { isNegativeLearning } from "./learning-event.js";
 import type {
   ContextSignature,
   FailureFingerprint,
@@ -16,8 +18,7 @@ import type {
   PromotionScope,
   PromotionState,
   QualityDimension,
-} from './types.js';
-import { isNegativeLearning } from './learning-event.js';
+} from "./types.js";
 
 export interface RegistryQuery {
   layer: MutationLayer;
@@ -49,20 +50,26 @@ export function contextSimilarity(event: LearningEvent, query: RegistryQuery): n
  * Problem-first retrieval: rank events by context similarity, return confirmed
  * learnings and known anti-patterns separately so planners see both.
  */
-export function retrieveRelevantLearnings(events: LearningEvent[], query: RegistryQuery): {
+export function retrieveRelevantLearnings(
+  events: LearningEvent[],
+  query: RegistryQuery,
+): {
   confirmed: RetrievalResult[];
   anti_patterns: RetrievalResult[];
   contradictions: RetrievalResult[];
 } {
-  const scored = events.map(event => ({ event, similarity: contextSimilarity(event, query) }));
+  const scored = events.map((event) => ({ event, similarity: contextSimilarity(event, query) }));
   const confirmed = scored
-    .filter(({ event, similarity }) => similarity > 0 && !isNegativeLearning(event) && event.outcome === 'CONFIRMED_FOR_CAMPAIGN')
+    .filter(
+      ({ event, similarity }) =>
+        similarity > 0 && !isNegativeLearning(event) && event.outcome === "CONFIRMED_FOR_CAMPAIGN",
+    )
     .sort((a, b) => b.similarity - a.similarity);
   const anti_patterns = scored
     .filter(({ event, similarity }) => similarity > 0 && event.anti_pattern !== null)
     .sort((a, b) => b.similarity - a.similarity);
   const contradictions = scored
-    .filter(({ event, similarity }) => similarity > 0 && event.outcome === 'CONTRADICTED')
+    .filter(({ event, similarity }) => similarity > 0 && event.outcome === "CONTRADICTED")
     .sort((a, b) => b.similarity - a.similarity);
   return { confirmed, anti_patterns, contradictions };
 }
@@ -87,17 +94,17 @@ export interface PromotionCandidateInput {
 
 export function buildPromotionCandidate(input: PromotionCandidateInput): PromotionCandidate {
   if (!input.promotion_id || !input.owning_component || !input.proposed_invariant) {
-    throw new Error('promotion_id, owning_component, and proposed_invariant are required');
+    throw new Error("promotion_id, owning_component, and proposed_invariant are required");
   }
   const wins = input.wins ?? 0;
   const losses = input.losses ?? 0;
   const human_approved_campaigns = input.human_approved_campaigns ?? 0;
   const confidence = promotionConfidence(wins, losses, human_approved_campaigns);
   const promotionState = promotionStateFor(input.scope, human_approved_campaigns);
-  const humanApprovalRequired = input.scope === 'GLOBAL' || input.human_approval_required === true;
+  const humanApprovalRequired = input.scope === "GLOBAL" || input.human_approval_required === true;
   return {
-    schema: 'website-bot.promotion-candidate/v1',
-    schema_version: '1.0.0',
+    schema: "website-bot.promotion-candidate/v1",
+    schema_version: "1.0.0",
     promotion_id: input.promotion_id,
     learning_ids: [...input.learning_ids],
     scope: input.scope,
@@ -114,24 +121,31 @@ export function buildPromotionCandidate(input: PromotionCandidateInput): Promoti
     acceptance_test: input.acceptance_test,
     risk: input.risk,
     human_approval_required: humanApprovalRequired,
-    status: 'PROPOSED',
+    status: "PROPOSED",
     promotion_state: promotionState,
   };
 }
 
 /** Deterministic evidence-weighted confidence (design contract §10). */
-export function promotionConfidence(wins: number, losses: number, humanApproved: number): 'LOW' | 'MEDIUM' | 'HIGH' {
+export function promotionConfidence(
+  wins: number,
+  losses: number,
+  humanApproved: number,
+): "LOW" | "MEDIUM" | "HIGH" {
   const total = wins + losses;
-  if (total >= 4 && wins / total >= 0.75 && humanApproved >= 1) return 'HIGH';
-  if (total >= 2 && wins / total >= 0.5) return 'MEDIUM';
-  return 'LOW';
+  if (total >= 4 && wins / total >= 0.75 && humanApproved >= 1) return "HIGH";
+  if (total >= 2 && wins / total >= 0.5) return "MEDIUM";
+  return "LOW";
 }
 
 export function promotionStateFor(scope: PromotionScope, humanApproved: number): PromotionState {
   switch (scope) {
-    case 'SITE': return 'SITE_CONFIRMED';
-    case 'VERTICAL': return 'VERTICAL_CANDIDATE';
-    case 'GLOBAL': return humanApproved >= 1 ? 'GLOBAL_CONFIRMED' : 'GLOBAL_CANDIDATE';
+    case "SITE":
+      return "SITE_CONFIRMED";
+    case "VERTICAL":
+      return "VERTICAL_CANDIDATE";
+    case "GLOBAL":
+      return humanApproved >= 1 ? "GLOBAL_CONFIRMED" : "GLOBAL_CANDIDATE";
   }
 }
 
@@ -142,13 +156,19 @@ export function promotionStateFor(scope: PromotionScope, humanApproved: number):
  * GLOBAL_CONFIRMED requires human approval, and this boundary blocks any
  * GLOBAL_CONFIRMED promotion that lacks it.
  */
-export function isAllowedPromotion(promotion: PromotionCandidate): { allowed: boolean; reason: string | null } {
+export function isAllowedPromotion(promotion: PromotionCandidate): {
+  allowed: boolean;
+  reason: string | null;
+} {
   if (
-    promotion.scope === 'GLOBAL' &&
-    promotion.promotion_state === 'GLOBAL_CONFIRMED' &&
+    promotion.scope === "GLOBAL" &&
+    promotion.promotion_state === "GLOBAL_CONFIRMED" &&
     promotion.human_approved_campaigns === 0
   ) {
-    return { allowed: false, reason: 'a single run cannot create a high-confidence global learning' };
+    return {
+      allowed: false,
+      reason: "a single run cannot create a high-confidence global learning",
+    };
   }
   return { allowed: true, reason: null };
 }

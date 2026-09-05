@@ -31,18 +31,21 @@
 // the stage that owns the policy decides whether the run may continue.
 
 import { createHash } from "node:crypto";
+import { lookup } from "node:dns/promises";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { assertNoRawExpressionTransfer, canonicalJson } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
-import { extractPage, type ExtractedPage } from "../ingestion/PageExtractor.js";
+import { type ExtractedPage, extractPage } from "../ingestion/PageExtractor.js";
 import { HttpPageFetcher } from "../ingestion/PageFetcher.js";
-import { NoopScreenshotCapturer, type ScreenshotCapturer } from "../ingestion/ScreenshotCapturer.js";
+import {
+  NoopScreenshotCapturer,
+  type ScreenshotCapturer,
+} from "../ingestion/ScreenshotCapturer.js";
 import { extractHexColors, inferPalette } from "../ingestion/SourcePalette.js";
 import { assertUrlAllowed, isForbiddenAddress, UrlPolicyError } from "../ingestion/UrlPolicy.js";
-import { lookup } from "node:dns/promises";
-import type { WebsiteFactoryLLM } from "../services/llm.js";
 import { extractJson } from "../services/extractJson.js";
+import type { WebsiteFactoryLLM } from "../services/llm.js";
 import {
   abstractPaletteCharacteristics,
   type DesignReference,
@@ -214,7 +217,12 @@ function countMatches(html: string, pattern: RegExp): number {
   return (html.match(pattern) ?? []).length;
 }
 
-function classify<T extends string>(value: number, low: number, high: number, labels: [T, T, T]): T {
+function classify<T extends string>(
+  value: number,
+  low: number,
+  high: number,
+  labels: [T, T, T],
+): T {
   if (value < low) return labels[0];
   if (value < high) return labels[1];
   return labels[2];
@@ -241,14 +249,11 @@ export function observeDesignCharacteristics(
   const canvasOrSvg = countMatches(html, /<(?:canvas|svg)\b/gi);
   const fontFamilies = new Set(
     [...css.matchAll(/font-family\s*:\s*([^;}]+)/gi)].map((match) =>
-      match[1]
-        .split(",")[0]
-        .replace(/["']/g, "")
-        .trim()
-        .toLowerCase(),
+      match[1].split(",")[0].replace(/["']/g, "").trim().toLowerCase(),
     ),
   );
-  const animationRules = countMatches(css, /\banimation(?:-name)?\s*:/gi) + countMatches(css, /@keyframes\b/gi);
+  const animationRules =
+    countMatches(css, /\banimation(?:-name)?\s*:/gi) + countMatches(css, /@keyframes\b/gi);
   const transitionRules = countMatches(css, /\btransition(?:-property)?\s*:/gi);
   const buttonLike = countMatches(
     html,
@@ -291,7 +296,9 @@ export function observeDesignCharacteristics(
     conversion_prominence:
       aboveFoldButtons === 0 ? "none" : aboveFoldButtons === 1 ? "single-primary" : "multiple",
     palette_characteristics: abstractPaletteCharacteristics(
-      observedPalette ? (observedPalette as unknown as Record<string, string | undefined>) : undefined,
+      observedPalette
+        ? (observedPalette as unknown as Record<string, string | undefined>)
+        : undefined,
     ),
   };
 }
@@ -351,9 +358,7 @@ export async function acquireDesignReference(
   if (!reference.url?.trim()) return base;
 
   const validate = async (url: string): Promise<void> => {
-    const parsed = options.allowPrivateHosts
-      ? new URL(url)
-      : assertUrlAllowed(url);
+    const parsed = options.allowPrivateHosts ? new URL(url) : assertUrlAllowed(url);
     if (options.allowPrivateHosts) {
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
         throw new UrlPolicyError(`Protocol not allowed: ${parsed.protocol}`, "forbidden-protocol");
@@ -602,7 +607,8 @@ function analysisPrompt(
         typography: "string[] — characteristics, never font names",
         imagery: "string[] — characteristics, never assets",
         conversion: "string[]",
-        portable_principles: "string[] — the principles this reference contributes to the client's own direction",
+        portable_principles:
+          "string[] — the principles this reference contributes to the client's own direction",
         prohibited_transfers: "string[] — what must NOT be copied from this reference",
         differentiation_implications:
           "string[] — how the client should differ from this reference, especially where the client rejected something",
@@ -655,7 +661,9 @@ export async function analyzeDesignReference(
 /* Merge into the DesignReferenceSet                                  */
 /* ------------------------------------------------------------------ */
 
-export function principlesFromAnalysis(analysis: DesignReferenceAnalysis): DesignReferencePrinciples {
+export function principlesFromAnalysis(
+  analysis: DesignReferenceAnalysis,
+): DesignReferencePrinciples {
   return {
     layout: analysis.layout,
     hierarchy: analysis.hierarchy,
@@ -777,7 +785,11 @@ export async function acquireAndAnalyzeDesignReferences(
     references.push(evidence);
     if (evidence.status !== "acquired") {
       logger.warn(
-        { reference: reference.reference_id, status: evidence.status, reason: evidence.failure_reason },
+        {
+          reference: reference.reference_id,
+          status: evidence.status,
+          reason: evidence.failure_reason,
+        },
         "design reference not acquired",
       );
       continue;

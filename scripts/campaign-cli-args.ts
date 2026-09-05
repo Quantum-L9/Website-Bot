@@ -13,15 +13,15 @@ export function parseCampaignArgs(argv: string[]): ParsedArgs {
   const flags = new Set<string>();
   for (let index = 0; index < argv.length; index++) {
     const token = argv[index];
-    if (!token.startsWith('--')) continue;
+    if (!token.startsWith("--")) continue;
     const body = token.slice(2);
-    const equals = body.indexOf('=');
+    const equals = body.indexOf("=");
     if (equals >= 0) {
       values[body.slice(0, equals)] = body.slice(equals + 1);
       continue;
     }
     const next = argv[index + 1];
-    if (next && !next.startsWith('--')) {
+    if (next && !next.startsWith("--")) {
       values[body] = next;
       index += 1;
     } else {
@@ -50,15 +50,17 @@ export function optionalInt(args: ParsedArgs, name: string): number | undefined 
 }
 
 export function siteSlugOf(sourceUrl: string): string {
-  const normalized = /^[A-Za-z][A-Za-z0-9+.-]*:/.test(sourceUrl) ? sourceUrl : `https://${sourceUrl}`;
+  const normalized = /^[A-Za-z][A-Za-z0-9+.-]*:/.test(sourceUrl)
+    ? sourceUrl
+    : `https://${sourceUrl}`;
   const hostname = new URL(normalized).hostname;
-  const parts = hostname.split('.').filter(part => part && part !== 'www');
+  const parts = hostname.split(".").filter((part) => part && part !== "www");
   if (parts.length === 0) throw new Error(`cannot derive site slug from source url: ${sourceUrl}`);
-  return parts[0].toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  return parts[0].toLowerCase().replace(/[^a-z0-9-]/g, "-");
 }
 
 export function defaultCampaignId(sourceUrl: string): string {
   const slug = siteSlugOf(sourceUrl);
-  const stamp = new Date().toISOString().slice(0, 10).replaceAll('-', '');
+  const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
   return `${slug}-${stamp}-001`;
 }

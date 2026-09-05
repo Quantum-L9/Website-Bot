@@ -8,6 +8,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, isAbsolute, resolve } from "node:path";
+import type { VisualRequirement } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
 import type {
   AssetSpec,
@@ -23,10 +24,12 @@ import {
   type ResolvedImageAsset,
   type ReuseDisposition,
 } from "../pipeline/evidence/ImageAssetManifest.js";
-import { unresolvedRequiredSlots, type ImageAssetPlan } from "../pipeline/evidence/ImageAssetPlan.js";
+import {
+  type ImageAssetPlan,
+  unresolvedRequiredSlots,
+} from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
-import type { VisualRequirement } from "@quantum-l9/bot-interop";
 import {
   isBrandMarkCandidate,
   type ProvidedCandidate,
@@ -55,7 +58,7 @@ function slugify(value: string): string {
   );
 }
 
-function dispositionForSource(source: ResolvedImageAsset["source"]): ReuseDisposition {
+function dispositionForSource(_source: ResolvedImageAsset["source"]): ReuseDisposition {
   // Operator-supplied and generated assets are client-owned by construction.
   // Source-site reuse is approved for the build but flagged for rights review;
   // PR5 tightens this to a domain-ownership check.
@@ -179,7 +182,14 @@ export class ImageAssetPlanningStage implements Stage {
     }
 
     const stagingRoot = clientAssetRoot(ctx);
-    const resolved = this.resolvePlannedAssets(ctx, plan, slots, provided, sourceCandidates, stagingRoot);
+    const resolved = this.resolvePlannedAssets(
+      ctx,
+      plan,
+      slots,
+      provided,
+      sourceCandidates,
+      stagingRoot,
+    );
     ctx.imageAssetManifest = buildImageAssetManifest(
       ctx.buildId,
       ctx.clientId,
@@ -315,7 +325,8 @@ export class ImageAssetPlanningStage implements Stage {
         decisions.push({
           assetPath: image.localPath,
           decision: "REJECTED",
-          reason: "brand mark (logo/favicon/OG card) not required by any unfilled blueprint visual slot",
+          reason:
+            "brand mark (logo/favicon/OG card) not required by any unfilled blueprint visual slot",
         });
       } else {
         decisions.push({

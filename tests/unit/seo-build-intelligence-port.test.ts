@@ -1,8 +1,8 @@
 // L9_META: layer=test, role=seo_build_intelligence_port, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
-import test from "node:test";
 import fs from "node:fs";
+import test from "node:test";
 import {
   type ArtifactRef,
   type CompetitiveLandscapeV1,
@@ -89,7 +89,7 @@ test("assertWebsiteBlueprintLandscape fails closed on a different landscape", ()
   const landscape = landscapeArtifact();
   const otherRef: ArtifactRef = {
     artifact_type: "competitive_landscape",
-    artifact_id: "competitive_landscape:" + "f".repeat(64),
+    artifact_id: `competitive_landscape:${"f".repeat(64)}`,
     payload_digest: "f".repeat(64),
   };
   const blueprint = websiteBlueprint(otherRef);
@@ -164,7 +164,8 @@ import {
 /** Local pinned versions the client parity-checks against. Resolved from the
  * installed packages so a dependency bump never silently stales the fixture. */
 function readPkgVersion(name: string): string {
-  return JSON.parse(fs.readFileSync(`node_modules/@quantum-l9/${name}/package.json`, "utf8")).version;
+  return JSON.parse(fs.readFileSync(`node_modules/@quantum-l9/${name}/package.json`, "utf8"))
+    .version;
 }
 const LOCAL_BOT_INTEROP_VERSION = readPkgVersion("bot-interop");
 const LOCAL_ROUTER_VERSION = readPkgVersion("llm-router");
@@ -306,7 +307,6 @@ test("preflight maps a Router patch mismatch to SEO_BOT_ROUTER_VERSION_MISMATCH"
   await assert.rejects(
     () => client.preflight(),
     (error: unknown) =>
-      error instanceof SeoBotPreflightError &&
-      error.code === "SEO_BOT_ROUTER_VERSION_MISMATCH",
+      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_ROUTER_VERSION_MISMATCH",
   );
 });

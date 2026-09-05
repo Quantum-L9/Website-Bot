@@ -20,13 +20,13 @@ import {
 
 const landscapeRef: ArtifactRef = {
   artifact_type: "competitive_landscape",
-  artifact_id: "competitive_landscape:" + "a".repeat(64),
+  artifact_id: `competitive_landscape:${"a".repeat(64)}`,
   payload_digest: "a".repeat(64),
 };
 
 const otherLandscapeRef: ArtifactRef = {
   artifact_type: "competitive_landscape",
-  artifact_id: "competitive_landscape:" + "c".repeat(64),
+  artifact_id: `competitive_landscape:${"c".repeat(64)}`,
   payload_digest: "c".repeat(64),
 };
 
@@ -394,7 +394,9 @@ test("quantity questions and statistical proofs are dropped unless corpus-backed
   // "How long do metal roofs last?" demands a lifespan number no fact
   // asserts; "What types…" is answerable and stays.
   assert.ok(!services.content_requirements.questions.includes("How long do metal roofs last?"));
-  assert.ok(services.content_requirements.questions.includes("What types of metal roofing do you install?"));
+  assert.ok(
+    services.content_requirements.questions.includes("What types of metal roofing do you install?"),
+  );
   // Statistical/data proofs demand numbers the facts do not contain;
   // qualitative proof classes stay.
   for (const dropped of [
@@ -417,7 +419,11 @@ test("image-backed multi-word proof requirements are kept without a textual fact
   const seo = sealSeo(
     seoPayload(landscapeRef, [
       seoRequirement({
-        proof_needed: ["before and after photos", "step by step diagram", "quantified success metrics"],
+        proof_needed: [
+          "before and after photos",
+          "step by step diagram",
+          "quantified success metrics",
+        ],
       }),
     ]),
   );

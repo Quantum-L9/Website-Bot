@@ -5,15 +5,16 @@
  * An LLM never decides the final boolean. Identical inputs produce an
  * identical output.
  */
+
+import { dimensionResultOf } from "./quality-delta-index.js";
+import { isHardGateDimension } from "./quality-dimensions.js";
 import type {
   CampaignManifest,
   MutationLayer,
   QualityDeltaIndex,
   QualityDimension,
   QualityDimensionResult,
-} from './types.js';
-import { dimensionResultOf } from './quality-delta-index.js';
-import { isHardGateDimension } from './quality-dimensions.js';
+} from "./types.js";
 
 export interface ReviewableInput {
   index: QualityDeltaIndex;
@@ -26,7 +27,7 @@ export interface ReviewableInput {
   champion_index?: QualityDeltaIndex | null;
 }
 
-const ALLOWED_CONVERSION_VERDICTS = new Set(['IMPROVED', 'NON_REGRESSED']);
+const ALLOWED_CONVERSION_VERDICTS = new Set(["IMPROVED", "NON_REGRESSED"]);
 
 function passesGateChecks(input: ReviewableInput, index: QualityDeltaIndex): boolean {
   if (!input.build_passed) return false;
@@ -37,11 +38,12 @@ function passesGateChecks(input: ReviewableInput, index: QualityDeltaIndex): boo
   if (!input.campaign_confidence_sufficient) return false;
 
   // Accessibility and responsive must have no blocking regression (no hard-gate FAIL).
-  if (hardGateFailuresOf(index, 'accessibility').length > 0) return false;
-  if (hardGateFailuresOf(index, 'responsive').length > 0) return false;
+  if (hardGateFailuresOf(index, "accessibility").length > 0) return false;
+  if (hardGateFailuresOf(index, "responsive").length > 0) return false;
 
   // No blocking INCONCLUSIVE and no unresolved blocking defect (hard-gate FAIL).
-  if (index.aggregate.inconclusive.some(dimension => isHardGateDimension(dimension))) return false;
+  if (index.aggregate.inconclusive.some((dimension) => isHardGateDimension(dimension)))
+    return false;
   if (index.aggregate.hard_gate_failures.length > 0) return false;
   return true;
 }
@@ -49,12 +51,12 @@ function passesGateChecks(input: ReviewableInput, index: QualityDeltaIndex): boo
 function passesConversionChecks(index: QualityDeltaIndex): boolean {
   // conversion_clarity / visual_hierarchy / trust_presentation in {IMPROVED, NON_REGRESSED}
   const conversionClarity = bestVerdictOf(index, [
-    'conversion.primary_cta',
-    'conversion.mobile_cta',
-    'conversion.trust_visibility',
+    "conversion.primary_cta",
+    "conversion.mobile_cta",
+    "conversion.trust_visibility",
   ]);
-  const visualHierarchy = verdictOf(index, 'visual.hierarchy');
-  const trustPresentation = verdictOf(index, 'conversion.trust_visibility');
+  const visualHierarchy = verdictOf(index, "visual.hierarchy");
+  const trustPresentation = verdictOf(index, "conversion.trust_visibility");
   for (const verdict of [conversionClarity, visualHierarchy, trustPresentation]) {
     if (verdict === null || !ALLOWED_CONVERSION_VERDICTS.has(verdict)) return false;
   }
@@ -67,7 +69,7 @@ function passesChampionCheck(input: ReviewableInput, index: QualityDeltaIndex): 
   for (const result of index.results) {
     if (!isHardGateDimension(result.dimension)) continue;
     const championResult = dimensionResultOf(input.champion_index, result.dimension);
-    if (championResult && result.verdict_vs_champion === 'REGRESSED') return false;
+    if (championResult && result.verdict_vs_champion === "REGRESSED") return false;
   }
   return true;
 }
@@ -82,18 +84,27 @@ export function isReviewable(input: ReviewableInput): boolean {
 
 function hardGateFailuresOf(index: QualityDeltaIndex, family: string): QualityDimension[] {
   return index.results
-    .filter(result => result.dimension.startsWith(`${family}.`) && result.hard_gate && result.status === 'FAIL')
-    .map(result => result.dimension);
+    .filter(
+      (result) =>
+        result.dimension.startsWith(`${family}.`) && result.hard_gate && result.status === "FAIL",
+    )
+    .map((result) => result.dimension);
 }
 
-function verdictOf(index: QualityDeltaIndex, dimension: QualityDimension): QualityDimensionResult['verdict_vs_baseline'] {
+function verdictOf(
+  index: QualityDeltaIndex,
+  dimension: QualityDimension,
+): QualityDimensionResult["verdict_vs_baseline"] {
   return dimensionResultOf(index, dimension)?.verdict_vs_baseline ?? null;
 }
 
 /** Best (highest) verdict across a set of dimensions. */
-function bestVerdictOf(index: QualityDeltaIndex, dimensions: QualityDimension[]): QualityDimensionResult['verdict_vs_baseline'] {
+function bestVerdictOf(
+  index: QualityDeltaIndex,
+  dimensions: QualityDimension[],
+): QualityDimensionResult["verdict_vs_baseline"] {
   const rank: Record<string, number> = { REGRESSED: -1, NON_REGRESSED: 0, IMPROVED: 1 };
-  let best: QualityDimensionResult['verdict_vs_baseline'] = null;
+  let best: QualityDimensionResult["verdict_vs_baseline"] = null;
   for (const dimension of dimensions) {
     const verdict = verdictOf(index, dimension);
     if (verdict === null) continue;
@@ -123,6 +134,6 @@ export function buildExhaustionEscalation(args: {
     persistent_blocking_dimension: args.persistent_blocking_dimension,
     earliest_responsible_layer: args.earliest_responsible_layer,
     attempts: args.campaign.attempts.total_candidates,
-    recommendation: 'human architecture or design intervention',
+    recommendation: "human architecture or design intervention",
   };
 }

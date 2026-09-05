@@ -301,7 +301,9 @@ export class SiteAssemblerStage implements Stage {
       // truthiness or are only rendered when a real value exists.
       leadFormAction: this.leadFormAction(ctx) ?? "",
       phone:
-        ctx.domainSpec.seo_contract?.phone?.trim() || firstSourcePhone(ctx.sourceSiteManifest) || "",
+        ctx.domainSpec.seo_contract?.phone?.trim() ||
+        firstSourcePhone(ctx.sourceSiteManifest) ||
+        "",
       images: this.buildImageRegistry(ctx),
       galleryImages: this.buildGalleryRegistry(ctx),
     };

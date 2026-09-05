@@ -29,11 +29,12 @@ rows.push(
     actual_result: configured ? `${provider} configured` : `provider=${provider}, id=UNKNOWN`,
     status: configured ? "PASS" : "UNKNOWN",
     severity: "medium",
-    remediation_if_failed: "Set PUBLIC_ANALYTICS_PROVIDER and PUBLIC_ANALYTICS_ID before analytics verification.",
+    remediation_if_failed:
+      "Set PUBLIC_ANALYTICS_PROVIDER and PUBLIC_ANALYTICS_ID before analytics verification.",
   }),
 );
 const conversionMarker = /trackConversion|lead_submit|claim_review_request|data-conversion/i.test(
-  layout + "\n" + readText("src/components/LeadForm.astro"),
+  `${layout}\n${readText("src/components/LeadForm.astro")}`,
 );
 rows.push(
   result({

@@ -82,7 +82,9 @@ export function resolveMemoryCredentials(
     DEFAULT_L9_MEMORY_URL;
   if (!bearerToken) {
     if (mode === "required") {
-      throw new Error("L9_MEMORY_TOKEN or GRAPHITI_MCP_TOKEN is required when L9_MEMORY_MODE=required");
+      throw new Error(
+        "L9_MEMORY_TOKEN or GRAPHITI_MCP_TOKEN is required when L9_MEMORY_MODE=required",
+      );
     }
     return null;
   }

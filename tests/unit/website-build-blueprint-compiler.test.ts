@@ -8,19 +8,19 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 import {
-  compileWebsiteBuildBlueprint,
-  type CompileWebsiteBuildBlueprintInput,
-  deriveVisualRequirements,
-  digestOf,
-  ensureCanonicalSlotCoverage,
-  type PatternPortfolio,
-} from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
-import {
   deriveDesignReferenceIntelligence,
   resolveClientVision,
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../../src/intelligence/design-authority.js";
+import {
+  type CompileWebsiteBuildBlueprintInput,
+  compileWebsiteBuildBlueprint,
+  deriveVisualRequirements,
+  digestOf,
+  ensureCanonicalSlotCoverage,
+  type PatternPortfolio,
+} from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import type { DomainSpec } from "../../src/pipeline/BuildContext.js";
 import { makeLandscape } from "./redesign-fixtures.js";
 
@@ -118,7 +118,10 @@ void test("compiles and seals a gated V2 blueprint", () => {
   const blueprint = compileWebsiteBuildBlueprint(inputFor());
   assert.equal(blueprint.payload.schema, "l9://website-intelligence/website-build-blueprint/v2");
   assert.equal(blueprint.producer.repo, "Website-Bot");
-  assert.equal(blueprint.artifact_id, `website_build_blueprint:${blueprint.integrity.payload_digest}`);
+  assert.equal(
+    blueprint.artifact_id,
+    `website_build_blueprint:${blueprint.integrity.payload_digest}`,
+  );
 });
 
 void test("WBV2-021: route identity comes from the spec, never the model", () => {
@@ -218,7 +221,10 @@ void test("the blueprint is bound to the landscape it was compiled from", () => 
     blueprint.payload.provenance.competitive_landscape_ref.artifact_id,
     other.artifact_id,
   );
-  assert.deepEqual(blueprint.input_refs.map((ref) => ref.artifact_id), [other.artifact_id]);
+  assert.deepEqual(
+    blueprint.input_refs.map((ref) => ref.artifact_id),
+    [other.artifact_id],
+  );
 });
 
 void test("WBV2-009: provenance digests track their inputs rather than being constants", () => {
@@ -259,13 +265,8 @@ void test("WBV2-006: the compiler imports no SEO blueprint type — no cycle can
   // Structural proof against the import surface, not raw text: the module's
   // prose may name the forbidden type to explain its absence, but no import
   // statement or type position may reference it.
-  const source = readFileSync(
-    resolve("src/intelligence/WebsiteBuildBlueprintCompiler.ts"),
-    "utf8",
-  );
-  const withoutComments = source
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/[^\n]*/g, "");
+  const source = readFileSync(resolve("src/intelligence/WebsiteBuildBlueprintCompiler.ts"), "utf8");
+  const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
   assert.ok(
     !/SEOContentBlueprint/.test(withoutComments),
     "WebsiteBuildBlueprintCompiler must not reference SEOContentBlueprint in code (WBV2-006)",
@@ -332,7 +333,11 @@ void test("WBV2-010: visual requirements are derived deterministically from stru
   const second = deriveVisualRequirements(routes);
   assert.deepEqual(first, second);
   assert.ok(first.some((requirement) => requirement.slot_id === "global:logo"));
-  assert.ok(first.every((requirement, index) => index === 0 || requirement.slot_id > first[index - 1]!.slot_id));
+  assert.ok(
+    first.every(
+      (requirement, index) => index === 0 || requirement.slot_id > first[index - 1]!.slot_id,
+    ),
+  );
 });
 
 void test("WBV2-010: the sealed blueprint carries its own visual requirements", () => {

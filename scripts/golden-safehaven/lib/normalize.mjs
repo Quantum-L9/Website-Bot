@@ -112,12 +112,12 @@ export function joinSelectedDonors(landscape) {
       0,
     );
     const domainRow = Array.isArray(landscape.domains)
-      ? landscape.domains.find((d) => normalizeDomain(d?.domain) === normalized) ?? null
+      ? (landscape.domains.find((d) => normalizeDomain(d?.domain) === normalized) ?? null)
       : null;
     const visibility =
       visibilitySum > 0
         ? visibilitySum
-        : domainRow?.aggregate_visibility ?? domainRow?.visibility;
+        : (domainRow?.aggregate_visibility ?? domainRow?.visibility);
     const row = { normalized_domain: normalized };
     if (typeof donor.domain === "string" && donor.domain !== "") row.domain = donor.domain;
     if (donor.qualified_operating_company != null) {
@@ -251,7 +251,12 @@ export function firstDefined(obj, paths) {
  * preflight payload plus fetch metadata and the locally installed interop
  * versions. Each check is { name, status: "PASS" | "FAIL" }.
  */
-export function derivePreflightChecks({ preflight, fetchMeta, botInteropVersion, llmRouterVersion }) {
+export function derivePreflightChecks({
+  preflight,
+  fetchMeta,
+  botInteropVersion,
+  llmRouterVersion,
+}) {
   const meta = fetchMeta ?? {};
   const reached = meta.reached === true;
   const httpOk = reached && typeof meta.http_status === "number" && meta.http_status < 500;
@@ -269,11 +274,26 @@ export function derivePreflightChecks({ preflight, fetchMeta, botInteropVersion,
   return [
     { name: "seo_bot_reachable", status: httpOk ? "PASS" : "FAIL" },
     { name: "seo_bot_machine_auth", status: authOk ? "PASS" : "FAIL" },
-    { name: "competitive_landscape_capability", status: caps.competitive_landscape === true ? "PASS" : "FAIL" },
-    { name: "seo_content_blueprint_capability", status: caps.seo_content_blueprint === true ? "PASS" : "FAIL" },
-    { name: "structured_content_capability", status: caps.structured_content === true ? "PASS" : "FAIL" },
-    { name: "dataforseo_configured", status: conf.dataforseo_configured === true ? "PASS" : "FAIL" },
-    { name: "llm_provider_configured", status: conf.llm_provider_configured === true ? "PASS" : "FAIL" },
+    {
+      name: "competitive_landscape_capability",
+      status: caps.competitive_landscape === true ? "PASS" : "FAIL",
+    },
+    {
+      name: "seo_content_blueprint_capability",
+      status: caps.seo_content_blueprint === true ? "PASS" : "FAIL",
+    },
+    {
+      name: "structured_content_capability",
+      status: caps.structured_content === true ? "PASS" : "FAIL",
+    },
+    {
+      name: "dataforseo_configured",
+      status: conf.dataforseo_configured === true ? "PASS" : "FAIL",
+    },
+    {
+      name: "llm_provider_configured",
+      status: conf.llm_provider_configured === true ? "PASS" : "FAIL",
+    },
     { name: "bot_interop_compatible", status: botInteropCompatible ? "PASS" : "FAIL" },
     { name: "llm_router_compatible", status: llmRouterCompatible ? "PASS" : "FAIL" },
   ];

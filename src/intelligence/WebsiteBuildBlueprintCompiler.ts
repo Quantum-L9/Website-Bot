@@ -11,9 +11,9 @@ import { createHash } from "node:crypto";
 import {
   type ArtifactRef,
   assertWebsiteBuildBlueprintV2,
-  canonicalJson,
   type CompetitiveLandscapeArtifact,
   type ContentSlot,
+  canonicalJson,
   type PaletteAuthority,
   refForArtifact,
   sealIntelligenceArtifact,
@@ -388,7 +388,10 @@ function conversionOf(
       clientPrimary ??
       (typeof row.primary_action === "string" ? row.primary_action : "Request a free inspection"),
     secondary_actions: [
-      ...new Set([...clientVision.conversion_priorities.slice(1), ...stringArray(row.secondary_actions)]),
+      ...new Set([
+        ...clientVision.conversion_priorities.slice(1),
+        ...stringArray(row.secondary_actions),
+      ]),
     ],
     persistent_mobile_action: row.persistent_mobile_action !== false,
   };
@@ -550,9 +553,7 @@ export function compileWebsiteBuildBlueprint(
   const designDirection = resolveDesignDirection({
     clientVision: input.clientVision,
     designReferenceIntelligence: input.designReferenceIntelligence,
-    patternPrinciples: adoptedPatterns
-      .map((pattern) => pattern.invariant.trim())
-      .filter(Boolean),
+    patternPrinciples: adoptedPatterns.map((pattern) => pattern.invariant.trim()).filter(Boolean),
     modelPrinciples: stringArray(input.model.design_principles),
     referencePatternRefs: adoptedPatterns.map((pattern) => pattern.pattern_id),
     paletteAuthority: input.paletteAuthority,

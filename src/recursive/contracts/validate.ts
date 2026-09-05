@@ -31,8 +31,7 @@ function resolveRef(root: JsonSchema, ref: string): JsonSchema {
     .reduce<JsonSchema>((current, key) => {
       const decoded = key.replaceAll("~1", "/").replaceAll("~0", "~");
       return (
-        current.$defs?.[decoded] ??
-        (current as unknown as Record<string, JsonSchema>)[decoded]
+        current.$defs?.[decoded] ?? (current as unknown as Record<string, JsonSchema>)[decoded]
       );
     }, root);
 }
@@ -69,7 +68,8 @@ function walkArray(node: JsonSchema, item: unknown, itemPath: string, walk: Walk
 function walkString(node: JsonSchema, item: unknown, itemPath: string): string | null {
   if (typeof item !== "string") return `${itemPath} must be string`;
   if (item.length < (node.minLength ?? 0)) return `${itemPath} is too short`;
-  if (node.pattern && !new RegExp(node.pattern).test(item)) return `${itemPath} does not match pattern`;
+  if (node.pattern && !new RegExp(node.pattern).test(item))
+    return `${itemPath} does not match pattern`;
   if (node.format === "date-time" && Number.isNaN(Date.parse(item)))
     return `${itemPath} must be date-time`;
   return null;

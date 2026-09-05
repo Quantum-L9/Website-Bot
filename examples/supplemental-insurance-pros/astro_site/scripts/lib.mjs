@@ -75,7 +75,7 @@ export function writeJsonl(relativePath, rows) {
   fs.mkdirSync(path.dirname(path.join(root, relativePath)), { recursive: true });
   fs.writeFileSync(
     path.join(root, relativePath),
-    rows.map((row) => JSON.stringify(row)).join("\n") + "\n",
+    `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`,
   );
 }
 

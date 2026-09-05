@@ -4,10 +4,14 @@
  * Budget defaults are locked in the execution contract; unbounded iteration
  * is forbidden.
  */
-export { DEFAULT_CAMPAIGN_BUDGET } from './types.js';
-import type { CampaignManifest } from './types.js';
+export { DEFAULT_CAMPAIGN_BUDGET } from "./types.js";
 
-export function budgetExhausted(manifest: CampaignManifest, budget: CampaignManifest['budget']): boolean {
+import type { CampaignManifest } from "./types.js";
+
+export function budgetExhausted(
+  manifest: CampaignManifest,
+  budget: CampaignManifest["budget"],
+): boolean {
   const attempts = manifest.attempts;
   if (attempts.total_candidates >= budget.max_candidate_builds) return true;
   if (attempts.blueprint_replans > budget.max_blueprint_replans) return true;

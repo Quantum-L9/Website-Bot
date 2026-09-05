@@ -136,11 +136,16 @@ function buildPositiveReceipt() {
   });
   const pairs = [];
   for (const [route, viewport] of [
-    ["/", "desktop"], ["/", "mobile"],
-    ["/services/roof-replacement/", "desktop"], ["/services/storm-damage/", "mobile"],
-    ["/gallery/", "desktop"], ["/gallery/", "mobile"],
-    ["/contact/", "desktop"], ["/contact/", "mobile"],
-  ]) pairs.push(visualPair(route, viewport, ["CANDIDATE", "CANDIDATE", "CANDIDATE"]));
+    ["/", "desktop"],
+    ["/", "mobile"],
+    ["/services/roof-replacement/", "desktop"],
+    ["/services/storm-damage/", "mobile"],
+    ["/gallery/", "desktop"],
+    ["/gallery/", "mobile"],
+    ["/contact/", "desktop"],
+    ["/contact/", "mobile"],
+  ])
+    pairs.push(visualPair(route, viewport, ["CANDIDATE", "CANDIDATE", "CANDIDATE"]));
   pairs.push(visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]));
   pairs.push(visualPair("/", "desktop", ["CANDIDATE", "CANDIDATE", "BASELINE"]));
 
@@ -151,10 +156,23 @@ function buildPositiveReceipt() {
       llm_router: { sha: "c".repeat(40), package_version: "1.1.3", worktree_state: "CLEAN" },
       bot_interop: { website_bot_version: "3.1.0", seo_bot_version: "2.4.0", compatible: true },
     },
-    run: { build_intent: "REDESIGN_IMPROVE", copy_fallback_used: false, generic_fallback_used: false, run_id: "golden-run-2026-08-24" },
+    run: {
+      build_intent: "REDESIGN_IMPROVE",
+      copy_fallback_used: false,
+      generic_fallback_used: false,
+      run_id: "golden-run-2026-08-24",
+    },
     events: STAGE_EVENTS.map((name) => ({ name })),
-    preflight: { status: "PASS", checks: PREFLIGHT_CHECKS.map((name) => ({ name, status: "PASS" })) },
-    competitive_landscape: { selected_donors: donors, evidence_complete: true, ranking_llm_calls: 0, artifact_ref: "landscape-ref" },
+    preflight: {
+      status: "PASS",
+      checks: PREFLIGHT_CHECKS.map((name) => ({ name, status: "PASS" })),
+    },
+    competitive_landscape: {
+      selected_donors: donors,
+      evidence_complete: true,
+      ranking_llm_calls: 0,
+      artifact_ref: "landscape-ref",
+    },
     donor_evidence: donorEvidence,
     website_build_blueprint: {
       artifact_ref: "wbb-ref",
@@ -163,20 +181,55 @@ function buildPositiveReceipt() {
       project_proof_required: false,
       gallery_required: false,
     },
-    seo_content_blueprint: { routes: [...ROUTES], batch_size: 4, batch_count: 8, competitive_landscape_ref: "landscape-ref", unknown_content_slots: 0, invalid_internal_link_targets: 0 },
-    page_content_contract: { routes: [...ROUTES], artifact_ref: "pcc-ref", llm_calls: 0, unplaced_requirements: 0, invalid_business_facts: 0, determinism: { digest_run_1: "semantic-digest-1", digest_run_2: "semantic-digest-1" } },
-    structured_content: { routes: [...ROUTES], page_content_contract_ref: "pcc-ref", route_results: routeResults },
+    seo_content_blueprint: {
+      routes: [...ROUTES],
+      batch_size: 4,
+      batch_count: 8,
+      competitive_landscape_ref: "landscape-ref",
+      unknown_content_slots: 0,
+      invalid_internal_link_targets: 0,
+    },
+    page_content_contract: {
+      routes: [...ROUTES],
+      artifact_ref: "pcc-ref",
+      llm_calls: 0,
+      unplaced_requirements: 0,
+      invalid_business_facts: 0,
+      determinism: { digest_run_1: "semantic-digest-1", digest_run_2: "semantic-digest-1" },
+    },
+    structured_content: {
+      routes: [...ROUTES],
+      page_content_contract_ref: "pcc-ref",
+      route_results: routeResults,
+    },
     legacy: { content_generation_calls: 0, schema_llm_calls: 0, redesign_schema_llm_calls: 0 },
     assets: {
-      raw_source_images: 5, authorized_reusable_images: 3, selected_source_images: 2,
-      unexplained_reusable_asset_loss: 0, required_visual_slots_filled_fraction: 1, donor_asset_hash_matches: 0,
+      raw_source_images: 5,
+      authorized_reusable_images: 3,
+      selected_source_images: 2,
+      unexplained_reusable_asset_loss: 0,
+      required_visual_slots_filled_fraction: 1,
+      donor_asset_hash_matches: 0,
       source_corpus_completed: true,
       candidate_dispositions: ["SOURCE_CLIENT_OWNED", "SOURCE_LICENSED_REUSE", "GENERATED"],
-      eligible_source_project_proof_count: 0, selected_source_project_proof_count: 0,
-      eligible_source_gallery_count: 0, selected_source_gallery_count: 0,
+      eligible_source_project_proof_count: 0,
+      selected_source_project_proof_count: 0,
+      eligible_source_gallery_count: 0,
+      selected_source_gallery_count: 0,
     },
-    site: { routes: [...ROUTES], reachable_routes: 29, broken_internal_links: 0, placeholder_count: 0, per_route: perRoute },
-    business_truth: { unsupported_claim_count: 0, phone_mismatch_count: 0, email_mismatch_count: 0, prohibition_violations: 0 },
+    site: {
+      routes: [...ROUTES],
+      reachable_routes: 29,
+      broken_internal_links: 0,
+      placeholder_count: 0,
+      per_route: perRoute,
+    },
+    business_truth: {
+      unsupported_claim_count: 0,
+      phone_mismatch_count: 0,
+      email_mismatch_count: 0,
+      prohibition_violations: 0,
+    },
     llm_audit: {
       direct_provider_bypass_count: 0,
       unsupported_capability_combination_count: 0,
@@ -196,39 +249,80 @@ function buildPositiveReceipt() {
  * Returns a mutated clone; expected codes are asserted against the result.
  */
 const MUTATIONS = {
-  "NC-01": (r) => { r.competitive_landscape.selected_donors = r.competitive_landscape.selected_donors.slice(0, 9); },
-  "NC-02": (r) => { r.competitive_landscape.selected_donors[1].normalized_domain = r.competitive_landscape.selected_donors[0].normalized_domain; },
-  "NC-03": (r) => { r.competitive_landscape.selected_donors[0].class = "directory"; },
-  "NC-04": (r) => { r.donor_evidence[0].screenshots = 0; },
+  "NC-01": (r) => {
+    r.competitive_landscape.selected_donors = r.competitive_landscape.selected_donors.slice(0, 9);
+  },
+  "NC-02": (r) => {
+    r.competitive_landscape.selected_donors[1].normalized_domain =
+      r.competitive_landscape.selected_donors[0].normalized_domain;
+  },
+  "NC-03": (r) => {
+    r.competitive_landscape.selected_donors[0].class = "directory";
+  },
+  "NC-04": (r) => {
+    r.donor_evidence[0].screenshots = 0;
+  },
   "NC-05": (r) => {
     const preflight = r.events.findIndex((e) => e.name === "seo-build-intelligence-preflight:PASS");
     r.events.splice(preflight, 1);
     r.events.splice(4, 0, { name: "seo-build-intelligence-preflight:PASS" });
   },
-  "NC-06": (r) => { r.seo_content_blueprint.routes = ROUTES.slice(0, 28); },
-  "NC-07": (r) => { r.seo_content_blueprint.routes = [...ROUTES, "/unknown-route/"]; },
-  "NC-08": (r) => { r.website_build_blueprint.competitive_landscape_ref = "other-landscape-ref"; },
-  "NC-09": (r) => { r.page_content_contract.llm_calls = 1; },
-  "NC-10": (r) => { r.structured_content.page_content_contract_ref = "pcc-ref-X"; },
-  "NC-11": (r) => { r.structured_content.route_results[0].sections = [{ content: "raw prose without blocks" }]; r.structured_content.route_results[0].section_alias_fields = ["content"]; r.structured_content.route_results[0].prose_without_blocks = 1; },
-  "NC-12": (r) => { r.structured_content.route_results[0].repair_attempts = 2; },
-  "NC-13": (r) => { r.legacy.content_generation_calls = 1; },
-  "NC-14": (r) => { r.legacy.redesign_schema_llm_calls = 1; },
+  "NC-06": (r) => {
+    r.seo_content_blueprint.routes = ROUTES.slice(0, 28);
+  },
+  "NC-07": (r) => {
+    r.seo_content_blueprint.routes = [...ROUTES, "/unknown-route/"];
+  },
+  "NC-08": (r) => {
+    r.website_build_blueprint.competitive_landscape_ref = "other-landscape-ref";
+  },
+  "NC-09": (r) => {
+    r.page_content_contract.llm_calls = 1;
+  },
+  "NC-10": (r) => {
+    r.structured_content.page_content_contract_ref = "pcc-ref-X";
+  },
+  "NC-11": (r) => {
+    r.structured_content.route_results[0].sections = [{ content: "raw prose without blocks" }];
+    r.structured_content.route_results[0].section_alias_fields = ["content"];
+    r.structured_content.route_results[0].prose_without_blocks = 1;
+  },
+  "NC-12": (r) => {
+    r.structured_content.route_results[0].repair_attempts = 2;
+  },
+  "NC-13": (r) => {
+    r.legacy.content_generation_calls = 1;
+  },
+  "NC-14": (r) => {
+    r.legacy.redesign_schema_llm_calls = 1;
+  },
   "NC-15": (r) => {
     r.website_build_blueprint.project_proof_required = true;
     r.assets.eligible_source_project_proof_count = 2;
     r.assets.selected_source_project_proof_count = 0;
     r.assets.rejected_source_project_proof = [];
   },
-  "NC-16": (r) => { r.assets.donor_asset_hash_matches = 1; },
-  "NC-17": (r) => { r.identity.seo_bot.llm_router_version = "9.9.9"; },
-  "NC-18": (r) => { r.llm_audit.operations.CONTENT_VALIDATION[0].searchRequired = true; },
-  "NC-19": (r) => { r.visual.pairs = r.visual.pairs.slice(0, 9); },
+  "NC-16": (r) => {
+    r.assets.donor_asset_hash_matches = 1;
+  },
+  "NC-17": (r) => {
+    r.identity.seo_bot.llm_router_version = "9.9.9";
+  },
+  "NC-18": (r) => {
+    r.llm_audit.operations.CONTENT_VALIDATION[0].searchRequired = true;
+  },
+  "NC-19": (r) => {
+    r.visual.pairs = r.visual.pairs.slice(0, 9);
+  },
   "NC-20": (r) => {
     r.visual.pairs = [
       visualPairSpec("/", "desktop", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
       visualPairSpec("/", "mobile", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
-      visualPairSpec("/services/roof-replacement/", "desktop", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
+      visualPairSpec("/services/roof-replacement/", "desktop", [
+        "CANDIDATE",
+        "CANDIDATE",
+        "CANDIDATE",
+      ]),
       visualPairSpec("/services/storm-damage/", "mobile", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
       visualPairSpec("/gallery/", "desktop", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
       visualPairSpec("/gallery/", "mobile", ["CANDIDATE", "CANDIDATE", "CANDIDATE"]),
@@ -238,24 +332,48 @@ const MUTATIONS = {
       }),
     ];
   },
-  "NC-21": (r) => { const p = r.visual.pairs.find((x) => x.route === "/" && x.viewport === "mobile"); p.trials = [trialSpec("BASELINE"), trialSpec("BASELINE"), trialSpec("BASELINE")]; },
-  "NC-22": (r) => { for (const p of r.visual.pairs) for (const t of p.trials) t.normalized_candidate_delta.visual_hierarchy = -0.4; },
+  "NC-21": (r) => {
+    const p = r.visual.pairs.find((x) => x.route === "/" && x.viewport === "mobile");
+    p.trials = [trialSpec("BASELINE"), trialSpec("BASELINE"), trialSpec("BASELINE")];
+  },
+  "NC-22": (r) => {
+    for (const p of r.visual.pairs)
+      for (const t of p.trials) t.normalized_candidate_delta.visual_hierarchy = -0.4;
+  },
   "NC-23": (r) => {
     r.business_truth.unsupported_claim_count = 1;
     r.business_truth.prohibition_violations = 1;
     r.structured_content.route_results[0].unsupported_claims = 1;
   },
-  "NC-24": (r) => { r.site.reachable_routes = 28; },
-  "NC-25": (r) => { r.site.reachable_routes = 28; },
+  "NC-24": (r) => {
+    r.site.reachable_routes = 28;
+  },
+  "NC-25": (r) => {
+    r.site.reachable_routes = 28;
+  },
 };
 
 function trialSpec(preference, deltaValue = 0.4) {
   const delta = {};
   for (const d of DIMENSIONS) delta[d] = deltaValue;
-  return { blind: true, judge_input_manifest: "render pair; left-right order randomized", normalized_preference: preference, normalized_candidate_delta: delta };
+  return {
+    blind: true,
+    judge_input_manifest: "render pair; left-right order randomized",
+    normalized_preference: preference,
+    normalized_candidate_delta: delta,
+  };
 }
 function visualPairSpec(route, viewport, prefs) {
-  return { route, viewport, candidate_blank: false, baseline_blank: false, route_match: true, viewport_match: true, captured_run_id: "golden-run-2026-08-24", trials: prefs.map((p) => trialSpec(p)) };
+  return {
+    route,
+    viewport,
+    candidate_blank: false,
+    baseline_blank: false,
+    route_match: true,
+    viewport_match: true,
+    captured_run_id: "golden-run-2026-08-24",
+    trials: prefs.map((p) => trialSpec(p)),
+  };
 }
 
 const EXPECTED_CODES = {
@@ -281,7 +399,11 @@ const EXPECTED_CODES = {
   "NC-20": ["VISUAL_IMPROVEMENT_INSUFFICIENT", "VISUAL_VOTE_CONFIDENCE_INSUFFICIENT"],
   "NC-21": ["CRITICAL_VISUAL_PAIR_REGRESSED"],
   "NC-22": ["CRITICAL_VISUAL_DIMENSION_REGRESSED"],
-  "NC-23": ["UNSUPPORTED_BUSINESS_CLAIM", "BUSINESS_PROHIBITION_VIOLATION", "UNSUPPORTED_CONTENT_CLAIM"],
+  "NC-23": [
+    "UNSUPPORTED_BUSINESS_CLAIM",
+    "BUSINESS_PROHIBITION_VIOLATION",
+    "UNSUPPORTED_CONTENT_CLAIM",
+  ],
   "NC-24": ["SITE_REACHABILITY_INCOMPLETE"],
   "NC-25": ["SITE_REACHABILITY_INCOMPLETE"],
 };
@@ -308,13 +430,18 @@ if (positiveRun.exitCode !== 0 || positiveRun.result.verdict !== "GOLDEN_E2E_PAS
   console.error(JSON.stringify(positiveRun.result, null, 2).slice(0, 2000));
   process.exit(1);
 }
-console.log(`positive control: ACCEPTED (${positiveRun.result.verdict}, exit ${positiveRun.exitCode})`);
+console.log(
+  `positive control: ACCEPTED (${positiveRun.result.verdict}, exit ${positiveRun.exitCode})`,
+);
 
 // ---- 2. Negative controls ------------------------------------------------
 for (const spec of NC_SPEC.required_mutations) {
   const mutated = structuredClone(buildPositiveReceipt());
   const mutate = MUTATIONS[spec.id];
-  if (!mutate) { results.push({ id: spec.id, applied: false, note: "no mutator defined" }); continue; }
+  if (!mutate) {
+    results.push({ id: spec.id, applied: false, note: "no mutator defined" });
+    continue;
+  }
   mutate(mutated);
   const p = tempReceipt(mutated, `nc-${spec.id}`);
   const run = runVerifier(casePath, p, oraclePath);
@@ -336,7 +463,9 @@ for (const spec of NC_SPEC.required_mutations) {
     semantic_ok: semanticHit.length > 0,
     verdict: run.result.verdict,
   });
-  console.log(`  ${spec.id}: ${rejected ? "REJECTED" : "FALSE_ACCEPTANCE"} codes=${codes.join(",") || "-"} semantic=${semanticHit.join(",") || "MISS"}`);
+  console.log(
+    `  ${spec.id}: ${rejected ? "REJECTED" : "FALSE_ACCEPTANCE"} codes=${codes.join(",") || "-"} semantic=${semanticHit.join(",") || "MISS"}`,
+  );
 }
 
 const negativeRun = results.filter((r) => r.rejected).length;
@@ -348,7 +477,10 @@ const summary = {
   semantic_misses: results.filter((r) => r.rejected && !r.semantic_ok).map((r) => r.id),
   results,
 };
-fs.writeFileSync(path.join(outDir, "negative-control-results.json"), `${JSON.stringify(summary, null, 2)}\n`);
+fs.writeFileSync(
+  path.join(outDir, "negative-control-results.json"),
+  `${JSON.stringify(summary, null, 2)}\n`,
+);
 
 // ---- 3. Deterministic replay ---------------------------------------------
 const run1 = runVerifier(casePath, positivePath, oraclePath);
@@ -362,9 +494,21 @@ const strip = (r) => {
 const d1 = JSON.stringify(strip(run1));
 const d2 = JSON.stringify(strip(run2));
 const deterministic = d1 === d2;
-fs.writeFileSync(path.join(outDir, "determinism.json"), `${JSON.stringify({ schema: "l9.golden-oracle-determinism/v1", deterministic, run1_exit: run1.exitCode, run2_exit: run2.exitCode }, null, 2)}\n`);
-console.log(`deterministic replay: ${deterministic ? "IDENTICAL" : "DIVERGED"} (exit ${run1.exitCode} / ${run2.exitCode})`);
+fs.writeFileSync(
+  path.join(outDir, "determinism.json"),
+  `${JSON.stringify({ schema: "l9.golden-oracle-determinism/v1", deterministic, run1_exit: run1.exitCode, run2_exit: run2.exitCode }, null, 2)}\n`,
+);
+console.log(
+  `deterministic replay: ${deterministic ? "IDENTICAL" : "DIVERGED"} (exit ${run1.exitCode} / ${run2.exitCode})`,
+);
 
-const ok = positiveRun.exitCode === 0 && summary.negative_controls_run === 25 && summary.negative_controls_rejected === 25 && falseAcceptances === 0 && deterministic;
-console.log(`\nCALIBRATION: ${ok ? "COMPLETE" : "FAILED"} — run=${summary.negative_controls_run} rejected=${summary.negative_controls_rejected} falseAccepts=${falseAcceptances} determinism=${deterministic}`);
+const ok =
+  positiveRun.exitCode === 0 &&
+  summary.negative_controls_run === 25 &&
+  summary.negative_controls_rejected === 25 &&
+  falseAcceptances === 0 &&
+  deterministic;
+console.log(
+  `\nCALIBRATION: ${ok ? "COMPLETE" : "FAILED"} — run=${summary.negative_controls_run} rejected=${summary.negative_controls_rejected} falseAccepts=${falseAcceptances} determinism=${deterministic}`,
+);
 process.exit(ok ? 0 : 1);

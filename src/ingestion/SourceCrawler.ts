@@ -20,8 +20,8 @@ import type {
 } from "../pipeline/evidence/SourceSiteManifest.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
 import { crawlPagePriority } from "./CrawlPriority.js";
-import { extractPage, type ExtractedPage } from "./PageExtractor.js";
-import { FetchedResource, HttpPageFetcher } from "./PageFetcher.js";
+import { type ExtractedPage, extractPage } from "./PageExtractor.js";
+import { type FetchedResource, HttpPageFetcher } from "./PageFetcher.js";
 import { NoopScreenshotCapturer, type ScreenshotCapturer } from "./ScreenshotCapturer.js";
 import {
   DEFAULT_SOURCE_IMAGE_POLICY,

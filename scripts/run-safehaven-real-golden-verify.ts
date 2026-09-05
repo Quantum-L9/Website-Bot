@@ -80,7 +80,11 @@ export interface GoldenVerifyOptions {
 
 export function parseVerifyArguments(argv: string[]): GoldenVerifyOptions {
   if (!argv.includes("--authorize-paid-visual")) {
-    fail(0, "PAID_VISUAL_NOT_AUTHORIZED", "real Golden certification spends on 30 VISUAL_QA calls; pass --authorize-paid-visual");
+    fail(
+      0,
+      "PAID_VISUAL_NOT_AUTHORIZED",
+      "real Golden certification spends on 30 VISUAL_QA calls; pass --authorize-paid-visual",
+    );
   }
   const runtimePath = argumentValue(argv, "runtime");
   const candidateUrl = argumentValue(argv, "candidate-url");
@@ -103,8 +107,10 @@ export function parseVerifyArguments(argv: string[]): GoldenVerifyOptions {
     oraclePath: argumentValue(argv, "oracle") ?? "tests/golden/safehaven/oracle.json",
     judgePath: argumentValue(argv, "judge") ?? "tests/golden/safehaven/visual-judge.md",
     visualOutputPath: argumentValue(argv, "visual-out") ?? "evidence/safehaven-golden-visual.json",
-    receiptOutputPath: argumentValue(argv, "receipt-out") ?? "evidence/safehaven-real-golden-receipt.json",
-    verdictOutputPath: argumentValue(argv, "verdict-out") ?? "evidence/safehaven-real-golden-verdict.json",
+    receiptOutputPath:
+      argumentValue(argv, "receipt-out") ?? "evidence/safehaven-real-golden-receipt.json",
+    verdictOutputPath:
+      argumentValue(argv, "verdict-out") ?? "evidence/safehaven-real-golden-verdict.json",
     baselineUrl: argumentValue(argv, "baseline-url"),
     clientId: argumentValue(argv, "client-id"),
   };
@@ -115,15 +121,27 @@ export function assertRuntimeEvidenceUsable(
   expectedRunId: string,
 ): void {
   if (runtime.schema !== "l9.safehaven-real-runtime-evidence/v1") {
-    fail(2, "RUNTIME_EVIDENCE_INVALID", "runtime evidence schema is not l9.safehaven-real-runtime-evidence/v1");
+    fail(
+      2,
+      "RUNTIME_EVIDENCE_INVALID",
+      "runtime evidence schema is not l9.safehaven-real-runtime-evidence/v1",
+    );
   }
   const run_ = runtime.run as { run_id?: string } | undefined;
   if (run_?.run_id !== expectedRunId) {
-    fail(2, "RUN_ID_MISMATCH", `runtime evidence run_id ${String(run_?.run_id)} != --run-id ${expectedRunId}`);
+    fail(
+      2,
+      "RUN_ID_MISMATCH",
+      `runtime evidence run_id ${String(run_?.run_id)} != --run-id ${expectedRunId}`,
+    );
   }
   const unresolved = runtime.unresolved_external_dependencies;
   if (!Array.isArray(unresolved)) {
-    fail(2, "RUNTIME_EVIDENCE_INVALID", "runtime evidence does not declare unresolved_external_dependencies");
+    fail(
+      2,
+      "RUNTIME_EVIDENCE_INVALID",
+      "runtime evidence does not declare unresolved_external_dependencies",
+    );
   }
   if (unresolved.length > 0) {
     fail(
@@ -145,10 +163,18 @@ export function assertRenderedPhases(
   const site = rendered.site as { per_route?: unknown[]; reachable_routes?: number } | undefined;
   const expectedRoutes = (testCase.routes as string[]).length;
   if (!Array.isArray(site?.per_route) || site.per_route.length !== expectedRoutes) {
-    fail(4, "SITE_ROUTE_EVIDENCE_INCOMPLETE", `expected ${expectedRoutes} rendered route observations`);
+    fail(
+      4,
+      "SITE_ROUTE_EVIDENCE_INCOMPLETE",
+      `expected ${expectedRoutes} rendered route observations`,
+    );
   }
   if (site.reachable_routes !== expectedRoutes) {
-    fail(4, "SITE_REACHABILITY_INCOMPLETE", `only ${String(site.reachable_routes)}/${expectedRoutes} routes passed rendered integrity`);
+    fail(
+      4,
+      "SITE_REACHABILITY_INCOMPLETE",
+      `only ${String(site.reachable_routes)}/${expectedRoutes} routes passed rendered integrity`,
+    );
   }
   // ---- phase 5: sentinel x viewport captures --------------------------
   const requiredPairs = (oracle.visual_capture as { required_pairs: number }).required_pairs;
@@ -157,8 +183,15 @@ export function assertRenderedPhases(
     fail(5, "VISUAL_CAPTURE_INCOMPLETE", `expected ${requiredPairs} captured visual pairs`);
   }
   for (const pair of pairs) {
-    if (typeof pair.candidate_screenshot_digest !== "string" || typeof pair.baseline_screenshot_digest !== "string") {
-      fail(5, "VISUAL_CAPTURE_DIGEST_MISSING", `${String(pair.route)}/${String(pair.viewport)} carries no screenshot digests`);
+    if (
+      typeof pair.candidate_screenshot_digest !== "string" ||
+      typeof pair.baseline_screenshot_digest !== "string"
+    ) {
+      fail(
+        5,
+        "VISUAL_CAPTURE_DIGEST_MISSING",
+        `${String(pair.route)}/${String(pair.viewport)} carries no screenshot digests`,
+      );
     }
   }
   // ---- phase 6: blind multi-trial adjudication ------------------------
@@ -168,10 +201,15 @@ export function assertRenderedPhases(
     0,
   );
   if (totalTrials !== requiredPairs * trialsPerPair) {
-    fail(6, "VISUAL_ORACLE_MISSING_TRIAL", `expected ${requiredPairs * trialsPerPair} blind trials, got ${totalTrials}`);
+    fail(
+      6,
+      "VISUAL_ORACLE_MISSING_TRIAL",
+      `expected ${requiredPairs * trialsPerPair} blind trials, got ${totalTrials}`,
+    );
   }
-  const auditRecords = (rendered.llm_audit as { operations?: { VISUAL_QA?: unknown[] } } | undefined)
-    ?.operations?.VISUAL_QA;
+  const auditRecords = (
+    rendered.llm_audit as { operations?: { VISUAL_QA?: unknown[] } } | undefined
+  )?.operations?.VISUAL_QA;
   if (!Array.isArray(auditRecords) || auditRecords.length !== totalTrials) {
     fail(6, "LLM_AUDIT_OPERATION_MISSING", "every blind trial must carry a VISUAL_QA audit record");
   }
@@ -180,7 +218,11 @@ export function assertRenderedPhases(
 export async function main(argv: string[]): Promise<void> {
   // ---- phase 1 --------------------------------------------------------
   if (process.env.GOLDEN_CALIBRATION_MODE) {
-    fail(1, "GOLDEN_CALIBRATION_MODE_SET", "real Golden certification must never run in calibration mode");
+    fail(
+      1,
+      "GOLDEN_CALIBRATION_MODE_SET",
+      "real Golden certification must never run in calibration mode",
+    );
   }
   const options = parseVerifyArguments(argv);
 
@@ -256,7 +298,11 @@ export async function main(argv: string[]): Promise<void> {
   try {
     verdict = (JSON.parse(verify.stdout) as { verdict?: string }).verdict ?? "UNKNOWN";
   } catch {
-    fail(10, "VERIFIER_OUTPUT_UNREADABLE", verify.stderr.trim() || "verifier produced no JSON verdict");
+    fail(
+      10,
+      "VERIFIER_OUTPUT_UNREADABLE",
+      verify.stderr.trim() || "verifier produced no JSON verdict",
+    );
   }
   if (verify.status !== 0 || verdict !== "GOLDEN_E2E_PASS_IMPROVED") {
     fail(10, "GOLDEN_E2E_NOT_PASSED", `verifier verdict was ${verdict}`);

@@ -95,7 +95,30 @@ function hashSeed(name) {
 // ---------------------------------------------------------------- pairs ---
 
 const DENYLIST_WORDS = ["rm", "dd", "curl"];
-const SHELL_CHARS = ["a", "b", "Z", "0", "_", "=", " ", "-", ".", "/", ";", "&", "|", "(", ")", ">", "<", "`", "$", '"', "'", "\n"];
+const SHELL_CHARS = [
+  "a",
+  "b",
+  "Z",
+  "0",
+  "_",
+  "=",
+  " ",
+  "-",
+  ".",
+  "/",
+  ";",
+  "&",
+  "|",
+  "(",
+  ")",
+  ">",
+  "<",
+  "`",
+  "$",
+  '"',
+  "'",
+  "\n",
+];
 
 function pairEnvAssignments() {
   const oldEnv = /^(?:[A-Za-z_]\w*=\S+\s+)+/;
@@ -114,13 +137,14 @@ function pairEnvAssignments() {
   return {
     oldMatcher,
     newMatcher,
-    generate: (rng, i) => {
+    generate: (rng, _i) => {
       // Mix of realistic assignment prefixes and adversarial runs.
       const roll = rng();
       if (roll < 0.4) {
         const count = Math.floor(rng() * 5);
         let s = "";
-        for (let k = 0; k < count; k++) s += `N${k}=${randomString(rng, SHELL_CHARS.slice(0, 12), 1, 8)} `;
+        for (let k = 0; k < count; k++)
+          s += `N${k}=${randomString(rng, SHELL_CHARS.slice(0, 12), 1, 8)} `;
         s += randomString(rng, SHELL_CHARS, 0, 12);
         return s;
       }
@@ -151,7 +175,7 @@ function pairRedirectStrip() {
     oldMatcher: (s) => s.replace(oldRedirect, ""),
     newMatcher: (s) => s.replace(newRedirect, ""),
     domainCheck,
-    generate: (rng, i) => {
+    generate: (rng, _i) => {
       const roll = rng();
       if (roll < 0.5) {
         // Realistic redirect prefixes (1-2 chars)
@@ -188,8 +212,7 @@ function pairAssertionPatterns() {
     /✕.{0,2000}expect/i,
     /error:.{0,2000}expect/i,
   ];
-  const matchSet = (patterns, s) =>
-    patterns.map((p) => Boolean(p.exec(s))).join(",");
+  const matchSet = (patterns, s) => patterns.map((p) => Boolean(p.exec(s))).join(",");
   const domainCheck = (s) => s.length <= 4000; // any 2000-char span requires ≤4000 chars
   return {
     oldMatcher: (s) => matchSet(oldPatterns, s),
@@ -210,11 +233,19 @@ function pairAssertionPatterns() {
         const kw = pick(rng, keywords);
         let s = kw.join("");
         for (let i = kw.length - 1; i > 0; i--) {
-          s = s.slice(0, kw.slice(0, i).join("").length) + gap() + s.slice(kw.slice(0, i).join("").length);
+          s =
+            s.slice(0, kw.slice(0, i).join("").length) +
+            gap() +
+            s.slice(kw.slice(0, i).join("").length);
         }
         return s + randomString(rng, [" ", "x"], 0, 10);
       }
-      return randomString(rng, ["e", "x", "p", "t", ":", " ", "\n", "✕", "f", "a", "i", "l"], 0, 60);
+      return randomString(
+        rng,
+        ["e", "x", "p", "t", ":", " ", "\n", "✕", "f", "a", "i", "l"],
+        0,
+        60,
+      );
     },
     corpusSize: 100_000,
   };
@@ -291,10 +322,7 @@ for (const pair of pairs) {
 }
 
 const totalCases = results.reduce((sum, r) => sum + r.corpusSize, 0);
-const totalDiffs = results.reduce(
-  (sum, r) => sum + (r.domainDiffExamples?.length ?? 0),
-  0,
-);
+const totalDiffs = results.reduce((sum, r) => sum + (r.domainDiffExamples?.length ?? 0), 0);
 console.log(
   JSON.stringify(
     {

@@ -135,7 +135,9 @@ export class ImageGenerationStage implements Stage {
       // client with no spec-authored slots must still generate. Looking
       // slots up in assets.imageSlots alone skipped every planned asset for
       // quantumaipartners_com — 20 "generated", zero images shipped.
-      const specSlot = (assets.imageSlots ?? []).find((candidate) => candidate.id === planned.slotId);
+      const specSlot = (assets.imageSlots ?? []).find(
+        (candidate) => candidate.id === planned.slotId,
+      );
       const slot: ImageSlotSpec = {
         id: planned.slotId,
         placement: planned.placement,
@@ -194,7 +196,7 @@ export class ImageGenerationStage implements Stage {
   }
 
   private async resolveAsset(
-    ctx: BuildContext,
+    _ctx: BuildContext,
     params: ResolveAssetParams,
   ): Promise<ResolvedImageAsset> {
     const { cacheRoot, slot, fingerprint } = params;
@@ -226,7 +228,9 @@ export class ImageGenerationStage implements Stage {
     };
   }
 
-  private async generateAndCache(params: ResolveAssetParams): Promise<CacheMetadata & { bytes: Buffer }> {
+  private async generateAndCache(
+    params: ResolveAssetParams,
+  ): Promise<CacheMetadata & { bytes: Buffer }> {
     const { generator, budget, cacheRoot, slot, brief, prompt, fingerprint } = params;
     const metaPath = resolve(cacheRoot, `${fingerprint}.json`);
     let result: Awaited<ReturnType<typeof generator.generate>> | undefined;

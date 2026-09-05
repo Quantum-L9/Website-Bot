@@ -91,22 +91,53 @@
     "free_inspections": true,
     "workmanship_warranty_years": 5,
     "roofing_brands": ["GAF", "CertainTeed", "Atlas"],
-    "service_areas": ["Charlotte", "Gastonia", "Belmont", "Lake Wylie", "Mount Holly", "Huntersville", "Lowell", "Weddington", "Matthews", "Waxhaw", "Ballantyne", "Indian Trail", "Mooresville", "Concord", "Pineville"]
+    "service_areas": [
+      "Charlotte",
+      "Gastonia",
+      "Belmont",
+      "Lake Wylie",
+      "Mount Holly",
+      "Huntersville",
+      "Lowell",
+      "Weddington",
+      "Matthews",
+      "Waxhaw",
+      "Ballantyne",
+      "Indian Trail",
+      "Mooresville",
+      "Concord",
+      "Pineville"
+    ]
   },
   "fact_guardrails": {
     "unsupported_claim_count": 0,
-    "forbidden_patterns": ["\\bdecades? of (combined )?experience\\b", "\\b20\\+ years? of experience\\b", "\\bguaranteed lowest price\\b", "\\bcheapest roofer\\b"],
-    "claims_requiring_explicit_verified_fact": ["license status", "certification status", "years of experience", "warranty duration", "response-time guarantee", "price guarantee", "project count", "award", "insurance relationship"]
+    "forbidden_patterns": [
+      "\\bdecades? of (combined )?experience\\b",
+      "\\b20\\+ years? of experience\\b",
+      "\\bguaranteed lowest price\\b",
+      "\\bcheapest roofer\\b"
+    ],
+    "claims_requiring_explicit_verified_fact": [
+      "license status",
+      "certification status",
+      "years of experience",
+      "warranty duration",
+      "response-time guarantee",
+      "price guarantee",
+      "project count",
+      "award",
+      "insurance relationship"
+    ]
   },
   "visual_sentinels": [
-    {"route": "/", "critical": true},
-    {"route": "/services/roof-replacement/", "critical": true},
-    {"route": "/services/storm-damage/", "critical": false},
-    {"route": "/gallery/", "critical": true},
-    {"route": "/contact/", "critical": true}
+    { "route": "/", "critical": true },
+    { "route": "/services/roof-replacement/", "critical": true },
+    { "route": "/services/storm-damage/", "critical": false },
+    { "route": "/gallery/", "critical": true },
+    { "route": "/contact/", "critical": true }
   ],
   "viewports": [
-    {"id": "desktop", "width": 1440, "height": 900, "device_scale_factor": 1},
-    {"id": "mobile", "width": 390, "height": 844, "device_scale_factor": 1}
+    { "id": "desktop", "width": 1440, "height": 900, "device_scale_factor": 1 },
+    { "id": "mobile", "width": 390, "height": 844, "device_scale_factor": 1 }
   ]
 }

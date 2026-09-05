@@ -11,8 +11,8 @@ import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { after, before, test } from "node:test";
-import { NoopScreenshotCapturer } from "../../src/ingestion/ScreenshotCapturer.js";
 import { extractPage } from "../../src/ingestion/PageExtractor.js";
+import { NoopScreenshotCapturer } from "../../src/ingestion/ScreenshotCapturer.js";
 import {
   acquireAndAnalyzeDesignReferences,
   acquireDesignReference,
@@ -31,9 +31,9 @@ import {
 import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.js";
 import { clientAssetRoot } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
+import type { WebsiteFactoryLLM } from "../../src/services/llm.js";
 import { resolveDesignAuthorities } from "../../src/stages/CompetitiveIntelligenceStage.js";
 import { DesignReferenceAcquisitionStage } from "../../src/stages/DesignReferenceAcquisitionStage.js";
-import type { WebsiteFactoryLLM } from "../../src/services/llm.js";
 
 /* ---------------- fixture site ----------------------------------- */
 
@@ -53,7 +53,13 @@ let base = "";
 before(async () => {
   server = createServer((request, response) => {
     const url = request.url ?? "/";
-    if (url === "/good" || url === "/good2" || url === "/good3" || url === "/good4" || url === "/good5") {
+    if (
+      url === "/good" ||
+      url === "/good2" ||
+      url === "/good3" ||
+      url === "/good4" ||
+      url === "/good5"
+    ) {
       response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       response.end(PAGE);
     } else if (url === "/style.css") {
@@ -118,7 +124,10 @@ function fakeLlm(responder?: (user: string, call: number) => string): WebsiteFac
   } as unknown as WebsiteFactoryLLM;
 }
 
-function spec(references: DomainSpec["design_references"], vision?: DomainSpec["client_vision"]): DomainSpec {
+function spec(
+  references: DomainSpec["design_references"],
+  vision?: DomainSpec["client_vision"],
+): DomainSpec {
   return {
     client_id: "ref-client",
     business_name: "Ref Co",
@@ -163,7 +172,10 @@ void test("one valid client reference is acquired with real evidence and provena
   assert.equal(evidence.observed?.hierarchy, "single-h1");
   assert.equal(evidence.observed?.nav_item_count, 3);
   assert.equal(evidence.observed?.conversion_prominence, "single-primary");
-  assert.ok(evidence.observed?.distinct_font_family_count && evidence.observed.distinct_font_family_count >= 2);
+  assert.ok(
+    evidence.observed?.distinct_font_family_count &&
+      evidence.observed.distinct_font_family_count >= 2,
+  );
   assert.ok(evidence.copy_guard_terms.some((term) => term.includes("northwind systems")));
   // Observed palette survives only as abstract characteristics — never a color.
   for (const characteristic of evidence.observed?.palette_characteristics ?? []) {
@@ -207,7 +219,10 @@ void test("unreachable, erroring, non-HTML, invalid and forbidden references are
   assert.equal(erroring.status, "unreachable");
   assert.equal(erroring.http_status, 500);
 
-  const pdf = await acquireDesignReference({ reference_id: "pdf", url: `${base}/pdf` }, acquireOptions(dir));
+  const pdf = await acquireDesignReference(
+    { reference_id: "pdf", url: `${base}/pdf` },
+    acquireOptions(dir),
+  );
   assert.equal(pdf.status, "not_html");
 
   const invalid = await acquireDesignReference(
@@ -237,7 +252,10 @@ function acquiredEvidence(): DesignReferenceEvidence {
     status: "acquired",
     fetched_at: "2026-09-03T00:00:00.000Z",
     content_digest: "a".repeat(64),
-    copy_guard_terms: ["northwind systems — serious ai infrastructure", "build production systems that actually ship"],
+    copy_guard_terms: [
+      "northwind systems — serious ai infrastructure",
+      "build production systems that actually ship",
+    ],
     observed: observeDesignCharacteristics(PAGE, extractPage(PAGE, `${base}/good`), CSS),
   };
 }
@@ -253,7 +271,11 @@ void test("copy-transfer guard rejects a principle that reproduces reference cop
     /DESIGN_REFERENCE_ANALYSIS_INVALID.*reproduces reference copy/s,
   );
   assert.doesNotThrow(() =>
-    assertNoReferenceCopyTransfer(["single dominant headline per page"], acquiredEvidence().copy_guard_terms, "layout"),
+    assertNoReferenceCopyTransfer(
+      ["single dominant headline per page"],
+      acquiredEvidence().copy_guard_terms,
+      "layout",
+    ),
   );
 });
 
@@ -268,7 +290,11 @@ void test("analysis parser rejects raw expression and empty analyses", () => {
     /DESIGN_REFERENCE_RAW_TRANSFER/,
   );
   assert.throws(
-    () => parseDesignReferenceAnalysis({ client_relationship: "quality_benchmark", layout: ["#0b5fff accents"] }, evidence),
+    () =>
+      parseDesignReferenceAnalysis(
+        { client_relationship: "quality_benchmark", layout: ["#0b5fff accents"] },
+        evidence,
+      ),
     /DESIGN_REFERENCE_RAW_TRANSFER/,
   );
   assert.throws(
@@ -280,7 +306,11 @@ void test("analysis parser rejects raw expression and empty analyses", () => {
     /client_relationship/,
   );
   const parsed = parseDesignReferenceAnalysis(
-    { client_relationship: "quality_benchmark", layout: ["generous spacing"], typography: ["editorial"] },
+    {
+      client_relationship: "quality_benchmark",
+      layout: ["generous spacing"],
+      typography: ["editorial"],
+    },
     evidence,
   );
   assert.equal(parsed.source, "system_derived");
@@ -294,7 +324,12 @@ void test("five valid references are all acquired and analyzed; derived principl
   const dir = outDir();
   const declared = resolveDesignReferenceSet(
     spec([
-      { reference_id: "r1", url: `${base}/good`, selection_reason: "I like the calm", principles: { layout: ["operator layout note"] } },
+      {
+        reference_id: "r1",
+        url: `${base}/good`,
+        selection_reason: "I like the calm",
+        principles: { layout: ["operator layout note"] },
+      },
       { reference_id: "r2", url: `${base}/good2`, selection_reason: "polish" },
       { reference_id: "r3", url: `${base}/good3`, selection_reason: "depth" },
       { reference_id: "r4", url: `${base}/good4`, selection_reason: "restraint" },
@@ -308,7 +343,13 @@ void test("five valid references are all acquired and analyzed; derived principl
     buildId: "b-five",
     clientContext: { brand_attributes: [], change: [], explicit_constraints: [] },
   });
-  assert.deepEqual(manifest.summary, { declared: 5, with_url: 5, acquired: 5, failed: 0, analyzed: 5 });
+  assert.deepEqual(manifest.summary, {
+    declared: 5,
+    with_url: 5,
+    acquired: 5,
+    failed: 0,
+    analyzed: 5,
+  });
   assert.ok(existsSync(resolve(dir, "design-reference-acquisition.json")));
 
   const applied = applyAcquisitionToReferenceSet(declared, manifest);
@@ -336,7 +377,12 @@ void test("mixed reachable and unreachable references: partial evidence is hones
   const declared = resolveDesignReferenceSet(
     spec([
       { reference_id: "ok", url: `${base}/good`, selection_reason: "yes" },
-      { reference_id: "down", url: "http://127.0.0.1:9/", selection_reason: "also", principles: { positive: ["operator positive"] } },
+      {
+        reference_id: "down",
+        url: "http://127.0.0.1:9/",
+        selection_reason: "also",
+        principles: { positive: ["operator positive"] },
+      },
       { reference_id: "words-only", selection_reason: "no url at all" },
     ]),
   );
@@ -347,13 +393,21 @@ void test("mixed reachable and unreachable references: partial evidence is hones
     buildId: "b-mixed",
     clientContext: { brand_attributes: [], change: [], explicit_constraints: [] },
   });
-  assert.deepEqual(manifest.summary, { declared: 3, with_url: 2, acquired: 1, failed: 1, analyzed: 1 });
+  assert.deepEqual(manifest.summary, {
+    declared: 3,
+    with_url: 2,
+    acquired: 1,
+    failed: 1,
+    analyzed: 1,
+  });
   const applied = applyAcquisitionToReferenceSet(declared, manifest);
   const down = applied.accepted_references.find((reference) => reference.reference_id === "down")!;
   assert.equal(down.acquisition?.status, "unreachable");
   assert.equal(down.principle_source, "operator_authored");
   assert.deepEqual(down.principles.positive, ["operator positive"]);
-  const wordsOnly = applied.accepted_references.find((reference) => reference.reference_id === "words-only")!;
+  const wordsOnly = applied.accepted_references.find(
+    (reference) => reference.reference_id === "words-only",
+  )!;
   assert.equal(wordsOnly.acquisition?.status, "no_url");
   assert.equal(wordsOnly.principle_source, "none");
   rmSync(dir, { recursive: true, force: true });
@@ -361,7 +415,9 @@ void test("mixed reachable and unreachable references: partial evidence is hones
 
 void test("a copy-transferring analysis is repaired once, then fails closed", async () => {
   const dir = outDir();
-  const declared = resolveDesignReferenceSet(spec([{ reference_id: "r", url: `${base}/good`, selection_reason: "x" }]));
+  const declared = resolveDesignReferenceSet(
+    spec([{ reference_id: "r", url: `${base}/good`, selection_reason: "x" }]),
+  );
   const copying = JSON.stringify({
     client_relationship: "quality_benchmark",
     layout: ["Build production systems that actually ship"],
@@ -372,7 +428,10 @@ void test("a copy-transferring analysis is repaired once, then fails closed", as
     llm: fakeLlm((user, call) => {
       if (call === 1) return copying;
       seenRepair = user.includes("previous response was rejected");
-      return JSON.stringify({ client_relationship: "quality_benchmark", layout: ["single dominant headline"] });
+      return JSON.stringify({
+        client_relationship: "quality_benchmark",
+        layout: ["single dominant headline"],
+      });
     }),
     clientId: "ref-client",
     buildId: "b-repair",
@@ -412,7 +471,11 @@ void test("stage: derived reference intelligence reaches the design direction an
   assert.equal(ctx.clientVision?.declared, true);
   assert.equal(ctx.designReferenceAcquisition?.summary.acquired, 1);
   assert.equal(ctx.designReferenceSet?.accepted_references[0]?.principle_source, "system_derived");
-  assert.ok(ctx.designReferenceIntelligence?.typography_characteristics.includes("editorial display typography"));
+  assert.ok(
+    ctx.designReferenceIntelligence?.typography_characteristics.includes(
+      "editorial display typography",
+    ),
+  );
 
   const direction = resolveDesignDirection({
     clientVision: ctx.clientVision!,
@@ -427,44 +490,74 @@ void test("stage: derived reference intelligence reaches the design direction an
 
   // Persistence: the acquisition ledger and the resolved authorities are on disk for this build.
   const dir = resolve(clientAssetRoot(ctx), "redesign-intelligence");
-  for (const name of ["client-vision", "design-reference-acquisition", "design-reference-set", "design-reference-intelligence"]) {
+  for (const name of [
+    "client-vision",
+    "design-reference-acquisition",
+    "design-reference-set",
+    "design-reference-intelligence",
+  ]) {
     assert.ok(existsSync(resolve(dir, `${name}.json`)), `${name}.json persisted`);
   }
-  const index = JSON.parse(readFileSync(resolve(dir, "index.json"), "utf-8")) as { build_id: string };
+  const index = JSON.parse(readFileSync(resolve(dir, "index.json"), "utf-8")) as {
+    build_id: string;
+  };
   assert.equal(index.build_id, ctx.buildId);
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
 });
 
 void test("stage: every URL-bearing reference unreachable fails closed with DESIGN_REFERENCE_UNACQUIRED", async () => {
-  const ctx = makeCtx(spec([{ reference_id: "down", url: "http://127.0.0.1:9/", selection_reason: "x" }]));
+  const ctx = makeCtx(
+    spec([{ reference_id: "down", url: "http://127.0.0.1:9/", selection_reason: "x" }]),
+  );
   await assert.rejects(
     () =>
-      new DesignReferenceAcquisitionStage({ allowPrivateHosts: true, screenshots: () => new NoopScreenshotCapturer() }).run(ctx),
+      new DesignReferenceAcquisitionStage({
+        allowPrivateHosts: true,
+        screenshots: () => new NoopScreenshotCapturer(),
+      }).run(ctx),
     (error: unknown) => error instanceof BuildError && error.code === "DESIGN_REFERENCE_UNACQUIRED",
   );
   rmSync(clientAssetRoot(ctx), { recursive: true, force: true });
 });
 
 void test("stage: COPY builds and dry runs never fetch", async () => {
-  const copy = makeCtx(spec([{ reference_id: "r", url: "http://127.0.0.1:9/", selection_reason: "x" }]), { buildIntent: "COPY" });
+  const copy = makeCtx(
+    spec([{ reference_id: "r", url: "http://127.0.0.1:9/", selection_reason: "x" }]),
+    { buildIntent: "COPY" },
+  );
   await new DesignReferenceAcquisitionStage().run(copy);
   assert.equal(copy.designReferenceSet, undefined);
 
-  const dry = makeCtx(spec([{ reference_id: "r", url: "http://127.0.0.1:9/", selection_reason: "x" }]), { dryRun: true });
+  const dry = makeCtx(
+    spec([{ reference_id: "r", url: "http://127.0.0.1:9/", selection_reason: "x" }]),
+    { dryRun: true },
+  );
   await new DesignReferenceAcquisitionStage().run(dry);
   assert.equal(dry.designReferenceSet?.provenance.source, "domain_spec");
   assert.equal(dry.designReferenceAcquisition, undefined);
 });
 
 void test("competitive intelligence refuses to compile on declared-but-unacquired reference URLs", () => {
-  const ctx = makeCtx(spec([{ reference_id: "r", url: "https://example.com/", selection_reason: "x" }]));
+  const ctx = makeCtx(
+    spec([{ reference_id: "r", url: "https://example.com/", selection_reason: "x" }]),
+  );
   assert.throws(
     () => resolveDesignAuthorities(ctx),
     (error: unknown) => error instanceof BuildError && error.code === "DESIGN_REFERENCE_UNACQUIRED",
   );
   // References with no URL need no acquisition: the spec-resolved path stands.
-  const wordsOnly = makeCtx(spec([{ reference_id: "r", selection_reason: "x", principles: { layout: ["proof above the fold"] } }]));
+  const wordsOnly = makeCtx(
+    spec([
+      {
+        reference_id: "r",
+        selection_reason: "x",
+        principles: { layout: ["proof above the fold"] },
+      },
+    ]),
+  );
   const resolved = resolveDesignAuthorities(wordsOnly);
-  assert.deepEqual(resolved.designReferenceIntelligence.layout_principles, ["proof above the fold"]);
+  assert.deepEqual(resolved.designReferenceIntelligence.layout_principles, [
+    "proof above the fold",
+  ]);
   assert.equal(resolveClientVision(wordsOnly.domainSpec).declared, false);
 });

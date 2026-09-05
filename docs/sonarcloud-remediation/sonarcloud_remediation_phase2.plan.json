@@ -91,9 +91,7 @@
     {
       "id": "phase1-s107-example-lib",
       "task": "Apply same refactor to examples/.../scripts/lib.mjs:49 (duplicated template code)",
-      "files": [
-        "examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs"
-      ],
+      "files": ["examples/supplemental-insurance-pros/astro_site/scripts/lib.mjs"],
       "effort": "30m",
       "risk": "low",
       "dependencies": ["phase1-s107-template-lib"],
@@ -104,9 +102,7 @@
     {
       "id": "phase1-s107-validation-framework",
       "task": "Refactor astro_template/scripts/validation-framework.mjs:13 validate() from 8 params to options",
-      "files": [
-        "astro_template/scripts/validation-framework.mjs"
-      ],
+      "files": ["astro_template/scripts/validation-framework.mjs"],
       "effort": "1h",
       "risk": "low",
       "dependencies": [],
@@ -134,7 +130,12 @@
       "blocker": "checkpoint_validation",
       "effort": "30m",
       "risk": "low",
-      "dependencies": ["phase1-s107-template-lib", "phase1-s107-example-lib", "phase1-s107-validation-framework", "phase1-s107-evidence-collector"],
+      "dependencies": [
+        "phase1-s107-template-lib",
+        "phase1-s107-example-lib",
+        "phase1-s107-validation-framework",
+        "phase1-s107-evidence-collector"
+      ],
       "leverage_rank": 8
     },
     {
@@ -155,9 +156,7 @@
     {
       "id": "phase2-s3776-validate-spec-routes",
       "task": "Extract route validation from src/pipeline/validateDomainSpec.ts:119 (complexity 38 → <15)",
-      "files": [
-        "src/pipeline/validateDomainSpec.ts"
-      ],
+      "files": ["src/pipeline/validateDomainSpec.ts"],
       "effort": "3h",
       "risk": "high",
       "dependencies": ["phase2-s3776-validate-spec-low"],
@@ -168,9 +167,7 @@
     {
       "id": "phase2-s3776-validate-spec-provision",
       "task": "Extract provision validation from src/pipeline/validateDomainSpec.ts:153 (complexity 40 → <15)",
-      "files": [
-        "src/pipeline/validateDomainSpec.ts"
-      ],
+      "files": ["src/pipeline/validateDomainSpec.ts"],
       "effort": "3h",
       "risk": "high",
       "dependencies": ["phase2-s3776-validate-spec-routes"],
@@ -181,9 +178,7 @@
     {
       "id": "phase2-s3776-cli-low",
       "task": "Extract CLI subcommand handlers from packages/validation-executor/src/cli.ts:8,192 (complexity 32-35 → <15)",
-      "files": [
-        "packages/validation-executor/src/cli.ts"
-      ],
+      "files": ["packages/validation-executor/src/cli.ts"],
       "effort": "5h",
       "risk": "high",
       "dependencies": ["phase1-validate"],
@@ -193,10 +188,7 @@
     {
       "id": "phase2-s3776-validator-low",
       "task": "Extract helpers from scripts/validation-executor.ts:100, scripts/validate-l9-boundaries.mjs:57 (complexity 32-35 → <15)",
-      "files": [
-        "scripts/validation-executor.ts",
-        "scripts/validate-l9-boundaries.mjs"
-      ],
+      "files": ["scripts/validation-executor.ts", "scripts/validate-l9-boundaries.mjs"],
       "effort": "3h",
       "risk": "medium",
       "dependencies": ["phase1-validate"],
@@ -206,10 +198,7 @@
     {
       "id": "phase2-s3776-extract-json",
       "task": "Refactor src/services/extractJson.ts:37 (complexity 37 → <15) - extract parsing stages",
-      "files": [
-        "src/services/extractJson.ts",
-        "tests/unit/extract-json.test.ts (add coverage)"
-      ],
+      "files": ["src/services/extractJson.ts", "tests/unit/extract-json.test.ts (add coverage)"],
       "effort": "2h",
       "risk": "medium",
       "dependencies": ["phase1-validate"],
@@ -219,9 +208,7 @@
     {
       "id": "phase2-s3776-example-verify-smoke",
       "task": "Refactor examples/.../scripts/verify-smoke.mjs:19 (complexity 35 → <15) - advisory template fix",
-      "files": [
-        "examples/supplemental-insurance-pros/astro_site/scripts/verify-smoke.mjs"
-      ],
+      "files": ["examples/supplemental-insurance-pros/astro_site/scripts/verify-smoke.mjs"],
       "effort": "2h",
       "risk": "low",
       "dependencies": ["phase1-validate"],
@@ -235,15 +222,21 @@
       "blocker": "checkpoint_validation",
       "effort": "1h",
       "risk": "low",
-      "dependencies": ["phase2-s3776-validate-spec-low", "phase2-s3776-validate-spec-routes", "phase2-s3776-validate-spec-provision", "phase2-s3776-cli-low", "phase2-s3776-validator-low", "phase2-s3776-extract-json", "phase2-s3776-example-verify-smoke"],
+      "dependencies": [
+        "phase2-s3776-validate-spec-low",
+        "phase2-s3776-validate-spec-routes",
+        "phase2-s3776-validate-spec-provision",
+        "phase2-s3776-cli-low",
+        "phase2-s3776-validator-low",
+        "phase2-s3776-extract-json",
+        "phase2-s3776-example-verify-smoke"
+      ],
       "leverage_rank": 13
     },
     {
       "id": "phase3-redos-fuzz-harness",
       "task": "Create scripts/fuzz_regex_equivalence.mjs harness (if not existing) for 800k+ test case generation and comparison",
-      "files": [
-        "scripts/fuzz_regex_equivalence.mjs"
-      ],
+      "files": ["scripts/fuzz_regex_equivalence.mjs"],
       "effort": "3h",
       "risk": "low",
       "dependencies": ["phase2-validate"],
@@ -331,12 +324,17 @@
     {
       "id": "phase3-security-review",
       "task": "Security review: all 6 ReDoS changes + fuzz evidence → APPROVED or BLOCKED with required changes",
-      "files": [
-        "docs/sonarcloud-remediation/SECURITY_REVIEW_REDOS.md"
-      ],
+      "files": ["docs/sonarcloud-remediation/SECURITY_REVIEW_REDOS.md"],
       "effort": "2h",
       "risk": "irreversible",
-      "dependencies": ["phase3-redos-secure-exec-110", "phase3-redos-secure-exec-113", "phase3-redos-e2e-engine", "phase3-redos-handoff-emitter", "phase3-redos-request", "phase3-redos-validate-site"],
+      "dependencies": [
+        "phase3-redos-secure-exec-110",
+        "phase3-redos-secure-exec-113",
+        "phase3-redos-e2e-engine",
+        "phase3-redos-handoff-emitter",
+        "phase3-redos-request",
+        "phase3-redos-validate-site"
+      ],
       "leverage_rank": 21
     },
     {
@@ -654,7 +652,13 @@
   ],
   "convergence": {
     "status": "partial",
-    "remaining_unknown_ids": ["U1-external-callers", "U2-security-reviewer-identity", "U3-prod-data-regex-coverage", "U4-validation-error-consumers", "U5-mutation-test-availability"],
+    "remaining_unknown_ids": [
+      "U1-external-callers",
+      "U2-security-reviewer-identity",
+      "U3-prod-data-regex-coverage",
+      "U4-validation-error-consumers",
+      "U5-mutation-test-availability"
+    ],
     "next_skill": "l9-ynp",
     "stop_reason": "Plan ready for execution, pending runtime validation gates and unknown resolution during implementation. Pre-validation checks test-suite-green, existing-coverage, security-review-process require execution context. All final validations are pending until implementation. 5 unknowns will be resolved via probe/ask during phased execution."
   },

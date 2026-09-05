@@ -16,9 +16,7 @@ describe("assertShellAllowlist", () => {
   });
 
   test("strips leading env assignments before first-token detection", () => {
-    doesNotThrow(() =>
-      assertShellAllowlist("NODE_ENV=production FOO=bar npm run build"),
-    );
+    doesNotThrow(() => assertShellAllowlist("NODE_ENV=production FOO=bar npm run build"));
     doesNotThrow(() => assertShellAllowlist("A=1 npm run build"));
   });
 
@@ -49,7 +47,7 @@ describe("assertShellAllowlist", () => {
     // whole 70-char run plus the following `rm` token (empty first token →
     // skip); the bounded rewrite only strips 64+residue, leaving `rm` as
     // the first token, which the allowlist rejects — fail-closed.
-    throws(() => assertShellAllowlist(">".repeat(70) + " rm -rf /tmp"), /not allowlisted/);
+    throws(() => assertShellAllowlist(`${">".repeat(70)} rm -rf /tmp`), /not allowlisted/);
   });
 });
 

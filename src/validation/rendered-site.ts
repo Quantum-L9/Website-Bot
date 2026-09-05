@@ -9,8 +9,8 @@
 // viewport in a real Chromium, collecting the checks into a machine-readable
 // report. It never mutates the site.
 
-import { createServer, type Server } from "node:http";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import { createServer, type Server } from "node:http";
 import { extname, join, resolve, sep } from "node:path";
 import { distPathForRoute, normalizeRouteSlug } from "./validate-generated-site.js";
 
@@ -193,7 +193,11 @@ export function evaluateRouteFacts(
     checks.push({ name, status: ok ? "PASS" : "FAIL", detail });
   };
   push("route_returns_success", httpStatus === 200, `HTTP ${httpStatus}`);
-  push("title_present", facts.title.trim().length > 0, facts.title ? `title: ${facts.title}` : "no <title>");
+  push(
+    "title_present",
+    facts.title.trim().length > 0,
+    facts.title ? `title: ${facts.title}` : "no <title>",
+  );
   push(
     "single_h1",
     facts.h1_count === 1,
@@ -235,7 +239,9 @@ export function evaluateRouteFacts(
   push(
     "images_have_alt",
     missingAlt.length === 0,
-    missingAlt.length === 0 ? "every image carries alt" : `${missingAlt.length} image(s) without alt`,
+    missingAlt.length === 0
+      ? "every image carries alt"
+      : `${missingAlt.length} image(s) without alt`,
   );
   const unresolved = facts.internal_links.filter((href) => {
     const path = href.split("?")[0].split("#")[0];
@@ -270,7 +276,9 @@ export function evaluateRouteFacts(
   push(
     "no_failed_requests",
     failedRequests.length === 0,
-    failedRequests.length === 0 ? "every same-origin request succeeded" : failedRequests.slice(0, 5).join(", "),
+    failedRequests.length === 0
+      ? "every same-origin request succeeded"
+      : failedRequests.slice(0, 5).join(", "),
   );
   if (route.noindex) {
     checks.push({ name: "noindex_route", status: "PASS", detail: "route declared noindex" });
@@ -386,9 +394,7 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
         });
         try {
           for (const route of options.routes) {
-            routes.push(
-              await this.renderRoute(context, served.baseUrl, options, route, viewport),
-            );
+            routes.push(await this.renderRoute(context, served.baseUrl, options, route, viewport));
           }
         } finally {
           await context.close();
@@ -440,10 +446,13 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
     page.on("pageerror", (error: Error) => {
       consoleErrors.push(`pageerror: ${error.message}`);
     });
-    page.on("requestfailed", (request: { url(): string; failure(): { errorText: string } | null }) => {
-      if (request.url().startsWith(baseUrl))
-        failedRequests.push(`${request.url()} (${request.failure()?.errorText ?? "failed"})`);
-    });
+    page.on(
+      "requestfailed",
+      (request: { url(): string; failure(): { errorText: string } | null }) => {
+        if (request.url().startsWith(baseUrl))
+          failedRequests.push(`${request.url()} (${request.failure()?.errorText ?? "failed"})`);
+      },
+    );
     page.on("response", (response: { url(): string; status(): number }) => {
       if (response.url().startsWith(baseUrl) && response.status() >= 400)
         failedRequests.push(`${response.url()} (HTTP ${response.status()})`);
@@ -464,7 +473,9 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
       );
       await page.screenshot({ path: screenshotPath, fullPage: true });
     } catch (error) {
-      consoleErrors.push(`render failed: ${error instanceof Error ? error.message : String(error)}`);
+      consoleErrors.push(
+        `render failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     } finally {
       await page.close();
     }
