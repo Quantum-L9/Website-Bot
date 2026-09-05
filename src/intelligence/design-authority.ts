@@ -181,6 +181,20 @@ function strings(value: unknown, field: string): string[] {
   );
 }
 
+/**
+ * Order-preserving variant for fields whose ORDER is the client's statement:
+ * `conversion_priorities[0]` is the primary action (WBV2-019). Sorting it, as
+ * `strings()` does for set-like fields, silently elected an alphabetically
+ * earlier action as primary (L2-S11-001).
+ */
+function orderedStrings(value: unknown, field: string): string[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw new DesignAuthorityError("CLIENT_VISION_INVALID", `${field} must be an array of strings`);
+  }
+  return [...new Set(value.map((entry) => entry.trim()).filter(Boolean))];
+}
+
 function isCssColor(value: unknown): value is string {
   return (
     typeof value === "string" &&
@@ -236,15 +250,22 @@ export function resolveClientVision(spec: DomainSpec): ClientVision {
     disliked_examples: strings(raw.disliked_examples, "client_vision.disliked_examples"),
     preserve: strings(raw.preserve, "client_vision.preserve"),
     change: strings(raw.change, "client_vision.change"),
-    conversion_priorities: strings(raw.conversion_priorities, "client_vision.conversion_priorities"),
+    conversion_priorities: orderedStrings(
+      raw.conversion_priorities,
+      "client_vision.conversion_priorities",
+    ),
     explicit_constraints: strings(raw.explicit_constraints, "client_vision.explicit_constraints"),
     palette,
   };
 
+  // Liked/disliked examples ARE statements of intent: a client who only says
+  // "like A, dislike B" has declared a vision (L2-S8-001).
   const stated = [
     ...vision.desired_outcomes,
     ...vision.brand_attributes,
     ...vision.visual_preferences,
+    ...vision.liked_examples,
+    ...vision.disliked_examples,
     ...vision.preserve,
     ...vision.change,
     ...vision.conversion_priorities,

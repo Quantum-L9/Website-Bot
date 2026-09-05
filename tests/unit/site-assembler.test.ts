@@ -36,6 +36,15 @@ void test("materializes the fixture into a client-specific Astro project", async
     const contact = readFileSync(join(ctx.outputDir, "src/pages/contact/index.astro"), "utf-8");
     assert.match(contact, /contact_form/);
     assert.match(contact, /fixture content/);
+    // L2-S16-001: a route without a hero section still gets exactly one H1 —
+    // the layout renders the route title; a hero route must not get a second.
+    assert.match(contact, /pageHeading=\{"Contact"\}/);
+    const services = readFileSync(join(ctx.outputDir, "src/pages/services/index.astro"), "utf-8");
+    assert.match(services, /pageHeading=\{"Services"\}/);
+    const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
+    assert.doesNotMatch(home, /pageHeading=/);
+    const layout = readFileSync(join(ctx.outputDir, "src/layouts/BaseLayout.astro"), "utf-8");
+    assert.match(layout, /pageHeading && <h1 class="page-title">/);
     assert.match(ctx.assemblyManifest?.sourceDigest ?? "", /^[0-9a-f]{64}$/);
   } finally {
     cleanupContext(ctx);
