@@ -91,6 +91,11 @@ export const websitePipeline = inngest.createFunction(
         mode,
         specPath: data.specPath,
         provision: shouldProvision,
+        // Without this the plan builder always saw buildIntent undefined, so a
+        // REDESIGN_IMPROVE spec ran the COPY topology on the durable path: no
+        // preflight, no competitive intelligence, no redesign authority chain,
+        // and no redesign-integrity-receipt gate at all.
+        buildIntent: ctx.buildIntent,
       });
 
       compensation.register("release-evidence", async () => {
