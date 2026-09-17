@@ -60,3 +60,11 @@ reports/test-runs/**/*.pem
 reports/test-runs/**/*.key
 reports/test-runs/**/*secret*
 reports/test-runs/**/*credential*
+
+# Non-npm lockfiles — this repo is npm-only (CI pins PACKAGE_MANAGER=npm and
+# tracks package-lock.json). A stray lockfile from another package manager is
+# container debris, and the l9-lint-test workflows' pnpm/yarn arms would treat
+# it as load-bearing the moment PACKAGE_MANAGER changed.
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
