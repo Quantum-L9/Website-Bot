@@ -161,9 +161,9 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     "release-receipt",
     "seo-baseline",
     "visual-qa",
+    "redesign-integrity-receipt",
     "release-receipt-finalizer",
     "handoff-emitter",
-    "redesign-integrity-receipt",
     "terminal-convergence",
   ],
   competitive_landscape: {
@@ -807,9 +807,9 @@ const STAGES = [
   "release-receipt",
   "seo-baseline",
   "visual-qa",
+  "redesign-integrity-receipt",
   "release-receipt-finalizer",
   "handoff-emitter",
-  "redesign-integrity-receipt",
   "terminal-convergence",
 ];
 for (let i = 0; i < STAGES.length; i++) {
