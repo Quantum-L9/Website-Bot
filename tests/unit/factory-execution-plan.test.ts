@@ -134,6 +134,40 @@ test("REDESIGN preflight precedes competitive intelligence", () => {
   );
 });
 
+test("redesign integrity gate runs before success finalization and handoff", () => {
+  const plan = buildFactoryExecutionPlan({
+    mode: "end-to-end",
+    specPath: "fixtures/ci-test-spec.yaml",
+    buildIntent: "REDESIGN_IMPROVE",
+  });
+  const names = plan.stages.map((stage) => stage.name);
+  const at = (name: string) => {
+    const index = names.indexOf(name);
+    assert.ok(index > -1, `${name} must be present in an end-to-end redesign plan`);
+    return index;
+  };
+  // ReleaseReceiptFinalizerStage records status "succeeded" and
+  // HandoffEmitterStage performs the external POST. A gate after either can
+  // only reject a run that has already been published, so ordering here IS
+  // the guarantee — nothing else enforces it.
+  assert.ok(
+    at("visual-qa") < at("redesign-integrity-receipt"),
+    "redesign-integrity-receipt reads ctx.qualityEvidence.visualQa and must follow visual-qa",
+  );
+  assert.ok(
+    at("redesign-integrity-receipt") < at("release-receipt-finalizer"),
+    "an invalid redesign must be rejected before the release is recorded as succeeded",
+  );
+  assert.ok(
+    at("release-receipt-finalizer") < at("handoff-emitter"),
+    "handoff follows finalization",
+  );
+  assert.ok(
+    at("handoff-emitter") < at("terminal-convergence"),
+    "terminal-convergence stays last",
+  );
+});
+
 test("COPY intent (legacy default) keeps the original stage topology", () => {
   const plan = buildFactoryExecutionPlan({
     mode: "local-proof",
