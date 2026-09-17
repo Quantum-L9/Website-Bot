@@ -29,7 +29,7 @@ These decisions remain authoritative until superseded by a numbered ADR.
 | [ADR-0017](ADR-0017-generation-claims-require-llm-credentials.md) | LLM Credentials Required for Generation Claims, Not Launch | accepted | 2026-08-14 |
 | [ADR-0018](ADR-0018-website-build-blueprint-v2-single-authority.md) | WebsiteBuildBlueprintV2 as the Single Blueprint Authority | accepted | 2026-09-01 |
 | [ADR-0019](ADR-0019-retire-five-push-campaign-pack.md) | Retire the Five-Push Campaign Pack | accepted | 2026-09-02 |
-| [ADR-0019](ADR-0019-client-design-reference-acquisition-and-run-bound-intelligence-persistence.md) | Client Design Reference Acquisition, Run-Bound Intelligence Persistence, and Rendered-Site Validation | accepted | — |
+| [ADR-0019](ADR-0019-client-design-reference-acquisition-and-run-bound-intelligence-persistence.md) | Client Design Reference Acquisition, Run-Bound Intelligence Persistence, and Rendered-Site Validation | accepted | 2026-09-03 |
 
 > **Number collision — needs a human decision.** Two accepted ADRs both
 > self-title `ADR-0019`. The second was absent from this index entirely, so it
