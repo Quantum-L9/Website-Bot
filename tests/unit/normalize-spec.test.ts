@@ -294,3 +294,62 @@ test("importing the normalizer does not run its CLI writer", () => {
   );
   assert.equal(readFileSync(outPath, "utf-8"), bodyBefore);
 });
+
+const SUPPLEMENTAL_OUT = "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
+const QUANTUM_SOURCE = "examples/quantum-ai-partners/domain_spec.source.yaml";
+const QUANTUM_OUT = "examples/quantum-ai-partners/domain_spec.normalized.yaml";
+
+function runCli(args: string[]) {
+  return spawnSync(process.execPath, ["--import", "tsx", "scripts/normalize-spec.ts", ...args], {
+    encoding: "utf-8",
+  });
+}
+
+test("a one-sided --in resolves its own committed pair, never another client's output", () => {
+  // The defect this guards: filling the missing half from COMMITTED_SPECS[0]
+  // paired one client's source with a different client's artifact, so
+  // `--in <quantum source>` compiled quantum and wrote it over supplemental's
+  // committed IR while looking entirely deliberate.
+  const bodyBefore = readFileSync(SUPPLEMENTAL_OUT, "utf-8");
+  const mtimeBefore = statSync(SUPPLEMENTAL_OUT).mtimeMs;
+
+  const result = runCli(["--check", "--in", QUANTUM_SOURCE]);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(
+    result.stdout + result.stderr,
+    new RegExp(QUANTUM_OUT.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    "a one-sided --in must be judged against its own pair's output",
+  );
+  assert.equal(readFileSync(SUPPLEMENTAL_OUT, "utf-8"), bodyBefore);
+  assert.equal(statSync(SUPPLEMENTAL_OUT).mtimeMs, mtimeBefore);
+});
+
+test("a one-sided --out resolves its own committed pair", () => {
+  const result = runCli(["--check", "--out", QUANTUM_OUT]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(
+    result.stdout,
+    new RegExp(QUANTUM_SOURCE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    "a one-sided --out must compile its own pair's source",
+  );
+});
+
+test("a one-sided override naming no committed pair fails instead of guessing", () => {
+  const result = runCli(["--check", "--in", "examples/does-not-exist/domain_spec.source.yaml"]);
+  assert.notEqual(result.status, 0, "an unrecognised one-sided path must not silently pick a pair");
+  assert.match(result.stderr, /does not identify exactly one committed spec pair/);
+});
+
+test("the default gate covers every committed source-to-normalized pair", () => {
+  // Preservation obligation: the check must not narrow back to one client.
+  const result = runCli(["--check"]);
+  assert.equal(result.status, 0, result.stderr);
+  for (const outPath of [SUPPLEMENTAL_OUT, QUANTUM_OUT]) {
+    assert.match(
+      result.stdout,
+      new RegExp(outPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      `${outPath} must be covered by the default check`,
+    );
+  }
+});
