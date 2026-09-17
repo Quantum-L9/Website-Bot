@@ -305,14 +305,18 @@ export function buildFactoryExecutionPlan(
     stages.push(new ClientSourcePublishStage());
   if (options.mode === "end-to-end") stages.push(new VercelDeployStage());
   stages.push(new ReleaseReceiptStage());
-  if (options.mode === "end-to-end")
-    stages.push(
-      new SEOBaselineStage(),
-      new VisualQAStage(),
-      new ReleaseReceiptFinalizerStage(),
-      new HandoffEmitterStage(),
-    );
+  if (options.mode === "end-to-end") stages.push(new SEOBaselineStage(), new VisualQAStage());
+  // The redesign integrity gate must veto BEFORE success is recorded and before
+  // anything leaves the process. ReleaseReceiptFinalizerStage writes
+  // status: "succeeded" and HandoffEmitterStage performs the external POST to
+  // SEO-Bot, so a gate placed after them can only reject a run that has already
+  // been published. It stays outside the end-to-end guard because
+  // REDESIGN_ADDED_MANDATORY makes redesign-integrity-receipt mandatory in every
+  // mode — folding it inside would make requireMandatoryConvergence throw on
+  // plan, local-proof and publish-proof redesign runs.
   if (redesign) stages.push(new RedesignIntegrityReceiptStage());
+  if (options.mode === "end-to-end")
+    stages.push(new ReleaseReceiptFinalizerStage(), new HandoffEmitterStage());
   stages.push(
     new TerminalConvergenceStage(options.mode, mandatory, REQUIRED_EVIDENCE[options.mode]),
   );
