@@ -50,6 +50,14 @@ coverage/
 /evidence/
 tests/golden/safehaven/fixtures/
 
+# Retained report evidence — always tracked (overrides *.log above).
+# docs/reports_and_test_results/**/evidence/ holds the proof artifacts that
+# dated reports cite. They are deliberately committed alongside the report that
+# depends on them; `*.log` would otherwise swallow a cited pipeline log and the
+# report's evidence trail would break silently.
+!docs/reports_and_test_results/**/evidence/
+!docs/reports_and_test_results/**/evidence/**
+
 # Development test-run signals — always tracked (overrides *.log and evidence/)
 !reports/
 !reports/test-runs/
