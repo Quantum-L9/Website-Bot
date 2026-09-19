@@ -64,7 +64,8 @@ See `docs/adr/ADR-0009-infisical-secrets-plane.md`.
 
 ## Architecture decisions
 
-Numbered ADRs live in [`docs/architecture/`](docs/architecture/README.md).
+Numbered ADRs live in [`docs/adr/`](docs/adr/README.md). Design notes that are
+not numbered decisions live in [`docs/architecture/`](docs/architecture/README.md).
 Historical source docs that those ADRs were extracted from live in
 [`docs/archive/`](docs/archive/README.md).
 

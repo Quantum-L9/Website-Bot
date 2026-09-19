@@ -1,8 +1,8 @@
 # Architecture Decision Records (ADRs)
 
 This directory is the **single canonical location** for Website-Bot Architecture
-Decision Records. Do not add numbered ADRs under `adr/`, `docs/architecture/`, or
-any other path.
+Decision Records. Do not add numbered ADRs under `docs/architecture/`, SEO-Bot's
+`adr/` series, or any other path.
 
 These decisions remain authoritative until superseded by a numbered ADR.
 
@@ -29,6 +29,15 @@ These decisions remain authoritative until superseded by a numbered ADR.
 | [ADR-0017](ADR-0017-generation-claims-require-llm-credentials.md) | LLM Credentials Required for Generation Claims, Not Launch | accepted | 2026-08-14 |
 | [ADR-0018](ADR-0018-website-build-blueprint-v2-single-authority.md) | WebsiteBuildBlueprintV2 as the Single Blueprint Authority | accepted | 2026-09-01 |
 | [ADR-0019](ADR-0019-retire-five-push-campaign-pack.md) | Retire the Five-Push Campaign Pack | accepted | 2026-09-02 |
+| [ADR-0019](ADR-0019-client-design-reference-acquisition-and-run-bound-intelligence-persistence.md) | Client Design Reference Acquisition, Run-Bound Intelligence Persistence, and Rendered-Site Validation | accepted | 2026-09-03 |
+
+> **Number collision — needs a human decision.** Two accepted ADRs both
+> self-title `ADR-0019`. The second was absent from this index entirely, so it
+> is listed here rather than left undiscoverable, but listing it does not
+> resolve the clash: a bare citation of "ADR-0019" is ambiguous, and the next
+> author reading this table will assign ADR-0020 and bake the collision in.
+> Renumbering is an ADR decision, not a pointer fix — whichever document is
+> renumbered, its inbound references move with it.
 
 ADR-0001–ADR-0005 are the `redesign-improve/v1` pack (accepted 2026-08-14).
 ADR-0006–0007 and ADR-0015–0017 were extracted from archived sources under [`docs/archive/`](../archive/README.md).

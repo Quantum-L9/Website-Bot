@@ -46,9 +46,9 @@ Build it as a **draft** and flip it ready once the above are true.
 
 ## Build the core factory capability — design → build → deploy client sites
 
-> 📋 **Living decision:** [`docs/architecture/ADR-0007-per-client-factory-topology.md`](docs/architecture/ADR-0007-per-client-factory-topology.md)
+> 📋 **Living decision:** [`docs/adr/ADR-0007-per-client-factory-topology.md`](docs/adr/ADR-0007-per-client-factory-topology.md)
 > (source plan archived at [`docs/archive/factory-upgrade-build-plan.md`](docs/archive/factory-upgrade-build-plan.md)).
-> Evidence chain: [`ADR-0016`](docs/architecture/ADR-0016-release-evidence-spine.md).
+> Evidence chain: [`ADR-0016`](docs/adr/ADR-0016-release-evidence-spine.md).
 
 **This is the repo's purpose, not optional feature work.** `Quantum-L9/Website-Bot`
 is meant to **design, build, and deploy** Astro websites for many clients from a

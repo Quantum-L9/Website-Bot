@@ -1,4 +1,4 @@
-> **Archived 2026-08-14.** Living decision: [`docs/architecture/ADR-0006-inngest-durable-pipeline-wrapper.md`](../architecture/ADR-0006-inngest-durable-pipeline-wrapper.md). This file is historical source, not the contract.
+> **Archived 2026-08-14.** Living decision: [`docs/adr/ADR-0006-inngest-durable-pipeline-wrapper.md`](../adr/ADR-0006-inngest-durable-pipeline-wrapper.md). This file is historical source, not the contract.
 
 # ADR: L9 Autonomy Upgrade — Website-Bot
 

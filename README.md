@@ -195,7 +195,8 @@ Do not call the site launch-ready until all are true:
 - `validation/`: generated launch-env reports (per-run artifacts, gitignored). Historical
   per-client validation reports live with their client under
   `examples/<client>/validation/`.
-- `docs/architecture/`: living Architecture Decision Records.
+- `docs/adr/`: numbered Architecture Decision Records — the canonical ADR directory.
+- `docs/architecture/`: architecture and design notes that are not numbered ADRs.
 - `docs/archive/`: historical source docs those ADRs were extracted from.
 - `Makefile`: canonical CI/operator command surface.
 - `justfile`: developer ergonomic wrappers.
