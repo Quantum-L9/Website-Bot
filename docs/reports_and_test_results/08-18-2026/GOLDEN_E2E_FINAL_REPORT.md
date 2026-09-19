@@ -2,6 +2,13 @@
 
 **Run ID:** golden-20260825-r41 · **Date:** 2026-08-25
 
+> **Evidence provenance.** The two proof artifacts this report cites were
+> generated under `build/golden/golden-20260825-r61/`, which is generated output
+> and is no longer tracked. They were relocated verbatim to `evidence/` beside
+> this report so the trail this report depends on stays retained. Byte-identical
+> to the originals — git blobs `3b52732` (`pipeline.log`) and `eeba265`
+> (`golden-oracle-result.json`) — so "never hand-edited" still holds.
+
 ---
 
 ## 1. BASELINE
@@ -50,7 +57,7 @@
 
 ## 5. GOLDEN EXECUTION GRAPH
 
-Runtime-ordered stages from `build/golden/golden-20260825-r61/pipeline.log` (all PASS):
+Runtime-ordered stages from `evidence/pipeline.log` (all PASS):
 
 1. domain-spec-loader → 2. unknown-resolver → 3. competitive-intelligence (preflight → landscape → 10 donors → pattern portfolio → sealed+gated WebsiteBuildBlueprint) → 4. source-site-ingestion (18 images, cache) → 5. design-intelligence (9 tokens preserved) → 6. redesign-content-authority (SEOContentBlueprint 29 routes → deterministic PCC, 0 LLM calls → StructuredContentPackage sealed, 29/29 routes) → 7. structured-content-projection → 8. redesign-schema-serializer → 9. image-asset-planning (deduped slots) → 10. image-generation → 11. site-assembler → 12. site-build → 13. client-source-publish (branch `golden-safehaven-2026-08-24` bootstrapped on cryptoxdog/safehavenrr-site) → 14. vercel-deploy (preview READY) → 15. visual-qa (passed against live preview URL) → 16. redesign-integrity-receipt (emitted + validated) → 17. terminal-convergence.
 
@@ -106,7 +113,7 @@ lowes.com, owenscorning.com, homedepot.com, nathansroofrepairs.com, servpro.com,
 
 ## 13. FINAL ORACLE RESULT
 
-Verifier output: `build/golden/golden-20260825-r61/golden-oracle-result.json` (never hand-edited).
+Verifier output: `evidence/golden-oracle-result.json` (never hand-edited).
 
 - Hard-gate failures after receipt-adapter conformance: 28 — of which **10 are the visual-oracle quality gates** (the decisive outcome) and the rest are evidence-persistence families (website-blueprint artifact file, PCC determinism digests, SEO-blueprint unknown-slot/internal-link fields, structured-content per-route evidence, router-audit fields, source project-proof/gallery selection) — each now root-fixed by `f10439cb` (artifact persistence) and the harness commits `eaccaeb9`/`4368b41c`/`13a1dc55`, or documented as a harvest item.
 - Blocking inconclusive states: 2 (Wilson bound + aggregate) — subsumed by the hard visual failures.
@@ -178,6 +185,6 @@ Verifier output: `build/golden/golden-20260825-r61/golden-oracle-result.json` (n
 
 ## FINAL ORACLE RESULT
 
-From `build/golden/golden-20260825-r61/golden-oracle-result.json` (never edited by hand):
+From `evidence/golden-oracle-result.json` (never edited by hand):
 
 GOLDEN_E2E_FAIL

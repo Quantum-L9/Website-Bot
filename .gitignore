@@ -42,9 +42,21 @@ coverage/
 .claude/settings.local.json
 .l9-worktrees/
 
-# Safe Haven Golden run evidence and calibration fixtures (generated per run)
-evidence/
+# Safe Haven Golden run evidence and calibration fixtures (generated per run).
+# Anchored: an unanchored `evidence/` matches a directory of that name at ANY
+# depth, which swept src/pipeline/evidence/ (21 real source files) and the
+# committed docs/reports_and_test_results/**/evidence/ report bundles into the
+# ignored set. Both are tracked on purpose.
+/evidence/
 tests/golden/safehaven/fixtures/
+
+# Retained report evidence — always tracked (overrides *.log above).
+# docs/reports_and_test_results/**/evidence/ holds the proof artifacts that
+# dated reports cite. They are deliberately committed alongside the report that
+# depends on them; `*.log` would otherwise swallow a cited pipeline log and the
+# report's evidence trail would break silently.
+!docs/reports_and_test_results/**/evidence/
+!docs/reports_and_test_results/**/evidence/**
 
 # Development test-run signals — always tracked (overrides *.log and evidence/)
 !reports/
