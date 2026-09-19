@@ -376,31 +376,77 @@ function carryStructuredAssets(ds: any, flat: DomainSpec): void {
   }
 }
 
+/**
+ * Every committed source -> normalized IR pair. The default gate used to cover
+ * only the first, so the second rotted silently the moment the v1.1 compiler
+ * began emitting route semantics: an artifact nothing verifies is an artifact
+ * that drifts. Both are checked and regenerated together.
+ */
+const COMMITTED_SPECS: ReadonlyArray<{ in: string; out: string }> = [
+  {
+    in: "examples/supplemental-insurance-pros/domain_spec.source.yaml",
+    out: "examples/supplemental-insurance-pros/domain_spec.normalized.yaml",
+  },
+  {
+    in: "examples/quantum-ai-partners/domain_spec.source.yaml",
+    out: "examples/quantum-ai-partners/domain_spec.normalized.yaml",
+  },
+];
+
+/**
+ * A source and its normalized output are one unit, so an override names either
+ * both sides or neither. Filling the missing half from a default let
+ * `--in <a client>` write over a DIFFERENT client's committed artifact while
+ * looking entirely deliberate; a one-sided flag now resolves only against a
+ * committed pair, and an unrecognised path is an error rather than a guess.
+ */
+function resolveTargets(inArg?: string, outArg?: string): ReadonlyArray<{ in: string; out: string }> {
+  if (inArg === undefined && outArg === undefined) return COMMITTED_SPECS;
+  if (inArg !== undefined && outArg !== undefined) return [{ in: inArg, out: outArg }];
+  const side = inArg !== undefined ? "in" : "out";
+  const value = (inArg ?? outArg) as string;
+  const matches = COMMITTED_SPECS.filter((pair) => pair[side] === value);
+  if (matches.length !== 1) {
+    throw new Error(
+      `--${side} ${value} does not identify exactly one committed spec pair ` +
+        `(${matches.length} matched). Pass both --in and --out, or name a committed ` +
+        `--${side} path: ${COMMITTED_SPECS.map((pair) => pair[side]).join(", ")}`,
+    );
+  }
+  return matches;
+}
+
 function main() {
   const args = process.argv.slice(2);
   const check = args.includes("--check");
-  const inPath = getArg(args, "--in") ?? "examples/supplemental-insurance-pros/domain_spec.source.yaml";
-  const outPath = getArg(args, "--out") ?? "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
-  const flat = buildFlatSpec(parse(readFileSync(inPath, "utf-8")));
-  validateDomainSpec(flat, `${inPath} (normalized)`);
-  if (check) {
-    const committed = parse(readFileSync(outPath, "utf-8"));
-    if (!deepEqual(flat, committed)) {
-      console.error(`normalize-spec --check FAILED: ${outPath} is stale.\nRegenerate with: tsx scripts/normalize-spec.ts`);
-      for (const key of Object.keys(flat)) {
-        if (!deepEqual((flat as any)[key], (committed as any)?.[key])) {
-          console.error(`  first diff at key: ${key}`);
-          break;
+  const targets = resolveTargets(getArg(args, "--in"), getArg(args, "--out"));
+  for (const { in: inPath, out: outPath } of targets) {
+    const flat = buildFlatSpec(parse(readFileSync(inPath, "utf-8")));
+    validateDomainSpec(flat, `${inPath} (normalized)`);
+    if (check) {
+      const committed = parse(readFileSync(outPath, "utf-8"));
+      if (!deepEqual(flat, committed)) {
+        console.error(`normalize-spec --check FAILED: ${outPath} is stale.\nRegenerate with: tsx scripts/normalize-spec.ts`);
+        for (const key of Object.keys(flat)) {
+          if (!deepEqual((flat as any)[key], (committed as any)?.[key])) {
+            console.error(`  first diff at key: ${key}`);
+            break;
+          }
         }
+        process.exit(1);
       }
-      process.exit(1);
+      console.log(`normalize-spec --check OK: ${outPath} matches normalize(${inPath}).`);
+      continue;
     }
-    console.log(`normalize-spec --check OK: ${outPath} matches normalize(${inPath}).`);
-    return;
+    mkdirSync(dirname(outPath), { recursive: true });
+    // lineWidth: 0 disables folding. The committed artifacts were generated
+    // unfolded while the writer kept the yaml package's 80-column default, so
+    // without this pin a regeneration rewraps an in-sync file by +76 bytes and
+    // the gate stays green through the churn — it compares parsed objects, not
+    // bytes.
+    writeFileSync(outPath, stringify(flat, { lineWidth: 0 }), "utf-8");
+    console.log(`Wrote ${outPath} from ${inPath}.`);
   }
-  mkdirSync(dirname(outPath), { recursive: true });
-  writeFileSync(outPath, stringify(flat), "utf-8");
-  console.log(`Wrote ${outPath} from ${inPath}.`);
 }
 
 /**
