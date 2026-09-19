@@ -143,6 +143,7 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     "domain-spec-loader",
     "unknown-resolver",
     "seo-build-intelligence-preflight",
+    "design-reference-acquisition",
     "competitive-intelligence",
     "source-site-ingestion",
     "design-intelligence",
@@ -161,9 +162,9 @@ writeJson(path.join(ASSETS, "redesign-integrity-receipt.json"), {
     "release-receipt",
     "seo-baseline",
     "visual-qa",
+    "redesign-integrity-receipt",
     "release-receipt-finalizer",
     "handoff-emitter",
-    "redesign-integrity-receipt",
     "terminal-convergence",
   ],
   competitive_landscape: {
@@ -789,6 +790,7 @@ const STAGES = [
   "domain-spec-loader",
   "unknown-resolver",
   "seo-build-intelligence-preflight",
+  "design-reference-acquisition",
   "competitive-intelligence",
   "source-site-ingestion",
   "design-intelligence",
@@ -807,9 +809,9 @@ const STAGES = [
   "release-receipt",
   "seo-baseline",
   "visual-qa",
+  "redesign-integrity-receipt",
   "release-receipt-finalizer",
   "handoff-emitter",
-  "redesign-integrity-receipt",
   "terminal-convergence",
 ];
 for (let i = 0; i < STAGES.length; i++) {
