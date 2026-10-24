@@ -101,7 +101,7 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.1.0";
+  version = "3.2.0";
   evidence = {
     // A site with image slots consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.

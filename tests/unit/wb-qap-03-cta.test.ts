@@ -172,3 +172,8 @@ void test("templates carry no roofing offer, no dead #quote link and no fake sub
     /<button class="btn" type="submit" data-cta>\{cta\?\.label \?\? "Submit"\}<\/button>/,
   );
 });
+
+void test("the assembler stage version moves so pre-CTA checkpoints are not resumed", () => {
+  // PipelineRunner.resumeStage reuses a checkpoint only when stageVersion matches.
+  assert.ok(!["3.0.0", "3.1.0"].includes(new SiteAssemblerStage().version));
+});
