@@ -1,4 +1,4 @@
-<!-- L9_META: layer=template, role=base_layout, status=active, version=1.4.0 -->
+<!-- L9_META: layer=template, role=base_layout, status=active, version=1.5.0 -->
 ---
 import { siteConfig } from "../lib/siteConfig";
 import "../styles/global.css";
@@ -31,6 +31,28 @@ const pathname = Astro.url.pathname
 const canonicalUrl = `${siteUrl}${pathname}`;
 const schemas = [...siteConfig.schemas.siteWide, ...routeSchemas];
 const jsonLd = schemas.map((schema) => JSON.stringify(schema).replace(/</g, "\u003c"));
+// Layout direction (WB-QAP-04): tokens DesignIntelligenceStage derived from
+// approved design direction. A group is emitted only when every token in it is
+// present and well formed, so an unconfigured site gets no data-design and the
+// canonical styles apply unchanged.
+const LAYOUT_GROUPS: Record<string, Record<string, string>> = {
+  type: { layout_fs_h1: "--fs-h1", layout_fs_h2: "--fs-h2", layout_fs_h3: "--fs-h3" },
+  space: { layout_section_space: "--section-space", layout_flow_gap: "--flow-gap" },
+  width: { layout_content_width: "--content-width" },
+  radius: { layout_radius: "--radius" },
+  surface: { layout_surface: "--surface" },
+  contrast: { layout_on_primary: "--color-on-primary" },
+};
+const SAFE_CSS_VALUE = /^[#a-z0-9.,()% +-]+$/i;
+const designTokens = siteConfig.designTokens as unknown as Record<string, string | undefined>;
+const designGroups: string[] = [];
+const designVars: string[] = [];
+for (const [group, keys] of Object.entries(LAYOUT_GROUPS)) {
+  const entries = Object.entries(keys).map(([token, cssVar]) => [cssVar, designTokens[token]] as const);
+  if (!entries.every(([, value]) => typeof value === "string" && SAFE_CSS_VALUE.test(value))) continue;
+  designGroups.push(group);
+  for (const [cssVar, value] of entries) designVars.push(`${cssVar}:${value}`);
+}
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Footer sitemap: group every published route by its top-level segment so
@@ -61,7 +83,7 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
 }
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-design={designGroups.join(" ") || undefined} style={designVars.join(";") || undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
