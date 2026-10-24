@@ -180,11 +180,11 @@ void test("hostile metadata is serialized as Astro expression string literals", 
     const tag = layoutTag(page(ctx, "/"));
     assert.ok(tag.includes(`title={${JSON.stringify(title)}}`));
     assert.ok(tag.includes(`description={${JSON.stringify(description)}}`));
-    // The raw markup never appears outside its string literal.
-    assert.doesNotMatch(
-      tag.replace(JSON.stringify(title), "").replace(JSON.stringify(description), ""),
-      /<script>|<b>/,
-    );
+    // The raw markup never appears outside its string literal: once both
+    // literals are removed, the only "<" left opens BaseLayout itself.
+    const outside = tag.replace(JSON.stringify(title), "").replace(JSON.stringify(description), "");
+    assert.equal(outside.split("<").length - 1, 1);
+    assert.ok(outside.startsWith("<BaseLayout "));
   } finally {
     cleanupContext(ctx);
   }
