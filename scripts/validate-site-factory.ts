@@ -1,4 +1,4 @@
-// L9_META: layer=script, role=site_factory_structural_validator, status=active, version=1.1.0
+// L9_META: layer=script, role=site_factory_structural_validator, status=active, version=1.2.0
 import { mkdirSync, readFileSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
@@ -6,6 +6,7 @@ import { type BuildContext, clientAssetRoot } from "../src/pipeline/BuildContext
 import { parseBuildIntent } from "../src/pipeline/BuildIntent.js";
 import { FileEvidenceStore } from "../src/pipeline/evidence/FileEvidenceStore.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
+import { DesignIntelligenceStage } from "../src/stages/DesignIntelligenceStage.js";
 import { RenderedSiteValidationStage } from "../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../src/stages/SiteAssemblerStage.js";
 import { SiteBuildStage } from "../src/stages/SiteBuildStage.js";
@@ -57,6 +58,9 @@ const ctx: BuildContext = {
   evidenceStore,
   evidenceIndex,
   resume: false,
+  // Replaced by the native DesignIntelligenceStage below for a resolved COPY
+  // design; kept only for a pending design, which needs an LLM this offline
+  // validator does not have. The result names which applied.
   designTokens: {
     primary: "#1a365d",
     secondary: "#2b6cb0",
@@ -78,7 +82,14 @@ const ctx: BuildContext = {
   stageResults: new Map(),
   startedAt: new Date(),
 };
+// The spec's own approved palette, fonts and client_vision layout intent,
+// through the same native stage the pipeline runs (no LLM, no network).
+const nativeDesign =
+  ctx.buildIntent === "COPY" &&
+  spec.design?.status === "resolved" &&
+  spec.assets?.sourceSite?.enabled !== true;
 try {
+  if (nativeDesign) await new DesignIntelligenceStage().run(ctx);
   await new SiteAssemblerStage().run(ctx);
   validateGeneratedSite(ctx.outputDir, spec.routes);
   if (!ctx.assemblyManifest?.sourceDigest)
@@ -97,6 +108,8 @@ try {
     routeSlugs: spec.routes.map((route) => route.slug),
     sourceDigest: ctx.assemblyManifest.sourceDigest,
     evidenceDir: evidenceStore.rootDir,
+    designSource: nativeDesign ? "native-design-intelligence" : "validator-fixed-tokens",
+    designTokens: ctx.designTokens,
     ...(realBuild
       ? {
           build: "passed",
