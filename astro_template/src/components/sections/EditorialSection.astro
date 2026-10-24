@@ -1,0 +1,62 @@
+---
+interface Props {
+  name?: string;
+  content: string;
+}
+const { name = "section", content } = Astro.props;
+const paragraphs = content
+  .split(/\n{2,}/)
+  .map((value) => value.trim())
+  .filter(Boolean);
+const heading = paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
+const lead = paragraphs.shift();
+const label = name.replaceAll("_", " ");
+---
+<section class="editorial" data-section={name} data-layout="editorial">
+  <header class="editorial__header">
+    <p class="editorial__eyebrow">{label}</p>
+    <h2 class="editorial__title">{heading ?? label}</h2>
+  </header>
+  <div class="editorial__body">
+    {lead && <p class="editorial__lead">{lead}</p>}
+    {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+</section>
+<style>
+  .editorial {
+    display: grid;
+    gap: 1rem 2.5rem;
+    padding-block: 2.5rem;
+    border-top: 2px solid var(--color-primary);
+  }
+  .editorial__eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  .editorial__title {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    line-height: 1.15;
+  }
+  .editorial__body {
+    max-width: 65ch;
+  }
+  .editorial__body p {
+    margin: 0 0 1rem;
+    line-height: 1.7;
+  }
+  .editorial__lead {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  @media (min-width: 800px) {
+    .editorial {
+      grid-template-columns: minmax(12rem, 1fr) 2fr;
+      align-items: start;
+    }
+  }
+</style>

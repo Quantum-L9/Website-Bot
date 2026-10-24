@@ -1,0 +1,74 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+# WB-FACTORY-07 acceptance fixture. Brannock Ridge Fabrication is invented:
+# every name, region code, domain (.example) and endpoint (example.org) here
+# is fictional and reserved for tests. Not a customer. No contact details
+# (phone, email, address) are invented (AGENTS.md).
+client_id: wb07-brannock-ridge-fab
+business_name: Brannock Ridge Fabrication
+vertical: structural_steel_fabrication
+geography:
+  states:
+    - QI
+    - QJ
+  primary_state: QI
+design:
+  status: resolved
+  palette:
+    primary: "#22303c"
+    secondary: "#e6e9ec"
+    accent: "#e07a1f"
+    background: "#ffffff"
+    text: "#151a1f"
+  fonts:
+    heading: Archivo
+    body: Arial
+client_vision:
+  brand_attributes:
+    - technical
+    - utilitarian
+  visual_preferences:
+    - compact
+    - wide
+conversion_authority:
+  primary_action: Request a fabrication quote
+  secondary_actions: []
+  cta_library: []
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - services-overview
+      - cta
+  - slug: /capabilities
+    title: Capabilities
+    template: layout:diagram
+    components:
+      - capability-matrix
+      - cta
+  - slug: /capabilities/laser-cutting
+    title: Laser Cutting
+    template: layout:diagram
+    components:
+      - cutting-workflow
+  - slug: /capabilities/structural-welding
+    title: Structural Welding
+    template: layout:diagram
+    components:
+      - weld-procedure
+  - slug: /quote
+    title: Request a Quote
+    components:
+      - contact-form
+      - tolerance-notes
+  - slug: /quote/received
+    title: Quote Request Received
+    noindex: true
+    components:
+      - confirmation
+seo_contract:
+  target_keywords:
+    - structural steel fabrication QI
+    - laser cutting plate QJ
+  site_url: brannock-ridge.example
+  lead_form_action: https://forms.example.org/brannock-quote

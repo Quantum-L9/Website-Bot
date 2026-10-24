@@ -28,6 +28,9 @@ void test("materializes the fixture into a client-specific Astro project", async
     assert.ok(existsSync(join(ctx.outputDir, ".l9/assembly-manifest.json")));
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
     assert.match(config, /https:\/\/ci-test\.example\.com/);
+    // WB-QAP-03: the fixture has no verified lead form action and no operator
+    // CTA label, so no CTA destination is emitted (the form renders gated).
+    assert.match(config, /primaryCta: null as \{ label: string; href: string \} \| null,/);
     // F-12 regression: every published route must be in the siteConfig routes
     // registry so the layout footer can link it (no orphaned pages).
     assert.match(config, /"routes": \[\s*\{\s*"href": "\/"/);
@@ -43,6 +46,19 @@ void test("materializes the fixture into a client-specific Astro project", async
     assert.match(services, /pageHeading=\{"Services"\}/);
     const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
     assert.doesNotMatch(home, /pageHeading=/);
+    // All generated route files must begin with Astro's own frontmatter fence.
+    for (const pageSource of [home, services, contact]) {
+      assert.match(pageSource, /^---\r?\n/);
+      assert.doesNotMatch(pageSource, /<!--\s*L9_META/);
+    }
+    // WB-QAP-01: a route without a `layout:` template request renders exactly as before.
+    for (const source of [home, services, contact]) {
+      assert.doesNotMatch(source, /const layout|layout=\{/);
+      assert.match(
+        source,
+        /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+      );
+    }
     const layout = readFileSync(join(ctx.outputDir, "src/layouts/BaseLayout.astro"), "utf-8");
     assert.match(layout, /pageHeading && <h1 class="page-title">/);
     assert.match(ctx.assemblyManifest?.sourceDigest ?? "", /^[0-9a-f]{64}$/);
@@ -126,4 +142,10 @@ void test("serializes route data through Astro expressions instead of raw HTML a
   } finally {
     cleanupContext(ctx);
   }
+});
+
+void test("the assembler stage version moves past the release that emitted headered route pages", () => {
+  // 3.1.0 wrote an L9_META comment ahead of the Astro fence; PipelineRunner
+  // resumes a checkpoint only when stageVersion matches, so those cannot be reused.
+  assert.notEqual(new SiteAssemblerStage().version, "3.1.0");
 });
