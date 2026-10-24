@@ -270,3 +270,26 @@ void test("hero, prose and lead-form link colouring no longer overrides button t
   );
   assert.match(css, /:where\(:root\[data-design~="contrast"\]\)/);
 });
+
+void test("every colour format the palette accepts is parsed before choosing the on-primary foreground", () => {
+  // Light yellow primary in each accepted format: white fails AA, so a dark foreground is derived.
+  for (const yellow of [
+    "yellow",
+    "#ff0",
+    "#ffff00",
+    "#ffff00ff",
+    "rgb(255, 255, 0)",
+    "rgb(255 255 0)",
+    "rgba(255,255,0,1)",
+    "rgb(100%, 100%, 0%)",
+    "hsl(60, 100%, 50%)",
+    "hsla(60 100% 50% / 1)",
+  ])
+    assert.deepEqual(deriveOnPrimaryToken(yellow), { layout_on_primary: "#000000" }, yellow);
+  // Dark primaries keep white text in every format.
+  for (const dark of ["navy", "#1a365d", "rgb(26, 54, 93)", "hsl(215, 56%, 23%)", "rebeccapurple"])
+    assert.deepEqual(deriveOnPrimaryToken(dark), {}, dark);
+  // A translucent primary depends on what lies beneath it: no guess is made.
+  for (const translucent of ["rgba(255,255,0,0.5)", "#ffff0080", "#ff08", "transparent"])
+    assert.deepEqual(deriveOnPrimaryToken(translucent), {}, translucent);
+});
