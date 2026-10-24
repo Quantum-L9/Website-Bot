@@ -1,0 +1,69 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+# WB-FACTORY-07 acceptance fixture. Larchmere Bindery & Press is invented:
+# every name, region code, domain (.example), phone (555-01xx) and endpoint
+# (example.org) here is fictional and reserved for tests. Not a customer.
+client_id: wb07-larchmere-bindery
+business_name: Larchmere Bindery & Press
+vertical: artisan_bookbinding
+geography:
+  states:
+    - QE
+  primary_state: QE
+design:
+  status: resolved
+  palette:
+    primary: "#5b2a3c"
+    secondary: "#f4ede4"
+    accent: "#b5833a"
+    background: "#fbf8f3"
+    text: "#2a2320"
+  fonts:
+    heading: Libre Baskerville
+    body: Source Serif
+client_vision:
+  brand_attributes:
+    - editorial
+    - warm
+  visual_preferences:
+    - spacious
+    - readable
+conversion_authority:
+  primary_action: Request a binding consultation
+  secondary_actions: []
+  cta_library: []
+routes:
+  - slug: /
+    title: Home
+    template: layout:editorial
+    components:
+      - hero
+      - studio-story
+      - cta
+  - slug: /journal
+    title: Journal
+    template: layout:editorial
+    components:
+      - journal-index
+  - slug: /journal/paper-grain
+    title: Reading Paper Grain
+    template: layout:editorial
+    components:
+      - essay-body
+      - final-cta
+  - slug: /workshops
+    title: Workshops
+    components:
+      - workshop-calendar
+      - cta
+  - slug: /contact
+    title: Contact
+    components:
+      - contact-form
+      - studio-hours
+seo_contract:
+  target_keywords:
+    - hand bookbinding studio QE
+    - letterpress journal binding
+  site_url: larchmere-bindery.example
+  phone: "+15555550142"
+  lead_form_action: https://forms.example.org/larchmere-consultation
