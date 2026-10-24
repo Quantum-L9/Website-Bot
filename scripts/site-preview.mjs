@@ -72,16 +72,17 @@ export function parsePreviewArgs(argv, repoRoot = REPO_ROOT) {
   return { mode: "build", spec };
 }
 
+// git is called by a fixed absolute path, never resolved through PATH; with no
+// known install the provenance is recorded as UNKNOWN rather than guessed.
+const GIT_CANDIDATES = ["/usr/bin/git", "/usr/local/bin/git", "/opt/homebrew/bin/git"];
+
 function gitState(repoRoot) {
+  const git = GIT_CANDIDATES.find((candidate) => existsSync(candidate));
+  if (!git) return { head: "UNKNOWN", tracked_changes: "UNKNOWN" };
   try {
-    const head = execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: repoRoot,
-      encoding: "utf-8",
-    }).trim();
-    const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], {
-      cwd: repoRoot,
-      encoding: "utf-8",
-    }).trim();
+    const run = (args) => execFileSync(git, args, { cwd: repoRoot, encoding: "utf-8" }).trim();
+    const head = run(["rev-parse", "HEAD"]);
+    const dirty = run(["status", "--porcelain", "--untracked-files=no"]);
     return {
       head: /^[0-9a-f]{40}$/.test(head) ? head : "UNKNOWN",
       tracked_changes: dirty.length > 0,
@@ -106,59 +107,74 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
-/**
- * Re-verify a receipt against what is on disk now. Empty problems is the only
- * PASS. Every input and output the receipt names is re-read and re-hashed.
- */
-export async function verifyReceipt(receipt, repoRoot = REPO_ROOT) {
-  const problems = [];
-  const { hashing, rendered } = await nativeModules(repoRoot);
-  if (receipt?.schema !== PREVIEW_RECEIPT_SCHEMA) return ["unknown receipt schema"];
-  if (receipt.remote_deploy !== "NOT_INVOKED")
-    problems.push("receipt does not record NOT_INVOKED deploy");
-
+function inputProblems(receipt) {
   const spec = receipt.input?.spec_path;
-  if (!spec || !existsSync(spec)) problems.push("input spec missing");
-  else if (sha256(readFileSync(spec)) !== receipt.input.spec_sha256)
-    problems.push("input spec changed since the receipt");
+  if (!spec || !existsSync(spec)) return ["input spec missing"];
+  return sha256(readFileSync(spec)) === receipt.input.spec_sha256
+    ? []
+    : ["input spec changed since the receipt"];
+}
 
+/** Build verdicts, and source/dist digests recomputed with the native hashing SiteBuildStage uses. */
+function buildProblems(receipt, hashing) {
+  const problems = [];
   const out = receipt.output ?? {};
   for (const check of REQUIRED_BUILD_CHECKS) {
     const verdict = (receipt.build?.checks ?? []).find((item) => item.name === check)?.status;
     if (verdict !== "passed") problems.push(`build check ${check}: ${verdict ?? "missing"}`);
   }
+  const digestOf = (dir, options) => hashing.digestDirectory(dir, options).digest;
   if (!out.source_dir || !existsSync(out.source_dir)) problems.push("generated source missing");
   else if (
-    hashing.digestDirectory(out.source_dir, { exclude: hashing.isSourceDigestExcluded }).digest !==
-    out.source_digest
+    digestOf(out.source_dir, { exclude: hashing.isSourceDigestExcluded }) !== out.source_digest
   )
     problems.push("generated source digest mismatch");
   if (!out.dist_dir || !existsSync(out.dist_dir)) problems.push("build output (dist) missing");
-  else if (hashing.digestDirectory(out.dist_dir).digest !== out.dist_digest)
+  else if (digestOf(out.dist_dir) !== out.dist_digest)
     problems.push("build output digest mismatch");
   if (
     out.source_digest !== receipt.build?.source_digest ||
     out.dist_digest !== receipt.build?.dist_digest
   )
     problems.push("receipt digests disagree with the build proof");
+  return problems;
+}
 
+function reportProblems(receipt, rendered) {
   const reportPath = receipt.browser?.report_path;
-  let report;
-  if (!reportPath || !existsSync(reportPath)) problems.push("browser report missing");
-  else {
-    report = readJson(reportPath);
-    if (sha256(readFileSync(reportPath)) !== receipt.browser.report_sha256)
-      problems.push("browser report changed since the receipt");
-    if (report.schema !== rendered.RENDERED_SITE_VALIDATION_SCHEMA)
-      problems.push("unknown browser report schema");
-    if (report.status !== "PASS") problems.push(`browser report status ${report.status}`);
-    if (report.build_id !== receipt.build_id)
-      problems.push("browser report belongs to another build");
-  }
+  if (!reportPath || !existsSync(reportPath))
+    return { report: undefined, problems: ["browser report missing"] };
+  const report = readJson(reportPath);
+  const problems = [];
+  if (sha256(readFileSync(reportPath)) !== receipt.browser.report_sha256)
+    problems.push("browser report changed since the receipt");
+  if (report.schema !== rendered.RENDERED_SITE_VALIDATION_SCHEMA)
+    problems.push("unknown browser report schema");
+  if (report.status !== "PASS") problems.push(`browser report status ${report.status}`);
+  if (report.build_id !== receipt.build_id)
+    problems.push("browser report belongs to another build");
+  return { report, problems };
+}
+
+function screenshotProblem(receipt, shots, route, viewport) {
+  const matches = shots.filter((item) => item.route === route && item.viewport === viewport);
+  if (matches.length !== 1) return `${matches.length} screenshots`;
+  const { path, sha256: recorded } = matches[0];
+  if (!inside(receipt.browser.screenshot_dir, path)) return "screenshot outside this run";
+  if (!existsSync(path)) return "screenshot missing";
+  const bytes = readFileSync(path);
+  return bytes.length === 0 || sha256(bytes) !== recorded
+    ? "screenshot changed since the receipt"
+    : undefined;
+}
+
+/** Every declared route x viewport rendered PASS and has exactly one unchanged screenshot. */
+function coverageProblems(receipt, report) {
   const routes = receipt.routes ?? [];
   const viewports = receipt.browser?.viewports ?? [];
-  if (!routes.length || !viewports.length) problems.push("no routes or viewports recorded");
+  if (!routes.length || !viewports.length) return ["no routes or viewports recorded"];
   const shots = receipt.browser?.screenshots ?? [];
+  const problems = [];
   for (const route of routes) {
     for (const viewport of viewports) {
       const pair = `${route}@${viewport}`;
@@ -167,23 +183,30 @@ export async function verifyReceipt(receipt, repoRoot = REPO_ROOT) {
       );
       if (report && render?.status !== "PASS")
         problems.push(`${pair}: render ${render?.status ?? "missing"}`);
-      const shot = shots.filter((item) => item.route === route && item.viewport === viewport);
-      if (shot.length !== 1) {
-        problems.push(`${pair}: ${shot.length} screenshots`);
-        continue;
-      }
-      const path = shot[0].path;
-      if (!inside(receipt.browser.screenshot_dir, path))
-        problems.push(`${pair}: screenshot outside this run`);
-      else if (!existsSync(path)) problems.push(`${pair}: screenshot missing`);
-      else {
-        const bytes = readFileSync(path);
-        if (bytes.length === 0 || sha256(bytes) !== shot[0].sha256)
-          problems.push(`${pair}: screenshot changed since the receipt`);
-      }
+      const shot = screenshotProblem(receipt, shots, route, viewport);
+      if (shot) problems.push(`${pair}: ${shot}`);
     }
   }
   return problems;
+}
+
+/**
+ * Re-verify a receipt against what is on disk now. Empty problems is the only
+ * PASS. Every input and output the receipt names is re-read and re-hashed.
+ */
+export async function verifyReceipt(receipt, repoRoot = REPO_ROOT) {
+  if (receipt?.schema !== PREVIEW_RECEIPT_SCHEMA) return ["unknown receipt schema"];
+  const { hashing, rendered } = await nativeModules(repoRoot);
+  const { report, problems: reportIssues } = reportProblems(receipt, rendered);
+  return [
+    ...(receipt.remote_deploy === "NOT_INVOKED"
+      ? []
+      : ["receipt does not record NOT_INVOKED deploy"]),
+    ...inputProblems(receipt),
+    ...buildProblems(receipt, hashing),
+    ...reportIssues,
+    ...coverageProblems(receipt, report),
+  ];
 }
 
 function childEnv() {
@@ -194,7 +217,7 @@ function childEnv() {
     else env[key] = value;
   }
   env.KEEP_SITE_FACTORY_VALIDATION_OUTPUT = "true";
-  return { env, withheld: withheld.sort((a, b) => a.localeCompare(b)) };
+  return { env, withheld: withheld.toSorted((a, b) => a.localeCompare(b)) };
 }
 
 /** Run the native validator for one spec and write this run's receipt. */
@@ -289,6 +312,21 @@ export async function buildPreview(spec, repoRoot = REPO_ROOT) {
   return { receipt, receiptPath };
 }
 
+/** `--verify`: re-check a recorded receipt; exit code 0 only when it is still PASS. */
+async function verifyCli(receiptPath) {
+  if (!existsSync(receiptPath)) {
+    console.error(`site-preview: receipt ${receiptPath} does not exist`);
+    console.log("STATUS: FAIL");
+    return 1;
+  }
+  const receipt = readJson(receiptPath);
+  const problems =
+    receipt.status === "PASS" ? await verifyReceipt(receipt) : ["receipt was not PASS"];
+  for (const problem of problems) console.log(`problem: ${problem}`);
+  console.log(`STATUS: ${problems.length ? "FAIL" : "PASS"}`);
+  return problems.length ? 1 : 0;
+}
+
 async function cli() {
   let args;
   try {
@@ -300,18 +338,7 @@ async function cli() {
     return;
   }
   if (args.mode === "verify") {
-    if (!existsSync(args.receiptPath)) {
-      console.error(`site-preview: receipt ${args.receiptPath} does not exist`);
-      console.log("STATUS: FAIL");
-      process.exitCode = 1;
-      return;
-    }
-    const receipt = readJson(args.receiptPath);
-    const problems =
-      receipt.status === "PASS" ? await verifyReceipt(receipt) : ["receipt was not PASS"];
-    for (const problem of problems) console.log(`problem: ${problem}`);
-    console.log(`STATUS: ${problems.length ? "FAIL" : "PASS"}`);
-    process.exitCode = problems.length ? 1 : 0;
+    process.exitCode = await verifyCli(args.receiptPath);
     return;
   }
   const { receipt, receiptPath } = await buildPreview(args.spec);
