@@ -182,18 +182,32 @@ function hslToRgb(hue: number, saturation: number, lightness: number): number[] 
   const l = clamp01(lightness);
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
   const p = 2 * l - q;
-  return [h + 1 / 3, h, h - 1 / 3].map((t) => {
-    const k = t < 0 ? t + 1 : t > 1 ? t - 1 : t;
-    const channel =
-      k < 1 / 6
-        ? p + (q - p) * 6 * k
-        : k < 1 / 2
-          ? q
-          : k < 2 / 3
-            ? p + (q - p) * (2 / 3 - k) * 6
-            : p;
-    return channel * 255;
-  });
+  return [h + 1 / 3, h, h - 1 / 3].map((t) => hueChannel(p, q, t) * 255);
+}
+
+/** One sRGB channel (0..1) of the CSS Color 4 hsl() conversion for hue offset t. */
+function hueChannel(p: number, q: number, t: number): number {
+  let k = t;
+  if (k < 0) k += 1;
+  if (k > 1) k -= 1;
+  if (k < 1 / 6) return p + (q - p) * 6 * k;
+  if (k < 1 / 2) return q;
+  if (k < 2 / 3) return p + (q - p) * (2 / 3 - k) * 6;
+  return p;
+}
+
+/** Channels of an rgb()/rgba()/hsl()/hsla() colour, alpha last; undefined when malformed. */
+function functionalChannels(value: string): Array<number | undefined> | undefined {
+  const fn = /^(rgba?|hsla?)\(([^)]*)\)$/.exec(value);
+  const parts = fn?.[2].split(/[\s,/]+/).filter(Boolean) ?? [];
+  if (!fn || parts.length < 3 || parts.length > 4) return undefined;
+  const alpha = parts[3] === undefined ? 1 : component(parts[3], 1);
+  if (fn[1].startsWith("rgb")) {
+    return [...parts.slice(0, 3).map((part) => component(part, 255)), alpha];
+  }
+  const [h, s, l] = [component(parts[0], 360), component(parts[1], 1), component(parts[2], 1)];
+  if (h === undefined || s === undefined || l === undefined) return undefined;
+  return [...hslToRgb(h, s, l), alpha];
 }
 
 /**
@@ -205,26 +219,19 @@ function hslToRgb(hue: number, saturation: number, lightness: number): number[] 
 function opaqueRgb(raw: string): number[] | undefined {
   const value = raw.trim().toLowerCase();
   const named = NAMED_COLORS.get(value);
-  let channels: number[] | undefined;
+  let channels: Array<number | undefined> | undefined;
   if (named) channels = hexChannels(`#${named}`);
   else if (value.startsWith("#")) channels = hexChannels(value);
-  else {
-    const fn = /^(rgba?|hsla?)\(([^)]*)\)$/.exec(value);
-    const parts = fn?.[2].split(/[\s,/]+/).filter(Boolean) ?? [];
-    if (!fn || parts.length < 3 || parts.length > 4) return undefined;
-    const alpha = parts[3] === undefined ? 1 : component(parts[3], 1);
-    if (fn[1].startsWith("rgb")) {
-      channels = [...parts.slice(0, 3).map((part) => component(part, 255)), alpha] as number[];
-    } else {
-      const [h, s, l] = [component(parts[0], 360), component(parts[1], 1), component(parts[2], 1)];
-      if (h === undefined || s === undefined || l === undefined) return undefined;
-      channels = [...hslToRgb(h, s, l), alpha] as number[];
-    }
-  }
-  if (!channels || channels.some((channel) => channel === undefined || Number.isNaN(channel)))
+  else channels = functionalChannels(value);
+  if (
+    !channels?.every(
+      (channel): channel is number => channel !== undefined && !Number.isNaN(channel),
+    )
+  )
     return undefined;
-  if (channels.length === 4 && channels[3] < 1) return undefined;
-  return channels.slice(0, 3).map((channel) => Math.min(255, Math.max(0, channel)));
+  const opaque: number[] = channels;
+  if (opaque.length === 4 && opaque[3] < 1) return undefined;
+  return opaque.slice(0, 3).map((channel) => Math.min(255, Math.max(0, channel)));
 }
 
 function relativeLuminance(color: string): number | undefined {
