@@ -1,4 +1,4 @@
-/* L9_META: layer=template, role=global_styles, status=active, version=1.3.0 */
+/* L9_META: layer=template, role=global_styles, status=active, version=1.4.0 */
 @import './tokens.css';
 * { box-sizing: border-box; }
 html { color-scheme: inherit; }
@@ -154,7 +154,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--color-prima
 .skip-link:focus { left: 0; }
 /* blue link distribution */
 a:not(.btn, .btn-phone, .site-nav a, .service-card):hover { color: var(--color-primary); }
-.prose a, .lead-form a, .hero__content a { color: var(--color-primary); }
+/* Buttons keep their own foreground: a bare `.hero__content a` (0,1,1) used to
+   beat `.btn` (0,1,0) and paint the hero CTA text in its own background colour. */
+:is(.prose, .lead-form, .hero__content) a:not(.btn) { color: var(--color-primary); }
 .cta-banner {
   background: var(--color-primary);
   color: #fff;
@@ -183,3 +185,31 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
 .process__number { font-family: var(--font-heading); font-weight: 800; color: var(--color-primary); font-size: 1.15rem; line-height: 1.4; }
 .gallery-cta { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-height: 12rem; border: 1px dashed color-mix(in srgb, var(--color-primary) 60%, transparent); border-radius: 0.5rem; text-decoration: none; color: var(--color-primary); font-weight: 700; }
 .gallery-cta:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+/* ── Design-direction layout tokens (WB-QAP-04) ─────────────────────────────
+   Opt-in: each group applies only when BaseLayout lists it in html[data-design]
+   because the build derived it from approved design direction. :where() keeps
+   the gate itself at zero specificity, so component rules above still win
+   wherever they set their own size, padding or radius. */
+:where(:root[data-design~="width"]) :is(header, footer, main),
+:where(:root[data-design~="width"]) .site-header__inner { width: min(var(--content-width), calc(100% - 2rem)); }
+:where(:root[data-design~="space"]) section { padding-block: var(--section-space); }
+:where(:root[data-design~="space"]) .hero { padding-block: var(--section-space); gap: var(--flow-gap); }
+:where(:root[data-design~="space"]) :is(.grid, .services-grid__cards, .gallery-grid, .process__steps) { gap: var(--flow-gap); }
+:where(:root[data-design~="type"]) h1 { font-size: var(--fs-h1); }
+:where(:root[data-design~="type"]) h2 { font-size: var(--fs-h2); }
+:where(:root[data-design~="type"]) h3 { font-size: var(--fs-h3); }
+:where(:root[data-design~="radius"]) :is(.btn:not(.btn-phone), .card, .service-card, .faq__item, .faq p, .process__step, .trust-bar__badge, .cta-banner, input, textarea, select) { border-radius: var(--radius); }
+:where(:root[data-design~="surface"]) :is(.card, .service-card, .faq__item, .process__step, .trust-bar__badge) {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-text) 12%, transparent),
+    0 12px 32px -14px color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+/* Foreground on the primary colour where white fails WCAG AA (derived token). */
+:where(:root[data-design~="contrast"]) :is(.btn:not(.btn--ghost), .cta-banner, .skip-link) { color: var(--color-on-primary); }
+/* CSS-only motion stays subtle and yields to a reduced-motion preference. The
+   service card is the template's only transition; equal specificity later in
+   the file overrides it without !important. */
+@media (prefers-reduced-motion: reduce) {
+  .service-card { transition: none; }
+  .service-card:hover { transform: none; }
+}
