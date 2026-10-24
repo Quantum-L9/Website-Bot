@@ -101,7 +101,7 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.2.0";
+  version = "3.3.0";
   evidence = {
     // A site with image slots consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -233,6 +233,7 @@ export class SiteAssemblerStage implements Stage {
       );
     validateRouteContracts(ctx.domainSpec.routes);
     for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
+    this.assertNoPretendInquiry(ctx);
     if (!ctx.dryRun) this.assertRouteContentAvailable(ctx);
   }
 
@@ -427,6 +428,38 @@ export class SiteAssemblerStage implements Stage {
     );
   }
 
+  /**
+   * Primary call to action (WB-QAP-03). The label comes only from the
+   * operator's conversion_authority; the destination is verified separately
+   * and exists only when a verified lead form renders on a real route. A label
+   * alone never manufactures a link, and there is no default offer text.
+   */
+  private primaryCta(ctx: BuildContext): { label: string; href: string } | null {
+    const label = ctx.domainSpec.conversion_authority?.primary_action?.trim();
+    if (!label || !this.leadFormAction(ctx)) return null;
+    const formRoute = ctx.domainSpec.routes.find((route) =>
+      route.components.some((component) => normalizeComponentName(component) === "contact_form"),
+    );
+    return formRoute ? { label, href: `${normalizeRouteSlug(formRoute.slug)}#quote` } : null;
+  }
+
+  /**
+   * A confirmation section announces a received inquiry; without a verified
+   * lead form action nothing can have been received (WB-QAP-03).
+   */
+  private assertNoPretendInquiry(ctx: BuildContext): void {
+    if (this.leadFormAction(ctx)) return;
+    for (const [index, route] of ctx.domainSpec.routes.entries()) {
+      if (
+        route.components.some((component) => normalizeComponentName(component) === "confirmation")
+      )
+        throw new BuildError(
+          "VALIDATION_FAILED",
+          `pretend-inquiry: domainSpec.routes[${index}] (${normalizeRouteSlug(route.slug)}) renders a confirmation section but seo_contract.lead_form_action is not configured`,
+        );
+    }
+  }
+
   private resolveDeployTarget(ctx: BuildContext): DeployTarget | undefined {
     const deploy = ctx.domainSpec.deploy;
     const githubRepo = deploy?.github_repo ?? process.env.CLIENT_GITHUB_REPO;
@@ -520,12 +553,14 @@ export class SiteAssemblerStage implements Stage {
       // `as const` types absent values as the literal "" — the template
       // components' truthiness guards then narrow to `never` and astro check
       // fails (live run: quantumaipartners_com). The two optional keys are
-      // re-declared with a widening cast so they type as plain string.
+      // re-declared with a widening cast so they type as plain string, and the
+      // verified primary CTA (or null) is typed the same way.
       `// L9_META: layer=generated_site, role=site_configuration, status=generated, version=1.0.0
 export const siteConfig = {
   ...(${json(config)} as const),
   leadFormAction: ${json(config.leadFormAction ?? "")} as string,
   phone: ${json(config.phone ?? "")} as string,
+  primaryCta: ${json(this.primaryCta(ctx))} as { label: string; href: string } | null,
 };
 `,
     );
