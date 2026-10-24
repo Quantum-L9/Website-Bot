@@ -101,7 +101,7 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.0.0";
+  version = "3.1.0";
   evidence = {
     // A site with image slots consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -248,7 +248,9 @@ export class SiteAssemblerStage implements Stage {
     route: DomainSpec["routes"][number],
     index: number,
   ): SectionLayoutVariant | undefined {
-    const template = route.template?.trim();
+    // The spec validator does not type-check this optional field; a non-string
+    // value was ignored before layouts existed and stays a non-request.
+    const template = typeof route.template === "string" ? route.template.trim() : undefined;
     if (!template?.toLowerCase().startsWith(LAYOUT_TEMPLATE_PREFIX)) return undefined;
     const variant = template.slice(LAYOUT_TEMPLATE_PREFIX.length).trim().toLowerCase();
     const source = `domainSpec.routes[${index}].template ${JSON.stringify(template)} on ${normalizeRouteSlug(route.slug)}`;

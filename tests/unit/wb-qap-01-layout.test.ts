@@ -120,6 +120,27 @@ void test("a page-type template is not a layout request and keeps the legacy pag
   }
 });
 
+void test("a non-string template from unvalidated YAML stays a non-request instead of crashing", async () => {
+  // validateDomainSpec does not type-check routes[].template, so `template: 1` reaches assembly.
+  const routes = layoutRoutes();
+  (routes[3] as { template?: unknown }).template = 1;
+  const ctx = withSharedContent(routes);
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    assert.equal(
+      page(ctx.outputDir, "/legacy").replaceAll("Legacy", "Plain"),
+      page(ctx.outputDir, "/plain"),
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("the assembler stage version changes so pre-layout checkpoints cannot be resumed", () => {
+  // PipelineRunner.resumeStage reuses a checkpoint only when stageVersion matches.
+  assert.notEqual(new SiteAssemblerStage().version, "3.0.0");
+});
+
 void test("an unknown explicit layout fails visibly instead of rendering generic prose", async () => {
   const routes: Route[] = [
     { slug: "/", title: "Home", template: "layout:carousel", components: COMPONENTS },
