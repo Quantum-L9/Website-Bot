@@ -11,6 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
+import type { StructuredContentRoute } from "@quantum-l9/bot-interop";
 import {
   isRegisteredSection,
   isSectionLayoutVariant,
@@ -99,9 +100,14 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
   return parsed.toString();
 }
 
+interface RouteHead {
+  title: string;
+  description: string;
+}
+
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.3.0";
+  version = "3.4.0";
   evidence = {
     // A site with image slots consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -234,7 +240,84 @@ export class SiteAssemblerStage implements Stage {
     validateRouteContracts(ctx.domainSpec.routes);
     for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
     this.assertNoPretendInquiry(ctx);
-    if (!ctx.dryRun) this.assertRouteContentAvailable(ctx);
+    if (!ctx.dryRun) {
+      this.assertRouteContentAvailable(ctx);
+      this.routeHeads(ctx);
+    }
+  }
+
+  /**
+   * Route <head> title and description, in spec route order (WB-FACTORY-05).
+   * COPY keeps the legacy route-title head. REDESIGN_IMPROVE takes both
+   * verbatim from the accepted SEO-Bot StructuredContentPackage, bound by route
+   * identity and path; a missing, duplicate, mismatched or invalid producer
+   * route fails assembly instead of falling back to a synthesized description.
+   */
+  private routeHeads(ctx: BuildContext): RouteHead[] {
+    const routes = ctx.domainSpec.routes;
+    if (ctx.buildIntent !== "REDESIGN_IMPROVE") {
+      return routes.map((route) => ({
+        title: route.title,
+        description: `${route.title} | ${ctx.domainSpec.business_name}`,
+      }));
+    }
+    const contentPackage = ctx.structuredContentPackage;
+    if (!contentPackage) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        "seo-metadata: REDESIGN_IMPROVE site assembly requires the accepted StructuredContentPackage",
+      );
+    }
+    const produced = new Map<string, StructuredContentRoute>();
+    for (const structured of contentPackage.payload.routes) {
+      if (produced.has(structured.route_id)) {
+        throw new BuildError(
+          "ROUTE_SET_MISMATCH",
+          `seo-metadata: StructuredContentPackage carries duplicate route ${JSON.stringify(structured.route_id)}`,
+        );
+      }
+      produced.set(structured.route_id, structured);
+    }
+    const specRouteIds = new Set(routes.map((route) => route.slug));
+    for (const routeId of produced.keys()) {
+      if (!specRouteIds.has(routeId)) {
+        throw new BuildError(
+          "ROUTE_SET_MISMATCH",
+          `seo-metadata: StructuredContentPackage route ${JSON.stringify(routeId)} is not a spec route`,
+        );
+      }
+    }
+    return routes.map((route, index) => {
+      const source = `domainSpec.routes[${index}] (${normalizeRouteSlug(route.slug)})`;
+      const structured = produced.get(route.slug);
+      if (!structured) {
+        throw new BuildError(
+          "ROUTE_SET_MISMATCH",
+          `seo-metadata: StructuredContentPackage carries no route for ${source}`,
+        );
+      }
+      if (structured.path !== route.slug) {
+        throw new BuildError(
+          "ROUTE_SET_MISMATCH",
+          `seo-metadata: StructuredContentPackage route ${JSON.stringify(structured.route_id)} has path ${JSON.stringify(structured.path)}; ${source} requires ${JSON.stringify(route.slug)}`,
+        );
+      }
+      const metadata = structured.metadata as Partial<RouteHead> | undefined;
+      const title = metadata?.title;
+      const description = metadata?.description;
+      if (
+        typeof title !== "string" ||
+        !title.trim() ||
+        typeof description !== "string" ||
+        !description.trim()
+      ) {
+        throw new BuildError(
+          "VALIDATION_FAILED",
+          `seo-metadata: StructuredContentPackage route for ${source} has no valid metadata title and description`,
+        );
+      }
+      return { title, description };
+    });
   }
 
   /**
@@ -578,8 +661,10 @@ export const siteConfig = {
       `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap-index.xml\n`,
     );
 
+    const heads = this.routeHeads(ctx);
     for (const [index, route] of ctx.domainSpec.routes.entries()) {
       const slug = normalizeRouteSlug(route.slug);
+      const head = heads[index];
       const layout = this.routeLayout(route, index);
       const pagePath = pagePathForRoute(slug);
       const pageDirectoryDepth = slug === "/" ? 1 : slug.split("/").filter(Boolean).length + 1;
@@ -600,7 +685,6 @@ export const siteConfig = {
         return { name, content: content ?? "" };
       });
       const routeSchemas = config.schemas.perRoute[slug] ?? [];
-      const routeDescription = `${route.title} | ${ctx.domainSpec.business_name}`;
       // Exactly one H1 per rendered page (rendered-site single_h1 gate). The hero
       // section owns it when present; otherwise the layout renders the route
       // title as the page heading (L2-S16-001).
@@ -612,7 +696,7 @@ export const siteConfig = {
       const layoutProp = layout ? " layout={layout}" : "";
       write(
         pagePath,
-        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
+        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
       );
     }
   }
