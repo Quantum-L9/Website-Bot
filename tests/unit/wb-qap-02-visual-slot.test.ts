@@ -122,7 +122,7 @@ async function openFixture(options: { javaScriptEnabled?: boolean } = {}): Promi
 async function runSlots(
   enabled: Record<string, string>,
   environment: { reducedMotion: boolean; webgl: boolean } = { reducedMotion: false, webgl: true },
-  settleMs = 0,
+  settle?: { until: string; pageError: boolean },
 ): Promise<RunResult> {
   const page = await openFixture();
   const pageErrors: string[] = [];
@@ -130,10 +130,13 @@ async function runSlots(
   try {
     await page.evaluate(PAGE_HARNESS);
     const staticBefore = (await page.evaluate("window.__staticSnapshot()")) as string[];
+    const pageError = settle?.pageError ? page.waitForEvent("pageerror") : undefined;
     const outcomes = (await page.evaluate(
       `window.__run(${JSON.stringify(enabled)}, ${JSON.stringify(environment)})`,
     )) as Record<string, string>;
-    if (settleMs) await page.waitForTimeout(settleMs);
+    // Synchronize on observable state, never on a fixed delay.
+    if (settle) await page.waitForFunction(settle.until);
+    await pageError;
     return {
       outcomes,
       loads: (await page.evaluate("window.__loads")) as string[],
@@ -214,7 +217,10 @@ void test("a module that throws on import or during mount fails closed onto the 
 });
 
 void test("a failure after startup tears down the layer and never touches the static content", async () => {
-  const run = await runSlots({ hero_backdrop: "lateFailure" }, undefined, 120);
+  const run = await runSlots({ hero_backdrop: "lateFailure" }, undefined, {
+    until: 'window.__layers().hero_backdrop.state === "failed"',
+    pageError: true,
+  });
   assert.equal(run.outcomes.hero_backdrop, "mounted");
   assert.deepEqual(run.layers.hero_backdrop, { children: 0, hidden: true, state: "failed" });
   assert.equal(run.cleanups, 1);
