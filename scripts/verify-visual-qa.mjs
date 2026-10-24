@@ -6,26 +6,44 @@
 // tags: [verification, vision, qa, layout, screenshots]
 // owner: igor_beylin
 // status: active
-// version: 1.0.0
-// updated: 2026-06-15
+// version: 2.0.0
+// updated: 2026-10-24
 // /L9_META
 
 /**
- * Visual QA Verification Script
- * Captures screenshots at multiple viewports and validates layout via LLM vision.
- * Pattern: Screenshot capture → Vision model analysis → Issue report
- * Requires: OPENROUTER_API_KEY, SITE_URL (or local dev server)
+ * Visual QA Verification Script (deployed site).
+ * Captures every requested page at every requested viewport and has the LLM
+ * vision evaluator judge each screenshot. Writes one structured,
+ * per-invocation report and exits 0 only when that report is PASS:
+ *
+ *   PASS    every page x viewport returned HTTP 2xx, was screenshotted, and
+ *           received a conclusive non-critical evaluator verdict
+ *   FAIL    a defect was observed (critical verdict, non-2xx page, capture error)
+ *   BLOCKED the run could not judge (missing input, Playwright, credentials,
+ *           evaluator, unreachable target, inconclusive or failed evaluation)
+ *
+ * Exit codes: 0 PASS, 1 FAIL, 2 BLOCKED. A screenshot without an evaluator
+ * verdict is evidence of capture, never quality approval.
+ *
+ * Usage:
+ *   node scripts/verify-visual-qa.mjs --url <https://site> --pages /,/about
+ *     [--viewports desktop_1440,iphone_14] [--report <dir>/report.json]
+ *     [--run-id <id>] [--client-id <id>]
+ * Pages may instead come from QA_PAGES (comma-separated) or an explicit
+ * SPEC_PATH DomainSpec; there is no default spec and no homepage fallback.
+ * Requires OPENROUTER_API_KEY for the evaluator.
  */
 
-import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { createHash, randomUUID } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const SCREENSHOTS_DIR = join(process.cwd(), "validation", "screenshots");
-const REPORT_PATH = join(process.cwd(), "validation", "visual_qa_report.json");
+export const VISUAL_QA_REPORT_SCHEMA = "website-bot.visual-qa-report/v1";
+export const EXIT_CODES = { PASS: 0, FAIL: 1, BLOCKED: 2 };
 
 // Viewports to test (matches @quantum-l9/llm-router VIEWPORTS)
-const VIEWPORTS = [
+export const VIEWPORTS = [
   { name: "desktop_1920", width: 1920, height: 1080 },
   { name: "desktop_1440", width: 1440, height: 900 },
   { name: "ipad", width: 1024, height: 768 },
@@ -33,205 +51,320 @@ const VIEWPORTS = [
   { name: "pixel_7", width: 412, height: 915 },
 ];
 
-// Pages to validate — derived from the DomainSpec, never hardcoded to one
-// client's routes. Precedence: explicit QA_PAGES env (comma-separated) →
-// the spec's route slugs (SPEC_PATH or the default normalized spec) → home only.
-async function resolvePages() {
-  // Normalize to a leading-slash path so later `${siteUrl}${pagePath}` builds a
-  // valid URL for both env-supplied and spec-derived values (e.g. 'about' → '/about').
-  const toPath = (p) => (p.startsWith("/") ? p : `/${p}`);
-  if (process.env.QA_PAGES) {
-    return process.env.QA_PAGES.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map(toPath);
+const NAVIGATION_TIMEOUT_MS = 45_000;
+const LLM_ADAPTER = resolve(dirname(fileURLToPath(import.meta.url)), "../src/services/llm.ts");
+
+export class VisualQaUsageError extends Error {}
+
+function toPagePath(raw) {
+  const value = String(raw).trim();
+  const path = value.startsWith("/") ? value : `/${value}`;
+  if (
+    path.includes("//") ||
+    /[?#\\\s]/.test(path) ||
+    path.split("/").some((part) => part === "." || part === "..")
+  ) {
+    throw new VisualQaUsageError(`invalid page path ${JSON.stringify(value)}`);
   }
-  const specPath =
-    process.env.SPEC_PATH || "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
-  try {
-    const { parse } = await import("yaml");
-    const spec = parse(readFileSync(specPath, "utf-8"));
-    const root = spec?.domain_spec ?? spec;
-    const slugs = (root?.routes ?? [])
-      .map((r) => r.slug)
-      .filter(Boolean)
-      .map(toPath);
-    if (slugs.length) return slugs;
-  } catch {
-    // fall through to the safe default
-  }
-  console.log("⚠️  Could not derive pages from a DomainSpec — defaulting to home page only.");
-  return ["/"];
+  return path;
 }
 
-// Client id for budget tracking in @quantum-l9/llm-router. Precedence: CLIENT_ID env →
-// the DomainSpec's client_id → a stable fallback. Must be non-empty (the router rejects
-// an empty client id at initClient).
-async function resolveClientId() {
-  if (process.env.CLIENT_ID) return process.env.CLIENT_ID;
-  const specPath =
-    process.env.SPEC_PATH || "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
-  try {
-    const { parse } = await import("yaml");
-    const spec = parse(readFileSync(specPath, "utf-8"));
-    const root = spec?.domain_spec ?? spec;
-    const id = root?.client_id ?? root?.metadata?.spec_id;
-    if (id) return String(id);
-  } catch {
-    // fall through to the safe default
-  }
-  return "visual-qa";
+function flag(argv, name) {
+  const index = argv.indexOf(name);
+  if (index === -1) return undefined;
+  const value = argv[index + 1];
+  if (value === undefined || value.startsWith("--"))
+    throw new VisualQaUsageError(`${name} requires a value`);
+  return value;
 }
 
-const PAGES = await resolvePages();
-
-async function main() {
-  console.log("═══════════════════════════════════════════════════");
-  console.log("  L9 Website Factory — Visual QA Verification");
-  console.log("═══════════════════════════════════════════════════");
-
-  // Check prerequisites
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.log("⚠️  OPENROUTER_API_KEY not set — skipping vision analysis");
-    console.log("   Screenshots will still be captured for manual review");
-  }
-
-  // The visual-qa pipeline stage invokes this script as `--url <deployUrl>`; honor that
-  // first, then SITE_URL, then a local dev-server default.
-  const urlFlagIndex = process.argv.indexOf("--url");
-  const urlArg = urlFlagIndex !== -1 ? process.argv[urlFlagIndex + 1] : undefined;
-  const siteUrl = urlArg || process.env.SITE_URL || "http://localhost:4321";
-  console.log(`\n📸 Target: ${siteUrl}`);
-  console.log(`📐 Viewports: ${VIEWPORTS.length}`);
-  console.log(`📄 Pages: ${PAGES.length}`);
-  console.log(`📊 Total screenshots: ${VIEWPORTS.length * PAGES.length}\n`);
-
-  // Create screenshots directory
-  if (!existsSync(SCREENSHOTS_DIR)) {
-    mkdirSync(SCREENSHOTS_DIR, { recursive: true });
-  }
-
-  // Check if site is reachable
+async function pagesFromSpec(specPath) {
+  const { parse } = await import("yaml");
+  let spec;
   try {
-    execSync(`curl -s -o /dev/null -w "%{http_code}" ${siteUrl}`, { encoding: "utf-8" });
+    spec = parse(readFileSync(specPath, "utf-8"));
+  } catch (error) {
+    throw new VisualQaUsageError(`SPEC_PATH ${specPath} is unreadable: ${error.message}`);
+  }
+  const root = spec?.domain_spec ?? spec;
+  return (root?.routes ?? []).map((route) => route?.slug).filter(Boolean);
+}
+
+/** Resolve the complete, explicit invocation. Missing required context is a usage error. */
+export async function parseInvocation(argv, env) {
+  const rawUrl = flag(argv, "--url") ?? env.SITE_URL;
+  if (!rawUrl) throw new VisualQaUsageError("--url (or SITE_URL) is required");
+  let target;
+  try {
+    target = new URL(rawUrl);
   } catch {
-    console.error("❌ Site not reachable at", siteUrl);
-    console.error("   Start the dev server with: npm run dev");
-    console.error("   Or set SITE_URL to a deployed URL");
-    process.exit(1);
+    throw new VisualQaUsageError(`--url ${JSON.stringify(rawUrl)} is not a valid URL`);
   }
+  if (!["http:", "https:"].includes(target.protocol) || target.username || target.password)
+    throw new VisualQaUsageError("--url must be an http(s) URL without credentials");
+  if (target.search || target.hash)
+    throw new VisualQaUsageError("--url must not carry a query string or fragment");
+  const url = `${target.origin}${target.pathname.replace(/\/+$/, "")}`;
 
-  console.log("✅ Site reachable\n");
+  let rawPages = flag(argv, "--pages")?.split(",") ?? env.QA_PAGES?.split(",");
+  if (!rawPages && env.SPEC_PATH) rawPages = await pagesFromSpec(env.SPEC_PATH);
+  const pages = [
+    ...new Set((rawPages ?? []).filter((page) => String(page).trim()).map(toPagePath)),
+  ];
+  if (!pages.length)
+    throw new VisualQaUsageError("no pages: pass --pages, QA_PAGES or an explicit SPEC_PATH");
 
-  // Capture screenshots (requires Playwright or Puppeteer)
-  const hasPlaywright = checkDependency("playwright");
-  if (!hasPlaywright) {
-    console.log("⚠️  Playwright not installed — generating screenshot plan only");
-    console.log("   Install with: npx playwright install chromium");
-    console.log("");
+  const viewportNames = flag(argv, "--viewports")
+    ?.split(",")
+    .map((name) => name.trim());
+  const viewports = viewportNames
+    ? viewportNames.map((name) => {
+        const viewport = VIEWPORTS.find((candidate) => candidate.name === name);
+        if (!viewport) throw new VisualQaUsageError(`unknown viewport ${JSON.stringify(name)}`);
+        return viewport;
+      })
+    : VIEWPORTS;
+  if (new Set(viewports.map((viewport) => viewport.name)).size !== viewports.length)
+    throw new VisualQaUsageError("duplicate viewport");
 
-    // Output the plan for manual execution or future automation
-    const plan = {
-      status: "PLAN_ONLY",
-      reason: "Playwright not installed for automated screenshot capture",
-      siteUrl,
-      viewports: VIEWPORTS,
-      pages: PAGES,
-      totalScreenshots: VIEWPORTS.length * PAGES.length,
-      instruction: "Install Playwright and re-run, or capture screenshots manually",
-      screenshotsDir: SCREENSHOTS_DIR,
-    };
+  const runId = flag(argv, "--run-id") ?? `${Date.now()}-${randomUUID()}`;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(runId))
+    throw new VisualQaUsageError(`--run-id ${JSON.stringify(runId)} is not a safe identifier`);
+  const reportPath = resolve(
+    flag(argv, "--report") ?? join("build", "visual-qa", runId, "report.json"),
+  );
+  const clientId = flag(argv, "--client-id") ?? env.CLIENT_ID ?? "visual-qa";
+  return { url, pages, viewports, runId, reportPath, clientId };
+}
 
-    writeFileSync(REPORT_PATH, JSON.stringify(plan, null, 2));
-    console.log(`📋 Plan written to: ${REPORT_PATH}`);
-    console.log("");
-    console.log("STATUS: DEFERRED (missing dependency)");
-    return;
-  }
+function sha256(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
 
-  // If we have Playwright, capture and analyze
-  console.log("📸 Capturing screenshots...\n");
-  const screenshots = await captureScreenshots(siteUrl);
+/** Evaluator verdict for one screenshot; anything but a non-empty analysis is inconclusive. */
+export function verdictFor(analysis) {
+  if (typeof analysis !== "string" || !analysis.trim()) return "inconclusive";
+  // The evaluator's own protocol (src/services/llm.ts validateLayout prompt):
+  // a severe defect is reported with the word "critical".
+  return /\bcritical\b/i.test(analysis) ? "critical" : "ok";
+}
 
-  if (process.env.OPENROUTER_API_KEY) {
-    console.log("\n🤖 Running vision analysis...\n");
-    // Dynamic import of the LLM service
-    const { createWebsiteFactoryLLM } = await import("../dist/services/llm.js");
-    const llm = createWebsiteFactoryLLM(await resolveClientId());
+export function defaultDeps(env = process.env) {
+  return {
+    env,
+    fetch: globalThis.fetch,
+    async launchBrowser() {
+      const { chromium } = await import("playwright");
+      const browser = await chromium.launch();
+      return {
+        version: browser.version(),
+        async open(viewport) {
+          const context = await browser.newContext({
+            viewport: { width: viewport.width, height: viewport.height },
+          });
+          const page = await context.newPage();
+          return {
+            async goto(url) {
+              const response = await page.goto(url, {
+                waitUntil: "networkidle",
+                timeout: NAVIGATION_TIMEOUT_MS,
+              });
+              return { status: response ? response.status() : 0 };
+            },
+            screenshot: (path) => page.screenshot({ path, fullPage: true }),
+            close: () => context.close(),
+          };
+        },
+        close: () => browser.close(),
+      };
+    },
+    async loadEvaluator(clientId) {
+      // The pipeline runs TypeScript through tsx; register it so the canonical
+      // adapter loads under plain `node` too. There is no compiled dist/.
+      const { register } = await import("tsx/esm/api");
+      register();
+      const { createWebsiteFactoryLLM } = await import(pathToFileURL(LLM_ADAPTER).href);
+      return createWebsiteFactoryLLM(clientId);
+    },
+    now: () => new Date(),
+  };
+}
 
-    const issues = [];
-    for (const screenshot of screenshots) {
-      const result = await llm.validateLayout(
-        [screenshot.path],
-        `Page: ${screenshot.page}, Viewport: ${screenshot.viewport.name} (${screenshot.viewport.width}x${screenshot.viewport.height})`,
-      );
-      issues.push({
-        page: screenshot.page,
-        viewport: screenshot.viewport.name,
-        analysis: result,
-      });
+/** Run one visual QA invocation and write its report. A run outcome is never thrown. */
+export async function runVisualQa(invocation, deps = defaultDeps()) {
+  const { url, pages, viewports, runId, reportPath, clientId } = invocation;
+  const runDir = dirname(reportPath);
+  const screenshotsDir = join(runDir, "screenshots");
+  // Only this invocation's output may certify this invocation.
+  rmSync(reportPath, { force: true });
+  rmSync(screenshotsDir, { recursive: true, force: true });
+  mkdirSync(screenshotsDir, { recursive: true });
+
+  const reasons = new Set();
+  const captures = [];
+  const evaluations = [];
+  const errors = [];
+  let browserVersion = null;
+  const startedAt = deps.now().toISOString();
+
+  try {
+    const hasKey = Boolean(deps.env.OPENROUTER_API_KEY?.trim());
+    if (!hasKey) reasons.add("MISSING_EVALUATOR_CREDENTIALS");
+
+    let reachable = false;
+    try {
+      // Non-shell reachability probe of the exact target.
+      const response = await deps.fetch(`${url}/`, { redirect: "follow" });
+      reachable = response.ok;
+    } catch (error) {
+      errors.push(`reachability: ${error instanceof Error ? error.message : String(error)}`);
     }
+    if (!reachable) reasons.add("TARGET_UNREACHABLE");
 
-    const hasCritical = issues.some((i) => /critical/i.test(i.analysis));
-    const report = {
-      status: hasCritical ? "FAIL" : "PASS",
-      timestamp: new Date().toISOString(),
-      siteUrl,
-      totalScreenshots: screenshots.length,
-      issues,
-    };
-
-    writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
-    console.log(`\n📋 Report written to: ${REPORT_PATH}`);
-    // Emit a CRITICAL marker on stdout so the visual-qa pipeline stage (which scans this
-    // script's output for "CRITICAL") can fail the gate on severe defects.
-    if (hasCritical) console.log("CRITICAL: visual QA detected critical layout issues");
-    console.log(`STATUS: ${report.status}`);
-  } else {
-    console.log("📋 Screenshots captured. Run with OPENROUTER_API_KEY for AI analysis.");
-  }
-}
-
-function checkDependency(name) {
-  try {
-    execSync(`npx ${name} --version`, { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function captureScreenshots(siteUrl) {
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch();
-  const screenshots = [];
-
-  for (const viewport of VIEWPORTS) {
-    const context = await browser.newContext({
-      viewport: { width: viewport.width, height: viewport.height },
-    });
-    const page = await context.newPage();
-
-    for (const pagePath of PAGES) {
-      const url = `${siteUrl}${pagePath}`;
-      const filename = `${pagePath.replaceAll("/", "_") || "_index"}_${viewport.name}.png`;
-      const filepath = join(SCREENSHOTS_DIR, filename);
-
+    let browser;
+    if (reachable) {
       try {
-        await page.goto(url, { waitUntil: "networkidle" });
-        await page.screenshot({ path: filepath, fullPage: true });
-        screenshots.push({ page: pagePath, viewport, path: filepath });
-        console.log(`  ✅ ${pagePath} @ ${viewport.name}`);
-      } catch (err) {
-        console.log(`  ❌ ${pagePath} @ ${viewport.name}: ${err.message}`);
+        browser = await deps.launchBrowser();
+        browserVersion = browser.version ?? null;
+      } catch (error) {
+        errors.push(`browser: ${error instanceof Error ? error.message : String(error)}`);
+        reasons.add("MISSING_DEPENDENCY");
       }
     }
 
-    await context.close();
+    if (browser) {
+      try {
+        for (const viewport of viewports) {
+          const page = await browser.open(viewport);
+          try {
+            for (const pagePath of pages) {
+              const name = pagePath === "/" ? "_index" : pagePath.replaceAll("/", "_");
+              const file = join(screenshotsDir, `${name}_${viewport.name}.png`);
+              const capture = {
+                page: pagePath,
+                viewport: viewport.name,
+                url: `${url}${pagePath}`,
+                http_status: 0,
+                status: "error",
+                screenshot: null,
+              };
+              captures.push(capture);
+              try {
+                capture.http_status = (await page.goto(capture.url)).status;
+                if (capture.http_status < 200 || capture.http_status > 299) {
+                  capture.status = "http_error";
+                  reasons.add("HTTP_NOT_OK");
+                  continue;
+                }
+                await page.screenshot(file);
+                const bytes = existsSync(file) ? statSync(file).size : 0;
+                if (bytes === 0) {
+                  reasons.add("CAPTURE_FAILED");
+                  continue;
+                }
+                capture.screenshot = { path: file, bytes, sha256: sha256(file) };
+                capture.status = "captured";
+              } catch (error) {
+                capture.error = error instanceof Error ? error.message : String(error);
+                reasons.add("CAPTURE_FAILED");
+              }
+            }
+          } finally {
+            await page.close();
+          }
+        }
+      } finally {
+        await browser.close();
+      }
+    }
+
+    let evaluator;
+    if (hasKey && captures.some((capture) => capture.status === "captured")) {
+      try {
+        evaluator = await deps.loadEvaluator(clientId);
+      } catch (error) {
+        errors.push(`evaluator: ${error instanceof Error ? error.message : String(error)}`);
+        reasons.add("EVALUATOR_UNAVAILABLE");
+      }
+    }
+    for (const capture of captures) {
+      if (capture.status !== "captured") continue;
+      const evaluation = { page: capture.page, viewport: capture.viewport, verdict: "not_run" };
+      evaluations.push(evaluation);
+      if (!evaluator) continue;
+      const viewport = viewports.find((candidate) => candidate.name === capture.viewport);
+      try {
+        const analysis = await evaluator.validateLayout(
+          [capture.screenshot.path],
+          `Page: ${capture.page}, Viewport: ${viewport.name} (${viewport.width}x${viewport.height})`,
+        );
+        evaluation.verdict = verdictFor(analysis);
+        evaluation.analysis = typeof analysis === "string" ? analysis : null;
+        if (evaluation.verdict === "inconclusive") reasons.add("EVALUATION_INCONCLUSIVE");
+        if (evaluation.verdict === "critical") reasons.add("CRITICAL_FINDING");
+      } catch (error) {
+        evaluation.verdict = "error";
+        evaluation.error = error instanceof Error ? error.message : String(error);
+        reasons.add("EVALUATION_FAILED");
+      }
+    }
+  } catch (error) {
+    errors.push(`unexpected: ${error instanceof Error ? error.message : String(error)}`);
+    reasons.add("UNEXPECTED_ERROR");
   }
 
-  await browser.close();
-  return screenshots;
+  const required = pages.length * viewports.length;
+  const captured = captures.filter((capture) => capture.status === "captured").length;
+  const approved = evaluations.filter((evaluation) => evaluation.verdict === "ok").length;
+  if (captured !== required || approved !== required) reasons.add("INCOMPLETE_COVERAGE");
+
+  const defects = ["CRITICAL_FINDING", "HTTP_NOT_OK", "CAPTURE_FAILED"];
+  const status =
+    reasons.size === 0 ? "PASS" : defects.some((code) => reasons.has(code)) ? "FAIL" : "BLOCKED";
+  const report = {
+    schema: VISUAL_QA_REPORT_SCHEMA,
+    run_id: runId,
+    status,
+    reasons: [...reasons].sort(),
+    target_url: url,
+    requested: { pages, viewports: viewports.map((viewport) => viewport.name) },
+    coverage: { required, captured, approved },
+    browser: browserVersion,
+    started_at: startedAt,
+    completed_at: deps.now().toISOString(),
+    captures,
+    evaluations,
+    errors,
+  };
+  mkdirSync(runDir, { recursive: true });
+  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
+  return report;
 }
 
-await main().catch(console.error);
+async function cli() {
+  let invocation;
+  try {
+    invocation = await parseInvocation(process.argv.slice(2), process.env);
+  } catch (error) {
+    console.error(`visual-qa: ${error.message}`);
+    console.log("STATUS: BLOCKED");
+    process.exitCode = EXIT_CODES.BLOCKED;
+    return;
+  }
+  const report = await runVisualQa(invocation);
+  console.log(`visual-qa report: ${invocation.reportPath}`);
+  console.log(
+    `coverage: ${report.coverage.captured}/${report.coverage.required} captured, ${report.coverage.approved}/${report.coverage.required} approved`,
+  );
+  if (report.reasons.length) console.log(`reasons: ${report.reasons.join(", ")}`);
+  console.log(`STATUS: ${report.status}`);
+  process.exitCode = EXIT_CODES[report.status];
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  await cli().catch((error) => {
+    console.error(`visual-qa: unexpected failure: ${error?.stack ?? error}`);
+    console.log("STATUS: BLOCKED");
+    process.exitCode = EXIT_CODES.BLOCKED;
+  });
+}
