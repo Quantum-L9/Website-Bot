@@ -96,11 +96,14 @@ async function nativeModules(repoRoot) {
   const { register } = await import("tsx/esm/api");
   register();
   const load = (path) => import(pathToFileURL(resolve(repoRoot, path)).href);
-  const [hashing, rendered] = await Promise.all([
+  const [hashing, rendered, specs, codec, yaml] = await Promise.all([
     load("src/services/hashing.ts"),
     load("src/validation/rendered-site.ts"),
+    load("src/pipeline/validateDomainSpec.ts"),
+    load("src/pipeline/evidence/EvidenceCodec.ts"),
+    import("yaml"),
   ]);
-  return { hashing, rendered };
+  return { hashing, rendered, specs, codec, yaml };
 }
 
 function readJson(path) {
@@ -168,44 +171,112 @@ function screenshotProblem(receipt, shots, route, viewport) {
     : undefined;
 }
 
-/** Every declared route x viewport rendered PASS and has exactly one unchanged screenshot. */
-function coverageProblems(receipt, report) {
-  const routes = receipt.routes ?? [];
-  const viewports = receipt.browser?.viewports ?? [];
-  if (!routes.length || !viewports.length) return ["no routes or viewports recorded"];
-  const shots = receipt.browser?.screenshots ?? [];
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * The coverage a receipt must prove, derived from native artifacts, never
+ * from the receipt: routes from the re-validated spec (cross-checked against
+ * the build proof's builtRoutes), viewports from the browser report.
+ */
+function expectedCoverage(receipt, report, natives) {
   const problems = [];
+  let routes;
+  try {
+    const path = receipt.input?.spec_path;
+    const spec = natives.specs.validateDomainSpec(
+      natives.yaml.parse(readFileSync(path, "utf-8")),
+      path,
+    );
+    routes = spec.routes.map((route) => route.slug);
+  } catch (error) {
+    problems.push(
+      `input spec does not validate: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const proofPath =
+    receipt.output?.evidence_dir && resolve(receipt.output.evidence_dir, "build-proof.json");
+  if (!proofPath || !existsSync(proofPath)) problems.push("native build proof missing");
+  else {
+    const proof = natives.codec.decodeEvidenceArtifact("build", readJson(proofPath));
+    if (proof.buildId !== receipt.build_id) problems.push("build proof belongs to another build");
+    if (
+      proof.distDigest !== receipt.output?.dist_digest ||
+      proof.sourceDigest !== receipt.output?.source_digest
+    )
+      problems.push("build proof digests disagree with the receipt");
+    if (routes && !same(proof.builtRoutes, routes))
+      problems.push("build proof routes differ from the spec");
+  }
+  const viewports = (report?.viewports ?? []).map((viewport) => viewport.name);
+  if (report && !viewports.length) problems.push("browser report declares no viewports");
+  return { routes: routes ?? [], viewports, problems };
+}
+
+/**
+ * Exactly one PASS render and one unchanged screenshot for every expected
+ * route x viewport, and nothing else: the receipt's own route, viewport and
+ * screenshot lists must equal the native coverage, so deleting, reordering,
+ * duplicating or adding rows in a receipt cannot narrow what it proves.
+ */
+function coverageProblems(receipt, report, expected) {
+  const { routes, viewports } = expected;
+  const problems = [...expected.problems];
+  if (!routes.length || !viewports.length) return [...problems, "no expected routes or viewports"];
+  if (!same(receipt.routes, routes)) problems.push("receipt routes differ from the spec");
+  if (!same(receipt.browser?.viewports, viewports))
+    problems.push("receipt viewports differ from the browser report");
+  const pairs = routes.length * viewports.length;
+  const renders = report?.routes ?? [];
+  const shots = receipt.browser?.screenshots ?? [];
+  if (report && renders.length !== pairs)
+    problems.push(`browser report has ${renders.length} renders, expected ${pairs}`);
+  if (shots.length !== pairs)
+    problems.push(`receipt has ${shots.length} screenshots, expected ${pairs}`);
+  if (report && report.summary?.renders !== pairs)
+    problems.push("browser report summary disagrees with its coverage");
   for (const route of routes) {
-    for (const viewport of viewports) {
-      const pair = `${route}@${viewport}`;
-      const render = report?.routes?.find(
-        (item) => item.route === route && item.viewport === viewport,
-      );
-      if (report && render?.status !== "PASS")
-        problems.push(`${pair}: render ${render?.status ?? "missing"}`);
-      const shot = screenshotProblem(receipt, shots, route, viewport);
-      if (shot) problems.push(`${pair}: ${shot}`);
-    }
+    for (const viewport of viewports)
+      problems.push(...pairProblems(receipt, report, shots, route, viewport));
+  }
+  return problems;
+}
+
+/** One PASS render and one unchanged screenshot, the same one, for a route x viewport. */
+function pairProblems(receipt, report, shots, route, viewport) {
+  const pair = `${route}@${viewport}`;
+  const problems = [];
+  const matches = (report?.routes ?? []).filter(
+    (item) => item.route === route && item.viewport === viewport,
+  );
+  if (report && (matches.length !== 1 || matches[0].status !== "PASS"))
+    problems.push(`${pair}: ${matches.length} renders, status ${matches[0]?.status ?? "missing"}`);
+  const shot = screenshotProblem(receipt, shots, route, viewport);
+  if (shot) problems.push(`${pair}: ${shot}`);
+  else if (matches.length === 1) {
+    const recorded = shots.find((item) => item.route === route && item.viewport === viewport);
+    if (recorded.path !== matches[0].screenshot_path)
+      problems.push(`${pair}: screenshot is not the one the browser report recorded`);
   }
   return problems;
 }
 
 /**
  * Re-verify a receipt against what is on disk now. Empty problems is the only
- * PASS. Every input and output the receipt names is re-read and re-hashed.
+ * PASS. Every input and output the receipt names is re-read and re-hashed, and
+ * the coverage it must prove comes from the native artifacts.
  */
 export async function verifyReceipt(receipt, repoRoot = REPO_ROOT) {
   if (receipt?.schema !== PREVIEW_RECEIPT_SCHEMA) return ["unknown receipt schema"];
-  const { hashing, rendered } = await nativeModules(repoRoot);
-  const { report, problems: reportIssues } = reportProblems(receipt, rendered);
+  const natives = await nativeModules(repoRoot);
+  const { report, problems: reportIssues } = reportProblems(receipt, natives.rendered);
   return [
     ...(receipt.remote_deploy === "NOT_INVOKED"
       ? []
       : ["receipt does not record NOT_INVOKED deploy"]),
     ...inputProblems(receipt),
-    ...buildProblems(receipt, hashing),
+    ...buildProblems(receipt, natives.hashing),
     ...reportIssues,
-    ...coverageProblems(receipt, report),
+    ...coverageProblems(receipt, report, expectedCoverage(receipt, report, natives)),
   ];
 }
 
@@ -273,6 +344,9 @@ export async function buildPreview(spec, repoRoot = REPO_ROOT) {
       build_id: result.buildId,
       client_id: result.clientId,
       routes: result.routeSlugs,
+      // Which design the preview used: the native stage's tokens, or the validator's fixed
+      // tokens for a pending design (which needs an LLM this offline path does not run).
+      design: { source: result.designSource, tokens: result.designTokens },
       build: {
         proof_id: result.buildProof?.proofId,
         checks: result.buildProof?.checks ?? [],

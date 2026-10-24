@@ -14,6 +14,7 @@ import { spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
@@ -48,6 +49,7 @@ interface Receipt {
     renders: number;
     screenshots: Array<{ route: string; viewport: string; path: string; sha256: string }>;
   };
+  design: { source: string; tokens: Record<string, string> };
 }
 interface PreviewModule {
   verifyReceipt(receipt: unknown, repoRoot?: string): Promise<string[]>;
@@ -236,6 +238,93 @@ void test("NEGATIVE verify: tampered or missing build, report, screenshot or inp
   assert.deepEqual(await preview.verifyReceipt(receipt), []);
 });
 
+void test("F03 NEGATIVE editing the receipt's coverage alone never verifies, even with valid hashes", async () => {
+  assert.ok(primary);
+  const base = primary.receipt;
+  assert.deepEqual(await preview.verifyReceipt(base), []);
+  const edits: Array<[string, (receipt: Receipt) => void, RegExp]> = [
+    [
+      "drop a route and its screenshots",
+      (receipt) => {
+        receipt.routes = receipt.routes.filter((route) => route !== "/workshops");
+        receipt.browser.screenshots = receipt.browser.screenshots.filter(
+          (shot) => shot.route !== "/workshops",
+        );
+      },
+      /receipt routes differ from the spec/,
+    ],
+    [
+      "drop a viewport and its screenshots",
+      (receipt) => {
+        receipt.browser.viewports = ["desktop"];
+        receipt.browser.screenshots = receipt.browser.screenshots.filter(
+          (shot) => shot.viewport === "desktop",
+        );
+      },
+      /receipt viewports differ from the browser report/,
+    ],
+    [
+      "drop one screenshot row",
+      (receipt) => {
+        receipt.browser.screenshots = receipt.browser.screenshots.slice(1);
+      },
+      /receipt has 9 screenshots, expected 10/,
+    ],
+    [
+      "duplicate a screenshot row",
+      (receipt) => {
+        receipt.browser.screenshots.push({ ...receipt.browser.screenshots[0] });
+      },
+      /receipt has 11 screenshots/,
+    ],
+    [
+      "add a foreign route pair",
+      (receipt) => {
+        receipt.browser.screenshots.push({ ...receipt.browser.screenshots[0], route: "/admin" });
+      },
+      /receipt has 11 screenshots/,
+    ],
+    [
+      "reorder the routes",
+      (receipt) => {
+        receipt.routes = [...receipt.routes].reverse();
+      },
+      /receipt routes differ from the spec/,
+    ],
+    [
+      "swap two screenshot paths",
+      (receipt) => {
+        const [a, b] = receipt.browser.screenshots;
+        [a.path, b.path] = [b.path, a.path];
+      },
+      /screenshot changed since the receipt|not the one the browser report recorded/,
+    ],
+  ];
+  for (const [label, mutate, reason] of edits) {
+    const edited = structuredClone(base);
+    mutate(edited);
+    const problems = await preview.verifyReceipt(edited);
+    assert.match(problems.join(" | "), reason, label);
+  }
+});
+
+void test("F04 the preview builds each fixture with its own native design tokens", () => {
+  assert.ok(primary);
+  const { receipt } = primary;
+  assert.equal(receipt.design.source, "native-design-intelligence");
+  // The editorial fixture's approved palette and client_vision intent, via DesignIntelligenceStage.
+  assert.equal(receipt.design.tokens.primary, "#5b2a3c");
+  assert.equal(receipt.design.tokens.font_heading, "Libre Baskerville");
+  assert.equal(receipt.design.tokens.layout_radius, "1rem");
+  const cssDir = join(receipt.output.dist_dir, "_astro");
+  const css = readdirSync(cssDir)
+    .filter((file) => file.endsWith(".css"))
+    .map((file) => readFileSync(join(cssDir, file), "utf-8"))
+    .join("\n");
+  assert.ok(css.includes("#5b2a3c"), "the client's own primary colour ships");
+  assert.ok(!css.includes("#1677ff"), "the validator's fixed accent does not");
+});
+
 void test("NEGATIVE stale receipt: after a rebuild from changed input, the earlier receipt fails", async () => {
   assert.ok(primary);
   writeFileSync(
@@ -286,6 +375,10 @@ void test("without KEEP the validator removes only this run's output; other clie
   assert.equal(code, 0, out.slice(-3000));
   const summary = JSON.parse(readFileSync(result, "utf-8"));
   assert.equal(summary.status, "passed");
+  // F04: the industrial fixture's own tokens, not the editorial ones or the fixed palette.
+  assert.equal(summary.designSource, "native-design-intelligence");
+  assert.equal(summary.designTokens.primary, "#22303c");
+  assert.equal(summary.designTokens.layout_radius, "0.25rem");
   for (const path of [summary.outputDir, summary.evidenceDir, summary.screenshotDir])
     assert.equal(existsSync(path), false, `${path} is cleaned without KEEP`);
   // Emptied per-client parents are removed too; non-empty ones are left alone.
