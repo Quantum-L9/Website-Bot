@@ -5,7 +5,7 @@
 // missing action is omitted or explicitly gated, never faked.
 
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.js";
@@ -66,10 +66,10 @@ async function assemble(overrides: Partial<DomainSpec>) {
 
 function collectSources(dir: string): string {
   let text = "";
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) text += collectSources(path);
-    else if (/\.(astro|ts)$/.test(name)) text += readFileSync(path, "utf-8");
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) text += collectSources(path);
+    else if (/\.(astro|ts)$/.test(entry.name)) text += readFileSync(path, "utf-8");
   }
   return text;
 }
