@@ -31,11 +31,12 @@
  *     [--run-id <id>] [--client-id <id>]
  * Pages may instead come from QA_PAGES (comma-separated) or an explicit
  * SPEC_PATH DomainSpec; there is no default spec and no homepage fallback.
- * Requires OPENROUTER_API_KEY for the evaluator.
+ * The evaluator (src/services/llm.ts) needs its complete credential set,
+ * EVALUATOR_CREDENTIALS below; a missing one blocks the run before capture.
  */
 
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -52,6 +53,8 @@ export const VIEWPORTS = [
 ];
 
 const NAVIGATION_TIMEOUT_MS = 45_000;
+/** Every credential createWebsiteFactoryLLM requires before its first call. */
+export const EVALUATOR_CREDENTIALS = ["OPENROUTER_API_KEY", "PERPLEXITY_API_KEY"];
 const LLM_ADAPTER = resolve(dirname(fileURLToPath(import.meta.url)), "../src/services/llm.ts");
 
 export class VisualQaUsageError extends Error {}
@@ -88,7 +91,8 @@ function flag(argv, name) {
   return value;
 }
 
-async function pagesFromSpec(specPath) {
+/** Route slugs and client id from an explicitly named DomainSpec. */
+async function readSpec(specPath) {
   const { parse } = await import("yaml");
   let spec;
   try {
@@ -97,7 +101,11 @@ async function pagesFromSpec(specPath) {
     throw new VisualQaUsageError(`SPEC_PATH ${specPath} is unreadable: ${error.message}`);
   }
   const root = spec?.domain_spec ?? spec;
-  return (root?.routes ?? []).map((route) => route?.slug).filter(Boolean);
+  const clientId = root?.client_id ?? root?.metadata?.spec_id;
+  return {
+    slugs: (root?.routes ?? []).map((route) => route?.slug).filter(Boolean),
+    clientId: clientId ? String(clientId) : undefined,
+  };
 }
 
 /** Resolve the complete, explicit invocation. Missing required context is a usage error. */
@@ -116,8 +124,8 @@ export async function parseInvocation(argv, env) {
     throw new VisualQaUsageError("--url must not carry a query string or fragment");
   const url = `${target.origin}${trimTrailingSlashes(target.pathname)}`;
 
-  let rawPages = flag(argv, "--pages")?.split(",") ?? env.QA_PAGES?.split(",");
-  if (!rawPages && env.SPEC_PATH) rawPages = await pagesFromSpec(env.SPEC_PATH);
+  const spec = env.SPEC_PATH ? await readSpec(env.SPEC_PATH) : undefined;
+  const rawPages = flag(argv, "--pages")?.split(",") ?? env.QA_PAGES?.split(",") ?? spec?.slugs;
   const pages = [
     ...new Set((rawPages ?? []).filter((page) => String(page).trim()).map(toPagePath)),
   ];
@@ -143,12 +151,9 @@ export async function parseInvocation(argv, env) {
   const reportPath = resolve(
     flag(argv, "--report") ?? join("build", "visual-qa", runId, "report.json"),
   );
-  const clientId = flag(argv, "--client-id") ?? env.CLIENT_ID ?? "visual-qa";
+  // Budget and memory attribution belong to the client being verified.
+  const clientId = flag(argv, "--client-id") ?? env.CLIENT_ID ?? spec?.clientId ?? "visual-qa";
   return { url, pages, viewports, runId, reportPath, clientId };
-}
-
-function sha256(path) {
-  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 /** Evaluator verdict for one screenshot; anything but a non-empty analysis is inconclusive. */
@@ -234,12 +239,17 @@ async function captureOne(page, capture, file, state) {
       return;
     }
     await page.screenshot(file);
-    const bytes = existsSync(file) ? statSync(file).size : 0;
-    if (bytes === 0) {
+    // Read once: the recorded size and digest describe the same bytes.
+    const data = readFileSync(file);
+    if (data.length === 0) {
       state.reasons.add("CAPTURE_FAILED");
       return;
     }
-    capture.screenshot = { path: file, bytes, sha256: sha256(file) };
+    capture.screenshot = {
+      path: file,
+      bytes: data.length,
+      sha256: createHash("sha256").update(data).digest("hex"),
+    };
     capture.status = "captured";
   } catch (error) {
     capture.error = messageOf(error);
@@ -338,8 +348,12 @@ export async function runVisualQa(invocation, deps = defaultDeps()) {
   const state = { reasons: new Set(), captures: [], evaluations: [], errors: [], browser: null };
   const startedAt = deps.now().toISOString();
   try {
-    const hasKey = Boolean(deps.env.OPENROUTER_API_KEY?.trim());
-    if (!hasKey) state.reasons.add("MISSING_EVALUATOR_CREDENTIALS");
+    const missing = EVALUATOR_CREDENTIALS.filter((name) => !deps.env[name]?.trim());
+    const hasKey = missing.length === 0;
+    if (!hasKey) {
+      state.reasons.add("MISSING_EVALUATOR_CREDENTIALS");
+      state.errors.push(`evaluator credentials missing: ${missing.join(", ")}`);
+    }
     const browser = (await probeTarget(url, deps, state)) ? await launch(deps, state) : undefined;
     if (browser) await captureAll(browser, invocation, screenshotsDir, state);
     const evaluator = await loadEvaluatorFor(hasKey, clientId, deps, state);

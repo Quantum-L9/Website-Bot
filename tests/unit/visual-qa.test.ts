@@ -16,7 +16,7 @@ import {
   VisualQAStage,
   type VisualQaExec,
 } from "../../src/stages/VisualQAStage.js";
-import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
+import { cleanupContext, fixtureContext, withEnv } from "../helpers/siteFactoryFixture.js";
 
 const QA_SCRIPT = "scripts/verify-visual-qa.mjs";
 const DEPLOY_URL = "https://preview.example.com";
@@ -39,7 +39,7 @@ const qa = (await import(new URL(`../../${QA_SCRIPT}`, import.meta.url).href)) a
 /** A deployed site where every page renders and the evaluator reports `analysis`. */
 function fakeDeps(analysis: string) {
   return {
-    env: { OPENROUTER_API_KEY: "test-key" },
+    env: { OPENROUTER_API_KEY: "test-key", PERPLEXITY_API_KEY: "test-key" },
     fetch: async () => ({ ok: true, status: 200 }),
     async launchBrowser() {
       return {
@@ -111,7 +111,7 @@ void test("invokes the verifier without a shell for every spec route and viewpor
   const { exec, calls } = recordingExec();
   try {
     assert.equal((await verifierReport(ctx, "Layout is clean; no defects.")).status, "PASS");
-    await stage(exec).run(ctx);
+    await withEnv({ LLM_PROVIDER_TIMEOUT_MS: undefined }, () => stage(exec).run(ctx));
     assert.equal(calls.length, 1);
     assert.equal(calls[0].command, process.execPath);
     assert.deepEqual(calls[0].args, [
@@ -129,8 +129,8 @@ void test("invokes the verifier without a shell for every spec route and viewpor
       "--client-id",
       ctx.clientId,
     ]);
-    // 3 routes x 5 viewports at 30s each.
-    assert.equal(calls[0].options.timeout, 450_000);
+    // 120s overhead + 15 serial pairs x (45s navigation + 5s screenshot + 60s evaluator).
+    assert.equal(calls[0].options.timeout, 1_770_000);
     assert.equal(calls[0].options.stdio, "pipe");
     assert.equal(calls[0].options.encoding, "utf-8");
     assert.equal(ctx.visualQaPassed, true);

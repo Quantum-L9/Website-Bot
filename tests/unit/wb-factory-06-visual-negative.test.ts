@@ -50,11 +50,12 @@ interface QaModule {
   VIEWPORTS: Viewport[];
   EXIT_CODES: Record<string, number>;
   runVisualQa(invocation: Invocation, deps: object): Promise<Report>;
+  parseInvocation(argv: string[], env: Record<string, string>): Promise<Invocation>;
 }
 const qa = (await import(new URL(`../../${QA_SCRIPT}`, import.meta.url).href)) as QaModule;
 
 interface FakeOptions {
-  key?: string;
+  env?: Record<string, string>;
   fetch?: () => Promise<{ ok: boolean; status: number }>;
   launch?: () => Promise<never>;
   status?: (url: string) => number;
@@ -64,7 +65,7 @@ interface FakeOptions {
 
 function fakeDeps(options: FakeOptions = {}) {
   return {
-    env: { OPENROUTER_API_KEY: options.key ?? "test-key" },
+    env: options.env ?? { OPENROUTER_API_KEY: "test-key", PERPLEXITY_API_KEY: "test-key" },
     fetch: options.fetch ?? (async () => ({ ok: true, status: 200 })),
     launchBrowser:
       options.launch ??
@@ -158,13 +159,23 @@ void test("the complete synthetic run is the only PASS, and the stage agrees wit
 
 void test("NEGATIVE no credentials: screenshots are captured but nothing is approved", async () => {
   await withDir(async (dir) => {
-    const report = await qa.runVisualQa(invocation(dir), fakeDeps({ key: "" }));
+    const report = await qa.runVisualQa(invocation(dir), fakeDeps({ env: {} }));
     assert.equal(report.status, "BLOCKED");
     assert.ok(report.reasons.includes("MISSING_EVALUATOR_CREDENTIALS"));
     assert.equal(report.coverage.captured, 15);
     assert.equal(report.coverage.approved, 0);
     assert.ok(report.evaluations.every((evaluation) => evaluation.verdict === "not_run"));
   });
+});
+
+void test("NEGATIVE partial credentials: the evaluator's full credential set is required", async () => {
+  const partials: Array<Record<string, string>> = [
+    { OPENROUTER_API_KEY: "test-key" },
+    { PERPLEXITY_API_KEY: "test-key" },
+  ];
+  for (const env of partials) {
+    await assertNotPass({ env }, { status: "BLOCKED", reason: "MISSING_EVALUATOR_CREDENTIALS" });
+  }
 });
 
 void test("NEGATIVE plan-only: no Playwright means no screenshots and no pass", async () => {
@@ -251,7 +262,7 @@ void test("NEGATIVE stale report: a rerun into the same directory never inherits
   await withDir(async (dir) => {
     const inv = invocation(dir);
     assert.equal((await qa.runVisualQa(inv, fakeDeps())).status, "PASS");
-    const rerun = await qa.runVisualQa(inv, fakeDeps({ key: "" }));
+    const rerun = await qa.runVisualQa(inv, fakeDeps({ env: {} }));
     assert.equal(rerun.status, "BLOCKED");
     const onDisk = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
     assert.equal(onDisk.status, "BLOCKED");
@@ -386,9 +397,33 @@ void test("NEGATIVE stage: the verifier rejecting (non-zero exit) is not a pass 
   }
 });
 
+void test("an explicit SPEC_PATH supplies routes and the client id; CLIENT_ID still wins", async () => {
+  await withDir(async (dir) => {
+    const specPath = join(dir, "spec.yaml");
+    writeFileSync(
+      specPath,
+      "client_id: spec-fixture-client\nroutes:\n  - slug: /\n  - slug: /services\n",
+    );
+    const fromSpec = await qa.parseInvocation(["--url", URL_BASE], { SPEC_PATH: specPath });
+    assert.deepEqual(fromSpec.pages, ["/", "/services"]);
+    assert.equal(fromSpec.clientId, "spec-fixture-client");
+    const explicit = await qa.parseInvocation(["--url", URL_BASE], {
+      SPEC_PATH: specPath,
+      CLIENT_ID: "env-client",
+    });
+    assert.equal(explicit.clientId, "env-client");
+  });
+});
+
 function cli(args: string[], env: Record<string, string> = {}): { code: number; stdout: string } {
   const childEnv: NodeJS.ProcessEnv = { ...process.env, ...env };
-  for (const key of ["SITE_URL", "QA_PAGES", "SPEC_PATH", "OPENROUTER_API_KEY"])
+  for (const key of [
+    "SITE_URL",
+    "QA_PAGES",
+    "SPEC_PATH",
+    "OPENROUTER_API_KEY",
+    "PERPLEXITY_API_KEY",
+  ])
     if (!(key in env)) delete childEnv[key];
   try {
     const stdout = execFileSync(process.execPath, [QA_SCRIPT, ...args], {

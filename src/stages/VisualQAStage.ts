@@ -8,7 +8,7 @@
 // RenderedSiteValidationStage; nothing here re-renders or re-checks the build.
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
@@ -28,7 +28,19 @@ export const VISUAL_QA_VIEWPORTS: readonly string[] = [
   "pixel_7",
 ];
 const MIN_TIMEOUT_MS = 120_000;
-const TIMEOUT_PER_CAPTURE_MS = 30_000;
+// Per route x viewport the verifier runs serially: navigation (its 45s
+// timeout), a full-page screenshot, then one evaluator call bounded by the
+// adapter's LLM_PROVIDER_TIMEOUT_MS (default 60s, no retries).
+const NAVIGATION_TIMEOUT_MS = 45_000;
+const SCREENSHOT_ALLOWANCE_MS = 5_000;
+const DEFAULT_PROVIDER_TIMEOUT_MS = 60_000;
+
+function verifierTimeoutMs(pairs: number): number {
+  const configured = Number(process.env.LLM_PROVIDER_TIMEOUT_MS);
+  const provider =
+    Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_PROVIDER_TIMEOUT_MS;
+  return MIN_TIMEOUT_MS + pairs * (NAVIGATION_TIMEOUT_MS + SCREENSHOT_ALLOWANCE_MS + provider);
+}
 
 /** Injectable seam over `execFileSync` for the QA verifier subprocess (deterministic unit tests). */
 export type VisualQaExec = (
@@ -102,8 +114,15 @@ function screenshotProblem(capture: ReportCapture, runDir: string): string | und
   const path = typeof shot?.path === "string" ? resolve(shot.path) : undefined;
   if (capture.status !== "captured" || !path) return "no screenshot";
   if (relative(runDir, path).startsWith("..")) return "screenshot outside this run";
-  if (!existsSync(path) || statSync(path).size === 0) return "screenshot missing on disk";
-  if (createHash("sha256").update(readFileSync(path)).digest("hex") !== shot?.sha256)
+  // Read once: the emptiness check and the digest describe the same bytes.
+  let data: Buffer;
+  try {
+    data = readFileSync(path);
+  } catch {
+    return "screenshot missing on disk";
+  }
+  if (data.length === 0) return "screenshot missing on disk";
+  if (createHash("sha256").update(data).digest("hex") !== shot?.sha256)
     return "screenshot digest mismatch";
   return undefined;
 }
@@ -241,10 +260,7 @@ export class VisualQAStage implements Stage {
         ],
         {
           encoding: "utf-8",
-          timeout: Math.max(
-            MIN_TIMEOUT_MS,
-            pages.length * viewports.length * TIMEOUT_PER_CAPTURE_MS,
-          ),
+          timeout: verifierTimeoutMs(pages.length * viewports.length),
           stdio: "pipe",
         },
       );
