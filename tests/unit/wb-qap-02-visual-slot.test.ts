@@ -74,6 +74,12 @@ window.__fixtures = {
     setTimeout(() => { throw new Error("uncaught late failure"); }, 30);
     return cleanup;
   } } })) },
+  startupFailure: { requires: [], animated: false, load: record("startupFailure", () => ({ default: { async mount(layer, context) {
+    const cleanup = draw(layer);
+    context.fail(new Error("failed during startup"));
+    await Promise.resolve();
+    return cleanup;
+  } } })) },
 };
 window.__staticSnapshot = () => [...document.querySelectorAll("[data-visual-slot]")].map((root) =>
   [...root.children].filter((child) => !child.hasAttribute("data-visual-layer")).map((child) => child.outerHTML).join(""));
@@ -225,6 +231,14 @@ void test("a failure after startup tears down the layer and never touches the st
   assert.deepEqual(run.layers.hero_backdrop, { children: 0, hidden: true, state: "failed" });
   assert.equal(run.cleanups, 1);
   assert.deepEqual(run.pageErrors, ["uncaught late failure"]);
+  assert.deepEqual(run.staticAfter, run.staticBefore);
+});
+
+void test("a failure reported before mount settles still runs the cleanup mount returns", async () => {
+  const run = await runSlots({ hero_backdrop: "startupFailure" });
+  assert.equal(run.outcomes.hero_backdrop, "failed");
+  assert.deepEqual(run.layers.hero_backdrop, { children: 0, hidden: true, state: "failed" });
+  assert.equal(run.cleanups, 1);
   assert.deepEqual(run.staticAfter, run.staticBefore);
 });
 

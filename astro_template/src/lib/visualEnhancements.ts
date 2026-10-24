@@ -160,5 +160,7 @@ export async function activateSlot(
     failed = true;
     return settle("failed");
   }
-  return failed ? "failed" : settle("mounted");
+  // A failure reported before mount settled tore the layer down without the
+  // cleanup it had not returned yet; settle again so that cleanup still runs.
+  return failed ? settle("failed") : settle("mounted");
 }
