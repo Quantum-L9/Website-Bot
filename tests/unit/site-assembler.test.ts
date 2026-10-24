@@ -28,6 +28,9 @@ void test("materializes the fixture into a client-specific Astro project", async
     assert.ok(existsSync(join(ctx.outputDir, ".l9/assembly-manifest.json")));
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
     assert.match(config, /https:\/\/ci-test\.example\.com/);
+    // WB-QAP-03: the fixture has no verified lead form action and no operator
+    // CTA label, so no CTA destination is emitted (the form renders gated).
+    assert.match(config, /primaryCta: null as \{ label: string; href: string \} \| null,/);
     // F-12 regression: every published route must be in the siteConfig routes
     // registry so the layout footer can link it (no orphaned pages).
     assert.match(config, /"routes": \[\s*\{\s*"href": "\/"/);

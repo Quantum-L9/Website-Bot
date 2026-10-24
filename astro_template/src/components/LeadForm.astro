@@ -1,4 +1,4 @@
-<!-- L9_META: layer=template, role=lead_form, status=active, version=1.1.0 -->
+<!-- L9_META: layer=template, role=lead_form, status=active, version=1.2.0 -->
 ---
 import { siteConfig } from "../lib/siteConfig";
 
@@ -6,12 +6,16 @@ interface Props {
   content?: string;
 }
 const { content = "" } = Astro.props;
-if (!siteConfig.leadFormAction) throw new Error("Lead form action is not configured");
+// Only a verified HTTPS action (validated by the assembler) renders a live form.
+// Without one the section stays informational and says inquiries are not
+// enabled, instead of offering a submit that cannot reach anyone (WB-QAP-03).
+const action = siteConfig.leadFormAction;
+const cta = siteConfig.primaryCta;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim().replace(/\*\*/g, ""))
   .filter(Boolean);
-const heading = paragraphs[0] || "Free Roof Inspection Within 24 Hours";
+const heading = paragraphs[0] || cta?.label || `Contact ${siteConfig.businessName}`;
 const phone = siteConfig.phone;
 const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
@@ -19,11 +23,12 @@ const serviceOptions = allRoutes.filter(
   (route) => route.href.startsWith("/services/") && route.href !== "/services/",
 );
 ---
-<section id="quote" class="lead-form" data-section="contact_form">
+<section id={action ? "quote" : undefined} class="lead-form" data-section="contact_form">
   <h2>{heading}</h2>
   {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
   {phone && <p class="lead-form__phone">Call or text <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
-  <form method="post" action={siteConfig.leadFormAction} data-lead-form>
+  {action ? (
+  <form method="post" action={action} data-lead-form>
     <div class="lead-form__grid">
       <label>Name <input name="name" autocomplete="name" required /></label>
       <label>Phone <input type="tel" name="phone" autocomplete="tel" required /></label>
@@ -38,6 +43,9 @@ const serviceOptions = allRoutes.filter(
     </div>
     <label>Project details <textarea name="message" rows="5" required></textarea></label>
     <p class="lead-form__consent">By submitting, you agree to be contacted by phone, text, or email about your project.</p>
-    <button class="btn" type="submit" data-cta>Request Inspection</button>
+    <button class="btn" type="submit" data-cta>{cta?.label ?? "Submit"}</button>
   </form>
+  ) : (
+    <p class="lead-form__unavailable" role="note">Online inquiries are not yet enabled in this preview.</p>
+  )}
 </section>
