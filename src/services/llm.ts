@@ -277,7 +277,8 @@ export function createWebsiteFactoryLLM(
           expectedOutputTokens: 800,
           description: "[visual-qa] layout_validation",
         },
-        'You are a meticulous web layout QA reviewer. From the attached screenshot(s), identify layout, spacing, overflow, alignment, contrast, and responsiveness defects. If any defect is severe, include the word "critical". Be concise.',
+        // A machine-checkable result (scripts/verify-visual-qa.mjs verdictFor): prose is never a verdict.
+        'You are a meticulous web layout QA reviewer. From the attached screenshot(s), identify layout, spacing, overflow, alignment, contrast, and responsiveness defects. Respond with ONLY one JSON object and nothing else: {"verdict":"pass"|"fail"|"blocked","defects":[{"severity":"critical"|"major"|"minor","description":"..."}],"summary":"..."}. Use "fail" only when at least one defect is critical; "pass" only when you could fully inspect every screenshot and found no critical defect; "blocked" whenever you cannot judge a screenshot.',
         `Evaluate the attached screenshot(s) for layout defects. ${context}`,
         "visual-qa",
         "layout_validation",

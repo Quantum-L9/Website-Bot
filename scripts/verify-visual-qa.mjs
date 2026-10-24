@@ -18,7 +18,8 @@
  *
  *   PASS    every page x viewport returned HTTP 2xx, was screenshotted, and
  *           received a conclusive non-critical evaluator verdict
- *   FAIL    a defect was observed (critical verdict, non-2xx page, capture error)
+ *   FAIL    a defect was observed (critical verdict, non-2xx page, a redirect
+ *           away from the requested route, capture error)
  *   BLOCKED the run could not judge (missing input, Playwright, credentials,
  *           evaluator, unreachable target, inconclusive or failed evaluation)
  *
@@ -156,12 +157,62 @@ export async function parseInvocation(argv, env) {
   return { url, pages, viewports, runId, reportPath, clientId };
 }
 
-/** Evaluator verdict for one screenshot; anything but a non-empty analysis is inconclusive. */
+const DEFECT_SEVERITIES = new Set(["critical", "major", "minor"]);
+
+/** The evaluator's answer with an optional single surrounding code fence removed. */
+function unfenced(text) {
+  if (!text.startsWith("```") || !text.endsWith("```") || text.length < 6) return text;
+  const body = text.slice(3, -3);
+  const newline = body.indexOf("\n");
+  return newline === -1 ? body.trim() : body.slice(newline + 1).trim();
+}
+
+/**
+ * Evaluator verdict for one screenshot, from the strict JSON result the
+ * validateLayout prompt (src/services/llm.ts) requires:
+ *   {"verdict":"pass"|"fail"|"blocked","defects":[{"severity","description"}],"summary"}
+ * Only a well-formed "pass" with no critical defect is "ok", and only a
+ * well-formed "fail" naming a critical defect is "critical". Prose, refusals,
+ * "blocked", malformed, duplicated or self-contradictory results are
+ * "inconclusive" and can never approve a screenshot.
+ */
 export function verdictFor(analysis) {
   if (typeof analysis !== "string" || !analysis.trim()) return "inconclusive";
-  // The evaluator's own protocol (src/services/llm.ts validateLayout prompt):
-  // a severe defect is reported with the word "critical".
-  return /\bcritical\b/i.test(analysis) ? "critical" : "ok";
+  const text = unfenced(analysis.trim());
+  if ((text.match(/"verdict"/g) ?? []).length !== 1) return "inconclusive";
+  let result;
+  try {
+    result = JSON.parse(text);
+  } catch {
+    return "inconclusive";
+  }
+  if (!result || typeof result !== "object" || Array.isArray(result)) return "inconclusive";
+  const { verdict, defects } = result;
+  if (
+    !Array.isArray(defects) ||
+    defects.some(
+      (defect) =>
+        !DEFECT_SEVERITIES.has(defect?.severity) ||
+        typeof defect?.description !== "string" ||
+        !defect.description.trim(),
+    )
+  )
+    return "inconclusive";
+  const critical = defects.some((defect) => defect.severity === "critical");
+  if (verdict === "pass" && !critical) return "ok";
+  if (verdict === "fail" && critical) return "critical";
+  return "inconclusive";
+}
+
+/**
+ * The browser must end on the requested route: the same URL, or the same URL
+ * differing only by a trailing slash (a canonical redirect). A redirect to any
+ * other page, origin or error page is not a capture of the requested route.
+ */
+export function landedOnRoute(requestedUrl, finalUrl) {
+  if (typeof finalUrl !== "string") return false;
+  const alternate = requestedUrl.endsWith("/") ? requestedUrl.slice(0, -1) : `${requestedUrl}/`;
+  return finalUrl === requestedUrl || finalUrl === alternate;
 }
 
 export function defaultDeps(env = process.env) {
@@ -184,7 +235,7 @@ export function defaultDeps(env = process.env) {
                 waitUntil: "networkidle",
                 timeout: NAVIGATION_TIMEOUT_MS,
               });
-              return { status: response ? response.status() : 0 };
+              return { status: response ? response.status() : 0, url: page.url() };
             },
             screenshot: (path) => page.screenshot({ path, fullPage: true }),
             close: () => context.close(),
@@ -232,7 +283,14 @@ async function launch(deps, state) {
 /** Capture one page at one viewport; failures are recorded, never thrown. */
 async function captureOne(page, capture, file, state) {
   try {
-    capture.http_status = (await page.goto(capture.url)).status;
+    const navigation = await page.goto(capture.url);
+    capture.http_status = navigation.status;
+    capture.final_url = navigation.url ?? null;
+    if (!landedOnRoute(capture.url, capture.final_url)) {
+      capture.status = "redirected";
+      state.reasons.add("ROUTE_REDIRECTED");
+      return;
+    }
     if (capture.http_status < 200 || capture.http_status > 299) {
       capture.status = "http_error";
       state.reasons.add("HTTP_NOT_OK");
@@ -326,7 +384,7 @@ async function evaluateAll(evaluator, viewports, state) {
   }
 }
 
-const DEFECT_REASONS = ["CRITICAL_FINDING", "HTTP_NOT_OK", "CAPTURE_FAILED"];
+const DEFECT_REASONS = ["CRITICAL_FINDING", "HTTP_NOT_OK", "ROUTE_REDIRECTED", "CAPTURE_FAILED"];
 
 function outcome(reasons) {
   if (reasons.size === 0) return "PASS";

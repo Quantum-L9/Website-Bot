@@ -22,6 +22,13 @@ import {
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
 const QA_SCRIPT = "scripts/verify-visual-qa.mjs";
+/** The evaluator's strict JSON result (src/services/llm.ts validateLayout). */
+const PASS_VERDICT = JSON.stringify({ verdict: "pass", defects: [], summary: "Layout is clean." });
+const CRITICAL_VERDICT = JSON.stringify({
+  verdict: "fail",
+  defects: [{ severity: "critical", description: "Navigation overlaps the hero." }],
+  summary: "Critical overlap.",
+});
 const URL_BASE = "https://preview.example.com";
 const PAGES = ["/", "/services", "/contact"];
 
@@ -43,7 +50,13 @@ interface Report {
   reasons: string[];
   run_id: string;
   coverage: { required: number; captured: number; approved: number };
-  captures: Array<{ page: string; viewport: string; status: string; http_status: number }>;
+  captures: Array<{
+    page: string;
+    viewport: string;
+    status: string;
+    http_status: number;
+    final_url?: string;
+  }>;
   evaluations: Array<{ page: string; viewport: string; verdict: string }>;
 }
 interface QaModule {
@@ -51,6 +64,8 @@ interface QaModule {
   EXIT_CODES: Record<string, number>;
   runVisualQa(invocation: Invocation, deps: object): Promise<Report>;
   parseInvocation(argv: string[], env: Record<string, string>): Promise<Invocation>;
+  verdictFor(analysis: unknown): string;
+  landedOnRoute(requestedUrl: string, finalUrl: unknown): boolean;
 }
 const qa = (await import(new URL(`../../${QA_SCRIPT}`, import.meta.url).href)) as QaModule;
 
@@ -59,6 +74,8 @@ interface FakeOptions {
   fetch?: () => Promise<{ ok: boolean; status: number }>;
   launch?: () => Promise<never>;
   status?: (url: string) => number;
+  /** Where the browser ends up after navigation (redirects); defaults to the requested URL. */
+  landed?: (url: string) => string;
   screenshot?: (path: string, viewport: string) => void;
   evaluator?: "unavailable" | ((path: string) => Promise<unknown>);
 }
@@ -73,7 +90,10 @@ function fakeDeps(options: FakeOptions = {}) {
         version: "fake-chromium",
         async open(viewport: Viewport) {
           return {
-            goto: async (url: string) => ({ status: options.status?.(url) ?? 200 }),
+            goto: async (url: string) => ({
+              status: options.status?.(url) ?? 200,
+              url: options.landed?.(url) ?? url,
+            }),
             screenshot: async (path: string) =>
               options.screenshot
                 ? options.screenshot(path, viewport.name)
@@ -86,7 +106,7 @@ function fakeDeps(options: FakeOptions = {}) {
     loadEvaluator: async () => {
       if (options.evaluator === "unavailable")
         throw new Error("Cannot find module '../dist/services/llm.js'");
-      const evaluate = options.evaluator ?? (async () => "Layout is clean.");
+      const evaluate = options.evaluator ?? (async () => PASS_VERDICT);
       return { validateLayout: (paths: string[]) => evaluate(paths[0]) };
     },
     now: () => new Date("2026-10-24T00:00:00.000Z"),
@@ -197,7 +217,7 @@ void test("NEGATIVE evaluator throw on one screenshot", async () => {
     {
       evaluator: async (path) => {
         if (path.includes("_services_ipad")) throw new Error("vision provider 503");
-        return "Layout is clean.";
+        return PASS_VERDICT;
       },
     },
     { status: "BLOCKED", reason: "EVALUATION_FAILED" },
@@ -209,6 +229,112 @@ void test("NEGATIVE inconclusive evaluator output", async () => {
     { evaluator: async () => "   " },
     { status: "BLOCKED", reason: "EVALUATION_INCONCLUSIVE" },
   );
+});
+
+void test("F01 only a well-formed conclusive evaluator result approves or fails a screenshot", () => {
+  const result = (verdict: string, defects: unknown[]) =>
+    JSON.stringify({ verdict, defects, summary: "synthetic" });
+  const critical = { severity: "critical", description: "Hero overlaps navigation." };
+  const minor = { severity: "minor", description: "Footer spacing is tight." };
+  const cases: Array<[unknown, string]> = [
+    [PASS_VERDICT, "ok"],
+    [result("pass", [minor]), "ok"],
+    [CRITICAL_VERDICT, "critical"],
+    [`\`\`\`json\n${PASS_VERDICT}\n\`\`\``, "ok"],
+    // Prose is never a verdict, in either direction.
+    ["No critical issues found.", "inconclusive"],
+    ["Unable to inspect the screenshot due to image quality.", "inconclusive"],
+    ["Layout is clean.", "inconclusive"],
+    ["I cannot help with that request.", "inconclusive"],
+    // Explicitly blocked, malformed, contradictory or duplicated results.
+    [result("blocked", []), "inconclusive"],
+    ['{"verdict": "pass", "defects": [', "inconclusive"],
+    [result("pass", [critical]), "inconclusive"],
+    [result("fail", [minor]), "inconclusive"],
+    [result("fail", []), "inconclusive"],
+    ['{"verdict":"fail","verdict":"pass","defects":[],"summary":"x"}', "inconclusive"],
+    [JSON.stringify({ verdict: "pass", summary: "no defects field" }), "inconclusive"],
+    [result("pass", [{ severity: "cosmetic", description: "x" }]), "inconclusive"],
+    [result("pass", [{ severity: "minor", description: " " }]), "inconclusive"],
+    [result("PASS", []), "inconclusive"],
+    ["[]", "inconclusive"],
+    ["", "inconclusive"],
+    [undefined, "inconclusive"],
+    [{ verdict: "pass", defects: [] }, "inconclusive"],
+  ];
+  for (const [analysis, expected] of cases)
+    assert.equal(qa.verdictFor(analysis), expected, JSON.stringify(analysis));
+});
+
+void test("F01 NEGATIVE prose 'No critical issues found' blocks the run instead of failing it", async () => {
+  await assertNotPass(
+    { evaluator: async () => "No critical issues found." },
+    { status: "BLOCKED", reason: "EVALUATION_INCONCLUSIVE" },
+  );
+  await withDir(async (dir) => {
+    const report = await qa.runVisualQa(
+      invocation(dir),
+      fakeDeps({ evaluator: async () => "No critical issues found." }),
+    );
+    assert.ok(!report.reasons.includes("CRITICAL_FINDING"));
+  });
+});
+
+void test("F02 NEGATIVE a route redirected to another page or origin is not captured, even at HTTP 200", async () => {
+  await assertNotPass(
+    { landed: (url) => (url.endsWith("/contact") ? `${URL_BASE}/` : url) },
+    { status: "FAIL", reason: "ROUTE_REDIRECTED" },
+  );
+  await assertNotPass(
+    { landed: (url) => (url.endsWith("/services") ? "https://elsewhere.example/services" : url) },
+    { status: "FAIL", reason: "ROUTE_REDIRECTED" },
+  );
+  await withDir(async (dir) => {
+    const report = await qa.runVisualQa(
+      invocation(dir),
+      fakeDeps({ landed: (url) => (url.endsWith("/contact") ? `${URL_BASE}/` : url) }),
+    );
+    const redirected = report.captures.filter((capture) => capture.status === "redirected");
+    assert.equal(redirected.length, qa.VIEWPORTS.length);
+    assert.ok(
+      redirected.every((capture) => capture.page === "/contact" && capture.http_status === 200),
+    );
+  });
+});
+
+void test("F02 a trailing-slash canonical redirect is the same route and still passes", async () => {
+  assert.equal(qa.landedOnRoute(`${URL_BASE}/contact`, `${URL_BASE}/contact/`), true);
+  assert.equal(qa.landedOnRoute(`${URL_BASE}/`, `${URL_BASE}/`), true);
+  assert.equal(qa.landedOnRoute(`${URL_BASE}/contact`, `${URL_BASE}/`), false);
+  assert.equal(qa.landedOnRoute(`${URL_BASE}/contact`, `${URL_BASE}/contact?ref=x`), false);
+  assert.equal(qa.landedOnRoute(`${URL_BASE}/contact`, undefined), false);
+  await withDir(async (dir) => {
+    const inv = invocation(dir);
+    const report = await qa.runVisualQa(
+      inv,
+      fakeDeps({ landed: (url) => (url.endsWith("/") ? url : `${url}/`) }),
+    );
+    assert.equal(report.status, "PASS", JSON.stringify(report.reasons));
+    const onDisk = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
+    assert.deepEqual(assessVisualQaReport(onDisk, run(inv, true)).problems, []);
+  });
+});
+
+void test("F02 NEGATIVE the stage rejects a PASS report whose recorded final URL is another route", async () => {
+  await withDir(async (dir) => {
+    const inv = invocation(dir);
+    await qa.runVisualQa(inv, fakeDeps());
+    const pass = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
+    assert.deepEqual(assessVisualQaReport(pass, run(inv, true)).problems, []);
+    const contact = pass.captures.find((capture: { page: string }) => capture.page === "/contact");
+    contact.final_url = `${URL_BASE}/`;
+    assert.match(
+      assessVisualQaReport(pass, run(inv, true)).problems.join(),
+      /landed on https:\/\/preview\.example\.com\//,
+    );
+    delete contact.final_url;
+    assert.match(assessVisualQaReport(pass, run(inv, true)).problems.join(), /landed on undefined/);
+  });
 });
 
 void test("NEGATIVE reachable site with a 404 route", async () => {
@@ -248,10 +374,7 @@ void test("NEGATIVE zero-byte and failed screenshots", async () => {
 void test("NEGATIVE a critical evaluator finding fails and is flagged for the stage", async () => {
   await withDir(async (dir) => {
     const inv = invocation(dir);
-    const report = await qa.runVisualQa(
-      inv,
-      fakeDeps({ evaluator: async () => "Navigation overlaps the hero: critical." }),
-    );
+    const report = await qa.runVisualQa(inv, fakeDeps({ evaluator: async () => CRITICAL_VERDICT }));
     assert.equal(report.status, "FAIL");
     const onDisk = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
     assert.equal(assessVisualQaReport(onDisk, run(inv, false)).critical, true);

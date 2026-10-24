@@ -36,6 +36,14 @@ interface QaModule {
 }
 const qa = (await import(new URL(`../../${QA_SCRIPT}`, import.meta.url).href)) as QaModule;
 
+/** The evaluator's strict JSON result (src/services/llm.ts validateLayout). */
+const PASS_VERDICT = JSON.stringify({ verdict: "pass", defects: [], summary: "Layout is clean." });
+const CRITICAL_VERDICT = JSON.stringify({
+  verdict: "fail",
+  defects: [{ severity: "critical", description: "Hero text overflows its container." }],
+  summary: "Critical overflow.",
+});
+
 /** A deployed site where every page renders and the evaluator reports `analysis`. */
 function fakeDeps(analysis: string) {
   return {
@@ -46,7 +54,7 @@ function fakeDeps(analysis: string) {
         version: "fake-chromium",
         async open() {
           return {
-            goto: async () => ({ status: 200 }),
+            goto: async (url: string) => ({ status: 200, url }),
             screenshot: async (path: string) => writeFileSync(path, `png:${path}`),
             close: async () => {},
           };
@@ -110,7 +118,7 @@ void test("invokes the verifier without a shell for every spec route and viewpor
   stubDeploymentUrl(ctx, `${DEPLOY_URL}/`);
   const { exec, calls } = recordingExec();
   try {
-    assert.equal((await verifierReport(ctx, "Layout is clean; no defects.")).status, "PASS");
+    assert.equal((await verifierReport(ctx, PASS_VERDICT)).status, "PASS");
     await withEnv({ LLM_PROVIDER_TIMEOUT_MS: undefined }, () => stage(exec).run(ctx));
     assert.equal(calls.length, 1);
     assert.equal(calls[0].command, process.execPath);
@@ -152,10 +160,7 @@ void test("an evaluator critical finding fails the gate hard", async () => {
   stubDeploymentUrl(ctx, DEPLOY_URL);
   const { exec } = recordingExec({ exitZero: false });
   try {
-    assert.equal(
-      (await verifierReport(ctx, "Hero text overflows: critical contrast failure.")).status,
-      "FAIL",
-    );
+    assert.equal((await verifierReport(ctx, CRITICAL_VERDICT)).status, "FAIL");
     await assert.rejects(
       () => stage(exec).run(ctx),
       (error: unknown) => error instanceof BuildError && error.code === "VISUAL_QA_FAILED",

@@ -53,6 +53,7 @@ interface ReportCapture {
   page?: unknown;
   viewport?: unknown;
   url?: unknown;
+  final_url?: unknown;
   http_status?: unknown;
   status?: unknown;
   screenshot?: { path?: unknown; sha256?: unknown } | null;
@@ -143,6 +144,11 @@ function captureProblems(
   const problems: string[] = [];
   const status = capture.http_status;
   if (capture.url !== pageUrl) problems.push("captured another URL");
+  // The browser must have ended on this route, not been redirected elsewhere
+  // (only a trailing-slash canonical form is the same route).
+  const canonical = pageUrl.endsWith("/") ? pageUrl.slice(0, -1) : `${pageUrl}/`;
+  if (capture.final_url !== pageUrl && capture.final_url !== canonical)
+    problems.push(`landed on ${String(capture.final_url)}`);
   if (typeof status !== "number" || status < 200 || status > 299)
     problems.push(`HTTP ${String(status)}`);
   const shot = screenshotProblem(capture, runDir);
