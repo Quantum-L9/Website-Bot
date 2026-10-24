@@ -1,4 +1,4 @@
-<!-- L9_META: layer=template, role=section_renderer, status=active, version=1.1.0 -->
+<!-- L9_META: layer=template, role=section_renderer, status=active, version=1.2.0 -->
 ---
 import LeadForm from "./LeadForm.astro";
 import AudiencePaths from "./sections/AudiencePaths.astro";
@@ -15,6 +15,8 @@ import ProseSection from "./sections/ProseSection.astro";
 import ServiceArea from "./sections/ServiceArea.astro";
 import ServicesGrid from "./sections/ServicesGrid.astro";
 import TrustBar from "./sections/TrustBar.astro";
+import VisualEnhancementSlot from "./VisualEnhancementSlot.astro";
+import { slotForSection } from "../lib/visualEnhancements";
 
 interface Props {
   name: string;
@@ -49,5 +51,15 @@ if (layout !== undefined && !layoutVariants[layout]) {
   throw new Error(`unsupported-layout: section ${name} requests layout ${JSON.stringify(layout)}`);
 }
 const Component = registry[name] ?? (layout ? layoutVariants[layout] : undefined) ?? ProseSection;
+// Sections with a noncritical visual region sit inside an enhancement slot. The
+// slot always renders the section unchanged and is a pure passthrough while
+// disabled, which is every slot by default (WB-QAP-02).
+const visualSlot = slotForSection(name);
 ---
-<Component name={name} content={content} />
+{visualSlot ? (
+  <VisualEnhancementSlot slot={visualSlot}>
+    <Component name={name} content={content} />
+  </VisualEnhancementSlot>
+) : (
+  <Component name={name} content={content} />
+)}

@@ -1,0 +1,42 @@
+---
+// L9_META: layer=template, role=visual_enhancement_slot, status=active, version=1.0.0
+// Optional progressive enhancement around a noncritical visual region
+// (WB-QAP-02). The slotted static markup is always rendered unchanged. Only a
+// slot enabled in the compile-time allowlist adds a decorative aria-hidden
+// layer behind it plus one activation script; a disabled or missing enhancer
+// renders the static markup alone, with no wrapper and no JavaScript.
+import { planSlot } from "../lib/visualEnhancements";
+
+interface Props {
+  slot: string;
+}
+const { slot } = Astro.props;
+const plan = planSlot(slot);
+if (plan.status === "unknown-slot") {
+  throw new Error(`Unknown visual enhancement slot ${JSON.stringify(slot)}`);
+}
+const active = plan.status === "enabled";
+const SLOT_CSS =
+  ".visual-slot{position:relative;isolation:isolate}" +
+  ".visual-slot__layer{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}";
+---
+{active ? (
+  <div class="visual-slot" data-visual-slot={slot} data-enhancement="pending">
+    <div class="visual-slot__layer" aria-hidden="true" data-visual-layer></div>
+    <slot />
+  </div>
+) : (
+  <slot />
+)}
+{active && <style is:inline set:html={SLOT_CSS} />}
+{active && (
+  <script>
+    import { activateSlot, browserEnvironment } from "../lib/visualEnhancements";
+
+    const environment = browserEnvironment();
+    const roots = document.querySelectorAll<HTMLElement>(
+      '[data-visual-slot][data-enhancement="pending"]',
+    );
+    for (const root of roots) void activateSlot(root, environment);
+  </script>
+)}
