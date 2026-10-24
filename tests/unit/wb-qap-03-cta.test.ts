@@ -174,6 +174,7 @@ void test("templates carry no roofing offer, no dead #quote link and no fake sub
 });
 
 void test("the assembler stage version moves so pre-CTA checkpoints are not resumed", () => {
-  // PipelineRunner.resumeStage reuses a checkpoint only when stageVersion matches.
-  assert.ok(!["3.0.0", "3.1.0"].includes(new SiteAssemblerStage().version));
+  // PipelineRunner.resumeStage reuses a checkpoint only when stageVersion matches;
+  // 3.2.0 is also the base branch's version (#240), which has no CTA output.
+  assert.ok(!["3.0.0", "3.1.0", "3.2.0"].includes(new SiteAssemblerStage().version));
 });
