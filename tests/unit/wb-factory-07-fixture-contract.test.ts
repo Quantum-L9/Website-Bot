@@ -83,7 +83,7 @@ void test("both fixtures pass native DomainSpec validation in COPY mode", () => 
   }
 });
 
-void test("fixtures are fictional: reserved domains, 555-01xx phones, no QAP or customer input", () => {
+void test("fixtures are fictional: reserved domains, no invented contact details, no QAP or customer input", () => {
   for (const client of Object.keys(FIXTURES) as Client[]) {
     const text = raw(client);
     assert.doesNotMatch(text, /quantum|qap|ai partners/i);
@@ -93,7 +93,8 @@ void test("fixtures are fictional: reserved domains, 555-01xx phones, no QAP or 
       new URL(domainSpec.seo_contract?.lead_form_action ?? "").hostname,
       "forms.example.org",
     );
-    assert.match(domainSpec.seo_contract?.phone ?? "", /^\+155555501\d\d$/);
+    // AGENTS.md: no invented contact details, so the fixture carries no phone.
+    assert.equal(domainSpec.seo_contract?.phone, undefined);
     assert.equal(domainSpec.assets, undefined, "no assets, so no third-party imagery");
   }
 });

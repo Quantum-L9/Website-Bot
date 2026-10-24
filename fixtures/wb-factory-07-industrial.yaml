@@ -1,7 +1,8 @@
 # L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 # WB-FACTORY-07 acceptance fixture. Brannock Ridge Fabrication is invented:
-# every name, region code, domain (.example), phone (555-01xx) and endpoint
-# (example.org) here is fictional and reserved for tests. Not a customer.
+# every name, region code, domain (.example) and endpoint (example.org) here
+# is fictional and reserved for tests. Not a customer. No contact details
+# (phone, email, address) are invented (AGENTS.md).
 client_id: wb07-brannock-ridge-fab
 business_name: Brannock Ridge Fabrication
 vertical: structural_steel_fabrication
@@ -70,5 +71,4 @@ seo_contract:
     - structural steel fabrication QI
     - laser cutting plate QJ
   site_url: brannock-ridge.example
-  phone: "+15555550177"
   lead_form_action: https://forms.example.org/brannock-quote

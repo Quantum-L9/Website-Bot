@@ -221,6 +221,8 @@ void test("route trees, page metadata and layouts in the built output follow eac
     const siteUrl = `https://${entry.spec.seo_contract?.site_url}`;
     for (const route of entry.spec.routes) {
       const page = html(entry, route.slug);
+      // No contact detail is invented, so none is published (AGENTS.md).
+      assert.doesNotMatch(page, /href="tel:/, `${name} ${route.slug} publishes no phone`);
       assert.match(page, new RegExp(`<title>${route.title}</title>`));
       assert.match(page, /<meta name="description" content="[^"]+"/);
       const canonicalPath = route.slug === "/" ? "/" : `${route.slug}/`;

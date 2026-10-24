@@ -1,7 +1,8 @@
 # L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
 # WB-FACTORY-07 acceptance fixture. Larchmere Bindery & Press is invented:
-# every name, region code, domain (.example), phone (555-01xx) and endpoint
-# (example.org) here is fictional and reserved for tests. Not a customer.
+# every name, region code, domain (.example) and endpoint (example.org) here
+# is fictional and reserved for tests. Not a customer. No contact details
+# (phone, email, address) are invented (AGENTS.md).
 client_id: wb07-larchmere-bindery
 business_name: Larchmere Bindery & Press
 vertical: artisan_bookbinding
@@ -65,5 +66,4 @@ seo_contract:
     - hand bookbinding studio QE
     - letterpress journal binding
   site_url: larchmere-bindery.example
-  phone: "+15555550142"
   lead_form_action: https://forms.example.org/larchmere-consultation
