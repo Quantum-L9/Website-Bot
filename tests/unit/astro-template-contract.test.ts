@@ -27,6 +27,28 @@ test("canonical Astro template is versioned and exposes the required section reg
   for (const component of ["EditorialSection", "DiagramSection"]) {
     assert.match(renderer, new RegExp(`import ${component} from "./sections/${component}.astro"`));
   }
+  // WB-QAP-02: sections with a noncritical visual region render inside an
+  // optional enhancement slot that passes the static section through unchanged.
+  assert.match(renderer, /import VisualEnhancementSlot from "\.\/VisualEnhancementSlot\.astro"/);
+  assert.match(renderer, /const visualSlot = slotForSection\(name\)/);
+  assert.match(
+    renderer,
+    /<VisualEnhancementSlot slot=\{visualSlot\}>\s*<Component name=\{name\} content=\{content\} \/>\s*<\/VisualEnhancementSlot>/,
+  );
+});
+
+test("visual enhancement allowlists are compile-time constants that ship empty", () => {
+  const allowlist = readFileSync(resolve("astro_template/src/lib/visualEnhancements.ts"), "utf8");
+  assert.match(
+    allowlist,
+    /export const ENHANCER_MODULES: Readonly<Record<string, EnhancerModuleEntry>> = \{\};/,
+  );
+  assert.match(
+    allowlist,
+    /export const ENABLED_SLOTS: Readonly<Partial<Record<VisualSlotId, string>>> = \{\};/,
+  );
+  // The allowlist module stays import-free so it runs in the build, the browser and tests alike.
+  assert.doesNotMatch(allowlist, /^import /m);
 });
 
 test("Gallery section types its image array so empty text-only builds pass astro check", () => {
