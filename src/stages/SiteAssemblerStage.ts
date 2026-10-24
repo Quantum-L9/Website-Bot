@@ -101,7 +101,7 @@ function normalizeHttpsUrl(value: unknown, field: string): string | undefined {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.1.0";
+  version = "3.2.0";
   evidence = {
     // A site with image slots consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -577,7 +577,7 @@ export const siteConfig = {
       const layoutProp = layout ? " layout={layout}" : "";
       write(
         pagePath,
-        `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
+        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
       );
     }
   }
