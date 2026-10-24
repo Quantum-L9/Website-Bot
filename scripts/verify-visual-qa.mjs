@@ -56,6 +56,16 @@ const LLM_ADAPTER = resolve(dirname(fileURLToPath(import.meta.url)), "../src/ser
 
 export class VisualQaUsageError extends Error {}
 
+function trimTrailingSlashes(value) {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
+}
+
+function messageOf(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function toPagePath(raw) {
   const value = String(raw).trim();
   const path = value.startsWith("/") ? value : `/${value}`;
@@ -104,7 +114,7 @@ export async function parseInvocation(argv, env) {
     throw new VisualQaUsageError("--url must be an http(s) URL without credentials");
   if (target.search || target.hash)
     throw new VisualQaUsageError("--url must not carry a query string or fragment");
-  const url = `${target.origin}${target.pathname.replace(/\/+$/, "")}`;
+  const url = `${target.origin}${trimTrailingSlashes(target.pathname)}`;
 
   let rawPages = flag(argv, "--pages")?.split(",") ?? env.QA_PAGES?.split(",");
   if (!rawPages && env.SPEC_PATH) rawPages = await pagesFromSpec(env.SPEC_PATH);
@@ -190,6 +200,129 @@ export function defaultDeps(env = process.env) {
   };
 }
 
+/** Non-shell reachability probe of the exact target. */
+async function probeTarget(url, deps, state) {
+  try {
+    const response = await deps.fetch(`${url}/`, { redirect: "follow" });
+    if (response.ok) return true;
+  } catch (error) {
+    state.errors.push(`reachability: ${messageOf(error)}`);
+  }
+  state.reasons.add("TARGET_UNREACHABLE");
+  return false;
+}
+
+async function launch(deps, state) {
+  try {
+    const browser = await deps.launchBrowser();
+    state.browser = browser.version ?? null;
+    return browser;
+  } catch (error) {
+    state.errors.push(`browser: ${messageOf(error)}`);
+    state.reasons.add("MISSING_DEPENDENCY");
+    return undefined;
+  }
+}
+
+/** Capture one page at one viewport; failures are recorded, never thrown. */
+async function captureOne(page, capture, file, state) {
+  try {
+    capture.http_status = (await page.goto(capture.url)).status;
+    if (capture.http_status < 200 || capture.http_status > 299) {
+      capture.status = "http_error";
+      state.reasons.add("HTTP_NOT_OK");
+      return;
+    }
+    await page.screenshot(file);
+    const bytes = existsSync(file) ? statSync(file).size : 0;
+    if (bytes === 0) {
+      state.reasons.add("CAPTURE_FAILED");
+      return;
+    }
+    capture.screenshot = { path: file, bytes, sha256: sha256(file) };
+    capture.status = "captured";
+  } catch (error) {
+    capture.error = messageOf(error);
+    state.reasons.add("CAPTURE_FAILED");
+  }
+}
+
+/** Sequential by design: one browser context per viewport, one page at a time. */
+async function captureAll(browser, { url, pages, viewports }, screenshotsDir, state) {
+  try {
+    for (const viewport of viewports) {
+      const page = await browser.open(viewport);
+      try {
+        for (const pagePath of pages) {
+          const name = pagePath === "/" ? "_index" : pagePath.replaceAll("/", "_");
+          const capture = {
+            page: pagePath,
+            viewport: viewport.name,
+            url: `${url}${pagePath}`,
+            http_status: 0,
+            status: "error",
+            screenshot: null,
+          };
+          state.captures.push(capture);
+          await captureOne(
+            page,
+            capture,
+            join(screenshotsDir, `${name}_${viewport.name}.png`),
+            state,
+          );
+        }
+      } finally {
+        await page.close();
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
+async function loadEvaluatorFor(hasKey, clientId, deps, state) {
+  if (!hasKey || !state.captures.some((capture) => capture.status === "captured")) return undefined;
+  try {
+    return await deps.loadEvaluator(clientId);
+  } catch (error) {
+    state.errors.push(`evaluator: ${messageOf(error)}`);
+    state.reasons.add("EVALUATOR_UNAVAILABLE");
+    return undefined;
+  }
+}
+
+/** One evaluator verdict per captured screenshot; without an evaluator it stays not_run. */
+async function evaluateAll(evaluator, viewports, state) {
+  for (const capture of state.captures) {
+    if (capture.status !== "captured") continue;
+    const evaluation = { page: capture.page, viewport: capture.viewport, verdict: "not_run" };
+    state.evaluations.push(evaluation);
+    if (!evaluator) continue;
+    const viewport = viewports.find((candidate) => candidate.name === capture.viewport);
+    try {
+      const analysis = await evaluator.validateLayout(
+        [capture.screenshot.path],
+        `Page: ${capture.page}, Viewport: ${viewport.name} (${viewport.width}x${viewport.height})`,
+      );
+      evaluation.verdict = verdictFor(analysis);
+      evaluation.analysis = typeof analysis === "string" ? analysis : null;
+      if (evaluation.verdict === "inconclusive") state.reasons.add("EVALUATION_INCONCLUSIVE");
+      if (evaluation.verdict === "critical") state.reasons.add("CRITICAL_FINDING");
+    } catch (error) {
+      evaluation.verdict = "error";
+      evaluation.error = messageOf(error);
+      state.reasons.add("EVALUATION_FAILED");
+    }
+  }
+}
+
+const DEFECT_REASONS = ["CRITICAL_FINDING", "HTTP_NOT_OK", "CAPTURE_FAILED"];
+
+function outcome(reasons) {
+  if (reasons.size === 0) return "PASS";
+  return DEFECT_REASONS.some((code) => reasons.has(code)) ? "FAIL" : "BLOCKED";
+}
+
 /** Run one visual QA invocation and write its report. A run outcome is never thrown. */
 export async function runVisualQa(invocation, deps = defaultDeps()) {
   const { url, pages, viewports, runId, reportPath, clientId } = invocation;
@@ -202,141 +335,39 @@ export async function runVisualQa(invocation, deps = defaultDeps()) {
   rmSync(screenshotsDir, { recursive: true, force: true });
   mkdirSync(screenshotsDir, { recursive: true });
 
-  const reasons = new Set();
-  const captures = [];
-  const evaluations = [];
-  const errors = [];
-  let browserVersion = null;
+  const state = { reasons: new Set(), captures: [], evaluations: [], errors: [], browser: null };
   const startedAt = deps.now().toISOString();
-
   try {
     const hasKey = Boolean(deps.env.OPENROUTER_API_KEY?.trim());
-    if (!hasKey) reasons.add("MISSING_EVALUATOR_CREDENTIALS");
-
-    let reachable = false;
-    try {
-      // Non-shell reachability probe of the exact target.
-      const response = await deps.fetch(`${url}/`, { redirect: "follow" });
-      reachable = response.ok;
-    } catch (error) {
-      errors.push(`reachability: ${error instanceof Error ? error.message : String(error)}`);
-    }
-    if (!reachable) reasons.add("TARGET_UNREACHABLE");
-
-    let browser;
-    if (reachable) {
-      try {
-        browser = await deps.launchBrowser();
-        browserVersion = browser.version ?? null;
-      } catch (error) {
-        errors.push(`browser: ${error instanceof Error ? error.message : String(error)}`);
-        reasons.add("MISSING_DEPENDENCY");
-      }
-    }
-
-    if (browser) {
-      try {
-        for (const viewport of viewports) {
-          const page = await browser.open(viewport);
-          try {
-            for (const pagePath of pages) {
-              const name = pagePath === "/" ? "_index" : pagePath.replaceAll("/", "_");
-              const file = join(screenshotsDir, `${name}_${viewport.name}.png`);
-              const capture = {
-                page: pagePath,
-                viewport: viewport.name,
-                url: `${url}${pagePath}`,
-                http_status: 0,
-                status: "error",
-                screenshot: null,
-              };
-              captures.push(capture);
-              try {
-                capture.http_status = (await page.goto(capture.url)).status;
-                if (capture.http_status < 200 || capture.http_status > 299) {
-                  capture.status = "http_error";
-                  reasons.add("HTTP_NOT_OK");
-                  continue;
-                }
-                await page.screenshot(file);
-                const bytes = existsSync(file) ? statSync(file).size : 0;
-                if (bytes === 0) {
-                  reasons.add("CAPTURE_FAILED");
-                  continue;
-                }
-                capture.screenshot = { path: file, bytes, sha256: sha256(file) };
-                capture.status = "captured";
-              } catch (error) {
-                capture.error = error instanceof Error ? error.message : String(error);
-                reasons.add("CAPTURE_FAILED");
-              }
-            }
-          } finally {
-            await page.close();
-          }
-        }
-      } finally {
-        await browser.close();
-      }
-    }
-
-    let evaluator;
-    if (hasKey && captures.some((capture) => capture.status === "captured")) {
-      try {
-        evaluator = await deps.loadEvaluator(clientId);
-      } catch (error) {
-        errors.push(`evaluator: ${error instanceof Error ? error.message : String(error)}`);
-        reasons.add("EVALUATOR_UNAVAILABLE");
-      }
-    }
-    for (const capture of captures) {
-      if (capture.status !== "captured") continue;
-      const evaluation = { page: capture.page, viewport: capture.viewport, verdict: "not_run" };
-      evaluations.push(evaluation);
-      if (!evaluator) continue;
-      const viewport = viewports.find((candidate) => candidate.name === capture.viewport);
-      try {
-        const analysis = await evaluator.validateLayout(
-          [capture.screenshot.path],
-          `Page: ${capture.page}, Viewport: ${viewport.name} (${viewport.width}x${viewport.height})`,
-        );
-        evaluation.verdict = verdictFor(analysis);
-        evaluation.analysis = typeof analysis === "string" ? analysis : null;
-        if (evaluation.verdict === "inconclusive") reasons.add("EVALUATION_INCONCLUSIVE");
-        if (evaluation.verdict === "critical") reasons.add("CRITICAL_FINDING");
-      } catch (error) {
-        evaluation.verdict = "error";
-        evaluation.error = error instanceof Error ? error.message : String(error);
-        reasons.add("EVALUATION_FAILED");
-      }
-    }
+    if (!hasKey) state.reasons.add("MISSING_EVALUATOR_CREDENTIALS");
+    const browser = (await probeTarget(url, deps, state)) ? await launch(deps, state) : undefined;
+    if (browser) await captureAll(browser, invocation, screenshotsDir, state);
+    const evaluator = await loadEvaluatorFor(hasKey, clientId, deps, state);
+    await evaluateAll(evaluator, viewports, state);
   } catch (error) {
-    errors.push(`unexpected: ${error instanceof Error ? error.message : String(error)}`);
-    reasons.add("UNEXPECTED_ERROR");
+    state.errors.push(`unexpected: ${messageOf(error)}`);
+    state.reasons.add("UNEXPECTED_ERROR");
   }
 
   const required = pages.length * viewports.length;
-  const captured = captures.filter((capture) => capture.status === "captured").length;
-  const approved = evaluations.filter((evaluation) => evaluation.verdict === "ok").length;
-  if (captured !== required || approved !== required) reasons.add("INCOMPLETE_COVERAGE");
+  const captured = state.captures.filter((capture) => capture.status === "captured").length;
+  const approved = state.evaluations.filter((evaluation) => evaluation.verdict === "ok").length;
+  if (captured !== required || approved !== required) state.reasons.add("INCOMPLETE_COVERAGE");
 
-  const defects = ["CRITICAL_FINDING", "HTTP_NOT_OK", "CAPTURE_FAILED"];
-  const status =
-    reasons.size === 0 ? "PASS" : defects.some((code) => reasons.has(code)) ? "FAIL" : "BLOCKED";
   const report = {
     schema: VISUAL_QA_REPORT_SCHEMA,
     run_id: runId,
-    status,
-    reasons: [...reasons].sort(),
+    status: outcome(state.reasons),
+    reasons: [...state.reasons].sort((a, b) => a.localeCompare(b)),
     target_url: url,
     requested: { pages, viewports: viewports.map((viewport) => viewport.name) },
     coverage: { required, captured, approved },
-    browser: browserVersion,
+    browser: state.browser,
     started_at: startedAt,
     completed_at: deps.now().toISOString(),
-    captures,
-    evaluations,
-    errors,
+    captures: state.captures,
+    evaluations: state.evaluations,
+    errors: state.errors,
   };
   mkdirSync(runDir, { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");

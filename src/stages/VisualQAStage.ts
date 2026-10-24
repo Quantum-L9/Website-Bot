@@ -73,6 +73,78 @@ export interface VisualQaRun {
   exitedZero: boolean;
 }
 
+function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
+}
+
+/** Problems with the report's identity, request and overall verdict. */
+function headerProblems(report: VisualQaReport, run: VisualQaRun): string[] {
+  const problems: string[] = [];
+  if (report.schema !== VISUAL_QA_REPORT_SCHEMA) problems.push("unknown report schema");
+  if (report.run_id !== run.runId) problems.push("report belongs to a different run");
+  if (report.target_url !== run.url) problems.push("report targets a different URL");
+  if (JSON.stringify(report.requested?.pages) !== JSON.stringify(run.pages))
+    problems.push("report covers different routes");
+  if (JSON.stringify(report.requested?.viewports) !== JSON.stringify(run.viewports))
+    problems.push("report covers different viewports");
+  if (report.status !== "PASS") problems.push(`verifier status ${String(report.status)}`);
+  if (!Array.isArray(report.reasons) || report.reasons.length > 0)
+    problems.push(`verifier reasons ${JSON.stringify(report.reasons ?? null)}`);
+  if (!run.exitedZero) problems.push("verifier exited non-zero");
+  return problems;
+}
+
+/** The screenshot must exist inside this run's directory with the recorded digest. */
+function screenshotProblem(capture: ReportCapture, runDir: string): string | undefined {
+  const shot = capture.screenshot;
+  const path = typeof shot?.path === "string" ? resolve(shot.path) : undefined;
+  if (capture.status !== "captured" || !path) return "no screenshot";
+  if (relative(runDir, path).startsWith("..")) return "screenshot outside this run";
+  if (!existsSync(path) || statSync(path).size === 0) return "screenshot missing on disk";
+  if (createHash("sha256").update(readFileSync(path)).digest("hex") !== shot?.sha256)
+    return "screenshot digest mismatch";
+  return undefined;
+}
+
+/** Exactly one 2xx capture of the right URL with a bound screenshot. */
+function captureProblems(
+  captures: ReportCapture[],
+  pageUrl: string,
+  page: string,
+  viewport: string,
+  runDir: string,
+): string[] {
+  const matches = captures.filter(
+    (capture) => capture?.page === page && capture?.viewport === viewport,
+  );
+  const capture = matches[0];
+  if (matches.length !== 1 || !capture) return [`${matches.length} captures`];
+  const problems: string[] = [];
+  const status = capture.http_status;
+  if (capture.url !== pageUrl) problems.push("captured another URL");
+  if (typeof status !== "number" || status < 200 || status > 299)
+    problems.push(`HTTP ${String(status)}`);
+  const shot = screenshotProblem(capture, runDir);
+  if (shot) problems.push(shot);
+  return problems;
+}
+
+/** Exactly one conclusive, non-critical evaluator verdict. */
+function verdictProblem(
+  evaluations: ReportEvaluation[],
+  page: string,
+  viewport: string,
+): string | undefined {
+  const verdicts = evaluations.filter(
+    (evaluation) => evaluation?.page === page && evaluation?.viewport === viewport,
+  );
+  if (verdicts.length === 1 && verdicts[0]?.verdict === "ok") return undefined;
+  const seen = verdicts.map((evaluation) => String(evaluation?.verdict)).join(",");
+  return `evaluator verdict ${seen || "missing"}`;
+}
+
 /**
  * Judge one verifier report against the run that requested it. `problems` is
  * empty only for a PASS; `critical` is true when the evaluator reported a
@@ -85,59 +157,22 @@ export function assessVisualQaReport(
   if (!raw || typeof raw !== "object")
     return { problems: ["report is not an object"], critical: false };
   const report = raw as VisualQaReport;
-  const problems: string[] = [];
   const captures = Array.isArray(report.captures) ? (report.captures as ReportCapture[]) : [];
   const evaluations = Array.isArray(report.evaluations)
     ? (report.evaluations as ReportEvaluation[])
     : [];
-  const critical = evaluations.some((evaluation) => evaluation?.verdict === "critical");
-
-  if (report.schema !== VISUAL_QA_REPORT_SCHEMA) problems.push("unknown report schema");
-  if (report.run_id !== run.runId) problems.push("report belongs to a different run");
-  if (report.target_url !== run.url) problems.push("report targets a different URL");
-  if (JSON.stringify(report.requested?.pages) !== JSON.stringify(run.pages))
-    problems.push("report covers different routes");
-  if (JSON.stringify(report.requested?.viewports) !== JSON.stringify(run.viewports))
-    problems.push("report covers different viewports");
-  if (report.status !== "PASS") problems.push(`verifier status ${String(report.status)}`);
-  if (!Array.isArray(report.reasons) || report.reasons.length > 0)
-    problems.push(`verifier reasons ${JSON.stringify(report.reasons ?? null)}`);
-  if (!run.exitedZero) problems.push("verifier exited non-zero");
-
+  const problems = headerProblems(report, run);
   const runDir = dirname(resolve(run.reportPath));
   for (const page of run.pages) {
     for (const viewport of run.viewports) {
       const pair = `${page}@${viewport}`;
-      const matches = captures.filter(
-        (capture) => capture?.page === page && capture?.viewport === viewport,
-      );
-      const capture = matches[0];
-      if (matches.length !== 1 || !capture) {
-        problems.push(`${pair}: ${matches.length} captures`);
-      } else {
-        const status = capture.http_status;
-        if (capture.url !== `${run.url}${page}`) problems.push(`${pair}: captured another URL`);
-        if (typeof status !== "number" || status < 200 || status > 299)
-          problems.push(`${pair}: HTTP ${String(status)}`);
-        const shot = capture.screenshot;
-        const path = typeof shot?.path === "string" ? resolve(shot.path) : undefined;
-        if (capture.status !== "captured" || !path) problems.push(`${pair}: no screenshot`);
-        else if (relative(runDir, path).startsWith(".."))
-          problems.push(`${pair}: screenshot outside this run`);
-        else if (!existsSync(path) || statSync(path).size === 0)
-          problems.push(`${pair}: screenshot missing on disk`);
-        else if (createHash("sha256").update(readFileSync(path)).digest("hex") !== shot?.sha256)
-          problems.push(`${pair}: screenshot digest mismatch`);
-      }
-      const verdicts = evaluations.filter(
-        (evaluation) => evaluation?.page === page && evaluation?.viewport === viewport,
-      );
-      if (verdicts.length !== 1 || verdicts[0]?.verdict !== "ok")
-        problems.push(
-          `${pair}: evaluator verdict ${verdicts.map((evaluation) => String(evaluation?.verdict)).join(",") || "missing"}`,
-        );
+      for (const problem of captureProblems(captures, `${run.url}${page}`, page, viewport, runDir))
+        problems.push(`${pair}: ${problem}`);
+      const verdict = verdictProblem(evaluations, page, viewport);
+      if (verdict) problems.push(`${pair}: ${verdict}`);
     }
   }
+  const critical = evaluations.some((evaluation) => evaluation?.verdict === "critical");
   return { problems, critical };
 }
 
@@ -172,7 +207,7 @@ export class VisualQAStage implements Stage {
       return;
     }
     const deployment = await ctx.evidenceStore.requireDeploymentEvidence();
-    const url = deployment.value.deploymentUrl?.replace(/\/+$/, "");
+    const url = trimTrailingSlashes(deployment.value.deploymentUrl ?? "");
     if (!url) {
       logger.error("No deployment URL available; visual QA gate failed");
       return;
