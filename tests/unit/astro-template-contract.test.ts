@@ -1,8 +1,8 @@
 // L9_META: layer=test, role=astro_template_contract, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
 import test from "node:test";
 
 test("canonical Astro template is versioned and exposes the required section registry", () => {
@@ -21,6 +21,12 @@ test("canonical Astro template is versioned and exposes the required section reg
   );
   assert.match(renderer, /const registry/);
   assert.match(renderer, /ProseSection/);
+  // WB-QAP-01: opt-in static layout variants are part of the registry contract.
+  assert.match(registry, /SECTION_LAYOUT_VARIANTS = \["editorial", "diagram"\] as const/);
+  assert.match(registry, /LAYOUT_TEMPLATE_PREFIX = "layout:"/);
+  for (const component of ["EditorialSection", "DiagramSection"]) {
+    assert.match(renderer, new RegExp(`import ${component} from "./sections/${component}.astro"`));
+  }
 });
 
 test("Gallery section types its image array so empty text-only builds pass astro check", () => {
@@ -44,4 +50,23 @@ test("BaseLayout links every route via a grouped footer nav and provides a skip 
   assert.match(layout, /routes\?: Array<\{ href: string; title: string \}>/);
   assert.match(layout, /href="#main-content" class="skip-link"/);
   assert.match(layout, /<main id="main-content">/);
+});
+
+// Framework syntax, not an L9 inline metadata carrier, is authoritative for Astro.
+test("every Astro component starts with its real frontmatter, without inline L9_META", () => {
+  const root = resolve("astro_template/src");
+  const visit = (directory: string): string[] =>
+    readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+      const file = join(directory, entry.name);
+      return entry.isDirectory() ? visit(file) : entry.name.endsWith(".astro") ? [file] : [];
+    });
+  const files = visit(root);
+  assert.ok(files.length >= 17, "missing static layouts or template components");
+  for (const file of files) {
+    const source = readFileSync(file, "utf8");
+    assert.match(source, /^---\r?\n/, `${file} frontmatter must start at byte zero`);
+    assert.doesNotMatch(source, /<!--\s*L9_META/, `${file} must not contain retired inline header`);
+  }
+  const assembler = readFileSync(resolve("src/stages/SiteAssemblerStage.ts"), "utf8");
+  assert.doesNotMatch(assembler, /<!--\s*L9_META: layer=generated_site/);
 });

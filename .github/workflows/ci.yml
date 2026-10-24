@@ -60,3 +60,11 @@ jobs:
           npm run pipeline:plan
         env:
           NODE_ENV: test
+      # Real generated source -> astro check -> astro build -> headless browser
+      # render of every route. A template astro cannot parse (e.g. a comment
+      # ahead of the frontmatter fence) passes the structural suite above but
+      # fails here, so this runs on every PR rather than only on demand.
+      - name: Real generated Astro build and browser validation
+        run: npm run site:validate:build
+        env:
+          NODE_ENV: test

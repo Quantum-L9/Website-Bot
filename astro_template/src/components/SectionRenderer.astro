@@ -1,10 +1,11 @@
-<!-- L9_META: layer=template, role=section_renderer, status=active, version=1.0.0 -->
 ---
 import LeadForm from "./LeadForm.astro";
 import AudiencePaths from "./sections/AudiencePaths.astro";
 import ComplianceNote from "./sections/ComplianceNote.astro";
 import Confirmation from "./sections/Confirmation.astro";
 import CtaBanner from "./sections/CtaBanner.astro";
+import DiagramSection from "./sections/DiagramSection.astro";
+import EditorialSection from "./sections/EditorialSection.astro";
 import Faq from "./sections/Faq.astro";
 import Gallery from "./sections/Gallery.astro";
 import Hero from "./sections/Hero.astro";
@@ -17,8 +18,9 @@ import TrustBar from "./sections/TrustBar.astro";
 interface Props {
   name: string;
   content: string;
+  layout?: string;
 }
-const { name, content } = Astro.props;
+const { name, content, layout } = Astro.props;
 const registry: Record<string, any> = {
   hero: Hero,
   trust_bar: TrustBar,
@@ -35,6 +37,16 @@ const registry: Record<string, any> = {
   gallery: Gallery,
   services_overview: ServicesGrid,
 };
-const Component = registry[name] ?? ProseSection;
+// Opt-in layout variants replace only the generic prose fallback. An explicit
+// layout this template cannot realize fails the build instead of rendering
+// generic prose as if the request had been honored.
+const layoutVariants: Record<string, any> = {
+  editorial: EditorialSection,
+  diagram: DiagramSection,
+};
+if (layout !== undefined && !layoutVariants[layout]) {
+  throw new Error(`unsupported-layout: section ${name} requests layout ${JSON.stringify(layout)}`);
+}
+const Component = registry[name] ?? (layout ? layoutVariants[layout] : undefined) ?? ProseSection;
 ---
 <Component name={name} content={content} />
