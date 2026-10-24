@@ -229,7 +229,19 @@ void test("the template applies layout tokens only behind opt-in gates and honou
   }
   for (const group of ["width", "space", "type", "radius", "surface"])
     assert.match(tail, new RegExp(`:where\\(:root\\[data-design~="${group}"\\]\\)`));
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  // Reduced motion removes the template's only transition, without !important.
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.service-card \{ transition: none; \}\s*\.service-card:hover \{ transform: none; \}\s*\}/,
+  );
+  assert.doesNotMatch(css, /!important\s*[;}]/);
+  // Every transition the template declares is one the reduced-motion block covers.
+  assert.deepEqual(
+    [...css.matchAll(/^\s*([^{}]+)\{[^}]*\btransition:(?! none)/gm)].map((match) =>
+      match[1].trim(),
+    ),
+    [".service-card"],
+  );
   // An unconfigured site renders <html lang="en"> with no attribute or inline style.
   assert.match(
     layout,

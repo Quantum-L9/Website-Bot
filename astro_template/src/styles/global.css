@@ -206,13 +206,10 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
 }
 /* Foreground on the primary colour where white fails WCAG AA (derived token). */
 :where(:root[data-design~="contrast"]) :is(.btn:not(.btn--ghost), .cta-banner, .skip-link) { color: var(--color-on-primary); }
-/* CSS-only motion stays subtle and yields to a reduced-motion preference. */
+/* CSS-only motion stays subtle and yields to a reduced-motion preference. The
+   service card is the template's only transition; equal specificity later in
+   the file overrides it without !important. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
+  .service-card { transition: none; }
   .service-card:hover { transform: none; }
 }
