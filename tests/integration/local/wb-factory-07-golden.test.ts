@@ -280,8 +280,8 @@ void test("with visual enhancements disabled the built site ships no client Java
     for (const file of htmlFiles(entry.distDir)) {
       const page = readFileSync(join(entry.distDir, file), "utf-8");
       assert.doesNotMatch(page, /data-visual-slot|data-enhancement/, `${name} ${file}`);
-      for (const script of page.match(/<script\b[^>]*>/g) ?? [])
-        assert.match(script, /type="application\/ld\+json"/, `${name} ${file}: ${script}`);
+      for (const script of page.match(/<script\b[^>]*>/gi) ?? [])
+        assert.match(script, /type="application\/ld\+json"/i, `${name} ${file}: ${script}`);
     }
     const files = readdirSync(entry.distDir, { recursive: true }).map(String);
     assert.deepEqual(
