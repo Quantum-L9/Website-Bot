@@ -21,6 +21,12 @@ test("canonical Astro template is versioned and exposes the required section reg
   );
   assert.match(renderer, /const registry/);
   assert.match(renderer, /ProseSection/);
+  // WB-QAP-01: opt-in static layout variants are part of the registry contract.
+  assert.match(registry, /SECTION_LAYOUT_VARIANTS = \["editorial", "diagram"\] as const/);
+  assert.match(registry, /LAYOUT_TEMPLATE_PREFIX = "layout:"/);
+  for (const component of ["EditorialSection", "DiagramSection"]) {
+    assert.match(renderer, new RegExp(`import ${component} from "./sections/${component}.astro"`));
+  }
 });
 
 test("Gallery section types its image array so empty text-only builds pass astro check", () => {

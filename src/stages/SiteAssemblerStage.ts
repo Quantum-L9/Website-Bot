@@ -11,10 +11,18 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
+import {
+  isRegisteredSection,
+  isSectionLayoutVariant,
+  LAYOUT_TEMPLATE_PREFIX,
+  SECTION_LAYOUT_VARIANTS,
+  type SectionLayoutVariant,
+} from "../../astro_template/src/components/SectionRegistry.js";
 import { createModuleLogger } from "../core/logger.js";
 import type {
   BuildContext,
   DeployTarget,
+  DomainSpec,
   SiteConfig,
   SiteImageEntry,
 } from "../pipeline/BuildContext.js";
@@ -224,7 +232,42 @@ export class SiteAssemblerStage implements Stage {
         "Validated design tokens are required before site assembly",
       );
     validateRouteContracts(ctx.domainSpec.routes);
+    for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
     if (!ctx.dryRun) this.assertRouteContentAvailable(ctx);
+  }
+
+  /**
+   * Opt-in static layout explicitly requested through the existing
+   * `route.template` field (WB-QAP-01). Only `layout:`-prefixed values are
+   * layout requests; page-type templates (`homepage`, `service_page`, …) select
+   * nothing and keep legacy rendering. A request this template cannot realize
+   * fails assembly with a source-bound finding instead of rendering generic
+   * prose as if it had been honored.
+   */
+  private routeLayout(
+    route: DomainSpec["routes"][number],
+    index: number,
+  ): SectionLayoutVariant | undefined {
+    const template = route.template?.trim();
+    if (!template?.toLowerCase().startsWith(LAYOUT_TEMPLATE_PREFIX)) return undefined;
+    const variant = template.slice(LAYOUT_TEMPLATE_PREFIX.length).trim().toLowerCase();
+    const source = `domainSpec.routes[${index}].template ${JSON.stringify(template)} on ${normalizeRouteSlug(route.slug)}`;
+    if (!isSectionLayoutVariant(variant)) {
+      const supported = SECTION_LAYOUT_VARIANTS.map((name) => `${LAYOUT_TEMPLATE_PREFIX}${name}`);
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `unsupported-layout: ${source} is not a supported layout (supported: ${supported.join(", ")})`,
+      );
+    }
+    if (
+      route.components.every((component) => isRegisteredSection(normalizeComponentName(component)))
+    ) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `unsupported-layout: ${source} cannot be realized; the route has no generic section for the layout to arrange`,
+      );
+    }
+    return variant;
   }
 
   private assertRouteContentAvailable(ctx: BuildContext): void {
@@ -498,8 +541,9 @@ export const siteConfig = {
       `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap-index.xml\n`,
     );
 
-    for (const route of ctx.domainSpec.routes) {
+    for (const [index, route] of ctx.domainSpec.routes.entries()) {
       const slug = normalizeRouteSlug(route.slug);
+      const layout = this.routeLayout(route, index);
       const pagePath = pagePathForRoute(slug);
       const pageDirectoryDepth = slug === "/" ? 1 : slug.split("/").filter(Boolean).length + 1;
       const prefix = "../".repeat(pageDirectoryDepth);
@@ -526,9 +570,12 @@ export const siteConfig = {
       const pageHeading = sections.some((section) => section.name === "hero")
         ? ""
         : ` pageHeading={${json(route.title)}}`;
+      // Routes without a layout request keep their legacy page source byte for byte.
+      const layoutDeclaration = layout ? `const layout = ${json(layout)};\n` : "";
+      const layoutProp = layout ? " layout={layout}" : "";
       write(
         pagePath,
-        `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} />)}\n</BaseLayout>\n`,
+        `<!-- L9_META: layer=generated_site, role=route_page, status=generated, version=1.0.0 -->\n---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(route.title)}} description={${json(routeDescription)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
       );
     }
   }

@@ -43,6 +43,14 @@ void test("materializes the fixture into a client-specific Astro project", async
     assert.match(services, /pageHeading=\{"Services"\}/);
     const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
     assert.doesNotMatch(home, /pageHeading=/);
+    // WB-QAP-01: a route without a `layout:` template request renders exactly as before.
+    for (const source of [home, services, contact]) {
+      assert.doesNotMatch(source, /const layout|layout=\{/);
+      assert.match(
+        source,
+        /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+      );
+    }
     const layout = readFileSync(join(ctx.outputDir, "src/layouts/BaseLayout.astro"), "utf-8");
     assert.match(layout, /pageHeading && <h1 class="page-title">/);
     assert.match(ctx.assemblyManifest?.sourceDigest ?? "", /^[0-9a-f]{64}$/);
