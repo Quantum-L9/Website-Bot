@@ -258,6 +258,18 @@ void test("NEGATIVE stale report: a rerun into the same directory never inherits
   });
 });
 
+void test("a rerun clears only its own run-scoped captures, never a sibling directory", async () => {
+  await withDir(async (dir) => {
+    const inv = { ...invocation(dir), reportPath: join(dir, "report.json") };
+    const keep = join(dir, "screenshots", "keep.png");
+    mkdirSync(dirname(keep), { recursive: true });
+    writeFileSync(keep, "human-kept");
+    await qa.runVisualQa(inv, fakeDeps());
+    await qa.runVisualQa(inv, fakeDeps());
+    assert.equal(readFileSync(keep, "utf-8"), "human-kept");
+  });
+});
+
 void test("NEGATIVE a report for another run, URL or route set is rejected by the stage", async () => {
   await withDir(async (dir) => {
     const inv = invocation(dir);

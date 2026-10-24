@@ -194,7 +194,9 @@ export function defaultDeps(env = process.env) {
 export async function runVisualQa(invocation, deps = defaultDeps()) {
   const { url, pages, viewports, runId, reportPath, clientId } = invocation;
   const runDir = dirname(reportPath);
-  const screenshotsDir = join(runDir, "screenshots");
+  // Run-id scoped so a rerun replaces only its own captures, never a sibling
+  // directory the caller happens to keep beside --report.
+  const screenshotsDir = join(runDir, `screenshots-${runId}`);
   // Only this invocation's output may certify this invocation.
   rmSync(reportPath, { force: true });
   rmSync(screenshotsDir, { recursive: true, force: true });
