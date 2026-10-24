@@ -168,6 +168,33 @@ function unfenced(text) {
 }
 
 /**
+ * Whether any object in valid JSON text repeats a key. JSON.parse keeps the
+ * last duplicate silently, so keys are compared decoded ("verdict" is
+ * "verdict"), in every object, at every depth.
+ */
+function hasDuplicateKeys(text) {
+  const token = /"(?:[^"\\]|\\.)*"|[{}[\]]/g;
+  const colon = /\s*:/y;
+  const scopes = [];
+  for (let match = token.exec(text); match; match = token.exec(text)) {
+    const [part] = match;
+    if (part === "{") scopes.push(new Set());
+    else if (part === "[") scopes.push(null);
+    else if (part === "}" || part === "]") scopes.pop();
+    else {
+      colon.lastIndex = token.lastIndex;
+      const keys = scopes.at(-1);
+      if (keys && colon.test(text)) {
+        const key = JSON.parse(part);
+        if (keys.has(key)) return true;
+        keys.add(key);
+      }
+    }
+  }
+  return false;
+}
+
+/**
  * Evaluator verdict for one screenshot, from the strict JSON result the
  * validateLayout prompt (src/services/llm.ts) requires:
  *   {"verdict":"pass"|"fail"|"blocked","defects":[{"severity","description"}],"summary"}
@@ -179,13 +206,13 @@ function unfenced(text) {
 export function verdictFor(analysis) {
   if (typeof analysis !== "string" || !analysis.trim()) return "inconclusive";
   const text = unfenced(analysis.trim());
-  if ((text.match(/"verdict"/g) ?? []).length !== 1) return "inconclusive";
   let result;
   try {
     result = JSON.parse(text);
   } catch {
     return "inconclusive";
   }
+  if (hasDuplicateKeys(text)) return "inconclusive";
   if (!result || typeof result !== "object" || Array.isArray(result)) return "inconclusive";
   const { verdict, defects } = result;
   if (

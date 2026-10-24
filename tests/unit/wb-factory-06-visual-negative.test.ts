@@ -253,6 +253,18 @@ void test("F01 only a well-formed conclusive evaluator result approves or fails 
     [result("fail", [minor]), "inconclusive"],
     [result("fail", []), "inconclusive"],
     ['{"verdict":"fail","verdict":"pass","defects":[],"summary":"x"}', "inconclusive"],
+    // Duplicates are judged on decoded keys, at any depth: an escaped key or a
+    // repeated "defects" cannot overwrite a verdict or hide a critical defect.
+    ['{"verdict":"fail","\\u0076erdict":"pass","defects":[],"summary":"x"}', "inconclusive"],
+    [
+      '{"verdict":"pass","defects":[{"severity":"critical","description":"x"}],"defects":[],"summary":"x"}',
+      "inconclusive",
+    ],
+    [
+      '{"verdict":"pass","defects":[{"severity":"critical","severity":"minor","description":"x"}],"summary":"x"}',
+      "inconclusive",
+    ],
+    ['{"verdict":"pass","defects":[],"summary":"a \\"verdict\\": quoted {"}', "ok"],
     [JSON.stringify({ verdict: "pass", summary: "no defects field" }), "inconclusive"],
     [result("pass", [{ severity: "cosmetic", description: "x" }]), "inconclusive"],
     [result("pass", [{ severity: "minor", description: " " }]), "inconclusive"],
