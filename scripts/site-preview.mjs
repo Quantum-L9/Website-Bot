@@ -235,21 +235,27 @@ function coverageProblems(receipt, report, expected) {
   if (report && report.summary?.renders !== pairs)
     problems.push("browser report summary disagrees with its coverage");
   for (const route of routes) {
-    for (const viewport of viewports) {
-      const pair = `${route}@${viewport}`;
-      const matches = renders.filter((item) => item.route === route && item.viewport === viewport);
-      if (report && (matches.length !== 1 || matches[0].status !== "PASS"))
-        problems.push(
-          `${pair}: ${matches.length} renders, status ${matches[0]?.status ?? "missing"}`,
-        );
-      const shot = screenshotProblem(receipt, shots, route, viewport);
-      if (shot) problems.push(`${pair}: ${shot}`);
-      else if (matches.length === 1) {
-        const recorded = shots.find((item) => item.route === route && item.viewport === viewport);
-        if (recorded.path !== matches[0].screenshot_path)
-          problems.push(`${pair}: screenshot is not the one the browser report recorded`);
-      }
-    }
+    for (const viewport of viewports)
+      problems.push(...pairProblems(receipt, report, shots, route, viewport));
+  }
+  return problems;
+}
+
+/** One PASS render and one unchanged screenshot, the same one, for a route x viewport. */
+function pairProblems(receipt, report, shots, route, viewport) {
+  const pair = `${route}@${viewport}`;
+  const problems = [];
+  const matches = (report?.routes ?? []).filter(
+    (item) => item.route === route && item.viewport === viewport,
+  );
+  if (report && (matches.length !== 1 || matches[0].status !== "PASS"))
+    problems.push(`${pair}: ${matches.length} renders, status ${matches[0]?.status ?? "missing"}`);
+  const shot = screenshotProblem(receipt, shots, route, viewport);
+  if (shot) problems.push(`${pair}: ${shot}`);
+  else if (matches.length === 1) {
+    const recorded = shots.find((item) => item.route === route && item.viewport === viewport);
+    if (recorded.path !== matches[0].screenshot_path)
+      problems.push(`${pair}: screenshot is not the one the browser report recorded`);
   }
   return problems;
 }
