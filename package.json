@@ -81,7 +81,7 @@
     "inngest": "^4.25.0",
     "pg": "^8.23.1",
     "pino": "^10.3.1",
-    "undici": "^8.11.2",
+    "undici": "^8.12.2",
     "yaml": "^2.4.2"
   },
   "devDependencies": {
