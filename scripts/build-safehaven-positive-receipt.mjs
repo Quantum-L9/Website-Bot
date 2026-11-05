@@ -734,7 +734,16 @@ const receipt = {
 /* =========================================================
  * WRITE
  * ======================================================= */
-const absoluteOutput = resolveWithinRoot(ROOT, outputPath, "output path");
+// resolveWithinRoot canonicalizes and refuses any path outside ROOT. The write
+// sink repeats that bound locally (real ROOT prefix on the normalized path) so
+// the confinement is visible where the CLI-supplied path is written.
+const absoluteOutput = path.normalize(resolveWithinRoot(ROOT, outputPath, "output path"));
+const outputRootPrefix = `${fs.realpathSync(ROOT)}${path.sep}`;
+if (!absoluteOutput.startsWith(outputRootPrefix)) {
+  throw new Error(
+    `PATH_OUTSIDE_ALLOWED_ROOTS: output path must stay inside ${outputRootPrefix}; refusing ${JSON.stringify(outputPath)}`,
+  );
+}
 fs.mkdirSync(path.dirname(absoluteOutput), {
   recursive: true,
 });
