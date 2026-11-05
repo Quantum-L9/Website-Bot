@@ -365,3 +365,22 @@ void test("assembly depends on image evidence whenever the resolved image plan h
     cleanupContext(ctx);
   }
 });
+
+void test("an optional role match never takes the only section a required placement can use", async () => {
+  // Codex review on #259: required /:team has no role match and needs the
+  // fallback; optional /:service role-matches the same single section.
+  const ctx = fixtureContext({
+    routes: [{ slug: "/", title: "Home", components: ["service-detail"] }],
+  });
+  withPlannedImages(ctx, [{ placement: "/:team", required: true }, { placement: "/:service" }]);
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
+    assert.deepEqual(
+      emittedSections(home).map((section) => [section.name, section.imagePlacement]),
+      [["service_detail", "/:team"]],
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});

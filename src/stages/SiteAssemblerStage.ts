@@ -573,38 +573,48 @@ export class SiteAssemblerStage implements Stage {
       return { slug, target };
     };
 
-    const unclaimed: typeof planned = [];
-    for (const asset of planned) {
-      const { target } = targetOf(asset.placement);
-      const role = placementRole(asset.placement);
-      const index = target.names.findIndex(
-        (name, position) =>
-          target.bound[position] === null &&
-          this.sectionOwnsRole(name, target.components[position], role),
-      );
-      if (index >= 0) target.bound[index] = asset.placement;
-      else unclaimed.push(asset);
-    }
-    for (const asset of unclaimed) {
-      const { slug, target } = targetOf(asset.placement);
-      const role = placementRole(asset.placement);
-      const index = target.names.findIndex(
-        (name, position) => target.bound[position] === null && !IMAGE_INELIGIBLE_SECTIONS.has(name),
-      );
-      if (index >= 0) {
-        target.bound[index] = asset.placement;
-        continue;
+    // Required placements bind completely (role pass, then fallback pass)
+    // before any optional placement, so an optional role match can never take
+    // the only section a required placement could fall back to.
+    const tiers = [
+      planned.filter((asset) => asset.required),
+      planned.filter((asset) => !asset.required),
+    ];
+    for (const tier of tiers) {
+      const unclaimed: typeof planned = [];
+      for (const asset of tier) {
+        const { target } = targetOf(asset.placement);
+        const role = placementRole(asset.placement);
+        const index = target.names.findIndex(
+          (name, position) =>
+            target.bound[position] === null &&
+            this.sectionOwnsRole(name, target.components[position], role),
+        );
+        if (index >= 0) target.bound[index] = asset.placement;
+        else unclaimed.push(asset);
       }
-      if (asset.required) {
-        throw new BuildError(
-          "SITE_ASSEMBLY_FAILED",
-          `image-placement-unbound: ${asset.placement} (${role}) has no image-eligible section on ${slug}`,
+      for (const asset of unclaimed) {
+        const { slug, target } = targetOf(asset.placement);
+        const role = placementRole(asset.placement);
+        const index = target.names.findIndex(
+          (name, position) =>
+            target.bound[position] === null && !IMAGE_INELIGIBLE_SECTIONS.has(name),
+        );
+        if (index >= 0) {
+          target.bound[index] = asset.placement;
+          continue;
+        }
+        if (asset.required) {
+          throw new BuildError(
+            "SITE_ASSEMBLY_FAILED",
+            `image-placement-unbound: ${asset.placement} (${role}) has no image-eligible section on ${slug}`,
+          );
+        }
+        logger.warn(
+          { placement: asset.placement, route: slug, role, reason: "no image-eligible section" },
+          "Optional image placement not rendered",
         );
       }
-      logger.warn(
-        { placement: asset.placement, route: slug, role, reason: "no image-eligible section" },
-        "Optional image placement not rendered",
-      );
     }
 
     const bindings = new Map<string, Array<string | null>>();
