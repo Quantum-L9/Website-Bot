@@ -1,7 +1,7 @@
 // L9_META: layer=test, role=astro_template_contract, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import test from "node:test";
 
@@ -78,7 +78,7 @@ test("BaseLayout links every route via a grouped footer nav and provides a skip 
 test("every Astro component starts with its real frontmatter, without inline L9_META", () => {
   const root = resolve("astro_template/src");
   const visit = (directory: string): string[] =>
-    readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
       const file = join(directory, entry.name);
       return entry.isDirectory() ? visit(file) : entry.name.endsWith(".astro") ? [file] : [];
     });
