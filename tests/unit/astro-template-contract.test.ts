@@ -1,7 +1,7 @@
 // L9_META: layer=test, role=astro_template_contract, status=active, version=1.0.0
 
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import test from "node:test";
 
@@ -35,6 +35,57 @@ test("canonical Astro template is versioned and exposes the required section reg
     renderer,
     /<VisualEnhancementSlot slot=\{visualSlot\}>\s*<Component name=\{name\} content=\{content\} \/>\s*<\/VisualEnhancementSlot>/,
   );
+});
+
+test("the section renderer shows the image the assembler bound to each section", () => {
+  const renderer = readFileSync(
+    resolve("astro_template/src/components/SectionRenderer.astro"),
+    "utf8",
+  );
+  // The binding arrives as a prop and resolves only through the one published
+  // image registry; there is no second lookup and no filename guessing.
+  assert.match(renderer, /imagePlacement\?: string \| null;/);
+  assert.match(renderer, /const \{ name, content, layout, imagePlacement \} = Astro\.props;/);
+  assert.match(renderer, /import \{ siteConfig \} from "\.\.\/lib\/siteConfig";/);
+  assert.match(renderer, /const image = imagePlacement \? images\[imagePlacement\] : undefined;/);
+  // A binding the registry does not publish fails the build instead of vanishing.
+  assert.match(
+    renderer,
+    /if \(imagePlacement && !image\) \{\s*throw new Error\(\s*`unpublished-image-placement:/,
+  );
+  // Hero.astro keeps sole ownership of the hero image (no duplicate render),
+  // and the gallery receives its bound image through a prop.
+  assert.match(
+    renderer,
+    /const contentImage = name === "hero" \|\| name === "gallery" \? undefined : image;/,
+  );
+  assert.match(renderer, /<Component name=\{name\} content=\{content\} image=\{galleryImage\} \/>/);
+  // Bound content images render beside the section, lazily, with real dimensions.
+  assert.match(renderer, /<figure class="content-block__visual">/);
+  assert.match(
+    renderer,
+    /<img src=\{contentImage\.src\} alt=\{contentImage\.alt\} width=\{contentImage\.width\} height=\{contentImage\.height\} loading="lazy" decoding="async"/,
+  );
+  // The image-less branch stays the unwrapped section.
+  assert.match(renderer, /\) : \(\s*<Component name=\{name\} content=\{content\} \/>\s*\)\}\s*$/);
+
+  const gallery = readFileSync(
+    resolve("astro_template/src/components/sections/Gallery.astro"),
+    "utf8",
+  );
+  assert.match(gallery, /image\?: GalleryImage;/);
+  assert.match(gallery, /for \(const candidate of image \? \[image, \.\.\.gallery\] : gallery\)/);
+  // The see-all link renders only when the site publishes a /gallery route.
+  assert.match(gallery, /\{hasGalleryRoute && \(\s*<a class="gallery-cta" href="\/gallery">/);
+
+  const styles = readFileSync(resolve("astro_template/src/styles/global.css"), "utf8");
+  for (const selector of [
+    ".content-block {",
+    ".content-block__visual img {",
+    ".content-block--split",
+  ]) {
+    assert.ok(styles.includes(selector), `global.css defines ${selector}`);
+  }
 });
 
 test("visual enhancement allowlists are compile-time constants that ship empty", () => {
@@ -78,7 +129,7 @@ test("BaseLayout links every route via a grouped footer nav and provides a skip 
 test("every Astro component starts with its real frontmatter, without inline L9_META", () => {
   const root = resolve("astro_template/src");
   const visit = (directory: string): string[] =>
-    readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
       const file = join(directory, entry.name);
       return entry.isDirectory() ? visit(file) : entry.name.endsWith(".astro") ? [file] : [];
     });

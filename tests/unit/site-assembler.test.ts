@@ -14,7 +14,10 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import test from "node:test";
+import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
+import type { ResolvedImageAsset } from "../../src/pipeline/evidence/ImageAssetManifest.js";
+import type { ImageAssetPlan } from "../../src/pipeline/evidence/ImageAssetPlan.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
@@ -148,4 +151,217 @@ void test("the assembler stage version moves past the release that emitted heade
   // 3.1.0 wrote an L9_META comment ahead of the Astro fence; PipelineRunner
   // resumes a checkpoint only when stageVersion matches, so those cannot be reused.
   assert.notEqual(new SiteAssemblerStage().version, "3.1.0");
+});
+
+// ── Section image wiring ────────────────────────────────────────────────────
+// The planner/generator publish images by placement; assembly must bind each
+// published placement to the section it was planned for so the renderer shows
+// it, instead of leaving every image except the hero unrendered.
+
+interface PlannedFixtureImage {
+  placement: string;
+  required?: boolean;
+  published?: boolean;
+}
+
+function withPlannedImages(ctx: BuildContext, images: PlannedFixtureImage[]): void {
+  // Staged under the evidence root so cleanupContext removes it with the context.
+  const stagingDir = join(ctx.evidenceStore.rootDir, "staged-images");
+  mkdirSync(stagingDir, { recursive: true });
+  const plan: ImageAssetPlan = {
+    schema: "website-bot.image-asset-plan/v1",
+    version: "1.0.0",
+    assets: [],
+  };
+  ctx.resolvedImages = new Map();
+  for (const [index, image] of images.entries()) {
+    const slotId = `slot-${index}`;
+    plan.assets.push({
+      slotId,
+      placement: image.placement,
+      required: image.required ?? false,
+      resolution: {
+        source: "generated",
+        compiledBrief: { slotId, intent: `Image for ${image.placement}` },
+      },
+    });
+    if (image.published === false) continue;
+    const absolutePath = join(stagingDir, `${slotId}.webp`);
+    writeFileSync(absolutePath, `fixture image ${index}`);
+    const asset: ResolvedImageAsset = {
+      slotId,
+      placement: image.placement,
+      source: "generated",
+      absolutePath,
+      outputFileName: `${slotId}.webp`,
+      altText: `Alt for ${image.placement}`,
+      mimeType: "image/webp",
+      width: 1200,
+      height: 800,
+      byteLength: 16,
+      sha256: String(index).repeat(64).slice(0, 64),
+      disposition: "approved-client-owned",
+      provenanceWarnings: [],
+    };
+    ctx.resolvedImages.set(image.placement, asset);
+  }
+  ctx.imageAssetPlan = plan;
+}
+
+function emittedSections(page: string): Array<{ name: string; imagePlacement?: string | null }> {
+  const match = page.match(/const sections = (\[[\s\S]*?\]) as const;/);
+  assert.ok(match, "page source declares its sections");
+  return JSON.parse(match[1]) as Array<{ name: string; imagePlacement?: string | null }>;
+}
+
+void test("binds each published placement to the section it was planned for", async () => {
+  const ctx = fixtureContext();
+  withPlannedImages(ctx, [
+    { placement: "/:hero", required: true },
+    { placement: "/:service" },
+    { placement: "/:trust" },
+    // The /services route has no hero section: the image falls back to the
+    // first image-eligible section rather than being dropped.
+    { placement: "/services:hero" },
+    // Planned but never published (e.g. rights excluded): nothing to bind.
+    { placement: "/contact:trust", published: false },
+    // Layout-owned global placement: never bound to a section.
+    { placement: "global:logo" },
+  ]);
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
+    assert.deepEqual(
+      emittedSections(home).map((section) => [section.name, section.imagePlacement]),
+      [
+        ["hero", "/:hero"],
+        ["services_overview", "/:service"],
+        ["trust_signals", "/:trust"],
+      ],
+    );
+    assert.match(
+      home,
+      /<SectionRenderer name=\{section\.name\} content=\{section\.content\} imagePlacement=\{section\.imagePlacement\} \/>/,
+    );
+    const services = readFileSync(join(ctx.outputDir, "src/pages/services/index.astro"), "utf-8");
+    assert.deepEqual(
+      emittedSections(services).map((section) => [section.name, section.imagePlacement]),
+      [
+        ["service_list", "/services:hero"],
+        ["cta", null],
+      ],
+    );
+    // A route without a bound image keeps its legacy page source byte for byte.
+    const contact = readFileSync(join(ctx.outputDir, "src/pages/contact/index.astro"), "utf-8");
+    assert.doesNotMatch(contact, /imagePlacement/);
+    assert.match(
+      contact,
+      /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+    );
+    // Every bound placement is published in the image registry the renderer reads.
+    const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
+    for (const placement of ["/:hero", "/:service", "/:trust", "/services:hero"]) {
+      assert.ok(config.includes(JSON.stringify(placement)), `${placement} is published`);
+    }
+    assert.ok(existsSync(join(ctx.outputDir, "public/images/slot-1.webp")));
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("gives each section at most one image and binds required placements first", async () => {
+  const ctx = fixtureContext({
+    routes: [{ slug: "/", title: "Home", components: ["hero", "about", "process-steps"] }],
+  });
+  withPlannedImages(ctx, [
+    { placement: "/:team" },
+    { placement: "/:project_proof", required: true },
+  ]);
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
+    assert.deepEqual(
+      emittedSections(home).map((section) => [section.name, section.imagePlacement]),
+      [
+        ["hero", null],
+        ["about", "/:project_proof"],
+        ["process_steps", "/:team"],
+      ],
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("a required placement with no image-eligible section fails assembly", async () => {
+  const ctx = fixtureContext({
+    routes: [
+      { slug: "/", title: "Home", components: ["hero"] },
+      { slug: "/faq", title: "FAQ", components: ["faq"] },
+    ],
+  });
+  withPlannedImages(ctx, [{ placement: "/faq:trust", required: true }]);
+  try {
+    await assert.rejects(
+      () => new SiteAssemblerStage().run(ctx),
+      (error: unknown) =>
+        error instanceof BuildError &&
+        error.code === "SITE_ASSEMBLY_FAILED" &&
+        /image-placement-unbound: \/faq:trust \(trust\) has no image-eligible section on \/faq/.test(
+          error.message,
+        ),
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("an optional placement with no image-eligible section is omitted, not rendered elsewhere", async () => {
+  const ctx = fixtureContext({
+    routes: [
+      { slug: "/", title: "Home", components: ["hero"] },
+      { slug: "/faq", title: "FAQ", components: ["faq"] },
+    ],
+  });
+  withPlannedImages(ctx, [{ placement: "/faq:trust" }]);
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    const faq = readFileSync(join(ctx.outputDir, "src/pages/faq/index.astro"), "utf-8");
+    assert.doesNotMatch(faq, /imagePlacement/);
+    const home = readFileSync(join(ctx.outputDir, "src/pages/index.astro"), "utf-8");
+    assert.doesNotMatch(home, /imagePlacement/);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("a published placement that names no spec route fails assembly", async () => {
+  const ctx = fixtureContext();
+  withPlannedImages(ctx, [{ placement: "/missing:hero" }]);
+  try {
+    await assert.rejects(
+      () => new SiteAssemblerStage().run(ctx),
+      (error: unknown) =>
+        error instanceof BuildError &&
+        /image-placement-unbound: \/missing:hero targets no spec route/.test(error.message),
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("assembly depends on image evidence whenever the resolved image plan has assets", () => {
+  const ctx = fixtureContext();
+  const stage = new SiteAssemblerStage();
+  try {
+    assert.deepEqual(stage.evidence.inputs(ctx), []);
+    // A blueprint-only redesign: planned images, no spec-declared image slots.
+    withPlannedImages(ctx, [{ placement: "/:hero", required: true }]);
+    assert.equal(ctx.domainSpec.assets?.imageSlots, undefined);
+    assert.deepEqual(stage.evidence.inputs(ctx), ["image_assets"]);
+    ctx.dryRun = true;
+    assert.deepEqual(stage.evidence.inputs(ctx), []);
+  } finally {
+    cleanupContext(ctx);
+  }
 });
