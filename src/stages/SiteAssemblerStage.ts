@@ -139,6 +139,14 @@ const ROLE_CONTENT_SLOT: Readonly<Record<string, string>> = {
   gallery: "project_proof",
 };
 
+/** One spec route's sections and the image placement bound to each. */
+interface RouteImageSlots {
+  slug: string;
+  components: string[];
+  names: string[];
+  bound: Array<string | null>;
+}
+
 function placementRole(placement: string): string {
   return placement
     .slice(placement.lastIndexOf(":") + 1)
@@ -544,78 +552,28 @@ export class SiteAssemblerStage implements Stage {
       );
     if (planned.length === 0) return new Map();
 
-    const routes = new Map<
-      string,
-      { components: string[]; names: string[]; bound: Array<string | null> }
-    >();
+    const routes = new Map<string, RouteImageSlots>();
     for (const route of ctx.domainSpec.routes) {
-      routes.set(normalizeRouteSlug(route.slug), {
+      const slug = normalizeRouteSlug(route.slug);
+      routes.set(slug, {
+        slug,
         components: route.components,
         names: route.components.map((component) => normalizeComponentName(component)),
         bound: route.components.map(() => null),
       });
     }
-    const targetOf = (placement: string) => {
-      const routeSlug = routeSlugFromPlacement(placement) ?? "";
-      let slug: string | undefined;
-      try {
-        slug = normalizeRouteSlug(routeSlug);
-      } catch {
-        slug = undefined;
-      }
-      const target = slug === undefined ? undefined : routes.get(slug);
-      if (!slug || !target) {
-        throw new BuildError(
-          "SITE_ASSEMBLY_FAILED",
-          `image-placement-unbound: ${placement} targets no spec route`,
-        );
-      }
-      return { slug, target };
-    };
 
     // Required placements bind completely (role pass, then fallback pass)
     // before any optional placement, so an optional role match can never take
     // the only section a required placement could fall back to.
-    const tiers = [
+    this.bindImageTier(
       planned.filter((asset) => asset.required),
+      routes,
+    );
+    this.bindImageTier(
       planned.filter((asset) => !asset.required),
-    ];
-    for (const tier of tiers) {
-      const unclaimed: typeof planned = [];
-      for (const asset of tier) {
-        const { target } = targetOf(asset.placement);
-        const role = placementRole(asset.placement);
-        const index = target.names.findIndex(
-          (name, position) =>
-            target.bound[position] === null &&
-            this.sectionOwnsRole(name, target.components[position], role),
-        );
-        if (index >= 0) target.bound[index] = asset.placement;
-        else unclaimed.push(asset);
-      }
-      for (const asset of unclaimed) {
-        const { slug, target } = targetOf(asset.placement);
-        const role = placementRole(asset.placement);
-        const index = target.names.findIndex(
-          (name, position) =>
-            target.bound[position] === null && !IMAGE_INELIGIBLE_SECTIONS.has(name),
-        );
-        if (index >= 0) {
-          target.bound[index] = asset.placement;
-          continue;
-        }
-        if (asset.required) {
-          throw new BuildError(
-            "SITE_ASSEMBLY_FAILED",
-            `image-placement-unbound: ${asset.placement} (${role}) has no image-eligible section on ${slug}`,
-          );
-        }
-        logger.warn(
-          { placement: asset.placement, route: slug, role, reason: "no image-eligible section" },
-          "Optional image placement not rendered",
-        );
-      }
-    }
+      routes,
+    );
 
     const bindings = new Map<string, Array<string | null>>();
     for (const [slug, target] of routes) {
@@ -639,6 +597,76 @@ export class SiteAssemblerStage implements Stage {
       "Section image placements bound",
     );
     return bindings;
+  }
+
+  /**
+   * Bind one tier of placements: first each to a section owning its role, then
+   * any still unclaimed to the first unbound image-eligible section. A required
+   * placement left unbound fails assembly; an optional one is logged.
+   */
+  private bindImageTier(
+    tier: ReadonlyArray<{ placement: string; required: boolean }>,
+    routes: Map<string, RouteImageSlots>,
+  ): void {
+    const unclaimed: Array<{ placement: string; required: boolean }> = [];
+    for (const asset of tier) {
+      const target = this.imageRouteTarget(routes, asset.placement);
+      const role = placementRole(asset.placement);
+      const index = target.names.findIndex(
+        (name, position) =>
+          target.bound[position] === null &&
+          this.sectionOwnsRole(name, target.components[position], role),
+      );
+      if (index >= 0) target.bound[index] = asset.placement;
+      else unclaimed.push(asset);
+    }
+    for (const asset of unclaimed) {
+      const target = this.imageRouteTarget(routes, asset.placement);
+      const index = target.names.findIndex(
+        (name, position) => target.bound[position] === null && !IMAGE_INELIGIBLE_SECTIONS.has(name),
+      );
+      if (index >= 0) {
+        target.bound[index] = asset.placement;
+        continue;
+      }
+      const role = placementRole(asset.placement);
+      if (asset.required) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `image-placement-unbound: ${asset.placement} (${role}) has no image-eligible section on ${target.slug}`,
+        );
+      }
+      logger.warn(
+        {
+          placement: asset.placement,
+          route: target.slug,
+          role,
+          reason: "no image-eligible section",
+        },
+        "Optional image placement not rendered",
+      );
+    }
+  }
+
+  /** The spec route a placement targets, or a fail-closed assembly error. */
+  private imageRouteTarget(
+    routes: Map<string, RouteImageSlots>,
+    placement: string,
+  ): RouteImageSlots {
+    let slug: string | undefined;
+    try {
+      slug = normalizeRouteSlug(routeSlugFromPlacement(placement) ?? "");
+    } catch {
+      slug = undefined;
+    }
+    const target = slug === undefined ? undefined : routes.get(slug);
+    if (!target) {
+      throw new BuildError(
+        "SITE_ASSEMBLY_FAILED",
+        `image-placement-unbound: ${placement} targets no spec route`,
+      );
+    }
+    return target;
   }
 
   private sectionOwnsRole(name: string, component: string, role: string): boolean {
