@@ -259,7 +259,11 @@ for (const status of ["not_ready", "degraded", "ok"] as const) {
       status,
       checks: [
         { name: "seo_bot_reachable", status: "PASS", detail: "" },
-        { name: "seo_bot_machine_auth", status: status === "degraded" ? "UNKNOWN" : "FAIL", detail: "" },
+        {
+          name: "seo_bot_machine_auth",
+          status: status === "degraded" ? "UNKNOWN" : "FAIL",
+          detail: "",
+        },
       ],
     });
     const client = preflightClient((url) => {

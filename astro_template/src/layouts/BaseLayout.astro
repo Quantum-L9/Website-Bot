@@ -47,8 +47,11 @@ const designTokens = siteConfig.designTokens as unknown as Record<string, string
 const designGroups: string[] = [];
 const designVars: string[] = [];
 for (const [group, keys] of Object.entries(LAYOUT_GROUPS)) {
-  const entries = Object.entries(keys).map(([token, cssVar]) => [cssVar, designTokens[token]] as const);
-  if (!entries.every(([, value]) => typeof value === "string" && SAFE_CSS_VALUE.test(value))) continue;
+  const entries = Object.entries(keys).map(
+    ([token, cssVar]) => [cssVar, designTokens[token]] as const,
+  );
+  if (!entries.every(([, value]) => typeof value === "string" && SAFE_CSS_VALUE.test(value)))
+    continue;
   designGroups.push(group);
   for (const [cssVar, value] of entries) designVars.push(`${cssVar}:${value}`);
 }

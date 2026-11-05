@@ -29,19 +29,31 @@ function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (typeof a !== typeof b || a === null || b === null) return false;
   if (Array.isArray(a) || Array.isArray(b)) {
-    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+    return (
+      Array.isArray(a) &&
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((v, i) => deepEqual(v, b[i]))
+    );
   }
   if (typeof a === "object") {
     const ka = Object.keys(a as object);
     const kb = Object.keys(b as object);
-    return ka.length === kb.length && ka.every((k) => Object.hasOwn(b as object, k) && deepEqual((a as any)[k], (b as any)[k]));
+    return (
+      ka.length === kb.length &&
+      ka.every((k) => Object.hasOwn(b as object, k) && deepEqual((a as any)[k], (b as any)[k]))
+    );
   }
   return false;
 }
 
 function titleFromPath(path: string): string {
   if (path === "/") return "Home";
-  return path.replace(/^\//, "").split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  return path
+    .replace(/^\//, "")
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
 function hasPlaceholderDeep(v: unknown): boolean {
@@ -60,16 +72,28 @@ const REQUIRED_PALETTE_KEYS = ["primary", "secondary"] as const;
 const BUILD_INTENTS = ["COPY", "REDESIGN_IMPROVE"] as const;
 
 function paletteIsComplete(colors: Record<string, unknown>): boolean {
-  return REQUIRED_PALETTE_KEYS.every((key) => typeof colors[key] === "string" && String(colors[key]).length > 0 && !hasPlaceholder(colors[key]));
+  return REQUIRED_PALETTE_KEYS.every(
+    (key) =>
+      typeof colors[key] === "string" &&
+      String(colors[key]).length > 0 &&
+      !hasPlaceholder(colors[key]),
+  );
 }
 
 function strings(value: unknown): string[] {
   return Array.isArray(value)
-    ? value.filter((entry): entry is string => typeof entry === "string").map((entry) => entry.trim()).filter(Boolean)
+    ? value
+        .filter((entry): entry is string => typeof entry === "string")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
     : [];
 }
 
-function setFact(facts: NonNullable<DomainSpec["business_facts"]>, key: string, value: unknown): void {
+function setFact(
+  facts: NonNullable<DomainSpec["business_facts"]>,
+  key: string,
+  value: unknown,
+): void {
   if (value === undefined || value === null || hasPlaceholderDeep(value)) return;
   if (typeof value === "string") {
     if (value.trim()) facts[key] = value.trim();
@@ -104,7 +128,9 @@ function deriveBusinessFacts(ds: any): DomainSpec["business_facts"] {
     "service_lines",
     (Array.isArray(ds.offer?.service_lines) ? ds.offer.service_lines : [])
       .map((line: any) => line?.name)
-      .filter((name: unknown): name is string => typeof name === "string" && name.trim().length > 0),
+      .filter(
+        (name: unknown): name is string => typeof name === "string" && name.trim().length > 0,
+      ),
   );
   setFact(facts, "credibility_claims", ds.authority?.credibility_claims);
 
@@ -167,28 +193,42 @@ function compileConversionAuthority(ds: any): ConversionAuthority | undefined {
   if (typeof primary !== "string" || !primary.trim()) return undefined;
   return {
     primary_action: primary.trim(),
-    secondary_actions: (Array.isArray(ds.conversion?.secondary_conversions) ? ds.conversion.secondary_conversions : [])
+    secondary_actions: (Array.isArray(ds.conversion?.secondary_conversions)
+      ? ds.conversion.secondary_conversions
+      : []
+    )
       .map((entry: any) => entry?.label)
-      .filter((entry: unknown): entry is string => typeof entry === "string" && entry.trim().length > 0)
+      .filter(
+        (entry: unknown): entry is string => typeof entry === "string" && entry.trim().length > 0,
+      )
       .map((entry: string) => entry.trim()),
     cta_library: strings(ds.conversion?.cta_library),
   };
 }
 
 function compileContentGuardrails(ds: any): ContentGuardrails | undefined {
-  const forbidden = [...strings(ds.content?.content_tone?.banned_claims), ...strings(ds.compliance?.prohibited_claims)];
+  const forbidden = [
+    ...strings(ds.content?.content_tone?.banned_claims),
+    ...strings(ds.compliance?.prohibited_claims),
+  ];
   const unique = [...new Set(forbidden)].sort((a, b) => a.localeCompare(b));
   return unique.length > 0 ? { forbidden_claims: unique } : undefined;
 }
 
 function leafPaths(value: unknown, prefix = ""): string[] {
   if (Array.isArray(value)) {
-    return value.length === 0 ? (prefix ? [prefix] : []) : value.flatMap((entry) => leafPaths(entry, `${prefix}[]`));
+    return value.length === 0
+      ? prefix
+        ? [prefix]
+        : []
+      : value.flatMap((entry) => leafPaths(entry, `${prefix}[]`));
   }
   if (isObject(value)) {
     const entries = Object.entries(value);
     return entries.length === 0
-      ? (prefix ? [prefix] : [])
+      ? prefix
+        ? [prefix]
+        : []
       : entries.flatMap(([key, child]) => leafPaths(child, prefix ? `${prefix}.${key}` : key));
   }
   return prefix ? [prefix] : [];
@@ -199,26 +239,76 @@ function matches(path: string, prefix: string): boolean {
 }
 
 function dispositionFor(path: string): SemanticDisposition | undefined {
-  const gates = ["authority.licenses", "compliance", "validation.blocking_gates", "design.design_status", "conversion.lead_capture.form_action"];
+  const gates = [
+    "authority.licenses",
+    "compliance",
+    "validation.blocking_gates",
+    "design.design_status",
+    "conversion.lead_capture.form_action",
+  ];
   const runtime = [
-    "build_intent", "business_facts", "value_proposition",
-    "identity.business_name", "identity.legal_name", "identity.canonical_url", "identity.tagline", "identity.brand_positioning", "identity.contact_placeholders",
-    "market.niche", "market.competitive_angle", "market.buying_triggers", "market.objections",
-    "audience", "offer", "conversion", "authority.credibility_claims", "authority.experience",
-    "geography.primary_regions", "geography.service_area_model",
-    "content.required_pages", "content.page_templates", "content.content_tone.banned_claims",
-    "seo", "design.brand_tokens", "client_vision", "design_references",
-    "assets.sourceSite", "assets.providedImages", "assets.imageSlots", "assets.generation",
+    "build_intent",
+    "business_facts",
+    "value_proposition",
+    "identity.business_name",
+    "identity.legal_name",
+    "identity.canonical_url",
+    "identity.tagline",
+    "identity.brand_positioning",
+    "identity.contact_placeholders",
+    "market.niche",
+    "market.competitive_angle",
+    "market.buying_triggers",
+    "market.objections",
+    "audience",
+    "offer",
+    "conversion",
+    "authority.credibility_claims",
+    "authority.experience",
+    "geography.primary_regions",
+    "geography.service_area_model",
+    "content.required_pages",
+    "content.page_templates",
+    "content.content_tone.banned_claims",
+    "seo",
+    "design.brand_tokens",
+    "client_vision",
+    "design_references",
+    "assets.sourceSite",
+    "assets.providedImages",
+    "assets.imageSlots",
+    "assets.generation",
   ];
   const provenance = [
-    "metadata", "identity.domain", "identity.logo_status",
-    "market.industry", "market.business_model", "market.monetization_model",
-    "authority.testimonials_status", "authority.case_studies",
-    "geography.excluded_regions", "geography.physical_locations", "geography.local_pages", "geography.map_embed",
-    "content.sitemap_strategy", "content.content_status", "content.content_tone.voice", "content.content_tone.reading_level", "content.faq_bank",
-    "design.visual_direction", "design.layout_rules", "design.accessibility_rules",
-    "integrations", "deployment", "validation.required_field_policy", "validation.unknown_field_policy", "validation.non_blocking_warnings",
-    "assets", "experiments", "future_outputs", "notes",
+    "metadata",
+    "identity.domain",
+    "identity.logo_status",
+    "market.industry",
+    "market.business_model",
+    "market.monetization_model",
+    "authority.testimonials_status",
+    "authority.case_studies",
+    "geography.excluded_regions",
+    "geography.physical_locations",
+    "geography.local_pages",
+    "geography.map_embed",
+    "content.sitemap_strategy",
+    "content.content_status",
+    "content.content_tone.voice",
+    "content.content_tone.reading_level",
+    "content.faq_bank",
+    "design.visual_direction",
+    "design.layout_rules",
+    "design.accessibility_rules",
+    "integrations",
+    "deployment",
+    "validation.required_field_policy",
+    "validation.unknown_field_policy",
+    "validation.non_blocking_warnings",
+    "assets",
+    "experiments",
+    "future_outputs",
+    "notes",
   ];
   if (gates.some((prefix) => matches(path, prefix))) return "GATE";
   if (runtime.some((prefix) => matches(path, prefix))) return "RUNTIME";
@@ -251,13 +341,26 @@ function compileSemanticProvenance(ds: any): SemanticProvenance {
 }
 
 export function buildFlatSpec(nested: unknown): DomainSpec {
-  const ds = (isObject(nested) && "domain_spec" in nested ? (nested as any).domain_spec : nested) as any;
+  const ds = (
+    isObject(nested) && "domain_spec" in nested ? (nested as any).domain_spec : nested
+  ) as any;
   const primaryRegions: string[] = ds.geography.primary_regions;
   const brandTokens = ds.design?.brand_tokens ?? {};
-  const structuredColors = isObject(brandTokens.colors) ? brandTokens.colors as Record<string, unknown> : undefined;
-  const designPending = ds.design?.design_status === "placeholder" || hasPlaceholderDeep(brandTokens) || (structuredColors !== undefined && !paletteIsComplete(structuredColors));
-  const templates = (ds.content.page_templates ?? []) as Array<{ template_name?: string; applies_to?: string[]; required_sections?: string[] }>;
-  const routes = (ds.content.required_pages as any[]).map((page) => routeFromRequiredPage(page, templates));
+  const structuredColors = isObject(brandTokens.colors)
+    ? (brandTokens.colors as Record<string, unknown>)
+    : undefined;
+  const designPending =
+    ds.design?.design_status === "placeholder" ||
+    hasPlaceholderDeep(brandTokens) ||
+    (structuredColors !== undefined && !paletteIsComplete(structuredColors));
+  const templates = (ds.content.page_templates ?? []) as Array<{
+    template_name?: string;
+    applies_to?: string[];
+    required_sections?: string[];
+  }>;
+  const routes = (ds.content.required_pages as any[]).map((page) =>
+    routeFromRequiredPage(page, templates),
+  );
   const leadFormAction: unknown = ds.conversion?.lead_capture?.form_action;
   const contact = ds.identity?.contact_placeholders ?? {};
 
@@ -292,7 +395,10 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
 function carryBuildIntent(ds: any, flat: DomainSpec): void {
   const intent = ds.build_intent;
   if (intent === undefined) return;
-  if (!BUILD_INTENTS.includes(intent)) throw new Error(`build_intent must be one of ${BUILD_INTENTS.join("|")}, got ${JSON.stringify(intent)}`);
+  if (!BUILD_INTENTS.includes(intent))
+    throw new Error(
+      `build_intent must be one of ${BUILD_INTENTS.join("|")}, got ${JSON.stringify(intent)}`,
+    );
   flat.build_intent = intent;
 }
 
@@ -315,8 +421,10 @@ function carryStructuredDesignTokens(ds: any, flat: DomainSpec): void {
   }
   if (isObject(brandTokens.typography)) {
     const fonts: Record<string, string> = {};
-    if (typeof brandTokens.typography.heading === "string") fonts.font_heading = brandTokens.typography.heading;
-    if (typeof brandTokens.typography.body === "string") fonts.font_body = brandTokens.typography.body;
+    if (typeof brandTokens.typography.heading === "string")
+      fonts.font_heading = brandTokens.typography.heading;
+    if (typeof brandTokens.typography.body === "string")
+      fonts.font_body = brandTokens.typography.body;
     if (Object.keys(fonts).length > 0) flat.design = { ...flat.design, fonts };
   }
 }
@@ -325,14 +433,17 @@ function routeFromRequiredPage(
   page: any,
   templates: Array<{ template_name?: string; applies_to?: string[]; required_sections?: string[] }>,
 ): DomainSpec["routes"][number] {
-  const template = templates.find((candidate) => candidate.template_name === page.template) ?? templates.find((candidate) => (candidate.applies_to ?? []).includes(page.path));
+  const template =
+    templates.find((candidate) => candidate.template_name === page.template) ??
+    templates.find((candidate) => (candidate.applies_to ?? []).includes(page.path));
   const route: DomainSpec["routes"][number] = {
     slug: page.path,
     title: page.title ?? titleFromPath(page.path),
     components: page.sections ?? template?.required_sections ?? [],
   };
   if (typeof page.purpose === "string" && page.purpose.trim()) route.purpose = page.purpose.trim();
-  if (typeof page.template === "string" && page.template.trim()) route.template = page.template.trim();
+  if (typeof page.template === "string" && page.template.trim())
+    route.template = page.template.trim();
   if (typeof page.priority === "number") route.priority = page.priority;
   if (page.noindex === true) route.noindex = true;
   return route;
@@ -343,35 +454,88 @@ function buildSeoContract(ds: any, leadFormAction: unknown, contact: any): any {
   const contract: Record<string, unknown> = {
     site_url: ds.identity.canonical_url,
     target_keywords: clusters.flatMap((cluster: any) => cluster.keywords as string[]),
-    route_targets: clusters.map((cluster: any) => ({ cluster_name: cluster.cluster_name, target_page: cluster.target_page, intent: cluster.intent, keywords: cluster.keywords })),
+    route_targets: clusters.map((cluster: any) => ({
+      cluster_name: cluster.cluster_name,
+      target_page: cluster.target_page,
+      intent: cluster.intent,
+      keywords: cluster.keywords,
+    })),
     metadata_rules: ds.seo.metadata_rules,
     schema_rules: ds.seo.schema_rules,
     schema_application: "per_route",
     internal_linking_rules: ds.seo.internal_linking_rules,
   };
-  if (typeof leadFormAction === "string" && leadFormAction.trim() && !hasPlaceholder(leadFormAction)) contract.lead_form_action = leadFormAction.trim();
-  if (typeof contact.phone === "string" && contact.phone.trim() && !hasPlaceholder(contact.phone)) contract.phone = contact.phone.trim();
+  if (
+    typeof leadFormAction === "string" &&
+    leadFormAction.trim() &&
+    !hasPlaceholder(leadFormAction)
+  )
+    contract.lead_form_action = leadFormAction.trim();
+  if (typeof contact.phone === "string" && contact.phone.trim() && !hasPlaceholder(contact.phone))
+    contract.phone = contact.phone.trim();
   return contract;
 }
 
-function buildWomFlags(ds: any, contact: any, leadFormAction: unknown, designPending: boolean, primaryRegions: string[]): DomainSpec["wom_flags"] {
+function buildWomFlags(
+  ds: any,
+  contact: any,
+  leadFormAction: unknown,
+  designPending: boolean,
+  primaryRegions: string[],
+): DomainSpec["wom_flags"] {
   const licenses = (ds.authority?.licenses ?? []) as any[];
   const stateRules = ds.compliance?.state_specific_rules;
-  const stateUnvalidated = stateRules?.validation_required_before_launch === true || stateRules?.status === "Unknown";
+  const stateUnvalidated =
+    stateRules?.validation_required_before_launch === true || stateRules?.status === "Unknown";
   return [
-    ...(hasPlaceholder(contact.phone) ? [{ key: "identity.contact.phone", value: "unresolved", severity: "warning" as const }] : []),
-    ...(hasPlaceholder(contact.email) ? [{ key: "identity.contact.email", value: "unresolved", severity: "warning" as const }] : []),
-    ...(hasPlaceholder(contact.address) ? [{ key: "identity.contact.address", value: "unresolved", severity: "warning" as const }] : []),
-    ...(hasPlaceholder(leadFormAction) ? [{ key: "conversion.lead_capture.form_action", value: "unresolved", severity: "error" as const }] : []),
-    ...(licenses.some((license) => hasPlaceholder(license?.license_number)) ? [{ key: "authority.license_number", value: "unresolved", severity: "error" as const }] : []),
-    ...((ds.compliance?.disclaimers ?? []) as any[]).filter((entry) => entry.required && hasPlaceholder(entry.text)).map((entry) => ({ key: `compliance.${entry.name}`, value: "unresolved", severity: "error" as const })),
-    ...(designPending ? [{ key: "design.brand_tokens", value: "placeholder", severity: "warning" as const }] : []),
-    ...(stateUnvalidated ? [{ key: "state_compliance_unvalidated", value: (stateRules?.affected_states ?? primaryRegions).join(","), severity: "warning" as const }] : []),
+    ...(hasPlaceholder(contact.phone)
+      ? [{ key: "identity.contact.phone", value: "unresolved", severity: "warning" as const }]
+      : []),
+    ...(hasPlaceholder(contact.email)
+      ? [{ key: "identity.contact.email", value: "unresolved", severity: "warning" as const }]
+      : []),
+    ...(hasPlaceholder(contact.address)
+      ? [{ key: "identity.contact.address", value: "unresolved", severity: "warning" as const }]
+      : []),
+    ...(hasPlaceholder(leadFormAction)
+      ? [
+          {
+            key: "conversion.lead_capture.form_action",
+            value: "unresolved",
+            severity: "error" as const,
+          },
+        ]
+      : []),
+    ...(licenses.some((license) => hasPlaceholder(license?.license_number))
+      ? [{ key: "authority.license_number", value: "unresolved", severity: "error" as const }]
+      : []),
+    ...((ds.compliance?.disclaimers ?? []) as any[])
+      .filter((entry) => entry.required && hasPlaceholder(entry.text))
+      .map((entry) => ({
+        key: `compliance.${entry.name}`,
+        value: "unresolved",
+        severity: "error" as const,
+      })),
+    ...(designPending
+      ? [{ key: "design.brand_tokens", value: "placeholder", severity: "warning" as const }]
+      : []),
+    ...(stateUnvalidated
+      ? [
+          {
+            key: "state_compliance_unvalidated",
+            value: (stateRules?.affected_states ?? primaryRegions).join(","),
+            severity: "warning" as const,
+          },
+        ]
+      : []),
   ];
 }
 
 function carryStructuredAssets(ds: any, flat: DomainSpec): void {
-  if (isObject(ds.assets) && ["sourceSite", "providedImages", "imageSlots", "generation"].some((key) => key in ds.assets)) {
+  if (
+    isObject(ds.assets) &&
+    ["sourceSite", "providedImages", "imageSlots", "generation"].some((key) => key in ds.assets)
+  ) {
     flat.assets = ds.assets as DomainSpec["assets"];
   }
 }
@@ -400,7 +564,10 @@ const COMMITTED_SPECS: ReadonlyArray<{ in: string; out: string }> = [
  * looking entirely deliberate; a one-sided flag now resolves only against a
  * committed pair, and an unrecognised path is an error rather than a guess.
  */
-function resolveTargets(inArg?: string, outArg?: string): ReadonlyArray<{ in: string; out: string }> {
+function resolveTargets(
+  inArg?: string,
+  outArg?: string,
+): ReadonlyArray<{ in: string; out: string }> {
   if (inArg === undefined && outArg === undefined) return COMMITTED_SPECS;
   if (inArg !== undefined && outArg !== undefined) return [{ in: inArg, out: outArg }];
   const side = inArg !== undefined ? "in" : "out";
@@ -426,7 +593,9 @@ function main() {
     if (check) {
       const committed = parse(readFileSync(outPath, "utf-8"));
       if (!deepEqual(flat, committed)) {
-        console.error(`normalize-spec --check FAILED: ${outPath} is stale.\nRegenerate with: tsx scripts/normalize-spec.ts`);
+        console.error(
+          `normalize-spec --check FAILED: ${outPath} is stale.\nRegenerate with: tsx scripts/normalize-spec.ts`,
+        );
         for (const key of Object.keys(flat)) {
           if (!deepEqual((flat as any)[key], (committed as any)?.[key])) {
             console.error(`  first diff at key: ${key}`);

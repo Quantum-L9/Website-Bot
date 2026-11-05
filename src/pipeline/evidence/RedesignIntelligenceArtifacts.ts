@@ -25,20 +25,20 @@ import {
   type IntelligenceArtifactType,
   type PageContentContractArtifact,
   refForArtifact,
-  sameArtifactRef,
   type SEOContentBlueprintArtifact,
   type StructuredContentPackageArtifact,
+  sameArtifactRef,
   type WebsiteBuildBlueprintArtifact,
   type WebsiteIntelligenceArtifact,
 } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../../core/logger.js";
 import type { DesignReferenceAcquisitionManifest } from "../../intelligence/DesignReferenceAcquisition.js";
+import type { AcceptedDonorEvidence } from "../../intelligence/DonorIngestion.js";
 import type {
   ClientVision,
   DesignReferenceIntelligence,
   DesignReferenceSet,
 } from "../../intelligence/design-authority.js";
-import type { AcceptedDonorEvidence } from "../../intelligence/DonorIngestion.js";
 import { type BuildContext, clientAssetRoot } from "../BuildContext.js";
 import { BuildError } from "../BuildError.js";
 import { sha256Text } from "./EvidenceCanonicalizer.js";
@@ -114,7 +114,9 @@ function atomicWrite(path: string, content: string): void {
   renameSync(temporary, path);
 }
 
-export function readRedesignIntelligenceIndex(ctx: Identity): RedesignIntelligenceIndex | undefined {
+export function readRedesignIntelligenceIndex(
+  ctx: Identity,
+): RedesignIntelligenceIndex | undefined {
   const path = indexPath(ctx);
   if (!existsSync(path)) return undefined;
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as Partial<RedesignIntelligenceIndex>;
@@ -177,7 +179,10 @@ export function persistRedesignArtifact(
   index.artifacts[name] = record;
   index.updated_at = now;
   atomicWrite(indexPath(ctx), `${JSON.stringify(index, null, 2)}\n`);
-  logger.info({ name, file: resolve(dir, file), sha256: record.sha256 }, "redesign artifact persisted");
+  logger.info(
+    { name, file: resolve(dir, file), sha256: record.sha256 },
+    "redesign artifact persisted",
+  );
   return record;
 }
 

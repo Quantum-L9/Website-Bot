@@ -84,9 +84,7 @@ export function emitRedesignExecutionIntegrityReceipt(
   const plan = require(ctx.imageAssetPlan, "image_asset_plan");
 
   const requiredSlots = plan.assets.filter((asset) => asset.required);
-  const requiredFilled = requiredSlots.filter(
-    (asset) => asset.resolution.source !== "unresolved",
-  );
+  const requiredFilled = requiredSlots.filter((asset) => asset.resolution.source !== "unresolved");
   const discovered = ctx.sourceSiteManifest?.images?.length ?? 0;
   const selected = decisions.filter((entry) => entry.decision === "SELECTED").length;
   const rejected = decisions.filter((entry) => entry.decision === "REJECTED").length;
@@ -143,9 +141,7 @@ export function emitRedesignExecutionIntegrityReceipt(
       unexplained_asset_loss: Math.max(0, discovered - decisions.length),
     },
     visual_qa: { status: ctx.qualityEvidence.visualQa },
-    ...(ctx.seoBotOrdering?.preflight_produced_at
-      ? { seo_bot_ordering: ctx.seoBotOrdering }
-      : {}),
+    ...(ctx.seoBotOrdering?.preflight_produced_at ? { seo_bot_ordering: ctx.seoBotOrdering } : {}),
     emitted_at: new Date().toISOString(),
   };
 }

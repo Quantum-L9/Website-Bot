@@ -8,7 +8,8 @@ const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
   .filter(Boolean);
-const heading = paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
+const heading =
+  paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
 const lead = paragraphs.shift();
 const label = name.replaceAll("_", " ");
 ---

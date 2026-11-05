@@ -16,12 +16,7 @@
     "ORACLE-075",
     "ORACLE-076"
   ],
-  "vacuous_but_backstopped": [
-    "ORACLE-020",
-    "ORACLE-021",
-    "ORACLE-022",
-    "ORACLE-085"
-  ],
+  "vacuous_but_backstopped": ["ORACLE-020", "ORACLE-021", "ORACLE-022", "ORACLE-085"],
   "inert_properties": [],
   "probes": [
     {

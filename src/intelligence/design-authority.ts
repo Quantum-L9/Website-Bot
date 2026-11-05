@@ -98,13 +98,7 @@ export interface DesignReference {
   principles: DesignReferencePrinciples;
   /** Present once the acquisition stage has run for this reference. */
   acquisition?: {
-    status:
-      | "acquired"
-      | "no_url"
-      | "invalid_url"
-      | "forbidden_host"
-      | "unreachable"
-      | "not_html";
+    status: "acquired" | "no_url" | "invalid_url" | "forbidden_host" | "unreachable" | "not_html";
     fetched_at: string;
     final_url?: string;
     content_digest?: string;
@@ -346,7 +340,8 @@ export function resolveDesignReferenceSet(spec: DomainSpec): DesignReferenceSet 
     seen.add(referenceId);
 
     if (entry.accepted === false) {
-      const reason = typeof entry.rejection_reason === "string" ? entry.rejection_reason.trim() : "";
+      const reason =
+        typeof entry.rejection_reason === "string" ? entry.rejection_reason.trim() : "";
       if (!reason) {
         throw new DesignAuthorityError(
           "DESIGN_REFERENCE_INVALID",
@@ -372,7 +367,10 @@ export function resolveDesignReferenceSet(spec: DomainSpec): DesignReferenceSet 
       reference_id: referenceId,
       ...(typeof entry.url === "string" ? { url: entry.url } : {}),
       selection_reason: selectionReason,
-      evidence_refs: strings(entry.evidence_refs, `design_references[${referenceId}].evidence_refs`),
+      evidence_refs: strings(
+        entry.evidence_refs,
+        `design_references[${referenceId}].evidence_refs`,
+      ),
       principles: referencePrinciples(entry.principles, referenceId),
     });
   }
@@ -455,7 +453,8 @@ export function resolvePaletteAuthority(input: {
     a.localeCompare(b),
   );
 
-  const firstParty = input.spec.design?.status === "resolved" ? input.spec.design.palette : undefined;
+  const firstParty =
+    input.spec.design?.status === "resolved" ? input.spec.design.palette : undefined;
   let authority: PaletteAuthority;
   if (firstParty && Object.keys(firstParty).length > 0) {
     authority = {
@@ -557,7 +556,10 @@ export function resolveDesignDirection(input: {
   };
 
   assertNoRawExpressionTransfer(direction.principles, "design_direction.principles");
-  assertNoRawExpressionTransfer(direction.desired_attributes, "design_direction.desired_attributes");
+  assertNoRawExpressionTransfer(
+    direction.desired_attributes,
+    "design_direction.desired_attributes",
+  );
   assertNoRawExpressionTransfer(
     direction.rejected_attributes,
     "design_direction.rejected_attributes",
@@ -636,7 +638,9 @@ export function abstractPaletteCharacteristics(
   }
   const primary = observed.primary ? hexLuminance(observed.primary) : null;
   if (primary !== null && background !== null) {
-    characteristics.push(Math.abs(primary - background) > 0.35 ? "assertive-accent" : "restrained-accent");
+    characteristics.push(
+      Math.abs(primary - background) > 0.35 ? "assertive-accent" : "restrained-accent",
+    );
   }
   return [...new Set(characteristics)].sort((a, b) => a.localeCompare(b));
 }

@@ -178,9 +178,7 @@ test("resolved license facts preserve type, jurisdictions, and license number", 
       },
     }),
   );
-  assert.deepEqual(flat.business_facts?.licenses, [
-    "public_adjuster TN NC GA PA-12345",
-  ]);
+  assert.deepEqual(flat.business_facts?.licenses, ["public_adjuster TN NC GA PA-12345"]);
 });
 
 test("explicit business_facts override compiler-derived keys", () => {
@@ -197,20 +195,13 @@ test("carries build_intent and rejects unknown values", () => {
     "REDESIGN_IMPROVE",
   );
   assert.equal(buildFlatSpec(rich({})).build_intent, undefined);
-  assert.throws(
-    () => buildFlatSpec(rich({ build_intent: "UPGRADE" })),
-    /build_intent must be/,
-  );
+  assert.throws(() => buildFlatSpec(rich({ build_intent: "UPGRADE" })), /build_intent must be/);
 });
 
 test("carries client design authority without pre-translating it", () => {
-  const references = [
-    { reference_id: "linear", accepted: false, rejection_reason: "too generic" },
-  ];
+  const references = [{ reference_id: "linear", accepted: false, rejection_reason: "too generic" }];
   const vision = { brand_attributes: ["calm"], palette: { primary: "#112233" } };
-  const flat = buildFlatSpec(
-    rich({ client_vision: vision, design_references: references }),
-  );
+  const flat = buildFlatSpec(rich({ client_vision: vision, design_references: references }));
   assert.deepEqual(flat.client_vision, vision);
   assert.deepEqual(flat.design_references, references);
   assert.throws(

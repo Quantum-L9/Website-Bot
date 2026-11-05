@@ -11,13 +11,13 @@ import {
   type WebsiteFactoryHandoffV3,
 } from "../contracts/WebsiteFactoryHandoffV3.js";
 import { createModuleLogger } from "../core/logger.js";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import type { StageCheckpoint } from "../pipeline/StageCheckpoint.js";
 import { recordWebsiteRelease } from "../services/memory.js";
 import { normalizeRouteSlug } from "../validation/validate-generated-site.js";
-import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 const logger = createModuleLogger("stage:handoff-emitter");
 const CONVENIENCE_OUTPUT_PATH = "contracts/website_factory_integration.yaml";
