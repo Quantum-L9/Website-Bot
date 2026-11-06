@@ -68,4 +68,3 @@ Numbered ADRs live in [`docs/adr/`](docs/adr/README.md). Design notes that are
 not numbered decisions live in [`docs/architecture/`](docs/architecture/README.md).
 Historical source docs that those ADRs were extracted from live in
 [`docs/archive/`](docs/archive/README.md).
-
