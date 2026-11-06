@@ -235,102 +235,426 @@ function plannedRenderer(componentClass: string): string {
   return resolution.kind === "registered" ? resolution.name : normalized;
 }
 
+/** Where a finding sits, for findings on an emitted section. */
+interface SectionWhere {
+  route: string;
+  sectionId: string;
+}
+
+const ctaText = (cta: { label: string; href: string } | null): string =>
+  cta ? `"${cta.label}" → ${JSON.stringify(cta.href)}` : "no CTA";
+
+/** T03 (renderer): a section renders through the component its blueprint class names. */
+function rendererFindings(
+  where: SectionWhere,
+  section: EmittedPageSection,
+  componentClass: string | undefined,
+): ContractFinding[] {
+  if (!componentClass) return [];
+  const want = plannedRenderer(componentClass);
+  if (section.name === want) return [];
+  return [
+    { id: "T03", ...where, expected: `renderer ${want}`, actual: `renderer ${section.name}` },
+  ];
+}
+
+/** T02 / T03 (blocks): the approved copy, verbatim, in its approved structure. */
+function copyFindings(
+  where: SectionWhere,
+  got: EmittedPageSection["structured"],
+  approved: StructuredContentRoute["sections"][number],
+): ContractFinding[] {
+  const sameHeads =
+    got.heading === approved.heading &&
+    got.eyebrow === approved.eyebrow &&
+    got.subheading === approved.subheading;
+  if (!sameHeads || blockText(got.blocks) !== blockText(approved.blocks)) {
+    return [
+      {
+        id: "T02",
+        ...where,
+        expected: `${approved.heading ?? ""} | ${blockText(approved.blocks)}`,
+        actual: `${got.heading ?? ""} | ${blockText(got.blocks)}`,
+      },
+    ];
+  }
+  if (JSON.stringify(got.blocks) === JSON.stringify(approved.blocks)) return [];
+  return [
+    {
+      id: "T03",
+      ...where,
+      expected: approved.blocks.map((block) => block.kind).join(","),
+      actual: got.blocks.map((block) => (block as { kind?: string }).kind ?? "?").join(","),
+    },
+  ];
+}
+
+/** T02 (FAQs): the route's approved FAQs reach the planned FAQ section, verbatim. */
+function faqFindings(
+  where: SectionWhere,
+  got: EmittedPageSection["structured"],
+  approvedFaqs: StructuredContentRoute["faqs"],
+): ContractFinding[] {
+  if (approvedFaqs.length === 0) return [];
+  if (JSON.stringify(got.faqs ?? []) === JSON.stringify(approvedFaqs)) return [];
+  const state = got.faqs ? "differs" : "missing";
+  return [
+    {
+      id: "T02",
+      ...where,
+      expected: `${approvedFaqs.length} approved FAQ(s)`,
+      actual: `${got.faqs?.length ?? 0} rendered FAQ(s), content ${state}`,
+    },
+  ];
+}
+
+/** T04: a CTA renders exactly when its approved action has a derivable destination. */
+function ctaFindings(
+  accepted: AcceptedInputs,
+  where: SectionWhere,
+  got: EmittedPageSection["structured"],
+  approved: StructuredContentRoute["sections"][number],
+): ContractFinding[] {
+  const label = approved.cta?.label;
+  const wantHref = approved.cta ? expectedCtaHref(accepted, approved.cta.action) : undefined;
+  if (wantHref === undefined) {
+    if (!got.cta) return [];
+    const expected = "no link (no verified destination)";
+    return [{ id: "T04", ...where, expected, actual: ctaText(got.cta) }];
+  }
+  if (got.cta?.href === wantHref && got.cta.label === label) return [];
+  return [{ id: "T04", ...where, expected: `"${label}" → ${wantHref}`, actual: ctaText(got.cta) }];
+}
+
+/** T01–T04 for one blueprint route. */
+function checkRoute(
+  accepted: AcceptedInputs,
+  route: WebsiteBlueprintRoute,
+  emitted: readonly EmittedPageSection[],
+  approvedRoute: StructuredContentRoute | undefined,
+): ContractFinding[] {
+  const findings: ContractFinding[] = [];
+  const expectedOrder = route.sections.map((section) => section.section_id);
+  const actualOrder = emitted.map((section) => section.sectionId);
+  if (JSON.stringify(expectedOrder) !== JSON.stringify(actualOrder)) {
+    findings.push({
+      id: "T01",
+      route: route.route_id,
+      expected: expectedOrder.join(" > "),
+      actual: actualOrder.join(" > "),
+    });
+  }
+  const content = new Map((approvedRoute?.sections ?? []).map((s) => [s.section_id, s]));
+  const faqSection = blueprintSectionRendering(route, "faq");
+  const planned = new Map(route.sections.map((s) => [s.section_id, s.component_class]));
+  for (const section of emitted) {
+    const where = { route: route.route_id, sectionId: section.sectionId };
+    const got = section.structured;
+    findings.push(...rendererFindings(where, section, planned.get(section.sectionId)));
+    const approved = content.get(section.sectionId);
+    if (!approved) {
+      const actual = got.heading ?? "(copy)";
+      findings.push({ id: "T02", ...where, expected: "no unapproved copy", actual });
+      continue;
+    }
+    findings.push(...copyFindings(where, got, approved));
+    if (section.sectionId === faqSection) {
+      findings.push(...faqFindings(where, got, approvedRoute?.faqs ?? []));
+    }
+    findings.push(...ctaFindings(accepted, where, got, approved));
+  }
+  return findings;
+}
+
 /** T01–T04: the pages execute the blueprint and carry the approved copy. */
 function checkPages(accepted: AcceptedInputs, site: AssembledSite): ContractFinding[] {
-  const findings: ContractFinding[] = [];
-  const scp = new Map<string, StructuredContentRoute>(
+  const approved = new Map<string, StructuredContentRoute>(
     accepted.contentPackage.payload.routes.map((route) => [route.route_id, route]),
   );
-  for (const route of accepted.blueprint.payload.routes) {
-    const emitted = site.pages.get(route.route_id) ?? [];
-    const expectedOrder = route.sections.map((section) => section.section_id);
-    const actualOrder = emitted.map((section) => section.sectionId);
-    if (JSON.stringify(expectedOrder) !== JSON.stringify(actualOrder)) {
+  return accepted.blueprint.payload.routes.flatMap((route) =>
+    checkRoute(accepted, route, site.pages.get(route.route_id) ?? [], approved.get(route.route_id)),
+  );
+}
+
+/** Everything the image checks derive from the accepted inputs, computed once. */
+interface ImageScope {
+  site: AssembledSite;
+  provided: ProvidedImage[];
+  assignedTo: Map<string, ProvidedImage>;
+  planned: Map<string, ImageAssetPlan["assets"][number]>;
+  inputDigests: Map<string, string>;
+  knownInput: Set<string>;
+  blueprintRoutes: Map<string, WebsiteBlueprintRoute>;
+}
+
+type ProvidedImage = NonNullable<NonNullable<DomainSpec["assets"]>["providedImages"]>[number];
+type Requirement = VisualRequirement;
+type Resolution = ImageAssetPlan["assets"][number]["resolution"] | undefined;
+
+function imageScope(
+  accepted: AcceptedInputs,
+  site: AssembledSite,
+  plan: ImageAssetPlan | undefined,
+): ImageScope {
+  const provided = accepted.domainSpec.assets?.providedImages ?? [];
+  const inputDigests = new Map(
+    provided
+      .filter((image) => existsSync(inputPath(image.path)))
+      .map((image) => [image.id, sha256(readFileSync(inputPath(image.path)))]),
+  );
+  return {
+    site,
+    provided,
+    assignedTo: new Map(
+      provided
+        .filter((image) => image.intendedPlacement)
+        .map((image) => [image.intendedPlacement as string, image]),
+    ),
+    planned: new Map((plan?.assets ?? []).map((asset) => [asset.placement, asset])),
+    inputDigests,
+    knownInput: new Set(inputDigests.values()),
+    blueprintRoutes: new Map(accepted.blueprint.payload.routes.map((r) => [r.route_id, r])),
+  };
+}
+
+/** The bytes actually published for a registry entry ("missing" when absent). */
+function publishedDigest(site: AssembledSite, entry: RegistryEntry): string {
+  const file = join(site.outputDir, "public", entry.src);
+  return existsSync(file) ? sha256(readFileSync(file)) : "missing";
+}
+
+/** Every emitted section (`<route>#<section>`) a placement is bound to. */
+function boundTo(site: AssembledSite, placement: string): string[] {
+  return [...site.pages.entries()].flatMap(([slug, sections]) =>
+    sections
+      .filter((section) => section.imagePlacement === placement)
+      .map((section) => `${slug}#${section.sectionId}`),
+  );
+}
+
+function describeResolution(resolution: Resolution): string {
+  if (!resolution) return "none";
+  const candidate = "candidateId" in resolution ? ` ${resolution.candidateId}` : "";
+  return `${resolution.source}${candidate}`;
+}
+
+/** T07, then T06/T08: an assigned client image is selected, published, and byte-identical. */
+function assignmentFindings(
+  scope: ImageScope,
+  placement: string,
+  requirement: Requirement,
+  assigned: ProvidedImage,
+): ContractFinding[] {
+  const findings: ContractFinding[] = [];
+  const resolution = scope.planned.get(placement)?.resolution;
+  const published = scope.site.images[placement];
+  const selected =
+    resolution?.source === "provided" &&
+    "candidateId" in resolution &&
+    resolution.candidateId === assigned.id;
+  if (!selected || (published && published.source !== "provided")) {
+    findings.push({
+      id: "T07",
+      placement,
+      expected: `provided ${assigned.id}`,
+      actual: `plan ${describeResolution(resolution)}, published ${published?.source ?? "none"}`,
+    });
+  } else if (!published && requirement.route_id === "global") {
+    const expected = `published ${assigned.id}`;
+    findings.push({ id: "T07", placement, expected, actual: "not published" });
+  }
+  // The published bytes are that client file — not another supplied file (a
+  // swap, T06) and not altered bytes (a modification, T08) — whatever source
+  // label the registry carries.
+  if (!published) return findings;
+  const got = publishedDigest(scope.site, published);
+  if (got === scope.inputDigests.get(assigned.id)) return findings;
+  findings.push({
+    id: scope.knownInput.has(got) ? "T06" : "T08",
+    route: requirement.route_id,
+    placement,
+    expected: `the bytes of ${assigned.id}`,
+    actual: got === "missing" ? `missing ${published.src}` : `sha256 ${got.slice(0, 12)}`,
+  });
+  return findings;
+}
+
+/** T10 / T09: generated (by plan or registry) only where neither factual nor supplied. */
+function generationFindings(
+  scope: ImageScope,
+  placement: string,
+  assigned: ProvidedImage | undefined,
+): ContractFinding[] {
+  const generated =
+    scope.planned.get(placement)?.resolution.source === "generated" ||
+    scope.site.images[placement]?.source === "generated";
+  if (!generated) return [];
+  if (INV09_FACTUAL_ROLES.includes(placementRole(placement))) {
+    const expected = "a real client asset or unresolved";
+    return [{ id: "T10", placement, expected, actual: "generated" }];
+  }
+  if (!assigned) return [];
+  const expected = `no generation (client image ${assigned.id} was supplied)`;
+  return [{ id: "T09", placement, expected, actual: "generated" }];
+}
+
+/** T05: a fulfilled hero is published and shown only in the route's hero section. */
+function heroFindings(
+  scope: ImageScope,
+  placement: string,
+  requirement: Requirement,
+): ContractFinding[] {
+  const resolution = scope.planned.get(placement)?.resolution;
+  const published = scope.site.images[placement];
+  // A generated hero not yet published is the generation stage's to produce.
+  if (resolution?.source === "generated" && !published) return [];
+  const route = scope.blueprintRoutes.get(requirement.route_id);
+  const heroSection = (route && blueprintSectionRendering(route, "hero")) ?? requirement.section_id;
+  const heroEmitted = (scope.site.pages.get(requirement.route_id) ?? []).find(
+    (section) => section.sectionId === heroSection,
+  );
+  const bound = boundTo(scope.site, placement);
+  const elsewhere = bound.filter((key) => key !== `${requirement.route_id}#${heroSection}`);
+  const shown = heroEmitted?.name === "hero" || (bound.length === 1 && elsewhere.length === 0);
+  if (published && shown && elsewhere.length === 0) return [];
+  return [
+    {
+      id: "T05",
+      route: requirement.route_id,
+      sectionId: heroSection,
+      placement,
+      expected: `published and shown only in section ${heroSection}`,
+      actual: published
+        ? `also bound to [${elsewhere.join(", ")}]`
+        : "not in the published image registry",
+    },
+  ];
+}
+
+/** T06: a published slot image is bound once, to its own accepted section. */
+function slotBindingFindings(
+  scope: ImageScope,
+  placement: string,
+  requirement: Requirement,
+): ContractFinding[] {
+  const where = {
+    route: requirement.route_id,
+    sectionId: requirement.section_id,
+    placement,
+  };
+  if (!scope.site.images[placement]) {
+    // A selected client or source-site image that never reached the registry.
+    const generated = scope.planned.get(placement)?.resolution.source === "generated";
+    return generated
+      ? []
+      : [{ id: "T06", ...where, expected: "published", actual: "not published" }];
+  }
+  const want = `${requirement.route_id}#${requirement.section_id}`;
+  const bound = boundTo(scope.site, placement);
+  if (bound.length === 1 && bound[0] === want) return [];
+  return [
+    {
+      id: "T06",
+      ...where,
+      expected: `bound once, to ${want}`,
+      actual: `bound to [${bound.join(", ")}]`,
+    },
+  ];
+}
+
+/** T05–T10 for one requirement placement. */
+function placementFindings(
+  scope: ImageScope,
+  placement: string,
+  requirement: Requirement,
+): ContractFinding[] {
+  const assigned = scope.assignedTo.get(placement);
+  const findings = [
+    ...(assigned ? assignmentFindings(scope, placement, requirement, assigned) : []),
+    ...generationFindings(scope, placement, assigned),
+  ];
+  if (requirement.route_id === "global") return findings;
+  const resolution = scope.planned.get(placement)?.resolution;
+  const fulfilled = resolution !== undefined && resolution.source !== "unresolved";
+  if (!fulfilled && !scope.site.images[placement]) return findings;
+  if (placementRole(placement) === "hero") {
+    findings.push(...heroFindings(scope, placement, requirement));
+  } else {
+    findings.push(...slotBindingFindings(scope, placement, requirement));
+  }
+  return findings;
+}
+
+/**
+ * T10 everywhere: no published identity or factual imagery is synthetic,
+ * including registry keys and gallery entries no requirement names.
+ */
+function unnamedSyntheticFindings(
+  site: AssembledSite,
+  requirements: ReadonlyMap<string, Requirement>,
+): ContractFinding[] {
+  const registry = Object.entries(site.images)
+    .filter(
+      ([key, entry]) =>
+        entry.source === "generated" &&
+        INV09_FACTUAL_ROLES.includes(placementRole(key)) &&
+        !requirements.has(key),
+    )
+    .map(
+      ([key, entry]): ContractFinding => ({
+        id: "T10",
+        placement: key,
+        expected: "no synthetic asset published",
+        actual: entry.src,
+      }),
+    );
+  const gallery = site.gallery
+    .filter((entry) => entry.source === "generated")
+    .map(
+      (entry): ContractFinding => ({
+        id: "T10",
+        placement: "gallery",
+        expected: "no synthetic gallery photo",
+        actual: entry.src,
+      }),
+    );
+  return [...registry, ...gallery];
+}
+
+/**
+ * T08 for the gallery inventory: every unplaced, non-logo client photo is
+ * published once with its own bytes, and nothing else claims to be one.
+ */
+function galleryFindings(scope: ImageScope): ContractFinding[] {
+  const findings: ContractFinding[] = [];
+  const unplaced = scope.provided.filter(
+    (image) =>
+      !image.intendedPlacement &&
+      !/(^|[^a-z0-9])logo($|[^a-z0-9])/i.test(`${image.id} ${image.path}`),
+  );
+  const digests = scope.site.gallery
+    .filter((entry) => entry.source === "provided")
+    .map((entry) => publishedDigest(scope.site, entry));
+  for (const image of unplaced) {
+    const want = scope.inputDigests.get(image.id);
+    const matches = digests.filter((digest) => digest === want).length;
+    if (want && matches !== 1) {
       findings.push({
-        id: "T01",
-        route: route.route_id,
-        expected: expectedOrder.join(" > "),
-        actual: actualOrder.join(" > "),
+        id: "T08",
+        placement: `gallery:${image.id}`,
+        expected: `${image.id} published once with its own bytes`,
+        actual: `${matches} matching gallery file(s)`,
       });
     }
-    const approvedRoute = scp.get(route.route_id);
-    const content = new Map((approvedRoute?.sections ?? []).map((s) => [s.section_id, s]));
-    const faqSection = blueprintSectionRendering(route, "faq");
-    const planned = new Map(route.sections.map((s) => [s.section_id, s.component_class]));
-    for (const section of emitted) {
-      const where = { route: route.route_id, sectionId: section.sectionId };
-      const approved = content.get(section.sectionId);
-      const got = section.structured;
-      // T03: each section renders through the component its blueprint class names.
-      const componentClass = planned.get(section.sectionId);
-      if (componentClass && section.name !== plannedRenderer(componentClass)) {
-        findings.push({
-          id: "T03",
-          ...where,
-          expected: `renderer ${plannedRenderer(componentClass)}`,
-          actual: `renderer ${section.name}`,
-        });
-      }
-      if (!approved) {
-        findings.push({
-          id: "T02",
-          ...where,
-          expected: "no unapproved copy",
-          actual: got.heading ?? "(copy)",
-        });
-        continue;
-      }
-      const sameHeads =
-        got.heading === approved.heading &&
-        got.eyebrow === approved.eyebrow &&
-        got.subheading === approved.subheading;
-      if (!sameHeads || blockText(got.blocks) !== blockText(approved.blocks)) {
-        findings.push({
-          id: "T02",
-          ...where,
-          expected: `${approved.heading ?? ""} | ${blockText(approved.blocks)}`,
-          actual: `${got.heading ?? ""} | ${blockText(got.blocks)}`,
-        });
-      } else if (JSON.stringify(got.blocks) !== JSON.stringify(approved.blocks)) {
-        findings.push({
-          id: "T03",
-          ...where,
-          expected: approved.blocks.map((block) => block.kind).join(","),
-          actual: got.blocks.map((block) => (block as { kind?: string }).kind ?? "?").join(","),
-        });
-      }
-      // The route's approved FAQs reach the planned FAQ section, verbatim.
-      if (section.sectionId === faqSection && (approvedRoute?.faqs.length ?? 0) > 0) {
-        if (JSON.stringify(got.faqs ?? []) !== JSON.stringify(approvedRoute?.faqs)) {
-          findings.push({
-            id: "T02",
-            ...where,
-            expected: `${approvedRoute?.faqs.length} approved FAQ(s)`,
-            actual: `${got.faqs?.length ?? 0} rendered FAQ(s), content ${got.faqs ? "differs" : "missing"}`,
-          });
-        }
-      }
-      // T04: a CTA renders exactly when its approved action has a derivable destination.
-      const wantHref = approved.cta ? expectedCtaHref(accepted, approved.cta.action) : undefined;
-      const gotDesc = got.cta ? `"${got.cta.label}" → ${JSON.stringify(got.cta.href)}` : "no CTA";
-      if (wantHref) {
-        if (!got.cta || got.cta.href !== wantHref || got.cta.label !== approved.cta?.label) {
-          findings.push({
-            id: "T04",
-            ...where,
-            expected: `"${approved.cta?.label}" → ${wantHref}`,
-            actual: gotDesc,
-          });
-        }
-      } else if (got.cta) {
-        findings.push({
-          id: "T04",
-          ...where,
-          expected: "no link (no verified destination)",
-          actual: gotDesc,
-        });
-      }
-    }
+  }
+  const expected = new Set(unplaced.map((image) => scope.inputDigests.get(image.id)));
+  for (const digest of digests.filter((value) => !expected.has(value))) {
+    findings.push({
+      id: "T08",
+      placement: "gallery",
+      expected: "only unplaced client photos, unchanged",
+      actual: digest === "missing" ? "missing file" : `sha256 ${digest.slice(0, 12)}`,
+    });
   }
   return findings;
 }
@@ -341,208 +665,15 @@ function checkImages(
   site: AssembledSite,
   plan: ImageAssetPlan | undefined,
 ): ContractFinding[] {
-  const findings: ContractFinding[] = [];
   const requirements = requirementPlacements(accepted.blueprint.payload.visual_requirements);
-  const provided = accepted.domainSpec.assets?.providedImages ?? [];
-  const assignedTo = new Map(
-    provided
-      .filter((image) => image.intendedPlacement)
-      .map((image) => [image.intendedPlacement as string, image]),
-  );
-  const planned = new Map((plan?.assets ?? []).map((asset) => [asset.placement, asset]));
-  const inputDigests = new Map(
-    provided
-      .filter((image) => existsSync(inputPath(image.path)))
-      .map((image) => [image.id, sha256(readFileSync(inputPath(image.path)))]),
-  );
-  const knownInput = new Set(inputDigests.values());
-  const digestOf = (entry: RegistryEntry): string => {
-    const file = join(site.outputDir, "public", entry.src);
-    return existsSync(file) ? sha256(readFileSync(file)) : "missing";
-  };
-  const blueprintRoutes = new Map(accepted.blueprint.payload.routes.map((r) => [r.route_id, r]));
-  const boundTo = (placement: string): string[] =>
-    [...site.pages.entries()].flatMap(([slug, sections]) =>
-      sections
-        .filter((section) => section.imagePlacement === placement)
-        .map((section) => `${slug}#${section.sectionId}`),
-    );
-
-  for (const [placement, requirement] of requirements) {
-    const role = placementRole(placement);
-    const resolution = planned.get(placement)?.resolution;
-    const published = site.images[placement];
-    const assigned = assignedTo.get(placement);
-    const generated = resolution?.source === "generated" || published?.source === "generated";
-
-    if (assigned) {
-      // T07: the assigned client image is the slot's selected AND published asset.
-      const selected =
-        resolution?.source === "provided" &&
-        "candidateId" in resolution &&
-        resolution.candidateId === assigned.id;
-      if (!selected || (published && published.source !== "provided")) {
-        findings.push({
-          id: "T07",
-          placement,
-          expected: `provided ${assigned.id}`,
-          actual: `plan ${resolution?.source ?? "none"}${resolution && "candidateId" in resolution ? ` ${resolution.candidateId}` : ""}, published ${published?.source ?? "none"}`,
-        });
-      } else if (!published && requirement.route_id === "global") {
-        findings.push({
-          id: "T07",
-          placement,
-          expected: `published ${assigned.id}`,
-          actual: "not published",
-        });
-      }
-      // T06 / T08: the published bytes are that client file — not another
-      // supplied file (a swap) and not altered bytes (a modification) —
-      // whatever source label the registry carries.
-      if (published) {
-        const got = digestOf(published);
-        if (got !== inputDigests.get(assigned.id)) {
-          findings.push({
-            id: knownInput.has(got) ? "T06" : "T08",
-            route: requirement.route_id,
-            placement,
-            expected: `the bytes of ${assigned.id}`,
-            actual: got === "missing" ? `missing ${published.src}` : `sha256 ${got.slice(0, 12)}`,
-          });
-        }
-      }
-    }
-    if (generated) {
-      if (INV09_FACTUAL_ROLES.includes(role)) {
-        findings.push({
-          id: "T10",
-          placement,
-          expected: "a real client asset or unresolved",
-          actual: "generated",
-        });
-      } else if (assigned) {
-        findings.push({
-          id: "T09",
-          placement,
-          expected: `no generation (client image ${assigned.id} was supplied)`,
-          actual: "generated",
-        });
-      }
-    }
-
-    if (requirement.route_id === "global") continue;
-    const fulfilled = Boolean(resolution && resolution.source !== "unresolved");
-    if (!fulfilled && !published) continue;
-    const bound = boundTo(placement);
-    if (role === "hero") {
-      // T05: a fulfilled hero is published and shown only in the route's hero section.
-      const route = blueprintRoutes.get(requirement.route_id);
-      const heroSection =
-        (route && blueprintSectionRendering(route, "hero")) ?? requirement.section_id;
-      const heroEmitted = (site.pages.get(requirement.route_id) ?? []).find(
-        (section) => section.sectionId === heroSection,
-      );
-      const elsewhere = bound.filter((key) => key !== `${requirement.route_id}#${heroSection}`);
-      const shown =
-        heroEmitted?.name === "hero" ? true : bound.length === 1 && elsewhere.length === 0;
-      if (resolution?.source !== "generated" || published) {
-        if (!published || !shown || elsewhere.length > 0) {
-          findings.push({
-            id: "T05",
-            route: requirement.route_id,
-            sectionId: heroSection,
-            placement,
-            expected: `published and shown only in section ${heroSection}`,
-            actual: !published
-              ? "not in the published image registry"
-              : `also bound to [${elsewhere.join(", ")}]`,
-          });
-        }
-      }
-    } else if (published) {
-      // T06: a published slot image is bound once, to its own accepted section.
-      const want = `${requirement.route_id}#${requirement.section_id}`;
-      if (bound.length !== 1 || bound[0] !== want) {
-        findings.push({
-          id: "T06",
-          route: requirement.route_id,
-          sectionId: requirement.section_id,
-          placement,
-          expected: `bound once, to ${want}`,
-          actual: `bound to [${bound.join(", ")}]`,
-        });
-      }
-    } else if (resolution?.source !== "generated") {
-      // A selected client or source-site image that never reached the registry.
-      findings.push({
-        id: "T06",
-        route: requirement.route_id,
-        sectionId: requirement.section_id,
-        placement,
-        expected: "published",
-        actual: "not published",
-      });
-    }
-  }
-
-  // T10 everywhere: no published identity or factual imagery is synthetic,
-  // including registry keys and gallery entries no requirement names.
-  for (const [key, entry] of Object.entries(site.images)) {
-    if (
-      entry.source === "generated" &&
-      INV09_FACTUAL_ROLES.includes(placementRole(key)) &&
-      !requirements.has(key)
-    ) {
-      findings.push({
-        id: "T10",
-        placement: key,
-        expected: "no synthetic asset published",
-        actual: entry.src,
-      });
-    }
-  }
-  for (const entry of site.gallery) {
-    if (entry.source === "generated") {
-      findings.push({
-        id: "T10",
-        placement: "gallery",
-        expected: "no synthetic gallery photo",
-        actual: entry.src,
-      });
-    }
-  }
-
-  // T08 for the gallery inventory: every unplaced, non-logo client photo is
-  // published once with its own bytes, and nothing else claims to be one.
-  const unplaced = provided.filter(
-    (image) =>
-      !image.intendedPlacement &&
-      !/(^|[^a-z0-9])logo($|[^a-z0-9])/i.test(`${image.id} ${image.path}`),
-  );
-  const galleryDigests = site.gallery.filter((entry) => entry.source === "provided").map(digestOf);
-  for (const image of unplaced) {
-    const want = inputDigests.get(image.id);
-    if (want && galleryDigests.filter((digest) => digest === want).length !== 1) {
-      findings.push({
-        id: "T08",
-        placement: `gallery:${image.id}`,
-        expected: `${image.id} published once with its own bytes`,
-        actual: `${galleryDigests.filter((digest) => digest === want).length} matching gallery file(s)`,
-      });
-    }
-  }
-  const expectedGallery = new Set(unplaced.map((image) => inputDigests.get(image.id)));
-  for (const digest of galleryDigests) {
-    if (!expectedGallery.has(digest)) {
-      findings.push({
-        id: "T08",
-        placement: "gallery",
-        expected: "only unplaced client photos, unchanged",
-        actual: digest === "missing" ? "missing file" : `sha256 ${digest.slice(0, 12)}`,
-      });
-    }
-  }
-  return findings;
+  const scope = imageScope(accepted, site, plan);
+  return [
+    ...[...requirements].flatMap(([placement, requirement]) =>
+      placementFindings(scope, placement, requirement),
+    ),
+    ...unnamedSyntheticFindings(site, requirements),
+    ...galleryFindings(scope),
+  ];
 }
 
 /** Every T01–T10 violation of the accepted inputs by the assembled output and plan. */
@@ -556,5 +687,5 @@ export function checkBuildContract(
 
 /** Sorted unique ids, for asserting a fixture fails for exactly its intended reasons. */
 export function findingIds(findings: readonly ContractFinding[]): ContractTestId[] {
-  return [...new Set(findings.map((finding) => finding.id))].sort();
+  return [...new Set(findings.map((finding) => finding.id))].sort((a, b) => a.localeCompare(b));
 }
