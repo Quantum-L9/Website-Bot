@@ -64,9 +64,20 @@ test("the section renderer shows the image the assembler bound to each section",
     renderer,
     /const contentImage = name === "hero" \|\| name === "gallery" \? undefined : image;/,
   );
+  // Its placement key travels with it so the rendered page can be checked
+  // against the plan (WB-BUILD-CONTRACT-TESTS-01 Wave 2).
   assert.match(
     renderer,
-    /<Component name=\{name\} content=\{content\} structured=\{structured\} image=\{galleryImage\} \/>/,
+    /<Component name=\{name\} content=\{content\} structured=\{structured\} image=\{galleryImage\} imageSlot=\{imagePlacement \?\? undefined\} \/>/,
+  );
+  // Every bound image names its slot, and its wrapper names its section.
+  assert.match(
+    renderer,
+    /data-asset-source=\{contentImage\.source\} data-image-slot=\{imagePlacement\} \/>/,
+  );
+  assert.match(
+    renderer,
+    /data-image-placement=\{imagePlacement\} data-section-for=\{structured\?\.sectionId\}>/,
   );
   // Bound content images render beside the section, lazily, with real dimensions.
   assert.match(renderer, /<figure class="content-block__visual">/);
