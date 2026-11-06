@@ -22,6 +22,10 @@ endif
 # phases below use it so `make test` matches the repository's own gates.
 SITE_TESTS := node scripts/run-site-factory-tests.mjs
 
+# Exit 0 only when Playwright's Chromium starts headless on this machine: the
+# check that decides whether its OS libraries must be installed.
+CHROMIUM_LAUNCHES := node -e 'require("playwright").chromium.launch().then((browser) => browser.close()).catch(() => process.exit(1))' >/dev/null 2>&1
+
 # ── make-v1 ABI leaves (Repository Execution V2) ────────────────────────────
 # Each reuses a gate the repository's own CI already runs green
 # (.github/workflows/ci.yml Gate 5 and pr-check below); none adds a second
@@ -33,10 +37,20 @@ repo-setup: ## Install Node dependencies and the Playwright Chromium the tests r
 	npm ci --no-audit --no-fund --ignore-scripts
 	npm rebuild better-sqlite3
 	npm --prefix packages/bot-interop ci --no-audit --no-fund --ignore-scripts
-	@if [ -n "$${CI:-}" ]; then \
-		npx --no-install playwright install --with-deps chromium; \
+	npx --no-install playwright install chromium
+	@# Chromium's OS libraries are installed only when the browser cannot
+	@# launch without them. `install --with-deps` always ran apt, and on the
+	@# hosted runner (which already carries those libraries) that one mirror
+	@# download took 7-8 minutes of Analyze (central Core).
+	@if $(CHROMIUM_LAUNCHES); then \
+		echo "repo-setup: Chromium launches; OS libraries already present"; \
+	elif [ -n "$${CI:-}" ]; then \
+		echo "repo-setup: Chromium cannot launch; installing its OS libraries"; \
+		npx --no-install playwright install-deps chromium; \
+		$(CHROMIUM_LAUNCHES) || { echo "repo-setup: Chromium still cannot launch after install-deps" >&2; exit 1; }; \
 	else \
-		npx --no-install playwright install chromium; \
+		echo "repo-setup: Chromium cannot launch; run: sudo npx playwright install-deps chromium" >&2; \
+		exit 1; \
 	fi
 
 repo-validate: ## Non-mutating contract validation (spec, evidence schemas, boundaries, LLM wiring)
