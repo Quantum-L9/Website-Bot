@@ -91,7 +91,7 @@ commands:
 	@printf '%-30s %s\n' 'make verify-all' 'Full offline gate (typecheck, tests, plan, boundaries)'
 	@printf '%-30s %s\n' 'make verify' 'verify-all plus every launch validation profile'
 	@printf '%-30s %s\n' 'make verify-launch-env' 'Validate launch environment variables (fail-closed)'
-	@printf '%-30s %s\n' 'make verify-visual-qa' 'Run visual layout QA via LLM vision (requires OPENROUTER_API_KEY)'
+	@printf '%-30s %s\n' 'make verify-visual-qa' 'Run visual layout QA via LLM vision (requires DEEPSEEK_API_KEY)'
 	@printf '%-30s %s\n' 'make site-test' 'Run the full site-factory test suite'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Evidence ──'

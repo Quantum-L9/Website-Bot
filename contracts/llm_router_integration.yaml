@@ -1,109 +1,84 @@
 # ═══════════════════════════════════════════════════════════════
-# L9 Website Factory → @quantum-l9/llm-router Integration Contract
+# L9 Website Factory → LLM Provider Integration Contract
 # ═══════════════════════════════════════════════════════════════
-# This contract defines how the Website Factory Bot consumes
-# the shared LLM Router module for all AI-powered operations.
+# v2.0.0 (ADR-0020) supersedes v1.1.1, which bound every operation
+# to @quantum-l9/llm-router (OpenRouter + Perplexity). The file path
+# is kept stable for existing references; the active provider is
+# DeepSeek, called directly by src/services/llm.ts.
 # ═══════════════════════════════════════════════════════════════
 
 contract:
-  name: llm_router_integration
-  version: "1.1.1"
+  name: llm_provider_integration
+  version: "2.0.0"
   owner: l9-website-factory
-  dependency: "@quantum-l9/llm-router@1.1.1"
-  location: "GitHub Packages (installed into node_modules; consumed via src/services/llm.ts)"
+  supersedes: "llm_router_integration@1.1.1"
+  decision: docs/adr/ADR-0020-direct-deepseek-llm-provider.md
+  adapter: src/services/llm.ts
+  provider: deepseek
+  endpoint: "https://api.deepseek.com/chat/completions"
+  fallback_providers: []
+  automatic_retries: 0
+  automatic_model_escalation: false
+
+models:
+  default: deepseek-flash
+  allowed:
+    deepseek-flash: { vision: true }
+    deepseek-v4-pro: { vision: false }
+  pricing_basis: "verified peak USD rates per 1M tokens (2026-11-06); recorded cost is an upper bound"
 
 # ─────────────────────────────────────────────────────────────
-# TASK TYPE MAPPING
+# TASK MAPPING (capability → DeepSeek request shape)
 # ─────────────────────────────────────────────────────────────
-# Maps Website Factory operations to LLM Router TaskTypes
 
 task_mapping:
   content_generation:
-    router_task_type: CONTENT_GENERATION
-    used_by:
-      - page copy generation
-      - blog post writing
-      - meta description generation
-      - FAQ content creation
-    default_complexity: MEDIUM
-    provider: openrouter
-
+    task_type: CONTENT_GENERATION
+    adapter_method: generateContent
+    thinking: disabled
+    max_tokens: 3000
   design_intelligence:
-    router_task_type: STRATEGIC_REASONING
-    used_by:
-      - color palette selection
-      - layout architecture decisions
-      - typography reasoning
-      - brand voice calibration
-    default_complexity: HIGH
-    provider: openrouter
-
+    task_type: STRATEGIC_REASONING
+    adapter_method: designReasoning
+    thinking: enabled_low_effort
+    response_format: json_object
+    max_tokens: "1000 + DEEPSEEK_REASONING_TOKEN_ALLOWANCE"
   schema_generation:
-    router_task_type: CODE_GENERATION
-    used_by:
-      - JSON-LD structured data generation
-    default_complexity: LOW
-    provider: openrouter
-
-  competitor_research:
-    router_task_type: COMPETITOR_RESEARCH
-    used_by:
-      - market positioning analysis
-      - content gap identification
-      - design inspiration research
-    default_complexity: MEDIUM
-    provider: perplexity
-
+    task_type: CODE_GENERATION
+    adapter_method: generateSchema
+    thinking: disabled
+    max_tokens: 1500
   visual_qa:
-    router_task_type: LAYOUT_VALIDATION
-    used_by:
-      - post-build layout validation
-      - responsive design verification
-      - visual regression detection
-    default_complexity: MEDIUM
-    provider: openrouter (vision model)
-
-  site_mining:
-    router_task_type: SCREENSHOT_ANALYSIS
-    used_by:
-      - existing site analysis
-      - content extraction guidance
-      - structure pattern recognition
-    default_complexity: MEDIUM
-    provider: openrouter (vision model)
-
-  domain_spec_generation:
-    router_task_type: STRATEGIC_REASONING
-    used_by:
-      - domain specification synthesis
-      - business model reasoning
-      - conversion architecture planning
-    default_complexity: HIGH
-    provider: openrouter
-
-  fact_verification:
-    router_task_type: FACT_VERIFICATION
-    used_by:
-      - credential verification
-      - license number validation
-      - business claim checking
-    default_complexity: LOW
-    provider: perplexity
+    task_type: LAYOUT_VALIDATION
+    adapter_method: validateLayout
+    thinking: disabled
+    response_format: json_object
+    images: base64 data URLs (image_url parts)
+    max_tokens: 800
+    note: "Report contract unchanged; the verdict is not an authoritative design-quality gate."
+  redesign_improve_ops:
+    task_type: "per src/intelligence/improve-llm-policy.ts"
+    adapter_method: strategize
+    thinking: "enabled_low_effort when requiresReasoning"
+  search_grounded:
+    task_types: [COMPETITOR_RESEARCH, FACT_VERIFICATION, MARKET_RESEARCH, CITATION_CHECK, LINK_PROSPECTING]
+    requires_search: true
+    status: UNSUPPORTED_FAIL_CLOSED
+    note: "No authorized retrieval capability backs the adapter; these never produce model-only claims."
 
 # ─────────────────────────────────────────────────────────────
-# BUDGET ALLOCATION
+# SPENDING BOUNDARY (enforced before dispatch, per build)
 # ─────────────────────────────────────────────────────────────
 
 budget:
-  monthly_per_client: 200
-  weekly_target: 50
-  weekly_ceiling: 100
-  surge_aware: true
-  note: >
-    Website Factory typically front-loads spend during initial
-    site generation (high complexity reasoning for domain spec
-    and design decisions), then drops to near-zero during
-    maintenance. Budget should accommodate burst patterns.
+  scope: per_adapter_instance_one_build
+  max_requests_per_build: { env: LLM_MAX_REQUESTS_PER_BUILD, default: 200 }
+  build_allowance_usd: { env: LLM_BUILD_BUDGET_USD, default: 10 }
+  max_input_tokens_per_call: { env: LLM_MAX_INPUT_TOKENS, default: 400000 }
+  reasoning_token_allowance: { env: DEEPSEEK_REASONING_TOKEN_ALLOWANCE, default: 8192 }
+  reservation: worst_case_cost_at_peak_rates_before_dispatch
+  failed_dispatch_without_usage: reservation_stays_charged
+  durability: BLOCKED_process_local_not_durable_across_workers_or_restarts
 
 # ─────────────────────────────────────────────────────────────
 # GOVERNANCE
@@ -119,11 +94,8 @@ governance:
     - certifications
     - legal claims
     - testimonials
-  
-  always_verify:
-    - business claims via FACT_VERIFICATION before including in site
-    - competitor data via COMPETITOR_RESEARCH before positioning
-  
+  grounded_facts:
+    - business claims and competitor data require authorized evidence inputs; the LLM adapter never verifies facts
   visual_qa_required:
     - before any production deployment
     - after major layout changes
@@ -135,14 +107,24 @@ governance:
 
 env_vars:
   required:
-    - PERPLEXITY_API_KEY
-    - OPENROUTER_API_KEY
+    - DEEPSEEK_API_KEY
   optional:
     - CLIENT_ID
+    - DEEPSEEK_MODEL
+    - DEEPSEEK_BASE_URL
+    - LLM_PROVIDER_TIMEOUT_MS
+    - LLM_BUILD_BUDGET_USD
+    - LLM_MAX_REQUESTS_PER_BUILD
+    - LLM_MAX_INPUT_TOKENS
+    - DEEPSEEK_REASONING_TOKEN_ALLOWANCE
+  image_generation_only:
+    - GEMINI_API_KEY
+  retired:
+    - OPENROUTER_API_KEY
+    - PERPLEXITY_API_KEY
     - MONTHLY_BUDGET_PER_CLIENT
     - WEEKLY_BUDGET_TARGET
     - WEEKLY_BUDGET_HARD_CEILING
-    - LLM_PROVIDER_TIMEOUT_MS
   install_only:
     # GitHub Packages read credential used by .npmrc during npm ci/install — NOT a runtime secret.
     - NODE_AUTH_TOKEN

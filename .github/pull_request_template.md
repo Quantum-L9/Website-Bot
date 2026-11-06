@@ -17,7 +17,7 @@
 - [ ] `area:frontend` — UI
 - [ ] `area:infrastructure` — docker, deployment, config
 - [ ] `area:workflows` — .github/, CI
-- [ ] `area:llm-router` — @quantum-l9/llm-router consumption (src/services/llm.ts)
+- [ ] `area:llm` — direct DeepSeek LLM adapter (src/services/llm.ts)
 
 ## Checklist
 
