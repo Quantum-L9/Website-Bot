@@ -2,12 +2,12 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { TaskType } from "../../src/services/llm.js";
 import {
   assertWebsiteImprovePolicy,
   WEBSITE_IMPROVE_LLM_POLICY,
   websiteImproveTask,
 } from "../../src/intelligence/improve-llm-policy.js";
+import { TaskType } from "../../src/services/llm.js";
 
 test("policy declares capability only — no provider/model/client fields", () => {
   for (const entry of Object.values(WEBSITE_IMPROVE_LLM_POLICY)) {
