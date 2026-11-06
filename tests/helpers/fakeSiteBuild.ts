@@ -18,7 +18,7 @@ import { distPathForRoute } from "../../src/validation/validate-generated-site.j
 
 export function fakeAstroBuild(routes: readonly string[]): CommandRunner {
   return {
-    async run(command, args, options) {
+    run(command, args, options) {
       if (command === "npm" && args[0] === "run" && args[1] === "build") {
         for (const route of routes) {
           const path = join(options.cwd, "dist", distPathForRoute(route));
@@ -28,7 +28,7 @@ export function fakeAstroBuild(routes: readonly string[]): CommandRunner {
         writeFileSync(join(options.cwd, "dist", "sitemap-index.xml"), "<sitemapindex/>", "utf-8");
       }
       const stdout = command === "npm" && args[0] === "--version" ? "10.9.2\n" : "";
-      return { stdout, stderr: "", durationMs: 1 };
+      return Promise.resolve({ stdout, stderr: "", durationMs: 1 });
     },
   };
 }
