@@ -16,6 +16,7 @@ import { LEAD_FORM, redesignContext, sha256 } from "../../helpers/redesignAssemb
 import { cleanupContext } from "../../helpers/siteFactoryFixture.js";
 
 const count = (html: string, pattern: RegExp): number => html.match(pattern)?.length ?? 0;
+const occurrences = (html: string, literal: string): number => html.split(literal).length - 1;
 
 void test("a REDESIGN_IMPROVE site builds and renders structured copy semantically, in blueprint order", {
   timeout: 900_000,
@@ -42,7 +43,7 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
       const asset = ctx.resolvedImages?.get(placement);
       assert.ok(asset, placement);
       assert.equal(
-        count(html, new RegExp(`src="/images/${asset.outputFileName}"`, "g")),
+        occurrences(html, `src="/images/${asset.outputFileName}"`),
         1,
         `${placement} renders exactly once`,
       );
@@ -55,9 +56,13 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
     // The provided logo replaces the wordmark, unchanged.
     const logo = ctx.resolvedImages?.get("global:logo");
     assert.ok(logo);
-    assert.match(
-      html,
-      new RegExp(`class="site-logo"[^>]*><img src="/images/${logo.outputFileName}"`),
+    const logoLink = html.slice(html.indexOf('class="site-logo"'));
+    assert.ok(html.includes('class="site-logo"'), "the logo link renders");
+    assert.ok(
+      logoLink
+        .slice(0, logoLink.indexOf("</a>"))
+        .includes(`<img src="/images/${logo.outputFileName}"`),
+      "the logo link shows the provided logo",
     );
 
     // Blueprint order, by section identity.
@@ -89,7 +94,9 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
     );
     // Verified CTAs only; the unverified "call_now" and external actions render no link.
     assert.match(html, /href="\/contact#quote"[^>]*>[\s\S]*?Request a quote/);
-    assert.doesNotMatch(html, /Call now|external\.example\.com|Book a repair/);
+    for (const absent of ["Call now", "external.example.com", "Book a repair"]) {
+      assert.ok(!html.includes(absent), `${absent} must not render`);
+    }
     // Internal links resolve only to published routes.
     assert.match(
       html,
@@ -110,10 +117,7 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
     const contact = readFileSync(join(ctx.distDir, "contact", "index.html"), "utf-8");
     assert.match(contact, /data-section-id="form"/);
     assert.match(contact, /<h2[^>]*>Contact us<\/h2>\s*<p[^>]*>Tell us what you need\.<\/p>/);
-    assert.match(
-      contact,
-      new RegExp(`<form method="post" action="${LEAD_FORM.replace(/[.]/g, "\\.")}"`),
-    );
+    assert.ok(contact.includes(`<form method="post" action="${LEAD_FORM}"`));
     assert.equal(count(contact, /<h1[\s>]/g), 1);
   } finally {
     cleanupContext(ctx);

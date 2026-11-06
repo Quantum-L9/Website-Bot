@@ -111,7 +111,7 @@ void test("CTAs resolve only to verified destinations; nothing is manufactured",
     // An unverified action and an external URL never become links.
     assert.equal(byId.get("story")?.structured.cta, null);
     assert.equal(byId.get("repairs")?.structured.cta, null);
-    assert.doesNotMatch(page(ctx, "/"), /external\.example\.com/);
+    assert.ok(!page(ctx, "/").includes("external.example.com"));
   } finally {
     cleanupContext(ctx);
   }
