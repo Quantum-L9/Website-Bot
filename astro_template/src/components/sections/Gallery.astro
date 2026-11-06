@@ -12,10 +12,12 @@ interface Props {
   content?: string;
   /** Planned gallery/project-proof image the assembler bound to this section. */
   image?: GalleryImage;
+  /** The placement key of `image`, exposed so the rendered page can be checked against the plan. */
+  imageSlot?: string;
   /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
   structured?: StructuredSectionView;
 }
-const { name = "gallery", content = "", image, structured } = Astro.props;
+const { name = "gallery", content = "", image, imageSlot, structured } = Astro.props;
 const gallery: readonly GalleryImage[] = siteConfig.galleryImages ?? [];
 // The bound (planned, possibly generated) image leads; source-site extras follow.
 const items: GalleryImage[] = [];
@@ -49,7 +51,7 @@ const hasGalleryRoute = allRoutes.some((route) => route.href === "/gallery");
     {items.length > 0 && (
     <div class="gallery-grid">
       {items.slice(0, 7).map(entry => (
-        <img src={entry.src} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" data-asset-source={entry.source} />
+        <img src={entry.src} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" data-asset-source={entry.source} data-image-slot={image && entry.src === image.src ? imageSlot : undefined} />
       ))}
       {hasGalleryRoute && (
         <a class="gallery-cta" href="/gallery">
