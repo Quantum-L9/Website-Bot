@@ -71,8 +71,7 @@ const visualSlot = slotForSection(name);
 const images: Record<
   string,
   { src: string; alt: string; width: number; height: number; source?: string }
-> =
-  siteConfig.images ?? {};
+> = siteConfig.images ?? {};
 const image = imagePlacement ? images[imagePlacement] : undefined;
 if (imagePlacement && !image) {
   throw new Error(

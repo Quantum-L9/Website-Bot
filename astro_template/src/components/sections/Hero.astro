@@ -21,8 +21,7 @@ const paragraphs = rest
 const images: Record<
   string,
   { src: string; alt: string; width: number; height: number; source?: string }
-> =
-  siteConfig.images ?? {};
+> = siteConfig.images ?? {};
 const path = Astro.url.pathname !== "/" ? Astro.url.pathname.replace(/\/$/, "") : "/";
 const logo = images["global:logo"];
 const rawHero = images[`${path}:hero`];

@@ -20,8 +20,7 @@ const allRoutes: Array<{ href: string; title: string }> =
 const images: Record<
   string,
   { src: string; alt: string; width: number; height: number; source?: string }
-> =
-  siteConfig.images ?? {};
+> = siteConfig.images ?? {};
 // A route's second services section keeps its own copy but never repeats the cards.
 const showCards = structured?.serviceCards !== false;
 const services = allRoutes.filter(
