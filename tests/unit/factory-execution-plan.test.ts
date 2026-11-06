@@ -162,10 +162,7 @@ test("redesign integrity gate runs before success finalization and handoff", () 
     at("release-receipt-finalizer") < at("handoff-emitter"),
     "handoff follows finalization",
   );
-  assert.ok(
-    at("handoff-emitter") < at("terminal-convergence"),
-    "terminal-convergence stays last",
-  );
+  assert.ok(at("handoff-emitter") < at("terminal-convergence"), "terminal-convergence stays last");
 });
 
 test("COPY intent (legacy default) keeps the original stage topology", () => {

@@ -1,16 +1,31 @@
 import { spawn } from "node:child_process";
-import { resolveNodeTool } from "../../scripts/lib/exec-path.mjs";
 import { chromium } from "playwright";
+import { resolveNodeTool } from "../../scripts/lib/exec-path.mjs";
+
 const SITE_ROOT = new URL("../../build/sites/quantumaipartners_com/", import.meta.url).pathname;
 const args = process.argv.slice(2);
 const portArg = args.indexOf("--preview-port");
 const PORT = portArg !== -1 ? Number(args[portArg + 1]) : 4322;
-const preview = spawn(resolveNodeTool("npx"), ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"], { cwd: SITE_ROOT, stdio: "ignore" });
-process.on("exit", () => { try { preview.kill("SIGTERM"); } catch {} });
+const preview = spawn(
+  resolveNodeTool("npx"),
+  ["astro", "preview", "--port", String(PORT), "--host", "127.0.0.1"],
+  { cwd: SITE_ROOT, stdio: "ignore" },
+);
+process.on("exit", () => {
+  try {
+    preview.kill("SIGTERM");
+  } catch {}
+});
 // Loopback-only probe against the local astro preview: BASE is pinned to
 // 127.0.0.1 and no traffic ever leaves the machine.
 const BASE = `http://127.0.0.1:${PORT}`;
-for (let i = 0; i < 40; i++) { try { const r = await fetch(BASE + "/"); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
+for (let i = 0; i < 40; i++) {
+  try {
+    const r = await fetch(BASE + "/");
+    if (r.ok) break;
+  } catch {}
+  await new Promise((r) => setTimeout(r, 500));
+}
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -20,8 +35,11 @@ const probe = await page.evaluate(() => {
   const h1cs = h1 ? getComputedStyle(h1) : null;
   const hero = document.querySelector("section, [class*=hero], header") ?? document.body;
   const heroBg = getComputedStyle(hero).backgroundImage;
-  const imgs = [...document.querySelectorAll("img")].map(i => ({ src: i.getAttribute("src"), alt: i.getAttribute("alt") }));
-  const nav = [...document.querySelectorAll("nav a")].map(a => a.textContent.trim());
+  const imgs = [...document.querySelectorAll("img")].map((i) => ({
+    src: i.getAttribute("src"),
+    alt: i.getAttribute("alt"),
+  }));
+  const nav = [...document.querySelectorAll("nav a")].map((a) => a.textContent.trim());
   return {
     bodyBackground: cs.backgroundColor,
     bodyColor: cs.color,

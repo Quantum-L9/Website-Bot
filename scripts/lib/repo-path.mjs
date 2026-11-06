@@ -138,5 +138,8 @@ export function readJsonWithinRoot(root, candidate, label) {
  * @returns {string} repository-relative path
  */
 export function relativeToRoot(root, contained) {
-  return path.relative(canonicalize(path.resolve(root)), contained).split(path.sep).join("/");
+  return path
+    .relative(canonicalize(path.resolve(root)), contained)
+    .split(path.sep)
+    .join("/");
 }

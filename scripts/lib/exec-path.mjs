@@ -21,12 +21,7 @@ import path from "node:path";
  * `/opt/homebrew/bin` and `/usr/local/bin` cover macOS developer machines,
  * where git is not under `/usr/bin`.
  */
-const SYSTEM_BIN_DIRS = Object.freeze([
-  "/usr/bin",
-  "/bin",
-  "/usr/local/bin",
-  "/opt/homebrew/bin",
-]);
+const SYSTEM_BIN_DIRS = Object.freeze(["/usr/bin", "/bin", "/usr/local/bin", "/opt/homebrew/bin"]);
 
 /** @param {string} candidate @returns {boolean} */
 function isExecutableFile(candidate) {
@@ -58,7 +53,9 @@ export function resolveSystemCommand(name) {
       );
     }
     if (!isExecutableFile(override)) {
-      throw new Error(`COMMAND_NOT_RESOLVED: ${name.toUpperCase()}_BIN does not name a file: ${override}`);
+      throw new Error(
+        `COMMAND_NOT_RESOLVED: ${name.toUpperCase()}_BIN does not name a file: ${override}`,
+      );
     }
     return override;
   }

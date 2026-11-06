@@ -302,8 +302,7 @@ export function parseJudgeResponse(
     }
     scores[name] = score;
   }
-  const stringArray = (input: unknown): string[] =>
-    Array.isArray(input) ? input.map(String) : [];
+  const stringArray = (input: unknown): string[] => (Array.isArray(input) ? input.map(String) : []);
   return {
     preference,
     confidence: typeof value.confidence === "number" ? value.confidence : 0,
@@ -342,7 +341,9 @@ export function scanBusinessTruth(
   // Bounded by the protocol's own limits — RFC 5321 caps a local-part at 64
   // octets and RFC 1035 a DNS label at 63 — so no real address stops matching
   // and the futile backtracking before "@" and "." is capped (typescript:S8786).
-  for (const match of html.matchAll(/[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}/g)) {
+  for (const match of html.matchAll(
+    /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}/g,
+  )) {
     const observed = match[0].toLowerCase();
     if (observed !== facts.email.toLowerCase()) {
       findings.push({ route, kind: "email", detail: match[0] });

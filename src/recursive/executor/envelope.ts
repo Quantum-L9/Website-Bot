@@ -2,9 +2,10 @@
 // Mutation envelope enforcement. A scope violation STOPS instead of
 // broadening the patch: the executor may never rewrite the envelope, and a
 // diff touching a forbidden or control-plane path is rejected outright.
+
+import { stripTrailingSlashes } from "../../lib/text-trim.mjs";
 import type { PEPack } from "../contracts/types.js";
 import { CONTROL_PLANE_PATHS } from "../state/constants.js";
-import { stripTrailingSlashes } from "../../lib/text-trim.mjs";
 
 export interface ProposedPatch {
   changedFiles: string[];

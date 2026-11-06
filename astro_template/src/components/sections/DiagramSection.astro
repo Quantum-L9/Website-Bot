@@ -8,7 +8,8 @@ const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
   .filter(Boolean);
-const heading = paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
+const heading =
+  paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
 const label = name.replaceAll("_", " ");
 ---
 <section class="diagram" data-section={name} data-layout="diagram">

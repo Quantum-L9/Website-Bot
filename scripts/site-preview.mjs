@@ -310,7 +310,7 @@ export async function buildPreview(spec, repoRoot = REPO_ROOT) {
   );
   writeFileSync(logPath, `${child.stdout ?? ""}${child.stderr ?? ""}`, "utf-8");
 
-  const receipt = {
+  let receipt = {
     schema: PREVIEW_RECEIPT_SCHEMA,
     run_id: runId,
     created_at: new Date().toISOString(),
@@ -340,7 +340,10 @@ export async function buildPreview(spec, repoRoot = REPO_ROOT) {
       result.renderedSiteValidation && existsSync(result.renderedSiteValidation)
         ? readJson(result.renderedSiteValidation)
         : undefined;
-    Object.assign(receipt, {
+    // Measured fields extend the receipt in place of Object.assign: same key
+    // order, same `problems` array, literal keys only.
+    receipt = {
+      ...receipt,
       build_id: result.buildId,
       client_id: result.clientId,
       routes: result.routeSlugs,
@@ -378,7 +381,7 @@ export async function buildPreview(spec, repoRoot = REPO_ROOT) {
               : null,
         })),
       },
-    });
+    };
     receipt.problems.push(...(await verifyReceipt(receipt, repoRoot)));
   }
   if (receipt.problems.length === 0) receipt.status = "PASS";

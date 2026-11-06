@@ -6,8 +6,8 @@
 // useful content. Rejected candidates are recorded with a reason, never silently
 // dropped.
 
-import type { InspectedImage } from "../services/images/ImageInspector.js";
 import { stripTrailingSlashes } from "../lib/text-trim.mjs";
+import type { InspectedImage } from "../services/images/ImageInspector.js";
 
 export interface SourceImagePolicy {
   maxBytes: number;

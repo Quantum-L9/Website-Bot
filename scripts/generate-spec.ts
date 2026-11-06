@@ -19,12 +19,12 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { stringify } from "yaml";
 import { type CrawlOptions, SourceCrawler } from "../src/ingestion/SourceCrawler.js";
+import { textField } from "../src/lib/coerce-text.js";
 import type { DomainSpec } from "../src/pipeline/BuildContext.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { extractJson } from "../src/services/extractJson.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { buildCrawlIdentity, overlayCrawlIdentity } from "../src/services/spec/crawlIdentity.js";
-import { textField } from "../src/lib/coerce-text.js";
 
 // ── CLI argument parsing ──
 

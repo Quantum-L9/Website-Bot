@@ -1,13 +1,13 @@
 // L9_META: layer=pipeline, role=spec_validator, status=active, version=2.0.0
 
 import { isForbiddenAddress, isForbiddenHostname } from "../ingestion/UrlPolicy.js";
+import { textField } from "../lib/coerce-text.js";
 import {
   normalizeComponentName,
   normalizeRouteSlug,
 } from "../validation/validate-generated-site.js";
 import type { DomainSpec } from "./BuildContext.js";
 import { BuildError } from "./BuildError.js";
-import { textField } from "../lib/coerce-text.js";
 
 const NESTED_MARKERS = ["identity", "market", "audience", "offer", "compliance", "conversion"];
 
