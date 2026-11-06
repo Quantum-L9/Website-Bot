@@ -14,7 +14,7 @@ const paragraphs = content
   .map((value) => value.trim())
   .filter(Boolean);
 const heading = paragraphs[0] && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
-const label = name.replaceAll('_', ' ');
+const label = name.replaceAll("_", " ");
 ---
 {structured ? (
   <section class="prose" data-section={name} data-section-id={structured.sectionId}>
