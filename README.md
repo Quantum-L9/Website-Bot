@@ -2,7 +2,7 @@
 
 ## Project Identity
 
-This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline powered by `@quantum-l9/llm-router`. It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. The factory is client-agnostic and prepared for Vercel preview-first deployment. A worked reference client lives under `examples/supplemental-insurance-pros/` (see `examples/README.md`).
+This repository contains the L9 Website Factory Bot — a deterministic website generation pipeline whose text and reasoning calls go directly to DeepSeek (`src/services/llm.ts`, ADR-0020). It generates Astro-based lead-generation websites from domain specifications, with AI-powered content generation, design intelligence, competitor research, and visual QA. The factory is client-agnostic and prepared for Vercel preview-first deployment. A worked reference client lives under `examples/supplemental-insurance-pros/` (see `examples/README.md`).
 
 ## Verified Repo Facts
 
@@ -14,8 +14,8 @@ This repository contains the L9 Website Factory Bot — a deterministic website 
 | Build output | `dist/` | Astro static build convention and local validation bundle |
 | Deployment target | Vercel | deployment scripts and docs |
 | CRM direction | Configurable CRM provider (`CRM_PROVIDER`), phase 2 | env contract and verification scripts |
-| LLM Router | @quantum-l9/llm-router (GitHub Packages dependency) | `src/services/llm.ts` |
-| LLM Providers | OpenRouter + Perplexity | `contracts/llm_router_integration.yaml` |
+| LLM adapter | Direct DeepSeek (`deepseek-flash`) | `src/services/llm.ts` |
+| LLM provider contract | DeepSeek text/reasoning/vision; Gemini images only | `contracts/llm_router_integration.yaml` (v2.0.0) |
 
 Unsupported values remain `Unknown` until the operator supplies them. Do not invent contact, license, disclaimer, analytics, CRM, or deployment values.
 
@@ -77,7 +77,7 @@ The factory itself is not an Astro app — it *generates* Astro sites into
 `build/sites/<client>/` via the pipeline. There is no root `build`/`dev`/`preview`.
 
 ```bash
-npm ci                                                # Install dependencies (incl. @quantum-l9/llm-router from GitHub Packages)
+npm ci                                                # Install dependencies
 npm run pipeline:plan                                 # Dry-run every stage — no keys, no files, no mutations
 npm run pipeline:local-proof -- --spec=<domain-spec>  # Materialize + Astro-build a site into build/sites/<client>
 ```

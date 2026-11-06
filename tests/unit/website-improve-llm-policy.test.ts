@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { TaskType } from "@quantum-l9/llm-router";
+import { TaskType } from "../../src/services/llm.js";
 import {
   assertWebsiteImprovePolicy,
   WEBSITE_IMPROVE_LLM_POLICY,

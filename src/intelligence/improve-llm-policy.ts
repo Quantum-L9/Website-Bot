@@ -1,10 +1,11 @@
-import { TaskComplexity, type TaskDescriptor, TaskType } from "@quantum-l9/llm-router";
+import { TaskComplexity, type TaskDescriptor, TaskType } from "../services/llm.js";
 
 /**
  * Website-Bot's LLM operations for the REDESIGN_IMPROVE seam.
  *
  * No providers. No model names. No final page-copy generation. The application
- * declares capability only; provider selection belongs to LLM-Router, and final
+ * declares capability only; provider and model selection belong to the single LLM
+ * adapter (src/services/llm.ts, ADR-0020), and final
  * page copy is owned by SEO-Bot (see WEBSITE_INTELLIGENCE_LOCK.json).
  */
 export type WebsiteImproveLlmOperation =

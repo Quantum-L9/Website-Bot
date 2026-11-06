@@ -209,15 +209,15 @@ function createFileInspector(contextRoot, violations) {
     }
     if (inProducerSource && /llm-stub/.test(text)) {
       violations.push(
-        `${rel}: forbidden llm-stub reference (production LLM must use @quantum-l9/llm-router)`,
+        `${rel}: forbidden llm-stub reference (production LLM must use src/services/llm.ts)`,
       );
     }
   };
 }
 
 /**
- * LLM router restoration guards: the production generation path must consume the real
- * @quantum-l9/llm-router package and never fall back to a local stub.
+ * LLM provider boundary guards (ADR-0020): the production generation path is the direct
+ * DeepSeek adapter in src/services/llm.ts — never the retired router and never a local stub.
  */
 function checkLlmRouterGuards(producerRoot, violations) {
   if (!existsSync(producerRoot)) return;
@@ -225,18 +225,14 @@ function checkLlmRouterGuards(producerRoot, violations) {
     violations.push("src/services/llm-stub.ts: production LLM stub must not exist");
   }
   const llmServicePath = resolve(producerRoot, "src/services/llm.ts");
-  if (
-    existsSync(llmServicePath) &&
-    !/@quantum-l9\/llm-router/.test(readFileSync(llmServicePath, "utf8"))
-  ) {
-    violations.push("src/services/llm.ts: must import @quantum-l9/llm-router");
-  }
-  const pkgPath = resolve(producerRoot, "package.json");
-  if (
-    existsSync(pkgPath) &&
-    !JSON.parse(readFileSync(pkgPath, "utf8")).dependencies?.["@quantum-l9/llm-router"]
-  ) {
-    violations.push("package.json: missing @quantum-l9/llm-router dependency");
+  if (existsSync(llmServicePath)) {
+    const adapter = readFileSync(llmServicePath, "utf8");
+    if (/@quantum-l9\/llm-router/.test(adapter)) {
+      violations.push("src/services/llm.ts: must not import the retired @quantum-l9/llm-router");
+    }
+    if (!/DEEPSEEK_API_KEY/.test(adapter) || !/https:\/\/api\.deepseek\.com/.test(adapter)) {
+      violations.push("src/services/llm.ts: must dispatch directly to DeepSeek (DEEPSEEK_API_KEY)");
+    }
   }
 }
 

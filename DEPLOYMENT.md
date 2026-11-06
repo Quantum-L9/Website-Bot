@@ -8,7 +8,7 @@ Deployment target is Vercel. Deployment must be preview-first. Production deploy
 
 1. Node.js 18+ installed.
 2. npm 9+ installed.
-3. Dependencies installed: `npm ci` (installs `@quantum-l9/llm-router` from GitHub Packages).
+3. Dependencies installed: `npm ci`.
 
 ## Required Environment Variables
 
@@ -21,11 +21,10 @@ per-client `CLIENT_VERCEL_PROJECT_ID` / deploy hook — not legacy `VERCEL_ORG_I
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENROUTER_API_KEY` | OpenRouter API key — routes to GPT-4o, Claude, Gemini |
-| `PERPLEXITY_API_KEY` | Perplexity API key — search-grounded research tasks |
-| `CLIENT_ID` | Unique client identifier for budget isolation |
-| `MONTHLY_BUDGET_PER_CLIENT` | Monthly token budget in USD (default: 200) |
-| `WEEKLY_BUDGET_TARGET` | Weekly soft budget target in USD (default: 50) |
+| `DEEPSEEK_API_KEY` | DeepSeek API key — direct text, reasoning and vision calls (ADR-0020) |
+| `CLIENT_ID` | Unique client identifier for usage attribution |
+| `LLM_BUILD_BUDGET_USD` | Per-build LLM allowance in USD, reserved before every dispatch (default: 10) |
+| `LLM_MAX_REQUESTS_PER_BUILD` | Maximum DeepSeek requests per build (default: 200) |
 | `SITE_URL` | Live site URL for visual QA and SEO verification |
 
 ### Vercel Deployment (required for deploy)
@@ -191,4 +190,4 @@ Rollback depends on Vercel deployment history. At minimum, record:
 - Do not hardcode API keys or Vercel tokens.
 - Do not call deployment successful without URL and verification evidence.
 - Do not treat local build success as deployment proof.
-- The router is installed prebuilt from GitHub Packages (`@quantum-l9/llm-router`); there is no separate router build step.
+- LLM calls go directly to DeepSeek (`src/services/llm.ts`, ADR-0020); there is no router build or runtime step.

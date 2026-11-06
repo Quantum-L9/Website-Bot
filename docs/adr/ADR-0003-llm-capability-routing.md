@@ -2,7 +2,9 @@
 # ADR-0003: Capability-Based LLM Routing and Provider Isolation
 
 ## Status
-Accepted.
+Accepted. Provider-resolution clauses superseded by
+[ADR-0020](ADR-0020-direct-deepseek-llm-provider.md) (direct DeepSeek adapter); the
+capability-declaration rules below remain in force.
 
 ## Date
 2026-08-14

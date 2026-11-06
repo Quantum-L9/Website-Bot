@@ -21,18 +21,18 @@ Numbered Architecture Decision Records live in `docs/adr/`. That directory is th
 6. Deployment layer: per-client GitHub repo + Vercel project; local `astro build`
    is a gate, not the deploy artifact (ADR-0007).
 
-## LLM Router Integration
+## LLM Provider Integration
 
-The `@quantum-l9/llm-router` module provides intelligent model selection for all AI-powered operations:
+`src/services/llm.ts` is the single LLM adapter for AI-powered operations:
 - Content generation (page copy, blog posts, meta descriptions)
 - Design intelligence (color selection, layout reasoning)
-- Competitor research (market positioning, content gaps)
 - Visual QA (screenshot-based layout validation)
-- Site mining (existing site analysis for migration)
-- Domain spec generation (synthesis from operator inputs)
-- Fact verification (claims, credentials, compliance)
+- Redesign-improve strategic operations (extraction, pattern synthesis, blueprint)
 
-The router selects the optimal model (GPT-4o-mini, Claude Sonnet, Gemini Flash, Perplexity Sonar) based on task type and complexity. Budget enforcement prevents overspend. See `contracts/llm_router_integration.yaml` for the full mapping.
+Search-grounded research and fact verification are not provided by the adapter: they fail
+closed rather than producing model-only claims (ADR-0020).
+
+Every text, reasoning and vision call goes directly to DeepSeek through `src/services/llm.ts` (ADR-0020): no router, no fallback provider, no automatic retry or model escalation. A per-build allowance is reserved before every dispatch. See `contracts/llm_router_integration.yaml` (v2.0.0) for the full mapping.
 
 ## Runtime Boundaries
 
