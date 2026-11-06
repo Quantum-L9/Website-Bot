@@ -7,7 +7,7 @@
 // deep inside the pipeline.
 //
 // Grounded in the runtime env reads on main:
-//   - OPENROUTER_API_KEY / PERPLEXITY_API_KEY  src/services/llm.ts (both required())
+//   - DEEPSEEK_API_KEY                         src/services/llm.ts (required(); ADR-0020)
 //   - VERCEL_TOKEN / VERCEL_TEAM_ID            src/stages/VercelDeployStage.ts
 //   - GITHUB_SITE_TOKEN                        src/stages/ClientSourcePublishStage.ts
 //                                              (env://GITHUB_SITE_TOKEN)
@@ -23,13 +23,8 @@ const isCI = process.argv.includes("--ci");
 
 const hydrateMeta = await hydrateSecretsIfConfigured();
 
-// llm.ts requires BOTH keys via required(); treat both as blocking secrets.
-const requiredSecrets = [
-  "OPENROUTER_API_KEY",
-  "PERPLEXITY_API_KEY",
-  "VERCEL_TOKEN",
-  "GITHUB_SITE_TOKEN",
-];
+// llm.ts requires DEEPSEEK_API_KEY via required(); it is a blocking secret.
+const requiredSecrets = ["DEEPSEEK_API_KEY", "VERCEL_TOKEN", "GITHUB_SITE_TOKEN"];
 const requiredIdentifiers = ["VERCEL_TEAM_ID"];
 // Project identity: at least one of these (or spec-embedded deploy.vercel_project_id).
 const projectIdentityAnyOf = ["CLIENT_VERCEL_PROJECT_ID", "CLIENT_VERCEL_DEPLOY_HOOK"];

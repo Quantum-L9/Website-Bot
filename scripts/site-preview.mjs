@@ -28,7 +28,7 @@ const VALIDATOR = "scripts/validate-site-factory.ts";
 const REQUIRED_BUILD_CHECKS = ["install", "astro-check", "astro-build", "route-assertion"];
 // Anything that could reach a deploy, publish or provider stays out of the child.
 const REMOTE_ENV =
-  /VERCEL|DEPLOY|PUBLISH|GITHUB|GH_TOKEN|SEO_BOT|OPENROUTER|PERPLEXITY|GEMINI|INFISICAL|POSTHOG|CRM_/i;
+  /VERCEL|DEPLOY|PUBLISH|GITHUB|GH_TOKEN|SEO_BOT|DEEPSEEK|OPENROUTER|PERPLEXITY|GEMINI|INFISICAL|POSTHOG|CRM_/i;
 const REMOTE_FLAGS = /^--(deploy|publish|push|mode|vercel|release)\b/;
 const SCOPE =
   "Local fixture preview only: deterministic test-supplied content built and rendered by the native " +

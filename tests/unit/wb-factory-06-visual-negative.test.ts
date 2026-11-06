@@ -82,7 +82,7 @@ interface FakeOptions {
 
 function fakeDeps(options: FakeOptions = {}) {
   return {
-    env: options.env ?? { OPENROUTER_API_KEY: "test-key", PERPLEXITY_API_KEY: "test-key" },
+    env: options.env ?? { DEEPSEEK_API_KEY: "test-key" },
     fetch: options.fetch ?? (async () => ({ ok: true, status: 200 })),
     launchBrowser:
       options.launch ??
@@ -188,10 +188,12 @@ void test("NEGATIVE no credentials: screenshots are captured but nothing is appr
   });
 });
 
-void test("NEGATIVE partial credentials: the evaluator's full credential set is required", async () => {
+void test("NEGATIVE retired credentials: OpenRouter/Perplexity keys never satisfy the evaluator", async () => {
   const partials: Array<Record<string, string>> = [
     { OPENROUTER_API_KEY: "test-key" },
     { PERPLEXITY_API_KEY: "test-key" },
+    { OPENROUTER_API_KEY: "test-key", PERPLEXITY_API_KEY: "test-key" },
+    { DEEPSEEK_API_KEY: "   " },
   ];
   for (const env of partials) {
     await assertNotPass({ env }, { status: "BLOCKED", reason: "MISSING_EVALUATOR_CREDENTIALS" });
@@ -556,6 +558,7 @@ function cli(args: string[], env: Record<string, string> = {}): { code: number; 
     "SITE_URL",
     "QA_PAGES",
     "SPEC_PATH",
+    "DEEPSEEK_API_KEY",
     "OPENROUTER_API_KEY",
     "PERPLEXITY_API_KEY",
   ])

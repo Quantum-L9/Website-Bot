@@ -73,7 +73,7 @@ function tcpProbe(host, port) {
 
 const results = [];
 const required = new Set([
-  "OPENROUTER_API_KEY",
+  "DEEPSEEK_API_KEY",
   "GITHUB_SITE_TOKEN",
   "VERCEL_TOKEN",
   "VERCEL_TEAM_ID",
@@ -97,13 +97,6 @@ function httpErrSuffix(r) {
 function authVerdict(r, invalidCodes = [401]) {
   if (r.status === 200) return "valid";
   if (invalidCodes.includes(r.status)) return `invalid(${r.status})`;
-  return `http(${r.status})${httpErrSuffix(r)}`;
-}
-
-function perplexityVerdict(r) {
-  if (r.status === 200) return "valid";
-  if (r.status === 401 || r.status === 403) return `invalid(${r.status})`;
-  if (r.status === 400) return "auth-ok(400 bad-req)";
   return `http(${r.status})${httpErrSuffix(r)}`;
 }
 
@@ -132,31 +125,14 @@ async function githubToken(name) {
   record(name, "github", verdict, r.scopes !== undefined ? `scopes=[${r.scopes}]` : "");
 }
 
-// --- OpenRouter: key metadata endpoint (no completion cost) ---
-async function openrouter() {
-  const name = "OPENROUTER_API_KEY";
+// --- DeepSeek: account balance endpoint proves the key (no completion cost; ADR-0020) ---
+async function deepseek() {
+  const name = "DEEPSEEK_API_KEY";
   if (!present(name)) return record(name, "llm", "missing");
-  const r = await http("https://openrouter.ai/api/v1/key", {
-    headers: { Authorization: `Bearer ${val(name)}` },
+  const r = await http("https://api.deepseek.com/user/balance", {
+    headers: { Authorization: `Bearer ${val(name)}`, Accept: "application/json" },
   });
   record(name, "llm", authVerdict(r));
-}
-
-// --- Perplexity: minimal 1-token completion (tiny cost) to distinguish 401 vs ok ---
-async function perplexity() {
-  const name = "PERPLEXITY_API_KEY";
-  if (!present(name)) return record(name, "llm", "missing");
-  const r = await http("https://api.perplexity.ai/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${val(name)}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "sonar",
-      messages: [{ role: "user", content: "ping" }],
-      max_tokens: 1,
-    }),
-  });
-  const verdict = perplexityVerdict(r);
-  record(name, "llm", verdict);
 }
 
 // --- Vercel: /v2/user proves token; optional project+team resolution ---
@@ -287,8 +263,7 @@ async function main() {
     githubToken("GITHUB_SITE_TOKEN"),
     githubToken("GITHUB_PROVISION_TOKEN"),
     githubToken("SEO_BOT_SITE_GITHUB_TOKEN"),
-    openrouter(),
-    perplexity(),
+    deepseek(),
     vercel(),
     dataforseo(),
     seoBot(),

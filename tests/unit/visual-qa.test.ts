@@ -47,7 +47,7 @@ const CRITICAL_VERDICT = JSON.stringify({
 /** A deployed site where every page renders and the evaluator reports `analysis`. */
 function fakeDeps(analysis: string) {
   return {
-    env: { OPENROUTER_API_KEY: "test-key", PERPLEXITY_API_KEY: "test-key" },
+    env: { DEEPSEEK_API_KEY: "test-key" },
     fetch: async () => ({ ok: true, status: 200 }),
     async launchBrowser() {
       return {
