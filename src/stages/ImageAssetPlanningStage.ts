@@ -10,12 +10,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { basename, isAbsolute, resolve } from "node:path";
 import { VISUAL_ROLES, type VisualRequirement } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
-import type {
-  AssetSpec,
-  BuildContext,
-  ImageSlotSpec,
-  ProvidedImageSpec,
-} from "../pipeline/BuildContext.js";
+import type { BuildContext, ImageSlotSpec, ProvidedImageSpec } from "../pipeline/BuildContext.js";
 import { clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
@@ -33,7 +28,7 @@ import type { Stage } from "../pipeline/PipelineRunner.js";
 import {
   basePlacement,
   isBrandMarkCandidate,
-  isLogoSlot,
+  isFactualSlot,
   type ProvidedCandidate,
   placementRole,
   placementSectionId,
@@ -78,13 +73,11 @@ function dispositionForSource(_source: ResolvedImageAsset["source"]): ReuseDispo
  * requirement, never WHETHER the site needs it.
  *
  * Asset precedence (R12): authorized source/client assets outrank generation.
+ * Reuse-first: every blueprint slot tries provided and then authorized
+ * source-site assets; a blueprint's provenance only decides whether generation
+ * may follow as the last resort — never that it replaces reuse.
  */
 export function slotsFromVisualRequirements(requirements: VisualRequirement[]): ImageSlotSpec[] {
-  const provenanceToSources: Record<string, Array<"provided" | "source-site" | "generated">> = {
-    source: ["provided", "source-site"],
-    licensed: ["provided"],
-    generated: ["generated"],
-  };
   const basePlacementOf = (requirement: VisualRequirement): string =>
     requirement.route_id === "global"
       ? `global:${requirement.role}`
@@ -102,26 +95,19 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
   }
   const slots: ImageSlotSpec[] = requirements.map((requirement) => {
     const base = basePlacementOf(requirement);
-    // A logo is a protected brand asset: provided or authorized source only.
-    const logo = isLogoSlot({ id: requirement.slot_id, placement: base });
-    const sources: Array<"provided" | "source-site" | "generated"> = [];
-    for (const provenance of requirement.preferred_provenance) {
-      for (const source of provenanceToSources[provenance] ?? []) {
-        if (logo && source === "generated") continue;
-        if (!sources.includes(source)) sources.push(source);
-      }
-    }
+    // Factual roles (logo, team, project proof, …) are never generated; the
+    // planner enforces that for every slot, so it is not repeated here.
+    const allowsGenerated =
+      requirement.preferred_provenance.includes("generated") &&
+      !isFactualSlot({ id: requirement.slot_id, placement: base });
     const collides = (sectionsByPlacement.get(base)?.size ?? 0) > 1;
     return {
       id: requirement.slot_id,
       placement: collides ? sectionQualifiedPlacement(base, requirement.section_id) : base,
       required: requirement.required,
-      preferredSources:
-        sources.length > 0
-          ? sources
-          : logo
-            ? ["provided", "source-site"]
-            : ["provided", "source-site", "generated"],
+      preferredSources: allowsGenerated
+        ? ["provided", "source-site", "generated"]
+        : ["provided", "source-site"],
       altText: requirement.composition_guidance,
     };
   });
@@ -212,7 +198,7 @@ export function projectProvidedPlacements(
     if (!permitted) {
       throw new BuildError(
         "VALIDATION_FAILED",
-        `provided-image-placement: ${image.id} intends ${JSON.stringify(placement)}, which names no permitted placement on an existing route or section`,
+        `provided-image-placement: ${image.id} intends ${JSON.stringify(placement)}, which names no permitted placement on an existing route or section (use "global:logo", "global:og-image", or "<route>:<role>[#<section_id>]" with a role of ${VISUAL_ROLES.join(", ")})`,
       );
     }
     projected.push({
@@ -227,19 +213,53 @@ export function projectProvidedPlacements(
   return [...slots, ...projected];
 }
 
+/**
+ * The one supplied image that is unambiguously the company logo without an
+ * explicit placement: no image claims global:logo explicitly, and exactly one
+ * unplaced image names "logo" in its id or alt text. Ambiguity identifies none
+ * (an operator places it explicitly instead); a supplied logo is never guessed.
+ */
+function identifiedLogo<T extends { id: string; path: string; intendedPlacement?: string }>(
+  provided: ReadonlyArray<T>,
+): T | undefined {
+  if (provided.some((image) => image.intendedPlacement?.trim() === "global:logo")) return undefined;
+  // Only the asset's own name (id or file name) can say it is the logo: alt
+  // text describing a photo that merely shows a logo is not evidence.
+  const named = provided.filter(
+    (image) =>
+      !image.intendedPlacement?.trim() &&
+      /(^|[^a-z0-9])logo($|[^a-z0-9])/i.test(`${image.id} ${basename(image.path)}`),
+  );
+  return named.length === 1 ? named[0] : undefined;
+}
+
+/**
+ * The supplied images with the one unambiguous logo assigned explicitly to
+ * global:logo, so it is bound to that slot as an assigned asset — never left
+ * to compete with other images on size.
+ */
+export function withIdentifiedLogo(
+  provided: ReadonlyArray<ProvidedImageSpec>,
+): ProvidedImageSpec[] {
+  const logo = identifiedLogo(provided);
+  return provided.map((image) =>
+    image === logo ? { ...image, intendedPlacement: "global:logo" } : image,
+  );
+}
+
 export class ImageAssetPlanningStage implements Stage {
   name = "image-asset-planning";
-  version = "2.0.0";
+  version = "2.1.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Persist the plan and the (provided + source-site) delivered manifest whenever
     // slots are authored. Image generation later overwrites image_assets with the
     // complete set; writing it here guarantees the evidence exists even for a
     // build with no generated slots. Text-only builds declare no output.
+    // Declared exactly when run() produced a plan (it then always writes both),
+    // so a spec whose images resolve to no slot never claims missing evidence.
     outputs: (ctx: BuildContext): EvidenceKind[] =>
-      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0
-        ? []
-        : ["image_plan", "image_assets"],
+      ctx.dryRun || !ctx.imageAssetPlan ? [] : ["image_plan", "image_assets"],
     resumable: false,
     externalMutation: false,
   };
@@ -247,14 +267,15 @@ export class ImageAssetPlanningStage implements Stage {
   async run(ctx: BuildContext): Promise<void> {
     const assets = ctx.domainSpec.assets;
     const redesign = ctx.buildIntent === "REDESIGN_IMPROVE";
-    const slots = this.resolveSlots(ctx, assets, redesign);
+    const providedSpecs = withIdentifiedLogo(assets?.providedImages ?? []);
+    const slots = this.resolveSlots(ctx, assets, providedSpecs, redesign);
     if ((!assets && !redesign) || slots.length === 0) {
       logger.info("No image slots declared; skipping image asset planning");
       return;
     }
 
     ctx.resolvedImages ??= new Map();
-    const provided = assets ? this.inspectProvided(assets, ctx.dryRun) : [];
+    const provided = this.inspectProvided(providedSpecs, ctx.dryRun);
     const sourceCandidates: IngestedImage[] = ctx.sourceSiteManifest?.images ?? [];
     const generationEnabled = assets?.generation?.enabled !== false;
 
@@ -263,14 +284,11 @@ export class ImageAssetPlanningStage implements Stage {
       provided: provided.map(this.toCandidate),
       sourceCandidates,
       generationEnabled,
-      clientAssetFirst: redesign,
     });
     ctx.imageAssetPlan = plan;
 
     const missing = unresolvedRequiredSlots(plan);
-    const missingLogo = redesign
-      ? missing.find((asset) => asset.placement === "global:logo")
-      : undefined;
+    const missingLogo = missing.find((asset) => asset.placement === "global:logo");
     if (missingLogo) {
       throw new BuildError(
         "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",
@@ -278,11 +296,22 @@ export class ImageAssetPlanningStage implements Stage {
       );
     }
     if (missing.length > 0) {
+      const factual = missing.filter((asset) =>
+        isFactualSlot({ id: asset.slotId, placement: asset.placement }),
+      );
+      const illustrative = missing.filter((asset) => !factual.includes(asset));
       throw new BuildError(
         redesign ? "VISUAL_ASSET_REQUIREMENT_UNSATISFIED" : "VALIDATION_FAILED",
-        `Required image slots could not be resolved: ${missing.map((asset) => asset.slotId).join(", ")}`,
+        `Required image slots could not be resolved: ${missing.map((asset) => asset.slotId).join(", ")}` +
+          (factual.length > 0
+            ? `; ${factual.map((asset) => asset.slotId).join(", ")} depict real identity or work and are never generated — supply them under assets.providedImages`
+            : "") +
+          (illustrative.length > 0
+            ? `; for ${illustrative.map((asset) => asset.slotId).join(", ")}, assign a client image by intendedPlacement or slot id, or enable assets.generation`
+            : ""),
       );
     }
+    this.reportUnusedPlacedImages(providedSpecs, plan);
 
     const stagingRoot = clientAssetRoot(ctx);
     const resolved = this.resolvePlannedAssets(
@@ -327,10 +356,20 @@ export class ImageAssetPlanningStage implements Stage {
   private resolveSlots(
     ctx: BuildContext,
     assets: BuildContext["domainSpec"]["assets"],
+    providedSpecs: ProvidedImageSpec[],
     redesign: boolean,
   ): ImageSlotSpec[] {
     const slots = assets?.imageSlots ?? [];
-    if (!redesign) return slots;
+    if (!redesign) {
+      // One asset-selection rule for every build: explicitly placed (or the one
+      // unambiguous) client images enter the slot inventory without being
+      // repeated under imageSlots. COPY routes carry no blueprint sections.
+      return projectProvidedPlacements(
+        slots,
+        providedSpecs,
+        new Map(ctx.domainSpec.routes.map((route) => [route.slug, new Set<string>()])),
+      );
+    }
     // R11: the blueprint is the visual requirement authority. Spec-declared
     // slots are merged in only where the blueprint has no slot of that id
     // (operator additions), never as a replacement for blueprint intent.
@@ -350,7 +389,7 @@ export class ImageAssetPlanningStage implements Stage {
     );
     return projectProvidedPlacements(
       mergeBlueprintAndSpecSlots(blueprintSlots, slots),
-      assets?.providedImages ?? [],
+      providedSpecs,
       routeSections,
     );
   }
@@ -467,6 +506,39 @@ export class ImageAssetPlanningStage implements Stage {
     );
   }
 
+  /**
+   * A client image placed explicitly but not used (another image filled that
+   * placement) is never moved to a different section; it is reported so it is
+   * not lost silently, and stays in the client's asset inventory.
+   */
+  private reportUnusedPlacedImages(specs: ProvidedImageSpec[], plan: ImageAssetPlan): void {
+    const used = new Set(
+      plan.assets.flatMap((asset) =>
+        asset.resolution.source === "provided" && asset.resolution.candidateId
+          ? [asset.resolution.candidateId]
+          : [],
+      ),
+    );
+    for (const spec of specs) {
+      const placement = spec.intendedPlacement?.trim();
+      if (!placement || used.has(spec.id)) continue;
+      const winner = plan.assets.find(
+        (asset) => asset.placement === placement || basePlacement(asset.placement) === placement,
+      );
+      logger.warn(
+        {
+          image: spec.id,
+          intendedPlacement: placement,
+          filledBy:
+            winner && "candidateId" in winner.resolution
+              ? winner.resolution.candidateId
+              : undefined,
+        },
+        "Provided image not placed: its intended placement was filled by another asset; it is kept in the asset inventory, not moved elsewhere",
+      );
+    }
+  }
+
   private toCandidate(entry: InspectedProvided): ProvidedCandidate {
     return {
       id: entry.spec.id,
@@ -478,9 +550,9 @@ export class ImageAssetPlanningStage implements Stage {
     };
   }
 
-  private inspectProvided(assets: AssetSpec, dryRun: boolean): InspectedProvided[] {
+  private inspectProvided(specs: ProvidedImageSpec[], dryRun: boolean): InspectedProvided[] {
     const results: InspectedProvided[] = [];
-    for (const spec of assets.providedImages ?? []) {
+    for (const spec of specs) {
       const absolutePath = isAbsolute(spec.path) ? spec.path : resolve(process.cwd(), spec.path);
       if (!existsSync(absolutePath)) {
         if (dryRun) continue;

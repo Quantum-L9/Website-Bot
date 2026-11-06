@@ -237,3 +237,15 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
   .service-card { transition: none; }
   .service-card:hover { transform: none; }
 }
+/* ── Protected assets ─────────────────────────────────────────────────────────
+   Client-provided and authorized source-site images are shown whole: scaled
+   proportionally by the browser, never cropped, filtered or distorted. Only
+   generated illustrations may be cropped to fill their frame. */
+:is(.hero__image, .content-block__visual img, .gallery-grid img, .service-card__image):is(
+    [data-asset-source="provided"],
+    [data-asset-source="source-site"]
+  ) {
+  object-fit: contain;
+  filter: none;
+  background: var(--color-background);
+}

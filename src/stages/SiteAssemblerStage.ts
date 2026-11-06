@@ -10,7 +10,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, extname, join, resolve } from "node:path";
+import { dirname, extname, isAbsolute, join, resolve } from "node:path";
 import type { StructuredContentRoute, VisualRequirement } from "@quantum-l9/bot-interop";
 import {
   isRegisteredSection,
@@ -27,11 +27,13 @@ import type {
   BuildContext,
   DeployTarget,
   DomainSpec,
+  ProvidedImageSpec,
   SiteConfig,
   SiteImageEntry,
 } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
+import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import {
   firstSourcePhone,
@@ -45,6 +47,7 @@ import {
   placementSectionId,
   routeSlugFromPlacement,
 } from "../services/images/ImageAssetPlanner.js";
+import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
 import {
   buildAssemblyManifest,
   normalizeComponentName,
@@ -147,6 +150,74 @@ const ROLE_CONTENT_SLOT: Readonly<Record<string, string>> = {
   gallery: "project_proof",
 };
 
+/** An unplaced image the gallery may show, copied unchanged from `path`. */
+interface GalleryExtra {
+  fileName: string;
+  path: string;
+  alt: string;
+  width: number;
+  height: number;
+  sha256: string;
+  source: "provided" | "source-site";
+}
+
+/** A file-name-safe stem for a provided image id. */
+function safeFileStem(value: string): string {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "image"
+  );
+}
+
+/**
+ * An unplaced, decodable client-provided image the gallery may show, or
+ * undefined: explicitly placed images belong where they were placed and brand
+ * marks are never gallery photos.
+ */
+function providedGalleryExtra(spec: ProvidedImageSpec): GalleryExtra | undefined {
+  if (spec.intendedPlacement?.trim()) return undefined;
+  if (
+    isBrandMarkCandidate({ sourceUrl: spec.path, altText: spec.altText, surroundingText: spec.id })
+  )
+    return undefined;
+  const path = isAbsolute(spec.path) ? spec.path : resolve(process.cwd(), spec.path);
+  if (!existsSync(path)) return undefined;
+  let inspected: ReturnType<typeof inspectImage>;
+  try {
+    inspected = inspectImage(readFileSync(path));
+  } catch {
+    return undefined;
+  }
+  const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? (extname(path).slice(1) || "img");
+  return {
+    // The content hash keeps two ids that slug alike (e.g. "project-1" and
+    // "Project 1") from overwriting each other's file.
+    fileName: `provided-${safeFileStem(spec.id)}-${inspected.sha256.slice(0, 12)}.${extension}`,
+    path,
+    alt: spec.altText || "Project photo",
+    width: inspected.width,
+    height: inspected.height,
+    sha256: inspected.sha256,
+    source: "provided",
+  };
+}
+
+/** An unused source-site photo the gallery may show, or undefined for a brand mark or missing file. */
+function sourceGalleryExtra(image: IngestedImage): GalleryExtra | undefined {
+  if (isBrandMarkCandidate(image) || !existsSync(image.localPath)) return undefined;
+  return {
+    fileName: `${image.id}${extname(image.localPath) || ".jpg"}`,
+    path: image.localPath,
+    alt: image.altText || image.surroundingText || "Project photo",
+    width: image.width,
+    height: image.height,
+    sha256: image.sha256,
+    source: "source-site",
+  };
+}
+
 /** One route's sections and the image placement bound to each. */
 interface RouteImageSlots {
   slug: string;
@@ -200,7 +271,7 @@ function actionKey(value: string): string {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.6.0";
+  version = "3.7.0";
   evidence = {
     // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -1009,29 +1080,40 @@ export class SiteAssemblerStage implements Stage {
     );
   }
 
-  private galleryExtras(ctx: BuildContext) {
+  /**
+   * Images available to the gallery beyond those the plan placed: suitable
+   * unused client-provided photos first (they outrank reuse), then unused
+   * source-site photos. A provided image with an explicit intendedPlacement is
+   * never moved here (it belongs where it was placed), brand marks never
+   * become gallery photos, and an asset already shown elsewhere — by content
+   * hash — is not repeated. Files are copied unchanged.
+   */
+  private galleryExtras(ctx: BuildContext): GalleryExtra[] {
     const used = new Set([...(ctx.resolvedImages?.values() ?? [])].map((asset) => asset.sha256));
-    return (ctx.sourceSiteManifest?.images ?? []).filter((image) => {
-      if (used.has(image.sha256)) return false;
-      if (isBrandMarkCandidate(image)) return false;
-      return existsSync(image.localPath);
-    });
+    const extras: GalleryExtra[] = [];
+    const add = (extra: GalleryExtra | undefined): void => {
+      if (!extra || used.has(extra.sha256)) return;
+      used.add(extra.sha256);
+      extras.push(extra);
+    };
+    for (const spec of ctx.domainSpec.assets?.providedImages ?? []) add(providedGalleryExtra(spec));
+    for (const image of ctx.sourceSiteManifest?.images ?? []) add(sourceGalleryExtra(image));
+    return extras;
   }
 
   private buildGalleryRegistry(ctx: BuildContext): SiteImageEntry[] {
     return this.galleryExtras(ctx).map((image) => ({
-      src: `/images/gallery/${image.id}${extname(image.localPath) || ".jpg"}`,
-      alt: image.altText || image.surroundingText || "Project photo",
+      src: `/images/gallery/${image.fileName}`,
+      alt: image.alt,
       width: image.width,
       height: image.height,
-      source: "source-site" as const,
+      source: image.source,
     }));
   }
 
   /** Copy every registered image into the project's public/images/ directory. */
   private copyResolvedImages(root: string, ctx: BuildContext): void {
-    if (!ctx.resolvedImages?.size) return;
-    for (const asset of ctx.resolvedImages.values()) {
+    for (const asset of ctx.resolvedImages?.values() ?? []) {
       if (asset.disposition !== "approved-client-owned") continue;
       if (!existsSync(asset.absolutePath)) {
         throw new BuildError(
@@ -1048,10 +1130,9 @@ export class SiteAssemblerStage implements Stage {
 
   private copyGalleryImages(root: string, ctx: BuildContext): void {
     for (const image of this.galleryExtras(ctx)) {
-      const fileName = `${image.id}${extname(image.localPath) || ".jpg"}`;
-      const target = safeChild(root, `public/images/gallery/${fileName}`);
+      const target = safeChild(root, `public/images/gallery/${image.fileName}`);
       mkdirSync(dirname(target), { recursive: true });
-      copyFileSync(image.localPath, target);
+      copyFileSync(image.path, target);
     }
   }
 

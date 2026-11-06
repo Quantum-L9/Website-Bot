@@ -14,6 +14,7 @@ import { crc32 } from "node:zlib";
 import {
   type StructuredContentRoute,
   sealIntelligenceArtifact,
+  type VisualRequirement,
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
 import { deriveVisualRequirements } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
@@ -191,7 +192,11 @@ export const sha256 = (bytes: Buffer): string => createHash("sha256").update(byt
 export interface RedesignFixtureOptions {
   routes?: (routes: StructuredContentRoute[]) => StructuredContentRoute[];
   blueprint?: RedesignRouteFixture[];
-  provided?: Array<{ id: string; intendedPlacement: string }>;
+  provided?: Array<{ id: string; intendedPlacement?: string; altText?: string }>;
+  /** Blueprint visual requirements; derived from the blueprint routes when absent. */
+  visualRequirements?: VisualRequirement[];
+  /** Whether the spec allows image generation (default false). */
+  generation?: boolean;
 }
 
 export async function redesignContext(options: RedesignFixtureOptions = {}): Promise<BuildContext> {
@@ -213,13 +218,14 @@ export async function redesignContext(options: RedesignFixtureOptions = {}): Pro
   ctx.pageContentContract = authorities.pageContentContract;
   if (options.provided) {
     const dir = mkdtempSync(join(tmpdir(), "glue-assets-"));
-    const visualRequirements = deriveVisualRequirements(ctx.websiteBlueprint.payload.routes);
+    const visualRequirements =
+      options.visualRequirements ?? deriveVisualRequirements(ctx.websiteBlueprint.payload.routes);
     ctx.websiteBlueprint = makeRedesignAuthorities(blueprint, {
       primaryAction: "request_quote",
       visualRequirements,
     }).websiteBlueprint;
     ctx.domainSpec.assets = {
-      generation: { enabled: false },
+      generation: { enabled: options.generation === true },
       providedImages: options.provided.map((image) => {
         const path = join(dir, `${image.id}.png`);
         writeFileSync(path, pngBytes(image.id));
