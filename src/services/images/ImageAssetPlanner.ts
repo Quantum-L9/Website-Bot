@@ -98,12 +98,18 @@ export function placementRole(placement: string): string {
     .toLowerCase();
 }
 
-/** True when an explicit intended placement names this slot (exactly, or its route + role). */
+/**
+ * True when an explicit intended placement names this slot: exactly; by route
+ * + role when the intent is unqualified; or by section when the intent is
+ * section-qualified but the role occurs once on the route (unqualified slot).
+ */
 function intendedFor(slot: ImageSlotSpec, intendedPlacement: string): boolean {
   return (
     intendedPlacement === slot.placement ||
     (placementSectionId(intendedPlacement) === undefined &&
-      intendedPlacement === basePlacement(slot.placement))
+      intendedPlacement === basePlacement(slot.placement)) ||
+    (placementSectionId(slot.placement) === undefined &&
+      basePlacement(intendedPlacement) === slot.placement)
   );
 }
 
@@ -121,9 +127,22 @@ function semanticallySuits(slot: ImageSlotSpec, candidate: ProvidedCandidate): b
   return altKeywordMatch(slot, candidate.altText);
 }
 
-export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate): number {
+/**
+ * Score a provided image for a slot. `clientAssetFirst` (REDESIGN_IMPROVE,
+ * WB-GLUE-01) matches section-qualified intents and requires semantic evidence
+ * for an unplaced image; without it the legacy (COPY) scoring is unchanged.
+ */
+export function scoreProvided(
+  slot: ImageSlotSpec,
+  candidate: ProvidedCandidate,
+  clientAssetFirst = false,
+): number {
   let score = 0;
-  if (candidate.intendedPlacement && intendedFor(slot, candidate.intendedPlacement)) {
+  if (!clientAssetFirst) {
+    if (candidate.intendedPlacement === slot.placement) score += 60;
+    else if (candidate.intendedPlacement) return Number.NEGATIVE_INFINITY;
+    else if (candidate.id === slot.id) score += 40;
+  } else if (candidate.intendedPlacement && intendedFor(slot, candidate.intendedPlacement)) {
     score += candidate.intendedPlacement === slot.placement ? 60 : 50;
   } else if (candidate.intendedPlacement) return Number.NEGATIVE_INFINITY;
   else if (candidate.id === slot.id) score += 40;
@@ -251,11 +270,12 @@ function bestProvided(
   slot: ImageSlotSpec,
   candidates: ProvidedCandidate[],
   usedIds: Set<string>,
+  clientAssetFirst = false,
 ): { candidate: ProvidedCandidate; score: number } | undefined {
   let best: { candidate: ProvidedCandidate; score: number } | undefined;
   for (const candidate of candidates) {
     if (usedIds.has(candidate.id)) continue;
-    const score = scoreProvided(slot, candidate);
+    const score = scoreProvided(slot, candidate, clientAssetFirst);
     if (score >= MIN_ACCEPTABLE_SCORE && (!best || score > best.score)) best = { candidate, score };
   }
   return best;
@@ -288,6 +308,13 @@ export interface PlanInputs {
   sourceCandidates: IngestedImage[];
   /** When false, "generated" is dropped from precedence for every slot. */
   generationEnabled: boolean;
+  /**
+   * REDESIGN_IMPROVE client-asset-first selection (WB-GLUE-01): an explicitly
+   * assigned provided image outranks every preferred source, an unplaced one
+   * needs semantic evidence, and a logo is never generated. Absent (COPY), the
+   * legacy selection is unchanged.
+   */
+  clientAssetFirst?: boolean;
 }
 
 /** A provided image explicitly assigned to this slot (by placement or slot id). */
@@ -296,13 +323,14 @@ function explicitProvided(
   candidates: ProvidedCandidate[],
   usedIds: Set<string>,
 ): { candidate: ProvidedCandidate; score: number } | undefined {
-  const hit = bestProvided(slot, candidates, usedIds);
-  if (!hit) return undefined;
-  const { candidate } = hit;
-  const explicit = candidate.intendedPlacement
-    ? intendedFor(slot, candidate.intendedPlacement)
-    : candidate.id === slot.id;
-  return explicit ? hit : undefined;
+  // Only explicitly assigned candidates compete: a merely suitable image must
+  // never outscore the asset the operator assigned to this slot.
+  const explicit = candidates.filter((candidate) =>
+    candidate.intendedPlacement
+      ? intendedFor(slot, candidate.intendedPlacement)
+      : candidate.id === slot.id,
+  );
+  return bestProvided(slot, explicit, usedIds, true);
 }
 
 function resolveSlot(
@@ -311,20 +339,21 @@ function resolveSlot(
   usedProvided: Set<string>,
   usedSource: Set<string>,
 ): ImageAssetResolution {
+  const strict = inputs.clientAssetFirst === true;
   // An explicitly assigned client asset is never excluded by a slot's
   // preferred-source order (e.g. a blueprint that prefers generation).
-  const assigned = explicitProvided(slot, inputs.provided, usedProvided);
+  const assigned = strict ? explicitProvided(slot, inputs.provided, usedProvided) : undefined;
   if (assigned) {
     return { source: "provided", candidateId: assigned.candidate.id, score: assigned.score };
   }
   // A logo is a protected brand asset: it is never synthesized (WB-GLUE-01).
-  const logo = isLogoSlot(slot);
+  const protectedLogo = strict && isLogoSlot(slot);
   const precedence = (slot.preferredSources ?? DEFAULT_PRECEDENCE).filter(
-    (source) => source !== "generated" || (inputs.generationEnabled && !logo),
+    (source) => source !== "generated" || (inputs.generationEnabled && !protectedLogo),
   );
   for (const source of precedence) {
     if (source === "provided") {
-      const hit = bestProvided(slot, inputs.provided, usedProvided);
+      const hit = bestProvided(slot, inputs.provided, usedProvided, strict);
       if (hit) return { source: "provided", candidateId: hit.candidate.id, score: hit.score };
     } else if (source === "source-site") {
       const hit = bestSource(slot, inputs.sourceCandidates, usedSource);

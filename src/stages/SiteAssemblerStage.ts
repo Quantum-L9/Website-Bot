@@ -351,16 +351,22 @@ export class SiteAssemblerStage implements Stage {
       );
     validateRouteContracts(ctx.domainSpec.routes);
     const redesign = ctx.buildIntent === "REDESIGN_IMPROVE";
-    if (!redesign) {
+    // A REDESIGN_IMPROVE run checks layout realizability against the blueprint
+    // sections (redesignPlans); a dry run without them keeps the spec check.
+    if (!redesign || ctx.dryRun) {
       for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
     }
     this.assertNoPretendInquiry(ctx);
     if (!ctx.dryRun) {
-      this.routeHeads(ctx);
-      // REDESIGN_IMPROVE content comes from the accepted blueprint + content
-      // package joined by section identity, never from component-keyed copy.
-      if (redesign) this.redesignPlans(ctx);
-      else this.assertRouteContentAvailable(ctx);
+      if (redesign) {
+        this.routeHeads(ctx);
+        // REDESIGN_IMPROVE content comes from the accepted blueprint + content
+        // package joined by section identity, never from component-keyed copy.
+        this.redesignPlans(ctx);
+      } else {
+        this.assertRouteContentAvailable(ctx);
+        this.routeHeads(ctx);
+      }
     }
   }
 
@@ -499,6 +505,7 @@ export class SiteAssemblerStage implements Stage {
       const specRoute = ctx.domainSpec.routes[index];
       const where = `route ${JSON.stringify(route.routeId)}`;
       let faqsAttached = false;
+      let serviceGridShown = false;
       const sections = route.sections.map((section): RedesignAssemblySection => {
         const component = section.blueprint.component_class;
         const resolution = resolveSectionRenderer(normalizeComponentName(component));
@@ -530,8 +537,10 @@ export class SiteAssemblerStage implements Stage {
           ...(name === "faq" && !faqsAttached && route.structured.faqs.length > 0
             ? { faqs: route.structured.faqs }
             : {}),
+          ...(name === "services_overview" && serviceGridShown ? { serviceCards: false } : {}),
         };
         if (name === "faq") faqsAttached = true;
+        if (name === "services_overview") serviceGridShown = true;
         return {
           sectionId: section.sectionId,
           name,

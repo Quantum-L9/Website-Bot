@@ -56,6 +56,11 @@ export interface StructuredSectionView {
   readonly cta: { readonly label: string; readonly href: string } | null;
   /** Route-level FAQ data, attached only to a planned FAQ section. */
   readonly faqs?: readonly { readonly question: string; readonly answer: string }[];
+  /**
+   * False on every services_overview section after the route's first: the
+   * route's service-card grid renders once, never repeated per section.
+   */
+  readonly serviceCards?: boolean;
 }
 
 /** A generic section: rendered by the structured prose renderer or a layout variant. */

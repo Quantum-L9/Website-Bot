@@ -1,10 +1,14 @@
 ---
 import { siteConfig } from "../lib/siteConfig";
+import type { StructuredSectionView } from "./SectionRegistry";
+import StructuredBlocks from "./StructuredBlocks.astro";
 
 interface Props {
   content?: string;
+  /** REDESIGN_IMPROVE accepted section; its copy renders semantically above the form. */
+  structured?: StructuredSectionView;
 }
-const { content = "" } = Astro.props;
+const { content = "", structured } = Astro.props;
 // Only a verified HTTPS action (validated by the assembler) renders a live form.
 // Without one the section stays informational and says inquiries are not
 // enabled, instead of offering a submit that cannot reach anyone (WB-QAP-03).
@@ -14,7 +18,10 @@ const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim().replace(/\*\*/g, ""))
   .filter(Boolean);
-const heading = paragraphs[0] || cta?.label || `Contact ${siteConfig.businessName}`;
+const heading =
+  (structured ? (structured.heading ?? structured.eyebrow) : paragraphs[0]) ||
+  cta?.label ||
+  `Contact ${siteConfig.businessName}`;
 const phone = siteConfig.phone;
 const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
@@ -22,9 +29,16 @@ const serviceOptions = allRoutes.filter(
   (route) => route.href.startsWith("/services/") && route.href !== "/services/",
 );
 ---
-<section id={action ? "quote" : undefined} class="lead-form" data-section="contact_form">
+<section id={action ? "quote" : undefined} class="lead-form" data-section="contact_form" data-section-id={structured?.sectionId}>
   <h2>{heading}</h2>
-  {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+  {structured ? (
+    <>
+      {structured.subheading && <p>{structured.subheading}</p>}
+      <StructuredBlocks blocks={structured.blocks} />
+    </>
+  ) : (
+    paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)
+  )}
   {phone && <p class="lead-form__phone">Call or text <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
   {action ? (
   <form method="post" action={action} data-lead-form>

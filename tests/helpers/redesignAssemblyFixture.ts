@@ -28,6 +28,7 @@ export const ROUTES: DomainSpec["routes"] = [
   // The spec's component list is NOT the redesign section authority.
   { slug: "/", title: "Home", components: ["hero", "services-overview"] },
   { slug: "/contact", title: "Contact", components: ["contact_form"] },
+  { slug: "/services/drains", title: "Drain Services", components: ["prose"] },
 ];
 
 /** Blueprint order deliberately differs from both the spec list and the package order. */
@@ -48,6 +49,7 @@ export const BLUEPRINT: RedesignRouteFixture[] = [
         content_slots: ["service_overview"],
       },
       { section_id: "story", component_class: "about-story", content_slots: ["differentiation"] },
+      { section_id: "proof", component_class: "trust-signals", content_slots: ["trust"] },
       { section_id: "questions", component_class: "faq-accordion", content_slots: ["faq"] },
       { section_id: "closing", component_class: "cta-banner", content_slots: ["conversion"] },
     ],
@@ -57,6 +59,10 @@ export const BLUEPRINT: RedesignRouteFixture[] = [
     sections: [
       { section_id: "form", component_class: "contact-form", content_slots: ["conversion"] },
     ],
+  },
+  {
+    route_id: "/services/drains",
+    sections: [{ section_id: "drains", component_class: "prose" }],
   },
 ];
 
@@ -90,6 +96,11 @@ export function packageRoutes(): StructuredContentRoute[] {
           subheading: "Same-week repairs",
           blocks: [{ kind: "paragraph", text: "Licensed crews across the county." }],
           cta: { label: "See our services", action: "/contact" },
+        },
+        {
+          section_id: "proof",
+          heading: "Why neighbors trust us",
+          blocks: [{ kind: "bullets", items: ["Licensed", "Insured"] }],
         },
         {
           section_id: "installs",
@@ -129,6 +140,21 @@ export function packageRoutes(): StructuredContentRoute[] {
           section_id: "form",
           heading: "Contact us",
           blocks: [{ kind: "paragraph", text: "Tell us what you need." }],
+        },
+      ],
+      faqs: [],
+      internal_links: [],
+      schema_content_inputs: {},
+    },
+    {
+      route_id: "/services/drains",
+      path: "/services/drains",
+      metadata: { title: "Fixture Drains", description: "Synthetic drains description." },
+      sections: [
+        {
+          section_id: "drains",
+          heading: "Drain cleaning",
+          blocks: [{ kind: "paragraph", text: "Hydro-jetting for stubborn clogs." }],
         },
       ],
       faqs: [],
@@ -246,6 +272,7 @@ export interface EmittedSection {
     heading?: string;
     blocks: unknown[];
     cta: { label: string; href: string } | null;
+    serviceCards?: boolean;
     faqs?: Array<{ question: string; answer: string }>;
   };
   imagePlacement: string | null;

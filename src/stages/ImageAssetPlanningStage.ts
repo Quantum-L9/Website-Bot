@@ -191,10 +191,15 @@ export function projectProvidedPlacements(
   routeSections: Map<string, Set<string>>,
 ): ImageSlotSpec[] {
   const covered = new Set(slots.flatMap((slot) => [slot.placement, basePlacement(slot.placement)]));
+  const slotPlacements = new Set(slots.map((slot) => slot.placement));
   const projected: ImageSlotSpec[] = [];
   for (const image of provided) {
     const placement = image.intendedPlacement?.trim();
-    if (!placement || covered.has(placement)) continue;
+    // Covered exactly, by route + role, or (section-qualified intent) by the
+    // route's single slot of that role: normal resolution assigns it there.
+    if (!placement || covered.has(placement) || slotPlacements.has(basePlacement(placement))) {
+      continue;
+    }
     const role = placementRole(placement);
     const route = routeSlugFromPlacement(placement);
     const sectionId = placementSectionId(placement);
@@ -258,11 +263,14 @@ export class ImageAssetPlanningStage implements Stage {
       provided: provided.map(this.toCandidate),
       sourceCandidates,
       generationEnabled,
+      clientAssetFirst: redesign,
     });
     ctx.imageAssetPlan = plan;
 
     const missing = unresolvedRequiredSlots(plan);
-    const missingLogo = missing.find((asset) => asset.placement === "global:logo");
+    const missingLogo = redesign
+      ? missing.find((asset) => asset.placement === "global:logo")
+      : undefined;
     if (missingLogo) {
       throw new BuildError(
         "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",

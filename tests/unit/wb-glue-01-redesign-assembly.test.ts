@@ -47,13 +47,25 @@ void test("pages render the blueprint's sections in blueprint order with their o
     const home = sections(page(ctx, "/"));
     assert.deepEqual(
       home.map((section) => section.sectionId),
-      ["hero", "how", "repairs", "installs", "story", "questions", "closing"],
+      ["hero", "how", "repairs", "installs", "story", "proof", "questions", "closing"],
     );
     assert.deepEqual(
       home.map((section) => section.name),
-      ["hero", "process", "services_overview", "services_overview", "about_story", "faq", "cta"],
+      [
+        "hero",
+        "process",
+        "services_overview",
+        "services_overview",
+        "about_story",
+        "trust_bar",
+        "faq",
+        "cta",
+      ],
     );
     const byId = new Map(home.map((section) => [section.sectionId, section]));
+    // The route's service-card grid renders once: only the first services section owns it.
+    assert.equal(byId.get("repairs")?.structured.serviceCards, undefined);
+    assert.equal(byId.get("installs")?.structured.serviceCards, false);
     // Copy stays with its section identity whatever the package order was.
     assert.equal(byId.get("repairs")?.structured.heading, "Repairs");
     assert.deepEqual(byId.get("repairs")?.structured.blocks, [
@@ -134,7 +146,7 @@ void test("an unsupported required section renderer fails source-bound instead o
         { section_id: "tour", component_class: "video-carousel" },
       ],
     },
-    BLUEPRINT[1],
+    ...BLUEPRINT.slice(1),
   ];
   const ctx = await redesignContext({
     blueprint,
@@ -161,7 +173,7 @@ void test("an unsupported required section renderer fails source-bound instead o
 void test("an ambiguous component class fails with route, section, class and candidate renderers", async () => {
   const blueprint: RedesignRouteFixture[] = [
     { route_id: "/", sections: [{ section_id: "mixed", component_class: "services-cta" }] },
-    BLUEPRINT[1],
+    ...BLUEPRINT.slice(1),
   ];
   const ctx = await redesignContext({
     blueprint,
@@ -263,4 +275,43 @@ void test("a rebuild after the accepted copy changes reassembles instead of reus
   } finally {
     cleanupContext(first);
   }
+});
+
+void test("PipelineRunner re-runs a local stage that declines its checkpoint (REDESIGN assembly)", async () => {
+  const { PipelineRunner } = await import("../../src/pipeline/PipelineRunner.js");
+  const { checkpointDigest } = await import("../../src/pipeline/StageCheckpoint.js");
+  const stage = new SiteAssemblerStage();
+  const checkpoint = {
+    schema: "website-bot.stage-checkpoint/v2" as const,
+    buildId: "glue-build",
+    clientId: "glue-client",
+    stage: stage.name,
+    stageVersion: stage.version,
+    attempt: 1,
+    inputEvidence: [],
+    outputEvidence: [],
+    inputDigest: checkpointDigest([]),
+    outputDigest: checkpointDigest([]),
+    status: "passed" as const,
+    startedAt: "2026-11-06T00:00:00.000Z",
+    completedAt: "2026-11-06T00:00:01.000Z",
+  };
+  const runner = new PipelineRunner() as unknown as {
+    resumeStage(
+      ctx: BuildContext,
+      stage: SiteAssemblerStage,
+      checkpoint: unknown,
+    ): Promise<boolean>;
+  };
+  const ctx = (buildIntent: BuildContext["buildIntent"]) =>
+    ({
+      resume: true,
+      buildId: "glue-build",
+      clientId: "glue-client",
+      buildIntent,
+      evidenceStore: { verifyReference: async () => true },
+    }) as unknown as BuildContext;
+  // A valid checkpoint: COPY resumes it, REDESIGN_IMPROVE reassembles.
+  assert.equal(await runner.resumeStage(ctx("COPY"), stage, checkpoint), true);
+  assert.equal(await runner.resumeStage(ctx("REDESIGN_IMPROVE"), stage, checkpoint), false);
 });

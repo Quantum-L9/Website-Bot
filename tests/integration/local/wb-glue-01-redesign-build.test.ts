@@ -12,7 +12,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { SiteAssemblerStage } from "../../../src/stages/SiteAssemblerStage.js";
 import { SiteBuildStage } from "../../../src/stages/SiteBuildStage.js";
-import { redesignContext, sha256 } from "../../helpers/redesignAssemblyFixture.js";
+import { LEAD_FORM, redesignContext, sha256 } from "../../helpers/redesignAssemblyFixture.js";
 import { cleanupContext } from "../../helpers/siteFactoryFixture.js";
 
 const count = (html: string, pattern: RegExp): number => html.match(pattern)?.length ?? 0;
@@ -68,6 +68,7 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
       "repairs",
       "installs",
       "story",
+      "proof",
       "questions",
       "closing",
     ]);
@@ -95,6 +96,25 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
       /<nav class="related-links" aria-label="Related pages">[\s\S]*?href="\/contact"[^>]*>Contact our team<\/a>/,
     );
     assert.doesNotMatch(html, /\/nowhere/);
+
+    // A trust section renders its accepted bullets semantically, with no template heading.
+    assert.match(html, /<ul[^>]*>\s*<li[^>]*>Licensed<\/li>\s*<li[^>]*>Insured<\/li>\s*<\/ul>/);
+    assert.match(html, /<h2[^>]*>Why neighbors trust us<\/h2>/);
+    assert.doesNotMatch(html, /The Safe Haven Standard/);
+    // Two services sections on one route: the service-card grid renders once.
+    assert.equal(count(html, /class="service-card"/g), 1);
+    // (The layout's route footer links the page too; only service cards are counted.)
+    assert.equal(count(html, /<a class="service-card"[^>]*href="\/services\/drains"/g), 1);
+
+    // The contact section's structured copy renders above the verified form.
+    const contact = readFileSync(join(ctx.distDir, "contact", "index.html"), "utf-8");
+    assert.match(contact, /data-section-id="form"/);
+    assert.match(contact, /<h2[^>]*>Contact us<\/h2>\s*<p[^>]*>Tell us what you need\.<\/p>/);
+    assert.match(
+      contact,
+      new RegExp(`<form method="post" action="${LEAD_FORM.replace(/[.]/g, "\\.")}"`),
+    );
+    assert.equal(count(contact, /<h1[\s>]/g), 1);
   } finally {
     cleanupContext(ctx);
   }

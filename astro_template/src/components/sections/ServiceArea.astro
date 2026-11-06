@@ -1,15 +1,29 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "service_area", content } = Astro.props;
+const { name = "service_area", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
   .filter(Boolean);
 ---
-<section class="service-area" data-section={name}>
-  <h2>Service area</h2>
-  {paragraphs.map(paragraph => <p>{paragraph}</p>)}
-</section>
+{structured ? (
+  <section class="service-area" data-section={name} data-section-id={structured.sectionId}>
+    <h2>{structured.heading ?? structured.eyebrow ?? "Service area"}</h2>
+    {structured.subheading && <p>{structured.subheading}</p>}
+    <StructuredBlocks blocks={structured.blocks} />
+    {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+  </section>
+) : (
+  <section class="service-area" data-section={name}>
+    <h2>Service area</h2>
+    {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+  </section>
+)}
