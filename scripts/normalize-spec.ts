@@ -216,22 +216,18 @@ function compileContentGuardrails(ds: any): ContentGuardrails | undefined {
 }
 
 function leafPaths(value: unknown, prefix = ""): string[] {
+  // An empty container (or a scalar) is itself a leaf at `prefix`.
+  const self = prefix ? [prefix] : [];
   if (Array.isArray(value)) {
-    return value.length === 0
-      ? prefix
-        ? [prefix]
-        : []
-      : value.flatMap((entry) => leafPaths(entry, `${prefix}[]`));
+    if (value.length === 0) return self;
+    return value.flatMap((entry) => leafPaths(entry, `${prefix}[]`));
   }
   if (isObject(value)) {
     const entries = Object.entries(value);
-    return entries.length === 0
-      ? prefix
-        ? [prefix]
-        : []
-      : entries.flatMap(([key, child]) => leafPaths(child, prefix ? `${prefix}.${key}` : key));
+    if (entries.length === 0) return self;
+    return entries.flatMap(([key, child]) => leafPaths(child, prefix ? `${prefix}.${key}` : key));
   }
-  return prefix ? [prefix] : [];
+  return self;
 }
 
 function matches(path: string, prefix: string): boolean {
