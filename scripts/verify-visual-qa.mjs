@@ -55,7 +55,7 @@ export const VIEWPORTS = [
 
 const NAVIGATION_TIMEOUT_MS = 45_000;
 /** Every credential createWebsiteFactoryLLM requires before its first call. */
-export const EVALUATOR_CREDENTIALS = ["OPENROUTER_API_KEY", "PERPLEXITY_API_KEY"];
+export const EVALUATOR_CREDENTIALS = ["DEEPSEEK_API_KEY"];
 const LLM_ADAPTER = resolve(dirname(fileURLToPath(import.meta.url)), "../src/services/llm.ts");
 
 export class VisualQaUsageError extends Error {}

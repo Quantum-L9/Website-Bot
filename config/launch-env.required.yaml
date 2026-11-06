@@ -9,11 +9,10 @@ launch_env_contract:
       required_for_launch: false
       required_for_generation_claims: true
       variables:
-        OPENROUTER_API_KEY: "OpenRouter API key for general-purpose LLM routing. Required for content generation and visual QA."
-        PERPLEXITY_API_KEY: "Perplexity API key for search-grounded tasks. Required for competitor research and fact verification."
-        CLIENT_ID: "Unique client identifier for budget tracking and multi-tenant isolation."
-        MONTHLY_BUDGET_PER_CLIENT: "Monthly token budget in USD per client. Default 200."
-        WEEKLY_BUDGET_TARGET: "Weekly soft budget target in USD. Default 50."
+        DEEPSEEK_API_KEY: "DeepSeek API key for direct text, reasoning and vision calls (src/services/llm.ts, ADR-0020). Required for content generation and visual QA."
+        CLIENT_ID: "Unique client identifier for usage attribution and multi-tenant isolation."
+        LLM_BUILD_BUDGET_USD: "Per-build LLM spend allowance in USD, reserved before every DeepSeek dispatch. Default 10."
+        LLM_MAX_REQUESTS_PER_BUILD: "Maximum DeepSeek requests per build. Default 200."
         SITE_URL: "Live site URL for visual QA screenshot capture and SEO verification."
     license:
       required_for_launch: true

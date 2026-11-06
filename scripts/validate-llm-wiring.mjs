@@ -1,12 +1,15 @@
-// L9_META: layer=validation, role=llm_wiring_guard, status=active, version=1.0.0
+// L9_META: layer=validation, role=llm_wiring_guard, status=active, version=2.0.0
 //
-// Regression guard: the content-generation path MUST be bound to the real
-// @quantum-l9/llm-router, never a local stub. A stub silently ships placeholder
-// copy on a triggered deploy (it ignores credentials and returns a canned
-// string), so this guard fails closed if the wiring ever regresses.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+// Regression guard for the Website-Bot LLM provider boundary (ADR-0020):
+//   - every text/reasoning/vision call crosses src/services/llm.ts to DeepSeek, directly;
+//   - no LLM-Router, OpenRouter or Perplexity dispatch remains under src/;
+//   - image generation stays isolated in the Gemini adapter;
+//   - the adapter is never a local stub that ships canned copy.
+// Static checks prove the source shape; the behavioral probe proves where a real call goes
+// (a capturing transport — no network, no spend).
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 
@@ -18,34 +21,118 @@ if (!repoRoot) {
   throw new Error("validate-llm-wiring: src/services/llm.ts not found in any known layout");
 }
 
-const REAL_PACKAGE = "@quantum-l9/llm-router";
+const ADAPTER_REL = "src/services/llm.ts";
+const IMAGE_ADAPTER_REL = "src/services/images/GeminiImageGenerator.ts";
+const DEEPSEEK_HOST = "api.deepseek.com";
+const RETIRED = [
+  { pattern: /@quantum-l9\/llm-router/, label: "@quantum-l9/llm-router import" },
+  { pattern: /openrouter\.ai|OPENROUTER_API_KEY/, label: "OpenRouter dispatch" },
+  { pattern: /perplexity\.ai|PERPLEXITY_API_KEY/, label: "Perplexity dispatch" },
+];
 const violations = [];
 
-// 1. The real router must be a declared dependency.
-const pkg = JSON.parse(readFileSync(resolve(repoRoot, "package.json"), "utf8"));
-const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-if (!deps[REAL_PACKAGE]) {
-  violations.push(`package.json does not declare ${REAL_PACKAGE}`);
-}
-
-// 2. The LLM adapter must import the real router and must not import a stub.
-const adapterPath = resolve(repoRoot, "src/services/llm.ts");
-const adapter = readFileSync(adapterPath, "utf8");
-if (!new RegExp(`from ['"]${REAL_PACKAGE}['"]`).test(adapter)) {
-  violations.push(`src/services/llm.ts does not import from ${REAL_PACKAGE}`);
-}
-if (/from ['"][^'"]*llm-stub[^'"]*['"]/.test(adapter)) {
-  violations.push("src/services/llm.ts imports a stub module (llm-stub)");
-}
-
-// 3. No stub module may exist in the services directory.
-const servicesDir = resolve(repoRoot, "src/services");
-if (existsSync(servicesDir)) {
-  for (const name of readdirSync(servicesDir)) {
-    if (/^llm-stub\.(ts|js|mjs)$/.test(name)) {
-      violations.push(`stub module present: src/services/${name}`);
+/** Hostnames of every absolute http(s) URL literal in a source text (exact-host comparison). */
+function urlHosts(text) {
+  const hosts = new Set();
+  for (const match of text.matchAll(/https?:\/\/[^\s'"`)<>\\]+/g)) {
+    try {
+      hosts.add(new URL(match[0]).hostname);
+    } catch {
+      /* not a parseable URL literal */
     }
   }
+  return hosts;
+}
+
+function sourceFiles(dir) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) out.push(...sourceFiles(path));
+    else if (/\.(ts|tsx|js|mjs)$/.test(name)) out.push(path);
+  }
+  return out;
+}
+
+// 1. Static: no retired provider path and no second DeepSeek egress anywhere under src/.
+for (const file of sourceFiles(resolve(repoRoot, "src"))) {
+  const rel = relative(repoRoot, file).replaceAll("\\", "/");
+  const text = readFileSync(file, "utf8");
+  for (const { pattern, label } of RETIRED) {
+    if (pattern.test(text)) violations.push(`${rel}: ${label} (retired by ADR-0020)`);
+  }
+  if (rel !== ADAPTER_REL && urlHosts(text).has(DEEPSEEK_HOST)) {
+    violations.push(`${rel}: DeepSeek egress outside ${ADAPTER_REL}`);
+  }
+  if (/from ['"][^'"]*llm-stub[^'"]*['"]/.test(text)) {
+    violations.push(`${rel}: imports a stub module (llm-stub)`);
+  }
+}
+
+// 2. Static: no stub module may exist in the services directory.
+for (const name of readdirSync(resolve(repoRoot, "src/services"))) {
+  if (/^llm-stub\.(ts|js|mjs)$/.test(name))
+    violations.push(`stub module present: src/services/${name}`);
+}
+
+// 3. Static: image generation stays on Gemini and never crosses the text adapter.
+const imageAdapter = readFileSync(resolve(repoRoot, IMAGE_ADAPTER_REL), "utf8");
+if (/from ['"][^'"]*services\/llm(\.js)?['"]|from ['"]\.\.\/llm(\.js)?['"]/.test(imageAdapter)) {
+  violations.push(`${IMAGE_ADAPTER_REL}: image generation must not use the text LLM adapter`);
+}
+if (
+  /GEMINI_API_KEY|generativelanguage|from ['"][^'"]*images\//.test(
+    readFileSync(resolve(repoRoot, ADAPTER_REL), "utf8"),
+  )
+) {
+  violations.push(`${ADAPTER_REL}: the text adapter must not reach the Gemini image provider`);
+}
+
+// 4. Behavioral: a real adapter call goes to DeepSeek with only DEEPSEEK_API_KEY, and the
+//    retired credentials alone never produce a dispatch.
+process.env.L9_MEMORY_MODE ??= "disabled";
+const { register } = await import("tsx/esm/api");
+register();
+const { createWebsiteFactoryLLM } = await import(
+  pathToFileURL(resolve(repoRoot, ADAPTER_REL)).href
+);
+const calls = [];
+const transport = async (url, init) => {
+  calls.push({ url, init });
+  return new Response(
+    JSON.stringify({
+      id: "probe",
+      model: "deepseek-flash",
+      choices: [{ finish_reason: "stop", message: { content: "probe-ok" } }],
+      usage: { prompt_tokens: 1, completion_tokens: 1 },
+    }),
+    { status: 200, headers: { "content-type": "application/json" } },
+  );
+};
+const probe = createWebsiteFactoryLLM("llm-wiring-probe", {
+  env: { DEEPSEEK_API_KEY: "probe-key" },
+  transport,
+});
+const content = await probe.generateContent("probe");
+const host = calls[0] ? new URL(calls[0].url).host : "none";
+if (calls.length !== 1 || host !== DEEPSEEK_HOST || content !== "probe-ok") {
+  violations.push(
+    `behavioral probe: expected one call to ${DEEPSEEK_HOST}, saw ${calls.length} to ${host}`,
+  );
+}
+const retiredOnly = createWebsiteFactoryLLM("llm-wiring-probe", {
+  env: { OPENROUTER_API_KEY: "x", PERPLEXITY_API_KEY: "y" },
+  transport,
+});
+const before = calls.length;
+let refused = false;
+try {
+  await retiredOnly.generateContent("probe");
+} catch {
+  refused = true;
+}
+if (!refused || calls.length !== before) {
+  violations.push("behavioral probe: retired credentials alone must fail before any dispatch");
 }
 
 if (violations.length) {
@@ -56,9 +143,11 @@ console.log(
   JSON.stringify(
     {
       ok: true,
-      package: REAL_PACKAGE,
-      declared: deps[REAL_PACKAGE],
-      adapter: "src/services/llm.ts",
+      adapter: ADAPTER_REL,
+      text_reasoning_provider: "deepseek",
+      endpoint_host: host,
+      image_provider_adapter: IMAGE_ADAPTER_REL,
+      retired_paths_present: false,
       stub_present: false,
     },
     null,
