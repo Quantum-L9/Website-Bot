@@ -413,3 +413,19 @@ void test("F06b generated-team: a synthetic team portrait fails T07 and T10", as
     assertOnly(built, ["T07", "T10"], generatedInPlan(built.plan, "/:team"));
   });
 });
+
+void test("F03c swapped-files: two client photos exchanged inside the published registry fails T06", async () => {
+  await withBuild({}, (built) => {
+    editRegistry(built.ctx.outputDir, (images) => {
+      const repairs = images["/:service#repairs"];
+      const installs = images["/:service#installs"];
+      [repairs.src, installs.src] = [installs.src, repairs.src];
+    });
+    const findings = report(built);
+    assert.deepEqual(findingIds(findings), ["T06"], JSON.stringify(findings, null, 2));
+    assert.deepEqual(findings.map((f) => f.placement).sort(), [
+      "/:service#installs",
+      "/:service#repairs",
+    ]);
+  });
+});

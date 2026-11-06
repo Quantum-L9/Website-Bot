@@ -271,6 +271,11 @@ function checkImages(
       .map((image) => [image.intendedPlacement as string, image]),
   );
   const planned = new Map((plan?.assets ?? []).map((asset) => [asset.placement, asset]));
+  const inputDigests = new Map(
+    provided
+      .filter((image) => existsSync(inputPath(image.path)))
+      .map((image) => [image.id, sha256(readFileSync(inputPath(image.path)))]),
+  );
 
   for (const [placement, requirement] of requirements) {
     const role = placementRole(placement);
@@ -361,6 +366,23 @@ function checkImages(
           placement,
           expected: `bound once, to ${want}`,
           actual: published ? `bound to [${bound.join(", ")}]` : "not published",
+        });
+      }
+    }
+    // T06: a slot assigned a client image publishes THAT image, not another
+    // valid client file swapped into its registry entry.
+    // (Bytes matching no supplied file are a modification: T08 below.)
+    if (assigned && published?.source === "provided") {
+      const file = join(site.outputDir, "public", published.src);
+      const want = inputDigests.get(assigned.id);
+      const got = existsSync(file) ? sha256(readFileSync(file)) : "missing";
+      if (got !== want && [...inputDigests.values()].includes(got)) {
+        findings.push({
+          id: "T06",
+          route: requirement.route_id,
+          placement,
+          expected: `the bytes of ${assigned.id}`,
+          actual: got === "missing" ? `missing ${published.src}` : `sha256 ${got.slice(0, 12)}`,
         });
       }
     }
