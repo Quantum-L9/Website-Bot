@@ -1,9 +1,14 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "faq", content } = Astro.props;
+const { name = "faq", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
@@ -19,12 +24,27 @@ const qa = paragraphs.slice(1).map((paragraph) => {
   return { question: paragraph, answer: "" };
 });
 ---
-<section class="faq" data-section={name}>
-  <h2>{heading}</h2>
-  {qa.map((item) => (
-    <details class="faq__item">
-      <summary>{item.question}</summary>
-      {item.answer && <p>{item.answer}</p>}
-    </details>
-  ))}
-</section>
+{structured ? (
+  <section class="faq" data-section={name} data-section-id={structured.sectionId}>
+    <h2>{structured.heading ?? structured.eyebrow ?? "Frequently asked questions"}</h2>
+    {structured.subheading && <p class="faq__intro">{structured.subheading}</p>}
+    <StructuredBlocks blocks={structured.blocks} />
+    {(structured.faqs ?? []).map((item) => (
+      <details class="faq__item">
+        <summary>{item.question}</summary>
+        <p>{item.answer}</p>
+      </details>
+    ))}
+    {structured.cta && <p class="faq__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+  </section>
+) : (
+  <section class="faq" data-section={name}>
+    <h2>{heading}</h2>
+    {qa.map((item) => (
+      <details class="faq__item">
+        <summary>{item.question}</summary>
+        {item.answer && <p>{item.answer}</p>}
+      </details>
+    ))}
+  </section>
+)}

@@ -8,7 +8,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, isAbsolute, resolve } from "node:path";
-import type { VisualRequirement } from "@quantum-l9/bot-interop";
+import { VISUAL_ROLES, type VisualRequirement } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
 import type {
   AssetSpec,
@@ -31,9 +31,15 @@ import {
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import {
+  basePlacement,
   isBrandMarkCandidate,
+  isLogoSlot,
   type ProvidedCandidate,
+  placementRole,
+  placementSectionId,
   planImageAssets,
+  routeSlugFromPlacement,
+  sectionQualifiedPlacement,
 } from "../services/images/ImageAssetPlanner.js";
 import {
   EXTENSION_BY_MIME,
@@ -79,33 +85,56 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
     licensed: ["provided"],
     generated: ["generated"],
   };
+  const basePlacementOf = (requirement: VisualRequirement): string =>
+    requirement.route_id === "global"
+      ? `global:${requirement.role}`
+      : `${requirement.route_id}:${requirement.role}`;
+  // WB-GLUE-01: several blueprint sections on one route can share a role
+  // (golden run #58: "/:service"). Each keeps its own section-qualified
+  // placement instead of all but one being dropped; a role that occurs once
+  // keeps its existing public key ("/:hero", "global:logo").
+  const sectionsByPlacement = new Map<string, Set<string>>();
+  for (const requirement of requirements) {
+    const base = basePlacementOf(requirement);
+    const sections = sectionsByPlacement.get(base) ?? new Set<string>();
+    sections.add(requirement.section_id);
+    sectionsByPlacement.set(base, sections);
+  }
   const slots: ImageSlotSpec[] = requirements.map((requirement) => {
+    const base = basePlacementOf(requirement);
+    // A logo is a protected brand asset: provided or authorized source only.
+    const logo = isLogoSlot({ id: requirement.slot_id, placement: base });
     const sources: Array<"provided" | "source-site" | "generated"> = [];
     for (const provenance of requirement.preferred_provenance) {
       for (const source of provenanceToSources[provenance] ?? []) {
+        if (logo && source === "generated") continue;
         if (!sources.includes(source)) sources.push(source);
       }
     }
+    const collides = (sectionsByPlacement.get(base)?.size ?? 0) > 1;
     return {
       id: requirement.slot_id,
-      placement:
-        requirement.route_id === "global"
-          ? `global:${requirement.role}`
-          : `${requirement.route_id}:${requirement.role}`,
+      placement: collides ? sectionQualifiedPlacement(base, requirement.section_id) : base,
       required: requirement.required,
-      preferredSources: sources.length > 0 ? sources : ["provided", "source-site", "generated"],
+      preferredSources:
+        sources.length > 0
+          ? sources
+          : logo
+            ? ["provided", "source-site"]
+            : ["provided", "source-site", "generated"],
       altText: requirement.composition_guidance,
     };
   });
-  // The manifest's uniqueness key is the placement; multiple blueprint
-  // sections on one route can share a role and therefore a placement
-  // (golden run #58: "/:service"). Required slots win ties; the first
-  // occurrence of equal priority wins.
-  const seen = new Set<string>();
+  // The manifest's uniqueness key is the placement and the plan's is the slot
+  // id. Distinct sections no longer collide; a repeated (section, role) or a
+  // repeated slot id keeps one slot, required first.
+  const seenPlacements = new Set<string>();
+  const seenIds = new Set<string>();
   const deduped: ImageSlotSpec[] = [];
   for (const slot of [...slots].sort((a, b) => Number(b.required) - Number(a.required))) {
-    if (seen.has(slot.placement)) continue;
-    seen.add(slot.placement);
+    if (seenPlacements.has(slot.placement) || seenIds.has(slot.id)) continue;
+    seenPlacements.add(slot.placement);
+    seenIds.add(slot.id);
     deduped.push(slot);
   }
   return deduped;
@@ -119,6 +148,10 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
  * slot and a spec slot with different ids but the same placement both
  * resolve and the manifest validator then rejects the duplicate
  * (golden run #54: "global:logo").
+ *
+ * WB-GLUE-01: an overlapping spec slot is reconciled into the blueprint slot
+ * rather than discarded, so an explicit first-party obligation (e.g. a
+ * required real logo) survives: `required` is the union of both.
  */
 export function mergeBlueprintAndSpecSlots(
   blueprintSlots: ImageSlotSpec[],
@@ -126,12 +159,72 @@ export function mergeBlueprintAndSpecSlots(
 ): ImageSlotSpec[] {
   const blueprintIds = new Set(blueprintSlots.map((slot) => slot.id));
   const blueprintPlacements = new Set(blueprintSlots.map((slot) => slot.placement));
+  const reconciled = blueprintSlots.map((slot) => {
+    const overlap = specSlots.filter(
+      (spec) => spec.id === slot.id || spec.placement === slot.placement,
+    );
+    return overlap.some((spec) => spec.required) && !slot.required
+      ? { ...slot, required: true }
+      : slot;
+  });
   return [
-    ...blueprintSlots,
+    ...reconciled,
     ...specSlots.filter(
       (slot) => !blueprintIds.has(slot.id) && !blueprintPlacements.has(slot.placement),
     ),
   ];
+}
+
+/**
+ * Project explicit provided-image placements the slot inventory does not yet
+ * contain into it (WB-GLUE-01), so an operator does not have to repeat them
+ * under imageSlots. An explicit intendedPlacement is authoritative: it must
+ * name a permitted global placement or an existing route (and, when
+ * section-qualified, an existing blueprint section of that route) with a
+ * known visual role; otherwise planning fails instead of silently dropping or
+ * redirecting the asset. A placement already covered by a slot (exactly, or
+ * by route + role) is left to normal resolution.
+ */
+export function projectProvidedPlacements(
+  slots: ImageSlotSpec[],
+  provided: ReadonlyArray<{ id: string; intendedPlacement?: string; altText?: string }>,
+  routeSections: Map<string, Set<string>>,
+): ImageSlotSpec[] {
+  const covered = new Set(slots.flatMap((slot) => [slot.placement, basePlacement(slot.placement)]));
+  const slotPlacements = new Set(slots.map((slot) => slot.placement));
+  const projected: ImageSlotSpec[] = [];
+  for (const image of provided) {
+    const placement = image.intendedPlacement?.trim();
+    // Covered exactly, by route + role, or (section-qualified intent) by the
+    // route's single slot of that role: normal resolution assigns it there.
+    if (!placement || covered.has(placement) || slotPlacements.has(basePlacement(placement))) {
+      continue;
+    }
+    const role = placementRole(placement);
+    const route = routeSlugFromPlacement(placement);
+    const sectionId = placementSectionId(placement);
+    const permitted =
+      route === undefined
+        ? (placement === "global:logo" || placement === "global:og-image") && !sectionId
+        : (VISUAL_ROLES as readonly string[]).includes(role) &&
+          routeSections.has(route) &&
+          (sectionId === undefined || (routeSections.get(route)?.has(sectionId) ?? false));
+    if (!permitted) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `provided-image-placement: ${image.id} intends ${JSON.stringify(placement)}, which names no permitted placement on an existing route or section`,
+      );
+    }
+    projected.push({
+      id: `provided:${image.id}`,
+      placement,
+      required: false,
+      preferredSources: ["provided"],
+      altText: image.altText,
+    });
+    covered.add(placement);
+  }
+  return [...slots, ...projected];
 }
 
 export class ImageAssetPlanningStage implements Stage {
@@ -170,10 +263,20 @@ export class ImageAssetPlanningStage implements Stage {
       provided: provided.map(this.toCandidate),
       sourceCandidates,
       generationEnabled,
+      clientAssetFirst: redesign,
     });
     ctx.imageAssetPlan = plan;
 
     const missing = unresolvedRequiredSlots(plan);
+    const missingLogo = redesign
+      ? missing.find((asset) => asset.placement === "global:logo")
+      : undefined;
+    if (missingLogo) {
+      throw new BuildError(
+        "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",
+        `missing-logo: ${missingLogo.slotId} requires a real logo, but no provided logo or authorized source-site logo exists; Website-Bot never synthesizes a logo — supply one under assets.providedImages`,
+      );
+    }
     if (missing.length > 0) {
       throw new BuildError(
         redesign ? "VISUAL_ASSET_REQUIREMENT_UNSATISFIED" : "VALIDATION_FAILED",
@@ -239,7 +342,17 @@ export class ImageAssetPlanningStage implements Stage {
       );
     }
     const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
-    return mergeBlueprintAndSpecSlots(blueprintSlots, slots);
+    const routeSections = new Map(
+      blueprint.payload.routes.map((route) => [
+        route.route_id,
+        new Set(route.sections.map((section) => section.section_id)),
+      ]),
+    );
+    return projectProvidedPlacements(
+      mergeBlueprintAndSpecSlots(blueprintSlots, slots),
+      assets?.providedImages ?? [],
+      routeSections,
+    );
   }
 
   private resolvePlannedAssets(

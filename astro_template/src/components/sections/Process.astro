@@ -1,9 +1,14 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "process", content } = Astro.props;
+const { name = "process", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
@@ -11,14 +16,23 @@ const paragraphs = content
 const heading = paragraphs[0] || "Our process";
 const steps = paragraphs.slice(1);
 ---
-<section class="process" data-section={name}>
-  <h2>{heading}</h2>
-  <ol class="process__steps">
-    {steps.map((step, index) => (
-      <li class="process__step">
-        <span class="process__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-        <p>{step}</p>
-      </li>
-    ))}
-  </ol>
-</section>
+{structured ? (
+  <section class="process" data-section={name} data-section-id={structured.sectionId}>
+    <h2>{structured.heading ?? structured.eyebrow ?? "Our process"}</h2>
+    {structured.subheading && <p class="process__intro">{structured.subheading}</p>}
+    <StructuredBlocks blocks={structured.blocks} variant="process" />
+    {structured.cta && <p class="process__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+  </section>
+) : (
+  <section class="process" data-section={name}>
+    <h2>{heading}</h2>
+    <ol class="process__steps">
+      {steps.map((step, index) => (
+        <li class="process__step">
+          <span class="process__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <p>{step}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}

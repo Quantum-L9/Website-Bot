@@ -6,10 +6,14 @@
 
 import {
   type CompetitiveLandscapeArtifact,
+  type ContentSlot,
+  type PageContentContractArtifact,
+  type PageContentContractV1,
   refForArtifact,
   type SEOContentBlueprintArtifact,
   type SEOContentBlueprintRoute,
   sealIntelligenceArtifact,
+  type VisualRequirement,
   WEBSITE_INTELLIGENCE_SCHEMAS,
   type WebsiteBuildBlueprintArtifact,
   type WebsiteBuildBlueprintV2,
@@ -225,4 +229,106 @@ export function makeSeoBlueprint(
       routes: routes ?? [makeSeoRoute("/", "/")],
     },
   });
+}
+
+/** One planned section of a redesign route: blueprint identity and class. */
+export interface RedesignSectionFixture {
+  section_id: string;
+  component_class: string;
+  content_slots?: ContentSlot[];
+}
+
+export interface RedesignRouteFixture {
+  route_id: string;
+  path?: string;
+  sections: RedesignSectionFixture[];
+}
+
+/**
+ * Sealed WebsiteBuildBlueprint + PageContentContract pair for site-assembly
+ * tests (WB-GLUE-01): the contract mirrors the blueprint's routes and section
+ * identities exactly, as compilePageContentContract does.
+ */
+export function makeRedesignAuthorities(
+  routes: RedesignRouteFixture[],
+  options?: { visualRequirements?: VisualRequirement[]; primaryAction?: string },
+): {
+  websiteBlueprint: WebsiteBuildBlueprintArtifact;
+  pageContentContract: PageContentContractArtifact;
+} {
+  const landscape = makeLandscape();
+  const blueprintRoutes: WebsiteBuildBlueprintV2["routes"] = routes.map((route) => ({
+    route_id: route.route_id,
+    path: route.path ?? route.route_id,
+    purpose: `fixture ${route.route_id}`,
+    sections: route.sections.map((section) => ({
+      section_id: section.section_id,
+      component_class: section.component_class,
+      objective: `fixture ${section.component_class}`,
+      content_slots: section.content_slots ?? [],
+      pattern_refs: [],
+      proof_requirements: [],
+    })),
+  }));
+  const base = makeWebsiteBlueprint(landscape);
+  const websiteBlueprint = makeWebsiteBlueprint(landscape, {
+    routes: blueprintRoutes,
+    visual_requirements: options?.visualRequirements ?? [],
+    conversion: {
+      ...base.payload.conversion,
+      primary_action: options?.primaryAction ?? base.payload.conversion.primary_action,
+    },
+  });
+  const seoRef = {
+    artifact_type: "seo_content_blueprint" as const,
+    artifact_id: `seo_content_blueprint:${"a".repeat(64)}`,
+    payload_digest: "a".repeat(64),
+  };
+  const payload: PageContentContractV1 = {
+    schema: WEBSITE_INTELLIGENCE_SCHEMAS.pageContentContract,
+    compiler: { name: "website-content-contract-compiler", version: "1.0.0", warnings: [] },
+    inputs: {
+      website_build_blueprint: refForArtifact(websiteBlueprint),
+      seo_content_blueprint: seoRef,
+      business_facts_digest: "f".repeat(64),
+    },
+    routes: blueprintRoutes.map((route) => ({
+      route_id: route.route_id,
+      path: route.path,
+      purpose: route.purpose,
+      search_context: {
+        primary_intent: "fixture",
+        secondary_intents: [],
+        primary_query: "fixture query",
+        supporting_queries: [],
+        topics: [],
+        entities: [],
+      },
+      metadata_requirements: { title: [], description: [] },
+      business_facts: [],
+      sections: route.sections.map((section) => ({
+        section_id: section.section_id,
+        component_class: section.component_class,
+        objective: section.objective,
+        slots: section.content_slots,
+        content_requirements: { requirement_ids: [], topics: [], entities: [], questions: [] },
+        allowed_fact_ids: [],
+        proof_requirements: [],
+        acceptance_tests: [],
+      })),
+      internal_link_requirements: [],
+      forbidden_claims: [],
+      acceptance_tests: [],
+    })),
+  };
+  const pageContentContract = sealIntelligenceArtifact({
+    artifact_type: "page_content_contract",
+    client_id: CLIENT_ID,
+    build_id: BUILD_ID,
+    producer: { repo: "Website-Bot", version: "1.0.0" },
+    produced_at: "2026-08-17T00:00:00.000Z",
+    input_refs: [refForArtifact(websiteBlueprint), seoRef],
+    payload,
+  });
+  return { websiteBlueprint, pageContentContract };
 }

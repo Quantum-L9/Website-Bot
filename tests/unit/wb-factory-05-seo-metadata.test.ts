@@ -18,7 +18,12 @@ import {
 import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
+import {
+  redesignContentKey,
+  renderStructuredSection,
+} from "../../src/stages/StructuredContentProjectionStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
+import { makeRedesignAuthorities } from "./redesign-fixtures.js";
 
 const BUSINESS = "Example Fixture Plumbing Co.";
 const ROUTES: DomainSpec["routes"] = [
@@ -99,10 +104,32 @@ function redesignContext(
 ): BuildContext {
   const ctx = fixtureContext({ business_name: BUSINESS, routes: ROUTES });
   ctx.buildIntent = "REDESIGN_IMPROVE";
-  ctx.structuredContentPackage = sealPackage(
+  const routes = mutate(ROUTES.map((route) => scpRoute(route.slug)));
+  ctx.structuredContentPackage = sealPackage(ctx, routes);
+  // WB-GLUE-01: redesign assembly executes the accepted blueprint and page
+  // content contract; both mirror the canonical spec routes and sections.
+  Object.assign(
     ctx,
-    mutate(ROUTES.map((route) => scpRoute(route.slug))),
+    makeRedesignAuthorities(
+      ROUTES.map((route) => ({
+        route_id: route.slug,
+        sections: route.components.map((component, index) => ({
+          section_id: `${route.slug}#${index}`,
+          component_class: component,
+        })),
+      })),
+    ),
   );
+  // What structured-content-projection writes: the legacy text projection by section identity.
+  ctx.generatedContent.clear();
+  for (const route of routes) {
+    for (const section of route.sections ?? []) {
+      ctx.generatedContent.set(
+        redesignContentKey(route.route_id, section.section_id),
+        renderStructuredSection(section, route.route_id),
+      );
+    }
+  }
   return ctx;
 }
 

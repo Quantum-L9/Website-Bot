@@ -1,11 +1,15 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
 
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "hero", content } = Astro.props;
+const { name = "hero", content, structured } = Astro.props;
 const firstNewline = content.indexOf("\n");
 const headline =
   (firstNewline === -1 ? content : content.slice(0, firstNewline)).trim() || "Welcome";
@@ -23,13 +27,28 @@ const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawH
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
-const cta = siteConfig.primaryCta;
+// A structured section's own resolved CTA replaces it, so the hero never shows two.
+const cta = structured?.cta ?? siteConfig.primaryCta;
+// The approved heading owns the page H1; the legacy headline is its fallback.
+const structuredHeadline = structured?.heading;
+// Without a heading the legacy headline already is the eyebrow; never repeat it.
+const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.businessName;
 ---
-<section class={heroImage ? 'hero hero--image' : 'hero'} data-section={name}>
+<section class={heroImage ? 'hero hero--image' : 'hero'} data-section={name} data-section-id={structured?.sectionId}>
   <div class="hero__content">
-    <p class="eyebrow">{siteConfig.businessName}</p>
-    <h1>{headline.replace(/\*\*/g, '')}</h1>
-    {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
+    <p class="eyebrow">{eyebrow}</p>
+    {structured ? (
+      <>
+        <h1>{structuredHeadline ?? headline}</h1>
+        {structured.subheading && <p class="hero__subheading">{structured.subheading}</p>}
+        <StructuredBlocks blocks={structured.blocks} />
+      </>
+    ) : (
+      <>
+        <h1>{headline.replace(/\*\*/g, '')}</h1>
+        {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
+      </>
+    )}
     {(cta || telHref) && (
       <div class="hero__actions">
         {cta && <a class="btn btn--primary" href={cta.href}>{cta.label}</a>}

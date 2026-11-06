@@ -30,7 +30,10 @@ import { ContentGenerationStage } from "../../src/stages/ContentGenerationStage.
 import { RedesignContentAuthorityStage } from "../../src/stages/RedesignContentAuthorityStage.js";
 import { RedesignSchemaSerializerStage } from "../../src/stages/RedesignSchemaSerializerStage.js";
 import { SchemaGeneratorStage } from "../../src/stages/SchemaGeneratorStage.js";
-import { StructuredContentProjectionStage } from "../../src/stages/StructuredContentProjectionStage.js";
+import {
+  joinRedesignRoutes,
+  StructuredContentProjectionStage,
+} from "../../src/stages/StructuredContentProjectionStage.js";
 import {
   BUILD_ID,
   CLIENT_ID,
@@ -311,7 +314,10 @@ void test("SCP prose is projected verbatim; no legacy generation, zero LLM schem
   assert.match(hero, /Reliable Test Service/);
   assert.match(hero, /We show up on time, every time\./);
   assert.match(hero, /Request a quote/);
-  const overview = ctx.generatedContent.get("/:services-overview");
+  // WB-GLUE-01: projections are keyed by stable section identity, never by
+  // the spec component that happened to share the section's array index.
+  assert.equal(ctx.generatedContent.get("/:services-overview"), undefined);
+  const overview = ctx.generatedContent.get("/:overview");
   assert.ok(overview);
   assert.match(overview, /- Inspections/);
   assert.equal(ctx.redesignCounters?.legacyContentGenerationCalls, 0);
@@ -518,4 +524,105 @@ void test("missing preflight evidence fails closed before any SEO-Bot call", asy
       error instanceof BuildError && error.code === "REDESIGN_PIPELINE_INCOMPLETE",
   );
   assert.deepEqual(recording.calls, []);
+});
+
+// ---- WB-GLUE-01: identity-safe projection ---------------------------------
+
+async function acceptedChain(): Promise<BuildContext> {
+  const landscape = makeLandscape();
+  const blueprint = makeWebsiteBlueprint(landscape);
+  const seoBlueprint = makeSeoBlueprint(landscape);
+  const ctx = makeCtx({ websiteBlueprint: blueprint, competitiveLandscape: landscape });
+  await new RedesignContentAuthorityStage(() => new FakePort(seoBlueprint)).run(ctx);
+  return ctx;
+}
+
+function scpSections(ctx: BuildContext) {
+  const route = ctx.structuredContentPackage?.payload.routes[0];
+  assert.ok(route);
+  return route;
+}
+
+void test("shuffling the content package's section array cannot move copy between sections", async () => {
+  const inOrder = await acceptedChain();
+  await new StructuredContentProjectionStage().run(inOrder);
+  const shuffled = await acceptedChain();
+  scpSections(shuffled).sections.reverse();
+  await new StructuredContentProjectionStage().run(shuffled);
+  assert.deepEqual(
+    Object.fromEntries(shuffled.generatedContent),
+    Object.fromEntries(inOrder.generatedContent),
+  );
+  assert.match(shuffled.generatedContent.get("/:hero") ?? "", /Reliable Test Service/);
+  assert.match(shuffled.generatedContent.get("/:overview") ?? "", /- Inspections/);
+  // The join keeps blueprint order whatever the package order.
+  const [route] = joinRedesignRoutes(shuffled);
+  assert.deepEqual(
+    route.sections.map((section) => section.sectionId),
+    ["hero", "overview"],
+  );
+});
+
+for (const [label, mutate, pattern] of [
+  [
+    "a missing section_id",
+    (sections: StructuredContentPackageV1["routes"][number]["sections"]) => sections.slice(0, 1),
+    /missing section "overview"/,
+  ],
+  [
+    "a duplicated section_id",
+    (sections: StructuredContentPackageV1["routes"][number]["sections"]) => [
+      ...sections,
+      { ...sections[0] },
+    ],
+    /duplicate section_id "hero"/,
+  ],
+  [
+    "an unexpected section_id",
+    (sections: StructuredContentPackageV1["routes"][number]["sections"]) => [
+      ...sections,
+      { section_id: "rogue", blocks: [{ kind: "paragraph" as const, text: "Unplanned." }] },
+    ],
+    /unexpected section "rogue"/,
+  ],
+] as const) {
+  void test(`${label} in the content package is a deterministic contract error`, async () => {
+    const ctx = await acceptedChain();
+    const route = scpSections(ctx);
+    route.sections = mutate(route.sections) as typeof route.sections;
+    await assert.rejects(
+      () => new StructuredContentProjectionStage().run(ctx),
+      (error: unknown) =>
+        error instanceof BuildError &&
+        error.code === "VALIDATION_FAILED" &&
+        /^section-identity: /.test(error.message) &&
+        pattern.test(error.message),
+    );
+  });
+}
+
+void test("blueprint and page content contract section identities must agree", async () => {
+  const ctx = await acceptedChain();
+  const contractRoute = ctx.pageContentContract?.payload.routes[0];
+  assert.ok(contractRoute);
+  contractRoute.sections[1] = { ...contractRoute.sections[1], section_id: "renamed" };
+  await assert.rejects(
+    () => new StructuredContentProjectionStage().run(ctx),
+    (error: unknown) =>
+      error instanceof BuildError &&
+      error.code === "VALIDATION_FAILED" &&
+      /PageContentContract route "\/" is missing section "overview"/.test(error.message),
+  );
+});
+
+void test("projection without the accepted blueprint fails typed instead of falling back to positions", async () => {
+  const ctx = await acceptedChain();
+  ctx.websiteBlueprint = undefined;
+  await assert.rejects(
+    () => new StructuredContentProjectionStage().run(ctx),
+    (error: unknown) =>
+      error instanceof BuildError &&
+      error.code === "REDESIGN_PIPELINE_INCOMPLETE" &&
+      /WebsiteBuildBlueprint/.test(error.message),
+  );
 });

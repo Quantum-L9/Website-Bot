@@ -183,3 +183,84 @@ void test("provided images resolve, copy into public/images, and register in sit
     rmSync(resolve("build", "assets", ctx.clientId, ctx.buildId), { recursive: true, force: true });
   }
 });
+
+// ---- WB-GLUE-01: client-asset-first selection is REDESIGN-only -------------
+
+const plannedSource = (plan: ReturnType<typeof planImageAssets>, slotId: string) => {
+  const resolution = plan.assets.find((asset) => asset.slotId === slotId)?.resolution;
+  assert.ok(resolution, slotId);
+  return {
+    source: resolution.source,
+    candidateId: "candidateId" in resolution ? resolution.candidateId : undefined,
+  };
+};
+
+test("COPY keeps the legacy selection: no semantic gate, no explicit bypass, logo generation allowed", () => {
+  const slots: ImageSlotSpec[] = [
+    { id: "home-hero", placement: "/:hero", required: true, aspectRatio: "16:9" },
+    {
+      id: "brand-logo",
+      placement: "global:logo",
+      required: true,
+      preferredSources: ["generated"],
+    },
+    {
+      id: "svc",
+      placement: "/services:service",
+      required: false,
+      preferredSources: ["source-site"],
+    },
+  ];
+  const plan = planImageAssets({
+    slots,
+    provided: [
+      { id: "photo1", width: 1920, height: 1080 },
+      { id: "svc", width: 800, height: 600 },
+    ],
+    sourceCandidates: [],
+    generationEnabled: true,
+  });
+  assert.deepEqual(plannedSource(plan, "home-hero"), { source: "provided", candidateId: "photo1" });
+  assert.equal(plannedSource(plan, "brand-logo").source, "generated");
+  assert.equal(plannedSource(plan, "svc").source, "unresolved");
+});
+
+test("REDESIGN: an asset assigned by slot id wins over a higher-scoring merely suitable image", () => {
+  const plan = planImageAssets({
+    slots: [
+      {
+        id: "home-hero",
+        placement: "/:hero",
+        required: true,
+        aspectRatio: "16:9",
+        altText: "roofing crew at work",
+        preferredSources: ["source-site", "generated", "provided"],
+      },
+    ],
+    provided: [
+      { id: "home-hero", width: 800, height: 800 },
+      { id: "crew-photo", width: 1920, height: 1080, altText: "hero shot of roofing crew" },
+    ],
+    sourceCandidates: [],
+    generationEnabled: true,
+    clientAssetFirst: true,
+  });
+  assert.deepEqual(plannedSource(plan, "home-hero"), {
+    source: "provided",
+    candidateId: "home-hero",
+  });
+});
+
+test("REDESIGN: a section-qualified intent for a role that occurs once fills that route's slot", () => {
+  const plan = planImageAssets({
+    slots: [{ id: "/:hero", placement: "/:hero", required: true }],
+    provided: [{ id: "storefront", intendedPlacement: "/:hero#welcome", width: 10, height: 10 }],
+    sourceCandidates: [],
+    generationEnabled: true,
+    clientAssetFirst: true,
+  });
+  assert.deepEqual(plannedSource(plan, "/:hero"), {
+    source: "provided",
+    candidateId: "storefront",
+  });
+});

@@ -1,9 +1,14 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "section", content } = Astro.props;
+const { name = "section", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
@@ -12,6 +17,21 @@ const heading =
   paragraphs.length > 1 && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
 const label = name.replaceAll("_", " ");
 ---
+{structured ? (
+<section class="diagram" data-section={name} data-layout="diagram" data-section-id={structured.sectionId}>
+  <h2 class="diagram__title">{structured.heading ?? structured.eyebrow ?? label}</h2>
+  {structured.subheading && <p>{structured.subheading}</p>}
+  <ol class="diagram__nodes">
+    {structured.blocks.map((block, index) => (
+      <li class="diagram__node">
+        <span class="diagram__marker" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <StructuredBlocks blocks={[block]} />
+      </li>
+    ))}
+  </ol>
+  {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+</section>
+) : (
 <section class="diagram" data-section={name} data-layout="diagram">
   <h2 class="diagram__title">{heading ?? label}</h2>
   <ol class="diagram__nodes">
@@ -23,6 +43,7 @@ const label = name.replaceAll("_", " ");
     ))}
   </ol>
 </section>
+)}
 <style>
   .diagram {
     padding-block: 2.5rem;

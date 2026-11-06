@@ -10,7 +10,8 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import type { VisualRequirement } from "@quantum-l9/bot-interop";
+import { crc32 as zlibCrc32 } from "node:zlib";
+import type { VisualRequirement, WebsiteBuildBlueprintV2 } from "@quantum-l9/bot-interop";
 import { deriveVisualRequirements } from "../../src/intelligence/WebsiteBuildBlueprintCompiler.js";
 import type { BuildContext, ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
@@ -86,7 +87,10 @@ void test("deriveVisualRequirements produces a global logo and a required home h
   const requirements = deriveVisualRequirements(BLUEPRINT_ROUTES);
   const logo = requirements.find((entry) => entry.role === "logo");
   const hero = requirements.find((entry) => entry.role === "hero");
-  assert.ok(logo?.required && logo.route_id === "global");
+  // WB-GLUE-01: the logo is a protected brand asset — present as a source-only
+  // requirement, never mandatory synthetic generation.
+  assert.ok(logo && !logo.required && logo.route_id === "global");
+  assert.deepEqual(logo.preferred_provenance, ["source"]);
   assert.ok(hero?.required && hero.route_id === "/");
   const trust = requirements.find((entry) => entry.role === "trust");
   assert.ok(trust && !trust.required, "trust slot derived from trust content slot, optional");
@@ -153,7 +157,7 @@ void test("spec slots with a placement already covered by the blueprint are drop
   );
 });
 
-void test("blueprint requirements sharing a role dedupe to one placement (golden run #58)", () => {
+void test("blueprint requirements sharing a role keep distinct section-qualified placements (golden run #58, WB-GLUE-01)", () => {
   const requirements: VisualRequirement[] = [
     {
       requirement_id: "vr-a",
@@ -190,13 +194,20 @@ void test("blueprint requirements sharing a role dedupe to one placement (golden
     },
   ];
   const slots = slotsFromVisualRequirements(requirements);
-  // Both "service"-role requirements collapse to one "/:service"
-  // placement; the required one wins the tie.
+  // WB-GLUE-01: the two "service"-role requirements live in different
+  // sections, so each keeps its own section-qualified placement instead of
+  // one being dropped. The repeated slot id "/:hero" keeps one slot only, so
+  // the plan never carries two slots with one id.
   assert.equal(slots.length, 2);
-  const service = slots.find((slot) => slot.placement === "/:service");
-  assert.ok(service);
-  assert.equal(service.id, "/:services-overview");
-  assert.equal(service.required, true);
+  const overview = slots.find((slot) => slot.placement === "/:service#services-overview");
+  assert.ok(overview);
+  assert.equal(overview.id, "/:services-overview");
+  assert.equal(overview.required, true);
+  const heroService = slots.find((slot) => slot.placement === "/:service#hero");
+  assert.ok(heroService);
+  assert.equal(heroService.id, "/:hero");
+  assert.equal(new Set(slots.map((slot) => slot.placement)).size, slots.length);
+  assert.equal(new Set(slots.map((slot) => slot.id)).size, slots.length);
 });
 
 void test("an authorized source photo outranks generation for a hero slot", async () => {
@@ -322,4 +333,245 @@ void test("donor evidence is never a planner candidate source (DONOR_REFERENCE_O
     }
   }
   assert.equal(ctx.sourceAssetDecisions?.length, 0);
+});
+
+// ---- WB-GLUE-01: client-asset-first selection and protected brand ----------
+
+/** A distinct, decodable 1x1 PNG per seed (only the tEXt chunk differs). */
+function pngBytes(seed: string): Buffer {
+  const chunk = (type: string, data: Buffer): Buffer => {
+    const length = Buffer.alloc(4);
+    length.writeUInt32BE(data.length);
+    const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
+    const crc = Buffer.alloc(4);
+    crc.writeUInt32BE(zlibCrc32(body));
+    return Buffer.concat([length, body, crc]);
+  };
+  const iend = PNG_1X1.subarray(PNG_1X1.length - 12);
+  const head = PNG_1X1.subarray(0, PNG_1X1.length - 12);
+  return Buffer.concat([head, chunk("tEXt", Buffer.from(`seed\0${seed}`, "latin1")), iend]);
+}
+
+function writeProvided(dir: string, id: string): string {
+  const path = join(dir, `${id}.png`);
+  writeFileSync(path, pngBytes(id));
+  return path;
+}
+
+const GLUE_ROUTES: WebsiteBuildBlueprintV2["routes"] = [
+  {
+    route_id: "/",
+    path: "/",
+    purpose: "Home",
+    sections: [
+      {
+        section_id: "hero",
+        component_class: "hero",
+        objective: "offer",
+        content_slots: ["primary_offer"],
+        pattern_refs: [],
+        proof_requirements: [],
+      },
+      {
+        section_id: "repairs",
+        component_class: "services-overview",
+        objective: "repairs",
+        content_slots: ["service_overview"],
+        pattern_refs: [],
+        proof_requirements: [],
+      },
+      {
+        section_id: "installs",
+        component_class: "services-overview",
+        objective: "installs",
+        content_slots: ["service_overview"],
+        pattern_refs: [],
+        proof_requirements: [],
+      },
+    ],
+  },
+  {
+    route_id: "/about",
+    path: "/about",
+    purpose: "About",
+    sections: [
+      {
+        section_id: "crew",
+        component_class: "prose",
+        objective: "team",
+        content_slots: ["trust"],
+        pattern_refs: [],
+        proof_requirements: [],
+      },
+    ],
+  },
+];
+
+function glueCtx(
+  dir: string,
+  provided: Array<{ id: string; intendedPlacement?: string; altText?: string }>,
+  extra?: { imageSlots?: ImageSlotSpec[]; requirements?: VisualRequirement[] },
+): BuildContext {
+  const landscape = makeLandscape();
+  return makeCtx(dir, {
+    websiteBlueprint: makeWebsiteBlueprint(landscape, {
+      routes: GLUE_ROUTES,
+      visual_requirements: extra?.requirements ?? deriveVisualRequirements(GLUE_ROUTES),
+    }),
+    domainSpec: {
+      client_id: "visual-test-client",
+      business_name: "Test Biz",
+      vertical: "test_service",
+      geography: { states: ["TN"], primary_state: "TN" },
+      design: { status: "resolved" },
+      routes: [
+        { slug: "/", title: "Home", components: ["hero"] },
+        { slug: "/about", title: "About", components: ["prose"] },
+      ],
+      assets: {
+        generation: { enabled: true },
+        providedImages: provided.map((image) => ({ ...image, path: writeProvided(dir, image.id) })),
+        ...(extra?.imageSlots ? { imageSlots: extra.imageSlots } : {}),
+      },
+    } as never,
+  });
+}
+
+function resolutionFor(ctx: BuildContext, placement: string) {
+  const planned = ctx.imageAssetPlan?.assets.find((asset) => asset.placement === placement);
+  assert.ok(planned, `plan carries ${placement}`);
+  return planned.resolution;
+}
+
+function candidateFor(ctx: BuildContext, placement: string): string | undefined {
+  const resolution = resolutionFor(ctx, placement);
+  return "candidateId" in resolution ? resolution.candidateId : undefined;
+}
+
+void test("two same-role sections on one route keep distinct placements and their own client images", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [
+    { id: "installs-photo", intendedPlacement: "/:service#installs" },
+    { id: "repairs-photo", intendedPlacement: "/:service#repairs" },
+  ]);
+  await new ImageAssetPlanningStage().run(ctx);
+  assert.equal(candidateFor(ctx, "/:service#repairs"), "repairs-photo");
+  assert.equal(candidateFor(ctx, "/:service#installs"), "installs-photo");
+  assert.equal(
+    ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "/:service"),
+    false,
+    "the colliding role never keeps an unqualified placement",
+  );
+});
+
+void test("a suitable provided asset wins even when the blueprint prefers generation", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const requirements: VisualRequirement[] = [
+    {
+      requirement_id: "vr-hero",
+      route_id: "/",
+      section_id: "hero",
+      slot_id: "/:hero",
+      role: "hero",
+      required: true,
+      min_count: 1,
+      preferred_provenance: ["generated"],
+      device_suitability: ["desktop"],
+    },
+  ];
+  const ctx = glueCtx(dir, [{ id: "storefront", intendedPlacement: "/:hero" }], { requirements });
+  await new ImageAssetPlanningStage().run(ctx);
+  assert.equal(resolutionFor(ctx, "/:hero").source, "provided");
+  assert.equal(candidateFor(ctx, "/:hero"), "storefront");
+});
+
+void test("an unrelated large client photo never fills an unrelated slot", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [{ id: "holiday-party", altText: "Staff holiday party 2025" }]);
+  await new ImageAssetPlanningStage().run(ctx);
+  for (const asset of ctx.imageAssetPlan?.assets ?? []) {
+    assert.notEqual(
+      "candidateId" in asset.resolution ? asset.resolution.candidateId : undefined,
+      "holiday-party",
+      asset.placement,
+    );
+  }
+  // Only the genuinely unresolved illustrative slots go to the generator.
+  assert.equal(resolutionFor(ctx, "/:hero").source, "generated");
+});
+
+void test("an unplaced provided image whose alt text names the role is eligible for that role", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [{ id: "crew-1", altText: "Our trust-building crew" }]);
+  await new ImageAssetPlanningStage().run(ctx);
+  assert.equal(candidateFor(ctx, "/about:trust"), "crew-1");
+});
+
+void test("no real logo: the logo is never generated and the build is not blocked", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, []);
+  await new ImageAssetPlanningStage().run(ctx);
+  const logo = resolutionFor(ctx, "global:logo");
+  assert.equal(logo.source, "unresolved");
+  assert.equal(
+    (ctx.imageAssetPlan?.assets ?? []).some(
+      (asset) => asset.placement === "global:logo" && asset.resolution.source === "generated",
+    ),
+    false,
+  );
+  // One genuinely missing illustrative image is the generator's job; the rest stay untouched.
+  assert.equal(resolutionFor(ctx, "/:hero").source, "generated");
+});
+
+void test("an explicitly required real logo with none available fails with a missing-logo error", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [], {
+    imageSlots: [
+      {
+        id: "brand-logo",
+        placement: "global:logo",
+        required: true,
+        preferredSources: ["provided", "source-site", "generated"],
+      },
+    ],
+  });
+  await assert.rejects(
+    () => new ImageAssetPlanningStage().run(ctx),
+    (error: unknown) =>
+      error instanceof BuildError &&
+      error.code === "VISUAL_ASSET_REQUIREMENT_UNSATISFIED" &&
+      /missing-logo/.test(error.message) &&
+      /never synthesizes a logo/.test(error.message),
+  );
+});
+
+void test("a provided logo is used unchanged for global:logo", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [{ id: "brand", intendedPlacement: "global:logo" }]);
+  await new ImageAssetPlanningStage().run(ctx);
+  assert.equal(resolutionFor(ctx, "global:logo").source, "provided");
+  assert.equal(candidateFor(ctx, "global:logo"), "brand");
+});
+
+void test("an explicit provided placement absent from the slot inventory is projected, not dropped", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+  const ctx = glueCtx(dir, [{ id: "team-shot", intendedPlacement: "/about:team#crew" }]);
+  await new ImageAssetPlanningStage().run(ctx);
+  assert.equal(resolutionFor(ctx, "/about:team#crew").source, "provided");
+  assert.equal(candidateFor(ctx, "/about:team#crew"), "team-shot");
+});
+
+void test("an explicit provided placement naming no route or section fails instead of redirecting", async () => {
+  for (const intendedPlacement of ["/missing:team", "/about:team#nope", "global:banner"]) {
+    const dir = mkdtempSync(join(tmpdir(), "glue-visual-"));
+    const ctx = glueCtx(dir, [{ id: "stray", intendedPlacement }]);
+    await assert.rejects(
+      () => new ImageAssetPlanningStage().run(ctx),
+      (error: unknown) =>
+        error instanceof BuildError &&
+        error.code === "VALIDATION_FAILED" &&
+        error.message.includes(intendedPlacement),
+      intendedPlacement,
+    );
+  }
 });

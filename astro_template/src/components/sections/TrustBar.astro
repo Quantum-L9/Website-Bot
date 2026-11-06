@@ -1,17 +1,31 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "trust_bar", content } = Astro.props;
+const { name = "trust_bar", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
   .filter(Boolean);
 ---
-<section class="trust-bar" data-section={name}>
-  <h2>The Safe Haven Standard</h2>
-  <ul class="trust-bar__badges">
-    {paragraphs.map(paragraph => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span><span>{paragraph}</span></li>)}
-  </ul>
-</section>
+{structured ? (
+  <section class="trust-bar" data-section={name} data-section-id={structured.sectionId}>
+    {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
+    {structured.subheading && <p>{structured.subheading}</p>}
+    <StructuredBlocks blocks={structured.blocks} />
+    {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+  </section>
+) : (
+  <section class="trust-bar" data-section={name}>
+    <h2>The Safe Haven Standard</h2>
+    <ul class="trust-bar__badges">
+      {paragraphs.map(paragraph => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span><span>{paragraph}</span></li>)}
+    </ul>
+  </section>
+)}
