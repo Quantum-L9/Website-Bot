@@ -270,9 +270,14 @@ export function deriveVisualRequirements(routes: WebsiteBlueprintRoute[]): Visua
       section_id: "global",
       slot_id: "global:logo",
       role: "logo",
-      required: true,
+      // WB-GLUE-01: the logo is a protected brand asset. The blueprint never
+      // asks for a synthesized one: an original (provided or authorized
+      // source-site) logo is used when it exists, else the layout renders the
+      // textual wordmark. An explicit first-party required logo slot still
+      // makes it mandatory (ImageAssetPlanningStage merge).
+      required: false,
       min_count: 1,
-      preferred_provenance: ["source", "generated"],
+      preferred_provenance: ["source"],
       device_suitability: ["desktop", "mobile"],
     },
   ];
