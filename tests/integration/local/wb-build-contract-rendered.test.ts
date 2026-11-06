@@ -208,6 +208,13 @@ const MUTATIONS: Array<{ name: string; edit: (html: string) => string; expected:
     expected: both("cta_not_obstructed"),
   },
   {
+    name: "F11e covered-banner: the CTA banner's conversion link sits under an overlay",
+    edit: injectStyle(
+      '.cta-banner{position:relative!important}.cta-banner::after{content:"";position:absolute;inset:0;z-index:50}',
+    ),
+    expected: both("cta_not_obstructed"),
+  },
+  {
     name: "F11d offscreen-cta: a call to action pushed past the viewport edge",
     edit: injectStyle("main a.btn{position:relative!important;left:-3000px!important}"),
     expected: both("critical_elements_in_viewport"),

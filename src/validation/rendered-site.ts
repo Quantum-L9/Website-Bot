@@ -486,6 +486,10 @@ export const PAGE_FACTS_EXPRESSION = `(${PAGE_FACTS_FUNCTION})()`;
 const PAGE_VISUAL_FACTS_FUNCTION = `async () => {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+  // Every call to action the template renders: button-styled links, the CTA
+  // banner's whole-card link (its inner .btn is a presentational span), the
+  // gallery link, and form buttons.
+  const ctaSelector = "main a.btn, main a.cta-banner__link, main a.gallery-cta, main button";
   const main = document.querySelector("main, #main-content");
   const label = (element) => {
     const text = (element.textContent || "").replace(/s+/g, " ").trim().slice(0, 60);
@@ -537,7 +541,7 @@ const PAGE_VISUAL_FACTS_FUNCTION = `async () => {
     });
   }
   const critical = Array.from(
-    document.querySelectorAll("main h1, main h2, main a.btn, main button, nav[aria-label='Primary'] a"),
+    document.querySelectorAll("main h1, main h2, " + ctaSelector + ", nav[aria-label='Primary'] a"),
   ).filter(shown);
   const outside = critical.filter((element) => {
     const rect = element.getBoundingClientRect();
@@ -549,7 +553,7 @@ const PAGE_VISUAL_FACTS_FUNCTION = `async () => {
   const obstructedCtas = [];
   // A CTA already reported outside the viewport is not also reported as covered.
   const ctas = critical.filter(
-    (element) => element.matches("main a.btn, main button") && !outside.includes(element),
+    (element) => element.matches(ctaSelector) && !outside.includes(element),
   );
   for (const cta of ctas) {
     cta.scrollIntoView({ block: "center", inline: "nearest" });
