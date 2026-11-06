@@ -1,0 +1,37 @@
+---
+// Semantic rendering of accepted StructuredContentPackage blocks (WB-GLUE-01).
+// Copy is rendered verbatim through Astro's escaped expressions; no raw HTML.
+import type { StructuredBlock } from "./SectionRegistry";
+
+interface Props {
+  blocks: readonly StructuredBlock[];
+  /** "process" renders step lists with the Process section's numbered styling. */
+  variant?: "process";
+}
+const { blocks, variant } = Astro.props;
+---
+{blocks.map((block) =>
+  block.kind === "paragraph" ? (
+    <p>{block.text}</p>
+  ) : block.kind === "bullets" ? (
+    <ul>{block.items.map((item) => <li>{item}</li>)}</ul>
+  ) : block.kind === "steps" ? (
+    variant === "process" ? (
+      <ol class="process__steps">
+        {block.items.map((item, index) => (
+          <li class="process__step">
+            <span class="process__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <p>{item}</p>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <ol>{block.items.map((item) => <li>{item}</li>)}</ol>
+    )
+  ) : (
+    <blockquote>
+      <p>{block.text}</p>
+      {block.attribution && <footer><cite>{block.attribution}</cite></footer>}
+    </blockquote>
+  ),
+)}

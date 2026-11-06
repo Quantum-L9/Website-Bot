@@ -1,9 +1,14 @@
 ---
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
+
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "section", content } = Astro.props;
+const { name = "section", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim())
@@ -13,6 +18,19 @@ const heading =
 const lead = paragraphs.shift();
 const label = name.replaceAll("_", " ");
 ---
+{structured ? (
+<section class="editorial" data-section={name} data-layout="editorial" data-section-id={structured.sectionId}>
+  <header class="editorial__header">
+    <p class="editorial__eyebrow">{(structured.heading && structured.eyebrow) || label}</p>
+    <h2 class="editorial__title">{structured.heading ?? structured.eyebrow ?? label}</h2>
+  </header>
+  <div class="editorial__body">
+    {structured.subheading && <p class="editorial__lead">{structured.subheading}</p>}
+    <StructuredBlocks blocks={structured.blocks} />
+    {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+  </div>
+</section>
+) : (
 <section class="editorial" data-section={name} data-layout="editorial">
   <header class="editorial__header">
     <p class="editorial__eyebrow">{label}</p>
@@ -23,6 +41,7 @@ const label = name.replaceAll("_", " ");
     {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
   </div>
 </section>
+)}
 <style>
   .editorial {
     display: grid;

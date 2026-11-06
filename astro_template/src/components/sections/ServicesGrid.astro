@@ -1,11 +1,15 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
 
 interface Props {
   name?: string;
   content?: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "services_overview", content = "" } = Astro.props;
+const { name = "services_overview", content = "", structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim().replace(/\*\*/g, ""))
@@ -19,9 +23,19 @@ const services = allRoutes.filter(
   (route) => route.href.startsWith("/services/") && route.href !== "/services/",
 );
 ---
-<section class="services-grid" data-section={name}>
-  <h2>{heading}</h2>
-  {paragraphs.slice(1).map(paragraph => <p class="services-grid__intro">{paragraph}</p>)}
+<section class="services-grid" data-section={name} data-section-id={structured?.sectionId}>
+  {structured ? (
+    <>
+      <h2>{structured.heading ?? structured.eyebrow ?? "Our Services"}</h2>
+      {structured.subheading && <p class="services-grid__intro">{structured.subheading}</p>}
+      <div class="services-grid__intro"><StructuredBlocks blocks={structured.blocks} /></div>
+    </>
+  ) : (
+    <>
+      <h2>{heading}</h2>
+      {paragraphs.slice(1).map(paragraph => <p class="services-grid__intro">{paragraph}</p>)}
+    </>
+  )}
   <div class="services-grid__cards">
     {services.map(service => {
       const hero = images[`${service.href}:hero`];
@@ -34,4 +48,5 @@ const services = allRoutes.filter(
       );
     })}
   </div>
+  {structured?.cta && <p class="services-grid__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
 </section>

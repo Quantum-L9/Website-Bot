@@ -317,6 +317,10 @@ export class PipelineRunner {
           `External state re-verification failed for ${stage.name}`,
         );
       }
+    } else if (stage.canResume && !(await stage.canResume(ctx, checkpoint))) {
+      // A local stage may decline a checkpoint whose inputs it cannot prove
+      // unchanged; it simply re-runs.
+      return false;
     }
     return true;
   }

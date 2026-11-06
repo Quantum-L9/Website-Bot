@@ -33,7 +33,7 @@ test("canonical Astro template is versioned and exposes the required section reg
   assert.match(renderer, /const visualSlot = slotForSection\(name\)/);
   assert.match(
     renderer,
-    /<VisualEnhancementSlot slot=\{visualSlot\}>\s*<Component name=\{name\} content=\{content\} \/>\s*<\/VisualEnhancementSlot>/,
+    /<VisualEnhancementSlot slot=\{visualSlot\}>\s*<Component name=\{name\} content=\{content\} structured=\{structured\} \/>\s*<\/VisualEnhancementSlot>/,
   );
 });
 
@@ -45,7 +45,12 @@ test("the section renderer shows the image the assembler bound to each section",
   // The binding arrives as a prop and resolves only through the one published
   // image registry; there is no second lookup and no filename guessing.
   assert.match(renderer, /imagePlacement\?: string \| null;/);
-  assert.match(renderer, /const \{ name, content, layout, imagePlacement \} = Astro\.props;/);
+  assert.match(
+    renderer,
+    /const \{ name, content, layout, imagePlacement, structured \} = Astro\.props;/,
+  );
+  // WB-GLUE-01: the accepted structured section reaches every component.
+  assert.match(renderer, /structured\?: StructuredSectionView;/);
   assert.match(renderer, /import \{ siteConfig \} from "\.\.\/lib\/siteConfig";/);
   assert.match(renderer, /const image = imagePlacement \? images\[imagePlacement\] : undefined;/);
   // A binding the registry does not publish fails the build instead of vanishing.
@@ -59,7 +64,10 @@ test("the section renderer shows the image the assembler bound to each section",
     renderer,
     /const contentImage = name === "hero" \|\| name === "gallery" \? undefined : image;/,
   );
-  assert.match(renderer, /<Component name=\{name\} content=\{content\} image=\{galleryImage\} \/>/);
+  assert.match(
+    renderer,
+    /<Component name=\{name\} content=\{content\} structured=\{structured\} image=\{galleryImage\} \/>/,
+  );
   // Bound content images render beside the section, lazily, with real dimensions.
   assert.match(renderer, /<figure class="content-block__visual">/);
   assert.match(
@@ -67,7 +75,10 @@ test("the section renderer shows the image the assembler bound to each section",
     /<img src=\{contentImage\.src\} alt=\{contentImage\.alt\} width=\{contentImage\.width\} height=\{contentImage\.height\} loading="lazy" decoding="async"/,
   );
   // The image-less branch stays the unwrapped section.
-  assert.match(renderer, /\) : \(\s*<Component name=\{name\} content=\{content\} \/>\s*\)\}\s*$/);
+  assert.match(
+    renderer,
+    /\) : \(\s*<Component name=\{name\} content=\{content\} structured=\{structured\} \/>\s*\)\}\s*$/,
+  );
 
   const gallery = readFileSync(
     resolve("astro_template/src/components/sections/Gallery.astro"),

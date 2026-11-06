@@ -1,5 +1,7 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
 
 // siteConfig is emitted `as const`, so an empty galleryImages becomes `never[]`
 // in text-only builds; the explicit element type keeps .map() well-typed.
@@ -10,8 +12,10 @@ interface Props {
   content?: string;
   /** Planned gallery/project-proof image the assembler bound to this section. */
   image?: GalleryImage;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "gallery", content = "", image } = Astro.props;
+const { name = "gallery", content = "", image, structured } = Astro.props;
 const gallery: readonly GalleryImage[] = siteConfig.galleryImages ?? [];
 // The bound (planned, possibly generated) image leads; source-site extras follow.
 const items: GalleryImage[] = [];
@@ -27,10 +31,22 @@ const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
 const hasGalleryRoute = allRoutes.some((route) => route.href === "/gallery");
 ---
-{items.length > 0 && (
-  <section class="gallery" data-section={name}>
-    <h2>{paragraphs[0] || 'Our Work'}</h2>
-    {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+{/* Accepted structured copy still renders when no image is available. */}
+{(items.length > 0 || structured) && (
+  <section class="gallery" data-section={name} data-section-id={structured?.sectionId}>
+    {structured ? (
+      <>
+        <h2>{structured.heading ?? structured.eyebrow ?? 'Our Work'}</h2>
+        {structured.subheading && <p>{structured.subheading}</p>}
+        <StructuredBlocks blocks={structured.blocks} />
+      </>
+    ) : (
+      <>
+        <h2>{paragraphs[0] || 'Our Work'}</h2>
+        {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+      </>
+    )}
+    {items.length > 0 && (
     <div class="gallery-grid">
       {items.slice(0, 7).map(entry => (
         <img src={entry.src} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" />
@@ -42,5 +58,6 @@ const hasGalleryRoute = allRoutes.some((route) => route.href === "/gallery");
         </a>
       )}
     </div>
+    )}
   </section>
 )}

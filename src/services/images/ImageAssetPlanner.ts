@@ -64,12 +64,71 @@ function altKeywordMatch(slot: ImageSlotSpec, altText: string | undefined): bool
   return wanted.some((word) => haystack.includes(word));
 }
 
+/**
+ * Separator of a section-qualified placement (WB-GLUE-01). When several visual
+ * requirements on one route share a role, each keeps its own placement
+ * `<route>:<role>#<section_id>` so neither overwrites the other. Route ids
+ * never contain "#"; everything after the first "#" is the section id.
+ */
+export const SECTION_PLACEMENT_SEPARATOR = "#";
+
+/** The unqualified placement (`/:service#overview` → `/:service`). */
+export function basePlacement(placement: string): string {
+  const separator = placement.indexOf(SECTION_PLACEMENT_SEPARATOR);
+  return separator < 0 ? placement : placement.slice(0, separator);
+}
+
+/** The blueprint section a section-qualified placement names, if any. */
+export function placementSectionId(placement: string): string | undefined {
+  const separator = placement.indexOf(SECTION_PLACEMENT_SEPARATOR);
+  if (separator < 0) return undefined;
+  return placement.slice(separator + 1) || undefined;
+}
+
+export function sectionQualifiedPlacement(placement: string, sectionId: string): string {
+  return `${basePlacement(placement)}${SECTION_PLACEMENT_SEPARATOR}${sectionId}`;
+}
+
+/** The visual role a placement serves (`/about:team#crew` → `team`). */
+export function placementRole(placement: string): string {
+  const base = basePlacement(placement);
+  return base
+    .slice(base.lastIndexOf(":") + 1)
+    .trim()
+    .toLowerCase();
+}
+
+/** True when an explicit intended placement names this slot (exactly, or its route + role). */
+function intendedFor(slot: ImageSlotSpec, intendedPlacement: string): boolean {
+  return (
+    intendedPlacement === slot.placement ||
+    (placementSectionId(intendedPlacement) === undefined &&
+      intendedPlacement === basePlacement(slot.placement))
+  );
+}
+
+/**
+ * Semantic evidence that an unplaced provided image depicts what the slot
+ * needs: its id or alt text names the slot's role, or shares a keyword with
+ * the slot's alt guidance. Resolution and aspect ratio alone never qualify.
+ */
+function semanticallySuits(slot: ImageSlotSpec, candidate: ProvidedCandidate): boolean {
+  const role = placementRole(slot.placement)
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const words = ` ${`${candidate.id} ${candidate.altText ?? ""}`.toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  if (role && words.includes(` ${role} `)) return true;
+  return altKeywordMatch(slot, candidate.altText);
+}
+
 export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate): number {
   let score = 0;
-  if (candidate.intendedPlacement === slot.placement) score += 60;
-  else if (candidate.intendedPlacement && candidate.intendedPlacement !== slot.placement)
-    return Number.NEGATIVE_INFINITY;
+  if (candidate.intendedPlacement && intendedFor(slot, candidate.intendedPlacement)) {
+    score += candidate.intendedPlacement === slot.placement ? 60 : 50;
+  } else if (candidate.intendedPlacement) return Number.NEGATIVE_INFINITY;
   else if (candidate.id === slot.id) score += 40;
+  else if (semanticallySuits(slot, candidate)) score += 10;
+  else return Number.NEGATIVE_INFINITY;
   if (aspectMatches(slot, candidate.width, candidate.height)) score += 20;
   if (candidate.width >= 1600) score += 10;
   else if (candidate.width >= 960) score += 5;
@@ -81,8 +140,9 @@ export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate)
  *  "/services"); undefined for global placements ("global:logo"). */
 export function routeSlugFromPlacement(placement: string): string | undefined {
   if (placement.startsWith("global:")) return undefined;
-  const separator = placement.lastIndexOf(":");
-  const route = separator > 0 ? placement.slice(0, separator) : placement;
+  const base = basePlacement(placement);
+  const separator = base.lastIndexOf(":");
+  const route = separator > 0 ? base.slice(0, separator) : base;
   return route || "/";
 }
 
@@ -110,7 +170,7 @@ function isHeroSlot(slot: ImageSlotSpec): boolean {
   return /hero|banner|header/i.test(slot.placement) || /hero|banner|header/i.test(slot.id);
 }
 
-function isLogoSlot(slot: ImageSlotSpec): boolean {
+export function isLogoSlot(slot: Pick<ImageSlotSpec, "id" | "placement">): boolean {
   return /logo/i.test(slot.placement) || /logo/i.test(slot.id);
 }
 
@@ -230,14 +290,37 @@ export interface PlanInputs {
   generationEnabled: boolean;
 }
 
+/** A provided image explicitly assigned to this slot (by placement or slot id). */
+function explicitProvided(
+  slot: ImageSlotSpec,
+  candidates: ProvidedCandidate[],
+  usedIds: Set<string>,
+): { candidate: ProvidedCandidate; score: number } | undefined {
+  const hit = bestProvided(slot, candidates, usedIds);
+  if (!hit) return undefined;
+  const { candidate } = hit;
+  const explicit = candidate.intendedPlacement
+    ? intendedFor(slot, candidate.intendedPlacement)
+    : candidate.id === slot.id;
+  return explicit ? hit : undefined;
+}
+
 function resolveSlot(
   slot: ImageSlotSpec,
   inputs: PlanInputs,
   usedProvided: Set<string>,
   usedSource: Set<string>,
 ): ImageAssetResolution {
+  // An explicitly assigned client asset is never excluded by a slot's
+  // preferred-source order (e.g. a blueprint that prefers generation).
+  const assigned = explicitProvided(slot, inputs.provided, usedProvided);
+  if (assigned) {
+    return { source: "provided", candidateId: assigned.candidate.id, score: assigned.score };
+  }
+  // A logo is a protected brand asset: it is never synthesized (WB-GLUE-01).
+  const logo = isLogoSlot(slot);
   const precedence = (slot.preferredSources ?? DEFAULT_PRECEDENCE).filter(
-    (source) => source !== "generated" || inputs.generationEnabled,
+    (source) => source !== "generated" || (inputs.generationEnabled && !logo),
   );
   for (const source of precedence) {
     if (source === "provided") {

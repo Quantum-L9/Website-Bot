@@ -11,13 +11,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
-import type { StructuredContentRoute } from "@quantum-l9/bot-interop";
+import type { StructuredContentRoute, VisualRequirement } from "@quantum-l9/bot-interop";
 import {
   isRegisteredSection,
   isSectionLayoutVariant,
   LAYOUT_TEMPLATE_PREFIX,
+  resolveSectionRenderer,
   SECTION_LAYOUT_VARIANTS,
   type SectionLayoutVariant,
+  type StructuredSectionView,
 } from "../../astro_template/src/components/SectionRegistry.js";
 import { createModuleLogger } from "../core/logger.js";
 import { slotsForSpecComponent } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
@@ -39,6 +41,8 @@ import {
 import { digestDirectory } from "../services/hashing.js";
 import {
   isBrandMarkCandidate,
+  placementRole,
+  placementSectionId,
   routeSlugFromPlacement,
 } from "../services/images/ImageAssetPlanner.js";
 import {
@@ -52,6 +56,10 @@ import {
   validateRouteContracts,
   writeAssemblyManifest,
 } from "../validation/validate-generated-site.js";
+import {
+  type JoinedRedesignRoute,
+  joinRedesignRoutes,
+} from "./StructuredContentProjectionStage.js";
 
 function colorSchemeFromBackground(background: string | undefined): "dark" | "light" {
   const raw = (background ?? "#ffffff").trim();
@@ -139,24 +147,60 @@ const ROLE_CONTENT_SLOT: Readonly<Record<string, string>> = {
   gallery: "project_proof",
 };
 
-/** One spec route's sections and the image placement bound to each. */
+/** One route's sections and the image placement bound to each. */
 interface RouteImageSlots {
   slug: string;
   components: string[];
   names: string[];
+  /** REDESIGN_IMPROVE: blueprint section identity per section. */
+  sectionIds?: string[];
+  /** REDESIGN_IMPROVE: blueprint content slots per section. */
+  slots?: string[][];
   bound: Array<string | null>;
 }
 
-function placementRole(placement: string): string {
-  return placement
-    .slice(placement.lastIndexOf(":") + 1)
+/** One section to assemble, as the image binder sees it. */
+interface AssemblySectionTarget {
+  name: string;
+  component: string;
+  sectionId?: string;
+  slots?: string[];
+}
+
+/**
+ * One REDESIGN_IMPROVE section to render (WB-GLUE-01): blueprint identity and
+ * order, the existing renderer that realizes its component class, the
+ * accepted structured copy, and its legacy text projection. Assembly-local;
+ * never serialized as an interop artifact.
+ */
+interface RedesignAssemblySection {
+  sectionId: string;
+  name: string;
+  component: string;
+  slots: string[];
+  layout: SectionLayoutVariant | null;
+  content: string;
+  structured: StructuredSectionView;
+}
+
+interface RedesignRoutePlan {
+  slug: string;
+  sections: RedesignAssemblySection[];
+  relatedLinks: Array<{ href: string; label: string }>;
+}
+
+/** Comparable form of a conversion action name ("Request a Quote" ≡ "request_quote"). */
+function actionKey(value: string): string {
+  return value
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
 }
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.5.0";
+  version = "3.6.0";
   evidence = {
     // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -177,6 +221,17 @@ export class SiteAssemblerStage implements Stage {
 
   // Injectable seam over `renameSync` so the atomic swap/rollback path is deterministically testable.
   constructor(private readonly rename: (from: string, to: string) => void = renameSync) {}
+
+  /**
+   * WB-GLUE-01: a REDESIGN_IMPROVE assembly consumes the accepted blueprint,
+   * page content contract and structured content package, none of which is
+   * checkpointed evidence; a resumed build re-acquires them. Its checkpoint
+   * therefore cannot prove the pages current, so it always reassembles rather
+   * than reusing pages built from earlier content. COPY keeps its resume.
+   */
+  async canResume(ctx: BuildContext): Promise<boolean> {
+    return ctx.buildIntent !== "REDESIGN_IMPROVE";
+  }
 
   async run(ctx: BuildContext): Promise<void> {
     this.validateInputs(ctx);
@@ -295,11 +350,17 @@ export class SiteAssemblerStage implements Stage {
         "Validated design tokens are required before site assembly",
       );
     validateRouteContracts(ctx.domainSpec.routes);
-    for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
+    const redesign = ctx.buildIntent === "REDESIGN_IMPROVE";
+    if (!redesign) {
+      for (const [index, route] of ctx.domainSpec.routes.entries()) this.routeLayout(route, index);
+    }
     this.assertNoPretendInquiry(ctx);
     if (!ctx.dryRun) {
-      this.assertRouteContentAvailable(ctx);
       this.routeHeads(ctx);
+      // REDESIGN_IMPROVE content comes from the accepted blueprint + content
+      // package joined by section identity, never from component-keyed copy.
+      if (redesign) this.redesignPlans(ctx);
+      else this.assertRouteContentAvailable(ctx);
     }
   }
 
@@ -388,6 +449,7 @@ export class SiteAssemblerStage implements Stage {
   private routeLayout(
     route: DomainSpec["routes"][number],
     index: number,
+    sectionNames: string[] = route.components.map((component) => normalizeComponentName(component)),
   ): SectionLayoutVariant | undefined {
     // The spec validator does not type-check this optional field; a non-string
     // value was ignored before layouts existed and stays a non-request.
@@ -402,15 +464,184 @@ export class SiteAssemblerStage implements Stage {
         `unsupported-layout: ${source} is not a supported layout (supported: ${supported.join(", ")})`,
       );
     }
-    if (
-      route.components.every((component) => isRegisteredSection(normalizeComponentName(component)))
-    ) {
+    if (sectionNames.every((name) => isRegisteredSection(name))) {
       throw new BuildError(
         "VALIDATION_FAILED",
         `unsupported-layout: ${source} cannot be realized; the route has no generic section for the layout to arrange`,
       );
     }
     return variant;
+  }
+
+  /**
+   * REDESIGN_IMPROVE section plan per canonical route (WB-GLUE-01): the
+   * blueprint's sections in blueprint order, each realized by an existing
+   * renderer and carrying its accepted structured copy by section identity.
+   * A missing redesign artifact, an unjoinable identity, or a component class
+   * this template cannot realize fails assembly; it never falls back to
+   * component-keyed legacy copy or silent prose.
+   */
+  private redesignPlans(ctx: BuildContext): RedesignRoutePlan[] {
+    const joined = joinRedesignRoutes(ctx);
+    const routeSlugs = new Set(
+      ctx.domainSpec.routes.map((route) => normalizeRouteSlug(route.slug)),
+    );
+    const primaryActions = new Set(
+      [
+        ctx.domainSpec.conversion_authority?.primary_action,
+        ctx.websiteBlueprint?.payload.conversion.primary_action,
+      ]
+        .filter((value): value is string => typeof value === "string" && value.trim() !== "")
+        .map(actionKey),
+    );
+    const primaryCta = this.primaryCta(ctx);
+    return joined.map((route, index) => {
+      const specRoute = ctx.domainSpec.routes[index];
+      const where = `route ${JSON.stringify(route.routeId)}`;
+      let faqsAttached = false;
+      const sections = route.sections.map((section): RedesignAssemblySection => {
+        const component = section.blueprint.component_class;
+        const resolution = resolveSectionRenderer(normalizeComponentName(component));
+        const source = `${where} section ${JSON.stringify(section.sectionId)} requests component_class ${JSON.stringify(component)}`;
+        if (resolution.kind === "unsupported") {
+          throw new BuildError(
+            "SITE_ASSEMBLY_FAILED",
+            `unsupported-section-renderer: ${source}; this template has no component for ${JSON.stringify(resolution.token)} and will not substitute prose`,
+          );
+        }
+        if (resolution.kind === "ambiguous") {
+          throw new BuildError(
+            "SITE_ASSEMBLY_FAILED",
+            `ambiguous-section-renderer: ${source}; candidate renderers: ${resolution.candidates.join(", ")}`,
+          );
+        }
+        const name =
+          resolution.kind === "registered" ? resolution.name : normalizeComponentName(component);
+        const structured = section.structured;
+        const view: StructuredSectionView = {
+          sectionId: section.sectionId,
+          ...(structured.eyebrow !== undefined ? { eyebrow: structured.eyebrow } : {}),
+          ...(structured.heading !== undefined ? { heading: structured.heading } : {}),
+          ...(structured.subheading !== undefined ? { subheading: structured.subheading } : {}),
+          blocks: structured.blocks,
+          cta: structured.cta
+            ? this.resolveSectionCta(structured.cta, routeSlugs, primaryActions, primaryCta)
+            : null,
+          ...(name === "faq" && !faqsAttached && route.structured.faqs.length > 0
+            ? { faqs: route.structured.faqs }
+            : {}),
+        };
+        if (name === "faq") faqsAttached = true;
+        return {
+          sectionId: section.sectionId,
+          name,
+          component,
+          slots: [...section.blueprint.content_slots],
+          layout: resolution.kind === "layout" ? resolution.layout : null,
+          content: this.lookupRedesignContent(ctx, route, section.sectionId),
+          structured: view,
+        };
+      });
+      const heroes = sections.filter((section) => section.name === "hero");
+      if (heroes.length > 1) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `duplicate-hero: ${where} plans ${heroes.length} hero sections (${heroes.map((hero) => hero.sectionId).join(", ")}); a page has exactly one H1`,
+        );
+      }
+      // A route-level `layout:` request arranges the generic sections only.
+      const routeLayout = this.routeLayout(
+        specRoute,
+        index,
+        sections.map((section) => section.name),
+      );
+      if (routeLayout) {
+        for (const section of sections) {
+          if (!isRegisteredSection(section.name) && section.layout === null) {
+            section.layout = routeLayout;
+          }
+        }
+      }
+      return {
+        slug: normalizeRouteSlug(route.routeId),
+        sections,
+        relatedLinks: this.relatedLinks(route, routeSlugs),
+      };
+    });
+  }
+
+  /** The projected legacy text for a redesign section, keyed by section identity. */
+  private lookupRedesignContent(
+    ctx: BuildContext,
+    route: JoinedRedesignRoute,
+    sectionId: string,
+  ): string {
+    const content = ctx.generatedContent.get(`${route.routeId}:${sectionId}`);
+    if (content === undefined) {
+      throw new BuildError(
+        "SITE_ASSEMBLY_FAILED",
+        `Missing projected content for ${normalizeRouteSlug(route.routeId)} section ${JSON.stringify(sectionId)}; structured-content-projection must run first`,
+      );
+    }
+    return content;
+  }
+
+  /**
+   * Resolve a content-package CTA to a verified destination, or null. The
+   * package's `action` is not trusted as a URL: only a canonical spec route,
+   * or the operator's primary action backed by a verified lead form
+   * (primaryCta), resolves. No contact link, form endpoint or offer is ever
+   * manufactured.
+   */
+  private resolveSectionCta(
+    cta: { label: string; action: string },
+    routeSlugs: Set<string>,
+    primaryActions: Set<string>,
+    primaryCta: { label: string; href: string } | null,
+  ): { label: string; href: string } | null {
+    const label = cta.label.trim();
+    const action = cta.action.trim();
+    if (!label || !action) return null;
+    if (action.startsWith("/")) {
+      const [path, fragment] = action.split("#", 2);
+      let slug: string;
+      try {
+        slug = normalizeRouteSlug(path);
+      } catch {
+        return null;
+      }
+      if (!routeSlugs.has(slug)) return null;
+      // A fragment is kept only when it is the verified form anchor.
+      const href = fragment ? `${slug}#${fragment}` : slug;
+      if (fragment && href !== primaryCta?.href) return { label, href: slug };
+      return { label, href };
+    }
+    if (primaryCta && primaryActions.has(actionKey(action))) {
+      return { label, href: primaryCta.href };
+    }
+    return null;
+  }
+
+  /** Route-level internal links that resolve to published canonical routes. */
+  private relatedLinks(
+    route: JoinedRedesignRoute,
+    routeSlugs: Set<string>,
+  ): Array<{ href: string; label: string }> {
+    const self = normalizeRouteSlug(route.routeId);
+    const links: Array<{ href: string; label: string }> = [];
+    for (const link of route.structured.internal_links) {
+      let href: string;
+      try {
+        href = normalizeRouteSlug(link.target_route_id);
+      } catch {
+        continue;
+      }
+      const label = link.anchor_text.trim();
+      if (!label || href === self || !routeSlugs.has(href)) continue;
+      if (links.some((existing) => existing.href === href)) continue;
+      links.push({ href, label });
+    }
+    return links;
   }
 
   private assertRouteContentAvailable(ctx: BuildContext): void {
@@ -517,24 +748,29 @@ export class SiteAssemblerStage implements Stage {
 
   /**
    * Bind every published, route-scoped placement of the resolved image plan to
-   * exactly one section of its spec route, so the renderer shows each image in
-   * the section it was planned for. Global placements (logo, og-image) stay
-   * owned by the layout.
+   * exactly one section of its route, so the renderer shows each image in the
+   * section it was planned for. Global placements (logo, og-image) stay owned
+   * by the layout.
    *
+   * Pass 0 (REDESIGN_IMPROVE) binds by identity: the plan's slot_id names the
+   * blueprint visual requirement, whose section_id is the intended section (a
+   * section-qualified placement names it too). A hero placement goes to the
+   * route's hero renderer when one exists, since Hero.astro renders it.
    * Pass 1 binds by role: hero → the hero section (Hero.astro renders it),
    * gallery → the gallery section, service/trust/project_proof → the first
-   * section whose spec component carries the matching blueprint content slot.
+   * section whose component carries the matching blueprint content slot.
    * Pass 2 gives a placement no section claimed by role to the first unbound
    * image-eligible section. One image per section; required placements bind
-   * first. A placement naming no spec route, or a required placement with no
+   * first. A placement naming no route, or a required placement with no
    * eligible section, fails assembly; an optional one is logged and omitted.
    *
    * Returns, per normalized route slug with at least one binding, the
-   * placement bound to each section, aligned with route.components.
+   * placement bound to each section, aligned with that route's sections.
    */
   private bindSectionImages(
     ctx: BuildContext,
     config: SiteConfig,
+    targets: Map<string, AssemblySectionTarget[]>,
   ): Map<string, Array<string | null>> {
     const published = config.images ?? {};
     const seen = new Set<string>();
@@ -553,25 +789,39 @@ export class SiteAssemblerStage implements Stage {
     if (planned.length === 0) return new Map();
 
     const routes = new Map<string, RouteImageSlots>();
-    for (const route of ctx.domainSpec.routes) {
-      const slug = normalizeRouteSlug(route.slug);
+    for (const [slug, sections] of targets) {
+      const identified = sections.every((section) => section.sectionId !== undefined);
       routes.set(slug, {
         slug,
-        components: route.components,
-        names: route.components.map((component) => normalizeComponentName(component)),
-        bound: route.components.map(() => null),
+        components: sections.map((section) => section.component),
+        names: sections.map((section) => section.name),
+        ...(identified
+          ? {
+              sectionIds: sections.map((section) => section.sectionId ?? ""),
+              slots: sections.map((section) => section.slots ?? []),
+            }
+          : {}),
+        bound: sections.map(() => null),
       });
     }
+
+    const requirementSections = new Map<string, string>(
+      (ctx.websiteBlueprint?.payload.visual_requirements ?? []).map((requirement) => [
+        requirement.slot_id,
+        requirement.section_id,
+      ]),
+    );
+    const remaining = this.bindByIdentity(planned, routes, requirementSections);
 
     // Required placements bind completely (role pass, then fallback pass)
     // before any optional placement, so an optional role match can never take
     // the only section a required placement could fall back to.
     this.bindImageTier(
-      planned.filter((asset) => asset.required),
+      remaining.filter((asset) => asset.required),
       routes,
     );
     this.bindImageTier(
-      planned.filter((asset) => !asset.required),
+      remaining.filter((asset) => !asset.required),
       routes,
     );
 
@@ -585,11 +835,11 @@ export class SiteAssemblerStage implements Stage {
           [...bindings].map(([slug, bound]) => [
             slug,
             Object.fromEntries(
-              bound.flatMap((placement, position) =>
-                placement
-                  ? [[routes.get(slug)?.names[position] ?? String(position), placement]]
-                  : [],
-              ),
+              bound.flatMap((placement, position) => {
+                const target = routes.get(slug);
+                const key = target?.sectionIds?.[position] ?? target?.names[position];
+                return placement ? [[key ?? String(position), placement]] : [];
+              }),
             ),
           ]),
         ),
@@ -597,6 +847,70 @@ export class SiteAssemblerStage implements Stage {
       "Section image placements bound",
     );
     return bindings;
+  }
+
+  /**
+   * Pass 0: bind each placement whose intended blueprint section is known to
+   * that section. Returns the placements left for the role/fallback passes —
+   * those with no section identity, and required ones whose intended section
+   * cannot show an image. An optional placement is never moved to a section
+   * it was not planned for; it is logged and omitted instead.
+   */
+  private bindByIdentity(
+    planned: ReadonlyArray<{ slotId: string; placement: string; required: boolean }>,
+    routes: Map<string, RouteImageSlots>,
+    requirementSections: Map<string, string>,
+  ): Array<{ slotId: string; placement: string; required: boolean }> {
+    const remaining: Array<{ slotId: string; placement: string; required: boolean }> = [];
+    for (const asset of planned) {
+      const target = this.imageRouteTarget(routes, asset.placement);
+      const sectionId =
+        requirementSections.get(asset.slotId) ?? placementSectionId(asset.placement);
+      if (!target.sectionIds || sectionId === undefined) {
+        remaining.push(asset);
+        continue;
+      }
+      const role = placementRole(asset.placement);
+      let index = role === "hero" ? target.names.indexOf("hero") : -1;
+      if (index < 0) index = target.sectionIds.indexOf(sectionId);
+      if (index < 0) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `image-placement-unbound: ${asset.placement} (slot ${asset.slotId}) is planned for section ${JSON.stringify(sectionId)}, which ${target.slug} does not render`,
+        );
+      }
+      const name = target.names[index];
+      const eligible =
+        name === "hero"
+          ? role === "hero"
+          : name === "gallery"
+            ? role === "gallery" || role === "project_proof"
+            : !IMAGE_INELIGIBLE_SECTIONS.has(name);
+      if (eligible && target.bound[index] === null) {
+        target.bound[index] = asset.placement;
+        continue;
+      }
+      if (asset.required && !eligible) {
+        remaining.push(asset);
+        continue;
+      }
+      if (asset.required) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `image-placement-conflict: ${asset.placement} is required in section ${JSON.stringify(sectionId)} on ${target.slug}, which already shows ${target.bound[index]}`,
+        );
+      }
+      logger.warn(
+        {
+          placement: asset.placement,
+          route: target.slug,
+          section: sectionId,
+          reason: eligible ? "section already shows an image" : "section takes no image",
+        },
+        "Optional image placement not rendered",
+      );
+    }
+    return remaining;
   }
 
   /**
@@ -615,7 +929,7 @@ export class SiteAssemblerStage implements Stage {
       const index = target.names.findIndex(
         (name, position) =>
           target.bound[position] === null &&
-          this.sectionOwnsRole(name, target.components[position], role),
+          this.sectionOwnsRole(name, target.components[position], role, target.slots?.[position]),
       );
       if (index >= 0) target.bound[index] = asset.placement;
       else unclaimed.push(asset);
@@ -669,14 +983,21 @@ export class SiteAssemblerStage implements Stage {
     return target;
   }
 
-  private sectionOwnsRole(name: string, component: string, role: string): boolean {
+  private sectionOwnsRole(
+    name: string,
+    component: string,
+    role: string,
+    blueprintSlots?: readonly string[],
+  ): boolean {
     if (role === "hero") return name === "hero";
     if (role === "gallery") return name === "gallery";
     const slot = ROLE_CONTENT_SLOT[role];
     if (!slot) return false;
     if (name === "gallery") return slot === "project_proof";
     if (IMAGE_INELIGIBLE_SECTIONS.has(name)) return false;
-    return (slotsForSpecComponent(component) as readonly string[]).includes(slot);
+    return (blueprintSlots ?? (slotsForSpecComponent(component) as readonly string[])).includes(
+      slot,
+    );
   }
 
   private galleryExtras(ctx: BuildContext) {
@@ -883,7 +1204,23 @@ export const siteConfig = {
     );
 
     const heads = this.routeHeads(ctx);
-    const imageBindings = this.bindSectionImages(ctx, config);
+    if (ctx.buildIntent === "REDESIGN_IMPROVE") {
+      this.writeRedesignPages(ctx, config, heads, write);
+      return;
+    }
+    const imageBindings = this.bindSectionImages(
+      ctx,
+      config,
+      new Map(
+        ctx.domainSpec.routes.map((route) => [
+          normalizeRouteSlug(route.slug),
+          route.components.map((component) => ({
+            name: normalizeComponentName(component),
+            component,
+          })),
+        ]),
+      ),
+    );
     for (const [index, route] of ctx.domainSpec.routes.entries()) {
       const slug = normalizeRouteSlug(route.slug);
       const head = heads[index];
@@ -926,6 +1263,105 @@ export const siteConfig = {
       write(
         pagePath,
         `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp}${imageProp} />)}\n</BaseLayout>\n`,
+      );
+    }
+  }
+
+  /**
+   * REDESIGN_IMPROVE pages (WB-GLUE-01): each canonical route renders its
+   * blueprint sections in blueprint order through the existing
+   * SectionRenderer, with accepted structured copy and the image planned for
+   * that section. Head, schemas, navigation, tokens and the one-H1 rule are
+   * the same authorities COPY uses.
+   */
+  private writeRedesignPages(
+    ctx: BuildContext,
+    config: SiteConfig,
+    heads: RouteHead[],
+    write: (path: string, content: string) => void,
+  ): void {
+    const plans = this.redesignPlans(ctx);
+    const imageBindings = this.bindSectionImages(
+      ctx,
+      config,
+      new Map(plans.map((plan) => [plan.slug, plan.sections])),
+    );
+    this.assertGalleryCoverage(ctx, plans, imageBindings);
+    for (const [index, route] of ctx.domainSpec.routes.entries()) {
+      const plan = plans[index];
+      const slug = plan.slug;
+      const head = heads[index];
+      const routeImages = imageBindings.get(slug);
+      const pageDirectoryDepth = slug === "/" ? 1 : slug.split("/").filter(Boolean).length + 1;
+      const prefix = "../".repeat(pageDirectoryDepth);
+      // Every section carries the same keys so the emitted `as const` array has one shape.
+      const sections = plan.sections.map((section, position) => ({
+        sectionId: section.sectionId,
+        name: section.name,
+        layout: section.layout,
+        content: section.content,
+        structured: section.structured,
+        imagePlacement: routeImages?.[position] ?? null,
+      }));
+      const routeSchemas = config.schemas.perRoute[slug] ?? [];
+      // Exactly one H1 per rendered page: the hero section owns it when present;
+      // otherwise the layout renders the route title (L2-S16-001).
+      const pageHeading = sections.some((section) => section.name === "hero")
+        ? ""
+        : ` pageHeading={${json(route.title)}}`;
+      const links = plan.relatedLinks;
+      const linksDeclaration = links.length
+        ? `const relatedLinks = ${json(links)} as const;\n`
+        : "";
+      const linksMarkup = links.length
+        ? `\n  <nav class="related-links" aria-label="Related pages">\n    <ul>\n      {relatedLinks.map(link => <li><a href={link.href}>{link.label}</a></li>)}\n    </ul>\n  </nav>`
+        : "";
+      write(
+        pagePathForRoute(slug),
+        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${linksDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} structured={section.structured} layout={section.layout ?? undefined} imagePlacement={section.imagePlacement} />)}${linksMarkup}\n</BaseLayout>\n`,
+      );
+    }
+  }
+
+  /**
+   * A required multi-image region needs `min_count` distinct images: the
+   * planned image bound to its gallery section plus the source-site gallery
+   * extras. One asset is never counted as several. An optional region below
+   * its count is logged.
+   */
+  private assertGalleryCoverage(
+    ctx: BuildContext,
+    plans: RedesignRoutePlan[],
+    bindings: Map<string, Array<string | null>>,
+  ): void {
+    const extras = new Set(this.galleryExtras(ctx).map((image) => image.sha256));
+    const requirements: VisualRequirement[] = (
+      ctx.websiteBlueprint?.payload.visual_requirements ?? []
+    ).filter((requirement) => requirement.role === "gallery" && requirement.min_count > 1);
+    for (const requirement of requirements) {
+      let slug: string;
+      try {
+        slug = normalizeRouteSlug(requirement.route_id);
+      } catch {
+        continue;
+      }
+      const plan = plans.find((candidate) => candidate.slug === slug);
+      const position =
+        plan?.sections.findIndex((section) => section.sectionId === requirement.section_id) ?? -1;
+      const boundPlacement = position >= 0 ? bindings.get(slug)?.[position] : null;
+      const bound = boundPlacement ? ctx.resolvedImages?.get(boundPlacement) : undefined;
+      const distinct = new Set(extras);
+      if (bound) distinct.add(bound.sha256);
+      if (distinct.size >= requirement.min_count) continue;
+      if (requirement.required) {
+        throw new BuildError(
+          "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",
+          `gallery-under-count: ${requirement.slot_id} requires ${requirement.min_count} distinct images; ${distinct.size} available`,
+        );
+      }
+      logger.warn(
+        { slot: requirement.slot_id, required: requirement.min_count, available: distinct.size },
+        "Optional gallery region renders fewer images than planned",
       );
     }
   }

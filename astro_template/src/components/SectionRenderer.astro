@@ -1,6 +1,7 @@
 ---
 import { siteConfig } from "../lib/siteConfig";
 import { slotForSection } from "../lib/visualEnhancements";
+import type { StructuredSectionView } from "./SectionRegistry";
 import LeadForm from "./LeadForm.astro";
 import AudiencePaths from "./sections/AudiencePaths.astro";
 import ComplianceNote from "./sections/ComplianceNote.astro";
@@ -24,8 +25,14 @@ interface Props {
   layout?: string;
   /** Image placement the assembler bound to this section (a siteConfig.images key). */
   imagePlacement?: string | null;
+  /**
+   * REDESIGN_IMPROVE: the accepted structured section (WB-GLUE-01). Components
+   * that consume it render its blocks semantically; `content` stays the
+   * legacy text projection for components that do not.
+   */
+  structured?: StructuredSectionView;
 }
-const { name, content, layout, imagePlacement } = Astro.props;
+const { name, content, layout, imagePlacement, structured } = Astro.props;
 const registry: Record<string, any> = {
   hero: Hero,
   trust_bar: TrustBar,
@@ -80,7 +87,7 @@ const blockVariant =
   visualSlot ? (
     <VisualEnhancementSlot slot={visualSlot}>
       <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
-        <Component name={name} content={content} />
+        <Component name={name} content={content} structured={structured} />
         <figure class="content-block__visual">
           <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
         </figure>
@@ -88,7 +95,7 @@ const blockVariant =
     </VisualEnhancementSlot>
   ) : (
     <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
-      <Component name={name} content={content} />
+      <Component name={name} content={content} structured={structured} />
       <figure class="content-block__visual">
         <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
       </figure>
@@ -97,15 +104,15 @@ const blockVariant =
 ) : galleryImage ? (
   visualSlot ? (
     <VisualEnhancementSlot slot={visualSlot}>
-      <Component name={name} content={content} image={galleryImage} />
+      <Component name={name} content={content} structured={structured} image={galleryImage} />
     </VisualEnhancementSlot>
   ) : (
-    <Component name={name} content={content} image={galleryImage} />
+    <Component name={name} content={content} structured={structured} image={galleryImage} />
   )
 ) : visualSlot ? (
   <VisualEnhancementSlot slot={visualSlot}>
-    <Component name={name} content={content} />
+    <Component name={name} content={content} structured={structured} />
   </VisualEnhancementSlot>
 ) : (
-  <Component name={name} content={content} />
+  <Component name={name} content={content} structured={structured} />
 )}

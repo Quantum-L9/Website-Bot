@@ -1,33 +1,54 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import type { StructuredSectionView } from "../SectionRegistry";
+import StructuredBlocks from "../StructuredBlocks.astro";
 
 interface Props {
   name?: string;
   content: string;
+  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  structured?: StructuredSectionView;
 }
-const { name = "cta", content } = Astro.props;
+const { name = "cta", content, structured } = Astro.props;
 const paragraphs = content
   .split(/\n{2,}/)
   .map((value) => value.trim().replace(/\*\*/g, ""))
   .filter(Boolean);
 // Verified label + destination, or null (WB-QAP-03). Without one the banner is
 // static copy: no invented offer, no dead #quote link.
-const cta = siteConfig.primaryCta;
-const heading = paragraphs[0] || cta?.label || siteConfig.businessName;
+// A structured section's own resolved CTA replaces it; the banner never shows two.
+const cta = structured?.cta ?? siteConfig.primaryCta;
+const heading = structured
+  ? (structured.heading ?? structured.eyebrow ?? cta?.label ?? siteConfig.businessName)
+  : paragraphs[0] || cta?.label || siteConfig.businessName;
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 ---
-<section class="cta-banner" data-section={name}>
+<section class="cta-banner" data-section={name} data-section-id={structured?.sectionId}>
   {cta ? (
     <a class="cta-banner__link" href={cta.href} aria-label={heading}>
       <h2>{heading}</h2>
-      {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+      {structured ? (
+        <>
+          {structured.subheading && <p>{structured.subheading}</p>}
+          <StructuredBlocks blocks={structured.blocks} />
+        </>
+      ) : (
+        paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)
+      )}
       <span class="btn" role="presentation">{cta.label}</span>
     </a>
   ) : (
     <div class="cta-banner__link">
       <h2>{heading}</h2>
-      {paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)}
+      {structured ? (
+        <>
+          {structured.subheading && <p>{structured.subheading}</p>}
+          <StructuredBlocks blocks={structured.blocks} />
+        </>
+      ) : (
+        paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)
+      )}
     </div>
   )}
   {telHref && <a class="btn btn--ghost cta-banner__phone" href={telHref}>{phone}</a>}
