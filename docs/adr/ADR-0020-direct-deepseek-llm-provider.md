@@ -2,7 +2,9 @@
 # ADR-0020: Direct DeepSeek LLM Provider (LLM-Router Retired From the Execution Path)
 
 ## Status
-Accepted. Supersedes, in part, ADR-0003 (the provider-resolution clauses listed below).
+Accepted. Supersedes, in part, ADR-0003 (the provider-resolution clauses listed below) and
+amends ADR-0017 (its credential list and model-selection clause; its launch-vs-generation-claim
+policy stands).
 
 ## Date
 2026-11-06

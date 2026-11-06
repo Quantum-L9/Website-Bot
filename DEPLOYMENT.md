@@ -153,8 +153,7 @@ Repo (or org, scoped to this repo) → **Settings → Secrets and variables → 
 
 | Secret | Consumed by | Purpose |
 |---|---|---|
-| `OPENROUTER_API_KEY` | `src/services/llm.ts` | content/design/schema/vision generation (required) |
-| `PERPLEXITY_API_KEY` | `src/services/llm.ts` | required by the router adapter (required) |
+| `DEEPSEEK_API_KEY` | `src/services/llm.ts` | content/design/schema/vision generation via direct DeepSeek (required; ADR-0020) |
 | `VERCEL_TOKEN` | `VercelDeployStage` | Vercel deploy + correlation (required) |
 | `GITHUB_SITE_TOKEN` | `ClientSourcePublishStage` (`env://GITHUB_SITE_TOKEN`) | push generated source to the client repo (required) |
 | `CLIENT_VERCEL_DEPLOY_HOOK` | `SiteAssemblerStage` | deploy-hook trigger (or use API mode via project id) |

@@ -2,7 +2,9 @@
 # ADR-0017: LLM Credentials Required for Generation Claims, Not Launch
 
 ## Status
-Accepted.
+Accepted. Credential list and model-selection clause amended by
+[ADR-0020](ADR-0020-direct-deepseek-llm-provider.md); the launch-vs-generation-claim policy
+is unchanged.
 
 ## Date
 2026-08-14
@@ -35,6 +37,15 @@ generation through `src/services/llm.ts`. Contracts own the interface
 - Command surface for router/build/generation stays on the Makefile
   (`build-router`, `generate-domain-spec`, `generate-content`,
   `verify-visual-qa`).
+
+## Amendment (ADR-0020, 2026-11-06)
+The `llm_intelligence` credentials are now `DEEPSEEK_API_KEY` (required for generation
+claims) plus the optional per-build limits `LLM_BUILD_BUDGET_USD` and
+`LLM_MAX_REQUESTS_PER_BUILD`. `OPENROUTER_API_KEY`, `PERPLEXITY_API_KEY`,
+`MONTHLY_BUDGET_PER_CLIENT` and `WEEKLY_BUDGET_TARGET` are retired. Model selection belongs
+to the direct DeepSeek adapter in `src/services/llm.ts`, not the router. Claims of
+AI-generated content, design intelligence or visual QA fail closed when `DEEPSEEK_API_KEY` is
+absent. There is no router build step.
 
 ## Related Artifacts
 - `config/launch-env.required.yaml` (`llm_intelligence` group)
