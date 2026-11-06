@@ -109,12 +109,14 @@ void test("Quantum AI Partners regression: real logo and photos used unchanged; 
     // section: they stay in the gallery inventory, unchanged.
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
     for (const id of ["project-2", "project-3"]) {
-      assert.ok(config.includes(`"/images/gallery/provided-${id}.png"`), `${id} in gallery`);
       const original = ctx.domainSpec.assets?.providedImages?.find((image) => image.id === id);
       assert.ok(original);
+      const digest = sha256(readFileSync(original.path));
+      const file = `provided-${id}-${digest.slice(0, 12)}.png`;
+      assert.ok(config.includes(`"/images/gallery/${file}"`), `${id} in gallery`);
       assert.equal(
-        sha256(readFileSync(join(ctx.outputDir, "public/images/gallery", `provided-${id}.png`))),
-        sha256(readFileSync(original.path)),
+        sha256(readFileSync(join(ctx.outputDir, "public/images/gallery", file))),
+        digest,
       );
     }
     // The logo and the placed photos are never repeated in the gallery.
@@ -137,7 +139,9 @@ void test("COPY: a supplied logo and an explicitly placed photo enter the plan w
   ctx.domainSpec.assets = {
     generation: { enabled: true },
     providedImages: [
-      { id: "acme-logo", path: write("acme-logo"), altText: "Acme company logo" },
+      { id: "acme-logo", path: write("acme-logo"), altText: "Acme Roofing logo" },
+      // Larger and sharing the logo's alt words: it must not win the logo slot.
+      { id: "crew", path: write("crew"), altText: "Acme Roofing crew on a roof" },
       { id: "real-team", path: write("real-team"), intendedPlacement: "/:team" },
       { id: "holiday-party", path: write("holiday-party"), altText: "Office party" },
     ],
@@ -158,7 +162,7 @@ void test("COPY: a supplied logo and an explicitly placed photo enter the plan w
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
     assert.ok(config.includes('"global:logo"'), "the layout header gets the real logo");
     // The unrelated photo is kept available in the gallery inventory, not placed.
-    assert.ok(config.includes('"/images/gallery/provided-holiday-party.png"'));
+    assert.match(config, /"\/images\/gallery\/provided-holiday-party-[0-9a-f]{12}\.png"/);
   } finally {
     cleanupContext(ctx);
   }
@@ -180,6 +184,75 @@ void test("two supplied images that both look like logos identify none; the word
       ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "global:logo") ?? false,
       false,
     );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("only an asset's own name identifies the logo, never alt text describing a photo", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "reuse-first-alt-"));
+  const path = join(dir, "truck.png");
+  writeFileSync(path, pngBytes("truck"));
+  const ctx = fixtureContext();
+  ctx.domainSpec.assets = {
+    providedImages: [{ id: "truck", path, altText: "Our van with the company logo on the side" }],
+  };
+  try {
+    await new ImageAssetPlanningStage().run(ctx);
+    assert.equal(
+      ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "global:logo") ?? false,
+      false,
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("evidence outputs are declared only when the stage produced a plan", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "reuse-first-evidence-"));
+  const path = join(dir, "photo.png");
+  writeFileSync(path, pngBytes("photo"));
+  const ctx = fixtureContext();
+  // Unplaced, not a logo: no slot results, so nothing is written and nothing may be claimed.
+  ctx.domainSpec.assets = { providedImages: [{ id: "photo", path }] };
+  const stage = new ImageAssetPlanningStage();
+  try {
+    await stage.run(ctx);
+    assert.equal(ctx.imageAssetPlan, undefined);
+    assert.deepEqual(stage.evidence.outputs(ctx), []);
+    ctx.domainSpec.assets.providedImages?.push({
+      id: "team",
+      path,
+      intendedPlacement: "/:team",
+    });
+    await stage.run(ctx);
+    assert.ok(ctx.imageAssetPlan);
+    assert.deepEqual(stage.evidence.outputs(ctx), ["image_plan", "image_assets"]);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("two client photos whose ids slug alike keep distinct gallery files", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "reuse-first-collide-"));
+  const ctx = fixtureContext();
+  ctx.domainSpec.assets = {
+    providedImages: ["project-1", "Project 1"].map((id, index) => {
+      const path = join(dir, `p${index}.png`);
+      writeFileSync(path, pngBytes(id));
+      return { id, path };
+    }),
+  };
+  try {
+    await new SiteAssemblerStage().run(ctx);
+    const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
+    const files = [
+      ...config.matchAll(/"\/images\/gallery\/(provided-project-1-[0-9a-f]{12}\.png)"/g),
+    ].map((match) => match[1]);
+    assert.equal(new Set(files).size, 2, "each client photo keeps its own file");
+    for (const file of files) {
+      assert.ok(readFileSync(join(ctx.outputDir, "public/images/gallery", file)).length > 0);
+    }
   } finally {
     cleanupContext(ctx);
   }

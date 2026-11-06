@@ -1064,7 +1064,9 @@ export class SiteAssemblerStage implements Stage {
       used.add(inspected.sha256);
       const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? (extname(path).slice(1) || "img");
       extras.push({
-        fileName: `provided-${safeFileStem(spec.id)}.${extension}`,
+        // The content hash keeps two ids that slug alike (e.g. "project-1" and
+        // "Project 1") from overwriting each other's file.
+        fileName: `provided-${safeFileStem(spec.id)}-${inspected.sha256.slice(0, 12)}.${extension}`,
         path,
         alt: spec.altText || "Project photo",
         width: inspected.width,
@@ -1103,8 +1105,7 @@ export class SiteAssemblerStage implements Stage {
 
   /** Copy every registered image into the project's public/images/ directory. */
   private copyResolvedImages(root: string, ctx: BuildContext): void {
-    if (!ctx.resolvedImages?.size) return;
-    for (const asset of ctx.resolvedImages.values()) {
+    for (const asset of ctx.resolvedImages?.values() ?? []) {
       if (asset.disposition !== "approved-client-owned") continue;
       if (!existsSync(asset.absolutePath)) {
         throw new BuildError(

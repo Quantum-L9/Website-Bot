@@ -70,6 +70,9 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
       /\[data-asset-source="?provided"?\][^{}]*\{[^}]*object-fit:\s*contain[^}]*filter:\s*none/,
       "protected client images are shown whole: contain, no filter",
     );
+    // A client hero photo is shown whole beside the copy, never as the washed-over backdrop.
+    assert.match(html, /<section class="hero"[^>]*data-section-id="hero"/);
+    assert.doesNotMatch(html, /class="hero hero--image"/);
     // The provided logo replaces the wordmark, unchanged.
     const logo = ctx.resolvedImages?.get("global:logo");
     assert.ok(logo);

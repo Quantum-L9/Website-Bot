@@ -26,6 +26,10 @@ const path = Astro.url.pathname !== "/" ? Astro.url.pathname.replace(/\/$/, "") 
 const logo = images["global:logo"];
 const rawHero = images[`${path}:hero`];
 const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawHero;
+// A client or authorized source-site photo is shown whole beside the copy; only
+// a generated illustration becomes the full-bleed backdrop under the legibility
+// gradient, so a protected asset is never washed over or cropped.
+const heroBackdrop = heroImage !== undefined && heroImage.source === "generated";
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
@@ -36,7 +40,7 @@ const structuredHeadline = structured?.heading;
 // Without a heading the legacy headline already is the eyebrow; never repeat it.
 const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.businessName;
 ---
-<section class={heroImage ? 'hero hero--image' : 'hero'} data-section={name} data-section-id={structured?.sectionId}>
+<section class={heroBackdrop ? 'hero hero--image' : 'hero'} data-section={name} data-section-id={structured?.sectionId}>
   <div class="hero__content">
     <p class="eyebrow">{eyebrow}</p>
     {structured ? (
