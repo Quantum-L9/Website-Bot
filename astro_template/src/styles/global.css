@@ -141,6 +141,10 @@ input, textarea {
 .faq p { padding: 0.9rem 1.1rem; margin: 0.5rem 0 0; border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent); border-radius: 0.6rem; background: color-mix(in srgb, var(--color-text) 4%, var(--color-background)); }
 /* form grid + focus states */
 .lead-form__grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+/* A field fills its grid column and may shrink below its intrinsic width; otherwise
+   inputs overflow into the neighbouring column (seen in the Wave 4 visual review). */
+.lead-form__grid > label { min-width: 0; }
+.lead-form__grid :is(input, select) { width: 100%; }
 select { padding: 0.75rem; font: inherit; color: var(--color-text); background: color-mix(in srgb, var(--color-text) 8%, var(--color-background)); border: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent); border-radius: 0.4rem; }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 .lead-form__consent { font-size: 0.85rem; opacity: 0.75; }

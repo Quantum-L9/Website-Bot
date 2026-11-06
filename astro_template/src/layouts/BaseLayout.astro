@@ -112,7 +112,7 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
     </header>
     <main id="main-content">{pageHeading && <h1 class="page-title">{pageHeading}</h1>}<slot /></main>
     <footer>
-      <p>© {new Date().getFullYear()} {siteConfig.businessName}</p>
+      <p data-visual-dynamic="build-year">© {new Date().getFullYear()} {siteConfig.businessName}</p>
       {footerGroups.length > 0 && (
         <nav class="footer-nav" aria-label="Footer">
           {footerGroups.map(group => (
