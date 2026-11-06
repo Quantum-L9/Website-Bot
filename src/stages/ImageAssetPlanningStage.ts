@@ -10,12 +10,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { basename, isAbsolute, resolve } from "node:path";
 import { VISUAL_ROLES, type VisualRequirement } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
-import type {
-  AssetSpec,
-  BuildContext,
-  ImageSlotSpec,
-  ProvidedImageSpec,
-} from "../pipeline/BuildContext.js";
+import type { BuildContext, ImageSlotSpec, ProvidedImageSpec } from "../pipeline/BuildContext.js";
 import { clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
