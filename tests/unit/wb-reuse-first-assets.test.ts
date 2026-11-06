@@ -128,25 +128,52 @@ void test("Quantum AI Partners regression: real logo and photos used unchanged; 
   }
 });
 
-void test("COPY: a supplied logo and an explicitly placed photo enter the plan without imageSlots", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "reuse-first-copy-"));
-  const write = (id: string): string => {
-    const path = join(dir, `${id}.png`);
-    writeFileSync(path, pngBytes(id));
-    return path;
-  };
+interface SuppliedImage {
+  id: string;
+  /** File name on disk; defaults to `<id>.png`. */
+  file?: string;
+  altText?: string;
+  intendedPlacement?: string;
+}
+
+/** A COPY build whose spec supplies these client images (distinct, decodable PNGs). */
+function copyContextWith(images: SuppliedImage[], generation?: boolean): BuildContext {
+  const dir = mkdtempSync(join(tmpdir(), "reuse-first-"));
   const ctx = fixtureContext();
   ctx.domainSpec.assets = {
-    generation: { enabled: true },
-    providedImages: [
-      { id: "acme-logo", path: write("acme-logo"), altText: "Acme Roofing logo" },
-      // Larger and sharing the logo's alt words: it must not win the logo slot.
-      { id: "crew", path: write("crew"), altText: "Acme Roofing crew on a roof" },
-      { id: "real-team", path: write("real-team"), intendedPlacement: "/:team" },
-      { id: "holiday-party", path: write("holiday-party"), altText: "Office party" },
-    ],
+    ...(generation === undefined ? {} : { generation: { enabled: generation } }),
+    providedImages: images.map(({ file, ...image }) => {
+      const path = join(dir, file ?? `${image.id}.png`);
+      writeFileSync(path, pngBytes(image.id));
+      return { ...image, path };
+    }),
   };
+  return ctx;
+}
+
+async function withContext(ctx: BuildContext, body: () => Promise<void>): Promise<void> {
   try {
+    await body();
+  } finally {
+    cleanupContext(ctx);
+  }
+}
+
+const plansLogo = (ctx: BuildContext): boolean =>
+  ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "global:logo") ?? false;
+
+void test("COPY: a supplied logo and an explicitly placed photo enter the plan without imageSlots", async () => {
+  const ctx = copyContextWith(
+    [
+      { id: "acme-logo", altText: "Acme Roofing logo" },
+      // Larger and sharing the logo's alt words: it must not win the logo slot.
+      { id: "crew", altText: "Acme Roofing crew on a roof" },
+      { id: "real-team", intendedPlacement: "/:team" },
+      { id: "holiday-party", altText: "Office party" },
+    ],
+    true,
+  );
+  await withContext(ctx, async () => {
     await new ImageAssetPlanningStage().run(ctx);
     // The one unambiguous logo becomes global:logo; nothing is generated for it.
     assert.deepEqual(planned(ctx, "global:logo"), {
@@ -163,87 +190,53 @@ void test("COPY: a supplied logo and an explicitly placed photo enter the plan w
     assert.ok(config.includes('"global:logo"'), "the layout header gets the real logo");
     // The unrelated photo is kept available in the gallery inventory, not placed.
     assert.match(config, /"\/images\/gallery\/provided-holiday-party-[0-9a-f]{12}\.png"/);
-  } finally {
-    cleanupContext(ctx);
-  }
+  });
 });
 
 void test("two supplied images that both look like logos identify none; the wordmark stays", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "reuse-first-logo-"));
-  const ctx = fixtureContext();
-  ctx.domainSpec.assets = {
-    providedImages: ["logo-dark", "logo-light"].map((id) => {
-      const path = join(dir, `${id}.png`);
-      writeFileSync(path, pngBytes(id));
-      return { id, path };
-    }),
-  };
-  try {
+  const ctx = copyContextWith([{ id: "logo-dark" }, { id: "logo-light" }]);
+  await withContext(ctx, async () => {
     await new ImageAssetPlanningStage().run(ctx);
-    assert.equal(
-      ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "global:logo") ?? false,
-      false,
-    );
-  } finally {
-    cleanupContext(ctx);
-  }
+    assert.equal(plansLogo(ctx), false);
+  });
 });
 
 void test("only an asset's own name identifies the logo, never alt text describing a photo", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "reuse-first-alt-"));
-  const path = join(dir, "truck.png");
-  writeFileSync(path, pngBytes("truck"));
-  const ctx = fixtureContext();
-  ctx.domainSpec.assets = {
-    providedImages: [{ id: "truck", path, altText: "Our van with the company logo on the side" }],
-  };
-  try {
+  const ctx = copyContextWith([
+    { id: "truck", altText: "Our van with the company logo on the side" },
+  ]);
+  await withContext(ctx, async () => {
     await new ImageAssetPlanningStage().run(ctx);
-    assert.equal(
-      ctx.imageAssetPlan?.assets.some((asset) => asset.placement === "global:logo") ?? false,
-      false,
-    );
-  } finally {
-    cleanupContext(ctx);
-  }
+    assert.equal(plansLogo(ctx), false);
+  });
 });
 
 void test("evidence outputs are declared only when the stage produced a plan", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "reuse-first-evidence-"));
-  const path = join(dir, "photo.png");
-  writeFileSync(path, pngBytes("photo"));
-  const ctx = fixtureContext();
   // Unplaced, not a logo: no slot results, so nothing is written and nothing may be claimed.
-  ctx.domainSpec.assets = { providedImages: [{ id: "photo", path }] };
+  const ctx = copyContextWith([{ id: "photo" }]);
   const stage = new ImageAssetPlanningStage();
-  try {
+  await withContext(ctx, async () => {
     await stage.run(ctx);
     assert.equal(ctx.imageAssetPlan, undefined);
     assert.deepEqual(stage.evidence.outputs(ctx), []);
-    ctx.domainSpec.assets.providedImages?.push({
+    const [photo] = ctx.domainSpec.assets?.providedImages ?? [];
+    ctx.domainSpec.assets?.providedImages?.push({
       id: "team",
-      path,
+      path: photo.path,
       intendedPlacement: "/:team",
     });
     await stage.run(ctx);
     assert.ok(ctx.imageAssetPlan);
     assert.deepEqual(stage.evidence.outputs(ctx), ["image_plan", "image_assets"]);
-  } finally {
-    cleanupContext(ctx);
-  }
+  });
 });
 
 void test("two client photos whose ids slug alike keep distinct gallery files", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "reuse-first-collide-"));
-  const ctx = fixtureContext();
-  ctx.domainSpec.assets = {
-    providedImages: ["project-1", "Project 1"].map((id, index) => {
-      const path = join(dir, `p${index}.png`);
-      writeFileSync(path, pngBytes(id));
-      return { id, path };
-    }),
-  };
-  try {
+  const ctx = copyContextWith([
+    { id: "project-1", file: "p0.png" },
+    { id: "Project 1", file: "p1.png" },
+  ]);
+  await withContext(ctx, async () => {
     await new SiteAssemblerStage().run(ctx);
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
     const files = [
@@ -253,7 +246,5 @@ void test("two client photos whose ids slug alike keep distinct gallery files", 
     for (const file of files) {
       assert.ok(readFileSync(join(ctx.outputDir, "public/images/gallery", file)).length > 0);
     }
-  } finally {
-    cleanupContext(ctx);
-  }
+  });
 });
