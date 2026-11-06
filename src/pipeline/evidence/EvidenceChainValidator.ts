@@ -57,7 +57,9 @@ function requireEvidence(
   required: boolean,
   missingDetail: string,
 ): void {
-  gates.push(gate(name, required ? "failed" : "not_required", required ? missingDetail : undefined));
+  gates.push(
+    gate(name, required ? "failed" : "not_required", required ? missingDetail : undefined),
+  );
   if (required) errors.push(missingDetail);
 }
 
@@ -86,7 +88,10 @@ function checkBuildEvidence(
   receipt: StoredEvidence<ReleaseReceipt>,
 ): void {
   runGate(errors, gates, "local_build", () => validateBuildProof(build.value));
-  if (build.value.buildId !== assembly.value.buildId || build.value.clientId !== assembly.value.clientId)
+  if (
+    build.value.buildId !== assembly.value.buildId ||
+    build.value.clientId !== assembly.value.clientId
+  )
     errors.push("build proof identity differs from assembly");
   if (build.value.sourceDigest !== assembly.value.sourceDigest)
     errors.push("build source digest differs from assembly");
@@ -105,7 +110,9 @@ function checkPublicationEvidence(
   publication: StoredEvidence<PublicationEvidence>,
   receipt: StoredEvidence<ReleaseReceipt>,
 ): void {
-  runGate(errors, gates, "github_publication", () => validatePublicationEvidence(publication.value));
+  runGate(errors, gates, "github_publication", () =>
+    validatePublicationEvidence(publication.value),
+  );
   if (!build) errors.push("publication evidence exists without build proof");
   else {
     if (
@@ -181,7 +188,13 @@ export function validateReleaseEvidenceChain(input: EvidenceChainInput): Evidenc
   const deploymentRequired = mode === "end-to-end";
   if (deployment) checkDeploymentEvidence(errors, gates, publication, deployment, receipt);
   else
-    requireEvidence(errors, gates, "vercel_deployment", deploymentRequired, "deployment evidence is missing");
+    requireEvidence(
+      errors,
+      gates,
+      "vercel_deployment",
+      deploymentRequired,
+      "deployment evidence is missing",
+    );
 
   if (receipt.value.status === "succeeded") {
     if (mode !== "end-to-end" || !build || !publication || !deployment)

@@ -34,6 +34,9 @@ coverage/
 # consumer-owned CI class declaration org-ci.yml reads (schema l9.ci-consumer/v1).
 .l9/*
 !.l9/ci.json
+# Repository Execution V2 contract (l9.repo-execution/v2) that org-ci.yml's
+# repository verification admits; it must be tracked too.
+!.l9/repo-workflow.json
 
 # Local secrets and Claude Code machine overrides — never commit
 .env

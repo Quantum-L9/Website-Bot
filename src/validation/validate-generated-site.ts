@@ -1,6 +1,7 @@
 // L9_META: layer=validation, role=generated_site_validator, status=active, version=1.0.0
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, normalize, resolve, sep } from "node:path";
+import { trimChars } from "../lib/text-trim.mjs";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { AssemblyManifest } from "../pipeline/evidence/AssemblyManifest.js";
 import {
@@ -12,7 +13,6 @@ import {
   isSourceDigestExcluded,
   normalizeRelativePath,
 } from "../services/hashing.js";
-import { trimChars } from "../lib/text-trim.mjs";
 
 export interface RouteContract {
   slug: string;
@@ -77,7 +77,13 @@ export function normalizeRouteSlug(slug: string): string {
 }
 
 export function normalizeComponentName(component: string): string {
-  const normalized = trimChars(component.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), "_");
+  const normalized = trimChars(
+    component
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_"),
+    "_",
+  );
   if (!normalized)
     throw new BuildError(
       "VALIDATION_FAILED",

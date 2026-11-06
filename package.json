@@ -78,9 +78,9 @@
     "@quantum-l9/llm-router": "file:packages/llm-router",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
-    "inngest": "^4.25.0",
+    "inngest": "^4.26.2",
     "pg": "^8.23.1",
-    "pino": "^10.3.1",
+    "pino": "^10.4.0",
     "undici": "^8.12.2",
     "yaml": "^2.4.2"
   },
@@ -89,7 +89,7 @@
     "@types/node": "^26.6.4",
     "@types/pg": "^8.23.1",
     "pino-pretty": "^13.2.0",
-    "playwright": "^1.63.0",
+    "playwright": "^1.64.1",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
   },

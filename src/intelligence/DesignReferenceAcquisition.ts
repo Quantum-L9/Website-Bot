@@ -44,6 +44,7 @@ import {
 } from "../ingestion/ScreenshotCapturer.js";
 import { extractHexColors, inferPalette } from "../ingestion/SourcePalette.js";
 import { assertUrlAllowed, isForbiddenAddress, UrlPolicyError } from "../ingestion/UrlPolicy.js";
+import { textField } from "../lib/coerce-text.js";
 import { extractJson } from "../services/extractJson.js";
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import {
@@ -53,7 +54,6 @@ import {
   type DesignReferenceSet,
 } from "./design-authority.js";
 import { websiteImproveTask } from "./improve-llm-policy.js";
-import { textField } from "../lib/coerce-text.js";
 
 const logger = createModuleLogger("intelligence:design-reference-acquisition");
 

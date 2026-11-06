@@ -5,6 +5,7 @@ import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 import type { ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
+import { planImageAssets } from "../../src/services/images/ImageAssetPlanner.js";
 import { ImageBudget, ImageBudgetExceededError } from "../../src/services/images/ImageBudget.js";
 import type {
   ImageGenerationRequest,
@@ -12,7 +13,6 @@ import type {
   ImageGenerator,
 } from "../../src/services/images/ImageGenerator.js";
 import { compileImagePrompt } from "../../src/services/images/ImagePromptCompiler.js";
-import { planImageAssets } from "../../src/services/images/ImageAssetPlanner.js";
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
 import { ImageGenerationStage } from "../../src/stages/ImageGenerationStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";

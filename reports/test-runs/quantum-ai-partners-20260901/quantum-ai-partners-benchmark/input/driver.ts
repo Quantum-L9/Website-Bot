@@ -15,7 +15,7 @@
 // to JSON after a successful run — the same in-process export the repo's
 // golden-runtime-evidence path performs for Safe Haven.
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
@@ -109,7 +109,10 @@ const plan = buildFactoryExecutionPlan({ mode, specPath, buildIntent: ctx.buildI
 
 let headSha = "unknown";
 try {
-  headSha = execSync("git rev-parse HEAD", { encoding: "utf8", cwd: process.cwd() }).trim();
+  headSha = execFileSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf8",
+    cwd: process.cwd(),
+  }).trim();
 } catch {
   // read-only nicety
 }

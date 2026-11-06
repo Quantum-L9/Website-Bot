@@ -10,6 +10,7 @@ import {
   type StructuredContentPackageArtifact,
 } from "@quantum-l9/bot-interop";
 import { Agent, fetch as undiciFetch } from "undici";
+import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 import {
   type CompetitiveLandscapeRequest,
   type SEOContentBlueprintRequest,
@@ -18,7 +19,6 @@ import {
   type SeoBuildIntelligencePort,
   type StructuredContentRequest,
 } from "./SeoBuildIntelligencePort.js";
-import { stripTrailingSlashes } from "../lib/text-trim.mjs";
 
 /**
  * HTTP transport for the SEO-Bot build-time intelligence seam

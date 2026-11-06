@@ -1,8 +1,13 @@
 // L9_META: layer=stage, role=competitive_intelligence, stage_index=3, status=active, version=1.1.0
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { type CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
+import type { CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
+import {
+  type AcceptedDonorEvidence,
+  type DonorIngestor,
+  HttpDonorIngestor,
+} from "../intelligence/DonorIngestion.js";
 import {
   abstractPaletteCharacteristics,
   acquirableReferences,
@@ -11,11 +16,12 @@ import {
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../intelligence/design-authority.js";
+import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
+import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import {
-  type AcceptedDonorEvidence,
-  type DonorIngestor,
-  HttpDonorIngestor,
-} from "../intelligence/DonorIngestion.js";
+  SeoBotPreflightError,
+  type SeoBuildIntelligencePort,
+} from "../intelligence/SeoBuildIntelligencePort.js";
 import {
   ALLOWED_DISPOSITIONS,
   compileWebsiteBuildBlueprint,
@@ -23,12 +29,6 @@ import {
   type HarvestedPattern,
   type PatternPortfolio,
 } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
-import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
-import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
-import {
-  SeoBotPreflightError,
-  type SeoBuildIntelligencePort,
-} from "../intelligence/SeoBuildIntelligencePort.js";
 import { textField } from "../lib/coerce-text.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
@@ -79,14 +79,15 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
         "INTELLIGENCE_PARSE_FAILED",
         `${source}: pattern ${index} is not an object`,
       );
-    const rawDisposition =
-      typeof entry.disposition === "string" ? entry.disposition : "";
-    const dispositionParts = [...new Set(
-      rawDisposition
-        .split(/[,;]/)
-        .map((part) => part.trim())
-        .filter(Boolean),
-    )].sort((a, b) => a.localeCompare(b));
+    const rawDisposition = typeof entry.disposition === "string" ? entry.disposition : "";
+    const dispositionParts = [
+      ...new Set(
+        rawDisposition
+          .split(/[,;]/)
+          .map((part) => part.trim())
+          .filter(Boolean),
+      ),
+    ].sort((a, b) => a.localeCompare(b));
     if (dispositionParts.length === 0) {
       throw new BuildError(
         "INTELLIGENCE_PARSE_FAILED",
@@ -288,7 +289,10 @@ export class CompetitiveIntelligenceStage implements Stage {
         hydrated.includes("accepted-donors") &&
         hydrated.includes("website-build-blueprint")
       ) {
-        logger.info({ hydrated }, "competitive intelligence reused from persisted redesign artifacts");
+        logger.info(
+          { hydrated },
+          "competitive intelligence reused from persisted redesign artifacts",
+        );
         return;
       }
     }
@@ -299,10 +303,7 @@ export class CompetitiveIntelligenceStage implements Stage {
       preflightSnapshot = await port.preflight();
     } catch (error) {
       if (error instanceof SeoBotPreflightError) {
-        throw new BuildError(
-          error.code,
-          `REDESIGN preflight failed: ${error.message}`,
-        );
+        throw new BuildError(error.code, `REDESIGN preflight failed: ${error.message}`);
       }
       throw error;
     }
@@ -446,19 +447,19 @@ export class CompetitiveIntelligenceStage implements Stage {
       "WEBSITE_BLUEPRINT",
       "[intelligence] website build blueprint",
       "You produce a website build blueprint: strategy, guardrails, conversion, generic design principles, and per-route sections referencing pattern portfolio ids. No layout/design/prose generation — abstractions only. Never propose concrete colors; palette authority is not yours. First-party commercial authority is immutable; you may add compatible ideas but never contradict or replace it.",
-      `Pattern portfolio: ${JSON.stringify(portfolio)}\nFirst-party commercial authority (authoritative — never contradict): ${JSON.stringify({
-        value_proposition: ctx.domainSpec.value_proposition,
-        conversion_authority: ctx.domainSpec.conversion_authority,
-        content_guardrails: ctx.domainSpec.content_guardrails,
-      })}\nClient design intent (authoritative — never contradict): ${JSON.stringify(
+      `Pattern portfolio: ${JSON.stringify(portfolio)}\nFirst-party commercial authority (authoritative — never contradict): ${JSON.stringify(
         {
-          brand_attributes: clientVision.brand_attributes,
-          visual_preferences: clientVision.visual_preferences,
-          preserve: clientVision.preserve,
-          change: clientVision.change,
-          explicit_constraints: clientVision.explicit_constraints,
+          value_proposition: ctx.domainSpec.value_proposition,
+          conversion_authority: ctx.domainSpec.conversion_authority,
+          content_guardrails: ctx.domainSpec.content_guardrails,
         },
-      )}\nAccepted design-reference principles (abstract only): ${JSON.stringify({
+      )}\nClient design intent (authoritative — never contradict): ${JSON.stringify({
+        brand_attributes: clientVision.brand_attributes,
+        visual_preferences: clientVision.visual_preferences,
+        preserve: clientVision.preserve,
+        change: clientVision.change,
+        explicit_constraints: clientVision.explicit_constraints,
+      })}\nAccepted design-reference principles (abstract only): ${JSON.stringify({
         layout: designReferenceIntelligence.layout_principles,
         hierarchy: designReferenceIntelligence.hierarchy_principles,
         positive: designReferenceIntelligence.positive_patterns,

@@ -312,16 +312,18 @@ export class DesignIntelligenceStage implements Stage {
     if (!ctx.designTokens) return;
     const direction = ctx.websiteBlueprint?.payload.design_direction;
     const vision = ctx.domainSpec.client_vision;
-    const layout = direction
-      ? deriveLayoutTokens(
-          [...direction.principles, ...direction.desired_attributes],
-          direction.rejected_attributes,
-        )
-      : deriveLayoutTokens([
-          ...(vision?.brand_attributes ?? []),
-          ...(vision?.visual_preferences ?? []),
-        ]);
-    Object.assign(layout, deriveOnPrimaryToken(ctx.designTokens.primary));
+    const layout = {
+      ...(direction
+        ? deriveLayoutTokens(
+            [...direction.principles, ...direction.desired_attributes],
+            direction.rejected_attributes,
+          )
+        : deriveLayoutTokens([
+            ...(vision?.brand_attributes ?? []),
+            ...(vision?.visual_preferences ?? []),
+          ])),
+      ...deriveOnPrimaryToken(ctx.designTokens.primary),
+    };
     if (Object.keys(layout).length === 0) return;
     ctx.designTokens = { ...ctx.designTokens, ...layout };
     logger.info(

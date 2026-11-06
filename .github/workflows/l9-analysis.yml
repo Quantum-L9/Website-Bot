@@ -117,7 +117,7 @@ jobs:
 
       - name: Normalize provider report
         if: steps.gov.outputs.enabled == 'true'
-        uses: Quantum-L9/l9-ci-core/.github/actions/invoke-sdk@059fd45ac2fb5306903b6afcf4fcf48856406418
+        uses: Quantum-L9/l9-ci-core/.github/actions/invoke-sdk@89c9bc4e5ceafab932c92a2fdca2d3739fccf95f
         with:
           executable: ${{ steps.sdk.outputs.executable }}
           operation: semgrep-normalize
@@ -141,7 +141,7 @@ jobs:
 
       - name: Project agent-review payload
         if: steps.gov.outputs.enabled == 'true'
-        uses: Quantum-L9/l9-ci-core/.github/actions/invoke-sdk@059fd45ac2fb5306903b6afcf4fcf48856406418
+        uses: Quantum-L9/l9-ci-core/.github/actions/invoke-sdk@89c9bc4e5ceafab932c92a2fdca2d3739fccf95f
         with:
           executable: ${{ steps.sdk.outputs.executable }}
           operation: bundle-project-agent-payload
@@ -152,7 +152,7 @@ jobs:
       - id: route
         name: Route artifacts
         if: steps.gov.outputs.enabled == 'true'
-        uses: Quantum-L9/l9-ci-core/.github/actions/route-artifacts@059fd45ac2fb5306903b6afcf4fcf48856406418
+        uses: Quantum-L9/l9-ci-core/.github/actions/route-artifacts@89c9bc4e5ceafab932c92a2fdca2d3739fccf95f
         with:
           provider: semgrep
           matrix-id: ${{ env.L9_MATRIX_ID }}
@@ -196,7 +196,7 @@ jobs:
     name: Publish analysis (Core)
     needs: analyze
     if: needs.analyze.outputs.enabled == 'true'
-    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@4c842cb838b6c49cf44681ecc683a432538fd348
+    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@89c9bc4e5ceafab932c92a2fdca2d3739fccf95f
     permissions:
       actions: read
       checks: write
