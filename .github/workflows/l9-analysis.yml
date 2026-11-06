@@ -196,7 +196,7 @@ jobs:
     name: Publish analysis (Core)
     needs: analyze
     if: needs.analyze.outputs.enabled == 'true'
-    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@4c842cb838b6c49cf44681ecc683a432538fd348
+    uses: Quantum-L9/l9-ci-core/.github/workflows/publish-analysis.yml@89c9bc4e5ceafab932c92a2fdca2d3739fccf95f
     permissions:
       actions: read
       checks: write
