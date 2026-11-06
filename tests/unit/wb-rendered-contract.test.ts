@@ -6,8 +6,6 @@
 // tests/integration/local/wb-build-contract-rendered.test.ts.
 
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import test from "node:test";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import {
@@ -15,15 +13,14 @@ import {
   routeVisualExpectations,
 } from "../../src/stages/RenderedSiteValidationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
-import { type CommandRunner, SiteBuildStage } from "../../src/stages/SiteBuildStage.js";
+import { SiteBuildStage } from "../../src/stages/SiteBuildStage.js";
 import {
   evaluateVisualFacts,
-  RENDERED_SITE_VALIDATION_SCHEMA,
   type RenderedVisualFacts,
   type RenderSiteOptions,
   type RouteVisualExpectation,
 } from "../../src/validation/rendered-site.js";
-import { distPathForRoute } from "../../src/validation/validate-generated-site.js";
+import { fakeAstroBuild, renderedReport } from "../helpers/fakeSiteBuild.js";
 import { redesignContext } from "../helpers/redesignAssemblyFixture.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
@@ -179,24 +176,6 @@ void test("a COPY build is held to the published logo only; no blueprint order i
   }
 });
 
-const fakeBuild: CommandRunner = {
-  async run(command, args, options) {
-    if (command === "npm" && args[0] === "run" && args[1] === "build") {
-      for (const route of ["/", "/contact", "/services/drains"]) {
-        const path = join(options.cwd, "dist", distPathForRoute(route));
-        mkdirSync(dirname(path), { recursive: true });
-        writeFileSync(path, "<!doctype html><title>fixture</title>", "utf-8");
-      }
-      writeFileSync(join(options.cwd, "dist", "sitemap-index.xml"), "<sitemapindex/>", "utf-8");
-    }
-    return {
-      stdout: command === "npm" && args[0] === "--version" ? "10.9.2\n" : "",
-      stderr: "",
-      durationMs: 1,
-    };
-  },
-};
-
 void test("the stage hands each route its blueprint order and identity-bound images", async () => {
   const ctx = await redesignContext({
     provided: [
@@ -208,25 +187,12 @@ void test("the stage hands each route its blueprint order and identity-bound ima
   });
   try {
     await new SiteAssemblerStage().run(ctx);
-    await new SiteBuildStage(fakeBuild).run(ctx);
+    await new SiteBuildStage(fakeAstroBuild(["/", "/contact", "/services/drains"])).run(ctx);
     let seen: RenderSiteOptions | undefined;
     await new RenderedSiteValidationStage({
       async render(options) {
         seen = options;
-        return {
-          schema: RENDERED_SITE_VALIDATION_SCHEMA,
-          build_id: ctx.buildId,
-          client_id: ctx.clientId,
-          dist_dir: options.distDir,
-          served_from: "http://127.0.0.1:0",
-          rendered_at: "2026-11-06T00:00:00.000Z",
-          browser: { engine: "chromium" },
-          viewports: [],
-          site_checks: [],
-          routes: [],
-          summary: { routes: 0, renders: 0, passed: 0, failed: 0 },
-          status: "PASS",
-        };
+        return renderedReport(options);
       },
     }).run(ctx);
     const home = seen?.routes.find((route) => route.slug === "/")?.expect;
