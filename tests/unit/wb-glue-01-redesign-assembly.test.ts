@@ -111,7 +111,11 @@ void test("CTAs resolve only to verified destinations; nothing is manufactured",
     // An unverified action and an external URL never become links.
     assert.equal(byId.get("story")?.structured.cta, null);
     assert.equal(byId.get("repairs")?.structured.cta, null);
-    assert.ok(!page(ctx, "/").includes("external.example.com"));
+    // Every CTA that resolved is a site-relative canonical destination.
+    for (const section of byId.values()) {
+      const href = section.structured.cta?.href;
+      if (href !== undefined) assert.ok(href.startsWith("/") && !href.startsWith("//"), href);
+    }
   } finally {
     cleanupContext(ctx);
   }

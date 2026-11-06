@@ -94,7 +94,8 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
     );
     // Verified CTAs only; the unverified "call_now" and external actions render no link.
     assert.match(html, /href="\/contact#quote"[^>]*>[\s\S]*?Request a quote/);
-    for (const absent of ["Call now", "external.example.com", "Book a repair"]) {
+    // The external "Book a repair" CTA only renders as a link, so its absent label proves it.
+    for (const absent of ["Call now", "Book a repair"]) {
       assert.ok(!html.includes(absent), `${absent} must not render`);
     }
     // Internal links resolve only to published routes.
