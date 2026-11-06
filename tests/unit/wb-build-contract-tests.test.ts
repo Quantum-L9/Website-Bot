@@ -517,6 +517,20 @@ const MUTATIONS: Mutation[] = [
     }),
   },
   {
+    name: "an unsupported external action manufactured as an internal link fails T04",
+    expected: ["T04"],
+    mutate: onHome((sections) => {
+      structured(section(sections, "repairs")).cta = { label: "Book a repair", href: "/contact" };
+    }),
+  },
+  {
+    name: "an unverified call action manufactured as an internal link fails T04",
+    expected: ["T04"],
+    mutate: onHome((sections) => {
+      structured(section(sections, "story")).cta = { label: "Call now", href: "/contact" };
+    }),
+  },
+  {
     name: "an approved CTA dropped fails T04",
     expected: ["T04"],
     mutate: onHome((sections) => {
