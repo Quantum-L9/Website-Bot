@@ -22,8 +22,14 @@ endif
 # phases below use it so `make test` matches the repository's own gates.
 SITE_TESTS := node scripts/run-site-factory-tests.mjs
 
-# Exit 0 only when Playwright's Chromium starts headless on this machine: the
-# check that decides whether its OS libraries must be installed.
+# Exit 0 only when every OS package Playwright's `--with-deps` would install
+# for Chromium (shared libraries and the emoji/CJK/Thai/etc. fonts the
+# screenshots render with) is already present. Playwright simulates the
+# install with `apt-get install -s` over its own manifest and lists anything
+# missing; no root is needed. A system without apt fails it, and setup then
+# falls back to installing.
+CHROMIUM_DEPS_PRESENT := npx --no-install playwright install-deps --dry-run chromium
+# Exit 0 only when Playwright's Chromium starts headless on this machine.
 CHROMIUM_LAUNCHES := node -e 'require("playwright").chromium.launch().then((browser) => browser.close()).catch(() => process.exit(1))' >/dev/null 2>&1
 
 # ── make-v1 ABI leaves (Repository Execution V2) ────────────────────────────
@@ -38,18 +44,20 @@ repo-setup: ## Install Node dependencies and the Playwright Chromium the tests r
 	npm rebuild better-sqlite3
 	npm --prefix packages/bot-interop ci --no-audit --no-fund --ignore-scripts
 	npx --no-install playwright install chromium
-	@# Chromium's OS libraries are installed only when the browser cannot
-	@# launch without them. `install --with-deps` always ran apt, and on the
-	@# hosted runner (which already carries those libraries) that one mirror
-	@# download took 7-8 minutes of Analyze (central Core).
-	@if $(CHROMIUM_LAUNCHES); then \
-		echo "repo-setup: Chromium launches; OS libraries already present"; \
+	@# Chromium's OS packages (libraries and fonts) are installed only when
+	@# Playwright reports one missing or the browser cannot launch.
+	@# `install --with-deps` always ran apt, and on the hosted runner, which
+	@# already carries them, that mirror download took 7-8 minutes of
+	@# Analyze (central Core).
+	@if $(CHROMIUM_DEPS_PRESENT) && $(CHROMIUM_LAUNCHES); then \
+		echo "repo-setup: Chromium OS packages present and the browser launches"; \
 	elif [ -n "$${CI:-}" ]; then \
-		echo "repo-setup: Chromium cannot launch; installing its OS libraries"; \
+		echo "repo-setup: installing Chromium's OS packages (libraries and fonts)"; \
 		npx --no-install playwright install-deps chromium; \
+		$(CHROMIUM_DEPS_PRESENT) || { echo "repo-setup: Chromium OS packages still missing after install-deps" >&2; exit 1; }; \
 		$(CHROMIUM_LAUNCHES) || { echo "repo-setup: Chromium still cannot launch after install-deps" >&2; exit 1; }; \
 	else \
-		echo "repo-setup: Chromium cannot launch; run: sudo npx playwright install-deps chromium" >&2; \
+		echo "repo-setup: Chromium OS packages are missing or it cannot launch; run: sudo npx playwright install-deps chromium" >&2; \
 		exit 1; \
 	fi
 
