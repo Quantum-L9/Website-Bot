@@ -1,0 +1,11 @@
+{
+  "schema": "website-bot.visual-reference-registry/v1",
+  "designs": [
+    {
+      "design_id": "wb-fixture-redesign",
+      "fixture": "tests/helpers/visualReferenceFixture.ts",
+      "routes": ["/", "/services/drains", "/contact"],
+      "status": "awaiting-approval"
+    }
+  ]
+}
