@@ -15,6 +15,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type { WebsiteBlueprintRoute } from "@quantum-l9/bot-interop";
 import { resolveSectionRenderer } from "../../astro_template/src/components/SectionRegistry.js";
 import { createModuleLogger } from "../core/logger.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
@@ -49,6 +50,80 @@ function sectionRenderer(componentClass: string): string {
 }
 
 /**
+ * The blueprint section an identity-bound image renders in, or undefined when
+ * assembly would not show it there: a hero image goes to the route's hero
+ * renderer, anything else to the section its identity names, and only where
+ * the template can show an image of that role.
+ */
+function identitySection(
+  route: WebsiteBlueprintRoute,
+  named: string,
+  role: string,
+): WebsiteBlueprintRoute["sections"][number] | undefined {
+  const hero =
+    role === "hero"
+      ? route.sections.find((entry) => sectionRenderer(entry.component_class) === "hero")
+      : undefined;
+  const section = hero ?? route.sections.find((entry) => entry.section_id === named);
+  if (!section || !sectionShowsBoundImage(sectionRenderer(section.component_class), role)) {
+    return undefined;
+  }
+  return section;
+}
+
+/** Published file per placement: what the asset registry republishes into the site. */
+function publishedImages(ctx: BuildContext): Map<string, string> {
+  return new Map(
+    [...(ctx.resolvedImages?.values() ?? [])]
+      .filter((asset) => asset.disposition === "approved-client-owned")
+      .map((asset) => [asset.placement, `/images/${asset.outputFileName}`]),
+  );
+}
+
+/**
+ * Add each published image the plan fulfilled to the route that must show it,
+ * in the section its identity names (the blueprint requirement, else the
+ * client's section-qualified placement). One image per section, in assembly's
+ * binding order: required placements first, then by key.
+ */
+function addIdentityBoundImages(
+  ctx: BuildContext,
+  blueprint: NonNullable<BuildContext["websiteBlueprint"]>,
+  routes: Map<string, WebsiteBlueprintRoute>,
+  expectations: Map<string, RouteVisualExpectation>,
+  published: Map<string, string>,
+): void {
+  const logo = published.get("global:logo");
+  const requirementSections = new Map(
+    blueprint.payload.visual_requirements.map((requirement) => [
+      requirement.slot_id,
+      requirement.section_id,
+    ]),
+  );
+  const filled = new Set<string>();
+  const planned = [...(ctx.imageAssetPlan?.assets ?? [])].sort(
+    (a, b) => Number(b.required) - Number(a.required) || a.placement.localeCompare(b.placement),
+  );
+  for (const asset of planned) {
+    const src = published.get(asset.placement);
+    const routeSlug = routeSlugFromPlacement(asset.placement);
+    if (asset.resolution.source === "unresolved" || !src || !routeSlug) continue;
+    const slug = normalizeRouteSlug(routeSlug);
+    const route = routes.get(slug);
+    const expectation = expectations.get(slug);
+    const named = requirementSections.get(asset.slotId) ?? placementSectionId(asset.placement);
+    if (!route || !expectation || named === undefined) continue;
+    const role = placementRole(asset.placement);
+    // Hero.astro withholds a hero file identical to the logo (no double logo).
+    if (role === "hero" && src === logo) continue;
+    const section = identitySection(route, named, role);
+    if (!section || filled.has(`${slug}#${section.section_id}`)) continue;
+    filled.add(`${slug}#${section.section_id}`);
+    expectation.images.push({ slot: asset.placement, src, section_id: section.section_id });
+  }
+}
+
+/**
  * Per normalized route slug, what the accepted artifacts require the rendered
  * route to show: the blueprint's section order, the published logo, and each
  * published image the plan fulfilled in the section its identity names (the
@@ -65,11 +140,7 @@ export function routeVisualExpectations(ctx: BuildContext): Map<string, RouteVis
       "rendered-site validation of a REDESIGN_IMPROVE build requires the accepted website blueprint",
     );
   }
-  const published = new Map(
-    [...(ctx.resolvedImages?.values() ?? [])]
-      .filter((asset) => asset.disposition === "approved-client-owned")
-      .map((asset) => [asset.placement, `/images/${asset.outputFileName}`]),
-  );
+  const published = publishedImages(ctx);
   const logo = published.get("global:logo");
   const expectations = new Map<string, RouteVisualExpectation>(
     ctx.domainSpec.routes.map((route) => [
@@ -88,41 +159,7 @@ export function routeVisualExpectations(ctx: BuildContext): Map<string, RouteVis
       expectation.section_order = route.sections.map((section) => section.section_id);
     }
   }
-  const requirementSections = new Map(
-    blueprint.payload.visual_requirements.map((requirement) => [
-      requirement.slot_id,
-      requirement.section_id,
-    ]),
-  );
-  const filled = new Set<string>();
-  // Same order as assembly binding: required placements first, then by key.
-  const planned = [...(ctx.imageAssetPlan?.assets ?? [])].sort(
-    (a, b) => Number(b.required) - Number(a.required) || a.placement.localeCompare(b.placement),
-  );
-  for (const asset of planned) {
-    const src = published.get(asset.placement);
-    const routeSlug = routeSlugFromPlacement(asset.placement);
-    if (asset.resolution.source === "unresolved" || !src || !routeSlug) continue;
-    const slug = normalizeRouteSlug(routeSlug);
-    const route = routes.get(slug);
-    const expectation = expectations.get(slug);
-    const named = requirementSections.get(asset.slotId) ?? placementSectionId(asset.placement);
-    if (!route || !expectation || named === undefined) continue;
-    const role = placementRole(asset.placement);
-    // Hero.astro withholds a hero file identical to the logo (no double logo).
-    if (role === "hero" && src === logo) continue;
-    const section =
-      (role === "hero"
-        ? route.sections.find((entry) => sectionRenderer(entry.component_class) === "hero")
-        : undefined) ?? route.sections.find((entry) => entry.section_id === named);
-    if (!section || !sectionShowsBoundImage(sectionRenderer(section.component_class), role)) {
-      continue;
-    }
-    const key = `${slug}#${section.section_id}`;
-    if (filled.has(key)) continue;
-    filled.add(key);
-    expectation.images.push({ slot: asset.placement, src, section_id: section.section_id });
-  }
+  addIdentityBoundImages(ctx, blueprint, routes, expectations, published);
   return expectations;
 }
 
