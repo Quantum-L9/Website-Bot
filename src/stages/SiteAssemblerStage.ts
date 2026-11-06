@@ -27,11 +27,13 @@ import type {
   BuildContext,
   DeployTarget,
   DomainSpec,
+  ProvidedImageSpec,
   SiteConfig,
   SiteImageEntry,
 } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
+import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import {
   firstSourcePhone,
@@ -167,6 +169,53 @@ function safeFileStem(value: string): string {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "image"
   );
+}
+
+/**
+ * An unplaced, decodable client-provided image the gallery may show, or
+ * undefined: explicitly placed images belong where they were placed and brand
+ * marks are never gallery photos.
+ */
+function providedGalleryExtra(spec: ProvidedImageSpec): GalleryExtra | undefined {
+  if (spec.intendedPlacement?.trim()) return undefined;
+  if (
+    isBrandMarkCandidate({ sourceUrl: spec.path, altText: spec.altText, surroundingText: spec.id })
+  )
+    return undefined;
+  const path = isAbsolute(spec.path) ? spec.path : resolve(process.cwd(), spec.path);
+  if (!existsSync(path)) return undefined;
+  let inspected: ReturnType<typeof inspectImage>;
+  try {
+    inspected = inspectImage(readFileSync(path));
+  } catch {
+    return undefined;
+  }
+  const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? (extname(path).slice(1) || "img");
+  return {
+    // The content hash keeps two ids that slug alike (e.g. "project-1" and
+    // "Project 1") from overwriting each other's file.
+    fileName: `provided-${safeFileStem(spec.id)}-${inspected.sha256.slice(0, 12)}.${extension}`,
+    path,
+    alt: spec.altText || "Project photo",
+    width: inspected.width,
+    height: inspected.height,
+    sha256: inspected.sha256,
+    source: "provided",
+  };
+}
+
+/** An unused source-site photo the gallery may show, or undefined for a brand mark or missing file. */
+function sourceGalleryExtra(image: IngestedImage): GalleryExtra | undefined {
+  if (isBrandMarkCandidate(image) || !existsSync(image.localPath)) return undefined;
+  return {
+    fileName: `${image.id}${extname(image.localPath) || ".jpg"}`,
+    path: image.localPath,
+    alt: image.altText || image.surroundingText || "Project photo",
+    width: image.width,
+    height: image.height,
+    sha256: image.sha256,
+    source: "source-site",
+  };
 }
 
 /** One route's sections and the image placement bound to each. */
@@ -1042,54 +1091,13 @@ export class SiteAssemblerStage implements Stage {
   private galleryExtras(ctx: BuildContext): GalleryExtra[] {
     const used = new Set([...(ctx.resolvedImages?.values() ?? [])].map((asset) => asset.sha256));
     const extras: GalleryExtra[] = [];
-    for (const spec of ctx.domainSpec.assets?.providedImages ?? []) {
-      if (spec.intendedPlacement?.trim()) continue;
-      if (
-        isBrandMarkCandidate({
-          sourceUrl: spec.path,
-          altText: spec.altText,
-          surroundingText: spec.id,
-        })
-      )
-        continue;
-      const path = isAbsolute(spec.path) ? spec.path : resolve(process.cwd(), spec.path);
-      if (!existsSync(path)) continue;
-      let inspected: ReturnType<typeof inspectImage>;
-      try {
-        inspected = inspectImage(readFileSync(path));
-      } catch {
-        continue;
-      }
-      if (used.has(inspected.sha256)) continue;
-      used.add(inspected.sha256);
-      const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? (extname(path).slice(1) || "img");
-      extras.push({
-        // The content hash keeps two ids that slug alike (e.g. "project-1" and
-        // "Project 1") from overwriting each other's file.
-        fileName: `provided-${safeFileStem(spec.id)}-${inspected.sha256.slice(0, 12)}.${extension}`,
-        path,
-        alt: spec.altText || "Project photo",
-        width: inspected.width,
-        height: inspected.height,
-        sha256: inspected.sha256,
-        source: "provided",
-      });
-    }
-    for (const image of ctx.sourceSiteManifest?.images ?? []) {
-      if (used.has(image.sha256)) continue;
-      if (isBrandMarkCandidate(image)) continue;
-      if (!existsSync(image.localPath)) continue;
-      used.add(image.sha256);
-      extras.push({
-        fileName: `${image.id}${extname(image.localPath) || ".jpg"}`,
-        path: image.localPath,
-        alt: image.altText || image.surroundingText || "Project photo",
-        width: image.width,
-        height: image.height,
-        sha256: image.sha256,
-        source: "source-site",
-      });
-    }
+    const add = (extra: GalleryExtra | undefined): void => {
+      if (!extra || used.has(extra.sha256)) return;
+      used.add(extra.sha256);
+      extras.push(extra);
+    };
+    for (const spec of ctx.domainSpec.assets?.providedImages ?? []) add(providedGalleryExtra(spec));
+    for (const image of ctx.sourceSiteManifest?.images ?? []) add(sourceGalleryExtra(image));
     return extras;
   }
 
