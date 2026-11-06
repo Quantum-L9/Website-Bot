@@ -7,7 +7,7 @@
 // the real SiteBuildStage (npm install + astro check + astro build); no browser.
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { SiteAssemblerStage } from "../../../src/stages/SiteAssemblerStage.js";
@@ -47,12 +47,29 @@ void test("a REDESIGN_IMPROVE site builds and renders structured copy semantical
         1,
         `${placement} renders exactly once`,
       );
+      // A client image is marked protected, so the template never crops it.
+      const tag = html.slice(html.indexOf(`src="/images/${asset.outputFileName}"`));
+      assert.ok(
+        tag.slice(0, tag.indexOf(">")).includes('data-asset-source="provided"'),
+        `${placement} is rendered as a protected client asset`,
+      );
       // Published bytes equal the client's original bytes.
       assert.equal(
         sha256(readFileSync(join(ctx.distDir, "images", asset.outputFileName))),
         sha256(readFileSync(asset.originalPath ?? "")),
       );
     }
+    // The built stylesheet shows protected client images whole (contain, no filter).
+    const css = readdirSync(join(ctx.distDir, "_astro"))
+      .filter((name) => name.endsWith(".css"))
+      .map((name) => readFileSync(join(ctx.distDir as string, "_astro", name), "utf-8"))
+      .join("\n");
+    // (The CSS minifier drops the attribute-value quotes.)
+    assert.match(
+      css,
+      /\[data-asset-source="?provided"?\][^{}]*\{[^}]*object-fit:\s*contain[^}]*filter:\s*none/,
+      "protected client images are shown whole: contain, no filter",
+    );
     // The provided logo replaces the wordmark, unchanged.
     const logo = ctx.resolvedImages?.get("global:logo");
     assert.ok(logo);

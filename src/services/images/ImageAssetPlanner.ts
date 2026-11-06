@@ -128,21 +128,15 @@ function semanticallySuits(slot: ImageSlotSpec, candidate: ProvidedCandidate): b
 }
 
 /**
- * Score a provided image for a slot. `clientAssetFirst` (REDESIGN_IMPROVE,
- * WB-GLUE-01) matches section-qualified intents and requires semantic evidence
- * for an unplaced image; without it the legacy (COPY) scoring is unchanged.
+ * Score a provided image for a slot. An explicit intended placement or slot-id
+ * assignment qualifies it; an unplaced image qualifies only with semantic
+ * evidence that it depicts the slot's role. Resolution and aspect ratio rank
+ * qualified candidates but never qualify one — reuse when appropriate, not
+ * reuse at any cost.
  */
-export function scoreProvided(
-  slot: ImageSlotSpec,
-  candidate: ProvidedCandidate,
-  clientAssetFirst = false,
-): number {
+export function scoreProvided(slot: ImageSlotSpec, candidate: ProvidedCandidate): number {
   let score = 0;
-  if (!clientAssetFirst) {
-    if (candidate.intendedPlacement === slot.placement) score += 60;
-    else if (candidate.intendedPlacement) return Number.NEGATIVE_INFINITY;
-    else if (candidate.id === slot.id) score += 40;
-  } else if (candidate.intendedPlacement && intendedFor(slot, candidate.intendedPlacement)) {
+  if (candidate.intendedPlacement && intendedFor(slot, candidate.intendedPlacement)) {
     score += candidate.intendedPlacement === slot.placement ? 60 : 50;
   } else if (candidate.intendedPlacement) return Number.NEGATIVE_INFINITY;
   else if (candidate.id === slot.id) score += 40;
@@ -270,12 +264,11 @@ function bestProvided(
   slot: ImageSlotSpec,
   candidates: ProvidedCandidate[],
   usedIds: Set<string>,
-  clientAssetFirst = false,
 ): { candidate: ProvidedCandidate; score: number } | undefined {
   let best: { candidate: ProvidedCandidate; score: number } | undefined;
   for (const candidate of candidates) {
     if (usedIds.has(candidate.id)) continue;
-    const score = scoreProvided(slot, candidate, clientAssetFirst);
+    const score = scoreProvided(slot, candidate);
     if (score >= MIN_ACCEPTABLE_SCORE && (!best || score > best.score)) best = { candidate, score };
   }
   return best;
@@ -308,13 +301,41 @@ export interface PlanInputs {
   sourceCandidates: IngestedImage[];
   /** When false, "generated" is dropped from precedence for every slot. */
   generationEnabled: boolean;
-  /**
-   * REDESIGN_IMPROVE client-asset-first selection (WB-GLUE-01): an explicitly
-   * assigned provided image outranks every preferred source, an unplaced one
-   * needs semantic evidence, and a logo is never generated. Absent (COPY), the
-   * legacy selection is unchanged.
-   */
-  clientAssetFirst?: boolean;
+}
+
+/**
+ * Visual roles that depict real identity or fact — the company's logo, its
+ * people, its actual work, its credentials. A missing one cannot be truthfully
+ * invented, so these slots are never synthetic fallbacks. Illustrative roles
+ * (hero, service, process, material, background, decorative) may be generated.
+ */
+export const FACTUAL_ROLES: ReadonlySet<string> = new Set([
+  "logo",
+  "team",
+  "project_proof",
+  "gallery",
+  "badge",
+  "trust",
+]);
+
+export function isFactualSlot(slot: Pick<ImageSlotSpec, "id" | "placement">): boolean {
+  return isLogoSlot(slot) || FACTUAL_ROLES.has(placementRole(slot.placement));
+}
+
+/**
+ * Reuse-first source order for a slot: its preferred reuse sources in their
+ * order, then generation — only as the last resort, only when the slot allows
+ * it, generation is enabled, and the slot is not factual. A slot that prefers
+ * generation first still tries every reuse source it names before generating.
+ */
+export function slotSourcePrecedence(
+  slot: ImageSlotSpec,
+  generationEnabled: boolean,
+): Array<"provided" | "source-site" | "generated"> {
+  const preferred = slot.preferredSources ?? DEFAULT_PRECEDENCE;
+  const reuse = preferred.filter((source) => source !== "generated");
+  const synthetic = preferred.includes("generated") && generationEnabled && !isFactualSlot(slot);
+  return synthetic ? [...reuse, "generated"] : reuse;
 }
 
 /** A provided image explicitly assigned to this slot (by placement or slot id). */
@@ -330,7 +351,7 @@ function explicitProvided(
       ? intendedFor(slot, candidate.intendedPlacement)
       : candidate.id === slot.id,
   );
-  return bestProvided(slot, explicit, usedIds, true);
+  return bestProvided(slot, explicit, usedIds);
 }
 
 function resolveSlot(
@@ -339,21 +360,16 @@ function resolveSlot(
   usedProvided: Set<string>,
   usedSource: Set<string>,
 ): ImageAssetResolution {
-  const strict = inputs.clientAssetFirst === true;
   // An explicitly assigned client asset is never excluded by a slot's
   // preferred-source order (e.g. a blueprint that prefers generation).
-  const assigned = strict ? explicitProvided(slot, inputs.provided, usedProvided) : undefined;
+  const assigned = explicitProvided(slot, inputs.provided, usedProvided);
   if (assigned) {
     return { source: "provided", candidateId: assigned.candidate.id, score: assigned.score };
   }
-  // A logo is a protected brand asset: it is never synthesized (WB-GLUE-01).
-  const protectedLogo = strict && isLogoSlot(slot);
-  const precedence = (slot.preferredSources ?? DEFAULT_PRECEDENCE).filter(
-    (source) => source !== "generated" || (inputs.generationEnabled && !protectedLogo),
-  );
+  const precedence = slotSourcePrecedence(slot, inputs.generationEnabled);
   for (const source of precedence) {
     if (source === "provided") {
-      const hit = bestProvided(slot, inputs.provided, usedProvided, strict);
+      const hit = bestProvided(slot, inputs.provided, usedProvided);
       if (hit) return { source: "provided", candidateId: hit.candidate.id, score: hit.score };
     } else if (source === "source-site") {
       const hit = bestSource(slot, inputs.sourceCandidates, usedSource);

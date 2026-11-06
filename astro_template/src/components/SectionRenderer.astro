@@ -68,7 +68,10 @@ const visualSlot = slotForSection(name);
 // registry does not publish is a broken build, never an image to drop. The
 // generated siteConfig is `as const`; the explicit record type keeps a string
 // index well-typed (same pattern as Hero.astro).
-const images: Record<string, { src: string; alt: string; width: number; height: number }> =
+const images: Record<
+  string,
+  { src: string; alt: string; width: number; height: number; source?: string }
+> =
   siteConfig.images ?? {};
 const image = imagePlacement ? images[imagePlacement] : undefined;
 if (imagePlacement && !image) {
@@ -89,7 +92,7 @@ const blockVariant =
       <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
         <Component name={name} content={content} structured={structured} />
         <figure class="content-block__visual">
-          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
+          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} />
         </figure>
       </div>
     </VisualEnhancementSlot>
@@ -97,7 +100,7 @@ const blockVariant =
     <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
       <Component name={name} content={content} structured={structured} />
       <figure class="content-block__visual">
-        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
+        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} />
       </figure>
     </div>
   )

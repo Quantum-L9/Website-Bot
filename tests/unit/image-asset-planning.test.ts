@@ -184,7 +184,7 @@ void test("provided images resolve, copy into public/images, and register in sit
   }
 });
 
-// ---- WB-GLUE-01: client-asset-first selection is REDESIGN-only -------------
+// ---- Reuse-first asset selection (WB-GLUE-01 + reuse-first assets contract) --
 
 const plannedSource = (plan: ReturnType<typeof planImageAssets>, slotId: string) => {
   const resolution = plan.assets.find((asset) => asset.slotId === slotId)?.resolution;
@@ -195,7 +195,9 @@ const plannedSource = (plan: ReturnType<typeof planImageAssets>, slotId: string)
   };
 };
 
-test("COPY keeps the legacy selection: no semantic gate, no explicit bypass, logo generation allowed", () => {
+test("one reuse-first rule for every build: semantic gate, explicit bypass, no synthetic logo", () => {
+  // The same three inputs WB-GLUE-01 pinned as COPY-legacy; the reuse-first
+  // asset contract makes them behave like REDESIGN for every build intent.
   const slots: ImageSlotSpec[] = [
     { id: "home-hero", placement: "/:hero", required: true, aspectRatio: "16:9" },
     {
@@ -220,12 +222,42 @@ test("COPY keeps the legacy selection: no semantic gate, no explicit bypass, log
     sourceCandidates: [],
     generationEnabled: true,
   });
-  assert.deepEqual(plannedSource(plan, "home-hero"), { source: "provided", candidateId: "photo1" });
-  assert.equal(plannedSource(plan, "brand-logo").source, "generated");
-  assert.equal(plannedSource(plan, "svc").source, "unresolved");
+  // A large, correctly-shaped photo with no evidence it depicts a hero is not
+  // stretched into the role: the illustrative hero is generated instead.
+  assert.equal(plannedSource(plan, "home-hero").source, "generated");
+  // A logo is never synthesized, whatever the slot prefers.
+  assert.equal(plannedSource(plan, "brand-logo").source, "unresolved");
+  // An asset assigned by slot id is used even though the slot named only source-site.
+  assert.deepEqual(plannedSource(plan, "svc"), { source: "provided", candidateId: "svc" });
 });
 
-test("REDESIGN: an asset assigned by slot id wins over a higher-scoring merely suitable image", () => {
+test("generation is the last resort and never fills a factual role", () => {
+  const plan = planImageAssets({
+    slots: [
+      // Prefers generation first: reuse sources it names are still tried before it.
+      {
+        id: "svc",
+        placement: "/:service",
+        required: false,
+        preferredSources: ["generated", "provided"],
+      },
+      { id: "team", placement: "/about:team", required: false, preferredSources: ["generated"] },
+      { id: "work", placement: "/:project_proof", required: false },
+    ],
+    provided: [{ id: "service-photo", altText: "Our service van", width: 10, height: 10 }],
+    sourceCandidates: [],
+    generationEnabled: true,
+  });
+  assert.deepEqual(plannedSource(plan, "svc"), {
+    source: "provided",
+    candidateId: "service-photo",
+  });
+  // A team portrait or real project photo cannot be truthfully invented.
+  assert.equal(plannedSource(plan, "team").source, "unresolved");
+  assert.equal(plannedSource(plan, "work").source, "unresolved");
+});
+
+test("an asset assigned by slot id wins over a higher-scoring merely suitable image", () => {
   const plan = planImageAssets({
     slots: [
       {
@@ -243,7 +275,6 @@ test("REDESIGN: an asset assigned by slot id wins over a higher-scoring merely s
     ],
     sourceCandidates: [],
     generationEnabled: true,
-    clientAssetFirst: true,
   });
   assert.deepEqual(plannedSource(plan, "home-hero"), {
     source: "provided",
@@ -251,13 +282,12 @@ test("REDESIGN: an asset assigned by slot id wins over a higher-scoring merely s
   });
 });
 
-test("REDESIGN: a section-qualified intent for a role that occurs once fills that route's slot", () => {
+test("a section-qualified intent for a role that occurs once fills that route's slot", () => {
   const plan = planImageAssets({
     slots: [{ id: "/:hero", placement: "/:hero", required: true }],
     provided: [{ id: "storefront", intendedPlacement: "/:hero#welcome", width: 10, height: 10 }],
     sourceCandidates: [],
     generationEnabled: true,
-    clientAssetFirst: true,
   });
   assert.deepEqual(plannedSource(plan, "/:hero"), {
     source: "provided",

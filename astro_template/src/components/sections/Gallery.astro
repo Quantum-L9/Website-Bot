@@ -49,7 +49,7 @@ const hasGalleryRoute = allRoutes.some((route) => route.href === "/gallery");
     {items.length > 0 && (
     <div class="gallery-grid">
       {items.slice(0, 7).map(entry => (
-        <img src={entry.src} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" />
+        <img src={entry.src} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" data-asset-source={entry.source} />
       ))}
       {hasGalleryRoute && (
         <a class="gallery-cta" href="/gallery">

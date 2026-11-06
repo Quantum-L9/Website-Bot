@@ -17,7 +17,10 @@ const paragraphs = content
 const heading = paragraphs[0] || "Our Services";
 const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
-const images: Record<string, { src: string; alt: string; width: number; height: number }> =
+const images: Record<
+  string,
+  { src: string; alt: string; width: number; height: number; source?: string }
+> =
   siteConfig.images ?? {};
 // A route's second services section keeps its own copy but never repeats the cards.
 const showCards = structured?.serviceCards !== false;
@@ -43,7 +46,7 @@ const services = allRoutes.filter(
       const hero = images[`${service.href}:hero`];
       return (
         <a class="service-card" href={service.href}>
-          {hero && <img class="service-card__image" src={hero.src} alt={hero.alt} width={hero.width} height={hero.height} loading="lazy" decoding="async" />}
+          {hero && <img class="service-card__image" src={hero.src} alt={hero.alt} width={hero.width} height={hero.height} loading="lazy" decoding="async" data-asset-source={hero.source} />}
           <span class="service-card__title">{service.title}</span>
           <span class="service-card__cta">Learn more →</span>
         </a>
