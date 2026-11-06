@@ -104,7 +104,7 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
     <a href="#main-content" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        {logo && <a href="/" class="site-logo"><img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} decoding="async" /></a>}
+        {logo && <a href="/" class="site-logo"><img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} decoding="async" data-image-slot="global:logo" /></a>}
         {!logo && <a href="/" class="site-wordmark">{siteConfig.businessName}</a>}
         <nav class="site-nav" aria-label="Primary">{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav>
         {telHref && <a class="btn btn-phone" href={telHref}>{phone}</a>}

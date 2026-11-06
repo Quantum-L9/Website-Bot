@@ -1,4 +1,4 @@
-// L9_META: layer=validation, role=rendered_site_validation, status=active, version=1.0.0
+// L9_META: layer=validation, role=rendered_site_validation, status=active, version=1.1.0
 //
 // A production build is not terminal success (RAW_INPUT_TO_RENDERED_SITE).
 // `astro build` proves the source compiles and emits route files; it says
@@ -8,6 +8,14 @@
 // from a loopback static server and renders every route at every declared
 // viewport in a real Chromium, collecting the checks into a machine-readable
 // report. It never mutates the site.
+//
+// When the caller hands it what the accepted artifacts require of a route
+// (blueprint section order, the images each slot must show), every render is
+// also compared against that requirement in the DOM: sections in order, each
+// required image present in its own section, visible, decoded and unswapped.
+// Responsive geometry (critical elements inside the viewport, headings not
+// clipped, CTAs not covered) is checked on every render. Expectations come
+// from accepted artifacts only, never from the rendered output itself.
 
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
@@ -63,10 +71,28 @@ export interface RenderedSiteValidationReport {
   status: "PASS" | "FAIL";
 }
 
+/** One image an accepted artifact requires a route to show. */
+export interface ExpectedRouteImage {
+  /** Placement key (`<route>:<role>[#section]` or `global:logo`), rendered as data-image-slot. */
+  slot: string;
+  /** Published file the slot must show. */
+  src: string;
+  /** Blueprint section the image belongs to; absent for layout-owned images (the logo). */
+  section_id?: string;
+}
+
+/** What the accepted artifacts require a route to render. */
+export interface RouteVisualExpectation {
+  /** Blueprint section ids in order; absent when no blueprint governs the route. */
+  section_order?: string[];
+  images: ExpectedRouteImage[];
+}
+
 export interface RenderRouteSpec {
   slug: string;
   title: string;
   noindex?: boolean;
+  expect?: RouteVisualExpectation;
 }
 
 export interface RenderSiteOptions {
@@ -292,6 +318,100 @@ export function evaluateRouteFacts(
   return checks;
 }
 
+/** DOM facts about sections, slot images and responsive geometry (PAGE_VISUAL_FACTS_EXPRESSION). */
+export interface RenderedVisualFacts {
+  /** `data-section-id` of every section inside <main>, in document order. */
+  sections: string[];
+  slot_images: Array<{
+    slot: string;
+    src: string;
+    /** Section the image renders in (`data-section-for` / `data-section-id` ancestor). */
+    section_id: string | null;
+    /** Laid out with a non-empty box, not hidden by display, visibility or opacity. */
+    visible: boolean;
+    decoded: boolean;
+    /** Intersects the viewport once scrolled into view. */
+    in_viewport: boolean;
+  }>;
+  /** Visible headings, buttons and nav links extending past the viewport's horizontal edges. */
+  outside_viewport: string[];
+  /** Headings whose text overflows their own box horizontally. */
+  clipped_headings: string[];
+  /** CTAs whose centre point is covered by another element. */
+  obstructed_ctas: string[];
+}
+
+function describeImageFault(
+  expected: ExpectedRouteImage,
+  shown: RenderedVisualFacts["slot_images"],
+): string | undefined {
+  if (shown.length === 0) return `${expected.slot}: not rendered`;
+  if (shown.length > 1) return `${expected.slot}: rendered ${shown.length} times`;
+  const [image] = shown;
+  if (expected.section_id !== undefined && image.section_id !== expected.section_id) {
+    return `${expected.slot}: in section ${image.section_id ?? "(none)"}, expected ${expected.section_id}`;
+  }
+  if (image.src !== expected.src)
+    return `${expected.slot}: shows ${image.src}, expected ${expected.src}`;
+  if (!image.visible) return `${expected.slot}: not visible`;
+  if (!image.in_viewport) return `${expected.slot}: never enters the viewport`;
+  if (!image.decoded) return `${expected.slot}: did not load and decode`;
+  return undefined;
+}
+
+/**
+ * Compare a render's DOM against what the accepted artifacts require of the
+ * route, plus responsive geometry. Pure over the collected facts; no image
+ * count or text-length threshold is applied, so a text-only route the
+ * blueprint gives no imagery passes.
+ */
+export function evaluateVisualFacts(
+  facts: RenderedVisualFacts,
+  expect: RouteVisualExpectation | undefined,
+): RenderCheck[] {
+  const checks: RenderCheck[] = [];
+  const push = (name: string, faults: string[], ok: string): void => {
+    checks.push({
+      name,
+      status: faults.length === 0 ? "PASS" : "FAIL",
+      detail: faults.length === 0 ? ok : faults.slice(0, 8).join("; "),
+    });
+  };
+  if (expect?.section_order) {
+    const want = expect.section_order.join(" > ");
+    const got = facts.sections.join(" > ");
+    push(
+      "blueprint_section_order",
+      want === got ? [] : [`rendered ${got || "(no sections)"}, blueprint ${want}`],
+      `${expect.section_order.length} section(s) in blueprint order`,
+    );
+  }
+  if (expect) {
+    const faults = expect.images.flatMap((expected) => {
+      const fault = describeImageFault(
+        expected,
+        facts.slot_images.filter((image) => image.slot === expected.slot),
+      );
+      return fault ? [fault] : [];
+    });
+    push(
+      "required_images_visible",
+      faults,
+      expect.images.length === 0
+        ? "no imagery required on route"
+        : `${expect.images.length} required image(s) visible in their sections`,
+    );
+  }
+  push(
+    "critical_elements_in_viewport",
+    facts.outside_viewport,
+    "headings, CTAs and navigation inside the viewport",
+  );
+  push("headings_not_clipped", facts.clipped_headings, "no heading overflows its box");
+  push("cta_not_obstructed", facts.obstructed_ctas, "every CTA is clickable at its centre");
+  return checks;
+}
+
 export function evaluateSiteChecks(distDir: string): RenderCheck[] {
   const checks: RenderCheck[] = [];
   const robots = resolveDistFile(distDir, "/robots.txt");
@@ -356,6 +476,137 @@ const PAGE_FACTS_FUNCTION = `() => {
  * expression itself.
  */
 export const PAGE_FACTS_EXPRESSION = `(${PAGE_FACTS_FUNCTION})()`;
+
+/**
+ * Browser-side collector for section identity, slot images and responsive
+ * geometry. Each slot image is scrolled into view and given a bounded chance
+ * to decode, so a lazy image below the fold is judged as a visitor would see
+ * it. Read-only apart from scroll position, which it restores.
+ */
+const PAGE_VISUAL_FACTS_FUNCTION = `async () => {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  // Every call to action the template renders: button-styled links, the CTA
+  // banner's whole-card link (its inner .btn is a presentational span), the
+  // gallery link, and form buttons.
+  const ctaSelector = "main a.btn, main a.cta-banner__link, main a.gallery-cta, main button";
+  const main = document.querySelector("main, #main-content");
+  const label = (element) => {
+    const text = (element.textContent || "").replace(/s+/g, " ").trim().slice(0, 60);
+    return element.tagName.toLowerCase() + (text ? ' "' + text + '"' : "");
+  };
+  const shown = (element) => {
+    const rect = element.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) return false;
+    if (
+      typeof element.checkVisibility === "function" &&
+      !element.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    ) {
+      return false;
+    }
+    if (getComputedStyle(element).visibility !== "visible") return false;
+    for (let node = element; node; node = node.parentElement) {
+      if (Number(getComputedStyle(node).opacity) === 0) return false;
+    }
+    return true;
+  };
+  const settle = (image) =>
+    image.complete && image.naturalWidth > 0
+      ? Promise.resolve()
+      : Promise.race([
+          image.decode().catch(() => undefined),
+          new Promise((resolve) => setTimeout(resolve, 3000)),
+        ]);
+  const sections = main
+    ? Array.from(main.querySelectorAll("[data-section-id]")).map(
+        (element) => element.getAttribute("data-section-id") || "",
+      )
+    : [];
+  const slotImages = [];
+  for (const image of Array.from(document.querySelectorAll("img[data-image-slot]"))) {
+    image.scrollIntoView({ block: "center", inline: "nearest" });
+    await settle(image);
+    const rect = image.getBoundingClientRect();
+    const owner = image.closest("[data-section-for], [data-section-id]");
+    slotImages.push({
+      slot: image.getAttribute("data-image-slot") || "",
+      src: image.getAttribute("src") || "",
+      section_id: owner
+        ? owner.getAttribute("data-section-for") || owner.getAttribute("data-section-id")
+        : null,
+      visible: shown(image),
+      decoded: image.complete && image.naturalWidth > 0,
+      in_viewport:
+        rect.bottom > 0 && rect.right > 0 && rect.top < viewportHeight && rect.left < viewportWidth,
+    });
+  }
+  const critical = Array.from(
+    document.querySelectorAll("main h1, main h2, " + ctaSelector + ", nav[aria-label='Primary'] a"),
+  ).filter(shown);
+  const outside = critical.filter((element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.left < -1 || rect.right > viewportWidth + 1;
+  });
+  const clippedHeadings = critical
+    .filter((element) => /^H[12]$/.test(element.tagName) && element.scrollWidth > element.clientWidth + 1)
+    .map(label);
+  const obstructedCtas = [];
+  // A CTA already reported outside the viewport is not also reported as covered.
+  const ctas = critical.filter(
+    (element) => element.matches(ctaSelector) && !outside.includes(element),
+  );
+  for (const cta of ctas) {
+    cta.scrollIntoView({ block: "center", inline: "nearest" });
+    const rect = cta.getBoundingClientRect();
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    if (!hit || (hit !== cta && !cta.contains(hit))) obstructedCtas.push(label(cta));
+  }
+  window.scrollTo(0, 0);
+  return {
+    sections,
+    slot_images: slotImages,
+    outside_viewport: outside.map(label),
+    clipped_headings: clippedHeadings,
+    obstructed_ctas: obstructedCtas,
+  };
+}`;
+
+/**
+ * Give every image a bounded chance to load before facts are read. A lazy
+ * image below the fold has not started loading when `load` fires, so reading
+ * `complete` at once reported a healthy image as broken depending on scroll
+ * distance and timing. Each pending image is scrolled into view (starting a
+ * lazy load) and awaited until it loads or errors, capped overall; a broken
+ * file still errors and is still reported by images_loaded.
+ */
+const SETTLE_IMAGES_FUNCTION = `async () => {
+  const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  const pending = Array.from(document.images).filter((image) => !image.complete);
+  for (const image of pending) {
+    image.scrollIntoView({ block: "center", inline: "nearest" });
+    await frame();
+  }
+  await Promise.race([
+    Promise.all(
+      pending.map((image) =>
+        image.complete
+          ? undefined
+          : new Promise((resolve) => {
+              image.addEventListener("load", resolve, { once: true });
+              image.addEventListener("error", resolve, { once: true });
+            }),
+      ),
+    ),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
+  window.scrollTo(0, 0);
+  return pending.length;
+}`;
+
+export const SETTLE_IMAGES_EXPRESSION = `(${SETTLE_IMAGES_FUNCTION})()`;
+
+/** Evaluated expression (see PAGE_FACTS_EXPRESSION): resolves to RenderedVisualFacts. */
+export const PAGE_VISUAL_FACTS_EXPRESSION = `(${PAGE_VISUAL_FACTS_FUNCTION})()`;
 
 function safeName(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "root";
@@ -486,6 +737,8 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
     });
     let httpStatus = 0;
     let facts: RenderedPageFacts | undefined;
+    let visual: RenderedVisualFacts | undefined;
+    let visualError: string | undefined;
     let screenshotPath: string | undefined;
     try {
       const response = await page.goto(url, {
@@ -493,12 +746,18 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
         timeout: options.navigationTimeoutMs ?? 30_000,
       });
       httpStatus = response?.status() ?? 0;
+      await page.evaluate<number>(SETTLE_IMAGES_EXPRESSION);
       facts = await page.evaluate<RenderedPageFacts>(PAGE_FACTS_EXPRESSION);
       screenshotPath = resolve(
         options.screenshotDir,
         `${safeName(slug === "/" ? "home" : slug)}-${viewport.name}.png`,
       );
       await page.screenshot({ path: screenshotPath, fullPage: true });
+      try {
+        visual = await page.evaluate<RenderedVisualFacts>(PAGE_VISUAL_FACTS_EXPRESSION);
+      } catch (error) {
+        visualError = error instanceof Error ? error.message : String(error);
+      }
     } catch (error) {
       consoleErrors.push(
         `render failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -515,6 +774,16 @@ export class PlaywrightSiteRenderer implements SiteRenderer {
             detail: consoleErrors.at(-1) ?? "page facts unavailable",
           },
         ];
+    if (facts) {
+      // A route whose layout could not be inspected is not a passing route.
+      if (visual) checks.push(...evaluateVisualFacts(visual, route.expect));
+      else
+        checks.push({
+          name: "visual_facts_collected",
+          status: "FAIL",
+          detail: visualError ?? "visual facts unavailable",
+        });
+    }
     // The dist route file must exist regardless of how the server answered.
     const distFile = resolve(options.distDir, distPathForRoute(route.slug));
     checks.push({

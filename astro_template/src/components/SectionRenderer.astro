@@ -88,28 +88,28 @@ const blockVariant =
 {contentImage ? (
   visualSlot ? (
     <VisualEnhancementSlot slot={visualSlot}>
-      <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
+      <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement} data-section-for={structured?.sectionId}>
         <Component name={name} content={content} structured={structured} />
         <figure class="content-block__visual">
-          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} />
+          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
         </figure>
       </div>
     </VisualEnhancementSlot>
   ) : (
-    <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
+    <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement} data-section-for={structured?.sectionId}>
       <Component name={name} content={content} structured={structured} />
       <figure class="content-block__visual">
-        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} />
+        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
       </figure>
     </div>
   )
 ) : galleryImage ? (
   visualSlot ? (
     <VisualEnhancementSlot slot={visualSlot}>
-      <Component name={name} content={content} structured={structured} image={galleryImage} />
+      <Component name={name} content={content} structured={structured} image={galleryImage} imageSlot={imagePlacement ?? undefined} />
     </VisualEnhancementSlot>
   ) : (
-    <Component name={name} content={content} structured={structured} image={galleryImage} />
+    <Component name={name} content={content} structured={structured} image={galleryImage} imageSlot={imagePlacement ?? undefined} />
   )
 ) : visualSlot ? (
   <VisualEnhancementSlot slot={visualSlot}>

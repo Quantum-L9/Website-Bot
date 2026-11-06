@@ -138,6 +138,17 @@ const IMAGE_INELIGIBLE_SECTIONS = new Set([
 ]);
 
 /**
+ * Whether a section rendered by `name` can show an identity-bound image of
+ * `role`: the hero only its hero image, the gallery only gallery or
+ * project-proof imagery, and no non-visual section any image.
+ */
+export function sectionShowsBoundImage(name: string, role: string): boolean {
+  if (name === "hero") return role === "hero";
+  if (name === "gallery") return role === "gallery" || role === "project_proof";
+  return !IMAGE_INELIGIBLE_SECTIONS.has(name);
+}
+
+/**
  * Planner role → the blueprint content slot whose section owns that role. The
  * blueprint derives these roles from the same content slots
  * (WebsiteBuildBlueprintCompiler.deriveVisualRequirements), so binding back
@@ -960,12 +971,7 @@ export class SiteAssemblerStage implements Stage {
         );
       }
       const name = target.names[index];
-      const eligible =
-        name === "hero"
-          ? role === "hero"
-          : name === "gallery"
-            ? role === "gallery" || role === "project_proof"
-            : !IMAGE_INELIGIBLE_SECTIONS.has(name);
+      const eligible = sectionShowsBoundImage(name, role);
       if (eligible && target.bound[index] === null) {
         target.bound[index] = asset.placement;
         continue;
