@@ -112,7 +112,12 @@ function uniqueSlots(slots: ContentSlot[]): ContentSlot[] {
   return ordered;
 }
 
-function slotsForSpecComponent(component: string): ContentSlot[] {
+/**
+ * Content slots a spec component carries. This is the blueprint's role
+ * vocabulary: visual requirements are derived from these slots, so site
+ * assembly reuses it to bind an image placement back to its section.
+ */
+export function slotsForSpecComponent(component: string): ContentSlot[] {
   const name = component.toLowerCase();
   if (name.includes("hero")) return ["primary_offer"];
   if (name.includes("service")) return ["service_overview", "primary_offer"];

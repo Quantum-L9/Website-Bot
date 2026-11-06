@@ -1,4 +1,4 @@
-// L9_META: layer=stage, role=site_materializer, stage_index=6, status=active, version=2.0.0
+// L9_META: layer=stage, role=site_materializer, stage_index=6, status=active, version=2.1.0
 import {
   copyFileSync,
   cpSync,
@@ -20,6 +20,7 @@ import {
   type SectionLayoutVariant,
 } from "../../astro_template/src/components/SectionRegistry.js";
 import { createModuleLogger } from "../core/logger.js";
+import { slotsForSpecComponent } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
 import type {
   BuildContext,
   DeployTarget,
@@ -36,7 +37,10 @@ import {
   topNavFromSource,
 } from "../services/content/sourceCopy.js";
 import { digestDirectory } from "../services/hashing.js";
-import { isBrandMarkCandidate } from "../services/images/ImageAssetPlanner.js";
+import {
+  isBrandMarkCandidate,
+  routeSlugFromPlacement,
+} from "../services/images/ImageAssetPlanner.js";
 import {
   buildAssemblyManifest,
   normalizeComponentName,
@@ -105,14 +109,67 @@ interface RouteHead {
   description: string;
 }
 
+/**
+ * Sections that never take a bound content image: the hero renders its own
+ * image, forms/confirmations/CTAs/notices/FAQs are not visual regions, and the
+ * gallery takes only gallery or project-proof imagery.
+ */
+const IMAGE_INELIGIBLE_SECTIONS = new Set([
+  "hero",
+  "contact_form",
+  "confirmation",
+  "cta",
+  "final_cta",
+  "compliance_note",
+  "disclaimer",
+  "faq",
+  "gallery",
+]);
+
+/**
+ * Planner role → the blueprint content slot whose section owns that role. The
+ * blueprint derives these roles from the same content slots
+ * (WebsiteBuildBlueprintCompiler.deriveVisualRequirements), so binding back
+ * through slotsForSpecComponent reuses its vocabulary instead of a second one.
+ */
+const ROLE_CONTENT_SLOT: Readonly<Record<string, string>> = {
+  service: "service_overview",
+  trust: "trust",
+  project_proof: "project_proof",
+  gallery: "project_proof",
+};
+
+/** One spec route's sections and the image placement bound to each. */
+interface RouteImageSlots {
+  slug: string;
+  components: string[];
+  names: string[];
+  bound: Array<string | null>;
+}
+
+function placementRole(placement: string): string {
+  return placement
+    .slice(placement.lastIndexOf(":") + 1)
+    .trim()
+    .toLowerCase();
+}
+
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.4.0";
+  version = "3.5.0";
   evidence = {
-    // A site with image slots consumes the delivered image_assets evidence
+    // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
+    // The resolved image plan is the authority: a blueprint-only redesign has
+    // planned images but no spec-declared slots, and keying on spec slots alone
+    // let a resumed assembly ignore changed image assets. Spec slots still
+    // count so a build whose plan is absent keeps its prior dependency.
     inputs: (ctx: BuildContext): EvidenceKind[] =>
-      ctx.dryRun || (ctx.domainSpec.assets?.imageSlots ?? []).length === 0 ? [] : ["image_assets"],
+      ctx.dryRun ||
+      ((ctx.imageAssetPlan?.assets.length ?? 0) === 0 &&
+        (ctx.domainSpec.assets?.imageSlots ?? []).length === 0)
+        ? []
+        : ["image_assets"],
     outputs: (_ctx: BuildContext) => ["assembly" as const],
     resumable: true,
     externalMutation: false,
@@ -458,6 +515,170 @@ export class SiteAssemblerStage implements Stage {
     return registry;
   }
 
+  /**
+   * Bind every published, route-scoped placement of the resolved image plan to
+   * exactly one section of its spec route, so the renderer shows each image in
+   * the section it was planned for. Global placements (logo, og-image) stay
+   * owned by the layout.
+   *
+   * Pass 1 binds by role: hero → the hero section (Hero.astro renders it),
+   * gallery → the gallery section, service/trust/project_proof → the first
+   * section whose spec component carries the matching blueprint content slot.
+   * Pass 2 gives a placement no section claimed by role to the first unbound
+   * image-eligible section. One image per section; required placements bind
+   * first. A placement naming no spec route, or a required placement with no
+   * eligible section, fails assembly; an optional one is logged and omitted.
+   *
+   * Returns, per normalized route slug with at least one binding, the
+   * placement bound to each section, aligned with route.components.
+   */
+  private bindSectionImages(
+    ctx: BuildContext,
+    config: SiteConfig,
+  ): Map<string, Array<string | null>> {
+    const published = config.images ?? {};
+    const seen = new Set<string>();
+    const planned = (ctx.imageAssetPlan?.assets ?? [])
+      .filter((asset) => {
+        if (seen.has(asset.placement)) return false;
+        seen.add(asset.placement);
+        return (
+          published[asset.placement] !== undefined &&
+          routeSlugFromPlacement(asset.placement) !== undefined
+        );
+      })
+      .sort(
+        (a, b) => Number(b.required) - Number(a.required) || a.placement.localeCompare(b.placement),
+      );
+    if (planned.length === 0) return new Map();
+
+    const routes = new Map<string, RouteImageSlots>();
+    for (const route of ctx.domainSpec.routes) {
+      const slug = normalizeRouteSlug(route.slug);
+      routes.set(slug, {
+        slug,
+        components: route.components,
+        names: route.components.map((component) => normalizeComponentName(component)),
+        bound: route.components.map(() => null),
+      });
+    }
+
+    // Required placements bind completely (role pass, then fallback pass)
+    // before any optional placement, so an optional role match can never take
+    // the only section a required placement could fall back to.
+    this.bindImageTier(
+      planned.filter((asset) => asset.required),
+      routes,
+    );
+    this.bindImageTier(
+      planned.filter((asset) => !asset.required),
+      routes,
+    );
+
+    const bindings = new Map<string, Array<string | null>>();
+    for (const [slug, target] of routes) {
+      if (target.bound.some((placement) => placement !== null)) bindings.set(slug, target.bound);
+    }
+    logger.info(
+      {
+        bindings: Object.fromEntries(
+          [...bindings].map(([slug, bound]) => [
+            slug,
+            Object.fromEntries(
+              bound.flatMap((placement, position) =>
+                placement
+                  ? [[routes.get(slug)?.names[position] ?? String(position), placement]]
+                  : [],
+              ),
+            ),
+          ]),
+        ),
+      },
+      "Section image placements bound",
+    );
+    return bindings;
+  }
+
+  /**
+   * Bind one tier of placements: first each to a section owning its role, then
+   * any still unclaimed to the first unbound image-eligible section. A required
+   * placement left unbound fails assembly; an optional one is logged.
+   */
+  private bindImageTier(
+    tier: ReadonlyArray<{ placement: string; required: boolean }>,
+    routes: Map<string, RouteImageSlots>,
+  ): void {
+    const unclaimed: Array<{ placement: string; required: boolean }> = [];
+    for (const asset of tier) {
+      const target = this.imageRouteTarget(routes, asset.placement);
+      const role = placementRole(asset.placement);
+      const index = target.names.findIndex(
+        (name, position) =>
+          target.bound[position] === null &&
+          this.sectionOwnsRole(name, target.components[position], role),
+      );
+      if (index >= 0) target.bound[index] = asset.placement;
+      else unclaimed.push(asset);
+    }
+    for (const asset of unclaimed) {
+      const target = this.imageRouteTarget(routes, asset.placement);
+      const index = target.names.findIndex(
+        (name, position) => target.bound[position] === null && !IMAGE_INELIGIBLE_SECTIONS.has(name),
+      );
+      if (index >= 0) {
+        target.bound[index] = asset.placement;
+        continue;
+      }
+      const role = placementRole(asset.placement);
+      if (asset.required) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `image-placement-unbound: ${asset.placement} (${role}) has no image-eligible section on ${target.slug}`,
+        );
+      }
+      logger.warn(
+        {
+          placement: asset.placement,
+          route: target.slug,
+          role,
+          reason: "no image-eligible section",
+        },
+        "Optional image placement not rendered",
+      );
+    }
+  }
+
+  /** The spec route a placement targets, or a fail-closed assembly error. */
+  private imageRouteTarget(
+    routes: Map<string, RouteImageSlots>,
+    placement: string,
+  ): RouteImageSlots {
+    let slug: string | undefined;
+    try {
+      slug = normalizeRouteSlug(routeSlugFromPlacement(placement) ?? "");
+    } catch {
+      slug = undefined;
+    }
+    const target = slug === undefined ? undefined : routes.get(slug);
+    if (!target) {
+      throw new BuildError(
+        "SITE_ASSEMBLY_FAILED",
+        `image-placement-unbound: ${placement} targets no spec route`,
+      );
+    }
+    return target;
+  }
+
+  private sectionOwnsRole(name: string, component: string, role: string): boolean {
+    if (role === "hero") return name === "hero";
+    if (role === "gallery") return name === "gallery";
+    const slot = ROLE_CONTENT_SLOT[role];
+    if (!slot) return false;
+    if (name === "gallery") return slot === "project_proof";
+    if (IMAGE_INELIGIBLE_SECTIONS.has(name)) return false;
+    return (slotsForSpecComponent(component) as readonly string[]).includes(slot);
+  }
+
   private galleryExtras(ctx: BuildContext) {
     const used = new Set([...(ctx.resolvedImages?.values() ?? [])].map((asset) => asset.sha256));
     return (ctx.sourceSiteManifest?.images ?? []).filter((image) => {
@@ -662,14 +883,16 @@ export const siteConfig = {
     );
 
     const heads = this.routeHeads(ctx);
+    const imageBindings = this.bindSectionImages(ctx, config);
     for (const [index, route] of ctx.domainSpec.routes.entries()) {
       const slug = normalizeRouteSlug(route.slug);
       const head = heads[index];
       const layout = this.routeLayout(route, index);
+      const routeImages = imageBindings.get(slug);
       const pagePath = pagePathForRoute(slug);
       const pageDirectoryDepth = slug === "/" ? 1 : slug.split("/").filter(Boolean).length + 1;
       const prefix = "../".repeat(pageDirectoryDepth);
-      const sections = route.components.map((component) => {
+      const sections = route.components.map((component, componentIndex) => {
         const name = normalizeComponentName(component);
         const content = this.lookupContent(ctx, route.slug, component);
         if (
@@ -682,7 +905,11 @@ export const siteConfig = {
             `Missing generated content for ${slug}:${component}`,
           );
         }
-        return { name, content: content ?? "" };
+        // Every section of a route with a bound image carries imagePlacement
+        // (null when unbound) so the emitted `as const` array has one shape.
+        return routeImages
+          ? { name, content: content ?? "", imagePlacement: routeImages[componentIndex] ?? null }
+          : { name, content: content ?? "" };
       });
       const routeSchemas = config.schemas.perRoute[slug] ?? [];
       // Exactly one H1 per rendered page (rendered-site single_h1 gate). The hero
@@ -694,9 +921,11 @@ export const siteConfig = {
       // Routes without a layout request keep their legacy page source byte for byte.
       const layoutDeclaration = layout ? `const layout = ${json(layout)};\n` : "";
       const layoutProp = layout ? " layout={layout}" : "";
+      // Routes without a bound image keep their legacy page source byte for byte.
+      const imageProp = routeImages ? " imagePlacement={section.imagePlacement}" : "";
       write(
         pagePath,
-        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp} />)}\n</BaseLayout>\n`,
+        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp}${imageProp} />)}\n</BaseLayout>\n`,
       );
     }
   }

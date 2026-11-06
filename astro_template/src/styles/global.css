@@ -1,4 +1,4 @@
-/* L9_META: layer=template, role=global_styles, status=active, version=1.4.0 */
+/* L9_META: layer=template, role=global_styles, status=active, version=1.5.0 */
 @import './tokens.css';
 * { box-sizing: border-box; }
 html { color-scheme: inherit; }
@@ -185,6 +185,29 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
 .process__number { font-family: var(--font-heading); font-weight: 800; color: var(--color-primary); font-size: 1.15rem; line-height: 1.4; }
 .gallery-cta { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-height: 12rem; border: 1px dashed color-mix(in srgb, var(--color-primary) 60%, transparent); border-radius: 0.5rem; text-decoration: none; color: var(--color-primary); font-weight: 700; }
 .gallery-cta:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+/* ── Section images ───────────────────────────────────────────────────────────
+   A section with a planned image renders inside a content block: image beside
+   the copy on desktop (alternating sides), stacked on mobile. The block owns
+   the vertical rhythm, so the inner section drops its own padding. Services
+   stack the image above the card grid instead of squeezing the cards. */
+.content-block { display: grid; gap: 2rem; align-items: center; padding-block: 3rem; }
+.content-block > section { padding-block: 0; }
+.content-block__visual { margin: 0; }
+.content-block__visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 26rem;
+  object-fit: cover;
+  border-radius: .75rem;
+}
+.content-block--stacked .content-block__visual { order: -1; }
+.content-block--stacked .content-block__visual img { max-height: 20rem; }
+@media (min-width: 800px) {
+  .content-block--split { grid-template-columns: 1.1fr 0.9fr; }
+  .content-block--split:nth-of-type(even) { grid-template-columns: 0.9fr 1.1fr; }
+  .content-block--split:nth-of-type(even) .content-block__visual { order: -1; }
+}
 /* ── Design-direction layout tokens (WB-QAP-04) ─────────────────────────────
    Opt-in: each group applies only when BaseLayout lists it in html[data-design]
    because the build derived it from approved design direction. :where() keeps
@@ -194,11 +217,12 @@ footer { padding: 2rem 0 3rem; border-top: 1px solid color-mix(in srgb, var(--co
 :where(:root[data-design~="width"]) .site-header__inner { width: min(var(--content-width), calc(100% - 2rem)); }
 :where(:root[data-design~="space"]) section { padding-block: var(--section-space); }
 :where(:root[data-design~="space"]) .hero { padding-block: var(--section-space); gap: var(--flow-gap); }
+:where(:root[data-design~="space"]) .content-block { padding-block: var(--section-space); gap: var(--flow-gap); }
 :where(:root[data-design~="space"]) :is(.grid, .services-grid__cards, .gallery-grid, .process__steps) { gap: var(--flow-gap); }
 :where(:root[data-design~="type"]) h1 { font-size: var(--fs-h1); }
 :where(:root[data-design~="type"]) h2 { font-size: var(--fs-h2); }
 :where(:root[data-design~="type"]) h3 { font-size: var(--fs-h3); }
-:where(:root[data-design~="radius"]) :is(.btn:not(.btn-phone), .card, .service-card, .faq__item, .faq p, .process__step, .trust-bar__badge, .cta-banner, input, textarea, select) { border-radius: var(--radius); }
+:where(:root[data-design~="radius"]) :is(.btn:not(.btn-phone), .card, .service-card, .faq__item, .faq p, .process__step, .trust-bar__badge, .cta-banner, .content-block__visual img, input, textarea, select) { border-radius: var(--radius); }
 :where(:root[data-design~="surface"]) :is(.card, .service-card, .faq__item, .process__step, .trust-bar__badge) {
   box-shadow:
     0 1px 2px color-mix(in srgb, var(--color-text) 12%, transparent),

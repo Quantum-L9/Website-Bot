@@ -1,4 +1,5 @@
 ---
+import { siteConfig } from "../lib/siteConfig";
 import { slotForSection } from "../lib/visualEnhancements";
 import LeadForm from "./LeadForm.astro";
 import AudiencePaths from "./sections/AudiencePaths.astro";
@@ -21,8 +22,10 @@ interface Props {
   name: string;
   content: string;
   layout?: string;
+  /** Image placement the assembler bound to this section (a siteConfig.images key). */
+  imagePlacement?: string | null;
 }
-const { name, content, layout } = Astro.props;
+const { name, content, layout, imagePlacement } = Astro.props;
 const registry: Record<string, any> = {
   hero: Hero,
   trust_bar: TrustBar,
@@ -54,8 +57,52 @@ const Component = registry[name] ?? (layout ? layoutVariants[layout] : undefined
 // slot always renders the section unchanged and is a pure passthrough while
 // disabled, which is every slot by default (WB-QAP-02).
 const visualSlot = slotForSection(name);
+// The assembler binds a section only to a published placement, so a binding the
+// registry does not publish is a broken build, never an image to drop. The
+// generated siteConfig is `as const`; the explicit record type keeps a string
+// index well-typed (same pattern as Hero.astro).
+const images: Record<string, { src: string; alt: string; width: number; height: number }> =
+  siteConfig.images ?? {};
+const image = imagePlacement ? images[imagePlacement] : undefined;
+if (imagePlacement && !image) {
+  throw new Error(
+    `unpublished-image-placement: section ${name} binds ${JSON.stringify(imagePlacement)}, which siteConfig.images does not publish`,
+  );
+}
+// Hero.astro renders its own image and the gallery shows its bound image in its
+// grid; every other bound section renders its image beside its content.
+const galleryImage = name === "gallery" ? image : undefined;
+const contentImage = name === "hero" || name === "gallery" ? undefined : image;
+const blockVariant =
+  name === "services_overview" ? "content-block--stacked" : "content-block--split";
 ---
-{visualSlot ? (
+{contentImage ? (
+  visualSlot ? (
+    <VisualEnhancementSlot slot={visualSlot}>
+      <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
+        <Component name={name} content={content} />
+        <figure class="content-block__visual">
+          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
+        </figure>
+      </div>
+    </VisualEnhancementSlot>
+  ) : (
+    <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement}>
+      <Component name={name} content={content} />
+      <figure class="content-block__visual">
+        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" />
+      </figure>
+    </div>
+  )
+) : galleryImage ? (
+  visualSlot ? (
+    <VisualEnhancementSlot slot={visualSlot}>
+      <Component name={name} content={content} image={galleryImage} />
+    </VisualEnhancementSlot>
+  ) : (
+    <Component name={name} content={content} image={galleryImage} />
+  )
+) : visualSlot ? (
   <VisualEnhancementSlot slot={visualSlot}>
     <Component name={name} content={content} />
   </VisualEnhancementSlot>
