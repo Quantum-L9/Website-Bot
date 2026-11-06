@@ -15,7 +15,7 @@
 // F14/F15) are out of scope here.
 
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import type { VisualRequirement } from "@quantum-l9/bot-interop";
@@ -151,14 +151,20 @@ function editSections(
 /** Rewrite the published image registry in place (an output mutation). */
 function editRegistry(
   outputDir: string,
-  edit: (images: Record<string, Record<string, unknown>>) => void,
+  edit: (
+    images: Record<string, Record<string, unknown>>,
+    gallery: Array<Record<string, unknown>>,
+  ) => void,
 ) {
   const file = siteConfigFile(outputDir);
   const source = readFileSync(file, "utf-8");
   const match = /\.\.\.\(([\s\S]*?) as const\),\n {2}leadFormAction:/.exec(source);
   assert.ok(match, "siteConfig declares its registry");
-  const config = JSON.parse(match[1]) as { images: Record<string, Record<string, unknown>> };
-  edit(config.images);
+  const config = JSON.parse(match[1]) as {
+    images: Record<string, Record<string, unknown>>;
+    galleryImages: Array<Record<string, unknown>>;
+  };
+  edit(config.images, config.galleryImages);
   writeFileSync(file, source.replace(match[1], JSON.stringify(config, null, 2)));
 }
 
@@ -429,3 +435,208 @@ void test("F03c swapped-files: two client photos exchanged inside the published 
     ]);
   });
 });
+
+// ---- Oracle hardening: one mutation per way a violating site could pass -----
+//
+// Each row is a single output (or plan) mutation of the valid F00 build and
+// the exact contract tests it must fail. The bytes, generation and binding
+// checks never trust the output's own labels: several rows relabel a
+// violation to look legitimate.
+
+type Section = Record<string, unknown> & { sectionId: string };
+type Structured = { cta: { label: string; href: string } | null; faqs?: unknown };
+
+const section = (sections: Array<Record<string, unknown>>, id: string): Section => {
+  const found = sections.find((entry) => entry.sectionId === id);
+  assert.ok(found, `section ${id}`);
+  return found as Section;
+};
+const structured = (entry: Section): Structured => entry.structured as Structured;
+const publicFile = (built: Built, src: unknown): string =>
+  join(built.ctx.outputDir, "public", String(src));
+
+interface Mutation {
+  name: string;
+  expected: ContractTestId[];
+  /** Mutates the assembled output; returns a replacement plan when the plan is mutated. */
+  mutate: (built: Built) => ImageAssetPlan | undefined;
+}
+
+const onHome = (edit: (sections: Array<Record<string, unknown>>) => void) => (built: Built) => {
+  editSections(built.ctx.outputDir, "/", edit);
+  return undefined;
+};
+const onRegistry =
+  (edit: Parameters<typeof editRegistry>[1]) =>
+  (built: Built): undefined => {
+    editRegistry(built.ctx.outputDir, edit);
+    return undefined;
+  };
+
+const MUTATIONS: Mutation[] = [
+  {
+    name: "an unapproved section appended to the page fails T01 and T02",
+    expected: ["T01", "T02"],
+    mutate: onHome((sections) => {
+      sections.push({
+        ...sections[sections.length - 1],
+        sectionId: "promo",
+        structured: { sectionId: "promo", heading: "50% off!", blocks: [], cta: null },
+      });
+    }),
+  },
+  {
+    name: "a section rendered through another component fails T03",
+    expected: ["T03"],
+    mutate: onHome((sections) => {
+      section(sections, "repairs").name = "prose";
+    }),
+  },
+  {
+    name: "an approved FAQ answer rewritten fails T02",
+    expected: ["T02"],
+    mutate: onHome((sections) => {
+      structured(section(sections, "questions")).faqs = [
+        { question: "Do you work weekends?", answer: "No, never." },
+      ];
+    }),
+  },
+  {
+    name: "the approved FAQs dropped from the FAQ section fails T02",
+    expected: ["T02"],
+    mutate: onHome((sections) => {
+      delete structured(section(sections, "questions")).faqs;
+    }),
+  },
+  {
+    name: "a primary-action CTA rerouted to another canonical route fails T04",
+    expected: ["T04"],
+    mutate: onHome((sections) => {
+      const closing = structured(section(sections, "closing"));
+      closing.cta = { label: closing.cta?.label ?? "", href: "/services/drains" };
+    }),
+  },
+  {
+    name: "an approved CTA dropped fails T04",
+    expected: ["T04"],
+    mutate: onHome((sections) => {
+      structured(section(sections, "closing")).cta = null;
+    }),
+  },
+  {
+    name: "the hero image moved out of the hero section fails T05",
+    expected: ["T05"],
+    mutate: onHome((sections) => {
+      section(sections, "hero").imagePlacement = null;
+      section(sections, "how").imagePlacement = "/:hero";
+    }),
+  },
+  {
+    name: "the hero image also shown in another section fails T05",
+    expected: ["T05"],
+    mutate: onHome((sections) => {
+      section(sections, "proof").imagePlacement = "/:hero";
+    }),
+  },
+  {
+    name: "a generated illustration bound to the wrong section fails T06",
+    expected: ["T06"],
+    mutate: (built) => {
+      editRegistry(built.ctx.outputDir, (images) => {
+        images["/:process"] = { ...images["/:hero"], src: "/images/gen.png", source: "generated" };
+      });
+      editSections(built.ctx.outputDir, "/", (sections) => {
+        section(sections, "proof").imagePlacement = "/:process";
+      });
+      return undefined;
+    },
+  },
+  {
+    name: "a team slot relabeled source-site but showing the storefront file fails T06 and T07",
+    expected: ["T06", "T07"],
+    mutate: onRegistry((images) => {
+      images["/:team"] = { ...images["/:team"], src: images["/:hero"].src, source: "source-site" };
+    }),
+  },
+  {
+    name: "a hero file overwritten with another client photo's bytes fails T06",
+    expected: ["T06"],
+    mutate: (built) => {
+      copyFileSync(
+        publicFile(built, built.site.images["/:service#repairs"]?.src),
+        publicFile(built, built.site.images["/:hero"]?.src),
+      );
+      return undefined;
+    },
+  },
+  {
+    name: "an assigned logo left unpublished fails T07",
+    expected: ["T07"],
+    mutate: onRegistry((images) => {
+      delete images["global:logo"];
+    }),
+  },
+  {
+    name: "a hero relabeled generated in the registry alone fails T07 and T09",
+    expected: ["T07", "T09"],
+    mutate: onRegistry((images) => {
+      images["/:hero"] = { ...images["/:hero"], source: "generated" };
+    }),
+  },
+  {
+    name: "a logo generated in the plan alone fails T07 and T10",
+    expected: ["T07", "T10"],
+    mutate: (built) => generatedInPlan(built.plan, "global:logo"),
+  },
+  {
+    name: "an altered logo relabeled source-site fails T07 and T08",
+    expected: ["T07", "T08"],
+    mutate: (built) => {
+      const file = publicFile(built, built.site.images["global:logo"]?.src);
+      writeFileSync(file, Buffer.concat([readFileSync(file), Buffer.from("recolored")]));
+      editRegistry(built.ctx.outputDir, (images) => {
+        images["global:logo"] = { ...images["global:logo"], source: "source-site" };
+      });
+      return undefined;
+    },
+  },
+  {
+    name: "a gallery photo replaced by another client file's bytes fails T08",
+    expected: ["T08"],
+    mutate: (built) => {
+      const photo = built.site.gallery.find((entry) => entry.source === "provided");
+      copyFileSync(
+        publicFile(built, built.site.images["/:team"]?.src),
+        publicFile(built, photo?.src),
+      );
+      return undefined;
+    },
+  },
+  {
+    name: "a synthetic photo added to the gallery fails T10",
+    expected: ["T10"],
+    mutate: onRegistry((_images, gallery) => {
+      gallery.push({ ...gallery[0], src: "/images/fake-project.png", source: "generated" });
+    }),
+  },
+  {
+    name: "a synthetic badge published under a key no requirement names fails T10",
+    expected: ["T10"],
+    mutate: onRegistry((images) => {
+      images["global:badge"] = {
+        ...images["global:logo"],
+        src: "/images/fake-badge.png",
+        source: "generated",
+      };
+    }),
+  },
+];
+
+for (const mutation of MUTATIONS) {
+  void test(`oracle: ${mutation.name}`, async () => {
+    await withBuild({}, (built) => {
+      const plan = mutation.mutate(built);
+      assertOnly(built, mutation.expected, plan);
+    });
+  });
+}
