@@ -31,6 +31,19 @@ const RETIRED = [
 ];
 const violations = [];
 
+/** Hostnames of every absolute http(s) URL literal in a source text (exact-host comparison). */
+function urlHosts(text) {
+  const hosts = new Set();
+  for (const match of text.matchAll(/https?:\/\/[^\s'"`)<>\\]+/g)) {
+    try {
+      hosts.add(new URL(match[0]).hostname);
+    } catch {
+      /* not a parseable URL literal */
+    }
+  }
+  return hosts;
+}
+
 function sourceFiles(dir) {
   const out = [];
   for (const name of readdirSync(dir)) {
@@ -48,7 +61,7 @@ for (const file of sourceFiles(resolve(repoRoot, "src"))) {
   for (const { pattern, label } of RETIRED) {
     if (pattern.test(text)) violations.push(`${rel}: ${label} (retired by ADR-0020)`);
   }
-  if (rel !== ADAPTER_REL && text.includes(DEEPSEEK_HOST)) {
+  if (rel !== ADAPTER_REL && urlHosts(text).has(DEEPSEEK_HOST)) {
     violations.push(`${rel}: DeepSeek egress outside ${ADAPTER_REL}`);
   }
   if (/from ['"][^'"]*llm-stub[^'"]*['"]/.test(text)) {

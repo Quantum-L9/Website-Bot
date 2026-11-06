@@ -215,6 +215,19 @@ function createFileInspector(contextRoot, violations) {
   };
 }
 
+/** Hostnames of every absolute http(s) URL literal in a source text (exact-host comparison). */
+function urlHosts(text) {
+  const hosts = new Set();
+  for (const match of text.matchAll(/https?:\/\/[^\s'"`)<>\\]+/g)) {
+    try {
+      hosts.add(new URL(match[0]).hostname);
+    } catch {
+      /* not a parseable URL literal */
+    }
+  }
+  return hosts;
+}
+
 /**
  * LLM provider boundary guards (ADR-0020): the production generation path is the direct
  * DeepSeek adapter in src/services/llm.ts — never the retired router and never a local stub.
@@ -230,7 +243,7 @@ function checkLlmRouterGuards(producerRoot, violations) {
     if (/@quantum-l9\/llm-router/.test(adapter)) {
       violations.push("src/services/llm.ts: must not import the retired @quantum-l9/llm-router");
     }
-    if (!/DEEPSEEK_API_KEY/.test(adapter) || !/https:\/\/api\.deepseek\.com/.test(adapter)) {
+    if (!/DEEPSEEK_API_KEY/.test(adapter) || !urlHosts(adapter).has("api.deepseek.com")) {
       violations.push("src/services/llm.ts: must dispatch directly to DeepSeek (DEEPSEEK_API_KEY)");
     }
   }
