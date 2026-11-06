@@ -458,8 +458,9 @@ export interface CompareOptions {
 
 /**
  * Compare every reference with the matching fresh capture. A reference with
- * no capture, a size change or too many differing pixels fails, and each
- * failure leaves expected / actual / diff PNGs in the evidence directory.
+ * no capture, a capture with no approved reference, a size change or too
+ * many differing pixels fails; each pixel failure leaves expected / actual /
+ * diff PNGs in the evidence directory.
  */
 export async function compareScreenshots(options: CompareOptions): Promise<VisualRegressionReport> {
   const tolerance = options.tolerance ?? DEFAULT_VISUAL_TOLERANCE;
@@ -523,6 +524,23 @@ export async function compareScreenshots(options: CompareOptions): Promise<Visua
     await context.close();
   } finally {
     await browser.close();
+  }
+  // A view rendered with no approved reference is unprotected, not passing:
+  // adding a route or viewport to protection needs a human approval too.
+  for (const shot of options.actual.screenshots) {
+    const approved = options.references.some(
+      (reference) => reference.route === shot.route && reference.viewport === shot.viewport,
+    );
+    if (!approved) {
+      comparisons.push({
+        route: shot.route,
+        viewport: shot.viewport,
+        status: "FAIL",
+        detail: "no approved reference for this view; it must be approved before it is protected",
+        diff_pixels: 0,
+        diff_ratio: 1,
+      });
+    }
   }
   const report: VisualRegressionReport = {
     design_id: options.design_id,

@@ -104,6 +104,33 @@ void test("determinism: re-rendering the unchanged build reproduces the baseline
   assert.ok(report.comparisons.every((comparison) => comparison.diff_pixels === 0));
 });
 
+void test("unapproved view: a rendered route/viewport with no approved reference fails, never passes silently", async () => {
+  const actualDir = join(scratch, "unapproved", "actual");
+  const actual = await captureScreenshots({
+    distDir: site.distDir,
+    routes: VISUAL_ROUTES,
+    outDir: actualDir,
+    fontDir: VISUAL_FONT_DIR,
+  });
+  const report = await compareScreenshots({
+    design_id: "mechanism-oracle",
+    referenceDir: baselineDir,
+    // A protected route list that grew after approval: /contact@mobile was never approved.
+    references: baseline.screenshots.filter(
+      (shot) => !(shot.route === "/contact" && shot.viewport === "mobile"),
+    ),
+    actualDir,
+    actual,
+    evidenceDir: join(scratch, "unapproved", "evidence"),
+  });
+  assert.equal(report.status, "FAIL");
+  assert.deepEqual(failing(report), ["/contact@mobile"]);
+  assert.match(
+    report.comparisons.find((entry) => entry.status === "FAIL")?.detail ?? "",
+    /no approved reference/,
+  );
+});
+
 const desktopOnly = (css: string) => (viewport: RenderViewport) =>
   viewport.name === "desktop" ? css : undefined;
 const mobileOnly = (css: string) => (viewport: RenderViewport) =>
