@@ -144,6 +144,48 @@ export function approverIsHuman(approver: string): boolean {
   return name.length >= 2 && !NON_HUMAN_APPROVER.test(name);
 }
 
+/** Problems with the approval record itself: schema, approver, reason, time, source. */
+function recordProblems(record: VisualApprovalRecord): string[] {
+  const problems: string[] = [];
+  if (record.schema !== VISUAL_APPROVAL_SCHEMA) {
+    problems.push(`schema is not ${VISUAL_APPROVAL_SCHEMA}`);
+  }
+  if (!record.approved_by || !approverIsHuman(record.approved_by)) {
+    problems.push(`approver ${JSON.stringify(record.approved_by)} is not a named human`);
+  }
+  if (!record.reason?.trim()) problems.push("approval gives no reason");
+  if (Number.isNaN(Date.parse(record.approved_at))) {
+    problems.push("approval has no valid timestamp");
+  }
+  if (record.source?.rendered_site_validation !== "PASS") {
+    problems.push("approved output did not pass rendered-site validation");
+  }
+  return problems;
+}
+
+/** Both viewports approved, and every PNG on disk is exactly an approved one. */
+function referenceFileProblems(referenceDir: string, references: ApprovedReference[]): string[] {
+  const problems: string[] = [];
+  if (references.length === 0) problems.push("approval lists no references");
+  for (const viewport of VISUAL_VIEWPORTS) {
+    if (!references.some((reference) => reference.viewport === viewport.name)) {
+      problems.push(`no approved ${viewport.name} reference`);
+    }
+  }
+  for (const reference of references) {
+    const file = join(referenceDir, reference.file);
+    if (!existsSync(file)) problems.push(`${reference.file}: approved file is missing`);
+    else if (sha256(readFileSync(file)) !== reference.sha256) {
+      problems.push(`${reference.file}: bytes differ from the approved sha256 (unapproved update)`);
+    }
+  }
+  const listed = new Set(references.map((reference) => reference.file));
+  for (const file of readdirSync(referenceDir).filter((name) => name.endsWith(".png"))) {
+    if (!listed.has(file)) problems.push(`${file}: reference file not covered by the approval`);
+  }
+  return problems;
+}
+
 /**
  * Every reason a reference directory cannot be trusted, or [] when its
  * approval record is well formed, names a human, and every reference file on
@@ -158,37 +200,8 @@ export function approvalProblems(referenceDir: string): string[] {
   } catch (error) {
     return [`approval record is not valid JSON: ${(error as Error).message}`];
   }
-  const problems: string[] = [];
-  if (record.schema !== VISUAL_APPROVAL_SCHEMA)
-    problems.push(`schema is not ${VISUAL_APPROVAL_SCHEMA}`);
-  if (!record.approved_by || !approverIsHuman(record.approved_by)) {
-    problems.push(`approver ${JSON.stringify(record.approved_by)} is not a named human`);
-  }
-  if (!record.reason?.trim()) problems.push("approval gives no reason");
-  if (Number.isNaN(Date.parse(record.approved_at)))
-    problems.push("approval has no valid timestamp");
-  if (record.source?.rendered_site_validation !== "PASS") {
-    problems.push("approved output did not pass rendered-site validation");
-  }
   const references = Array.isArray(record.references) ? record.references : [];
-  if (references.length === 0) problems.push("approval lists no references");
-  for (const viewport of VISUAL_VIEWPORTS) {
-    if (!references.some((reference) => reference.viewport === viewport.name)) {
-      problems.push(`no approved ${viewport.name} reference`);
-    }
-  }
-  const listed = new Set(references.map((reference) => reference.file));
-  for (const reference of references) {
-    const file = join(referenceDir, reference.file);
-    if (!existsSync(file)) problems.push(`${reference.file}: approved file is missing`);
-    else if (sha256(readFileSync(file)) !== reference.sha256) {
-      problems.push(`${reference.file}: bytes differ from the approved sha256 (unapproved update)`);
-    }
-  }
-  for (const file of readdirSync(referenceDir).filter((name) => name.endsWith(".png"))) {
-    if (!listed.has(file)) problems.push(`${file}: reference file not covered by the approval`);
-  }
-  return problems;
+  return [...recordProblems(record), ...referenceFileProblems(referenceDir, references)];
 }
 
 export function readApproval(referenceDir: string): VisualApprovalRecord {
@@ -211,14 +224,13 @@ type Browser = {
   close(): Promise<void>;
 };
 type BrowserContext = { newPage(): Promise<Page>; close(): Promise<void> };
-type Locator = unknown;
 type Route = { request(): { url(): string }; continue(): Promise<void>; abort(): Promise<void> };
 type Page = {
   route(pattern: string, handler: (route: Route) => Promise<void>): Promise<void>;
   goto(url: string, options?: unknown): Promise<unknown>;
   addStyleTag(options: { content: string }): Promise<unknown>;
   evaluate<T>(script: string): Promise<T>;
-  locator(selector: string): Locator;
+  locator(selector: string): unknown;
   screenshot(options: Record<string, unknown>): Promise<Buffer>;
   setContent(html: string): Promise<void>;
   close(): Promise<void>;
@@ -246,6 +258,15 @@ function rendererIdentity(browser: Browser): VisualRendererIdentity {
   };
 }
 
+const routeUrl = (baseUrl: string, slug: string): string =>
+  slug === "/" ? `${baseUrl}/` : `${baseUrl}${slug}/`;
+
+/** Resolves once every template weight of the vendored font is loaded. */
+const FONTS_READY_EXPRESSION =
+  "Promise.all([" +
+  FONT_WEIGHTS.map((weight) => `document.fonts.load("${weight} 16px Inter")`).join(", ") +
+  "]).then(() => document.fonts.ready)";
+
 /** @font-face rules for the vendored template font, inlined so capture needs no network. */
 export function fontFaceCss(fontDir: string): string {
   return FONT_WEIGHTS.map((weight) => {
@@ -264,6 +285,44 @@ export interface CaptureOptions {
   viewports?: readonly RenderViewport[];
   /** Applied after the page settles; a test hook for deliberately broken variants only. */
   injectCss?: (viewport: RenderViewport) => string | undefined;
+}
+
+/** Capture one route at one viewport under the pinned conditions. */
+async function captureRoute(
+  context: BrowserContext,
+  baseUrl: string,
+  route: string,
+  viewport: RenderViewport,
+  options: CaptureOptions,
+  fonts: string,
+): Promise<CapturedScreenshot> {
+  const page = await context.newPage();
+  try {
+    // Only the built site loads: no font CDNs, analytics or remote media.
+    await page.route("**/*", (request) =>
+      request.request().url().startsWith(baseUrl) ? request.continue() : request.abort(),
+    );
+    const slug = normalizeRouteSlug(route);
+    await page.goto(routeUrl(baseUrl, slug), { waitUntil: "load", timeout: 30_000 });
+    await page.addStyleTag({ content: `${fonts}\n${FREEZE_CSS}` });
+    const extra = options.injectCss?.(viewport);
+    if (extra) await page.addStyleTag({ content: extra });
+    await page.evaluate(FONTS_READY_EXPRESSION);
+    await page.evaluate(SETTLE_IMAGES_EXPRESSION);
+    const bytes = await page.screenshot({
+      fullPage: true,
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
+      mask: [page.locator(DYNAMIC_CONTENT_SELECTOR)],
+      maskColor: "#ff00ff",
+    });
+    const file = screenshotName(route, viewport.name);
+    writeFileSync(join(options.outDir, file), bytes);
+    return { route: slug, viewport: viewport.name, file, sha256: sha256(bytes), ...pngSize(bytes) };
+  } finally {
+    await page.close();
+  }
 }
 
 /** Render each route at each viewport under pinned conditions and write full-page PNGs. */
@@ -290,48 +349,11 @@ export async function captureScreenshots(options: CaptureOptions): Promise<Captu
         timezoneId: "UTC",
       });
       try {
+        // One page at a time on one browser: captures stay sequential by design.
         for (const route of options.routes) {
-          const page = await context.newPage();
-          try {
-            // Only the built site loads: no font CDNs, analytics or remote media.
-            await page.route("**/*", (request) =>
-              request.request().url().startsWith(served.baseUrl)
-                ? request.continue()
-                : request.abort(),
-            );
-            const slug = normalizeRouteSlug(route);
-            await page.goto(`${served.baseUrl}${slug === "/" ? "/" : `${slug}/`}`, {
-              waitUntil: "load",
-              timeout: 30_000,
-            });
-            await page.addStyleTag({ content: `${fonts}\n${FREEZE_CSS}` });
-            const extra = options.injectCss?.(viewport);
-            if (extra) await page.addStyleTag({ content: extra });
-            await page.evaluate(
-              `Promise.all([${FONT_WEIGHTS.map((weight) => `document.fonts.load("${weight} 16px Inter")`).join(", ")}]).then(() => document.fonts.ready)`,
-            );
-            await page.evaluate(SETTLE_IMAGES_EXPRESSION);
-            const bytes = await page.screenshot({
-              fullPage: true,
-              animations: "disabled",
-              caret: "hide",
-              scale: "css",
-              mask: [page.locator(DYNAMIC_CONTENT_SELECTOR)],
-              maskColor: "#ff00ff",
-            });
-            const file = screenshotName(route, viewport.name);
-            writeFileSync(join(options.outDir, file), bytes);
-            const size = pngSize(bytes);
-            screenshots.push({
-              route: slug,
-              viewport: viewport.name,
-              file,
-              sha256: sha256(bytes),
-              ...size,
-            });
-          } finally {
-            await page.close();
-          }
+          screenshots.push(
+            await captureRoute(context, served.baseUrl, route, viewport, options, fonts),
+          );
         }
       } finally {
         await context.close();

@@ -16,7 +16,6 @@
 //        into tests/visual/references/<design>/ with an approval.json naming
 //        you, and marks the design approved in registry.json.
 
-import { execFileSync } from "node:child_process";
 import {
   copyFileSync,
   existsSync,
@@ -28,6 +27,7 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { execTrusted } from "../../src/recursive/exec.js";
 import {
   approvalRecord,
   approvalRefusals,
@@ -76,7 +76,7 @@ async function captureCandidates(): Promise<void> {
     const manifest: CandidateManifest = {
       design_id: VISUAL_DESIGN_ID,
       fixture: "tests/helpers/visualReferenceFixture.ts",
-      git_commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).trim(),
+      git_commit: execTrusted("git", ["rev-parse", "HEAD"]).trim(),
       rendered_site_validation: site.renderedSiteValidation,
       renderer: capture.renderer,
       screenshots: capture.screenshots,
