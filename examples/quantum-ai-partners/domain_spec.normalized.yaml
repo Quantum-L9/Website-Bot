@@ -201,6 +201,40 @@ business_facts:
     - AI Strategy & Roadmaps
     - Custom AI & LLM Systems
     - AI Modernization & MLOps
+value_proposition:
+  status: locked
+  target_customer:
+    - Enterprise operators integrating AI into existing production systems safely and measurably.
+    - Mid-market product teams shipping AI features without building an internal ML organization.
+    - Founders and startups moving from idea to a working, evaluated AI product quickly.
+    - CTOs, VPs of engineering, heads of product, and founders.
+  problem:
+    - LLM adoption pressure with no safe path into production.
+    - Automation backlogs and integration risk without evaluation coverage.
+    - AI proofs of concept that fail to reach production.
+    - Talent gaps for building and hardening AI systems.
+    - Missing evaluation and guardrail coverage.
+  outcome:
+    - A measurable AI adoption roadmap with defined milestones.
+    - Working, evaluated prototypes and production systems.
+    - Evaluation suites, monitoring, and repeatable delivery paths.
+    - Knowledge transfer that leaves the team self-sufficient.
+  mechanism:
+    - "AI Strategy & Roadmaps: assess readiness, prioritize use cases, produce a measurable roadmap."
+    - "Custom AI & LLM Systems: design and build agentic systems, retrieval pipelines, and model integrations with evaluations and guardrails."
+    - "AI Modernization & MLOps: harden prototypes into production with evaluation suites, monitoring, and repeatable delivery."
+  differentiators:
+    - Layered-systems AI engineering — strategy, build, and production hardening as one continuous discipline.
+    - Engineering-first delivery expressed without hype.
+    - Distinctive, engineering-deep, calm, and precise execution.
+  reasons_to_believe:
+    - Evaluations and guardrails are built into every layer of delivery.
+    - "Security-first: minimal data footprint, NDAs on request, and no unnecessary third-party data flows."
+    - Claim-grounding gates enforce the no-hype contract; no fabricated case studies or metrics.
+  boundaries:
+    - No guaranteed ROI, performance guarantees, or fabricated case studies.
+    - Engagement-based pricing, scoped per project after the assessment.
+    - Email-first conversion path; no dead lead forms.
 conversion_authority:
   primary_action: Book an Intro Call
   secondary_actions:
@@ -222,7 +256,7 @@ content_guardrails:
     - performance_guarantees
     - trusted_by_claims
 semantic_provenance:
-  source_spec_version: 1.0.0
+  source_spec_version: 1.1.0
   compiler_version: 1.1.0
   runtime_authority_paths:
     - assets
@@ -239,6 +273,7 @@ semantic_provenance:
     - market
     - offer
     - seo
+    - value_proposition
   gate_paths:
     - authority
     - compliance
@@ -259,6 +294,11 @@ semantic_provenance:
     - notes
     - validation
 assets:
+  providedImages:
+    - id: qap-logo
+      path: examples/quantum-ai-partners/assets/quantum-ai-partners-logo.jpg
+      altText: Quantum AI Partners logo
+      intendedPlacement: global:logo
   generation:
     enabled: true
     model: gemini-2.5-flash-image
