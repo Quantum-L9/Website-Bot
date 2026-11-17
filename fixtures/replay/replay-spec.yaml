@@ -1,0 +1,35 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+# CI replay end-to-end spec (tests/e2e-replay). An invented two-route REDESIGN
+# business: every external response it needs is a committed, redacted fixture
+# under fixtures/replay/. Nothing here names a real client or a real endpoint.
+client_id: replay-plumbing
+business_name: Replay Plumbing Co
+vertical: plumbing
+geography:
+  states:
+    - NC
+  primary_state: NC
+build_intent: REDESIGN_IMPROVE
+design:
+  status: pending
+routes:
+  - slug: /
+    title: Home
+    components:
+      - hero
+      - services-overview
+      - faq
+  - slug: /contact
+    title: Contact
+    components:
+      - contact-form
+seo_contract:
+  target_keywords:
+    - plumber raleigh nc
+    - drain cleaning raleigh
+  site_url: replay-plumbing.example
+  phone: "(919) 555-0100"
+  # Reserved .example host (RFC 2606). The replay preload already answers it
+  # with the committed donor page, so the lead check's test submission stays
+  # inside the recorded boundary.
+  lead_form_action: https://replay-plumbing.example/f/replay-fixture

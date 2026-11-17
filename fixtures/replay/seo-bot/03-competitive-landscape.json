@@ -1,0 +1,406 @@
+{
+  "method": "POST",
+  "path": "/api/build-intelligence/competitive-landscape",
+  "status": 200,
+  "body": {
+    "protocol": "l9.website-intelligence",
+    "protocol_version": "1.0",
+    "artifact_type": "competitive_landscape",
+    "artifact_id": "competitive_landscape:9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28",
+    "client_id": "replay-plumbing",
+    "build_id": "replay-build",
+    "producer": {
+      "repo": "SEO-Bot",
+      "version": "2.1.0"
+    },
+    "produced_at": "2026-11-17T00:00:00.000Z",
+    "input_refs": [],
+    "payload": {
+      "schema": "l9://website-intelligence/competitive-landscape/v1",
+      "market": {
+        "niche": "plumbing",
+        "country": "US",
+        "language": "English",
+        "device": "desktop",
+        "location_name": "North Carolina,United States"
+      },
+      "query_portfolio": [
+        {
+          "query_id": "q-1",
+          "query": "plumber raleigh nc",
+          "intent": "commercial",
+          "weight": 1
+        },
+        {
+          "query_id": "q-2",
+          "query": "drain cleaning raleigh",
+          "intent": "commercial",
+          "weight": 1
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "obs-q-1-donor-0.plumbing.example",
+          "query_id": "q-1",
+          "rank": 1,
+          "url": "https://donor-0.plumbing.example/services",
+          "domain": "donor-0.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-0.plumbing.example",
+          "query_id": "q-2",
+          "rank": 1,
+          "url": "https://donor-0.plumbing.example/services",
+          "domain": "donor-0.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-1.plumbing.example",
+          "query_id": "q-1",
+          "rank": 2,
+          "url": "https://donor-1.plumbing.example/services",
+          "domain": "donor-1.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-1.plumbing.example",
+          "query_id": "q-2",
+          "rank": 2,
+          "url": "https://donor-1.plumbing.example/services",
+          "domain": "donor-1.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-2.plumbing.example",
+          "query_id": "q-1",
+          "rank": 3,
+          "url": "https://donor-2.plumbing.example/services",
+          "domain": "donor-2.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-2.plumbing.example",
+          "query_id": "q-2",
+          "rank": 3,
+          "url": "https://donor-2.plumbing.example/services",
+          "domain": "donor-2.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-3.plumbing.example",
+          "query_id": "q-1",
+          "rank": 4,
+          "url": "https://donor-3.plumbing.example/services",
+          "domain": "donor-3.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-3.plumbing.example",
+          "query_id": "q-2",
+          "rank": 4,
+          "url": "https://donor-3.plumbing.example/services",
+          "domain": "donor-3.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-4.plumbing.example",
+          "query_id": "q-1",
+          "rank": 5,
+          "url": "https://donor-4.plumbing.example/services",
+          "domain": "donor-4.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-4.plumbing.example",
+          "query_id": "q-2",
+          "rank": 5,
+          "url": "https://donor-4.plumbing.example/services",
+          "domain": "donor-4.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-5.plumbing.example",
+          "query_id": "q-1",
+          "rank": 6,
+          "url": "https://donor-5.plumbing.example/services",
+          "domain": "donor-5.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-5.plumbing.example",
+          "query_id": "q-2",
+          "rank": 6,
+          "url": "https://donor-5.plumbing.example/services",
+          "domain": "donor-5.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-6.plumbing.example",
+          "query_id": "q-1",
+          "rank": 7,
+          "url": "https://donor-6.plumbing.example/services",
+          "domain": "donor-6.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-6.plumbing.example",
+          "query_id": "q-2",
+          "rank": 7,
+          "url": "https://donor-6.plumbing.example/services",
+          "domain": "donor-6.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-7.plumbing.example",
+          "query_id": "q-1",
+          "rank": 8,
+          "url": "https://donor-7.plumbing.example/services",
+          "domain": "donor-7.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-7.plumbing.example",
+          "query_id": "q-2",
+          "rank": 8,
+          "url": "https://donor-7.plumbing.example/services",
+          "domain": "donor-7.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-8.plumbing.example",
+          "query_id": "q-1",
+          "rank": 9,
+          "url": "https://donor-8.plumbing.example/services",
+          "domain": "donor-8.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-8.plumbing.example",
+          "query_id": "q-2",
+          "rank": 9,
+          "url": "https://donor-8.plumbing.example/services",
+          "domain": "donor-8.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-1-donor-9.plumbing.example",
+          "query_id": "q-1",
+          "rank": 10,
+          "url": "https://donor-9.plumbing.example/services",
+          "domain": "donor-9.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        },
+        {
+          "observation_id": "obs-q-2-donor-9.plumbing.example",
+          "query_id": "q-2",
+          "rank": 10,
+          "url": "https://donor-9.plumbing.example/services",
+          "domain": "donor-9.plumbing.example",
+          "observed_at": "2026-11-17T00:00:00.000Z",
+          "source": "dataforseo"
+        }
+      ],
+      "domains": [
+        {
+          "domain": "donor-0.plumbing.example",
+          "aggregate_visibility": 10,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-0.plumbing.example",
+            "obs-q-2-donor-0.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-1.plumbing.example",
+          "aggregate_visibility": 9,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-1.plumbing.example",
+            "obs-q-2-donor-1.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-2.plumbing.example",
+          "aggregate_visibility": 8,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-2.plumbing.example",
+            "obs-q-2-donor-2.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-3.plumbing.example",
+          "aggregate_visibility": 7,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-3.plumbing.example",
+            "obs-q-2-donor-3.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-4.plumbing.example",
+          "aggregate_visibility": 6,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-4.plumbing.example",
+            "obs-q-2-donor-4.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-5.plumbing.example",
+          "aggregate_visibility": 5,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-5.plumbing.example",
+            "obs-q-2-donor-5.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-6.plumbing.example",
+          "aggregate_visibility": 4,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-6.plumbing.example",
+            "obs-q-2-donor-6.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-7.plumbing.example",
+          "aggregate_visibility": 3,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-7.plumbing.example",
+            "obs-q-2-donor-7.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-8.plumbing.example",
+          "aggregate_visibility": 2,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-8.plumbing.example",
+            "obs-q-2-donor-8.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-9.plumbing.example",
+          "aggregate_visibility": 1,
+          "qualifying_query_ids": ["q-1", "q-2"],
+          "observation_ids": [
+            "obs-q-1-donor-9.plumbing.example",
+            "obs-q-2-donor-9.plumbing.example"
+          ]
+        }
+      ],
+      "selected_donors": [
+        {
+          "domain": "donor-0.plumbing.example",
+          "aggregate_visibility": 10,
+          "observation_ids": [
+            "obs-q-1-donor-0.plumbing.example",
+            "obs-q-2-donor-0.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-1.plumbing.example",
+          "aggregate_visibility": 9,
+          "observation_ids": [
+            "obs-q-1-donor-1.plumbing.example",
+            "obs-q-2-donor-1.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-2.plumbing.example",
+          "aggregate_visibility": 8,
+          "observation_ids": [
+            "obs-q-1-donor-2.plumbing.example",
+            "obs-q-2-donor-2.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-3.plumbing.example",
+          "aggregate_visibility": 7,
+          "observation_ids": [
+            "obs-q-1-donor-3.plumbing.example",
+            "obs-q-2-donor-3.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-4.plumbing.example",
+          "aggregate_visibility": 6,
+          "observation_ids": [
+            "obs-q-1-donor-4.plumbing.example",
+            "obs-q-2-donor-4.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-5.plumbing.example",
+          "aggregate_visibility": 5,
+          "observation_ids": [
+            "obs-q-1-donor-5.plumbing.example",
+            "obs-q-2-donor-5.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-6.plumbing.example",
+          "aggregate_visibility": 4,
+          "observation_ids": [
+            "obs-q-1-donor-6.plumbing.example",
+            "obs-q-2-donor-6.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-7.plumbing.example",
+          "aggregate_visibility": 3,
+          "observation_ids": [
+            "obs-q-1-donor-7.plumbing.example",
+            "obs-q-2-donor-7.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-8.plumbing.example",
+          "aggregate_visibility": 2,
+          "observation_ids": [
+            "obs-q-1-donor-8.plumbing.example",
+            "obs-q-2-donor-8.plumbing.example"
+          ]
+        },
+        {
+          "domain": "donor-9.plumbing.example",
+          "aggregate_visibility": 1,
+          "observation_ids": [
+            "obs-q-1-donor-9.plumbing.example",
+            "obs-q-2-donor-9.plumbing.example"
+          ]
+        }
+      ],
+      "exclusions": [],
+      "evidence_complete": true,
+      "ranking_llm_calls": 0
+    },
+    "integrity": {
+      "algorithm": "sha256",
+      "payload_digest": "9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28"
+    }
+  }
+}

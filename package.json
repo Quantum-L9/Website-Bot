@@ -30,6 +30,7 @@
     "site:test:vercel": "node scripts/run-site-factory-tests.mjs --scope=vercel",
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
     "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
+    "e2e:replay": "node --import tsx --test tests/e2e-replay/pipeline-replay.test.ts",
     "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run interop:parity && npm run blueprint:v1-eradication && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring && npm run recursive:schemas && npm run recursive:test",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",

@@ -1,0 +1,44 @@
+{
+  "description": "CompetitiveIntelligenceStage DONOR_NUGGET_EXTRACTION (served for each of the 10 donors)",
+  "match": ["Return ONLY JSON: {\"nuggets\"", "Donor domain: donor-"],
+  "response": {
+    "id": "replay-ded75f826b99",
+    "object": "chat.completion",
+    "created": 1763337600,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": {
+            "nuggets": [
+              {
+                "evidence": "donor pages lead with one service request action",
+                "invariant": "single primary call to action above the fold",
+                "disposition": "PORT",
+                "beneficiary_destination": "home hero",
+                "risk": "low",
+                "acceptance_test": "home exposes exactly one primary CTA"
+              },
+              {
+                "evidence": "donor service lists are short and scannable",
+                "invariant": "services summarized as a short scannable list",
+                "disposition": "PORT_WITH_HARDENING",
+                "beneficiary_destination": "home services overview",
+                "risk": "low",
+                "acceptance_test": "home lists core services in one section"
+              }
+            ]
+          }
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 900,
+      "completion_tokens": 400,
+      "total_tokens": 1300
+    }
+  }
+}

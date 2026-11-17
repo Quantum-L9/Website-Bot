@@ -1,0 +1,48 @@
+{
+  "description": "CompetitiveIntelligenceStage PATTERN_SYNTHESIS",
+  "match": ["Nuggets across", "Return ONLY JSON: {\"patterns\""],
+  "response": {
+    "id": "replay-8cf1379a9858",
+    "object": "chat.completion",
+    "created": 1763337600,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": {
+            "patterns": [
+              {
+                "evidence": "donor pages lead with one service request action",
+                "invariant": "single primary call to action above the fold",
+                "disposition": "PORT",
+                "beneficiary_destination": "home hero",
+                "risk": "low",
+                "acceptance_test": "home exposes exactly one primary CTA",
+                "pattern_id": "p-1",
+                "donor_frequency": 10
+              },
+              {
+                "evidence": "donor service lists are short and scannable",
+                "invariant": "services summarized as a short scannable list",
+                "disposition": "PORT_WITH_HARDENING",
+                "beneficiary_destination": "home services overview",
+                "risk": "low",
+                "acceptance_test": "home lists core services in one section",
+                "pattern_id": "p-2",
+                "donor_frequency": 10
+              }
+            ]
+          }
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 900,
+      "completion_tokens": 400,
+      "total_tokens": 1300
+    }
+  }
+}

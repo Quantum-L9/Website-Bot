@@ -1,0 +1,119 @@
+{
+  "method": "POST",
+  "path": "/api/build-intelligence/seo-content-blueprint",
+  "status": 200,
+  "body": {
+    "protocol": "l9.website-intelligence",
+    "protocol_version": "1.0",
+    "artifact_type": "seo_content_blueprint",
+    "artifact_id": "seo_content_blueprint:e55f2e4933884b13f3446f2a549540c4c6874bf2c494f0738376cd4558b39758",
+    "client_id": "replay-plumbing",
+    "build_id": "replay-build",
+    "producer": {
+      "repo": "SEO-Bot",
+      "version": "2.1.0"
+    },
+    "produced_at": "2026-11-17T00:00:00.000Z",
+    "input_refs": [
+      {
+        "artifact_type": "competitive_landscape",
+        "artifact_id": "competitive_landscape:9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28",
+        "payload_digest": "9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28"
+      }
+    ],
+    "payload": {
+      "schema": "l9://website-intelligence/seo-content-blueprint/v1",
+      "competitive_landscape_ref": {
+        "artifact_type": "competitive_landscape",
+        "artifact_id": "competitive_landscape:9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28",
+        "payload_digest": "9fe5a5439cc8e6d64208d265b0c82676ece5f0cfc7c9fdacb34e532e0b03db28"
+      },
+      "batch_size": 4,
+      "batch_count": 1,
+      "routes": [
+        {
+          "route_id": "/",
+          "path": "/",
+          "search_intent": {
+            "primary": "hire a local plumber",
+            "secondary": [],
+            "journey_stage": "transactional"
+          },
+          "targets": {
+            "primary_query": "plumber raleigh nc",
+            "supporting_queries": [],
+            "topics": ["same-day service"],
+            "entities": ["Replay Plumbing Co"]
+          },
+          "requirements": [
+            {
+              "requirement_id": "req-/-primary_offer",
+              "target_slots": ["primary_offer"],
+              "placement": "FIRST_MATCH",
+              "required_topics": ["same-day service"],
+              "required_entities": [],
+              "questions": [],
+              "proof_needed": [],
+              "required": true
+            }
+          ],
+          "competitive_gaps": [],
+          "internal_links": [],
+          "aeo_geo": {
+            "answer_targets": [],
+            "schema_requirements": []
+          },
+          "metadata": {
+            "title_requirements": ["mention plumbing"],
+            "description_requirements": []
+          },
+          "forbidden_claims": [],
+          "acceptance_tests": []
+        },
+        {
+          "route_id": "/contact",
+          "path": "/contact",
+          "search_intent": {
+            "primary": "hire a local plumber",
+            "secondary": [],
+            "journey_stage": "transactional"
+          },
+          "targets": {
+            "primary_query": "drain cleaning raleigh",
+            "supporting_queries": [],
+            "topics": ["same-day service"],
+            "entities": ["Replay Plumbing Co"]
+          },
+          "requirements": [
+            {
+              "requirement_id": "req-/contact-conversion",
+              "target_slots": ["conversion"],
+              "placement": "FIRST_MATCH",
+              "required_topics": ["same-day service"],
+              "required_entities": [],
+              "questions": [],
+              "proof_needed": [],
+              "required": true
+            }
+          ],
+          "competitive_gaps": [],
+          "internal_links": [],
+          "aeo_geo": {
+            "answer_targets": [],
+            "schema_requirements": []
+          },
+          "metadata": {
+            "title_requirements": ["mention plumbing"],
+            "description_requirements": []
+          },
+          "forbidden_claims": [],
+          "acceptance_tests": []
+        }
+      ]
+    },
+    "integrity": {
+      "algorithm": "sha256",
+      "payload_digest": "e55f2e4933884b13f3446f2a549540c4c6874bf2c494f0738376cd4558b39758"
+    }
+  }
+}

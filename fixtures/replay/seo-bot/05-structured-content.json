@@ -1,0 +1,135 @@
+{
+  "method": "POST",
+  "path": "/api/build-intelligence/structured-content",
+  "status": 200,
+  "bind": "page_content_contract",
+  "seal": {
+    "artifact_type": "structured_content_package",
+    "client_id": "replay-plumbing",
+    "build_id": "replay-build",
+    "producer": {
+      "repo": "SEO-Bot",
+      "version": "2.1.0"
+    },
+    "produced_at": "2026-11-17T00:00:00.000Z"
+  },
+  "payload": {
+    "schema": "l9://website-intelligence/structured-content-package/v1",
+    "routes": [
+      {
+        "route_id": "/",
+        "path": "/",
+        "metadata": {
+          "title": "Replay Plumbing Co | Same-Day Plumbing in Raleigh, NC",
+          "description": "Same-day plumbing repairs, drain cleaning and water heater service across Raleigh, NC. Request service online."
+        },
+        "sections": [
+          {
+            "section_id": "hero",
+            "heading": "Same-Day Plumbing in Raleigh",
+            "subheading": "Licensed plumbers who show up when they say they will.",
+            "blocks": [
+              {
+                "kind": "paragraph",
+                "text": "Replay Plumbing Co handles leaks, clogs and water heaters across Raleigh with same-day service."
+              }
+            ],
+            "cta": {
+              "label": "Request service",
+              "action": "request_service"
+            }
+          },
+          {
+            "section_id": "services",
+            "heading": "What we fix",
+            "blocks": [
+              {
+                "kind": "bullets",
+                "items": ["Drain cleaning", "Leak repair", "Water heaters"]
+              }
+            ]
+          },
+          {
+            "section_id": "questions",
+            "heading": "Common questions",
+            "blocks": [
+              {
+                "kind": "paragraph",
+                "text": "Answers to the questions Raleigh homeowners ask before booking a plumber."
+              }
+            ]
+          }
+        ],
+        "faqs": [
+          {
+            "question": "Do you offer same-day service?",
+            "answer": "Yes. Most Raleigh calls received before noon are scheduled the same day."
+          }
+        ],
+        "internal_links": [
+          {
+            "target_route_id": "/contact",
+            "anchor_text": "Request plumbing service"
+          }
+        ],
+        "schema_content_inputs": {
+          "faq": true,
+          "service": true,
+          "local_business": true
+        }
+      },
+      {
+        "route_id": "/contact",
+        "path": "/contact",
+        "metadata": {
+          "title": "Contact Replay Plumbing Co | Raleigh, NC Plumbers",
+          "description": "Tell us what needs fixing and a Raleigh plumber will follow up with a same-day appointment window."
+        },
+        "sections": [
+          {
+            "section_id": "form",
+            "heading": "Request plumbing service",
+            "blocks": [
+              {
+                "kind": "paragraph",
+                "text": "Tell us what needs fixing and we will follow up the same day."
+              }
+            ]
+          }
+        ],
+        "faqs": [],
+        "internal_links": [
+          {
+            "target_route_id": "/",
+            "anchor_text": "Back to Replay Plumbing Co"
+          }
+        ],
+        "schema_content_inputs": {
+          "local_business": true
+        }
+      }
+    ],
+    "validation": {
+      "seo_blueprint_passed": true,
+      "contract_passed": true,
+      "unsupported_claims": [],
+      "failed_requirements": []
+    },
+    "route_evidence": [
+      {
+        "route_id": "/",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "validation_calls": 1,
+        "schema_errors": 0
+      },
+      {
+        "route_id": "/contact",
+        "repair_attempts": 0,
+        "generation_calls": 1,
+        "validation_calls": 1,
+        "schema_errors": 0
+      }
+    ]
+  }
+}
