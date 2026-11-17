@@ -5,15 +5,20 @@
 // fills each slot. Selection is deterministic and LLM-free: candidates are
 // scored on placement, aspect ratio, resolution, and alt-text signals, and the
 // configured source precedence (provided → source-site → generated) breaks ties.
+// The required home hero alone has one further, last-resort fill: the built-in
+// static conceptual illustration (operator decision D1), used only when no
+// provided or source-site image qualifies and generation cannot run for it.
 // Ambiguous semantic ranking is a later, optional refinement — never basic
 // filtering.
 
 import type { ImageSlotSpec } from "../../pipeline/BuildContext.js";
-import type {
-  ImageAssetPlan,
-  ImageAssetResolution,
-  ImageGenerationBrief,
-  PlannedImageAsset,
+import {
+  HOME_HERO_ILLUSTRATION_ID,
+  type ImageAssetPlan,
+  type ImageAssetResolution,
+  type ImageGenerationBrief,
+  type PlannedImageAsset,
+  STATIC_ILLUSTRATION_PLACEMENT,
 } from "../../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../../pipeline/evidence/SourceSiteManifest.js";
 
@@ -354,6 +359,24 @@ function explicitProvided(
   return bestProvided(slot, explicit, usedIds);
 }
 
+/**
+ * True when the slot may be filled by the built-in static conceptual
+ * illustration (operator decision D1): it is the required home hero, it is not
+ * factual, and it admits a synthetic visual (its preferred sources include
+ * generation) that generation cannot supply here. A slot an operator
+ * restricted to real assets (no "generated") keeps failing closed instead.
+ * Callers try it only after every reuse source and generation came up empty.
+ */
+export function staticIllustrationEligible(slot: ImageSlotSpec): boolean {
+  const preferred = slot.preferredSources ?? DEFAULT_PRECEDENCE;
+  return (
+    slot.required &&
+    slot.placement === STATIC_ILLUSTRATION_PLACEMENT &&
+    preferred.includes("generated") &&
+    !isFactualSlot(slot)
+  );
+}
+
 function resolveSlot(
   slot: ImageSlotSpec,
   inputs: PlanInputs,
@@ -377,6 +400,15 @@ function resolveSlot(
     } else if (source === "generated") {
       return { source: "generated", compiledBrief: briefFromSlot(slot) };
     }
+  }
+  // Reached only when no provided/source-site image qualified and generation
+  // was not available for this slot (disabled, or not in its precedence).
+  if (staticIllustrationEligible(slot)) {
+    return {
+      source: "static-illustration",
+      illustrationId: HOME_HERO_ILLUSTRATION_ID,
+      reason: `No candidate satisfied slot ${slot.id} from sources [${precedence.join(", ")}] and generation is unavailable; filled with the built-in static conceptual illustration ${HOME_HERO_ILLUSTRATION_ID}`,
+    };
   }
   return {
     source: "unresolved",

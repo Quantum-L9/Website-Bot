@@ -248,6 +248,15 @@ export interface SiteImageEntry {
   source: "provided" | "source-site" | "generated";
 }
 
+/**
+ * A placement filled by a built-in static conceptual illustration (operator
+ * decision D1): the template renders it as inline SVG; there is no file.
+ */
+export interface SiteIllustrationEntry {
+  illustrationId: string;
+  source: "static-illustration";
+}
+
 export interface SiteConfig {
   businessName: string;
   siteUrl: string;
@@ -262,6 +271,8 @@ export interface SiteConfig {
   phone?: string;
   /** Resolved images keyed by placement (e.g. "global:logo", "/:hero"). */
   images?: Record<string, SiteImageEntry>;
+  /** Static conceptual illustrations keyed by placement (only "/:hero"). */
+  illustrations?: Record<string, SiteIllustrationEntry>;
   /** Extra source-site photos (gallery/work) not assigned to a slot. */
   galleryImages?: SiteImageEntry[];
   /** Every published route (href + title) for footer sitemap / section grids. */

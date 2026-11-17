@@ -249,7 +249,7 @@ export function withIdentifiedLogo(
 
 export class ImageAssetPlanningStage implements Stage {
   name = "image-asset-planning";
-  version = "2.1.0";
+  version = "2.2.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Persist the plan and the (provided + source-site) delivered manifest whenever
@@ -348,6 +348,9 @@ export class ImageAssetPlanningStage implements Stage {
         slots: slots.length,
         resolved: resolved.length,
         generated: plan.assets.filter((a) => a.resolution.source === "generated").length,
+        staticIllustrations: plan.assets.filter(
+          (a) => a.resolution.source === "static-illustration",
+        ).length,
       },
       "Image asset plan resolved",
     );
@@ -438,8 +441,9 @@ export class ImageAssetPlanningStage implements Stage {
           }),
         );
       }
-      // 'generated' resolutions are filled by the generation stage; 'unresolved'
-      // non-required slots are simply left empty.
+      // 'generated' resolutions are filled by the generation stage;
+      // 'static-illustration' is rendered by the template as inline SVG and has
+      // no file to stage; 'unresolved' non-required slots are left empty.
     }
     return resolved;
   }

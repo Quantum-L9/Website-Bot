@@ -2,9 +2,15 @@
 //
 // The image asset plan is the decision record produced by ImageAssetPlanningStage:
 // for every declared image slot it names the resolved source (a provided image, a
-// source-site candidate, a generation brief, or an explicit unresolved reason).
-// Generation stages consume only the `generated` entries; assembly consumes the
-// resolved images collected on the BuildContext.
+// source-site candidate, a generation brief, the built-in static conceptual
+// illustration, or an explicit unresolved reason). Generation stages consume only
+// the `generated` entries; assembly consumes the resolved images collected on the
+// BuildContext and renders `static-illustration` entries as inline SVG (no file).
+
+/** The one placement a static conceptual illustration may fill: the home hero. */
+export const STATIC_ILLUSTRATION_PLACEMENT = "/:hero";
+/** The built-in illustration (CRM rows → relationship graph) used for the home hero. */
+export const HOME_HERO_ILLUSTRATION_ID = "crm-to-graph";
 
 /** Compiled generation instruction for a slot that must be produced, not reused. */
 export interface ImageGenerationBrief {
@@ -22,6 +28,12 @@ export type ImageAssetResolution =
   | { source: "provided"; candidateId: string; score: number }
   | { source: "source-site"; candidateId: string; score: number }
   | { source: "generated"; compiledBrief: ImageGenerationBrief }
+  /**
+   * Operator decision D1 (2026-11-17): the required home hero may be filled by
+   * a built-in, static, labelled conceptual illustration rendered as inline
+   * SVG. No file is staged; there is nothing on disk for this source.
+   */
+  | { source: "static-illustration"; illustrationId: string; reason: string }
   | { source: "unresolved"; reason: string };
 
 export interface PlannedImageAsset {
@@ -42,7 +54,30 @@ export function unresolvedRequiredSlots(plan: ImageAssetPlan): PlannedImageAsset
   return plan.assets.filter((asset) => asset.required && asset.resolution.source === "unresolved");
 }
 
-const RESOLUTION_SOURCES = new Set(["provided", "source-site", "generated", "unresolved"]);
+const RESOLUTION_SOURCES = new Set([
+  "provided",
+  "source-site",
+  "generated",
+  "static-illustration",
+  "unresolved",
+]);
+
+export type StaticIllustrationResolution = Extract<
+  ImageAssetResolution,
+  { source: "static-illustration" }
+>;
+export type IllustratedImageAsset = PlannedImageAsset & {
+  resolution: StaticIllustrationResolution;
+};
+
+/** Plan entries filled by a static conceptual illustration (no image file). */
+export function staticIllustrationAssets(
+  plan: ImageAssetPlan | undefined,
+): IllustratedImageAsset[] {
+  return (plan?.assets ?? []).filter(
+    (asset): asset is IllustratedImageAsset => asset.resolution.source === "static-illustration",
+  );
+}
 
 /** Assert an object is a structurally valid image asset plan (persisted evidence). */
 export function validateImageAssetPlan(value: unknown): asserts value is ImageAssetPlan {
@@ -56,6 +91,15 @@ export function validateImageAssetPlan(value: unknown): asserts value is ImageAs
       throw new Error("image asset plan entry identity is invalid");
     if (!asset.resolution || !RESOLUTION_SOURCES.has(asset.resolution.source)) {
       throw new Error(`invalid resolution source for ${asset.slotId}`);
+    }
+    if (asset.resolution.source === "static-illustration") {
+      if (!asset.resolution.illustrationId)
+        throw new Error(`static illustration for ${asset.slotId} names no illustration`);
+      // Hero only: a factual or any other placement is never an illustration.
+      if (asset.placement !== STATIC_ILLUSTRATION_PLACEMENT)
+        throw new Error(
+          `static illustration is only valid for ${STATIC_ILLUSTRATION_PLACEMENT}, not ${asset.placement}`,
+        );
     }
   }
 }

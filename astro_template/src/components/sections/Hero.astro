@@ -2,6 +2,7 @@
 import { siteConfig } from "../../lib/siteConfig";
 import type { StructuredSectionView } from "../SectionRegistry";
 import StructuredBlocks from "../StructuredBlocks.astro";
+import ConceptualIllustration from "../ConceptualIllustration.astro";
 
 interface Props {
   name?: string;
@@ -30,6 +31,11 @@ const heroImage = rawHero && logo && rawHero.src === logo.src ? undefined : rawH
 // a generated illustration becomes the full-bleed backdrop under the legibility
 // gradient, so a protected asset is never washed over or cropped.
 const heroBackdrop = heroImage !== undefined && heroImage.source === "generated";
+// Operator decision D1: with no hero image, a planned static conceptual
+// illustration (inline SVG, labelled) fills the hero slot instead.
+const illustrations: Record<string, { illustrationId: string; source: string }> =
+  siteConfig.illustrations ?? {};
+const heroIllustration = heroImage ? undefined : illustrations[`${path}:hero`];
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
@@ -74,6 +80,12 @@ const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.busine
       decoding="async"
       data-asset-source={heroImage.source}
       data-image-slot={`${path}:hero`}
+    />
+  )}
+  {heroIllustration && (
+    <ConceptualIllustration
+      illustrationId={heroIllustration.illustrationId}
+      slot={`${path}:hero`}
     />
   )}
 </section>

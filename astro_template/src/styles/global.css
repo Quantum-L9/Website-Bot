@@ -99,6 +99,24 @@ input, textarea {
 }
 .hero--image .hero__content { position: relative; z-index: 1; max-width: 42rem; padding: 3.5rem 2rem; }
 .hero__image { width: 100%; height: auto; max-height: 28rem; object-fit: cover; border-radius: .6rem; }
+/* Static conceptual hero illustration (operator decision D1): inline SVG drawn
+   only from palette tokens; nothing animates, so reduced motion needs no rule. */
+.hero__illustration { margin: 0; display: grid; gap: 0.5rem; justify-items: center; }
+.hero__illustration .ci { width: 100%; height: auto; max-height: 28rem; }
+.hero__illustration-label {
+  font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+.ci-caption { fill: var(--color-text); font: 600 14px var(--font-body); }
+.ci-panel { fill: var(--color-secondary); }
+.ci-head { fill: var(--color-primary); }
+.ci-row { fill: var(--color-background); stroke: color-mix(in srgb, var(--color-primary) 25%, transparent); }
+.ci-cell { fill: color-mix(in srgb, var(--color-primary) 45%, transparent); }
+.ci-link { stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.6; }
+.ci-edge { stroke: color-mix(in srgb, var(--color-primary) 60%, transparent); stroke-width: 2; }
+.ci-node { fill: var(--color-background); stroke: var(--color-accent); stroke-width: 3; }
+.ci-node--hub { fill: var(--color-accent); stroke: var(--color-primary); }
+.ci-flow { fill: var(--color-accent); }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
 .btn--ghost {
   background: transparent;
