@@ -43,7 +43,14 @@
     "missing_gates": {
       "type": "array",
       "items": {
-        "enum": ["assembly", "local_build", "github_publication", "vercel_deployment", "visual_qa"]
+        "enum": [
+          "assembly",
+          "local_build",
+          "github_publication",
+          "vercel_deployment",
+          "visual_qa",
+          "lead_capture"
+        ]
       }
     },
     "evidence": {
@@ -107,6 +114,39 @@
         }
       }
     },
+    "lead_capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "method", "cta_rendered"],
+      "properties": {
+        "status": {
+          "enum": ["verified", "not_configured", "failed", "skipped", "unverified"]
+        },
+        "method": {
+          "enum": ["test_submission", "none"]
+        },
+        "endpoint_origin": {
+          "type": "string",
+          "pattern": "^https://[^/?#]+$"
+        },
+        "http_status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "evidence_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cta_rendered": {
+          "type": "boolean"
+        }
+      }
+    },
     "created_at": {
       "type": "string",
       "format": "date-time"
@@ -161,6 +201,6 @@
     "layer": "contract",
     "role": "persisted_schema",
     "status": "active",
-    "version": "2.0.0"
+    "version": "2.1.0"
   }
 }

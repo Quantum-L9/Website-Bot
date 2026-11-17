@@ -10,7 +10,30 @@ export type ReleaseGate =
   | "local_build"
   | "github_publication"
   | "vercel_deployment"
-  | "visual_qa";
+  | "visual_qa"
+  | "lead_capture";
+
+export type LeadCaptureReceiptStatus =
+  | "verified"
+  | "not_configured"
+  | "failed"
+  | "skipped"
+  | "unverified";
+
+/**
+ * Lead-capture proof carried by the receipt. `cta_rendered` records whether the
+ * assembled site exposes a live primary CTA / form; it is only ever legitimate
+ * on a release whose status is "verified".
+ */
+export interface LeadCaptureReceipt {
+  status: LeadCaptureReceiptStatus;
+  method: "test_submission" | "none";
+  endpoint_origin?: string;
+  http_status?: number;
+  evidence_sha256?: string;
+  checked_at?: string;
+  cta_rendered: boolean;
+}
 
 export interface ReleaseReceipt {
   schema: "website-bot.release-receipt/v2";
@@ -38,6 +61,7 @@ export interface ReleaseReceipt {
     seo_baseline: EvidenceGateStatus;
     visual_qa: EvidenceGateStatus;
   };
+  lead_capture?: LeadCaptureReceipt;
   created_at: string;
   finalized_at?: string;
 }
@@ -52,6 +76,14 @@ const GATES = new Set<ReleaseGate>([
   "github_publication",
   "vercel_deployment",
   "visual_qa",
+  "lead_capture",
+]);
+const LEAD_STATUSES = new Set<LeadCaptureReceiptStatus>([
+  "verified",
+  "not_configured",
+  "failed",
+  "skipped",
+  "unverified",
 ]);
 
 function validateReceiptIdentity(receipt: Partial<ReleaseReceipt>): void {
@@ -106,6 +138,31 @@ function validateReceiptQa(receipt: Partial<ReleaseReceipt>): void {
   }
 }
 
+function validateReceiptLeadCapture(receipt: Partial<ReleaseReceipt>): void {
+  const lead = receipt.lead_capture;
+  if (lead === undefined) return;
+  if (!lead || typeof lead !== "object") throw new Error("release receipt lead_capture is invalid");
+  if (!LEAD_STATUSES.has(lead.status) || !["test_submission", "none"].includes(lead.method))
+    throw new Error("release receipt lead_capture status or method is invalid");
+  if (typeof lead.cta_rendered !== "boolean")
+    throw new Error("release receipt lead_capture.cta_rendered is invalid");
+  if (lead.endpoint_origin !== undefined && !/^https:\/\/[^/?#]+$/.test(lead.endpoint_origin))
+    throw new Error("release receipt lead_capture endpoint must be an HTTPS origin");
+  if (lead.evidence_sha256 !== undefined && !SHA256.test(lead.evidence_sha256))
+    throw new Error("release receipt lead_capture evidence digest is invalid");
+  if (lead.checked_at !== undefined && Number.isNaN(Date.parse(lead.checked_at)))
+    throw new Error("release receipt lead_capture checked_at is invalid");
+  if (lead.status === "verified" && (!lead.evidence_sha256 || lead.method !== "test_submission"))
+    throw new Error("verified lead capture requires test-submission evidence");
+  // A live CTA without verification can never be a clean release.
+  if (lead.cta_rendered && lead.status !== "verified") {
+    if (receipt.status === "succeeded")
+      throw new Error("succeeded receipt cannot carry an unverified live lead form");
+    if (!receipt.missing_gates?.includes("lead_capture"))
+      throw new Error("unverified live lead form must be named as a missing lead_capture gate");
+  }
+}
+
 function validateReceiptTimestamps(receipt: Partial<ReleaseReceipt>): void {
   if (!receipt.created_at || Number.isNaN(Date.parse(receipt.created_at)))
     throw new Error("release receipt created_at is invalid");
@@ -147,6 +204,7 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
   validateReceiptEvidence(receipt);
   validateReceiptCorrelation(receipt);
   validateReceiptQa(receipt);
+  validateReceiptLeadCapture(receipt);
   validateReceiptTimestamps(receipt);
   validateReceiptStatusConsistency(receipt);
 }
