@@ -29,4 +29,7 @@ seo_contract:
     - drain cleaning raleigh
   site_url: replay-plumbing.example
   phone: "(919) 555-0100"
-  lead_form_action: https://formspree.io/f/replay-fixture
+  # Reserved .example host (RFC 2606). The replay preload already answers it
+  # with the committed donor page, so the lead check's test submission stays
+  # inside the recorded boundary.
+  lead_form_action: https://replay-plumbing.example/f/replay-fixture
