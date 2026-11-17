@@ -15,6 +15,13 @@ import {
   buildFactoryExecutionPlan,
   executeFactoryPlan,
 } from "../src/pipeline/FactoryExecutionPlan.js";
+import {
+  parseResumeArgument,
+  type ResumeTarget,
+  resolveResumeTarget,
+  specDigest,
+} from "../src/pipeline/ResumeTarget.js";
+import { SpendLedger } from "../src/pipeline/SpendLedger.js";
 import { validateDomainSpec } from "../src/pipeline/validateDomainSpec.js";
 import { createWebsiteFactoryLLM } from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
@@ -51,7 +58,16 @@ await hydrateSecretsIfConfigured();
 const arguments_ = process.argv.slice(2);
 const argValue = (name: string): string | undefined =>
   arguments_.find((argument) => argument.startsWith(`--${name}=`))?.slice(name.length + 3);
-const explicitMode = argValue("mode");
+// --resume <buildId> (also --resume=<id>, legacy --resume --build-id=<id>):
+// reload the build's spec, mode and intent from its persisted economics record
+// and continue from the first stage the build did not complete.
+const resumeBuildId = parseResumeArgument(arguments_);
+const resume = resumeBuildId !== undefined;
+const evidenceDir = argValue("evidence-dir");
+const resumeTarget: ResumeTarget | undefined = resumeBuildId
+  ? resolveResumeTarget({ buildId: resumeBuildId, evidenceDir })
+  : undefined;
+const explicitMode = argValue("mode") ?? resumeTarget?.economics.mode;
 const dryRunFlag = arguments_.includes("--dry-run");
 const validModes: ExecutionMode[] = ["plan", "local-proof", "publish-proof", "end-to-end"];
 if (explicitMode && !validModes.includes(explicitMode as ExecutionMode))
@@ -62,12 +78,24 @@ const mode: ExecutionMode = dryRunFlag
   ? "plan"
   : ((explicitMode as ExecutionMode | undefined) ?? "end-to-end");
 const dryRun = mode === "plan";
-const resume = arguments_.includes("--resume");
 if (resume && dryRun) throw new Error("--resume cannot be used in plan mode");
-const explicitBuildId = argValue("build-id");
-if (resume && !explicitBuildId) throw new Error("--resume requires --build-id=<existing-build-id>");
+const explicitBuildId = resumeBuildId ?? argValue("build-id");
+// Per-build spend cap (USD, all classes). On resume, omitted keeps the cap the
+// build was started with; an explicit value is a deliberate re-cap.
+const budgetArg = argValue("budget-usd") ?? process.env.BUILD_BUDGET_USD;
+const budgetUsd = budgetArg === undefined || budgetArg === "" ? undefined : Number(budgetArg);
+if (budgetUsd !== undefined && (!Number.isFinite(budgetUsd) || budgetUsd <= 0))
+  throw new Error("--budget-usd must be a positive number");
+const dataforseoReserveArg = argValue("dataforseo-reserve-usd");
+const dataforseoReserve =
+  dataforseoReserveArg === undefined ? undefined : Number(dataforseoReserveArg);
+if (
+  dataforseoReserve !== undefined &&
+  (!Number.isFinite(dataforseoReserve) || dataforseoReserve < 0)
+)
+  throw new Error("--dataforseo-reserve-usd must be a non-negative number");
 const autoRegisterSeoBot = arguments_.includes("--auto-register-seo-bot");
-const explicitSpec = argValue("spec");
+const explicitSpec = argValue("spec") ?? resumeTarget?.economics.spec_path;
 const specPath = explicitSpec ?? "examples/supplemental-insurance-pros/domain_spec.normalized.yaml";
 const skipArg = argValue("skip");
 const skipStages = skipArg
@@ -77,7 +105,6 @@ const skipStages = skipArg
       .filter(Boolean)
   : [];
 const requestedOutputDir = argValue("output-dir") ?? process.env.SITE_OUTPUT_DIR ?? "";
-const evidenceDir = argValue("evidence-dir");
 const provisionRequested = arguments_.includes("--provision");
 const noPersistProvision = arguments_.includes("--no-persist-provision");
 const noRollbackProvision = arguments_.includes("--no-rollback-provision");
@@ -85,7 +112,8 @@ const noRollbackProvision = arguments_.includes("--no-rollback-provision");
 // Campaign 7 R2: --redesign marks this invocation as a redesign product
 // surface. On that surface a missing/COPY intent fails closed
 // (BUILD_INTENT_REQUIRED) instead of resolving to the legacy COPY default.
-const redesignSurface = arguments_.includes("--redesign");
+const redesignSurface =
+  arguments_.includes("--redesign") || resumeTarget?.economics.build_intent === "REDESIGN_IMPROVE";
 
 // Safe Haven Golden evidence export. Entirely opt-in and all-or-none: ordinary
 // COPY and REDESIGN runs never emit Golden-specific evidence, and a partially
@@ -118,7 +146,8 @@ if (goldenRequested) {
     throw new Error("Golden export refuses to run while GOLDEN_CALIBRATION_MODE is set");
 }
 
-const bootstrapSpec = validateDomainSpec(parse(readFileSync(specPath, "utf-8")), specPath);
+const parsedSpec: unknown = parse(readFileSync(specPath, "utf-8"));
+const bootstrapSpec = validateDomainSpec(parsedSpec, specPath);
 if (process.env.CLIENT_ID && process.env.CLIENT_ID !== bootstrapSpec.client_id) {
   throw new Error(
     `CLIENT_ID (${process.env.CLIENT_ID}) does not match spec client_id (${bootstrapSpec.client_id})`,
@@ -132,7 +161,7 @@ const evidenceStore = dryRun
       clientId,
       buildId,
       mode,
-      rootDir: evidenceDir ? resolve(evidenceDir) : undefined,
+      rootDir: resumeTarget?.rootDir ?? (evidenceDir ? resolve(evidenceDir) : undefined),
     });
 const evidenceIndex = await evidenceStore.initialize();
 
@@ -141,7 +170,37 @@ if (dryRun)
   console.log(
     "[PLAN MODE] No generated files, runtime evidence files, or external mutations will be performed",
   );
-if (resume) console.log(`[RESUME MODE] Reusing verified evidence for build ${buildId}`);
+const buildIntent = redesignSurface
+  ? requireRedesignIntent(bootstrapSpec.build_intent, "run-pipeline --redesign")
+  : parseBuildIntent(bootstrapSpec.build_intent);
+const spendLedger = dryRun
+  ? undefined
+  : SpendLedger.open({
+      buildId,
+      clientId,
+      mode,
+      buildIntent,
+      specPath,
+      specDigest: specDigest(parsedSpec),
+      rootDir: evidenceStore.rootDir,
+      capUsd: budgetUsd,
+      resume,
+      reserves: dataforseoReserve === undefined ? undefined : { dataforseo: dataforseoReserve },
+    });
+if (resume)
+  console.log(
+    `[RESUME MODE] Build ${buildId}: reusing verified checkpoints; spent $${spendLedger?.spentUsd.toFixed(4)} of cap $${spendLedger?.capUsd.toFixed(2)}`,
+  );
+// The LLM adapter's own allowance is sized to what remains of the build cap,
+// so its in-call reservation check can never authorize spend the ledger lacks.
+const llmEnv = { ...process.env };
+if (spendLedger) {
+  const configured = Number(process.env.LLM_BUILD_BUDGET_USD);
+  const remaining = Math.max(spendLedger.remainingUsd, 0.000001);
+  llmEnv.LLM_BUILD_BUDGET_USD = String(
+    Number.isFinite(configured) && configured > 0 ? Math.min(configured, remaining) : remaining,
+  );
+}
 
 const ctx: BuildContext = {
   buildId,
@@ -150,14 +209,13 @@ const ctx: BuildContext = {
   dryRun,
   mode,
   autoRegisterSeoBot,
-  buildIntent: redesignSurface
-    ? requireRedesignIntent(bootstrapSpec.build_intent, "run-pipeline --redesign")
-    : parseBuildIntent(bootstrapSpec.build_intent),
-  llm: createWebsiteFactoryLLM(clientId),
+  buildIntent,
+  llm: createWebsiteFactoryLLM(clientId, { env: llmEnv }),
   outputDir: requestedOutputDir,
   evidenceStore,
   evidenceIndex,
   resume,
+  spendLedger,
   qualityEvidence: { seoBaseline: "pending", visualQa: "pending" },
   generatedContent: new Map(),
   generatedSchemas: new Map(),
@@ -247,5 +305,16 @@ try {
   if (receipt) console.log(`Receipt: ${receipt.value.receipt_id} (${receipt.value.status})`);
 } catch (error) {
   console.error(`Pipeline FAILED: ${error instanceof Error ? error.message : String(error)}`);
+  if (!dryRun)
+    console.error(
+      `Resume after fixing the cause: npm run pipeline -- --resume ${buildId}${evidenceDir ? ` --evidence-dir=${evidenceDir}` : ""}`,
+    );
   process.exitCode = 1;
+} finally {
+  if (spendLedger) {
+    const economics = spendLedger.snapshot;
+    console.log(
+      `Build economics: $${economics.totals.spend_usd.toFixed(4)} of $${economics.cap_usd.toFixed(2)} (dataforseo $${economics.totals.by_class.dataforseo.toFixed(4)}, llm $${economics.totals.by_class.llm.toFixed(4)}, images $${economics.totals.by_class.images.toFixed(4)}) at ${ctx.evidenceStore.rootDir}/build-economics.json`,
+    );
+  }
 }

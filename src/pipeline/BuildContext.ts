@@ -28,6 +28,7 @@ import type { ImageAssetPlan } from "./evidence/ImageAssetPlan.js";
 import type { PublicationEvidence } from "./evidence/PublicationEvidence.js";
 import type { EvidenceGateStatus, ReleaseReceipt } from "./evidence/ReleaseReceipt.js";
 import type { SourceSiteManifest } from "./evidence/SourceSiteManifest.js";
+import type { SpendLedger } from "./SpendLedger.js";
 
 export type ExecutionMode = "plan" | "local-proof" | "publish-proof" | "end-to-end";
 
@@ -306,6 +307,13 @@ export interface BuildContext {
   evidenceStore: EvidenceStore;
   evidenceIndex: EvidenceIndex;
   resume: boolean;
+  /**
+   * Persisted per-build spend ledger (build-economics.json). When present the
+   * runner admits every paid call/stage against the build cap and enforces
+   * strict resume (fail closed on missing/corrupt checkpoints). Absent for
+   * plan mode and for callers that drive the runner directly.
+   */
+  spendLedger?: SpendLedger;
   qualityEvidence: QualityEvidence;
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
