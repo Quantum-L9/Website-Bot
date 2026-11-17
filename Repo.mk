@@ -60,7 +60,8 @@ repo-test: ## Unit and local integration suites (site-factory local scope)
         verify verify-all verify-preflight verify-source verify-build verify-smoke \
         verify-form verify-analytics verify-crm verify-seo verify-rollback \
         verify-launch-env verify-visual-qa \
-        site-test site-test-local evidence-validate evidence-show clean workspace-clean
+        site-test site-test-local evidence-validate evidence-show clean workspace-clean \
+        website
 
 commands:
 	@printf '%s\n' 'L9 Website Factory Bot — command surface'
@@ -73,6 +74,10 @@ commands:
 	@printf '%s\n' ''
 	@printf '%s\n' '── Setup ──'
 	@printf '%-30s %s\n' 'make install' 'Install dependencies (npm ci)'
+	@printf '%s\n' ''
+	@printf '%s\n' '── Front door (preflight, then pipeline) ──'
+	@printf '%-30s %s\n' 'make website SPEC=<path>' 'Preflight every key/service/budget in seconds, then run (MODE=local-proof|publish-proof|end-to-end)'
+	@printf '%-30s %s\n' '' 'PREFLIGHT_ONLY=1 checks without running; ARGS forwards to run-pipeline'
 	@printf '%s\n' ''
 	@printf '%s\n' '── Pipeline (DomainSpec → site) ──'
 	@printf '%-30s %s\n' 'make pipeline-plan' 'Dry-run: converge all stages, no files/mutations (no keys)'
@@ -117,6 +122,12 @@ pipeline-publish-proof:
 
 pipeline-end-to-end:
 	npm run pipeline:end-to-end -- $(ARGS)
+
+# ── Front door ── fail-closed preflight before any spend, then the pipeline.
+MODE ?= local-proof
+website:
+	@if [ -z "$(SPEC)" ]; then echo "usage: make website SPEC=<path> [MODE=local-proof|publish-proof|end-to-end] [PREFLIGHT_ONLY=1]" >&2; exit 2; fi
+	npm run website -- --spec=$(SPEC) --mode=$(MODE) $(if $(PREFLIGHT_ONLY),--preflight-only) $(ARGS)
 
 # ── Spec & provisioning ──
 generate-spec:
