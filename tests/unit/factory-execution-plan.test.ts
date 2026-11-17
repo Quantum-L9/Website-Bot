@@ -48,6 +48,7 @@ test("end-to-end plan owns the complete proof-gated topology", () => {
     "image-asset-planning",
     "image-generation",
     "placeholder-scan",
+    "lead-endpoint-verification",
     "site-assembler",
     "image-validation",
     "posthog-snippet",
@@ -173,4 +174,43 @@ test("COPY intent (legacy default) keeps the original stage topology", () => {
   const names = plan.stages.map((stage) => stage.name);
   assert.equal(names.includes("competitive-intelligence"), false);
   assert.equal(names.includes("seo-build-intelligence-preflight"), false);
+});
+
+test("lead capture is verified after inputs exist and before assembly and the receipt", () => {
+  for (const mode of ["plan", "local-proof", "publish-proof", "end-to-end"] as const) {
+    const names = buildFactoryExecutionPlan({
+      mode,
+      specPath: "fixtures/ci-test-spec.yaml",
+    }).stages.map((stage) => stage.name);
+    const at = (name: string) => names.indexOf(name);
+    assert.ok(at("lead-endpoint-verification") > at("placeholder-scan"), mode);
+    assert.equal(at("lead-endpoint-verification"), at("site-assembler") - 1, mode);
+    assert.ok(at("lead-endpoint-verification") < at("release-receipt"), mode);
+  }
+});
+
+test("publish-proof deploys a preview only when a Vercel token is present", () => {
+  const previous = process.env.VERCEL_TOKEN;
+  const namesFor = () =>
+    buildFactoryExecutionPlan({
+      mode: "publish-proof",
+      specPath: "fixtures/ci-test-spec.yaml",
+    }).stages.map((stage) => stage.name);
+  try {
+    delete process.env.VERCEL_TOKEN;
+    assert.equal(namesFor().includes("vercel-deploy"), false);
+    process.env.VERCEL_TOKEN = "fake-token-for-plan-shape";
+    const names = namesFor();
+    assert.ok(names.indexOf("client-source-publish") < names.indexOf("vercel-deploy"));
+    assert.ok(names.indexOf("vercel-deploy") < names.indexOf("release-receipt"));
+    // Never a mandatory stage: a credential-less publish-proof still converges.
+    const plan = buildFactoryExecutionPlan({
+      mode: "publish-proof",
+      specPath: "fixtures/ci-test-spec.yaml",
+    });
+    assert.equal(plan.mandatoryStages.includes("vercel-deploy"), false);
+  } finally {
+    if (previous === undefined) delete process.env.VERCEL_TOKEN;
+    else process.env.VERCEL_TOKEN = previous;
+  }
 });

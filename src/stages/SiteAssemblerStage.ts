@@ -62,6 +62,7 @@ import {
   validateRouteContracts,
   writeAssemblyManifest,
 } from "../validation/validate-generated-site.js";
+import { verifiedLeadFormAction } from "./LeadEndpointVerificationStage.js";
 import {
   type JoinedRedesignRoute,
   joinRedesignRoutes,
@@ -1189,10 +1190,18 @@ export class SiteAssemblerStage implements Stage {
     }
   }
 
+  /**
+   * The configured action reaches the page only with this build's passing
+   * lead-capture verification evidence; otherwise LeadForm and the primary
+   * CTA fall back to the honest non-submitting contact-availability section.
+   */
   private leadFormAction(ctx: BuildContext): string | undefined {
-    return normalizeHttpsUrl(
-      ctx.domainSpec.seo_contract?.lead_form_action,
-      "seo_contract.lead_form_action",
+    return verifiedLeadFormAction(
+      ctx,
+      normalizeHttpsUrl(
+        ctx.domainSpec.seo_contract?.lead_form_action,
+        "seo_contract.lead_form_action",
+      ),
     );
   }
 

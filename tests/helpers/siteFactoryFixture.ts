@@ -12,6 +12,10 @@ import type { BuildProof } from "../../src/pipeline/evidence/BuildProof.js";
 import type { DeploymentEvidence } from "../../src/pipeline/evidence/DeploymentEvidence.js";
 import { FileEvidenceStore } from "../../src/pipeline/evidence/FileEvidenceStore.js";
 import type { PublicationEvidence } from "../../src/pipeline/evidence/PublicationEvidence.js";
+import {
+  LEAD_TEST_MARKER,
+  leadCaptureDigest,
+} from "../../src/stages/LeadEndpointVerificationStage.js";
 
 export function fixtureSpec(overrides: Partial<DomainSpec> = {}): DomainSpec {
   return {
@@ -217,6 +221,33 @@ export function fixtureDeploymentEvidence(
     target: "preview",
     status: "passed",
   };
+}
+
+/**
+ * Passing lead-capture verification evidence, exactly as
+ * LeadEndpointVerificationStage records it after a receiver accepts the test
+ * submission. Fixtures that configure seo_contract.lead_form_action and expect
+ * a live CTA call this; without it the assembler renders the honest
+ * contact-availability section. No-op when no action is configured.
+ */
+export function attachVerifiedLeadCapture(ctx: BuildContext): BuildContext {
+  const action = ctx.domainSpec.seo_contract?.lead_form_action?.trim();
+  if (!action) return ctx;
+  const body = {
+    schema: "website-bot.lead-capture-verification/v1" as const,
+    buildId: ctx.buildId,
+    clientId: ctx.clientId,
+    status: "verified" as const,
+    method: "test_submission" as const,
+    endpoint: action,
+    endpointOrigin: new URL(action).origin,
+    httpStatus: 200,
+    reason: "endpoint accepted a test submission (fixture)",
+    testMarker: LEAD_TEST_MARKER,
+    checkedAt: "2026-07-20T00:00:00.000Z",
+  };
+  ctx.leadCaptureVerification = { ...body, digest: leadCaptureDigest(body) };
+  return ctx;
 }
 
 export function cleanupContext(ctx: BuildContext): void {
