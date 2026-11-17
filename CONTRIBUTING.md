@@ -40,8 +40,9 @@ All pull requests must pass:
 
 | Gate | Tool | Kernel |
 |---|---|---|
-| Lint + type-check | ruff, mypy (Python) / tsc (TypeScript) | `pr-pipeline.yml@v1` |
-| Unit tests | pytest (Python) / Jest (TypeScript) | `pr-pipeline.yml@v1` |
+| Organization analysis (required) | `Analyze (central Core)` | Core `org-ci.yml` via the org ruleset (no caller in this repo) |
+| Lint + type-check | tsc (TypeScript) | `.github/workflows/l9-lint-test.yml`, `l9-lint-test-node.yml` |
+| Factory tests | `site:test:local`, `pipeline:plan`, `site:validate:build` | `.github/workflows/ci.yml` (Gate 5) |
 | Secret scan | gitleaks | `security.yml@v1` |
 | SAST | Bandit + Semgrep (Python) | `security.yml@v1` |
 | Dependency audit | pip-audit / npm audit | `security.yml@v1` |
