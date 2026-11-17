@@ -254,9 +254,14 @@ test("canonical reference source compiles exactly to its committed v1.1 IR", () 
 });
 
 test("legacy v1.0 source remains compilable without a value proposition block", () => {
+  // The Quantum example moved to v1.1 (it now carries a value_proposition), so
+  // the legacy input is derived from it: same real spec, v1.0 version, block
+  // removed. That keeps this a v1.0 regression rather than a v1.1 one.
   const source = parse(
     readFileSync("examples/quantum-ai-partners/domain_spec.source.yaml", "utf-8"),
   );
+  source.domain_spec.metadata.version = "1.0.0";
+  delete source.domain_spec.value_proposition;
   const flat = buildFlatSpec(source);
   assert.equal(flat.value_proposition, undefined);
   assert.ok(flat.business_facts && Object.keys(flat.business_facts).length > 0);
