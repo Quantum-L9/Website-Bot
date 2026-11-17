@@ -1,4 +1,4 @@
-// L9_META: layer=stage, role=release_receipt_finalizer, stage_index=15, status=active, version=1.1.0
+// L9_META: layer=stage, role=release_receipt_finalizer, stage_index=15, status=active, version=1.2.0
 import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
@@ -9,7 +9,7 @@ const logger = createModuleLogger("stage:release-receipt-finalizer");
 
 export class ReleaseReceiptFinalizerStage implements Stage {
   name = "release-receipt-finalizer";
-  version = "1.1.0";
+  version = "1.2.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [
       "assembly" as const,
@@ -32,6 +32,13 @@ export class ReleaseReceiptFinalizerStage implements Stage {
       throw new BuildError(
         "RELEASE_EVIDENCE_INCOMPLETE",
         `Release cannot finalize because visual QA is ${ctx.qualityEvidence.visualQa}`,
+      );
+    }
+    const lead = receipt.lead_capture;
+    if (lead?.cta_rendered && lead.status !== "verified") {
+      throw new BuildError(
+        "RELEASE_EVIDENCE_INCOMPLETE",
+        `Release cannot finalize because the site renders a live lead form whose endpoint is ${lead.status}`,
       );
     }
     if (!receipt.correlation.all_required_identities_match) {
