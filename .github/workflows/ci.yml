@@ -14,19 +14,16 @@ permissions:
   packages: read
 
 jobs:
-  ci:
-    # pr-pipeline.yml declares no workflow_call secrets; passing one makes
-    # GitHub reject this caller at startup (zero jobs). The pipeline
-    # authenticates npm to the @quantum-l9 registry with its own
-    # GITHUB_TOKEN (packages: read), so no secret is needed here.
-    uses: Quantum-L9/l9-ci-core/.github/workflows/pr-pipeline.yml@373bb6d26084e67ef76aaab95021364182a34ee7
-
+  # No l9-ci-core caller lives here (l9-ci-sdk ADR-0016). Organization
+  # analysis is the org ruleset's Core main org-ci.yml (required check
+  # "Analyze (central Core)"); lint and tsc run in l9-lint-test.yml and
+  # l9-lint-test-node.yml.
+  #
   # Gate 5 analogue of SEO-Bot's live Postgres + Redis job on ci.yml.
-  # Website-Bot has no compose plane: better-sqlite3 is in-process. The
-  # reusable pr-pipeline job above is generic TS. Factory-local tests that
-  # actually open SQLite and assemble a site live in `site:test:local` and
-  # `pipeline:plan`. Without this sibling, a green `CI` check can mean
-  # "l9-ci-core passed" while the factory never ran under this workflow name.
+  # Website-Bot has no compose plane: better-sqlite3 is in-process.
+  # Factory-local tests that actually open SQLite and assemble a site live
+  # in `site:test:local` and `pipeline:plan`; this job is what makes a green
+  # `CI` check mean the factory ran under this workflow name.
   # `run-site-factory-tests.mjs` already fail-closes on an empty file list
   # (same skip-killer as SEO-Bot LIVE_SERVICES_REQUIRED=1).
   gate5:
