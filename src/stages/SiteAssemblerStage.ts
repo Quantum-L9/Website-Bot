@@ -21,6 +21,7 @@ import {
   type SectionLayoutVariant,
   type StructuredSectionView,
 } from "../../astro_template/src/components/SectionRegistry.js";
+import { isConceptualIllustration } from "../../astro_template/src/lib/conceptualIllustrations.js";
 import { createModuleLogger } from "../core/logger.js";
 import { slotsForSpecComponent } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
 import type {
@@ -29,10 +30,12 @@ import type {
   DomainSpec,
   ProvidedImageSpec,
   SiteConfig,
+  SiteIllustrationEntry,
   SiteImageEntry,
 } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
+import { staticIllustrationAssets } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import {
@@ -282,7 +285,7 @@ function actionKey(value: string): string {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.7.0";
+  version = "3.8.0";
   evidence = {
     // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -813,8 +816,52 @@ export class SiteAssemblerStage implements Stage {
         firstSourcePhone(ctx.sourceSiteManifest) ||
         "",
       images: this.buildImageRegistry(ctx),
+      illustrations: this.buildIllustrationRegistry(ctx),
       galleryImages: this.buildGalleryRegistry(ctx),
     };
+  }
+
+  /**
+   * Static conceptual illustrations keyed by placement (operator decision D1):
+   * every plan entry the planner filled with the built-in illustration. The
+   * template renders them as inline SVG, so nothing is copied into
+   * public/images. An illustration the template does not ship fails assembly.
+   */
+  private buildIllustrationRegistry(ctx: BuildContext): Record<string, SiteIllustrationEntry> {
+    const registry: Record<string, SiteIllustrationEntry> = {};
+    for (const asset of staticIllustrationAssets(ctx.imageAssetPlan)) {
+      const { illustrationId } = asset.resolution;
+      if (!isConceptualIllustration(illustrationId)) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `illustration-unknown: ${asset.placement} is planned as static illustration ${JSON.stringify(illustrationId)}, which the template does not ship`,
+        );
+      }
+      registry[asset.placement] = { illustrationId, source: "static-illustration" };
+    }
+    return registry;
+  }
+
+  /**
+   * A placement filled by a static illustration is shown only by Hero.astro,
+   * so its route must render a hero section; otherwise the slot would count as
+   * filled while nothing shows it.
+   */
+  private assertIllustrationsRenderable(
+    config: SiteConfig,
+    sectionsByRoute: Map<string, ReadonlyArray<{ name: string }>>,
+  ): void {
+    for (const placement of Object.keys(config.illustrations ?? {})) {
+      const route = routeSlugFromPlacement(placement);
+      const sections =
+        route === undefined ? undefined : sectionsByRoute.get(normalizeRouteSlug(route));
+      if (!sections?.some((section) => section.name === "hero")) {
+        throw new BuildError(
+          "SITE_ASSEMBLY_FAILED",
+          `illustration-unbound: ${placement} is filled by a static illustration but its route renders no hero section`,
+        );
+      }
+    }
   }
 
   /**
@@ -1282,6 +1329,7 @@ export const siteConfig = {
   leadFormAction: ${json(config.leadFormAction ?? "")} as string,
   phone: ${json(config.phone ?? "")} as string,
   primaryCta: ${json(this.primaryCta(ctx))} as { label: string; href: string } | null,
+  illustrations: ${json(config.illustrations ?? {})} as Record<string, { illustrationId: string; source: string }>,
 };
 `,
     );
@@ -1304,19 +1352,17 @@ export const siteConfig = {
       this.writeRedesignPages(ctx, config, heads, write);
       return;
     }
-    const imageBindings = this.bindSectionImages(
-      ctx,
-      config,
-      new Map(
-        ctx.domainSpec.routes.map((route) => [
-          normalizeRouteSlug(route.slug),
-          route.components.map((component) => ({
-            name: normalizeComponentName(component),
-            component,
-          })),
-        ]),
-      ),
+    const routeTargets = new Map(
+      ctx.domainSpec.routes.map((route) => [
+        normalizeRouteSlug(route.slug),
+        route.components.map((component) => ({
+          name: normalizeComponentName(component),
+          component,
+        })),
+      ]),
     );
+    this.assertIllustrationsRenderable(config, routeTargets);
+    const imageBindings = this.bindSectionImages(ctx, config, routeTargets);
     for (const [index, route] of ctx.domainSpec.routes.entries()) {
       const slug = normalizeRouteSlug(route.slug);
       const head = heads[index];
@@ -1377,6 +1423,10 @@ export const siteConfig = {
     write: (path: string, content: string) => void,
   ): void {
     const plans = this.redesignPlans(ctx);
+    this.assertIllustrationsRenderable(
+      config,
+      new Map(plans.map((plan) => [plan.slug, plan.sections])),
+    );
     const imageBindings = this.bindSectionImages(
       ctx,
       config,

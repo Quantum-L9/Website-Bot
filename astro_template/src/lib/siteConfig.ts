@@ -19,4 +19,5 @@ export const siteConfig = {
     string,
     { src: string; alt: string; width: number; height: number; source: string }
   >,
+  illustrations: {} as Record<string, { illustrationId: string; source: string }>,
 } as const;

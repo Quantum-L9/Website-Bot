@@ -7,13 +7,20 @@
 // source-site image must carry a republishable disposition — no unauthorized
 // republication of a crawled asset. Provenance warnings are surfaced onto the build
 // context for release evidence, and missing alt text is reported as advisory. A
-// no-op when the site declares no images. Never touches the network.
+// required slot the planner filled with the built-in static conceptual
+// illustration (operator decision D1) has no file: it must instead be the home
+// hero and must have reached the delivered siteConfig illustrations. A no-op
+// when the site declares no images. Never touches the network.
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
+import {
+  STATIC_ILLUSTRATION_PLACEMENT,
+  staticIllustrationAssets,
+} from "../pipeline/evidence/ImageAssetPlan.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 
 const logger = createModuleLogger("stage:image-validation");
@@ -21,7 +28,7 @@ const SHA256 = /^[a-f0-9]{64}$/;
 
 export class ImageValidationStage implements Stage {
   name = "image-validation";
-  version = "2.0.0";
+  version = "2.1.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],
@@ -33,10 +40,19 @@ export class ImageValidationStage implements Stage {
     const slots = ctx.domainSpec.assets?.imageSlots ?? [];
     const images = ctx.siteConfig?.images ?? {};
     const placements = Object.keys(images);
+    const illustrated = staticIllustrationAssets(ctx.imageAssetPlan);
+    // Delivered illustrations count too: an illustration-only delivery must
+    // still reach checkIllustrations, which rejects one that was never planned.
+    const deliveredIllustrations = Object.keys(ctx.siteConfig?.illustrations ?? {});
 
     this.assertRequiredSlotsResolved(ctx);
 
-    if (placements.length === 0 && slots.length === 0) {
+    if (
+      placements.length === 0 &&
+      slots.length === 0 &&
+      illustrated.length === 0 &&
+      deliveredIllustrations.length === 0
+    ) {
       logger.info("No site images to validate");
       return;
     }
@@ -46,6 +62,7 @@ export class ImageValidationStage implements Stage {
     }
 
     const critical = this.collectCriticalIssues(ctx, slots, images);
+    this.checkIllustrations(ctx, illustrated, critical);
     const stored = await ctx.evidenceStore.readImageAssets();
     this.checkEvidenceParity(slots, images, stored, critical);
 
@@ -85,9 +102,17 @@ export class ImageValidationStage implements Stage {
   ): string[] {
     const critical: string[] = [];
 
-    // Every required slot must have reached the delivered site config.
+    // Every required slot must have reached the delivered site config, as an
+    // image file or (home hero only) as a planned static illustration.
+    const illustrations = ctx.siteConfig?.illustrations ?? {};
+    const illustratedPlacements = new Set(
+      staticIllustrationAssets(ctx.imageAssetPlan).map((asset) => asset.placement),
+    );
     for (const slot of slots) {
-      if (slot.required && !images[slot.placement])
+      const delivered =
+        images[slot.placement] !== undefined ||
+        (illustratedPlacements.has(slot.placement) && illustrations[slot.placement] !== undefined);
+      if (slot.required && !delivered)
         critical.push(`required slot not delivered: ${slot.id} (${slot.placement})`);
     }
 
@@ -101,6 +126,49 @@ export class ImageValidationStage implements Stage {
     }
 
     return critical;
+  }
+
+  /**
+   * A static illustration is valid only for the home hero, only where no image
+   * file was delivered for that placement, and only once assembly delivered it
+   * into siteConfig with the planned illustration id. It has no file, so no
+   * file or digest check applies.
+   */
+  private checkIllustrations(
+    ctx: BuildContext,
+    illustrated: ReturnType<typeof staticIllustrationAssets>,
+    critical: string[],
+  ): void {
+    const delivered = ctx.siteConfig?.illustrations ?? {};
+    const images = ctx.siteConfig?.images ?? {};
+    for (const asset of illustrated) {
+      if (asset.placement !== STATIC_ILLUSTRATION_PLACEMENT) {
+        critical.push(
+          `static illustration outside the home hero: ${asset.slotId} (${asset.placement})`,
+        );
+        continue;
+      }
+      if (images[asset.placement]) {
+        critical.push(
+          `static illustration ${asset.placement} also delivered an image file; a slot has one source`,
+        );
+      }
+      const entry = delivered[asset.placement];
+      if (!entry) {
+        critical.push(`static illustration not delivered: ${asset.slotId} (${asset.placement})`);
+      } else if (
+        entry.illustrationId !== asset.resolution.illustrationId ||
+        entry.source !== "static-illustration"
+      ) {
+        critical.push(
+          `static illustration mismatch for ${asset.placement}: plan ${asset.resolution.illustrationId} vs site ${entry.illustrationId}`,
+        );
+      }
+    }
+    for (const placement of Object.keys(delivered)) {
+      if (!illustrated.some((asset) => asset.placement === placement))
+        critical.push(`delivered static illustration ${placement} was never planned`);
+    }
   }
 
   private checkEvidenceParity(

@@ -233,10 +233,16 @@ void test("an authorized source photo outranks generation for a hero slot", asyn
 void test("required slots below 100% fail closed with VISUAL_ASSET_REQUIREMENT_UNSATISFIED", async () => {
   const dir = mkdtempSync(join(tmpdir(), "c7-visual-"));
   const landscape = makeLandscape();
+  // Operator decision D1: a required home hero with no candidate is filled by
+  // the built-in static conceptual illustration, so the unsatisfiable slot here
+  // is a required factual one (trust), which is never illustrated or generated.
   const blueprint = makeWebsiteBlueprint(landscape, {
-    visual_requirements: deriveVisualRequirements(BLUEPRINT_ROUTES),
+    visual_requirements: deriveVisualRequirements(BLUEPRINT_ROUTES).map((requirement) =>
+      requirement.role === "trust" ? { ...requirement, required: true } : requirement,
+    ),
   });
-  // Generation disabled and no source/provided candidates: required logo+hero unresolvable.
+  // Generation disabled and no source/provided candidates: the required trust
+  // visual is unresolvable.
   const ctx = makeCtx(dir, {
     websiteBlueprint: blueprint,
     domainSpec: {
@@ -252,8 +258,13 @@ void test("required slots below 100% fail closed with VISUAL_ASSET_REQUIREMENT_U
   await assert.rejects(
     () => new ImageAssetPlanningStage().run(ctx),
     (error: unknown) =>
-      error instanceof BuildError && error.code === "VISUAL_ASSET_REQUIREMENT_UNSATISFIED",
+      error instanceof BuildError &&
+      error.code === "VISUAL_ASSET_REQUIREMENT_UNSATISFIED" &&
+      /trust/.test(error.message) &&
+      !/Required image slots could not be resolved:[^;]*\/:hero\b/.test(error.message),
   );
+  const hero = ctx.imageAssetPlan?.assets.find((asset) => asset.placement === "/:hero");
+  assert.equal(hero?.resolution.source, "static-illustration");
 });
 
 void test("image planning without a sealed blueprint fails closed under REDESIGN_IMPROVE", async () => {

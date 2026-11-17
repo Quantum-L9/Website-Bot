@@ -1,0 +1,18 @@
+---
+// Built-in static conceptual illustration (operator decision D1). Renders the
+// fixed inline SVG from the catalog with its visible "Conceptual illustration"
+// label: no script, no raster, no WebGL, no animation. An unknown id fails the
+// build rather than rendering an empty hero.
+import { conceptualIllustrationMarkup } from "../lib/conceptualIllustrations";
+
+interface Props {
+  illustrationId: string;
+  slot: string;
+}
+const { illustrationId, slot } = Astro.props;
+const markup = conceptualIllustrationMarkup(illustrationId, slot);
+if (markup === undefined) {
+  throw new Error(`Unknown conceptual illustration ${JSON.stringify(illustrationId)} for ${slot}`);
+}
+---
+<Fragment set:html={markup} />

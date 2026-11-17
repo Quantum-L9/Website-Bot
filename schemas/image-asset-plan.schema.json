@@ -27,10 +27,13 @@
       "additionalProperties": false,
       "required": ["source"],
       "properties": {
-        "source": { "enum": ["provided", "source-site", "generated", "unresolved"] },
+        "source": {
+          "enum": ["provided", "source-site", "generated", "static-illustration", "unresolved"]
+        },
         "candidate_id": { "type": "string" },
         "score": { "type": "number" },
         "reason": { "type": "string" },
+        "illustration_id": { "type": "string", "minLength": 1 },
         "compiled_brief": { "$ref": "#/$defs/brief" }
       }
     },
