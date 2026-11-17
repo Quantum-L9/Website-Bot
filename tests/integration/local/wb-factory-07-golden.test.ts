@@ -33,6 +33,7 @@ import {
   distPathForRoute,
   validateGeneratedSite,
 } from "../../../src/validation/validate-generated-site.js";
+import { attachVerifiedLeadCapture } from "../../helpers/siteFactoryFixture.js";
 
 const CLIENTS = {
   editorial: "fixtures/wb-factory-07-editorial.yaml",
@@ -96,6 +97,8 @@ async function buildClient(client: Client): Promise<Built> {
     startedAt: new Date(),
   };
   await new DesignIntelligenceStage().run(ctx);
+  // The golden CTA/form expectations assume a verified lead receiver.
+  attachVerifiedLeadCapture(ctx);
   await new SiteAssemblerStage().run(ctx);
   validateGeneratedSite(ctx.outputDir, spec.routes);
   await new SiteBuildStage().run(ctx);

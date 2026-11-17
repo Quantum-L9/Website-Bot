@@ -22,7 +22,7 @@ import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.j
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
 import { StructuredContentProjectionStage } from "../../src/stages/StructuredContentProjectionStage.js";
 import { makeRedesignAuthorities, type RedesignRouteFixture } from "../unit/redesign-fixtures.js";
-import { fixtureContext } from "./siteFactoryFixture.js";
+import { attachVerifiedLeadCapture, fixtureContext } from "./siteFactoryFixture.js";
 
 export const LEAD_FORM = "https://forms.example.com/submit";
 export const ROUTES: DomainSpec["routes"] = [
@@ -210,6 +210,8 @@ export async function redesignContext(options: RedesignFixtureOptions = {}): Pro
       cta_library: [],
     },
   } as Partial<DomainSpec>);
+  // The fixture's CTA expectations assume a verified lead receiver.
+  attachVerifiedLeadCapture(ctx);
   ctx.buildIntent = "REDESIGN_IMPROVE";
   ctx.generatedContent.clear();
   const blueprint = options.blueprint ?? BLUEPRINT;

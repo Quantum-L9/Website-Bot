@@ -63,6 +63,19 @@ test.after(() => {
   for (const path of cleanup) rmSync(path, { recursive: true, force: true });
 });
 
+/**
+ * The preview has no verified lead receiver, so its spec is the honest one:
+ * no lead_form_action, no confirmation route, and the contact form replaced by
+ * the non-submitting contact-availability section. The preview CLI must never
+ * send a test submission to a fixture endpoint (no network in tests).
+ */
+function withoutLeadCapture(text: string): string {
+  return text
+    .replace(/^ {2}lead_form_action: .*\n/m, "")
+    .replace(/^ {6}- contact-form$/m, "      - contact-availability")
+    .replace(/^ {2}- slug: \/quote\/received\n(?: {4}.*\n)+/m, "");
+}
+
 /** A throwaway copy of a fictional WB-07 fixture under build/, with its own client id. */
 function specCopy(
   fixture: "editorial" | "industrial",
@@ -72,7 +85,10 @@ function specCopy(
   const source = readFileSync(`fixtures/wb-factory-07-${fixture}.yaml`, "utf-8");
   const path = join(WORK, `${clientId}.yaml`);
   mkdirSync(WORK, { recursive: true });
-  writeFileSync(path, edit(source.replace(/^client_id: .*$/m, `client_id: ${clientId}`)));
+  writeFileSync(
+    path,
+    edit(withoutLeadCapture(source.replace(/^client_id: .*$/m, `client_id: ${clientId}`))),
+  );
   for (const dir of [
     resolve("build", "validation", clientId),
     resolve("build", "validation-evidence", clientId),
@@ -173,6 +189,11 @@ void test("a fictional spec builds and renders through the native stages into on
   assert.ok(existsSync(receipt.browser.report_path));
   for (const shot of receipt.browser.screenshots) assert.ok(existsSync(shot.path), shot.path);
   assert.ok(existsSync(join(receipt.output.dist_dir, "index.html")));
+  // Without a verified lead receiver the contact page is the honest section:
+  // no live form and no primary CTA pointing at one.
+  const contact = readFileSync(join(receipt.output.dist_dir, "contact", "index.html"), "utf-8");
+  assert.doesNotMatch(contact, /<form\b/);
+  assert.doesNotMatch(contact, /#quote/);
   assert.equal(receipt.remote_deploy, "NOT_INVOKED");
   const verified = run(PREVIEW, [`--verify=${path}`]);
   assert.equal(verified.code, 0, verified.out);

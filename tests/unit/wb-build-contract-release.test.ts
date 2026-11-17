@@ -118,6 +118,15 @@ async function assertNothingReleased(ctx: BuildContext, requests: string[]): Pro
   assert.equal(ctx.stageResults.has("client-source-publish"), false, "the publisher never ran");
 }
 
+/**
+ * The only stage allowed to mutate externally before rendered-site validation.
+ * lead-endpoint-verification probes the operator's own lead receiver with a
+ * submission marked as test, so the assembler can render a live CTA only on
+ * passing evidence. It releases nothing about the site: no source, no
+ * deployment, no handoff. Any other pre-gate mutation still fails T14.
+ */
+const PRE_GATE_EXEMPT = ["lead-endpoint-verification"] as const;
+
 const isRenderedFailure = (error: unknown): boolean =>
   error instanceof BuildError && error.code === "RENDERED_SITE_VALIDATION_FAILED";
 
@@ -137,7 +146,9 @@ void test("T14 order: in every mode and intent, nothing external runs before ren
         `${buildIntent}/${mode}: gate follows the build`,
       );
       for (const [index, stage] of plan.stages.entries()) {
-        const leaves = stage.evidence?.externalMutation === true;
+        const leaves =
+          stage.evidence?.externalMutation === true &&
+          !(PRE_GATE_EXEMPT as readonly string[]).includes(stage.name);
         const finalizes = ["release-receipt-finalizer", "handoff-emitter"].includes(stage.name);
         if (leaves || finalizes) {
           assert.ok(index > gate, `${buildIntent}/${mode}: ${stage.name} runs after the gate`);
@@ -160,6 +171,8 @@ void test("T14 order: in every mode and intent, nothing external runs before ren
       );
     }
   }
+  // The exemption list is exactly one named stage; widening it is a contract change.
+  assert.deepEqual([...PRE_GATE_EXEMPT], ["lead-endpoint-verification"]);
   // The stand-in sequence below is the production plan's own order.
   const endToEnd = buildFactoryExecutionPlan({
     mode: "end-to-end",
