@@ -10,6 +10,8 @@
     "pipeline:local-proof": "npx tsx scripts/run-pipeline.ts --mode=local-proof",
     "pipeline:publish-proof": "npx tsx scripts/run-pipeline.ts --mode=publish-proof",
     "pipeline:end-to-end": "npx tsx scripts/run-pipeline.ts --mode=end-to-end",
+    "website": "npx tsx scripts/preflight-website.ts",
+    "website:preflight": "npx tsx scripts/preflight-website.ts --preflight-only",
     "interop:build": "npm --prefix packages/bot-interop run build",
     "interop:test": "npm --prefix packages/bot-interop run verify:all",
     "pretypecheck": "npm run interop:build",
