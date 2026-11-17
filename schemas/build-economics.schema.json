@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quantum-l9:website-bot:build-economics:v1",
+  "title": "Website-Bot Build Economics",
+  "description": "Per-build spend ledger and unit economics, persisted beside the build's evidence and enforced across resumes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "build_id",
+    "client_id",
+    "mode",
+    "build_intent",
+    "spec_path",
+    "spec_digest",
+    "currency",
+    "cap_usd",
+    "totals",
+    "runs",
+    "stages",
+    "charges",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema": { "const": "website-bot.build-economics/v1" },
+    "build_id": { "type": "string", "minLength": 1 },
+    "client_id": { "type": "string", "minLength": 1 },
+    "mode": { "type": "string", "minLength": 1 },
+    "build_intent": { "type": "string", "minLength": 1 },
+    "spec_path": { "type": "string", "minLength": 1 },
+    "spec_digest": { "$ref": "#/$defs/sha256" },
+    "currency": { "const": "USD" },
+    "cap_usd": { "type": "number", "minimum": 0 },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spend_usd", "by_class", "wall_time_ms", "runs", "stage_attempts"],
+      "properties": {
+        "spend_usd": { "type": "number", "minimum": 0 },
+        "by_class": { "$ref": "#/$defs/spend_by_class" },
+        "wall_time_ms": { "type": "number", "minimum": 0 },
+        "runs": { "type": "integer", "minimum": 0 },
+        "stage_attempts": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "runs": { "type": "array", "items": { "$ref": "#/$defs/run" } },
+    "stages": { "type": "array", "items": { "$ref": "#/$defs/stage" } },
+    "charges": { "type": "array", "items": { "$ref": "#/$defs/charge" } },
+    "budget_failure": { "$ref": "#/$defs/budget_failure" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "spend_class": { "enum": ["dataforseo", "llm", "images"] },
+    "spend_by_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataforseo", "llm", "images"],
+      "properties": {
+        "dataforseo": { "type": "number", "minimum": 0 },
+        "llm": { "type": "number", "minimum": 0 },
+        "images": { "type": "number", "minimum": 0 }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run",
+        "resumed",
+        "cap_usd",
+        "status",
+        "started_at",
+        "reused_stages",
+        "refused_stages"
+      ],
+      "properties": {
+        "run": { "type": "integer", "minimum": 1 },
+        "resumed": { "type": "boolean" },
+        "cap_usd": { "type": "number", "minimum": 0 },
+        "status": { "enum": ["running", "success", "partial", "failed", "budget_exceeded"] },
+        "started_at": { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "wall_time_ms": { "type": "number", "minimum": 0 },
+        "reused_stages": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "refused_stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["stage", "reason"],
+            "properties": {
+              "stage": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "resumed_from": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "status",
+        "attempts",
+        "reuses",
+        "wall_time_ms",
+        "spend_usd",
+        "spec_digest"
+      ],
+      "properties": {
+        "stage": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["running", "completed", "failed"] },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "reuses": { "type": "integer", "minimum": 0 },
+        "wall_time_ms": { "type": "number", "minimum": 0 },
+        "spend_usd": { "$ref": "#/$defs/spend_by_class" },
+        "spec_digest": { "$ref": "#/$defs/sha256" },
+        "input_digest": { "$ref": "#/$defs/sha256" },
+        "last_error_code": { "type": "string", "minLength": 1 },
+        "completed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "charge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spend_class", "stage", "run", "amount_usd", "basis", "recorded_at"],
+      "properties": {
+        "spend_class": { "$ref": "#/$defs/spend_class" },
+        "stage": { "type": "string", "minLength": 1 },
+        "run": { "type": "integer", "minimum": 0 },
+        "amount_usd": { "type": "number", "minimum": 0 },
+        "basis": { "enum": ["provider_reported", "cache_metadata", "upper_bound"] },
+        "recorded_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "budget_failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spend_class",
+        "stage",
+        "run",
+        "requested_usd",
+        "spent_class_usd",
+        "spent_total_usd",
+        "remaining_usd",
+        "cap_usd",
+        "recorded_at"
+      ],
+      "properties": {
+        "spend_class": { "$ref": "#/$defs/spend_class" },
+        "stage": { "type": "string", "minLength": 1 },
+        "run": { "type": "integer", "minimum": 0 },
+        "requested_usd": { "type": "number", "minimum": 0 },
+        "spent_class_usd": { "type": "number", "minimum": 0 },
+        "spent_total_usd": { "type": "number", "minimum": 0 },
+        "remaining_usd": { "type": "number", "minimum": 0 },
+        "cap_usd": { "type": "number", "minimum": 0 },
+        "recorded_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

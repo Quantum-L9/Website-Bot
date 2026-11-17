@@ -66,6 +66,9 @@ export type BuildErrorCode =
   | "EVIDENCE_CHAIN_INVALID"
   | "CHECKPOINT_INVALID"
   | "RESUME_REVERIFY_FAILED"
+  | "RESUME_STATE_MISSING"
+  | "RESUME_INPUT_CHANGED"
+  | "BUDGET_EXCEEDED"
   | "HANDOFF_ACK_MISMATCH"
   | "SEO_BASELINE_FAILED"
   | "VISUAL_QA_FAILED"
@@ -155,6 +158,27 @@ export const BUILD_ERROR_POLICIES: Partial<Record<BuildErrorCode, BuildErrorPoli
     redactEvidence: false,
     remediation:
       "The built site did not render correctly in a real browser; the validation report names every failing route, viewport, and check.",
+  },
+  BUDGET_EXCEEDED: {
+    owner: "spend-ledger",
+    retry: "after-input-fix",
+    redactEvidence: false,
+    remediation:
+      "The build's cumulative spend would exceed its cap; build-economics.json names the class and amounts. Raise the cap deliberately (--budget-usd) and resume the same build, or stop.",
+  },
+  RESUME_STATE_MISSING: {
+    owner: "pipeline-runner",
+    retry: "never",
+    redactEvidence: false,
+    remediation:
+      "The build has no persisted economics/checkpoint state to resume from; start a new build identity.",
+  },
+  RESUME_INPUT_CHANGED: {
+    owner: "pipeline-runner",
+    retry: "never",
+    redactEvidence: false,
+    remediation:
+      "The spec, mode or intent differs from the one the build's completed stages were bound to; restore the original input or start a new build identity.",
   },
   HANDOFF_ACK_MISMATCH: {
     owner: "handoff-emitter",
