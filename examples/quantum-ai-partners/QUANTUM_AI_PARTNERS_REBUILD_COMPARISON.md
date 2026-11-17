@@ -9,7 +9,7 @@
 
 ## Verdict: INCONCLUSIVE
 
-The build did not reach terminal convergence. The failure is classified, evidence-backed, and upstream: the DataForSEO account rejects concurrent live-SERP tasks, and SEO-Bot's competitive-landscape call submits ten queries that collide with that limit. The factory itself (spec intake, normalizer, preflight, DeepSeek LLM, redesign stages) executed correctly up to the SEO-Bot seam. No after-build exists, so every comparison dimension that measures the built site is `UNKNOWN` / not run. **No claim of BETTER or NOT_BETTER is made.**
+The build did not reach terminal convergence. The failure is classified, evidence-backed, and upstream: the search engine behind DataForSEO's live SERP endpoint rejected one landscape query (task status `40101`, engine-side), and SEO-Bot treated that task error as fatal and non-retryable, so one query aborted the whole competitive landscape (see the correction in the failure analysis). The factory itself (spec intake, normalizer, preflight, DeepSeek LLM, redesign stages) executed correctly up to the SEO-Bot seam. No after-build exists, so every comparison dimension that measures the built site is `UNKNOWN` / not run. **No claim of BETTER or NOT_BETTER is made.**
 
 One sentence per dimension:
 
@@ -33,17 +33,20 @@ One sentence per dimension:
 
 **What failed:** `competitive-intelligence` stage — `POST /api/build-intelligence/competitive-landscape` returned 502 `DATAFORSEO_TASK_ERROR: Internal SE Server Error. (status 40101)`, identically on attempts 6 and 7 (`build/qap-run-attempt-dfseo-40101.log`, `build/qap-after-run.log`), after ~3–4 min of SERP task polling each.
 
-**Why:** A direct probe with the same canonical credentials shows the DataForSEO account itself is healthy for single tasks:
-- single-task probe → HTTP 200, `status_code 20000 Ok.` (keyword "AI consulting", location 2840);
-- ten-task batch probe → first task `20000`, remaining nine `40000 "You can set only one task at a time."`
+**Why (corrected 2026-11-17):** DataForSEO documents task status `40101` "Internal SE Server Error" as *"the requested search engine was unable to process your request and responded with an error"* ([errors appendix](https://docs.dataforseo.com/v3/appendix/errors/)): a transient condition on the search engine's side, tied to one request. SEO-Bot's DataForSEO client (`src/services/dataforseo.ts` at `1ed2748`) treated every task-level status as deterministic, so a single engine-side failure on one of the ten portfolio queries aborted the landscape, and the error did not name the query, so which query failed is `UNKNOWN` for this run.
 
-SEO-Bot submits the ten landscape queries without serialization, the account's plan allows one concurrent task, and the resulting task errors surface as `40101` inside SEO-Bot's landscape call. This also explains the earlier `401`-family failures: the first `401` was the stale seam key (`seo-bot-seam-key-drift`), the second `401`-class failure was the stale DataForSEO credential pair (`seo-bot-stale-datforseo-creds`) — both fixed by injecting canonical vault values in-process; the remaining `40101` is the concurrency limit.
+> **Correction:** the original analysis attributed `40101` to an account concurrency limit. That is not supported by the evidence:
+> - SEO-Bot already submits landscape queries **sequentially, one task per request** (`fetchPendingQueries` in `src/build-intelligence/competitive-landscape.ts`, a `for … await` loop).
+> - The ten-task batch probe sent ten tasks in **one POST** to a Live endpoint. DataForSEO's Live SERP endpoints accept exactly one task per call ("each Live SERP API call can contain only one task"), and `40000` "You can set only one task at a time" means *more than one task in the POST array*. The probe's `40000`s describe the request shape, not the account's plan tier.
+> - The single-task probe returning `20000 Ok.` is consistent with a transient, query-specific engine error.
+
+The earlier `401`-family failures stand as recorded: the first `401` was the stale seam key (`seo-bot-seam-key-drift`), the second the stale DataForSEO credential pair (`seo-bot-stale-datforseo-creds`), both fixed by injecting canonical vault values in-process.
 
 **Tried before:** YES — one classified retry after the first `40101` (upstream-transient hypothesis). Identical result. Not a blind retry: the retry followed credential repair and a 4-minute upstream settle window.
 
-**Correct approach:** Operator restores/upgrades the DataForSEO plan tier, or SEO-Bot serializes its SERP tasks (and/or retries `40101` with replacement donors). Both are separately scoped follow-up work; this contract forbids `src/` patches in either repo. Then re-run this contract from Step 5; the spec delta and logo are already committed and reusable.
+**Correct approach:** SEO-Bot re-submits a `40101` task with a bounded backoff, still fails closed if it persists, and names the query in every task error. That is [Quantum-L9/SEO-Bot#121](https://github.com/Quantum-L9/SEO-Bot/pull/121) (separately scoped; this contract forbids `src/` patches). No DataForSEO plan change is indicated. Then re-run this contract from Step 5 on an SEO-Bot runtime that includes the fix; the spec delta and logo are already committed and reusable.
 
-**Classification:** upstream DataForSEO account limit + SEO-Bot concurrency handling. Not a Website-Bot factory defect. No build gates were weakened; memory hydration ran `optional` per this contract's own advisory stance (finding `website-bot-memory-mcp-stale`).
+**Classification:** upstream search-engine error (DataForSEO `40101`) + SEO-Bot's missing retry for that transient task status. Not a Website-Bot factory defect. No build gates were weakened; memory hydration ran `optional` per this contract's own advisory stance (finding `website-bot-memory-mcp-stale`).
 
 ---
 
@@ -100,7 +103,7 @@ Before numbers are the recorded brief `examples/quantum-ai-partners/QUANTUM_AI_P
 | `website-bot-infisical-deepseek-gap` | operator / Website-Bot | Website-Bot Infisical project lacks `DEEPSEEK_API_KEY` though main requires it (ADR-0020). |
 | `seo-bot-stale-datforseo-creds` | operator / SEO-Bot | Same `.env` carries DataForSEO credentials that 401; canonical vault pair injected in-process. |
 | `website-bot-memory-mcp-stale` | operator / environment | MCP surface at the GRAPHITI_MCP_URL (C1 tunnel :8100) lacks `memory.hydrate`; MemoryService CLI lane healthy. |
-| `seo-bot-datforseo-concurrency` | operator (plan tier) + SEO-Bot | DataForSEO account allows one concurrent SERP task; SEO-Bot's 10-query landscape collides → `40101`. Blocks build convergence. |
+| `seo-bot-dfseo-se-error-no-retry` (was `seo-bot-datforseo-concurrency`, misdiagnosed) | SEO-Bot | One landscape query hit DataForSEO task `40101` (engine-side, transient) and SEO-Bot failed the whole landscape without a retry or the query name. Fixed by SEO-Bot#121. Blocks build convergence until a runtime with the fix is used. |
 
 ## Evidence index
 
@@ -112,6 +115,6 @@ Before numbers are the recorded brief `examples/quantum-ai-partners/QUANTUM_AI_P
 
 ## Re-run path (operator-owned)
 
-1. Restore the DataForSEO plan tier (concurrent live-SERP tasks) **or** land a SEO-Bot change that serializes landscape SERP tasks / retries `40101` with replacement donors.
+1. Run SEO-Bot from a commit that includes [SEO-Bot#121](https://github.com/Quantum-L9/SEO-Bot/pull/121) (bounded `40101` retry, query named in errors). No DataForSEO plan change is needed.
 2. Re-run this contract from Step 5: `python3 build/qap-run-with-seam-key.py` in the worktree (or the same env contract on the Cursor surface); the spec delta, logo, and normalization are already committed on this branch.
 3. Steps 6–8 (E2E, rendered validation, logo fidelity, image accounting, before/after captures, verdict) complete against the converged buildId.
