@@ -419,6 +419,27 @@ void test("image validation fails closed when a planned illustration was not del
   }
 });
 
+void test("image validation rejects an illustration-only delivery that was never planned", async () => {
+  // No image slots, no image files, no plan entries: only a delivered
+  // illustration. The early "nothing to validate" return must not skip it.
+  const ctx = fixtureContext({ assets: { generation: { enabled: false } } });
+  try {
+    ctx.siteConfig = {
+      ...(ctx.siteConfig ?? {}),
+      images: {},
+      illustrations: {
+        "/:hero": { illustrationId: "crm-to-graph", source: "static-illustration" },
+      },
+    } as unknown as BuildContext["siteConfig"];
+    await assert.rejects(
+      () => new ImageValidationStage().run(ctx),
+      /delivered static illustration \/:hero was never planned/,
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test("assembly refuses an illustration whose route renders no hero section", async () => {
   const ctx = fixtureContext({
     routes: [{ slug: "/", title: "Home", components: ["services-overview"] }],

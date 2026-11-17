@@ -41,10 +41,18 @@ export class ImageValidationStage implements Stage {
     const images = ctx.siteConfig?.images ?? {};
     const placements = Object.keys(images);
     const illustrated = staticIllustrationAssets(ctx.imageAssetPlan);
+    // Delivered illustrations count too: an illustration-only delivery must
+    // still reach checkIllustrations, which rejects one that was never planned.
+    const deliveredIllustrations = Object.keys(ctx.siteConfig?.illustrations ?? {});
 
     this.assertRequiredSlotsResolved(ctx);
 
-    if (placements.length === 0 && slots.length === 0 && illustrated.length === 0) {
+    if (
+      placements.length === 0 &&
+      slots.length === 0 &&
+      illustrated.length === 0 &&
+      deliveredIllustrations.length === 0
+    ) {
       logger.info("No site images to validate");
       return;
     }
