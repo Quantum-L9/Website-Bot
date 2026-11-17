@@ -10,6 +10,8 @@
     "pipeline:local-proof": "npx tsx scripts/run-pipeline.ts --mode=local-proof",
     "pipeline:publish-proof": "npx tsx scripts/run-pipeline.ts --mode=publish-proof",
     "pipeline:end-to-end": "npx tsx scripts/run-pipeline.ts --mode=end-to-end",
+    "website": "npx tsx scripts/preflight-website.ts",
+    "website:preflight": "npx tsx scripts/preflight-website.ts --preflight-only",
     "interop:build": "npm --prefix packages/bot-interop run build",
     "interop:test": "npm --prefix packages/bot-interop run verify:all",
     "pretypecheck": "npm run interop:build",
@@ -90,7 +92,7 @@
     "@types/node": "^26.6.4",
     "@types/pg": "^8.23.1",
     "pino-pretty": "^13.2.0",
-    "playwright": "^1.64.1",
+    "playwright": "^1.65.0",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
   },
