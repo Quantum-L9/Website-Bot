@@ -1,0 +1,53 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+name: E2E Replay
+
+# Deterministic end-to-end proof of the REDESIGN factory: the real CLI runs
+# fixtures/replay/replay-spec.yaml in local-proof mode to a built,
+# browser-validated site and a release receipt. SEO-Bot build intelligence,
+# DeepSeek, Gemini images and competitor pages are replayed from committed
+# fixtures (tests/e2e-replay); no provider secret is read by this workflow.
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: e2e-replay-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  replay:
+    name: E2E replay — REDESIGN local-proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts && npm rebuild better-sqlite3
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # rendered-site-validation renders every built route in headless
+      # Chromium; a missing browser fails the gate, it never skips it.
+      - name: Install Playwright Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Replay the REDESIGN pipeline end-to-end
+        run: npm run e2e:replay
+        env:
+          NODE_ENV: test

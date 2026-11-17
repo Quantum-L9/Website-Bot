@@ -1,0 +1,33 @@
+{
+  "description": "DesignIntelligenceStage designReasoning (REDESIGN brand tokens)",
+  "match": ["Generate CSS brand tokens for a plumbing business", "This is a REDESIGN"],
+  "response": {
+    "id": "replay-f3acb86fd8ba",
+    "object": "chat.completion",
+    "created": 1763337600,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": {
+            "primary": "#1d4e89",
+            "secondary": "#2f6f73",
+            "accent": "#e07a1f",
+            "background": "#f7f9fb",
+            "text": "#14202b",
+            "font_heading": "Inter",
+            "font_body": "Inter"
+          }
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 700,
+      "completion_tokens": 120,
+      "total_tokens": 820
+    }
+  }
+}

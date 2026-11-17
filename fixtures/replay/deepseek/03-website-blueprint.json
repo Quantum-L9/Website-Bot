@@ -1,0 +1,87 @@
+{
+  "description": "CompetitiveIntelligenceStage WEBSITE_BLUEPRINT",
+  "match": ["Pattern portfolio:", "Routes (identity and purpose are fixed"],
+  "response": {
+    "id": "replay-fcf6ad086dff",
+    "object": "chat.completion",
+    "created": 1763337600,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": {
+            "strategy": {
+              "experience_attributes": ["fast", "trustworthy"],
+              "differentiation": ["same-day response"],
+              "preserve": [],
+              "evolve": ["hero"],
+              "forbid": []
+            },
+            "content_guardrails": {
+              "forbidden_claims": ["guaranteed lowest price"]
+            },
+            "conversion": {
+              "primary_action": "request_service",
+              "secondary_actions": ["call"],
+              "persistent_mobile_action": true
+            },
+            "design_principles": ["generous whitespace", "one primary action per view"],
+            "routes": [
+              {
+                "route_id": "/",
+                "sections": [
+                  {
+                    "section_id": "hero",
+                    "component_class": "hero",
+                    "objective": "state the primary offer",
+                    "content_slots": ["primary_offer", "conversion"],
+                    "pattern_refs": ["p-1"],
+                    "proof_requirements": []
+                  },
+                  {
+                    "section_id": "services",
+                    "component_class": "services-overview",
+                    "objective": "summarize core services",
+                    "content_slots": ["service_overview"],
+                    "pattern_refs": ["p-2"],
+                    "proof_requirements": []
+                  },
+                  {
+                    "section_id": "questions",
+                    "component_class": "faq",
+                    "objective": "answer common questions",
+                    "content_slots": ["faq"],
+                    "pattern_refs": [],
+                    "proof_requirements": []
+                  }
+                ]
+              },
+              {
+                "route_id": "/contact",
+                "sections": [
+                  {
+                    "section_id": "form",
+                    "component_class": "contact-form",
+                    "objective": "capture a service request",
+                    "content_slots": ["conversion"],
+                    "pattern_refs": ["p-1"],
+                    "proof_requirements": []
+                  }
+                ]
+              }
+            ],
+            "acceptance_tests": ["home exposes exactly one primary CTA"]
+          }
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2400,
+      "completion_tokens": 900,
+      "total_tokens": 3300
+    }
+  }
+}
