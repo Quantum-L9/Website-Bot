@@ -3,13 +3,16 @@ import { existsSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import type Database from "better-sqlite3";
 import { createModuleLogger } from "../core/logger.js";
+import { budgetedLLM } from "./BudgetedLLM.js";
 import { type BuildContext, clientAssetRoot, clientPersistentAssetRoot } from "./BuildContext.js";
 import { getBuildDb, llmUsage, syncEvidenceIndexToDb } from "./BuildDB.js";
 import { BuildError } from "./BuildError.js";
+import type { EconomicsRunStatus } from "./evidence/BuildEconomics.js";
 import { sanitizeEvidenceDetails, sanitizeEvidenceText } from "./evidence/EvidenceCanonicalizer.js";
 import type { EvidenceKind, EvidenceReference } from "./evidence/EvidenceReference.js";
 import type { ImageAssetManifest, ResolvedImageAsset } from "./evidence/ImageAssetManifest.js";
 import type { StageFailureEvidence } from "./evidence/StageFailureEvidence.js";
+import { admitPaidStage } from "./PaidStageAdmission.js";
 import { checkpointDigest, checkpointIsValid, type StageCheckpoint } from "./StageCheckpoint.js";
 
 const logger = createModuleLogger("pipeline:runner");
@@ -58,6 +61,7 @@ export interface Stage {
 export class PipelineRunner {
   private readonly stages: Stage[] = [];
   private readonly skipSet: Set<string>;
+  private reusing = false;
 
   constructor(skipStages: string[] = []) {
     this.skipSet = new Set(skipStages);
@@ -73,8 +77,18 @@ export class PipelineRunner {
     let finalStatus: "success" | "failed" | "partial" = "success";
     let errorCode: string | undefined;
     let errorMessage: string | undefined;
+    const ledger = ctx.spendLedger;
+    let economicsStatus: EconomicsRunStatus = "failed";
+    // Strict resume applies while the run is still inside the prefix of stages
+    // the build already completed; the first stage that cannot be reused is the
+    // resume frontier and everything from it on executes normally.
+    this.reusing = Boolean(ledger && ctx.resume);
 
     try {
+      if (ledger) {
+        ledger.beginRun(ctx.resume);
+        ctx.llm = budgetedLLM(ctx.llm, ledger);
+      }
       await this.recordBuildStart(ctx, sqlite);
 
       for (const stage of this.stages) {
@@ -82,7 +96,9 @@ export class PipelineRunner {
           await this.recordSkip(ctx, sqlite, stage.name, "CLI flag");
           continue;
         }
-        const checkpoint = await ctx.evidenceStore.readCheckpoint(stage.name);
+        const checkpoint = this.reusing
+          ? await this.readCheckpointStrict(ctx, stage.name)
+          : await ctx.evidenceStore.readCheckpoint(stage.name);
         const result = await this.runStage(ctx, sqlite, stage, checkpoint);
         if (result.status !== "failed") continue;
         const { recoverable, code, message } = result.failed;
@@ -96,7 +112,14 @@ export class PipelineRunner {
       }
 
       await this.recordBuildFinish(ctx, db, sqlite, finalStatus, errorCode, errorMessage);
+      economicsStatus =
+        errorCode === "BUDGET_EXCEEDED"
+          ? "budget_exceeded"
+          : finalStatus === "failed"
+            ? "failed"
+            : finalStatus;
     } finally {
+      ledger?.finishRun(economicsStatus);
       sqlite.close();
     }
 
@@ -172,9 +195,11 @@ export class PipelineRunner {
       stage.name,
       "input",
     );
+    if (this.reusing) await this.assessReuse(ctx, stage, checkpoint, inputEvidence);
     if (await this.resumeStage(ctx, stage, checkpoint)) {
       await this.hydrateSkippedStage(ctx, stage);
       await this.recordSkip(ctx, sqlite, stage.name, "validated evidence checkpoint");
+      ctx.spendLedger?.noteReuse(stage.name);
       return { status: "skipped" };
     }
 
@@ -190,8 +215,19 @@ export class PipelineRunner {
     const startedMs = Date.now();
     logger.info({ stage: stage.name, version: stage.version, attempt }, "Stage start");
 
+    const ledger = ctx.spendLedger;
+    const denialBefore = ledger?.lastDenial;
+    let settle: () => void = () => {};
+    ledger?.beginStage(stage.name);
+
     try {
-      const stageResult = await stage.run(ctx);
+      if (ledger) settle = admitPaidStage(ctx, ledger, stage.name);
+      let stageResult: StageRunResult | undefined;
+      try {
+        stageResult = (await stage.run(ctx)) as StageRunResult | undefined;
+      } finally {
+        settle();
+      }
       await this.completeStage(ctx, sqlite, stage, {
         attempt,
         startedAt,
@@ -200,10 +236,31 @@ export class PipelineRunner {
         inputEvidence,
         externalId: stageResult?.externalId,
       });
+      ledger?.endStage(stage.name, {
+        ok: true,
+        durationMs: Date.now() - startedMs,
+        inputDigest: checkpointDigest(inputEvidence),
+      });
       return { status: "ok" };
-    } catch (error) {
+    } catch (caught) {
       const durationMs = Date.now() - startedMs;
+      // A stage may re-wrap the ledger's denial in its own error; the budget
+      // event is still the cause, so the failure is re-typed BUDGET_EXCEEDED.
+      const denial = ledger?.lastDenial;
+      const error =
+        ledger &&
+        denial &&
+        denial !== denialBefore &&
+        denial.stage === stage.name &&
+        !(caught instanceof BuildError && caught.code === "BUDGET_EXCEEDED")
+          ? ledger.budgetError(denial)
+          : caught;
       const buildError = error instanceof BuildError ? error : null;
+      ledger?.endStage(stage.name, {
+        ok: false,
+        durationMs,
+        errorCode: buildError?.code ?? "UNKNOWN",
+      });
       const message = error instanceof Error ? error.message : String(error);
       ctx.stageResults.set(stage.name, { ok: false, error: message });
       await this.persistFailure(ctx, stage, buildError, message, inputEvidence, startedAt, attempt);
@@ -273,6 +330,81 @@ export class PipelineRunner {
       { stage: stage.name, durationMs, evidenceRevision: ctx.evidenceIndex.revision },
       "Stage OK",
     );
+  }
+
+  /** Read a checkpoint while reusing completed stages; unreadable is corrupt, never "absent". */
+  private async readCheckpointStrict(
+    ctx: BuildContext,
+    stageName: string,
+  ): Promise<StageCheckpoint | undefined> {
+    try {
+      return await ctx.evidenceStore.readCheckpoint(stageName);
+    } catch (error) {
+      throw new BuildError(
+        "CHECKPOINT_INVALID",
+        `Cannot resume ${ctx.buildId}: checkpoint for ${stageName} is corrupt (${error instanceof Error ? error.message : String(error)})`,
+      );
+    }
+  }
+
+  /**
+   * Strict-resume gate for one stage inside the completed prefix. Fails closed
+   * when a stage the build completed has a missing or corrupt checkpoint; ends
+   * the reusable prefix (the resume frontier) at the first stage that never
+   * completed or whose reuse must be refused because its version, spec or
+   * input digest changed — that stage and every later one execute again.
+   */
+  private async assessReuse(
+    ctx: BuildContext,
+    stage: Stage,
+    checkpoint: StageCheckpoint | undefined,
+    inputEvidence: EvidenceReference[],
+  ): Promise<void> {
+    const ledger = ctx.spendLedger;
+    if (!ledger) return;
+    const recorded = ledger.stageRecord(stage.name);
+    const recordedComplete = recorded?.status === "completed";
+    if (checkpoint?.status !== "passed") {
+      if (recordedComplete)
+        throw new BuildError(
+          "CHECKPOINT_INVALID",
+          `Cannot resume ${ctx.buildId}: ${stage.name} is recorded completed but its checkpoint is ${checkpoint ? `"${checkpoint.status}"` : "missing"}`,
+        );
+      this.reusing = false;
+      ledger.noteFrontier(stage.name);
+      logger.info({ stage: stage.name, buildId: ctx.buildId }, "Resume frontier");
+      return;
+    }
+    if (!(await checkpointIsValid(ctx, checkpoint)))
+      throw new BuildError(
+        "CHECKPOINT_INVALID",
+        `Cannot resume ${ctx.buildId}: checkpoint for completed stage ${stage.name} failed identity or evidence-digest verification`,
+      );
+    const refuse = (reason: string): void => {
+      ledger.noteRefusal(stage.name, reason);
+      this.reusing = false;
+      ctx.resume = false;
+      logger.warn({ stage: stage.name, reason }, "Resume refused for stage; re-executing");
+    };
+    if (checkpoint.stageVersion && stage.version && checkpoint.stageVersion !== stage.version)
+      return refuse(`stage version changed ${checkpoint.stageVersion} -> ${stage.version}`);
+    if (recorded && recorded.spec_digest !== ledger.specDigest)
+      return refuse(
+        `spec digest changed ${recorded.spec_digest.slice(0, 12)} -> ${ledger.specDigest.slice(0, 12)}`,
+      );
+    const currentInputDigest = checkpointDigest(inputEvidence);
+    if (currentInputDigest !== checkpoint.inputDigest) {
+      const before = new Map(checkpoint.inputEvidence.map((ref) => [ref.kind, ref.sha256]));
+      const changed = inputEvidence
+        .filter((ref) => before.get(ref.kind) !== ref.sha256)
+        .map((ref) => ref.kind);
+      const dropped = checkpoint.inputEvidence
+        .filter((ref) => !inputEvidence.some((current) => current.kind === ref.kind))
+        .map((ref) => ref.kind);
+      return refuse(
+        `dependency digest changed (${[...changed, ...dropped].join(", ") || "input set"}): ${checkpoint.inputDigest.slice(0, 12)} -> ${currentInputDigest.slice(0, 12)}`,
+      );
+    }
   }
 
   private async requireEvidence(
