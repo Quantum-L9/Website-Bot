@@ -1,0 +1,375 @@
+client_id: quantumaipartners_com
+business_name: Quantum AI Partners
+vertical: ai_revops_crm_transformation
+geography:
+  primary_state: US
+  states:
+    - US
+design:
+  status: resolved
+  palette:
+    primary: "#A56BFA"
+    secondary: "#7C44D6"
+    accent: "#D0B0FF"
+    background: "#08060D"
+    text: "#F4F0FA"
+  fonts:
+    font_heading: Space Grotesk
+    font_body: Inter
+routes:
+  - slug: /
+    title: CRM Transformation & AI RevOps
+    components:
+      - hero
+      - problem
+      - crm_transformation
+      - process
+      - revops_activation
+      - close_deals
+      - faq
+      - final_cta
+    purpose: "Lead with buyer benefit: existing CRM intelligence becomes commercially actionable. Explain both CRM Transformation and AI RevOps, then connect all four steps to the Close Deals outcome without guarantees. Not an investor pitch."
+    template: layout:editorial
+    priority: 1
+  - slug: /crm-transformation
+    title: CRM Transformation
+    components:
+      - hero
+      - data_to_graph
+      - enrichment_and_evidence
+      - three_dimensional_experience
+      - process
+      - faq
+      - final_cta
+    purpose: Explain why CRM rows alone hide business relationships; describe enrichment, evidence, an illustrative three-dimensional graph view and resulting account/opportunity clarity. No live demo claim.
+    template: layout:diagram
+    priority: 2
+  - slug: /revops
+    title: AI RevOps
+    components:
+      - hero
+      - opportunity_discovery
+      - governed_actions
+      - deal_progression
+      - close_deals
+      - faq
+      - final_cta
+    purpose: Explain the operational value of evidence-based prioritization, human-approved next actions, follow-through, pipeline advancement and measuring actually closed deals; no guaranteed outcomes.
+    template: layout:editorial
+    priority: 3
+  - slug: /how-it-works
+    title: How It Works
+    components:
+      - hero
+      - process
+      - illustrative_relationship_graph
+      - opportunity_to_action
+      - close_deals
+      - faq
+      - final_cta
+    purpose: "Static four-step commercial explainer: Connect, Enrich & Transform, Activate RevOps, Close Deals. A fictional illustrative example may show potential deal progression, never a verified win or an industry demo portal."
+    template: layout:diagram
+    priority: 4
+  - slug: /contact
+    title: Start the Conversation
+    components:
+      - hero
+      - qualified_inquiry
+      - contact_availability
+    purpose: Explain engagement options and genuine contact availability honestly. Until a verified HTTPS lead endpoint and matching contact_form route exist, do not render a live booking CTA, submission or invented email. Preview only.
+    template: layout:editorial
+    priority: 5
+seo_contract:
+  site_url: https://www.quantumaipartners.com
+  target_keywords:
+    - CRM transformation
+    - CRM enrichment
+    - CRM visualization
+    - 3D CRM visualization
+    - AI RevOps
+    - revenue intelligence
+    - sales opportunity intelligence
+    - AI sales operations
+    - turn CRM data into revenue
+    - CRM relationship graph
+    - CRM knowledge graph
+    - Quantum AI Partners
+    - Quantum AI Partners RevOps
+  route_targets:
+    - cluster_name: crm_transformation
+      target_page: /crm-transformation
+      intent: commercial_service
+      keywords:
+        - CRM transformation
+        - CRM enrichment
+        - CRM visualization
+        - 3D CRM visualization
+    - cluster_name: ai_revops
+      target_page: /revops
+      intent: commercial_service
+      keywords:
+        - AI RevOps
+        - revenue intelligence
+        - sales opportunity intelligence
+        - AI sales operations
+    - cluster_name: crm_to_revenue
+      target_page: /how-it-works
+      intent: informational_commercial
+      keywords:
+        - turn CRM data into revenue
+        - CRM relationship graph
+        - CRM knowledge graph
+    - cluster_name: quantum_ai_partners
+      target_page: /
+      intent: brand
+      keywords:
+        - Quantum AI Partners
+        - Quantum AI Partners RevOps
+  metadata_rules:
+    title_pattern: "{Page Topic} | Quantum AI Partners"
+    description_pattern: Enrich and visualize your CRM, activate AI RevOps, and help move more opportunities toward closed deals.
+  schema_rules:
+    - Organization
+    - WebSite
+    - Service
+    - BreadcrumbList
+  schema_application: per_route
+  internal_linking_rules:
+    hub_pages:
+      - /
+      - /crm-transformation
+      - /revops
+    spoke_pages:
+      - /how-it-works
+      - /contact
+    prohibited_links:
+      - investor_pitch
+      - fabricated_case_studies
+      - unverified_integrations
+      - unapproved_booking_links
+wom_flags:
+  - key: identity.contact.email
+    value: unresolved
+    severity: warning
+business_facts:
+  tagline: Your CRM has the data. We bring it to life.
+  brand_positioning: Transform CRM records into enriched, explorable revenue intelligence and use AI RevOps to pursue opportunities and close deals.
+  primary_value: Reveal commercially useful relationships and help teams act on them, from data connection through deal closure.
+  competitive_angle: Connect enrichment, a dimensional relationship interface and governed sales actions in one commercial journey, without replacing the CRM record owner.
+  core_offer: CRM Transformation and AI RevOps, together turning dormant enterprise data into actionable revenue opportunities.
+  offer_type: enterprise_platform_and_services
+  pricing_visibility: consultative
+  deliverables:
+    - discovery_and_scope
+    - crm_data_and_enrichment_plan
+    - relationship_intelligence_experience
+    - revops_action_workflows
+    - deal_progression_and_outcome_measurement_plan
+  decision_makers:
+    - chief_revenue_officer
+    - head_of_sales
+    - vp_sales
+    - founder
+    - chief_operating_officer
+    - crm_owner
+  pain_points:
+    - disconnected_records
+    - unseen_relationships
+    - incomplete_contact_intelligence
+    - ineffective_prioritization
+    - sales_effort_lost_on_low_value_work
+    - difficulty_turning_insight_into_closed_deals
+  trust_requirements:
+    - clear_product_maturity
+    - reproducible_evidence
+    - human_approval_before_actions
+    - do_not_replace_crm_system_of_record
+    - transparent_security_scope
+    - no_invented_outcomes
+  service_area_model: remote_first
+  service_lines:
+    - CRM Transformation
+    - AI RevOps
+  offered_solutions:
+    - CRM Transformation
+    - AI RevOps
+  first_party_sales_promise: Help organizations find and act on opportunities within their existing CRM relationships, with deal-closing as the commercial goal, not a guaranteed result.
+  existing_crm_policy: Customer CRM records remain with the customer's system of record; integration is scoped per engagement, not presented as a live website integration.
+  stage_1_connect: "Connect: bring existing CRM and relevant enterprise records into a coherent analysis."
+  stage_2_enrich_and_transform: "Enrich & Transform: enrich records, infer evidence-supported relationships and visualize the connections through a dimensional relationship model."
+  stage_3_activate_revops: "Activate RevOps: prioritize opportunities, present explainable next actions and preserve human approval before consequential outreach or execution."
+  stage_4_close_deals: "Close Deals: support opportunity progression, follow-through and measurement of actual outcomes; never guarantee a win."
+  graph_illustration_status: Any CRM-to-3D-graph website illustration is conceptual, not proof of a deployed interactive customer graph.
+  public_metrics_status: No customer-specific percentage uplift, closed-deal results or references are verified for publication.
+value_proposition:
+  status: draft
+  target_customer:
+    - B2B revenue leaders and operators with valuable but underused CRM and enterprise data.
+    - High-value sales organizations that need to identify and advance overlooked relationships.
+  problem:
+    - CRM records are flat and fragmented across systems.
+    - Relationships and actionable opportunities are difficult to see.
+    - Insights often fail to turn into meaningful sales activity and deal progression.
+  outcome:
+    - Better visibility into account and contact relationships.
+    - Prioritized, evidence-backed revenue opportunities.
+    - Supported deal advancement and closing, with outcomes measured rather than presumed.
+  mechanism:
+    - Connect existing records without replacing systems of record.
+    - Enrich and graph relationships through EIE/CEG concepts, visualize them clearly.
+    - Activate governed RevOps plays and help move opportunities toward a close.
+  differentiators:
+    - The dimensional CRM-to-relationship-network experience is central, not decorative.
+    - Enrichment plus reasoning plus commercial execution in one four-stage story.
+    - Human-controlled, evidence-aware recommendations rather than unsupervised claims.
+  reasons_to_believe:
+    - A coherent first-party product architecture and explicit approval boundaries are documented.
+    - A transparent path distinguishes envisioned functionality from independently demonstrated behavior.
+  boundaries:
+    - No guarantee that any opportunity will close or produce quantified ROI.
+    - No claim that an interactive 3D product visualization or a fully autonomous RevOps runtime is live without independent proof.
+    - No invented clients, testimonials, partnerships, integrations or production deployments.
+conversion_authority:
+  primary_action: Book a Strategy Call
+  secondary_actions:
+    - See How It Works
+    - Explore CRM Transformation
+    - Explore RevOps
+  cta_library:
+    - Book a Strategy Call
+    - See How It Works
+    - Explore CRM Transformation
+    - Explore RevOps
+    - Talk About Your CRM
+content_guardrails:
+  forbidden_claims:
+    - fictional_telemetry_presented_as_real
+    - fully_autonomous_closing_without_proof
+    - guaranteed_closed_deals
+    - guaranteed_deals
+    - guaranteed_roi
+    - invented_case_studies
+    - invented_clients
+    - invented_deployments
+    - invented_uplift_percentages
+    - investor_pitch_as_homepage
+    - l9_architecture_as_primary_sales_story
+    - live_3d_demo_claim_without_proof
+    - unverified_3d_product_screenshot
+    - unverified_autonomous_execution
+    - unverified_customer_logos
+    - unverified_integration_claims
+semantic_provenance:
+  source_spec_version: 1.1.0
+  compiler_version: 1.1.0
+  runtime_authority_paths:
+    - assets
+    - audience
+    - authority
+    - build_intent
+    - business_facts
+    - client_vision
+    - content
+    - conversion
+    - design
+    - geography
+    - identity
+    - market
+    - offer
+    - seo
+    - value_proposition
+  gate_paths:
+    - authority
+    - compliance
+    - design
+    - validation
+  provenance_paths:
+    - authority
+    - content
+    - deployment
+    - design
+    - geography
+    - identity
+    - integrations
+    - market
+    - metadata
+    - notes
+    - validation
+assets:
+  providedImages:
+    - id: locked-quantum-logo
+      path: inputs/quantum_ai_partners/assets/quantum-ai-partners-logo-LOCKED.jpg
+      altText: Quantum AI Partners official orbital globe and wordmark
+      intendedPlacement: global:logo
+  imageSlots:
+    - id: locked-quantum-logo
+      placement: global:logo
+      required: true
+      preferredSources:
+        - provided
+      altText: Quantum AI Partners official logo
+  generation:
+    enabled: false
+build_intent: REDESIGN_IMPROVE
+client_vision:
+  desired_outcomes:
+    - "Sell two connected offerings: CRM Transformation and AI RevOps."
+    - Make conversion to closed deals visible as the essential fourth stage.
+    - Use a differentiated three-dimensional CRM relationship experience to make the benefit instantly graspable.
+    - Attract qualified commercial conversations, not investor interest.
+  brand_attributes:
+    - premium
+    - distinctive
+    - commercially_grounded
+    - dimensional
+    - credible
+    - confident
+  visual_preferences:
+    - obsidian_violet_dominant
+    - real_locked_logo
+    - immersive_crm_to_graph_story
+    - interactive_feeling_with_static_fallback
+    - editorial_hierarchy
+    - high_contrast_accessible_legibility
+    - spacious_editorial_rhythm
+    - wide_cinematic_presentation
+    - layered_depth_surfaces
+  liked_examples: []
+  disliked_examples:
+    - generic_bento_saas_grid
+    - stock_robots
+    - investor_slide_repackaging
+  preserve:
+    - full_uncropped_locked_logo
+    - purple_orbital_brand_identity
+    - human_authorization_of_actions
+    - static_accessible_content_is_complete_without_scripts
+  change:
+    - cyan_ai_consultancy_positioning
+    - L9_tower_constellation_front_and_center
+    - generic_deck_style_explainer
+    - three_stage_loop_that_omits_close_deals
+  conversion_priorities:
+    - qualified_strategy_conversation
+    - crm_transformation_inquiry
+    - revops_inquiry
+    - no_fake_forms
+  explicit_constraints:
+    - locked_logo_bytes_must_not_change
+    - 3d_graph_is_product_story_not_decoration
+    - no_fake_product_UI
+    - no_3d_scene_required_for_core_content
+    - wcag_2_2_aa_target
+    - reduced_motion_support
+    - all_5_routes_function_without_webgl
+    - no_unverified_revenue_outcome_claims
+    - no_production_deployment_without_approved_contact
+    - primary_strategy_call_button_requires_a_verified_form_action_and_contact_form_route
+    - no_interactive_industry_demo_portal_in_V1
+    - all_3d_graph_illustrations_must_be_clearly_labeled_conceptual
+  palette:
+    primary: "#A56BFA"
+    secondary: "#7C44D6"
+    accent: "#D0B0FF"
+    background: "#08060D"
+    text: "#F4F0FA"
