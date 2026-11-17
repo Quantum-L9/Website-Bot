@@ -11,10 +11,13 @@ permissions:
 jobs:
   emit-handoff:
     runs-on: ubuntu-latest
-    if: >
-      ${{ github.event.workflow_run.conclusion == 'success'
-        && github.event.workflow_run.head_repository.full_name == github.repository
-        && github.event.workflow_run.head_branch == 'main' }}
+    # Bare expression with a strip-chomping folded scalar: `if: >` around
+    # `${{ }}` leaves a trailing newline outside the braces, which GitHub reads
+    # as a non-empty string (always true) — actionlint if-cond.
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_repository.full_name == github.repository
+      && github.event.workflow_run.head_branch == 'main'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
