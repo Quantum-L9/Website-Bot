@@ -15,11 +15,23 @@ import { executeAdapterCommand, resolveTrustedExecutable } from "../utils/secure
  * Website-Bot specific adapter for the validation executor
  * Integrates with the existing factory pipeline and evidence infrastructure
  */
+/** Per-command limit when the run configuration gives none (the CLI default). */
+export const DEFAULT_COMMAND_TIMEOUT_MS = 300_000;
+
 export class WebsiteBotAdapter implements RepositoryAdapter {
   private readonly logger = createLogger("WebsiteBotAdapter");
+  /** Set from ValidationConfig.timeout (CLI --timeout) when the context resolves. */
+  private commandTimeoutMs = DEFAULT_COMMAND_TIMEOUT_MS;
 
   async resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext> {
     this.logger.info("Resolving Website-Bot execution context");
+    if (
+      typeof config.timeout === "number" &&
+      Number.isFinite(config.timeout) &&
+      config.timeout > 0
+    ) {
+      this.commandTimeoutMs = config.timeout;
+    }
 
     const targetRoots = [process.cwd()];
     const sourceRevision = await this.getGitRevision();
@@ -235,7 +247,13 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   }
 
   async executeCommand(command: string, workingDir: string) {
-    return executeAdapterCommand(command, workingDir, 300_000, this.logger, "Website-Bot");
+    return executeAdapterCommand(
+      command,
+      workingDir,
+      this.commandTimeoutMs,
+      this.logger,
+      "Website-Bot",
+    );
   }
 
   async storeEvidence(evidenceId: string, data: any): Promise<string> {
