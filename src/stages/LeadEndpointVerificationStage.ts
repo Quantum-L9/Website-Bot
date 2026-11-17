@@ -1,8 +1,8 @@
-// L9_META: layer=stage, role=lead_endpoint_verifier, status=active, version=1.0.0
+// L9_META: layer=stage, role=lead_endpoint_verifier, status=active, version=1.1.0
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
-import type { BuildContext } from "../pipeline/BuildContext.js";
+import type { BuildContext, LeadCaptureVerification } from "../pipeline/BuildContext.js";
 import { canonicalJson, sha256Text } from "../pipeline/evidence/EvidenceCanonicalizer.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 
@@ -10,39 +10,8 @@ const logger = createModuleLogger("stage:lead-endpoint-verification");
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
-/**
- * verified       — the configured HTTPS action accepted a test submission.
- * not_configured — the spec declares no lead form action.
- * failed         — an action is configured but is not HTTPS, unreachable, or rejected the test.
- * skipped        — plan or dry-run: nothing was sent, so nothing is verified.
- */
-export type LeadCaptureStatus = "verified" | "not_configured" | "failed" | "skipped";
-
-export interface LeadCaptureVerification {
-  schema: "website-bot.lead-capture-verification/v1";
-  buildId: string;
-  clientId: string;
-  status: LeadCaptureStatus;
-  method: "test_submission" | "none";
-  /** The exact action the template would render; undefined when not configured. */
-  endpoint?: string;
-  /** HTTPS origin of the endpoint (no path or query) for receipts. */
-  endpointOrigin?: string;
-  httpStatus?: number;
-  reason: string;
-  /** Marker carried by the test submission so the receiver can discard it. */
-  testMarker: string;
-  checkedAt: string;
-  /** sha256 of the canonical JSON of every other field. */
-  digest: string;
-}
-
-declare module "../pipeline/BuildContext.js" {
-  interface BuildContext {
-    /** Set by LeadEndpointVerificationStage; absent means no verification ran. */
-    leadCaptureVerification?: LeadCaptureVerification;
-  }
-}
+export type { LeadCaptureVerification };
+export type LeadCaptureStatus = LeadCaptureVerification["status"];
 
 export const LEAD_TEST_MARKER = "website-bot-lead-verification";
 const EVIDENCE_FILE = "lead-capture-verification.json";
@@ -59,8 +28,19 @@ export function verifiedLeadFormAction(
 ): string | undefined {
   if (!action) return undefined;
   const verification = ctx.leadCaptureVerification;
-  if (verification?.status !== "verified" || verification.endpoint !== action) return undefined;
+  if (verification?.status !== "verified" || !verification.endpoint) return undefined;
+  // The assembler renders the WHATWG-serialized URL; compare in that form so a
+  // verified "https://host" still matches the rendered "https://host/".
+  if (canonicalUrl(verification.endpoint) !== canonicalUrl(action)) return undefined;
   return action;
+}
+
+function canonicalUrl(value: string): string | undefined {
+  try {
+    return new URL(value.trim()).toString();
+  } catch {
+    return undefined;
+  }
 }
 
 export function leadCaptureDigest(value: Omit<LeadCaptureVerification, "digest">): string {
@@ -74,7 +54,7 @@ function isAccepted(status: number): boolean {
 
 export class LeadEndpointVerificationStage implements Stage {
   name = "lead-endpoint-verification";
-  version = "1.0.0";
+  version = "1.1.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],

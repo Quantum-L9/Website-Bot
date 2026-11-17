@@ -285,6 +285,31 @@ export interface QualityEvidence {
   visualQa: EvidenceGateStatus;
 }
 
+/**
+ * Lead-capture verification evidence (LeadEndpointVerificationStage).
+ * verified: the configured HTTPS action accepted a test submission;
+ * not_configured: no action; failed: not HTTPS, unreachable or rejected;
+ * skipped: plan/dry-run, nothing sent.
+ */
+export interface LeadCaptureVerification {
+  schema: "website-bot.lead-capture-verification/v1";
+  buildId: string;
+  clientId: string;
+  status: "verified" | "not_configured" | "failed" | "skipped";
+  method: "test_submission" | "none";
+  /** The exact action the template would render; undefined when not configured. */
+  endpoint?: string;
+  /** Origin of the endpoint (no path or query) for receipts. */
+  endpointOrigin?: string;
+  httpStatus?: number;
+  reason: string;
+  /** Marker carried by the test submission so the receiver can discard it. */
+  testMarker: string;
+  checkedAt: string;
+  /** sha256 of the canonical JSON of every other field. */
+  digest: string;
+}
+
 export interface BuildContext {
   buildId: string;
   clientId: string;
@@ -303,6 +328,8 @@ export interface BuildContext {
   deploymentEvidence?: DeploymentEvidence;
   releaseReceipt?: ReleaseReceipt;
   releaseReceiptPath?: string;
+  /** Set by LeadEndpointVerificationStage; absent means no verification ran. */
+  leadCaptureVerification?: LeadCaptureVerification;
   provisioningReceipt?: ProvisioningReceipt;
   evidenceStore: EvidenceStore;
   evidenceIndex: EvidenceIndex;

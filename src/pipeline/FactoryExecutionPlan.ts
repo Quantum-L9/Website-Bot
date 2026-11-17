@@ -10,6 +10,7 @@ import { HandoffEmitterStage } from "../stages/HandoffEmitterStage.js";
 import { ImageAssetPlanningStage } from "../stages/ImageAssetPlanningStage.js";
 import { ImageGenerationStage } from "../stages/ImageGenerationStage.js";
 import { ImageValidationStage } from "../stages/ImageValidationStage.js";
+import { LeadEndpointVerificationStage } from "../stages/LeadEndpointVerificationStage.js";
 import { PlaceholderScanStage } from "../stages/PlaceholderScanStage.js";
 import { PostHogSnippetStage } from "../stages/PostHogSnippetStage.js";
 import { ProvisionClientStage } from "../stages/ProvisionClientStage.js";
@@ -294,6 +295,9 @@ export function buildFactoryExecutionPlan(
     new ImageAssetPlanningStage(),
     new ImageGenerationStage(),
     new PlaceholderScanStage(),
+    // Lead capture is proven before assembly: SiteAssemblerStage renders the
+    // primary CTA and contact form only from this stage's passing evidence.
+    new LeadEndpointVerificationStage(),
     new SiteAssemblerStage(),
     new ImageValidationStage(),
     new PostHogSnippetStage(),
@@ -303,7 +307,15 @@ export function buildFactoryExecutionPlan(
   if (options.mode !== "plan") stages.push(new SiteBuildStage(), new RenderedSiteValidationStage());
   if (options.mode === "publish-proof" || options.mode === "end-to-end")
     stages.push(new ClientSourcePublishStage());
-  if (options.mode === "end-to-end") stages.push(new VercelDeployStage());
+  // publish-proof reaches a Vercel PREVIEW when credentials are present, so the
+  // receipt can bind real deployment evidence; VercelDeployStage itself refuses
+  // production without WEBSITE_BOT_ALLOW_PRODUCTION=true. Without a token the
+  // stage is absent and the receipt names vercel_deployment as missing.
+  if (
+    options.mode === "end-to-end" ||
+    (options.mode === "publish-proof" && process.env.VERCEL_TOKEN)
+  )
+    stages.push(new VercelDeployStage());
   stages.push(new ReleaseReceiptStage());
   if (options.mode === "end-to-end") stages.push(new SEOBaselineStage(), new VisualQAStage());
   // The redesign integrity gate must veto BEFORE success is recorded and before

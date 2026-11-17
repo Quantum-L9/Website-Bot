@@ -17,6 +17,7 @@ import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.j
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import { validateDomainSpec } from "../../src/pipeline/validateDomainSpec.js";
 import { DesignIntelligenceStage } from "../../src/stages/DesignIntelligenceStage.js";
+import { LeadEndpointVerificationStage } from "../../src/stages/LeadEndpointVerificationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { pagePathForRoute } from "../../src/validation/validate-generated-site.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
@@ -161,6 +162,11 @@ void test("assembly realizes each spec's own route tree, layouts and verified CT
     const ctx = contextFor(domainSpec);
     try {
       await new DesignIntelligenceStage().run(ctx);
+      // The CTA is "verified" only through lead-capture evidence: a fake
+      // receiver accepts the test submission, no network is touched.
+      await new LeadEndpointVerificationStage(async () => new Response("{}", { status: 200 })).run(
+        ctx,
+      );
       await new SiteAssemblerStage().run(ctx);
       for (const route of domainSpec.routes) {
         const source = readFileSync(join(ctx.outputDir, pagePathForRoute(route.slug)), "utf-8");

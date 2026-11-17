@@ -181,3 +181,18 @@ void test("CTA hidden without any verification, or for a different action", asyn
     cleanupContext(ctx);
   }
 });
+
+void test("verification matches the assembler's canonical URL form", async () => {
+  const ctx = contextWithAction("https://forms.example.com");
+  const fetch = fakeFetch(() => new Response("{}", { status: 200 }));
+  try {
+    await new LeadEndpointVerificationStage(fetch.impl, NOW).run(ctx);
+    // SiteAssemblerStage serializes with new URL().toString(), adding the "/".
+    assert.equal(
+      verifiedLeadFormAction(ctx, "https://forms.example.com/"),
+      "https://forms.example.com/",
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});

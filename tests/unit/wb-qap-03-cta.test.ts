@@ -10,6 +10,10 @@ import { join, resolve } from "node:path";
 import test from "node:test";
 import type { BuildContext, DomainSpec } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
+import {
+  LEAD_TEST_MARKER,
+  leadCaptureDigest,
+} from "../../src/stages/LeadEndpointVerificationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
@@ -20,11 +24,35 @@ const ROUTES: DomainSpec["routes"] = [
   { slug: "/contact", title: "Contact", components: ["contact_form"] },
 ];
 
-function context(overrides: Partial<DomainSpec>): BuildContext {
+type Evidence = "verified" | "failed" | "none";
+
+/** Lead-capture evidence as LeadEndpointVerificationStage would record it. */
+function leadEvidence(ctx: BuildContext, status: "verified" | "failed"): void {
+  const action = ctx.domainSpec.seo_contract?.lead_form_action;
+  if (!action) return;
+  const body = {
+    schema: "website-bot.lead-capture-verification/v1" as const,
+    buildId: ctx.buildId,
+    clientId: ctx.clientId,
+    status,
+    method: "test_submission" as const,
+    endpoint: action,
+    httpStatus: status === "verified" ? 200 : 422,
+    reason: status,
+    testMarker: LEAD_TEST_MARKER,
+    checkedAt: "2026-07-20T00:00:00.000Z",
+  };
+  ctx.leadCaptureVerification = { ...body, digest: leadCaptureDigest(body) };
+}
+
+// "Verified" in this contract means passing lead-capture evidence, so a
+// configured action carries it by default; negatives opt out explicitly.
+function context(overrides: Partial<DomainSpec>, evidence: Evidence = "verified"): BuildContext {
   const ctx = fixtureContext({ routes: ROUTES, ...overrides });
   for (const route of ctx.domainSpec.routes)
     for (const component of route.components)
       ctx.generatedContent.set(`${route.slug}:${component}`, `${route.title} ${component} copy.`);
+  if (evidence !== "none") leadEvidence(ctx, evidence);
   return ctx;
 }
 
@@ -44,8 +72,8 @@ const spec = (leadFormAction?: string, primaryAction?: string): Partial<DomainSp
     : {}),
 });
 
-async function assemble(overrides: Partial<DomainSpec>) {
-  const ctx = context(overrides);
+async function assemble(overrides: Partial<DomainSpec>, evidence: Evidence = "verified") {
+  const ctx = context(overrides, evidence);
   try {
     await new SiteAssemblerStage().run(ctx);
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
@@ -93,6 +121,18 @@ void test("a verified lead form and an operator label yield a CTA to the real fo
   const site = await assemble(spec(ACTION, LABEL));
   assert.deepEqual(site.primaryCta, { label: LABEL, href: "/contact#quote" });
   assert.equal(site.leadFormAction, ACTION);
+});
+
+void test("a configured action without verification evidence renders no CTA and no form", async () => {
+  const site = await assemble(spec(ACTION, LABEL), "none");
+  assert.equal(site.primaryCta, null);
+  assert.equal(site.leadFormAction, "");
+});
+
+void test("a configured action whose verification failed renders no CTA and no form", async () => {
+  const site = await assemble(spec(ACTION, LABEL), "failed");
+  assert.equal(site.primaryCta, null);
+  assert.equal(site.leadFormAction, "");
 });
 
 void test("a label alone never manufactures a destination", async () => {
