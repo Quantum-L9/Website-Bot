@@ -22,12 +22,15 @@ import { resolve } from "node:path";
 import {
   assertIntelligenceArtifactIntegrity,
   type CompetitiveLandscapeArtifact,
+  type FirstPartyAuthorityRecord,
   type IntelligenceArtifactType,
   type PageContentContractArtifact,
+  readMarketAuthority,
   refForArtifact,
   type SEOContentBlueprintArtifact,
   type StructuredContentPackageArtifact,
   sameArtifactRef,
+  sameMarketAuthority,
   type WebsiteBuildBlueprintArtifact,
   type WebsiteIntelligenceArtifact,
 } from "@quantum-l9/bot-interop";
@@ -55,6 +58,7 @@ export type RedesignArtifactName =
   | "design-reference-set"
   | "design-reference-intelligence"
   | "competitive-landscape"
+  | "first-party-authority"
   | "accepted-donors"
   | "seo-bot-ordering"
   | "website-build-blueprint"
@@ -253,6 +257,7 @@ export interface PersistedRedesignIntelligence {
   designReferenceSet?: DesignReferenceSet;
   designReferenceIntelligence?: DesignReferenceIntelligence;
   competitiveLandscape?: CompetitiveLandscapeArtifact;
+  firstPartyAuthority?: FirstPartyAuthorityRecord;
   acceptedDonors?: AcceptedDonorEvidence[];
   seoBotOrdering?: BuildContext["seoBotOrdering"];
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
@@ -268,6 +273,33 @@ export interface PersistedRedesignIntelligence {
  * sealed artifacts. A lineage break is a REDESIGN_ARTIFACT_INVALID failure:
  * artifacts from two different acquisitions must never be recombined.
  */
+function authoritiesMatch(
+  left: Parameters<typeof sameMarketAuthority>[0],
+  right: Parameters<typeof sameMarketAuthority>[1],
+): boolean {
+  try {
+    return sameMarketAuthority(left, right);
+  } catch (error) {
+    throw new BuildError(
+      "REDESIGN_ARTIFACT_INVALID",
+      `lineage broken: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+function marketAuthorityOf(
+  source: Parameters<typeof readMarketAuthority>[0],
+): ReturnType<typeof readMarketAuthority> {
+  try {
+    return readMarketAuthority(source);
+  } catch (error) {
+    throw new BuildError(
+      "REDESIGN_ARTIFACT_INVALID",
+      `lineage broken: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
 export function loadPersistedRedesignIntelligence(ctx: Identity): PersistedRedesignIntelligence {
   const loaded: PersistedRedesignIntelligence = {
     clientVision: loadRedesignArtifact(ctx, "client-vision"),
@@ -277,6 +309,7 @@ export function loadPersistedRedesignIntelligence(ctx: Identity): PersistedRedes
     competitiveLandscape: loadRedesignArtifact(ctx, "competitive-landscape", {
       sealed: "competitive_landscape",
     }),
+    firstPartyAuthority: loadRedesignArtifact(ctx, "first-party-authority"),
     acceptedDonors: loadRedesignArtifact(ctx, "accepted-donors"),
     seoBotOrdering: loadRedesignArtifact(ctx, "seo-bot-ordering"),
     websiteBlueprint: loadRedesignArtifact(ctx, "website-build-blueprint", {
@@ -298,22 +331,50 @@ export function loadPersistedRedesignIntelligence(ctx: Identity): PersistedRedes
   const lineage = (condition: boolean, message: string): void => {
     if (!condition) throw new BuildError("REDESIGN_ARTIFACT_INVALID", `lineage broken: ${message}`);
   };
-  if (loaded.websiteBlueprint && loaded.competitiveLandscape) {
-    lineage(
-      sameArtifactRef(
-        loaded.websiteBlueprint.payload.provenance.competitive_landscape_ref,
-        refForArtifact(loaded.competitiveLandscape),
-      ),
-      "website-build-blueprint does not reference the persisted competitive-landscape",
-    );
+  if (loaded.websiteBlueprint) {
+    const authority = marketAuthorityOf(loaded.websiteBlueprint.payload.provenance);
+    if (authority.kind === "first_party") {
+      lineage(
+        !loaded.competitiveLandscape,
+        "first-party website-build-blueprint must not be paired with a competitive landscape",
+      );
+      if (loaded.firstPartyAuthority) {
+        lineage(
+          authoritiesMatch(
+            { first_party_authority: loaded.firstPartyAuthority },
+            loaded.websiteBlueprint.payload.provenance,
+          ),
+          "website-build-blueprint first-party authority does not match the persisted record",
+        );
+      }
+    } else if (loaded.competitiveLandscape) {
+      lineage(
+        sameArtifactRef(authority.ref, refForArtifact(loaded.competitiveLandscape)),
+        "website-build-blueprint does not reference the persisted competitive-landscape",
+      );
+    }
   }
-  if (loaded.seoContentBlueprint && loaded.competitiveLandscape) {
+  if (loaded.seoContentBlueprint) {
+    const authority = marketAuthorityOf(loaded.seoContentBlueprint.payload);
+    if (authority.kind === "first_party") {
+      lineage(
+        !loaded.competitiveLandscape,
+        "first-party seo-content-blueprint must not be paired with a competitive landscape",
+      );
+    } else if (loaded.competitiveLandscape) {
+      lineage(
+        sameArtifactRef(authority.ref, refForArtifact(loaded.competitiveLandscape)),
+        "seo-content-blueprint does not reference the persisted competitive-landscape",
+      );
+    }
+  }
+  if (loaded.websiteBlueprint && loaded.seoContentBlueprint) {
     lineage(
-      sameArtifactRef(
-        loaded.seoContentBlueprint.payload.competitive_landscape_ref,
-        refForArtifact(loaded.competitiveLandscape),
+      authoritiesMatch(
+        loaded.websiteBlueprint.payload.provenance,
+        loaded.seoContentBlueprint.payload,
       ),
-      "seo-content-blueprint does not reference the persisted competitive-landscape",
+      "website and seo blueprints cite different market authorities",
     );
   }
   if (loaded.pageContentContract && loaded.websiteBlueprint && loaded.seoContentBlueprint) {
@@ -374,6 +435,7 @@ export function hydrateRedesignIntelligence(
     persisted.designReferenceIntelligence,
   );
   assign("competitive-landscape", "competitiveLandscape", persisted.competitiveLandscape);
+  assign("first-party-authority", "firstPartyAuthority", persisted.firstPartyAuthority);
   assign("accepted-donors", "acceptedDonors", persisted.acceptedDonors);
   assign("seo-bot-ordering", "seoBotOrdering", persisted.seoBotOrdering);
   assign("website-build-blueprint", "websiteBlueprint", persisted.websiteBlueprint);

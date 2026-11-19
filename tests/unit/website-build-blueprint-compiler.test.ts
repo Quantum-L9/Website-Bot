@@ -13,6 +13,7 @@ import {
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../../src/intelligence/design-authority.js";
+import { firstPartyAuthorityFromSpec } from "../../src/intelligence/first-party-authority.js";
 import {
   type CompileWebsiteBuildBlueprintInput,
   compileWebsiteBuildBlueprint,
@@ -156,7 +157,7 @@ void test("WBV2-009: every provenance digest matches the input it describes", ()
   assert.equal(blueprint.payload.provenance.baseline_digest, digestOf(input.baseline));
   assert.equal(blueprint.payload.provenance.pattern_portfolio_digest, digestOf(portfolio));
   assert.equal(
-    blueprint.payload.provenance.competitive_landscape_ref.artifact_id,
+    blueprint.payload.provenance.competitive_landscape_ref?.artifact_id,
     landscape.artifact_id,
   );
 });
@@ -218,7 +219,7 @@ void test("the blueprint is bound to the landscape it was compiled from", () => 
   assert.notEqual(other.artifact_id, landscape.artifact_id);
   const blueprint = compileWebsiteBuildBlueprint(inputFor({ landscape: other }));
   assert.equal(
-    blueprint.payload.provenance.competitive_landscape_ref.artifact_id,
+    blueprint.payload.provenance.competitive_landscape_ref?.artifact_id,
     other.artifact_id,
   );
   assert.deepEqual(
@@ -337,6 +338,37 @@ void test("WBV2-010: visual requirements are derived deterministically from stru
     first.every(
       (requirement, index) => index === 0 || requirement.slot_id > first[index - 1]!.slot_id,
     ),
+  );
+});
+
+void test("a spec that did not request research compiles without a landscape", () => {
+  const domainSpec = spec();
+  const record = firstPartyAuthorityFromSpec(domainSpec);
+  const blueprint = compileWebsiteBuildBlueprint({
+    ...inputFor(),
+    landscape: undefined,
+    firstPartyAuthority: record,
+    patternPortfolio: { patterns: [] },
+    model: {},
+  });
+  assert.equal(blueprint.payload.provenance.competitive_landscape_ref, undefined);
+  assert.equal(
+    blueprint.payload.provenance.first_party_authority?.domain_spec_digest,
+    record.domain_spec_digest,
+  );
+  assert.equal(blueprint.payload.provenance.first_party_authority?.donor_count, 0);
+  assert.deepEqual(blueprint.input_refs, []);
+});
+
+void test("compile input with both market authorities fails closed", () => {
+  const record = firstPartyAuthorityFromSpec(spec());
+  assert.throws(
+    () =>
+      compileWebsiteBuildBlueprint({
+        ...inputFor(),
+        firstPartyAuthority: record,
+      }),
+    /exactly one market authority/,
   );
 });
 

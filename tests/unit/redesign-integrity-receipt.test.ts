@@ -8,6 +8,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import { FIRST_PARTY_AUTHORITY_SCHEMA } from "@quantum-l9/bot-interop";
 import type { BuildContext } from "../../src/pipeline/BuildContext.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import {
@@ -143,6 +144,44 @@ function validReceipt(): RedesignExecutionIntegrityReceipt {
   return emitRedesignExecutionIntegrityReceipt(completeCtx());
 }
 
+void test("not_requested is valid only with zero donors and no landscape", () => {
+  const record = {
+    schema: FIRST_PARTY_AUTHORITY_SCHEMA,
+    market_research: "not_requested" as const,
+    domain_spec_digest: "a".repeat(64),
+    donor_count: 0 as const,
+  };
+  const receipt = emitRedesignExecutionIntegrityReceipt(
+    completeCtx({
+      firstPartyAuthority: record,
+      competitiveLandscape: undefined,
+      acceptedDonors: [],
+    }),
+  );
+  validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false });
+  assert.equal(receipt.market_research, "not_requested");
+  assert.equal(receipt.qualified_donor_count, 0);
+  assert.equal(receipt.competitive_landscape, undefined);
+  assert.equal(receipt.donors.length, 0);
+
+  const withDonorCount = { ...receipt, qualified_donor_count: 1 };
+  assert.throws(
+    () => validateRedesignExecutionIntegrityReceipt(withDonorCount, { requireVisualQa: false }),
+    /qualified_donor_count must be 0/,
+  );
+  const withLandscape = {
+    ...receipt,
+    competitive_landscape: {
+      artifact_id: "competitive_landscape:abc",
+      payload_digest: "a".repeat(64),
+    },
+  };
+  assert.throws(
+    () => validateRedesignExecutionIntegrityReceipt(withLandscape, { requireVisualQa: false }),
+    /must not carry a landscape artifact/,
+  );
+});
+
 void test("receipt validation rejects nine donors", () => {
   const receipt = validReceipt();
   receipt.qualified_donor_count = 9;
@@ -264,7 +303,17 @@ void test("missing SEO-Bot credentials fail closed with COMPETITIVE_INTELLIGENCE
   delete process.env.SEO_BOT_URL;
   delete process.env.SEO_BOT_API_KEY;
   try {
-    const ctx = completeCtx();
+    const ctx = completeCtx({
+      domainSpec: {
+        client_id: CLIENT_ID,
+        business_name: "Test",
+        vertical: "test",
+        geography: { states: ["TN"], primary_state: "TN" },
+        design: { status: "pending" },
+        routes: [{ slug: "/", title: "Home", components: ["hero"] }],
+        market_research: "requested",
+      },
+    });
     await assert.rejects(
       () => new CompetitiveIntelligenceStage().run(ctx),
       (error: unknown) =>

@@ -163,11 +163,13 @@ const VARIANTS: Array<{
   },
   {
     // The real defect found in the Wave 4 review: form fields overflowing
-    // into the neighbouring column. Only the two-column desktop form
-    // overflows; the single-column mobile form is wide enough (0 px change).
+    // into the neighbouring column. Only the desktop capture may change.
+    // width:auto no longer paints differently: a grid item with width auto
+    // still stretches, so the fixture forces columns wider than the form.
     name: "form-overflow: the contact form's fields lose their column sizing again",
-    injectCss: () =>
-      ".lead-form__grid > label { min-width: auto !important; } .lead-form__grid :is(input, select) { width: auto !important; }",
+    injectCss: desktopOnly(
+      ".lead-form__grid { grid-template-columns: 20rem 20rem !important; } .lead-form__grid > label { min-width: 20rem !important; }",
+    ),
     expected: ["/contact@desktop"],
   },
   {

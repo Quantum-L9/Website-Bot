@@ -266,13 +266,13 @@ export function buildFactoryExecutionPlan(
     );
   stages.push(new UnknownResolverStage());
   if (redesign) {
-    // The readiness proof precedes the first paid build-intelligence call;
-    // ordering here IS the guarantee, and CompetitiveIntelligenceStage
-    // fails closed if it ever runs without the resulting evidence.
-    // Client-supplied design references are acquired and analyzed by
-    // repository-owned code between the readiness proof and the first paid
-    // SEO-Bot call: an unreachable SEO-Bot still fails before any Website-Bot
-    // LLM spend, and competitive-intelligence consumes resolved authorities.
+    // competitive-intelligence stays in the plan so the research decision is
+    // executed and recorded. It buys a landscape only when the spec sets
+    // market_research: requested. Otherwise it records first-party authority
+    // and does not call DataForSEO. The preflight remains because later
+    // content stages still call SEO-Bot; it is not a back door into a
+    // landscape purchase. Client-supplied design references are acquired
+    // before that decision.
     stages.push(
       new SeoBuildIntelligencePreflightStage(),
       new DesignReferenceAcquisitionStage(),

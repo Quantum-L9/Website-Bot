@@ -57,6 +57,7 @@ function ctxFor(buildId: string, overrides: Partial<BuildContext> = {}): BuildCo
       design: { status: "pending" },
       routes: [{ slug: "/", title: "Home", components: ["hero"] }],
       seo_contract: { target_keywords: ["test query"] },
+      market_research: "requested",
     },
     stageResults: new Map(),
     ...overrides,

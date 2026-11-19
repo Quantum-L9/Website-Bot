@@ -18,7 +18,9 @@ export interface RedesignExecutionIntegrityReceipt {
   mode: string;
   build_intent: "REDESIGN_IMPROVE";
   executed_stages: string[];
-  competitive_landscape: { artifact_id: string; payload_digest: string };
+  /** `not_requested` is legal only with zero donors and no landscape artifact. */
+  market_research: "requested" | "not_requested";
+  competitive_landscape?: { artifact_id: string; payload_digest: string };
   qualified_donor_count: number;
   donors: Array<{
     domain: string;
@@ -74,8 +76,26 @@ export function emitRedesignExecutionIntegrityReceipt(
       "redesign integrity receipt is only defined for REDESIGN_IMPROVE builds",
     );
   }
-  const landscape = require(ctx.competitiveLandscape, "competitive_landscape");
-  const donors = require(ctx.acceptedDonors, "accepted_donors");
+  const firstParty = ctx.firstPartyAuthority;
+  const landscape = ctx.competitiveLandscape;
+  if (firstParty && landscape) {
+    throw new BuildError(
+      "REDESIGN_PIPELINE_INCOMPLETE",
+      "redesign integrity receipt: first-party authority and a competitive landscape cannot both be present",
+    );
+  }
+  const marketResearch = firstParty ? "not_requested" : "requested";
+  if (marketResearch === "requested") require(landscape, "competitive_landscape");
+  if (marketResearch === "not_requested" && firstParty?.donor_count !== 0) {
+    throw new BuildError(
+      "REDESIGN_PIPELINE_INCOMPLETE",
+      "redesign integrity receipt: a not_requested authority must record donor_count 0",
+    );
+  }
+  const donors =
+    marketResearch === "not_requested"
+      ? (ctx.acceptedDonors ?? [])
+      : require(ctx.acceptedDonors, "accepted_donors");
   const seoBlueprint = require(ctx.seoContentBlueprint, "seo_content_blueprint");
   const contract = require(ctx.pageContentContract, "page_content_contract");
   const contentPackage = require(ctx.structuredContentPackage, "structured_content_package");
@@ -98,10 +118,15 @@ export function emitRedesignExecutionIntegrityReceipt(
     executed_stages: [...ctx.stageResults.entries()]
       .filter(([, result]) => result.ok)
       .map(([stage]) => stage),
-    competitive_landscape: {
-      artifact_id: landscape.artifact_id,
-      payload_digest: landscape.integrity.payload_digest,
-    },
+    market_research: marketResearch,
+    ...(landscape
+      ? {
+          competitive_landscape: {
+            artifact_id: landscape.artifact_id,
+            payload_digest: landscape.integrity.payload_digest,
+          },
+        }
+      : {}),
     qualified_donor_count: donors.length,
     donors: donors.map((donor) => ({
       domain: donor.domain,
@@ -175,13 +200,43 @@ function validateZeroLlmCalls(receipt: RedesignExecutionIntegrityReceipt): void 
 
 function validateArtifactRefs(receipt: RedesignExecutionIntegrityReceipt): void {
   for (const [field, ref] of [
-    ["competitive_landscape", receipt.competitive_landscape],
     ["seo_content_blueprint", receipt.seo_content_blueprint],
     ["page_content_contract", receipt.page_content_contract],
     ["structured_content_package", receipt.structured_content_package],
   ] as const) {
     if (!ref.artifact_id || !ref.payload_digest) receiptFail(`${field} identity is incomplete`);
   }
+}
+
+function validateMarketResearch(receipt: RedesignExecutionIntegrityReceipt): void {
+  if (receipt.market_research === "not_requested") {
+    if (receipt.competitive_landscape) {
+      receiptFail("not_requested must not carry a landscape artifact");
+    }
+    if (receipt.qualified_donor_count !== 0) {
+      receiptFail(
+        `not_requested qualified_donor_count must be 0, got ${receipt.qualified_donor_count}`,
+      );
+    }
+    if (receipt.donors.length !== 0) {
+      receiptFail("not_requested donor evidence list must be empty");
+    }
+    return;
+  }
+  if (receipt.market_research !== "requested") {
+    receiptFail("market_research must be requested or not_requested");
+  }
+  if (
+    !receipt.competitive_landscape?.artifact_id ||
+    !receipt.competitive_landscape.payload_digest
+  ) {
+    receiptFail("competitive_landscape identity is incomplete");
+  }
+  if (receipt.qualified_donor_count !== 10) {
+    receiptFail(`qualified_donor_count must be exactly 10, got ${receipt.qualified_donor_count}`);
+  }
+  if (receipt.donors.length !== 10) receiptFail("donor evidence list must carry 10 donors");
+  validateDonorEvidence(receipt);
 }
 
 function validateVisualState(
@@ -209,10 +264,7 @@ export function validateRedesignExecutionIntegrityReceipt(
 ): void {
   if (receipt.build_intent !== "REDESIGN_IMPROVE")
     receiptFail("build_intent must be REDESIGN_IMPROVE");
-  if (receipt.qualified_donor_count !== 10)
-    receiptFail(`qualified_donor_count must be exactly 10, got ${receipt.qualified_donor_count}`);
-  if (receipt.donors.length !== 10) receiptFail(`donor evidence list must carry 10 donors`);
-  validateDonorEvidence(receipt);
+  validateMarketResearch(receipt);
   validateZeroLlmCalls(receipt);
   validateArtifactRefs(receipt);
   validateVisualState(receipt, options.requireVisualQa);

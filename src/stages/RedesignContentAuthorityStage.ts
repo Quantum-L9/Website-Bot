@@ -20,11 +20,14 @@ import { resolve } from "node:path";
 import {
   assertIntelligenceArtifactIntegrity,
   canonicalJson,
+  type MarketAuthority,
   type PageContentContractArtifact,
   type PageContentContractV1,
+  readMarketAuthority,
   refForArtifact,
   type StructuredContentPackageArtifact,
   sameArtifactRef,
+  sameMarketAuthority,
   sealIntelligenceArtifact,
   type VerifiedBusinessFact,
 } from "@quantum-l9/bot-interop";
@@ -102,7 +105,7 @@ export class RedesignContentAuthorityStage implements Stage {
       logger.info({ intent: ctx.buildIntent }, "not a redesign build; content authority skipped");
       return;
     }
-    const { blueprint, landscape } = this.assertPrerequisites(ctx);
+    const { blueprint, authority } = this.assertPrerequisites(ctx);
     if (!ctx.seoBuildIntelligencePreflight) {
       throw new BuildError(
         "REDESIGN_PIPELINE_INCOMPLETE",
@@ -127,7 +130,7 @@ export class RedesignContentAuthorityStage implements Stage {
           ctx,
           ctx.seoContentBlueprint as NonNullable<BuildContext["seoContentBlueprint"]>,
           blueprint,
-          landscape,
+          authority,
           ctx.domainSpec.routes.map((route) => ({
             route_id: route.slug,
             path: route.slug,
@@ -164,11 +167,13 @@ export class RedesignContentAuthorityStage implements Stage {
     const seoBlueprint = await port.createSEOContentBlueprint({
       client_id: ctx.clientId,
       build_id: ctx.buildId,
-      competitive_landscape: landscape,
+      ...(authority.kind === "competitive_landscape"
+        ? { competitive_landscape: ctx.competitiveLandscape }
+        : { first_party_authority: authority.record }),
       routes,
       business_facts: businessFacts,
     });
-    this.assertSeoBlueprintLineage(ctx, seoBlueprint, blueprint, landscape, routes);
+    this.assertSeoBlueprintLineage(ctx, seoBlueprint, blueprint, authority, routes);
     ctx.seoContentBlueprint = seoBlueprint;
     persistRedesignArtifact(ctx, "seo-content-blueprint", seoBlueprint);
     logger.info(
@@ -217,24 +222,67 @@ export class RedesignContentAuthorityStage implements Stage {
 
   private assertPrerequisites(ctx: BuildContext): {
     blueprint: NonNullable<BuildContext["websiteBlueprint"]>;
-    landscape: NonNullable<BuildContext["competitiveLandscape"]>;
+    authority: MarketAuthority;
   } {
     const blueprint = ctx.websiteBlueprint;
-    const landscape = ctx.competitiveLandscape;
-    if (!blueprint || !landscape) {
+    if (!blueprint) {
       throw new BuildError(
         "REDESIGN_PIPELINE_INCOMPLETE",
-        "redesign content authority requires the sealed WebsiteBuildBlueprint and CompetitiveLandscape",
+        "redesign content authority requires the sealed WebsiteBuildBlueprint",
       );
     }
-    return { blueprint, landscape };
+    let authority: MarketAuthority;
+    try {
+      authority = readMarketAuthority(blueprint.payload.provenance);
+    } catch (error) {
+      throw new BuildError(
+        "REDESIGN_PIPELINE_INCOMPLETE",
+        `redesign content authority requires exactly one market authority: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+    if (authority.kind === "competitive_landscape") {
+      if (!ctx.competitiveLandscape) {
+        throw new BuildError(
+          "REDESIGN_PIPELINE_INCOMPLETE",
+          "redesign content authority requires the CompetitiveLandscape this blueprint cites",
+        );
+      }
+      if (
+        !sameArtifactRef(authority.ref, refForArtifact(ctx.competitiveLandscape)) ||
+        ctx.firstPartyAuthority
+      ) {
+        throw new BuildError(
+          "COMPETITIVE_LANDSCAPE_MISMATCH",
+          "WebsiteBuildBlueprint cites a different market authority than this run accepted",
+        );
+      }
+    } else if (ctx.competitiveLandscape) {
+      throw new BuildError(
+        "COMPETITIVE_LANDSCAPE_MISMATCH",
+        "a first-party blueprint must not be paired with a CompetitiveLandscape",
+      );
+    } else if (
+      ctx.firstPartyAuthority &&
+      !sameMarketAuthority(
+        { first_party_authority: ctx.firstPartyAuthority },
+        { first_party_authority: authority.record },
+      )
+    ) {
+      throw new BuildError(
+        "COMPETITIVE_LANDSCAPE_MISMATCH",
+        "WebsiteBuildBlueprint cites a different first-party authority than this run recorded",
+      );
+    }
+    return { blueprint, authority };
   }
 
   private assertSeoBlueprintLineage(
     ctx: BuildContext,
     seoBlueprint: Awaited<ReturnType<SeoBuildIntelligencePort["createSEOContentBlueprint"]>>,
     blueprint: NonNullable<BuildContext["websiteBlueprint"]>,
-    landscape: NonNullable<BuildContext["competitiveLandscape"]>,
+    authority: MarketAuthority,
     routes: Array<{ route_id: string; path: string; purpose: string }>,
   ): void {
     try {
@@ -253,14 +301,19 @@ export class RedesignContentAuthorityStage implements Stage {
         `SEOContentBlueprint belongs to client ${seoBlueprint.client_id}, expected ${ctx.clientId}`,
       );
     }
-    const landscapeRef = refForArtifact(landscape);
-    if (!sameArtifactRef(seoBlueprint.payload.competitive_landscape_ref, landscapeRef)) {
+    if (!sameMarketAuthority(blueprint.payload.provenance, seoBlueprint.payload)) {
       throw new BuildError(
         "COMPETITIVE_LANDSCAPE_MISMATCH",
-        "SEOContentBlueprint references a different CompetitiveLandscape than this run accepted",
+        authority.kind === "first_party"
+          ? "SEOContentBlueprint cites a different first-party authority than the website blueprint"
+          : "SEOContentBlueprint references a different CompetitiveLandscape than this run accepted",
       );
     }
-    if (!sameArtifactRef(blueprint.payload.provenance.competitive_landscape_ref, landscapeRef)) {
+    if (
+      authority.kind === "competitive_landscape" &&
+      ctx.competitiveLandscape &&
+      !sameArtifactRef(authority.ref, refForArtifact(ctx.competitiveLandscape))
+    ) {
       throw new BuildError(
         "COMPETITIVE_LANDSCAPE_MISMATCH",
         "WebsiteBuildBlueprint references a different CompetitiveLandscape than this run accepted",

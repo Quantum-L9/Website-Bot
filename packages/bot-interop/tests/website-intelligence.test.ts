@@ -3,9 +3,14 @@ import test from "node:test";
 import {
   type ArtifactRef,
   assertIntelligenceArtifactIntegrity,
+  assertProvenanceCompleteness,
+  type BlueprintProvenance,
   type CompetitiveLandscapeV1,
+  FIRST_PARTY_AUTHORITY_SCHEMA,
+  type FirstPartyAuthorityRecord,
   refForArtifact,
   sameArtifactRef,
+  sameMarketAuthority,
   sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_PROTOCOL,
   WEBSITE_INTELLIGENCE_PROTOCOL_VERSION,
@@ -148,6 +153,73 @@ test("unsupported protocol version fails schema verification", () => {
     () => assertIntelligenceArtifactIntegrity(tampered),
     /INTEL_ARTIFACT_SCHEMA_MISMATCH/,
   );
+});
+
+function provenance(over: Partial<BlueprintProvenance> = {}): BlueprintProvenance {
+  return {
+    competitive_landscape_ref: refA,
+    baseline_digest: "b".repeat(64),
+    client_vision_digest: "c".repeat(64),
+    design_reference_intelligence_digest: "d".repeat(64),
+    pattern_portfolio_digest: "e".repeat(64),
+    ...over,
+  };
+}
+
+const firstParty: FirstPartyAuthorityRecord = {
+  schema: FIRST_PARTY_AUTHORITY_SCHEMA,
+  market_research: "not_requested",
+  domain_spec_digest: "f".repeat(64),
+  donor_count: 0,
+};
+
+test("a landscape ref and a first-party record are mutually exclusive", () => {
+  assert.doesNotThrow(() => assertProvenanceCompleteness(provenance()));
+  const { competitive_landscape_ref: _removed, ...withoutLandscape } = provenance();
+  assert.throws(
+    () => assertProvenanceCompleteness(withoutLandscape),
+    /exactly one of competitive_landscape_ref or first_party_authority/,
+  );
+  assert.throws(
+    () => assertProvenanceCompleteness(provenance({ first_party_authority: firstParty })),
+    /exactly one of competitive_landscape_ref or first_party_authority/,
+  );
+  assert.doesNotThrow(() =>
+    assertProvenanceCompleteness({
+      ...withoutLandscape,
+      first_party_authority: firstParty,
+    }),
+  );
+});
+
+test("a first-party record with donors or a missing digest is incomplete", () => {
+  const { competitive_landscape_ref: _removed, ...withoutLandscape } = provenance();
+  assert.throws(
+    () =>
+      assertProvenanceCompleteness({
+        ...withoutLandscape,
+        first_party_authority: { ...firstParty, donor_count: 1 as 0 },
+      }),
+    /donor_count=0/,
+  );
+  assert.throws(
+    () =>
+      assertProvenanceCompleteness({
+        ...withoutLandscape,
+        first_party_authority: { ...firstParty, domain_spec_digest: "not-a-digest" },
+      }),
+    /domain_spec_digest/,
+  );
+});
+
+test("sameMarketAuthority accepts only the same exclusive form", () => {
+  const landscape = provenance();
+  const specOnly = provenance();
+  delete specOnly.competitive_landscape_ref;
+  specOnly.first_party_authority = firstParty;
+  assert.equal(sameMarketAuthority(landscape, provenance()), true);
+  assert.equal(sameMarketAuthority(specOnly, { ...specOnly }), true);
+  assert.equal(sameMarketAuthority(landscape, specOnly), false);
 });
 
 test("refForArtifact and sameArtifactRef round-trip", () => {

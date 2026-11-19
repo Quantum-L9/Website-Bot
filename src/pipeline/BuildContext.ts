@@ -2,6 +2,7 @@
 import { resolve } from "node:path";
 import type {
   CompetitiveLandscapeArtifact,
+  FirstPartyAuthorityRecord,
   PageContentContractArtifact,
   SEOContentBlueprintArtifact,
   StructuredContentPackageArtifact,
@@ -189,6 +190,11 @@ export interface DomainSpec {
   /** Transformation intent. Legacy specs default to COPY; REDESIGN_IMPROVE must be explicit. */
   build_intent?: "COPY" | "REDESIGN_IMPROVE";
   /**
+   * Opt-in SERP donor research. Only `"requested"` buys a competitive
+   * landscape. Absence means the domain spec is sufficient authority.
+   */
+  market_research?: "requested" | "not_requested";
+  /**
    * Explicit client design intent (ADR-0018, WBV2-003). Resolved into
    * `ClientVision`, which outranks any inferred source/donor/reference
    * observation. Omit the block entirely when the client stated nothing —
@@ -359,6 +365,11 @@ export interface BuildContext {
   /** Abstracted design principles derived from the accepted references. */
   designReferenceIntelligence?: DesignReferenceIntelligence;
   competitiveLandscape?: CompetitiveLandscapeArtifact;
+  /**
+   * Present only when the spec did not request market research. Mutually
+   * exclusive with {@link competitiveLandscape}.
+   */
+  firstPartyAuthority?: FirstPartyAuthorityRecord;
   /** Server-side ordering stamps proving preflight preceded the first SEO build-intelligence call. */
   seoBotOrdering?: {
     preflight_produced_at: string;

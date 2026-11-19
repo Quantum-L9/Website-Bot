@@ -16,8 +16,15 @@ import {
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../intelligence/design-authority.js";
+import {
+  firstPartyAuthorityFromSpec,
+  marketResearchRequested,
+} from "../intelligence/first-party-authority.js";
 import { websiteImproveTask } from "../intelligence/improve-llm-policy.js";
-import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
+import {
+  SeoBotIntelligenceError,
+  SeoBuildIntelligenceHttpClient,
+} from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import {
   SeoBotPreflightError,
   type SeoBuildIntelligencePort,
@@ -31,7 +38,7 @@ import {
 } from "../intelligence/WebsiteBuildBlueprintCompiler.js";
 import { textField } from "../lib/coerce-text.js";
 import { type BuildContext, clientAssetRoot } from "../pipeline/BuildContext.js";
-import { BuildError } from "../pipeline/BuildError.js";
+import { BuildError, type BuildErrorCode } from "../pipeline/BuildError.js";
 import {
   hydrateRedesignIntelligence,
   persistRedesignArtifact,
@@ -65,6 +72,23 @@ function observedPaletteCharacteristics(ctx: BuildContext): string[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function requestCompetitiveLandscape(
+  port: SeoBuildIntelligencePort,
+  request: Parameters<SeoBuildIntelligencePort["createCompetitiveLandscape"]>[0],
+): Promise<CompetitiveLandscapeArtifact> {
+  try {
+    return await port.createCompetitiveLandscape(request);
+  } catch (error) {
+    if (!(error instanceof SeoBotIntelligenceError)) throw error;
+    const parsed = isRecord(error.parsed) ? error.parsed : { body: error.message };
+    const code: BuildErrorCode =
+      parsed.error === "COMPETITIVE_EVIDENCE_INCOMPLETE"
+        ? "COMPETITIVE_EVIDENCE_INCOMPLETE"
+        : "INTELLIGENCE_UNAVAILABLE";
+    throw new BuildError(code, error.message, false, parsed);
+  }
 }
 
 function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
@@ -259,6 +283,10 @@ export class CompetitiveIntelligenceStage implements Stage {
       );
       return;
     }
+    if (!marketResearchRequested(ctx.domainSpec)) {
+      this.sealFirstPartyBlueprint(ctx);
+      return;
+    }
     if (!ctx.seoBuildIntelligencePreflight) {
       throw new BuildError(
         "REDESIGN_PIPELINE_INCOMPLETE",
@@ -331,7 +359,7 @@ export class CompetitiveIntelligenceStage implements Stage {
       { donors: REQUIRED_DONOR_COUNT, queries: seedQueries.length },
       "Fetching competitive landscape from SEO-Bot",
     );
-    const landscape = await port.createCompetitiveLandscape({
+    const landscape = await requestCompetitiveLandscape(port, {
       client_id: ctx.clientId,
       build_id: ctx.buildId,
       market: {
@@ -503,6 +531,87 @@ export class CompetitiveIntelligenceStage implements Stage {
         paletteAuthority: blueprint.payload.design_direction.palette_authority.source,
       },
       "WebsiteBuildBlueprintV2 sealed and gated",
+    );
+  }
+
+  /**
+   * The spec did not request market research. Record that explicitly and
+   * compile the blueprint from the spec, client vision, and design references.
+   * No landscape purchase, no donor crawl, no donor-nugget synthesis.
+   */
+  private sealFirstPartyBlueprint(ctx: BuildContext): void {
+    if (ctx.resume && !ctx.dryRun) {
+      const hydrated = hydrateRedesignIntelligence(ctx, [
+        "first-party-authority",
+        "website-build-blueprint",
+        "client-vision",
+        "design-reference-set",
+        "design-reference-intelligence",
+      ]);
+      if (
+        hydrated.includes("first-party-authority") &&
+        hydrated.includes("website-build-blueprint") &&
+        !ctx.competitiveLandscape
+      ) {
+        logger.info({ hydrated }, "first-party blueprint reused from persisted redesign artifacts");
+        ctx.acceptedDonors ??= [];
+        return;
+      }
+    }
+
+    const record = firstPartyAuthorityFromSpec(ctx.domainSpec);
+    ctx.firstPartyAuthority = record;
+    ctx.acceptedDonors = [];
+    ctx.competitiveLandscape = undefined;
+    persistRedesignArtifact(ctx, "first-party-authority", record);
+    persistRedesignArtifact(ctx, "accepted-donors", []);
+
+    const { clientVision, designReferenceIntelligence } = resolveDesignAuthorities(ctx);
+    const paletteAuthority = resolvePaletteAuthority({
+      spec: ctx.domainSpec,
+      clientVision,
+      observedCharacteristics: observedPaletteCharacteristics(ctx),
+    });
+    const specRoutes = ctx.domainSpec.routes.map((route) => ({
+      route_id: route.slug,
+      path: route.slug,
+      purpose: route.purpose ?? route.title,
+      spec_components: route.components,
+    }));
+    const blueprint = compileWebsiteBuildBlueprint({
+      clientId: ctx.clientId,
+      buildId: ctx.buildId,
+      producerVersion: "3.1.0",
+      specRoutes,
+      baseline: ctx.domainSpec.routes,
+      firstPartyAuthority: record,
+      patternPortfolio: { patterns: [] },
+      clientVision,
+      designReferenceIntelligence,
+      paletteAuthority,
+      valueProposition: ctx.domainSpec.value_proposition,
+      conversionAuthority: ctx.domainSpec.conversion_authority,
+      contentGuardrails: ctx.domainSpec.content_guardrails,
+      model: {},
+    });
+    ctx.websiteBlueprint = blueprint;
+    persistRedesignArtifact(ctx, "website-build-blueprint", blueprint);
+    if (!ctx.dryRun) {
+      const assetsDir = clientAssetRoot(ctx);
+      mkdirSync(assetsDir, { recursive: true });
+      writeFileSync(
+        resolve(assetsDir, "website-build-blueprint.json"),
+        `${JSON.stringify(blueprint, null, 2)}\n`,
+        "utf-8",
+      );
+    }
+    logger.info(
+      {
+        artifactId: blueprint.artifact_id,
+        domainSpecDigest: record.domain_spec_digest,
+        routes: blueprint.payload.routes.length,
+      },
+      "WebsiteBuildBlueprintV2 sealed from the domain spec; market research was not requested",
     );
   }
 }

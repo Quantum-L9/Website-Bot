@@ -57,6 +57,26 @@ function scopedPkgVersion(scope: string, name: string): string {
   }
 }
 
+/** Producer refusal, with the response body kept for the failure record. */
+export class SeoBotIntelligenceError extends Error {
+  readonly parsed: unknown;
+
+  constructor(
+    path: string,
+    readonly status: number,
+    raw: string,
+  ) {
+    const body = raw.slice(0, 100_000);
+    super(`SEO-Bot intelligence ${path} failed (${status}): ${body.slice(0, 8_000)}`);
+    this.name = "SeoBotIntelligenceError";
+    try {
+      this.parsed = JSON.parse(body) as unknown;
+    } catch {
+      this.parsed = undefined;
+    }
+  }
+}
+
 export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort {
   constructor(
     private readonly baseUrl: string,
@@ -128,9 +148,7 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       : await this.fetchImpl(url, init);
     const raw = await response.text();
     if (!response.ok) {
-      throw new Error(
-        `SEO-Bot intelligence ${path} failed (${response.status}): ${raw.slice(0, 500)}`,
-      );
+      throw new SeoBotIntelligenceError(path, response.status, raw);
     }
     return JSON.parse(raw) as T;
   }
@@ -157,7 +175,8 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
    * the four SEO_BOT_* codes and fails closed before any expensive pipeline
    * work.
    */
-  async preflight(): Promise<SeoBotPreflightResult> {
+  async preflight(options?: { requireMarketResearch?: boolean }): Promise<SeoBotPreflightResult> {
+    const requireMarketResearch = options?.requireMarketResearch !== false;
     // 1. Network reachability — the public health route.
     const health = await this.get("/health");
     if (!health.ok) {
@@ -192,21 +211,33 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
     //    client has fields for. A producer that reports itself not ready
     //    (a FAIL or UNKNOWN check this client cannot see) is never admitted on
     //    the strength of that subset (L2-S3-001).
+    const marketResearchChecks = new Set([
+      "dataforseo_configured",
+      "competitive_landscape_capability",
+    ]);
     if (snapshot.status !== "ready") {
-      const failed = (snapshot.checks ?? [])
-        .filter((check) => check.status !== "PASS")
-        .map((check) => `${check.name}=${check.status}`);
-      throw new SeoBotPreflightError(
-        "SEO_BOT_CAPABILITY_MISMATCH",
-        `SEO-Bot reports readiness ${JSON.stringify(snapshot.status)}, not "ready"` +
-          (failed.length > 0 ? ` (${failed.join(", ")})` : ""),
+      const checks = snapshot.checks ?? [];
+      const blocking = checks.filter(
+        (check) =>
+          check.status !== "PASS" &&
+          (requireMarketResearch || !marketResearchChecks.has(check.name)),
       );
+      const onlyMarketResearchUnavailable =
+        !requireMarketResearch && checks.length > 0 && blocking.length === 0;
+      if (!onlyMarketResearchUnavailable) {
+        const failed = blocking.map((check) => `${check.name}=${check.status}`);
+        throw new SeoBotPreflightError(
+          "SEO_BOT_CAPABILITY_MISMATCH",
+          `SEO-Bot reports readiness ${JSON.stringify(snapshot.status)}, not "ready"` +
+            (failed.length > 0 ? ` (${failed.join(", ")})` : ""),
+        );
+      }
     }
 
     // 4. Required API capabilities + provider configuration.
     const capabilities = snapshot.capabilities ?? ({} as SeoBotPreflightResult["capabilities"]);
     const missingCapabilities = [
-      !capabilities.competitive_landscape && "competitive_landscape",
+      requireMarketResearch && !capabilities.competitive_landscape && "competitive_landscape",
       !capabilities.seo_content_blueprint && "seo_content_blueprint",
       !capabilities.structured_content && "structured_content",
     ].filter((name): name is string => typeof name === "string");
@@ -217,7 +248,10 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       );
     }
     const configuration = snapshot.configuration ?? ({} as SeoBotPreflightResult["configuration"]);
-    if (!configuration.dataforseo_configured || !configuration.llm_provider_configured) {
+    if (
+      (requireMarketResearch && !configuration.dataforseo_configured) ||
+      !configuration.llm_provider_configured
+    ) {
       throw new SeoBotPreflightError(
         "SEO_BOT_CAPABILITY_MISMATCH",
         "SEO-Bot provider configuration is incomplete (DataForSEO or LLM provider not configured)",

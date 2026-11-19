@@ -6,7 +6,7 @@ import {
   refForArtifact,
   type SEOContentBlueprintArtifact,
   type SEOContentRequirement,
-  sameArtifactRef,
+  sameMarketAuthority,
   type VerifiedBusinessFact,
   type WebsiteBlueprintSection,
   type WebsiteBuildBlueprintArtifact,
@@ -112,15 +112,14 @@ export function compilePageContentContract(
 
   validateFacts(input.businessFacts);
 
-  if (
-    !sameArtifactRef(website.provenance.competitive_landscape_ref, seo.competitive_landscape_ref)
-  ) {
+  if (!sameMarketAuthority(website.provenance, seo)) {
     throw new PageContentContractCompileError(
       "COMPETITIVE_LANDSCAPE_MISMATCH",
-      "Website and SEO blueprints were produced from different CompetitiveLandscape artifacts.",
+      "Website and SEO blueprints cite different market authorities.",
       {
-        website: website.provenance.competitive_landscape_ref,
-        seo: seo.competitive_landscape_ref,
+        website:
+          website.provenance.competitive_landscape_ref ?? website.provenance.first_party_authority,
+        seo: seo.competitive_landscape_ref ?? seo.first_party_authority,
       },
     );
   }
