@@ -11,6 +11,7 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { marketResearchRequested } from "../intelligence/first-party-authority.js";
 import { type BuildContext, clientPersistentAssetRoot } from "./BuildContext.js";
 import { loadPersistedRedesignIntelligence } from "./evidence/RedesignIntelligenceArtifacts.js";
 import type { SpendLedger } from "./SpendLedger.js";
@@ -70,6 +71,9 @@ function plannedGenerations(ctx: BuildContext): number {
  */
 export function admitPaidStage(ctx: BuildContext, ledger: SpendLedger, stage: string): () => void {
   if (isSeoBotPaidStage(stage) && ctx.buildIntent === "REDESIGN_IMPROVE") {
+    if (stage === "competitive-intelligence" && !marketResearchRequested(ctx.domainSpec)) {
+      return () => {};
+    }
     if (seoBotStageWillHydrate(ctx, stage)) return () => {};
     const reserve = ledger.reserve.dataforseo;
     ledger.admit("dataforseo", reserve, stage);
