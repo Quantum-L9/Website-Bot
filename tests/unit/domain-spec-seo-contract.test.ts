@@ -21,6 +21,17 @@ const CONTACT_ROUTES = [
   { slug: "/contact", title: "Contact", components: ["contact_form"] },
 ];
 
+void test("market_research accepts only requested or not_requested", () => {
+  assert.equal(
+    validateDomainSpec(baseSpec({ market_research: "not_requested" }), "test.yaml").market_research,
+    "not_requested",
+  );
+  assert.throws(
+    () => validateDomainSpec(baseSpec({ market_research: "request" }), "test.yaml"),
+    /market_research must be requested or not_requested/,
+  );
+});
+
 void test("valid spec with full seo_contract passes", () => {
   const spec = baseSpec({
     routes: CONTACT_ROUTES,

@@ -359,6 +359,7 @@ void test("SEO-Bot paid stages are admitted at the DataForSEO reserve before the
   };
   try {
     ctx.buildIntent = "REDESIGN_IMPROVE";
+    ctx.domainSpec.market_research = "requested";
     ctx.llm = fakeLLM(0);
     ctx.spendLedger = openLedger(ctx, false, 3);
     assert.equal((await runOnce(ctx, [competitive]))?.code, "INTELLIGENCE_UNAVAILABLE");
@@ -372,6 +373,27 @@ void test("SEO-Bot paid stages are admitted at the DataForSEO reserve before the
     assert.equal(failure?.code, "BUDGET_EXCEEDED");
     assert.match(failure?.message ?? "", /class dataforseo spent \$2\.0000 \+ requested \$2\.0000/);
     assert.equal(counter.runs, 1, "the second SEO-Bot call was never made");
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("a redesign that did not request research does not reserve DataForSEO", async () => {
+  const ctx = fixtureContext();
+  const competitive: Stage = {
+    name: "competitive-intelligence",
+    async run() {
+      return undefined;
+    },
+  };
+  try {
+    ctx.buildIntent = "REDESIGN_IMPROVE";
+    ctx.llm = fakeLLM(0);
+    ctx.spendLedger = openLedger(ctx, false, 3);
+    assert.equal(await runOnce(ctx, [competitive]), undefined);
+    const charged = economics(ctx);
+    assert.equal(charged.totals.by_class.dataforseo ?? 0, 0);
+    assert.equal(charged.charges.length, 0);
   } finally {
     cleanupContext(ctx);
   }

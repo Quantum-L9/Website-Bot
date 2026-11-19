@@ -244,6 +244,7 @@ function dispositionFor(path: string): SemanticDisposition | undefined {
   ];
   const runtime = [
     "build_intent",
+    "market_research",
     "business_facts",
     "value_proposition",
     "identity.business_name",
@@ -382,10 +383,23 @@ export function buildFlatSpec(nested: unknown): DomainSpec {
   flat.semantic_provenance = compileSemanticProvenance(ds);
   carryStructuredAssets(ds, flat);
   carryBuildIntent(ds, flat);
+  carryMarketResearch(ds, flat);
   carryClientVision(ds, flat);
   carryDesignReferences(ds, flat);
   carryStructuredDesignTokens(ds, flat);
   return flat;
+}
+
+const MARKET_RESEARCH = ["requested", "not_requested"] as const;
+
+function carryMarketResearch(ds: any, flat: DomainSpec): void {
+  const research = ds.market_research;
+  if (research === undefined) return;
+  if (!MARKET_RESEARCH.includes(research))
+    throw new Error(
+      `market_research must be one of ${MARKET_RESEARCH.join("|")}, got ${JSON.stringify(research)}`,
+    );
+  flat.market_research = research;
 }
 
 function carryBuildIntent(ds: any, flat: DomainSpec): void {
