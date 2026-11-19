@@ -6,8 +6,8 @@ import {
   FIRST_PARTY_AUTHORITY_SCHEMA,
   refForArtifact,
   type SEOContentBlueprintArtifact,
-  sealIntelligenceArtifact,
   type StructuredContentPackageArtifact,
+  sealIntelligenceArtifact,
   WEBSITE_INTELLIGENCE_SCHEMAS,
 } from "@quantum-l9/bot-interop";
 import type {
@@ -279,6 +279,9 @@ void test("content authority sends the first-party record and no landscape", asy
   assert.equal(seen.competitive_landscape, undefined);
   assert.equal(seen.first_party_authority?.domain_spec_digest, authority.domain_spec_digest);
   assert.equal(seen.first_party_authority?.donor_count, 0);
-  assert.equal(ctx.seoContentBlueprint?.payload.first_party_authority?.market_research, "not_requested");
+  assert.equal(
+    ctx.seoContentBlueprint?.payload.first_party_authority?.market_research,
+    "not_requested",
+  );
   assert.equal(ctx.seoContentBlueprint?.payload.competitive_landscape_ref, undefined);
 });

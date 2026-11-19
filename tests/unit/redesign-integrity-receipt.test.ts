@@ -171,7 +171,10 @@ void test("not_requested is valid only with zero donors and no landscape", () =>
   );
   const withLandscape = {
     ...receipt,
-    competitive_landscape: { artifact_id: "competitive_landscape:abc", payload_digest: "a".repeat(64) },
+    competitive_landscape: {
+      artifact_id: "competitive_landscape:abc",
+      payload_digest: "a".repeat(64),
+    },
   };
   assert.throws(
     () => validateRedesignExecutionIntegrityReceipt(withLandscape, { requireVisualQa: false }),

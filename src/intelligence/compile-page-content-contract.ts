@@ -117,7 +117,8 @@ export function compilePageContentContract(
       "COMPETITIVE_LANDSCAPE_MISMATCH",
       "Website and SEO blueprints cite different market authorities.",
       {
-        website: website.provenance.competitive_landscape_ref ?? website.provenance.first_party_authority,
+        website:
+          website.provenance.competitive_landscape_ref ?? website.provenance.first_party_authority,
         seo: seo.competitive_landscape_ref ?? seo.first_party_authority,
       },
     );

@@ -226,7 +226,10 @@ function validateMarketResearch(receipt: RedesignExecutionIntegrityReceipt): voi
   if (receipt.market_research !== "requested") {
     receiptFail("market_research must be requested or not_requested");
   }
-  if (!receipt.competitive_landscape?.artifact_id || !receipt.competitive_landscape.payload_digest) {
+  if (
+    !receipt.competitive_landscape?.artifact_id ||
+    !receipt.competitive_landscape.payload_digest
+  ) {
     receiptFail("competitive_landscape identity is incomplete");
   }
   if (receipt.qualified_donor_count !== 10) {

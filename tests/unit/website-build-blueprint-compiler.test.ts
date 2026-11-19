@@ -7,13 +7,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
-import { firstPartyAuthorityFromSpec } from "../../src/intelligence/first-party-authority.js";
 import {
   deriveDesignReferenceIntelligence,
   resolveClientVision,
   resolveDesignReferenceSet,
   resolvePaletteAuthority,
 } from "../../src/intelligence/design-authority.js";
+import { firstPartyAuthorityFromSpec } from "../../src/intelligence/first-party-authority.js";
 import {
   type CompileWebsiteBuildBlueprintInput,
   compileWebsiteBuildBlueprint,

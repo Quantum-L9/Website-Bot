@@ -181,10 +181,7 @@ test("a landscape ref and a first-party record are mutually exclusive", () => {
     /exactly one of competitive_landscape_ref or first_party_authority/,
   );
   assert.throws(
-    () =>
-      assertProvenanceCompleteness(
-        provenance({ first_party_authority: firstParty }),
-      ),
+    () => assertProvenanceCompleteness(provenance({ first_party_authority: firstParty })),
     /exactly one of competitive_landscape_ref or first_party_authority/,
   );
   assert.doesNotThrow(() =>
