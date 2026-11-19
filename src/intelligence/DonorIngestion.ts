@@ -7,7 +7,9 @@
 // analytical evidence only — disposition is always DONOR_REFERENCE_ONLY.
 
 import { createHash } from "node:crypto";
+import { lookup } from "node:dns/promises";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { BlockList, isIP } from "node:net";
 import { resolve } from "node:path";
 import { createModuleLogger } from "../core/logger.js";
 import {
@@ -24,6 +26,8 @@ export interface DonorPageEvidence {
   status: number;
   content_digest: string;
   content_bytes: number;
+  /** Bounded visible text kept for nugget extraction. The digest still covers the fetched body. */
+  content_excerpt?: string;
   fetched_at: string;
 }
 
@@ -61,15 +65,114 @@ function sha12(value: string): string {
   return sha256(value).slice(0, 12);
 }
 
+const MAX_BODY_BYTES = 1_048_576;
+const EXCERPT_CHARS = 4_000;
+const MAX_REDIRECTS = 5;
+
+const BLOCKED_ADDRESSES = new BlockList();
+BLOCKED_ADDRESSES.addSubnet("0.0.0.0", 8, "ipv4");
+BLOCKED_ADDRESSES.addSubnet("10.0.0.0", 8, "ipv4");
+BLOCKED_ADDRESSES.addSubnet("127.0.0.0", 8, "ipv4");
+BLOCKED_ADDRESSES.addSubnet("169.254.0.0", 16, "ipv4");
+BLOCKED_ADDRESSES.addSubnet("172.16.0.0", 12, "ipv4");
+BLOCKED_ADDRESSES.addSubnet("192.168.0.0", 16, "ipv4");
+BLOCKED_ADDRESSES.addAddress("::", "ipv6");
+BLOCKED_ADDRESSES.addAddress("::1", "ipv6");
+BLOCKED_ADDRESSES.addSubnet("fc00::", 7, "ipv6");
+BLOCKED_ADDRESSES.addSubnet("fe80::", 10, "ipv6");
+
+export interface DonorFetchDeps {
+  fetchImpl?: typeof fetch;
+  resolveHost?: (hostname: string) => Promise<string[]>;
+}
+
+class UnsafeDonorTarget extends Error {}
+
+function mappedV4(address: string): string | undefined {
+  const lower = address.toLowerCase();
+  const prefix = "::ffff:";
+  if (!lower.startsWith(prefix)) return undefined;
+  const rest = lower.slice(prefix.length);
+  return isIP(rest) === 4 ? rest : undefined;
+}
+
+function addressBlocked(address: string): boolean {
+  const bare = address.split("%")[0] ?? address;
+  const v4 = mappedV4(bare);
+  if (v4) return BLOCKED_ADDRESSES.check(v4, "ipv4");
+  const family = isIP(bare);
+  if (family === 4) return BLOCKED_ADDRESSES.check(bare, "ipv4");
+  if (family === 6) return BLOCKED_ADDRESSES.check(bare, "ipv6");
+  return true;
+}
+
+async function defaultResolveHost(hostname: string): Promise<string[]> {
+  if (isIP(hostname)) return [hostname];
+  const records = await lookup(hostname, { all: true, verbatim: true });
+  return records.map((record) => record.address);
+}
+
+async function assertPublicHttps(
+  url: URL,
+  resolveHost: DonorFetchDeps["resolveHost"],
+): Promise<void> {
+  if (url.protocol !== "https:") throw new UnsafeDonorTarget("donor URL must be https");
+  if (!url.hostname) throw new UnsafeDonorTarget("donor URL has no host");
+  const addresses = isIP(url.hostname)
+    ? [url.hostname]
+    : await (resolveHost ?? defaultResolveHost)(url.hostname);
+  if (addresses.length === 0 || addresses.some(addressBlocked)) {
+    throw new UnsafeDonorTarget("donor URL resolves to a local or private address");
+  }
+}
+
+function textExcerpt(body: string): string {
+  const visible = body
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return visible.slice(0, EXCERPT_CHARS);
+}
+
+async function readCappedBody(response: Response): Promise<string | null> {
+  const declared = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return null;
+  if (!response.body) {
+    const text = await response.text();
+    return Buffer.byteLength(text) <= MAX_BODY_BYTES ? text : null;
+  }
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+    total += value.byteLength;
+    if (total > MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 /**
  * Fetch-based bounded crawler with Playwright screenshots. No whole-site
  * crawling: only the supplied ranked URLs, capped by max_pages.
  */
 export class HttpDonorIngestor implements DonorIngestor {
   private readonly screenshots: ScreenshotCapturer;
+  private readonly fetchImpl: typeof fetch;
+  private readonly resolveHost: DonorFetchDeps["resolveHost"];
 
-  constructor(screenshots?: ScreenshotCapturer) {
+  constructor(screenshots?: ScreenshotCapturer, deps?: DonorFetchDeps) {
     this.screenshots = screenshots ?? new PlaywrightScreenshotCapturer();
+    this.fetchImpl = deps?.fetchImpl ?? fetch;
+    this.resolveHost = deps?.resolveHost;
   }
 
   async ingest(request: DonorIngestionRequest): Promise<AcceptedDonorEvidence | null> {
@@ -79,26 +182,22 @@ export class HttpDonorIngestor implements DonorIngestor {
     mkdirSync(resolve(donorDir, "screenshots"), { recursive: true });
 
     const urls = request.candidate_urls.slice(0, Math.max(1, request.max_pages));
-    for (const url of urls) {
+    for (const start of urls) {
       try {
-        const response = await fetch(url, {
-          redirect: "follow",
-          signal: AbortSignal.timeout(20_000),
-          headers: { "user-agent": "Mozilla/5.0 (compatible; L9-DonorEvidence/1.0)" },
-        });
-        const body = await response.text();
-        if (!response.ok || body.length === 0) continue;
+        const fetched = await this.fetchPublic(start);
+        if (!fetched) continue;
         pages.push({
-          url,
-          status: response.status,
-          content_digest: sha256(body),
-          content_bytes: body.length,
+          url: fetched.url,
+          status: fetched.status,
+          content_digest: sha256(fetched.body),
+          content_bytes: Buffer.byteLength(fetched.body),
+          content_excerpt: textExcerpt(fetched.body),
           fetched_at: new Date().toISOString(),
         });
         if (screenshotPaths.length === 0) {
           const shot = await this.screenshots.capture({
-            url,
-            outputPath: resolve(donorDir, "screenshots", `${sha12(url)}.png`),
+            url: fetched.url,
+            outputPath: resolve(donorDir, "screenshots", `${sha12(fetched.url)}.png`),
           });
           if (shot) screenshotPaths.push(shot);
         }
@@ -106,7 +205,7 @@ export class HttpDonorIngestor implements DonorIngestor {
         logger.warn(
           {
             donor: request.domain,
-            url,
+            url: start,
             reason: error instanceof Error ? error.message : String(error),
           },
           "donor page fetch failed; continuing bounded acquisition",
@@ -141,6 +240,31 @@ export class HttpDonorIngestor implements DonorIngestor {
     };
     writeFileSync(manifestPath, `${JSON.stringify(complete, null, 2)}\n`, "utf-8");
     return complete;
+  }
+
+  private async fetchPublic(
+    start: string,
+  ): Promise<{ url: string; status: number; body: string } | null> {
+    let current = new URL(start);
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+      await assertPublicHttps(current, this.resolveHost);
+      const response = await this.fetchImpl(current, {
+        redirect: "manual",
+        signal: AbortSignal.timeout(20_000),
+        headers: { "user-agent": "Mozilla/5.0 (compatible; L9-DonorEvidence/1.0)" },
+      });
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get("location");
+        if (!location || hop === MAX_REDIRECTS) return null;
+        current = new URL(location, current);
+        continue;
+      }
+      if (!response.ok) return null;
+      const body = await readCappedBody(response);
+      if (!body) return null;
+      return { url: current.toString(), status: response.status, body };
+    }
+    return null;
   }
 
   async close(): Promise<void> {

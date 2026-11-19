@@ -71,9 +71,7 @@ function plannedGenerations(ctx: BuildContext): number {
  */
 export function admitPaidStage(ctx: BuildContext, ledger: SpendLedger, stage: string): () => void {
   if (isSeoBotPaidStage(stage) && ctx.buildIntent === "REDESIGN_IMPROVE") {
-    if (stage === "competitive-intelligence" && !marketResearchRequested(ctx.domainSpec)) {
-      return () => {};
-    }
+    if (!marketResearchRequested(ctx.domainSpec)) return () => {};
     if (seoBotStageWillHydrate(ctx, stage)) return () => {};
     const reserve = ledger.reserve.dataforseo;
     ledger.admit("dataforseo", reserve, stage);

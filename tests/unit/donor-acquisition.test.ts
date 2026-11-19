@@ -4,16 +4,25 @@
 // bounded replacement, exclusion policy, and the minimum evidence policy.
 
 import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import type {
-  AcceptedDonorEvidence,
-  DonorIngestionRequest,
-  DonorIngestor,
+import type { ScreenshotCapturer } from "../../src/ingestion/ScreenshotCapturer.js";
+import {
+  type AcceptedDonorEvidence,
+  type DonorIngestionRequest,
+  type DonorIngestor,
+  HttpDonorIngestor,
 } from "../../src/intelligence/DonorIngestion.js";
+import { websiteImproveTask } from "../../src/intelligence/improve-llm-policy.js";
 import { BuildError } from "../../src/pipeline/BuildError.js";
+import { createWebsiteFactoryLLM } from "../../src/services/llm.js";
 import {
   acquireAcceptedDonors,
   donorCandidateUrls,
+  donorNuggetRequest,
+  nuggetCopiesPageExcerpt,
   qualifiedDonorCandidates,
   REQUIRED_DONOR_COUNT,
 } from "../../src/stages/CompetitiveIntelligenceStage.js";
@@ -104,10 +113,124 @@ void test("acquisition stops at ten and does not over-crawl the pool", async () 
   assert.ok(!ingestor.attempted.includes("never-reached.example.com"));
 });
 
-void test("donor candidate URLs come from ranked SERP observations plus the site root", () => {
+class RecordingCapturer implements ScreenshotCapturer {
+  readonly urls: string[] = [];
+  async capture(request: { url: string; outputPath: string }): Promise<string> {
+    this.urls.push(request.url);
+    return request.outputPath;
+  }
+  async close(): Promise<void> {}
+}
+
+function donorRequest(urls: string[]): DonorIngestionRequest {
+  return {
+    domain: "donor.example",
+    candidate_urls: urls,
+    serp_observation_ids: ["obs-1"],
+    output_dir: mkdtempSync(join(tmpdir(), "donor-guard-")),
+    max_pages: 3,
+  };
+}
+
+void test("donor fetch rejects loopback and a link-local redirect before the body is stored", async () => {
+  const calls: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    const url = String(input);
+    calls.push(url);
+    if (url.startsWith("https://donor.example/")) {
+      return new Response(null, {
+        status: 302,
+        headers: { location: "https://169.254.169.254/latest" },
+      });
+    }
+    return new Response("<html><body>should not be stored</body></html>", { status: 200 });
+  };
+  const ingestor = new HttpDonorIngestor(new RecordingCapturer(), {
+    fetchImpl,
+    resolveHost: async (hostname) =>
+      hostname === "donor.example" ? ["93.184.216.34"] : ["127.0.0.1"],
+  });
+  const redirected = await ingestor.ingest(donorRequest(["https://donor.example/"]));
+  assert.equal(redirected, null);
+  assert.deepEqual(calls, ["https://donor.example/"]);
+
+  calls.length = 0;
+  const loopback = await ingestor.ingest(donorRequest(["http://127.0.0.1/"]));
+  assert.equal(loopback, null);
+  assert.deepEqual(calls, []);
+  await ingestor.close();
+});
+
+void test("a public https donor keeps a bounded excerpt and screenshots that URL", async () => {
+  const capturer = new RecordingCapturer();
+  const fetchImpl: typeof fetch = async () =>
+    new Response("<html><body><h1>Hero headline for the layout</h1></body></html>", {
+      status: 200,
+    });
+  const ingestor = new HttpDonorIngestor(capturer, {
+    fetchImpl,
+    resolveHost: async () => ["93.184.216.34"],
+  });
+  const evidence = await ingestor.ingest(donorRequest(["https://donor.example/service"]));
+  assert.ok(evidence);
+  assert.match(evidence.pages[0]?.content_excerpt ?? "", /Hero headline for the layout/);
+  assert.match(evidence.pages[0]?.content_digest ?? "", /^[0-9a-f]{64}$/);
+  assert.equal(capturer.urls[0], "https://donor.example/service");
+  await ingestor.close();
+});
+
+void test("nugget extraction sends the page excerpt and screenshot, and rejects a verbatim copy", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "nugget-evidence-"));
+  const shot = join(dir, "home.png");
+  writeFileSync(shot, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+  const excerpt =
+    "Visible homepage excerpt that must stay out of the sealed nugget evidence field.";
+  const donor = makeDonorEvidence("donor-0.example.com");
+  donor.pages[0] = { ...donor.pages[0], content_excerpt: excerpt };
+  donor.screenshot_paths = [shot];
+  const request = donorNuggetRequest(donor);
+  assert.match(request.prompt, /Visible homepage excerpt/);
+  assert.equal(request.prompt.includes("digests only"), false);
+  assert.deepEqual(request.images, [shot]);
+  assert.equal(nuggetCopiesPageExcerpt(excerpt, donor.pages), true);
+  assert.equal(
+    nuggetCopiesPageExcerpt("A reusable hero slot sits above the primary action.", donor.pages),
+    false,
+  );
+
+  let body = "";
+  const previousMemory = process.env.L9_MEMORY_MODE;
+  process.env.L9_MEMORY_MODE = "disabled";
+  const llm = createWebsiteFactoryLLM("client-a", {
+    env: { DEEPSEEK_API_KEY: "test-key", L9_MEMORY_MODE: "disabled" },
+    transport: async (_url, init) => {
+      body = String(init?.body ?? "");
+      return new Response(
+        JSON.stringify({
+          choices: [{ finish_reason: "stop", message: { content: '{"nuggets":[]}' } }],
+          usage: { prompt_tokens: 12, completion_tokens: 4 },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    },
+  });
+  await llm.strategize(
+    websiteImproveTask("DONOR_NUGGET_EXTRACTION", "client-a", "nugget evidence"),
+    "Return abstract invariants.",
+    request.prompt,
+    request.images,
+  );
+  assert.match(body, /image_url/);
+  assert.match(body, /Visible homepage excerpt/);
+  if (previousMemory === undefined) delete process.env.L9_MEMORY_MODE;
+  else process.env.L9_MEMORY_MODE = previousMemory;
+});
+
+void test("donor candidate URLs put the site root ahead of deeper ranked observations", () => {
   const landscape = makeLandscape();
   const pool = qualifiedDonorCandidates(landscape);
   const urls = donorCandidateUrls(landscape, pool[0]);
-  assert.ok(urls.includes("https://donor-0.example.com/service"));
-  assert.ok(urls.includes("https://donor-0.example.com/"));
+  assert.equal(urls[0], "https://donor-0.example.com/");
+  const deeper = urls.indexOf("https://donor-0.example.com/service");
+  assert.ok(deeper > 0);
 });

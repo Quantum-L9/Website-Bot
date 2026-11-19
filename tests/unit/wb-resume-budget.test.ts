@@ -386,14 +386,42 @@ void test("a redesign that did not request research does not reserve DataForSEO"
       return undefined;
     },
   };
+  const contentAuthority: Stage = {
+    name: "redesign-content-authority",
+    async run() {
+      return undefined;
+    },
+  };
   try {
     ctx.buildIntent = "REDESIGN_IMPROVE";
     ctx.llm = fakeLLM(0);
     ctx.spendLedger = openLedger(ctx, false, 3);
-    assert.equal(await runOnce(ctx, [competitive]), undefined);
+    assert.equal(await runOnce(ctx, [competitive, contentAuthority]), undefined);
     const charged = economics(ctx);
     assert.equal(charged.totals.by_class.dataforseo ?? 0, 0);
     assert.equal(charged.charges.length, 0);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
+void test("a requested redesign still reserves DataForSEO for content authority", async () => {
+  const ctx = fixtureContext();
+  const contentAuthority: Stage = {
+    name: "redesign-content-authority",
+    async run() {
+      return undefined;
+    },
+  };
+  try {
+    ctx.buildIntent = "REDESIGN_IMPROVE";
+    ctx.domainSpec.market_research = "requested";
+    ctx.llm = fakeLLM(0);
+    ctx.spendLedger = openLedger(ctx, false, 3);
+    assert.equal(await runOnce(ctx, [contentAuthority]), undefined);
+    const charged = economics(ctx);
+    assert.equal(charged.totals.by_class.dataforseo, 2);
+    assert.equal(charged.charges[0]?.basis, "upper_bound");
   } finally {
     cleanupContext(ctx);
   }

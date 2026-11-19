@@ -274,8 +274,23 @@ void test("content authority sends the first-party record and no landscape", asy
     },
   };
 
+  ctx.domainSpec.seo_contract = {
+    ...ctx.domainSpec.seo_contract,
+    route_targets: [
+      {
+        cluster_name: "home",
+        target_page: "/",
+        intent: "commercial",
+        keywords: ["crm transformation"],
+      },
+    ],
+  };
   await new RedesignContentAuthorityStage(() => port).run(ctx);
   assert.ok(seen);
+  assert.deepEqual(seen.routes.find((route) => route.path === "/")?.keywords, [
+    "crm transformation",
+  ]);
+  assert.equal(seen.routes.find((route) => route.path === "/contact")?.keywords, undefined);
   assert.equal(seen.competitive_landscape, undefined);
   assert.equal(seen.first_party_authority?.domain_spec_digest, authority.domain_spec_digest);
   assert.equal(seen.first_party_authority?.donor_count, 0);
