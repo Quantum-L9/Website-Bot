@@ -788,8 +788,15 @@ function buildWebsiteBlueprint(
 ): SafeHavenRealRuntimeEvidence["website_build_blueprint"] {
   const blueprint = requireArtifact(ctx.websiteBlueprint, "WebsiteBuildBlueprint");
   const landscape = requireArtifact(ctx.competitiveLandscape, "CompetitiveLandscape");
+  const websiteLandscapeRef = blueprint.payload.provenance.competitive_landscape_ref;
+  if (!websiteLandscapeRef) {
+    halt(
+      "REDESIGN_EVIDENCE_MISSING",
+      "WebsiteBuildBlueprint.provenance.competitive_landscape_ref is absent",
+    );
+  }
   assertSameRef(
-    blueprint.payload.provenance.competitive_landscape_ref,
+    websiteLandscapeRef,
     landscape,
     "WebsiteBuildBlueprint.provenance.competitive_landscape_ref",
   );
@@ -831,11 +838,11 @@ function buildSeoContentBlueprint(
 ): SafeHavenRealRuntimeEvidence["seo_content_blueprint"] {
   const blueprint = requireArtifact(ctx.seoContentBlueprint, "SEOContentBlueprint");
   const landscape = requireArtifact(ctx.competitiveLandscape, "CompetitiveLandscape");
-  assertSameRef(
-    blueprint.payload.competitive_landscape_ref,
-    landscape,
-    "SEOContentBlueprint.competitive_landscape_ref",
-  );
+  const seoLandscapeRef = blueprint.payload.competitive_landscape_ref;
+  if (!seoLandscapeRef) {
+    halt("REDESIGN_EVIDENCE_MISSING", "SEOContentBlueprint.competitive_landscape_ref is absent");
+  }
+  assertSameRef(seoLandscapeRef, landscape, "SEOContentBlueprint.competitive_landscape_ref");
   const routes = blueprint.payload.routes.map((route) => route.path);
   const expected = new Set(caseRoutes.map(normalizeRoute));
   const extra = routes.filter((route) => !expected.has(normalizeRoute(route))).length;

@@ -198,6 +198,7 @@ function makeCtx(clientVision?: Record<string, unknown>): BuildContext {
       design: { status: "pending" },
       routes: [{ slug: "/", title: "Home", components: ["hero"] }],
       seo_contract: { target_keywords: ["roof repair charlotte"] },
+      market_research: "requested",
       ...(clientVision ? { client_vision: clientVision } : {}),
       design_references: [
         {
@@ -233,7 +234,7 @@ void test("REDESIGN runs end-to-end through V2 with no V1 dependency", async () 
 
   // Every authoritative input is represented in provenance (WBV2-009).
   const provenance = blueprint.payload.provenance;
-  assert.equal(provenance.competitive_landscape_ref.artifact_id, landscape.artifact_id);
+  assert.equal(provenance.competitive_landscape_ref?.artifact_id, landscape.artifact_id);
   for (const digest of [
     provenance.baseline_digest,
     provenance.client_vision_digest,

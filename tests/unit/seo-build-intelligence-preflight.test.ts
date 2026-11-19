@@ -46,6 +46,7 @@ function makeCtx(overrides?: Partial<BuildContext>): BuildContext {
       geography: { states: ["TN"], primary_state: "TN" },
       routes: [{ slug: "/", title: "Home", components: ["hero"] }],
       seo_contract: { site_url: "test.example.com", target_keywords: ["scrap metal"] },
+      market_research: "requested",
     },
     stageResults: new Map(),
     ...overrides,

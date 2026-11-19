@@ -13,8 +13,10 @@ import {
   assertWebsiteBuildBlueprintV2,
   type CompetitiveLandscapeArtifact,
   type ContentSlot,
+  type FirstPartyAuthorityRecord,
   canonicalJson,
   type PaletteAuthority,
+  readMarketAuthority,
   refForArtifact,
   sealIntelligenceArtifact,
   type VisualRequirement,
@@ -314,7 +316,10 @@ export interface CompileWebsiteBuildBlueprintInput {
   producerVersion: string;
   specRoutes: BlueprintSpecRoute[];
   baseline: unknown;
-  landscape: CompetitiveLandscapeArtifact;
+  /** Present only on the requested-research path. Exclusive with firstPartyAuthority. */
+  landscape?: CompetitiveLandscapeArtifact;
+  /** Present only when the spec did not request market research. */
+  firstPartyAuthority?: FirstPartyAuthorityRecord;
   patternPortfolio: PatternPortfolio;
   clientVision: ClientVision;
   designReferenceIntelligence: DesignReferenceIntelligence;
@@ -426,7 +431,7 @@ function buildRoutes(
 
 function assertBlueprintIdentity(
   payload: WebsiteBuildBlueprintV2,
-  landscape: CompetitiveLandscapeArtifact,
+  input: CompileWebsiteBuildBlueprintInput,
 ): void {
   if (payload.build_intent !== "REDESIGN_IMPROVE") {
     throw new BlueprintCompileError(
@@ -434,14 +439,38 @@ function assertBlueprintIdentity(
       "blueprint build_intent must be REDESIGN_IMPROVE",
     );
   }
-  if (payload.provenance.competitive_landscape_ref.artifact_id !== landscape.artifact_id) {
+  const hasLandscape = input.landscape !== undefined;
+  const hasFirstParty = input.firstPartyAuthority !== undefined;
+  if (hasLandscape === hasFirstParty) {
     throw new BlueprintCompileError(
-      "BLUEPRINT_LANDSCAPE_MISMATCH",
-      "blueprint references a different competitive landscape",
-      {
-        expected: landscape.artifact_id,
-        actual: payload.provenance.competitive_landscape_ref.artifact_id,
-      },
+      "BLUEPRINT_GATE_FAILED",
+      "blueprint compile input must cite exactly one market authority",
+    );
+  }
+  const cited = readMarketAuthority(payload.provenance);
+  if (cited.kind === "competitive_landscape") {
+    if (!input.landscape || cited.ref.artifact_id !== input.landscape.artifact_id) {
+      throw new BlueprintCompileError(
+        "BLUEPRINT_LANDSCAPE_MISMATCH",
+        "blueprint references a different competitive landscape",
+        {
+          expected: input.landscape?.artifact_id,
+          actual: cited.ref.artifact_id,
+        },
+      );
+    }
+    return;
+  }
+  const supplied = input.firstPartyAuthority;
+  if (
+    !supplied ||
+    supplied.domain_spec_digest !== cited.record.domain_spec_digest ||
+    supplied.donor_count !== 0 ||
+    supplied.market_research !== "not_requested"
+  ) {
+    throw new BlueprintCompileError(
+      "BLUEPRINT_GATE_FAILED",
+      "blueprint first-party authority does not match the spec record supplied to the compiler",
     );
   }
 }
@@ -521,7 +550,17 @@ export function assertAdoptedPatternTests(portfolio: PatternPortfolio): void {
 export function compileWebsiteBuildBlueprint(
   input: CompileWebsiteBuildBlueprintInput,
 ): WebsiteBuildBlueprintArtifact {
-  const landscapeRef: ArtifactRef = refForArtifact(input.landscape);
+  const hasLandscape = input.landscape !== undefined;
+  const hasFirstParty = input.firstPartyAuthority !== undefined;
+  if (hasLandscape === hasFirstParty) {
+    throw new BlueprintCompileError(
+      "BLUEPRINT_GATE_FAILED",
+      "blueprint compile input must cite exactly one market authority",
+    );
+  }
+  const landscapeRef: ArtifactRef | undefined = input.landscape
+    ? refForArtifact(input.landscape)
+    : undefined;
   const routes = buildRoutes(input.specRoutes, input.model.routes);
 
   const adoptedPatterns = input.patternPortfolio.patterns.filter(
@@ -540,7 +579,8 @@ export function compileWebsiteBuildBlueprint(
     schema: WEBSITE_INTELLIGENCE_SCHEMAS.websiteBuildBlueprint,
     build_intent: "REDESIGN_IMPROVE",
     provenance: {
-      competitive_landscape_ref: landscapeRef,
+      ...(landscapeRef ? { competitive_landscape_ref: landscapeRef } : {}),
+      ...(input.firstPartyAuthority ? { first_party_authority: input.firstPartyAuthority } : {}),
       baseline_digest: digestOf(input.baseline),
       client_vision_digest: digestDesignAuthority(input.clientVision),
       design_reference_intelligence_digest: digestDesignAuthority(
@@ -563,12 +603,12 @@ export function compileWebsiteBuildBlueprint(
     build_id: input.buildId,
     producer: { repo: "Website-Bot", version: input.producerVersion },
     ...(input.producedAt ? { produced_at: input.producedAt } : {}),
-    input_refs: [landscapeRef],
+    input_refs: landscapeRef ? [landscapeRef] : [],
     payload,
   });
 
   assertWebsiteBuildBlueprintV2(blueprint);
-  assertBlueprintIdentity(payload, input.landscape);
+  assertBlueprintIdentity(payload, input);
   assertProvenanceCorrespondence(payload, input);
   assertBlueprintRouteSet(payload, input.specRoutes);
   assertBlueprintPatternRefs(payload, input.patternPortfolio);

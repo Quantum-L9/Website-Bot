@@ -148,25 +148,29 @@ function seoPayload(
 }
 
 function sealWebsite(payload: WebsiteBuildBlueprintV2): WebsiteBuildBlueprintArtifact {
+  const landscapeRef = payload.provenance.competitive_landscape_ref;
+  if (!landscapeRef) throw new Error("fixture requires a competitive_landscape_ref");
   return sealIntelligenceArtifact({
     artifact_type: "website_build_blueprint",
     client_id: "client-1",
     build_id: "build-1",
     producer: { repo: "Website-Bot", version: "3.1.0" },
     produced_at: "2026-08-14T00:00:00.000Z",
-    input_refs: [payload.provenance.competitive_landscape_ref],
+    input_refs: [landscapeRef],
     payload,
   });
 }
 
 function sealSeo(payload: SEOContentBlueprintV1): SEOContentBlueprintArtifact {
+  const landscapeRef = payload.competitive_landscape_ref;
+  if (!landscapeRef) throw new Error("fixture requires a competitive_landscape_ref");
   return sealIntelligenceArtifact({
     artifact_type: "seo_content_blueprint",
     client_id: "client-1",
     build_id: "build-1",
     producer: { repo: "SEO-Bot", version: "2.1.0" },
     produced_at: "2026-08-14T00:00:00.000Z",
-    input_refs: [payload.competitive_landscape_ref],
+    input_refs: [landscapeRef],
     payload,
   });
 }

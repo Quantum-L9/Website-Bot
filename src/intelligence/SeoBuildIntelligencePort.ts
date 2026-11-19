@@ -1,5 +1,6 @@
 import type {
   CompetitiveLandscapeArtifact,
+  FirstPartyAuthorityRecord,
   PageContentContractArtifact,
   SEOContentBlueprintArtifact,
   StructuredContentPackageArtifact,
@@ -24,7 +25,10 @@ export interface CompetitiveLandscapeRequest {
 export interface SEOContentBlueprintRequest {
   client_id: string;
   build_id: string;
-  competitive_landscape: CompetitiveLandscapeArtifact;
+  /** Exclusive with first_party_authority. Present only when research was requested. */
+  competitive_landscape?: CompetitiveLandscapeArtifact;
+  /** Exclusive with competitive_landscape. Present only when research was not requested. */
+  first_party_authority?: FirstPartyAuthorityRecord;
   /**
    * SEO-Bot does not consume WebsiteBuildBlueprint.
    * It receives route identity and verified business truth,
@@ -98,7 +102,7 @@ export interface SeoBuildIntelligencePort {
    * build-intelligence readiness snapshot. Throws {@link SeoBotPreflightError}
    * with one of the four SEO_BOT_* failure codes on any failure.
    */
-  preflight(): Promise<SeoBotPreflightResult>;
+  preflight(options?: { requireMarketResearch?: boolean }): Promise<SeoBotPreflightResult>;
 }
 
 /**
@@ -111,7 +115,7 @@ export function assertWebsiteBlueprintLandscape(
   competitiveLandscape: CompetitiveLandscapeArtifact,
 ): void {
   const expected = competitiveLandscape.artifact_id;
-  const actual = websiteBlueprint.payload.provenance.competitive_landscape_ref.artifact_id;
+  const actual = websiteBlueprint.payload.provenance.competitive_landscape_ref?.artifact_id;
   if (actual !== expected) {
     throw new Error(
       "INTEL_INPUT_HASH_MISMATCH: WebsiteBuildBlueprint references a different CompetitiveLandscape.",

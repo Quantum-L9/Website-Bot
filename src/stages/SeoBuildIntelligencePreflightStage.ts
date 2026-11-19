@@ -7,6 +7,7 @@
 // downstream stages can prove the proof exists instead of repeating it.
 
 import { createModuleLogger } from "../core/logger.js";
+import { marketResearchRequested } from "../intelligence/first-party-authority.js";
 import { SeoBuildIntelligenceHttpClient } from "../intelligence/SeoBuildIntelligenceHttpClient.js";
 import {
   SeoBotPreflightError,
@@ -54,7 +55,9 @@ export class SeoBuildIntelligencePreflightStage implements Stage {
     // Fails closed with a mapped SEO_BOT_* BuildError code BEFORE the first
     // paid build-intelligence call (createCompetitiveLandscape) can be made.
     try {
-      ctx.seoBuildIntelligencePreflight = await this.portFactory(ctx).preflight();
+      ctx.seoBuildIntelligencePreflight = await this.portFactory(ctx).preflight({
+        requireMarketResearch: marketResearchRequested(ctx.domainSpec),
+      });
     } catch (error) {
       if (error instanceof SeoBotPreflightError) {
         throw new BuildError(error.code, `REDESIGN preflight failed: ${error.message}`);

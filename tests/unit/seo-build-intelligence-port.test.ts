@@ -302,6 +302,30 @@ test("preflight maps a missing capability to SEO_BOT_CAPABILITY_MISMATCH", async
   );
 });
 
+test("a spec that did not request research does not require DataForSEO", async () => {
+  const snapshot = preflightSnapshot({
+    status: "not_ready",
+    checks: [
+      { name: "dataforseo_configured", status: "FAIL", detail: "missing" },
+      { name: "competitive_landscape_capability", status: "FAIL", detail: "missing" },
+      { name: "llm_provider_configured", status: "PASS", detail: "present" },
+    ],
+    capabilities: {
+      competitive_landscape: false,
+      seo_content_blueprint: true,
+      structured_content: true,
+    },
+    configuration: { dataforseo_configured: false, llm_provider_configured: true },
+  });
+  const client = preflightClient((url) => {
+    if (url.endsWith("/health")) return healthOk();
+    return new Response(JSON.stringify(snapshot), { status: 200 });
+  });
+  const result = await client.preflight({ requireMarketResearch: false });
+  assert.equal(result.configuration.dataforseo_configured, false);
+  assert.equal(result.capabilities.seo_content_blueprint, true);
+});
+
 test("preflight maps incomplete provider configuration to SEO_BOT_CAPABILITY_MISMATCH", async () => {
   const snapshot = preflightSnapshot({
     configuration: { dataforseo_configured: false, llm_provider_configured: true },
