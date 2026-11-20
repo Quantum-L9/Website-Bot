@@ -104,11 +104,71 @@ function cropBox(
   return { left: 0, top: Math.floor((height - cropHeight) / 2), width, height: cropHeight };
 }
 
-async function encode(pipeline: Sharp, format: OptimizedFormat, quality: number): Promise<Buffer> {
+function encode(pipeline: Sharp, format: OptimizedFormat, quality: number): Promise<Buffer> {
   const clone = pipeline.clone();
   return format === "jpeg"
     ? clone.flatten({ background: "#ffffff" }).jpeg({ quality, mozjpeg: true }).toBuffer()
     : clone.webp({ quality, effort: 4 }).toBuffer();
+}
+
+/** Decode fully (not just the header) so a corrupt or truncated file fails here. */
+async function decodeFully(
+  input: Buffer,
+  slotId: string,
+): Promise<{ data: Buffer; info: OutputInfo }> {
+  try {
+    return await sharp(input, { failOn: "error" })
+      .rotate()
+      .toColourspace("srgb")
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+  } catch (error) {
+    throw new ImageOptimizationError(
+      `image for slot ${slotId} cannot be decoded: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+interface Shaped {
+  pipeline: Sharp;
+  width: number;
+  height: number;
+}
+
+/** Centre-crop to the slot aspect (when it differs) and resize to the render width. */
+function shapeForSlot(
+  decoded: { data: Buffer; info: OutputInfo },
+  slot: OptimizableSlot,
+  profile: SlotRenderProfile,
+  adjustments: string[],
+): Shaped {
+  const { width: originalWidth, height: originalHeight, channels } = decoded.info;
+  let pipeline = sharp(decoded.data, {
+    raw: { width: originalWidth, height: originalHeight, channels },
+  });
+  let width = originalWidth;
+  let height = originalHeight;
+  const aspect = profile.aspectRatio ?? slot.aspectRatio;
+  const ratio = parseAspectRatio(aspect);
+  const box = ratio === undefined ? undefined : cropBox(width, height, ratio);
+  if (box) {
+    pipeline = pipeline.extract(box);
+    adjustments.push(
+      `cropped ${width}x${height} to ${box.width}x${box.height} (centre) for aspect ${aspect}`,
+    );
+    width = box.width;
+    height = box.height;
+  }
+  const targetWidth = Math.min(width, profile.maxWidth);
+  const atFixedSize = profile.fixedHeight !== undefined && targetWidth === profile.maxWidth;
+  const targetHeight = atFixedSize
+    ? (profile.fixedHeight as number)
+    : Math.max(1, Math.round((targetWidth * height) / width));
+  if (targetWidth !== width || targetHeight !== height) {
+    pipeline = pipeline.resize(targetWidth, targetHeight, { fit: "fill" });
+    adjustments.push(`resized ${width}x${height} to ${targetWidth}x${targetHeight}`);
+  }
+  return { pipeline, width: targetWidth, height: targetHeight };
 }
 
 /**
@@ -123,72 +183,31 @@ export async function optimizeImageForSlot(
   const profile = slotRenderProfile(slot);
   const maxBytes = Math.min(profile.maxBytes, overrides.maxBytes ?? profile.maxBytes);
   const adjustments: string[] = [];
-
-  let decoded: { data: Buffer; info: OutputInfo };
-  try {
-    // Decode fully (not just the header) so a corrupt or truncated file fails here.
-    decoded = await sharp(input, { failOn: "error" })
-      .rotate()
-      .toColourspace("srgb")
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-  } catch (error) {
-    throw new ImageOptimizationError(
-      `image for slot ${slot.id} cannot be decoded: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-  const { width: originalWidth, height: originalHeight, channels } = decoded.info;
-  let pipeline = sharp(decoded.data, {
-    raw: { width: originalWidth, height: originalHeight, channels },
-  });
-  let width = originalWidth;
-  let height = originalHeight;
-
-  const ratio = parseAspectRatio(profile.aspectRatio ?? slot.aspectRatio);
-  if (ratio !== undefined) {
-    const box = cropBox(width, height, ratio);
-    if (box) {
-      pipeline = pipeline.extract(box);
-      adjustments.push(
-        `cropped ${width}x${height} to ${box.width}x${box.height} (centre) for aspect ${profile.aspectRatio ?? slot.aspectRatio}`,
-      );
-      width = box.width;
-      height = box.height;
-    }
-  }
-
-  const targetWidth = Math.min(width, profile.maxWidth);
-  const targetHeight =
-    profile.fixedHeight !== undefined && targetWidth === profile.maxWidth
-      ? profile.fixedHeight
-      : Math.max(1, Math.round((targetWidth * height) / width));
-  if (targetWidth !== width || targetHeight !== height) {
-    pipeline = pipeline.resize(targetWidth, targetHeight, { fit: "fill" });
-    adjustments.push(`resized ${width}x${height} to ${targetWidth}x${targetHeight}`);
-  }
+  const decoded = await decodeFully(input, slot.id);
+  const shaped = shapeForSlot(decoded, slot, profile, adjustments);
 
   for (const quality of QUALITY_LADDER) {
-    const bytes = await encode(pipeline, profile.format, quality);
-    if (bytes.length <= maxBytes) {
-      adjustments.push(
-        `encoded ${profile.format} q${quality}: ${input.length} -> ${bytes.length} bytes`,
-      );
-      return {
-        bytes,
-        mimeType: profile.format === "jpeg" ? "image/jpeg" : "image/webp",
-        extension: profile.format === "jpeg" ? "jpg" : "webp",
-        width: targetWidth,
-        height: targetHeight,
-        byteLength: bytes.length,
-        originalByteLength: input.length,
-        originalWidth,
-        originalHeight,
-        adjustments,
-      };
-    }
+    // Sequential on purpose: stop at the first quality that fits the cap.
+    const bytes = await encode(shaped.pipeline, profile.format, quality);
+    if (bytes.length > maxBytes) continue;
+    adjustments.push(
+      `encoded ${profile.format} q${quality}: ${input.length} -> ${bytes.length} bytes`,
+    );
+    return {
+      bytes,
+      mimeType: profile.format === "jpeg" ? "image/jpeg" : "image/webp",
+      extension: profile.format === "jpeg" ? "jpg" : "webp",
+      width: shaped.width,
+      height: shaped.height,
+      byteLength: bytes.length,
+      originalByteLength: input.length,
+      originalWidth: decoded.info.width,
+      originalHeight: decoded.info.height,
+      adjustments,
+    };
   }
   throw new ImageOptimizationError(
-    `image for slot ${slot.id} exceeds its ${maxBytes}-byte cap at ${targetWidth}x${targetHeight} even at quality ${QUALITY_LADDER[QUALITY_LADDER.length - 1]}`,
+    `image for slot ${slot.id} exceeds its ${maxBytes}-byte cap at ${shaped.width}x${shaped.height} even at quality ${QUALITY_LADDER.at(-1)}`,
   );
 }
 

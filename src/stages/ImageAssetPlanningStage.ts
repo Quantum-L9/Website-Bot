@@ -52,6 +52,20 @@ import {
 
 const logger = createModuleLogger("stage:image-asset-planning");
 
+/** One resolved file to stage for a slot. */
+interface StageRequest {
+  slot: ImageSlotSpec;
+  source: ResolvedImageAsset["source"];
+  sourcePath: string;
+  inspected: InspectedImage;
+  extra: {
+    altText?: string;
+    sourceUrl?: string;
+    originalPath?: string;
+    provenanceWarnings?: string[];
+  };
+}
+
 interface InspectedProvided {
   spec: ProvidedImageSpec;
   absolutePath: string;
@@ -417,61 +431,64 @@ export class ImageAssetPlanningStage implements Stage {
     const resolved: ResolvedImageAsset[] = [];
     const optimizations: ImageOptimizationRecord[] = [];
     for (const planned of plan.assets) {
-      const slot = slots.find((candidate) => candidate.id === planned.slotId);
-      if (!slot) continue;
-      const resolution = planned.resolution;
-      if (resolution.source === "provided") {
-        const match = provided.find((entry) => entry.spec.id === resolution.candidateId);
-        if (!match) continue;
-        resolved.push(
-          await this.stageAsset(
-            ctx,
-            stagingRoot,
-            slot,
-            "provided",
-            match.absolutePath,
-            match.inspected,
-            { altText: slot.altText ?? match.spec.altText, originalPath: match.absolutePath },
-            optimizations,
-          ),
-        );
-      } else if (resolution.source === "source-site") {
-        const candidate = sourceCandidates.find((entry) => entry.id === resolution.candidateId);
-        if (!candidate || !existsSync(candidate.localPath)) continue;
-        const inspected = ctx.dryRun
-          ? {
-              mimeType: candidate.mimeType,
-              width: candidate.width,
-              height: candidate.height,
-              byteLength: candidate.byteLength,
-              sha256: candidate.sha256,
-            }
-          : inspectImage(readFileSync(candidate.localPath));
-        resolved.push(
-          await this.stageAsset(
-            ctx,
-            stagingRoot,
-            slot,
-            "source-site",
-            candidate.localPath,
-            inspected,
-            {
-              altText: slot.altText ?? candidate.altText,
-              sourceUrl: candidate.sourceUrl,
-              provenanceWarnings: [
-                "source-site asset reused; verify client ownership before publication",
-              ],
-            },
-            optimizations,
-          ),
-        );
-      }
-      // 'generated' resolutions are filled by the generation stage;
-      // 'static-illustration' is rendered by the template as inline SVG and has
-      // no file to stage; 'unresolved' non-required slots are left empty.
+      const request = this.stageRequest(ctx, planned, slots, provided, sourceCandidates);
+      // Sequential on purpose: each decode holds a full-size bitmap in memory.
+      if (request) resolved.push(await this.stageAsset(ctx, stagingRoot, request, optimizations));
     }
     if (!ctx.dryRun) writeOptimizationEvidence(stagingRoot, optimizations);
     return resolved;
+  }
+
+  /**
+   * What to stage for one plan entry, or nothing. 'generated' resolutions are
+   * filled by the generation stage; 'static-illustration' is rendered by the
+   * template as inline SVG and has no file; 'unresolved' slots stay empty.
+   */
+  private stageRequest(
+    ctx: BuildContext,
+    planned: ImageAssetPlan["assets"][number],
+    slots: ImageSlotSpec[],
+    provided: InspectedProvided[],
+    sourceCandidates: IngestedImage[],
+  ): StageRequest | undefined {
+    const slot = slots.find((candidate) => candidate.id === planned.slotId);
+    if (!slot) return undefined;
+    const resolution = planned.resolution;
+    if (resolution.source === "provided") {
+      const match = provided.find((entry) => entry.spec.id === resolution.candidateId);
+      if (!match) return undefined;
+      return {
+        slot,
+        source: "provided",
+        sourcePath: match.absolutePath,
+        inspected: match.inspected,
+        extra: { altText: slot.altText ?? match.spec.altText, originalPath: match.absolutePath },
+      };
+    }
+    if (resolution.source !== "source-site") return undefined;
+    const candidate = sourceCandidates.find((entry) => entry.id === resolution.candidateId);
+    if (!candidate || !existsSync(candidate.localPath)) return undefined;
+    return {
+      slot,
+      source: "source-site",
+      sourcePath: candidate.localPath,
+      inspected: ctx.dryRun
+        ? {
+            mimeType: candidate.mimeType,
+            width: candidate.width,
+            height: candidate.height,
+            byteLength: candidate.byteLength,
+            sha256: candidate.sha256,
+          }
+        : inspectImage(readFileSync(candidate.localPath)),
+      extra: {
+        altText: slot.altText ?? candidate.altText,
+        sourceUrl: candidate.sourceUrl,
+        provenanceWarnings: [
+          "source-site asset reused; verify client ownership before publication",
+        ],
+      },
+    };
   }
 
   private recordSourceAssetDecisions(
@@ -606,18 +623,10 @@ export class ImageAssetPlanningStage implements Stage {
   private async stageAsset(
     ctx: BuildContext,
     stagingRoot: string,
-    slot: ImageSlotSpec,
-    source: ResolvedImageAsset["source"],
-    sourcePath: string,
-    inspected: InspectedImage,
-    extra: {
-      altText?: string;
-      sourceUrl?: string;
-      originalPath?: string;
-      provenanceWarnings?: string[];
-    },
+    request: StageRequest,
     optimizations: ImageOptimizationRecord[],
   ): Promise<ResolvedImageAsset> {
+    const { slot, source, sourcePath, inspected, extra } = request;
     const subdir = source === "source-site" ? "source-site" : "provided";
     let shipped: InspectedImage = inspected;
     let extension =
@@ -675,6 +684,18 @@ export async function optimizeOrFail(bytes: Buffer, slot: ImageSlotSpec): Promis
   }
 }
 
+/** Records already written by an earlier stage of this build, if any. */
+function readOptimizationRecords(path: string): ImageOptimizationRecord[] {
+  try {
+    return (JSON.parse(readFileSync(path, "utf-8")) as { images: ImageOptimizationRecord[] })
+      .images;
+  } catch (error) {
+    // Read-then-handle (no exists-check race): only "no file yet" is empty.
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
+}
+
 /** Merge this stage's optimisation records into the build's evidence file. */
 export function writeOptimizationEvidence(
   stagingRoot: string,
@@ -684,9 +705,7 @@ export function writeOptimizationEvidence(
   const dir = resolve(stagingRoot, "manifests");
   mkdirSync(dir, { recursive: true });
   const path = resolve(dir, "image-optimization.json");
-  const existing: ImageOptimizationRecord[] = existsSync(path)
-    ? (JSON.parse(readFileSync(path, "utf-8")) as { images: ImageOptimizationRecord[] }).images
-    : [];
+  const existing = readOptimizationRecords(path);
   const bySlot = new Map(existing.map((record) => [record.slotId, record]));
   for (const record of records) bySlot.set(record.slotId, record);
   const images = [...bySlot.values()];

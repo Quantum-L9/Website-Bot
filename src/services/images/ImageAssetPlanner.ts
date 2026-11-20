@@ -397,6 +397,21 @@ function routeKey(slot: Pick<ImageSlotSpec, "placement">): string {
   return routeSlugFromPlacement(slot.placement) ?? "global";
 }
 
+/** Generate for the slot unless its page already used the generation cap. */
+function generatedOrCapped(
+  slot: ImageSlotSpec,
+  generatedOnRoute: Map<string, number>,
+): ImageAssetResolution {
+  const used = generatedOnRoute.get(routeKey(slot)) ?? 0;
+  if (!slot.required && used >= GENERATED_IMAGES_PER_PAGE_CAP) {
+    return {
+      source: "unresolved",
+      reason: `No real image for slot ${slot.id}, and its page already uses the cap of ${GENERATED_IMAGES_PER_PAGE_CAP} generated images (real first); left empty`,
+    };
+  }
+  return { source: "generated", compiledBrief: briefFromSlot(slot) };
+}
+
 function resolveSlot(
   slot: ImageSlotSpec,
   inputs: PlanInputs,
@@ -419,16 +434,7 @@ function resolveSlot(
       const hit = bestSource(slot, inputs.sourceCandidates, usedSource);
       if (hit) return { source: "source-site", candidateId: hit.candidate.id, score: hit.score };
     } else if (source === "generated") {
-      if (
-        !slot.required &&
-        (generatedOnRoute.get(routeKey(slot)) ?? 0) >= GENERATED_IMAGES_PER_PAGE_CAP
-      ) {
-        return {
-          source: "unresolved",
-          reason: `No real image for slot ${slot.id}, and its page already uses the cap of ${GENERATED_IMAGES_PER_PAGE_CAP} generated images (real first); left empty`,
-        };
-      }
-      return { source: "generated", compiledBrief: briefFromSlot(slot) };
+      return generatedOrCapped(slot, generatedOnRoute);
     }
   }
   // Reached only when no provided/source-site image qualified and generation

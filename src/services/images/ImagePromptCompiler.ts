@@ -18,15 +18,75 @@ export const PROMPT_COMPILER_VERSION = "2.0.0";
  */
 export type GeneratedImageStyle = "illustration" | "photographic-neutral";
 
-const PEOPLE_OR_WORK =
-  /\b(people|person|persons|man|men|woman|women|staff|team|crew|crews|worker|workers|employee|employees|technician|technicians|installer|installers|contractor|contractors|roofer|roofers|plumber|plumbers|electrician|electricians|owner|owners|homeowner|homeowners|customer|customers|client|clients|family|families|portrait|smiling|handshake|founder|founders|our work|completed|finished|installed|installing|installation|project|projects|job|jobs|before and after|before-and-after|testimonial)\b/i;
+/** Words that put people, staff, customers or the client's work in the picture. */
+const PEOPLE_OR_WORK_WORDS: ReadonlySet<string> = new Set([
+  "people",
+  "person",
+  "persons",
+  "man",
+  "men",
+  "woman",
+  "women",
+  "staff",
+  "team",
+  "crew",
+  "crews",
+  "worker",
+  "workers",
+  "employee",
+  "employees",
+  "technician",
+  "technicians",
+  "installer",
+  "installers",
+  "contractor",
+  "contractors",
+  "roofer",
+  "roofers",
+  "plumber",
+  "plumbers",
+  "electrician",
+  "electricians",
+  "owner",
+  "owners",
+  "homeowner",
+  "homeowners",
+  "customer",
+  "customers",
+  "client",
+  "clients",
+  "family",
+  "families",
+  "portrait",
+  "smiling",
+  "handshake",
+  "founder",
+  "founders",
+  "completed",
+  "finished",
+  "installed",
+  "installing",
+  "installation",
+  "project",
+  "projects",
+  "job",
+  "jobs",
+  "testimonial",
+]);
+const PEOPLE_OR_WORK_PHRASES = ["our work", "before and after", "before-and-after"] as const;
+
+function depictsPeopleOrWork(text: string): boolean {
+  const lower = text.toLowerCase();
+  if (PEOPLE_OR_WORK_PHRASES.some((phrase) => lower.includes(phrase))) return true;
+  return lower.split(/[^a-z]+/).some((word) => PEOPLE_OR_WORK_WORDS.has(word));
+}
 
 /** The style a brief must be rendered in (see GeneratedImageStyle). */
 export function briefStyle(brief: ImageGenerationBrief): GeneratedImageStyle {
   const text = [brief.intent, brief.subject, brief.composition, brief.style]
     .filter(Boolean)
     .join(" ");
-  return PEOPLE_OR_WORK.test(text) ? "illustration" : "photographic-neutral";
+  return depictsPeopleOrWork(text) ? "illustration" : "photographic-neutral";
 }
 
 export type PromptCompilerName = "default" | "igor-motif";
