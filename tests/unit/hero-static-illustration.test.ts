@@ -8,6 +8,11 @@
 // file), and rendered by the template as a labelled, accessible inline SVG with
 // no script. The 100% gate and `required` stay exactly as strict: only the home
 // hero gains this fill; every other required slot still fails closed.
+//
+// Lane wb-images: the CRM→graph illustration is eligible only for a client
+// whose declared vertical it depicts (CRM / data / software). These cases use
+// such a client; tests/unit/image-real-first.test.ts and the restored case in
+// redesign-visual-assets.test.ts pin that any other vertical stays UNRESOLVED.
 
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -35,6 +40,7 @@ import { planImageAssets } from "../../src/services/images/ImageAssetPlanner.js"
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
 import { ImageValidationStage } from "../../src/stages/ImageValidationStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
+import { realPng } from "../helpers/realImage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 import {
   BUILD_ID,
@@ -45,16 +51,12 @@ import {
   makeWebsiteBlueprint,
 } from "./redesign-fixtures.js";
 
-const PNG_1x1 = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-  "base64",
-);
 function pngWith(width: number, height: number): Buffer {
-  const buffer = Buffer.from(PNG_1x1);
-  buffer.writeUInt32BE(width, 16);
-  buffer.writeUInt32BE(height, 20);
-  return buffer;
+  return realPng(width, height);
 }
+
+/** A client the CRM rows → relationship graph illustration truthfully depicts. */
+const FITTING_VERTICAL = "crm_software";
 
 // The blueprint's home hero: required, synthetic visuals admissible.
 const homeHero: ImageSlotSpec = {
@@ -81,6 +83,7 @@ const sourceHero: IngestedImage = {
 
 void test("generation disabled with no candidate: the home hero resolves to the static illustration", () => {
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots: [homeHero],
     provided: [],
     sourceCandidates: [],
@@ -99,6 +102,7 @@ void test("generation disabled with no candidate: the home hero resolves to the 
 
 void test("generation enabled still generates the hero; the illustration is only a last resort", () => {
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots: [homeHero],
     provided: [],
     sourceCandidates: [],
@@ -109,6 +113,7 @@ void test("generation enabled still generates the hero; the illustration is only
 
 void test("image planning passes for a COPY build whose required home hero has no candidate", async () => {
   const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
     assets: { imageSlots: [homeHero], generation: { enabled: false } },
   });
   try {
@@ -167,7 +172,7 @@ void test("REDESIGN planning with only a provided logo fills the blueprint hero 
     domainSpec: {
       client_id: "illus-client",
       business_name: "Illus Biz",
-      vertical: "test_service",
+      vertical: FITTING_VERTICAL,
       geography: { states: ["TN"], primary_state: "TN" },
       design: { status: "resolved" },
       routes: [{ slug: "/", title: "Home", components: ["hero"] }],
@@ -198,6 +203,7 @@ void test("REDESIGN planning with only a provided logo fills the blueprint hero 
 
 void test("a provided /:hero image still wins over the illustration", () => {
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots: [homeHero],
     provided: [{ id: "hero-photo", intendedPlacement: "/:hero", width: 1920, height: 1080 }],
     sourceCandidates: [],
@@ -210,6 +216,7 @@ void test("a provided /:hero image still wins over the illustration", () => {
 
 void test("an authorized source-site hero still wins over the illustration", () => {
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots: [homeHero],
     provided: [],
     sourceCandidates: [sourceHero],
@@ -227,6 +234,7 @@ void test("a non-home-hero required slot with no candidate still fails closed", 
     { ...homeHero, id: "about-hero", placement: "/:hero#secondary" },
   ];
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots,
     provided: [],
     sourceCandidates: [],
@@ -239,6 +247,7 @@ void test("a non-home-hero required slot with no candidate still fails closed", 
 
 void test("a home hero restricted to real assets, or optional, is never illustrated", () => {
   const plan = planImageAssets({
+    vertical: FITTING_VERTICAL,
     slots: [
       { ...homeHero, preferredSources: ["provided", "source-site"] },
       { ...homeHero, id: "optional-hero", required: false },
@@ -253,6 +262,7 @@ void test("a home hero restricted to real assets, or optional, is never illustra
 
 void test("the planning stage still throws for a required non-hero slot", async () => {
   const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
     assets: {
       imageSlots: [homeHero, { ...homeHero, id: "svc-hero", placement: "/services:hero" }],
       generation: { enabled: false },
@@ -367,10 +377,32 @@ void test("the integrity receipt still fails below 100% beside an illustrated he
   );
 });
 
+void test("a client the illustration does not depict: the hero is not counted as filled (fail closed)", () => {
+  // A roofer with no hero image and no generation: the CRM→graph diagram is
+  // not this client's picture, so the planner leaves the hero UNRESOLVED and
+  // the receipt cannot reach 100% on it.
+  const plan = planImageAssets({
+    vertical: "residential_roofing",
+    slots: [homeHero],
+    provided: [],
+    sourceCandidates: [],
+    generationEnabled: false,
+  });
+  assert.equal(plan.assets[0].resolution.source, "unresolved");
+  const receipt = emitRedesignExecutionIntegrityReceipt(receiptCtx([...plan.assets, providedLogo]));
+  assert.equal(receipt.visual.required_slots_filled, 1);
+  assert.equal(receipt.visual.required_visual_slots_filled_pct, 50);
+  assert.throws(
+    () => validateRedesignExecutionIntegrityReceipt(receipt, { requireVisualQa: false }),
+    /required_visual_slots_filled must be 100%, got 50%/,
+  );
+});
+
 // ---- downstream: assembly delivers it without a file; validation accepts ----
 
 void test("assembly delivers the illustration via siteConfig and image validation accepts it", async () => {
   const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
     assets: { imageSlots: [homeHero], generation: { enabled: false } },
   });
   try {
@@ -403,6 +435,7 @@ void test("assembly delivers the illustration via siteConfig and image validatio
 
 void test("image validation fails closed when a planned illustration was not delivered", async () => {
   const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
     assets: { imageSlots: [homeHero], generation: { enabled: false } },
   });
   try {
@@ -422,7 +455,10 @@ void test("image validation fails closed when a planned illustration was not del
 void test("image validation rejects an illustration-only delivery that was never planned", async () => {
   // No image slots, no image files, no plan entries: only a delivered
   // illustration. The early "nothing to validate" return must not skip it.
-  const ctx = fixtureContext({ assets: { generation: { enabled: false } } });
+  const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
+    assets: { generation: { enabled: false } },
+  });
   try {
     ctx.siteConfig = {
       ...(ctx.siteConfig ?? {}),
@@ -442,6 +478,7 @@ void test("image validation rejects an illustration-only delivery that was never
 
 void test("assembly refuses an illustration whose route renders no hero section", async () => {
   const ctx = fixtureContext({
+    vertical: FITTING_VERTICAL,
     routes: [{ slug: "/", title: "Home", components: ["services-overview"] }],
     assets: { imageSlots: [homeHero], generation: { enabled: false } },
   });

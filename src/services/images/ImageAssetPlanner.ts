@@ -17,6 +17,7 @@ import {
   type ImageAssetPlan,
   type ImageAssetResolution,
   type ImageGenerationBrief,
+  illustrationFitsVertical,
   type PlannedImageAsset,
   STATIC_ILLUSTRATION_PLACEMENT,
 } from "../../pipeline/evidence/ImageAssetPlan.js";
@@ -29,6 +30,15 @@ const DEFAULT_PRECEDENCE: Array<"provided" | "source-site" | "generated"> = [
   "generated",
 ];
 const MIN_ACCEPTABLE_SCORE = 1;
+
+/**
+ * Real first: at most this many generated images per page (route). Real client
+ * and source-site photos are always tried first; generation fills what is left
+ * up to this cap. Required slots are never dropped by the cap (they must be
+ * filled or fail closed) but they do consume it, so optional slots beyond it
+ * stay empty instead of filling the page with synthetic pictures.
+ */
+export const GENERATED_IMAGES_PER_PAGE_CAP = 2;
 
 /** A provided image after inspection, ready to be scored against slots. */
 export interface ProvidedCandidate {
@@ -262,6 +272,7 @@ function briefFromSlot(slot: ImageSlotSpec): ImageGenerationBrief {
     exclusions: slot.generation?.exclusions,
     aspectRatio: slot.aspectRatio,
     imageSize: slot.imageSize,
+    ...(slot.altText ? { altText: slot.altText } : {}),
   };
 }
 
@@ -306,6 +317,8 @@ export interface PlanInputs {
   sourceCandidates: IngestedImage[];
   /** When false, "generated" is dropped from precedence for every slot. */
   generationEnabled: boolean;
+  /** The client's declared vertical; gates the static conceptual illustration. */
+  vertical?: string;
 }
 
 /**
@@ -365,16 +378,39 @@ function explicitProvided(
  * factual, and it admits a synthetic visual (its preferred sources include
  * generation) that generation cannot supply here. A slot an operator
  * restricted to real assets (no "generated") keeps failing closed instead.
+ * It must also fit the client: the built-in illustration depicts a CRM/data
+ * business, so any other declared vertical (or none) keeps the slot
+ * UNRESOLVED rather than shipping a wrong picture counted as filled.
  * Callers try it only after every reuse source and generation came up empty.
  */
-export function staticIllustrationEligible(slot: ImageSlotSpec): boolean {
+export function staticIllustrationEligible(slot: ImageSlotSpec, vertical?: string): boolean {
   const preferred = slot.preferredSources ?? DEFAULT_PRECEDENCE;
   return (
     slot.required &&
     slot.placement === STATIC_ILLUSTRATION_PLACEMENT &&
     preferred.includes("generated") &&
-    !isFactualSlot(slot)
+    !isFactualSlot(slot) &&
+    illustrationFitsVertical(HOME_HERO_ILLUSTRATION_ID, vertical)
   );
+}
+
+function routeKey(slot: Pick<ImageSlotSpec, "placement">): string {
+  return routeSlugFromPlacement(slot.placement) ?? "global";
+}
+
+/** Generate for the slot unless its page already used the generation cap. */
+function generatedOrCapped(
+  slot: ImageSlotSpec,
+  generatedOnRoute: Map<string, number>,
+): ImageAssetResolution {
+  const used = generatedOnRoute.get(routeKey(slot)) ?? 0;
+  if (!slot.required && used >= GENERATED_IMAGES_PER_PAGE_CAP) {
+    return {
+      source: "unresolved",
+      reason: `No real image for slot ${slot.id}, and its page already uses the cap of ${GENERATED_IMAGES_PER_PAGE_CAP} generated images (real first); left empty`,
+    };
+  }
+  return { source: "generated", compiledBrief: briefFromSlot(slot) };
 }
 
 function resolveSlot(
@@ -382,6 +418,7 @@ function resolveSlot(
   inputs: PlanInputs,
   usedProvided: Set<string>,
   usedSource: Set<string>,
+  generatedOnRoute: Map<string, number>,
 ): ImageAssetResolution {
   // An explicitly assigned client asset is never excluded by a slot's
   // preferred-source order (e.g. a blueprint that prefers generation).
@@ -398,12 +435,12 @@ function resolveSlot(
       const hit = bestSource(slot, inputs.sourceCandidates, usedSource);
       if (hit) return { source: "source-site", candidateId: hit.candidate.id, score: hit.score };
     } else if (source === "generated") {
-      return { source: "generated", compiledBrief: briefFromSlot(slot) };
+      return generatedOrCapped(slot, generatedOnRoute);
     }
   }
   // Reached only when no provided/source-site image qualified and generation
   // was not available for this slot (disabled, or not in its precedence).
-  if (staticIllustrationEligible(slot)) {
+  if (staticIllustrationEligible(slot, inputs.vertical)) {
     return {
       source: "static-illustration",
       illustrationId: HOME_HERO_ILLUSTRATION_ID,
@@ -420,9 +457,16 @@ export function planImageAssets(inputs: PlanInputs): ImageAssetPlan {
   const usedProvided = new Set<string>();
   const usedSource = new Set<string>();
   const resolved = new Map<string, PlannedImageAsset>();
-  const ordered = [...inputs.slots].sort((a, b) => slotAssignPriority(a) - slotAssignPriority(b));
+  const generatedOnRoute = new Map<string, number>();
+  // Required slots claim the per-page generation cap before optional ones.
+  const ordered = [...inputs.slots].sort(
+    (a, b) =>
+      slotAssignPriority(a) - slotAssignPriority(b) || Number(b.required) - Number(a.required),
+  );
   for (const slot of ordered) {
-    const resolution = resolveSlot(slot, inputs, usedProvided, usedSource);
+    const resolution = resolveSlot(slot, inputs, usedProvided, usedSource, generatedOnRoute);
+    if (resolution.source === "generated")
+      generatedOnRoute.set(routeKey(slot), (generatedOnRoute.get(routeKey(slot)) ?? 0) + 1);
     if (resolution.source === "provided" && resolution.candidateId)
       usedProvided.add(resolution.candidateId);
     if (resolution.source === "source-site" && resolution.candidateId)

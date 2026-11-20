@@ -6,12 +6,94 @@
 
 import type { ImageGenerationBrief } from "../../pipeline/evidence/ImageAssetPlan.js";
 
-export const PROMPT_COMPILER_VERSION = "1.0.0";
+export const PROMPT_COMPILER_VERSION = "2.0.0";
+
+/**
+ * Rendering style a brief is compiled to. A brief that would depict people,
+ * the client's staff or customers, or the client's work (crews, installs,
+ * finished jobs) is never a photoreal image: a photo-like picture of invented
+ * staff or invented completed jobs is an invented claim (AGENTS.md). Those
+ * become illustrations. Only neutral scenes (materials, tools, textures,
+ * places) may be photographic, and even they show no people.
+ */
+export type GeneratedImageStyle = "illustration" | "photographic-neutral";
+
+/** Words that put people, staff, customers or the client's work in the picture. */
+const PEOPLE_OR_WORK_WORDS: ReadonlySet<string> = new Set([
+  "people",
+  "person",
+  "persons",
+  "man",
+  "men",
+  "woman",
+  "women",
+  "staff",
+  "team",
+  "crew",
+  "crews",
+  "worker",
+  "workers",
+  "employee",
+  "employees",
+  "technician",
+  "technicians",
+  "installer",
+  "installers",
+  "contractor",
+  "contractors",
+  "roofer",
+  "roofers",
+  "plumber",
+  "plumbers",
+  "electrician",
+  "electricians",
+  "owner",
+  "owners",
+  "homeowner",
+  "homeowners",
+  "customer",
+  "customers",
+  "client",
+  "clients",
+  "family",
+  "families",
+  "portrait",
+  "smiling",
+  "handshake",
+  "founder",
+  "founders",
+  "completed",
+  "finished",
+  "installed",
+  "installing",
+  "installation",
+  "project",
+  "projects",
+  "job",
+  "jobs",
+  "testimonial",
+]);
+const PEOPLE_OR_WORK_PHRASES = ["our work", "before and after", "before-and-after"] as const;
+
+function depictsPeopleOrWork(text: string): boolean {
+  const lower = text.toLowerCase();
+  if (PEOPLE_OR_WORK_PHRASES.some((phrase) => lower.includes(phrase))) return true;
+  return lower.split(/[^a-z]+/).some((word) => PEOPLE_OR_WORK_WORDS.has(word));
+}
+
+/** The style a brief must be rendered in (see GeneratedImageStyle). */
+export function briefStyle(brief: ImageGenerationBrief): GeneratedImageStyle {
+  const text = [brief.intent, brief.subject, brief.composition, brief.style]
+    .filter(Boolean)
+    .join(" ");
+  return depictsPeopleOrWork(text) ? "illustration" : "photographic-neutral";
+}
 
 export type PromptCompilerName = "default" | "igor-motif";
 
 export interface CompiledPrompt {
   prompt: string;
+  style: GeneratedImageStyle;
   compiler: PromptCompilerName;
   compilerVersion: string;
 }
@@ -34,9 +116,14 @@ export function compileImagePrompt(
   options: CompileOptions = {},
 ): CompiledPrompt {
   const compiler = options.compiler ?? "default";
+  const style = briefStyle(brief);
   const sentences: string[] = [];
 
-  if (compiler === "igor-motif") {
+  if (style === "illustration") {
+    sentences.push(
+      "Flat editorial illustration with simple geometric shapes and generous negative space; clearly drawn, never a camera image.",
+    );
+  } else if (compiler === "igor-motif") {
     sentences.push(
       "Editorial, cinematic photograph with confident negative space and natural light.",
     );
@@ -44,12 +131,27 @@ export function compileImagePrompt(
   sentences.push(`${brief.intent.trim().replace(/\.$/, "")}.`);
   if (brief.subject) sentences.push(`Subject: ${brief.subject}.`);
   if (brief.composition) sentences.push(`Composition: ${brief.composition}.`);
-  if (brief.style) sentences.push(`Style: ${brief.style}.`);
+  // A brief's own style cannot reintroduce photorealism for people or work.
+  if (brief.style && !(style === "illustration" && /photo|realis/i.test(brief.style)))
+    sentences.push(`Style: ${brief.style}.`);
   const palette = paletteHint(options.designTokens);
   if (palette) sentences.push(palette);
   if (brief.aspectRatio) sentences.push(`Aspect ratio ${brief.aspectRatio}.`);
   if (brief.exclusions?.length) sentences.push(`Do not include: ${brief.exclusions.join(", ")}.`);
-  sentences.push("Photorealistic, high detail, no text or watermarks.");
+  if (style === "illustration") {
+    sentences.push(
+      "Stylised figures only, no realistic people and no identifiable person, no real staff, customers, vehicles or completed client projects; no text, logos or watermarks.",
+    );
+  } else {
+    sentences.push(
+      "Neutral scene only: no people, no staff or customers, no completed client projects; natural detail, no text, logos or watermarks.",
+    );
+  }
 
-  return { prompt: sentences.join(" "), compiler, compilerVersion: PROMPT_COMPILER_VERSION };
+  return {
+    prompt: sentences.join(" "),
+    style,
+    compiler,
+    compilerVersion: PROMPT_COMPILER_VERSION,
+  };
 }

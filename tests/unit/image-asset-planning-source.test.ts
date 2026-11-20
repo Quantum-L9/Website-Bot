@@ -15,17 +15,11 @@ import {
   routeSlugFromPlacement,
 } from "../../src/services/images/ImageAssetPlanner.js";
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
+import { realPng } from "../helpers/realImage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
-const PNG_1x1 = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-  "base64",
-);
 function pngWith(width: number, height: number): Buffer {
-  const buffer = Buffer.from(PNG_1x1);
-  buffer.writeUInt32BE(width, 16);
-  buffer.writeUInt32BE(height, 20);
-  return buffer;
+  return realPng(width, height);
 }
 
 function sourceImage(

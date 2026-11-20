@@ -18,7 +18,7 @@ import { ImageGenerationStage } from "../../src/stages/ImageGenerationStage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
 const PNG = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNoaGgAAAMEAYEezv+mAAAAAElFTkSuQmCC",
   "base64",
 );
 

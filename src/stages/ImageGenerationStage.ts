@@ -27,10 +27,14 @@ import {
 import type { ImageGenerationBrief } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { createImageGenerator } from "../services/images/GeminiImageGenerator.js";
+import { MissingAltTextError, resolveAltText } from "../services/images/ImageAltText.js";
 import { ImageBudget, ImageBudgetExceededError } from "../services/images/ImageBudget.js";
 import type { ImageGenerator } from "../services/images/ImageGenerator.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
+import type { ImageOptimizationRecord } from "../services/images/ImageOptimizer.js";
+import { optimizationRecord } from "../services/images/ImageOptimizer.js";
 import { compileImagePrompt } from "../services/images/ImagePromptCompiler.js";
+import { optimizeOrFail, writeOptimizationEvidence } from "./ImageAssetPlanningStage.js";
 
 const logger = createModuleLogger("stage:image-generation");
 
@@ -39,6 +43,27 @@ interface CacheMetadata {
   model: string;
   prompt: string;
   estimatedCostUsd: number;
+  /** Image config actually sent to the provider, and why it differs from the brief. */
+  requestConfig?: { aspectRatio?: string; imageSize?: string };
+  adjustments?: string[];
+}
+
+/** Shipped alt text for a generated slot; a missing description fails the build. */
+function altOrFail(
+  ctx: BuildContext,
+  slot: ImageSlotSpec,
+  candidates: Array<string | undefined>,
+): string {
+  try {
+    return resolveAltText(slot, candidates, {
+      businessName: ctx.domainSpec.business_name,
+      routes: ctx.domainSpec.routes,
+    });
+  } catch (error) {
+    if (error instanceof MissingAltTextError)
+      throw new BuildError("VALIDATION_FAILED", error.message);
+    throw error;
+  }
 }
 
 function slugify(value: string): string {
@@ -58,6 +83,7 @@ type ResolveAssetParams = {
   brief: ImageGenerationBrief;
   prompt: string;
   fingerprint: string;
+  optimizations: ImageOptimizationRecord[];
 };
 
 function compareKeys(a: string, b: string): number {
@@ -130,6 +156,7 @@ export class ImageGenerationStage implements Stage {
     const model = assets.generation?.model ?? "gemini-2.5-flash-image";
     const cacheRoot = resolve(clientPersistentAssetRoot(ctx), "generated");
     mkdirSync(cacheRoot, { recursive: true });
+    const optimizations: ImageOptimizationRecord[] = [];
 
     for (const planned of generatedSlots) {
       if (planned.resolution.source !== "generated") continue;
@@ -172,9 +199,11 @@ export class ImageGenerationStage implements Stage {
         brief,
         prompt: compiled.prompt,
         fingerprint,
+        optimizations,
       });
       ctx.resolvedImages.set(slot.placement, resolved);
     }
+    writeOptimizationEvidence(clientAssetRoot(ctx), optimizations);
 
     // Rebuild the manifest so it covers provided + source-site + generated assets.
     ctx.imageAssetManifest = buildImageAssetManifest(
@@ -199,7 +228,7 @@ export class ImageGenerationStage implements Stage {
   }
 
   private async resolveAsset(
-    _ctx: BuildContext,
+    ctx: BuildContext,
     params: ResolveAssetParams,
   ): Promise<ResolvedImageAsset> {
     const { cacheRoot, slot, fingerprint } = params;
@@ -208,16 +237,36 @@ export class ImageGenerationStage implements Stage {
     const materialized = cached ?? (await this.generateAndCache(params));
     const { bytes, model: usedModel, estimatedCostUsd: cost } = materialized;
 
-    const inspected = inspectImage(bytes);
-    const extension = EXTENSION_BY_MIME[inspected.mimeType] ?? "png";
-    const absolutePath = resolve(cacheRoot, `${fingerprint}.${extension}`);
+    // The provider may not honour the slot's ratio or size (unsupported ratio,
+    // no size tiers): the optimiser crops and resizes to the slot regardless.
+    const optimizableSlot = {
+      id: slot.id,
+      placement: slot.placement,
+      aspectRatio: params.brief.aspectRatio,
+    };
+    const optimized = await optimizeOrFail(bytes, { ...slot, ...optimizableSlot });
+    const record = optimizationRecord(optimizableSlot, "generated", optimized);
+    record.adjustments = [...(materialized.adjustments ?? []), ...record.adjustments];
+    params.optimizations.push(record);
+    const inspected = inspectImage(optimized.bytes);
+    const extension = optimized.extension;
+    const absolutePath = resolve(
+      cacheRoot,
+      `${fingerprint}-${inspected.sha256.slice(0, 16)}.${extension}`,
+    );
+    writeFileSync(absolutePath, optimized.bytes);
     return {
       slotId: slot.id,
       placement: slot.placement,
       source: "generated",
       absolutePath,
       outputFileName: `${slugify(slot.id)}.${extension}`,
-      altText: slot.altText ?? params.brief.subject ?? slot.id,
+      altText: altOrFail(ctx, slot, [
+        slot.altText,
+        params.brief.altText,
+        params.brief.subject,
+        params.brief.intent,
+      ]),
       mimeType: inspected.mimeType,
       width: inspected.width,
       height: inspected.height,
@@ -267,9 +316,11 @@ export class ImageGenerationStage implements Stage {
       model: usedModel,
       prompt,
       estimatedCostUsd: cost,
+      ...(result.requestConfig ? { requestConfig: result.requestConfig } : {}),
+      ...(result.adjustments?.length ? { adjustments: result.adjustments } : {}),
     };
     writeFileSync(metaPath, `${JSON.stringify(metadata, null, 2)}\n`, "utf-8");
-    return { bytes, mimeType, model: usedModel, estimatedCostUsd: cost, prompt };
+    return { ...metadata, bytes };
   }
 
   private readCache(

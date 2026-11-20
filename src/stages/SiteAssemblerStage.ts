@@ -34,6 +34,7 @@ import type {
   SiteIllustrationEntry,
   SiteImageEntry,
 } from "../pipeline/BuildContext.js";
+import { clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
 import { staticIllustrationAssets } from "../pipeline/evidence/ImageAssetPlan.js";
@@ -53,6 +54,7 @@ import {
   routeSlugFromPlacement,
 } from "../services/images/ImageAssetPlanner.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
+import { isOptimizableRaster, optimizeImageForSlot } from "../services/images/ImageOptimizer.js";
 import {
   buildAssemblyManifest,
   normalizeComponentName,
@@ -167,7 +169,7 @@ const ROLE_CONTENT_SLOT: Readonly<Record<string, string>> = {
   gallery: "project_proof",
 };
 
-/** An unplaced image the gallery may show, copied unchanged from `path`. */
+/** An unplaced image the gallery may show, copied from `path`. */
 interface GalleryExtra {
   fileName: string;
   path: string;
@@ -176,6 +178,40 @@ interface GalleryExtra {
   height: number;
   sha256: string;
   source: "provided" | "source-site";
+}
+
+/**
+ * A source-site gallery photo re-encoded for the gallery (provided photos are
+ * returned as they are: build contract T08). Fails assembly when the photo
+ * cannot be decoded or brought under the gallery byte cap.
+ */
+async function optimizedGalleryExtra(extra: GalleryExtra, dir: string): Promise<GalleryExtra> {
+  if (extra.source !== "source-site") return extra;
+  const bytes = readFileSync(extra.path);
+  if (!isOptimizableRaster(inspectImage(bytes).mimeType)) return extra;
+  let optimized: Awaited<ReturnType<typeof optimizeImageForSlot>>;
+  try {
+    optimized = await optimizeImageForSlot(bytes, {
+      id: `gallery:${extra.fileName}`,
+      placement: "global:gallery",
+    });
+  } catch (error) {
+    throw new BuildError(
+      "SITE_ASSEMBLY_FAILED",
+      `Gallery photo ${extra.fileName} could not be optimised: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  mkdirSync(dir, { recursive: true });
+  const path = resolve(dir, `${extra.sha256}.${optimized.extension}`);
+  writeFileSync(path, optimized.bytes);
+  const stem = extra.fileName.replace(/\.[^.]+$/, "");
+  return {
+    ...extra,
+    fileName: `${stem}.${optimized.extension}`,
+    path,
+    width: optimized.width,
+    height: optimized.height,
+  };
 }
 
 /** A file-name-safe stem for a provided image id. */
@@ -323,6 +359,7 @@ export class SiteAssemblerStage implements Stage {
 
   async run(ctx: BuildContext): Promise<void> {
     this.validateInputs(ctx);
+    await this.prepareGalleryExtras(ctx);
     const routeSlugs = validateRouteContracts(ctx.domainSpec.routes);
     const outputDir = this.resolveOutputDir(ctx);
     const siteConfig = this.buildSiteConfig(ctx, routeSlugs);
@@ -1142,10 +1179,21 @@ export class SiteAssemblerStage implements Stage {
    * source-site photos. A provided image with an explicit intendedPlacement is
    * never moved here (it belongs where it was placed), brand marks never
    * become gallery photos, and an asset already shown elsewhere — by content
-   * hash — is not repeated. Files are copied unchanged.
+   * hash, shipped or original (a slot's source photo is re-encoded, so its
+   * shipped digest differs from the crawled file's) — is not repeated.
+   * Provided files are copied unchanged (build contract T08); source-site
+   * photos are the optimised copies made by prepareGalleryExtras.
    */
   private galleryExtras(ctx: BuildContext): GalleryExtra[] {
-    const used = new Set([...(ctx.resolvedImages?.values() ?? [])].map((asset) => asset.sha256));
+    return this.preparedGallery.get(ctx) ?? this.collectGalleryExtras(ctx);
+  }
+
+  private collectGalleryExtras(ctx: BuildContext): GalleryExtra[] {
+    const used = new Set(
+      [...(ctx.resolvedImages?.values() ?? [])].flatMap((asset) =>
+        asset.originalSha256 ? [asset.sha256, asset.originalSha256] : [asset.sha256],
+      ),
+    );
     const extras: GalleryExtra[] = [];
     const add = (extra: GalleryExtra | undefined): void => {
       if (!extra || used.has(extra.sha256)) return;
@@ -1155,6 +1203,24 @@ export class SiteAssemblerStage implements Stage {
     for (const spec of ctx.domainSpec.assets?.providedImages ?? []) add(providedGalleryExtra(spec));
     for (const image of ctx.sourceSiteManifest?.images ?? []) add(sourceGalleryExtra(image));
     return extras;
+  }
+
+  /** Gallery extras of this build, with source-site photos optimised once. */
+  private readonly preparedGallery = new WeakMap<BuildContext, GalleryExtra[]>();
+
+  /**
+   * Optimise every source-site gallery photo for the gallery's render width
+   * before the registry and the copy read them; the extras keep the crawled
+   * file's digest as their identity. A dry run stages nothing.
+   */
+  private async prepareGalleryExtras(ctx: BuildContext): Promise<void> {
+    const extras = this.collectGalleryExtras(ctx);
+    if (ctx.dryRun) return;
+    const dir = resolve(clientAssetRoot(ctx), "gallery");
+    const prepared: GalleryExtra[] = [];
+    // Sequential on purpose: each decode holds a full-size bitmap in memory.
+    for (const extra of extras) prepared.push(await optimizedGalleryExtra(extra, dir));
+    this.preparedGallery.set(ctx, prepared);
   }
 
   private buildGalleryRegistry(ctx: BuildContext): SiteImageEntry[] {

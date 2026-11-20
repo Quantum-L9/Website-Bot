@@ -18,17 +18,20 @@ import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import {
+  illustrationFitsVertical,
   STATIC_ILLUSTRATION_PLACEMENT,
   staticIllustrationAssets,
 } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
+import { isDecorativeSlot, isDescriptiveAlt } from "../services/images/ImageAltText.js";
+import { isOptimizableRaster, slotRenderProfile } from "../services/images/ImageOptimizer.js";
 
 const logger = createModuleLogger("stage:image-validation");
 const SHA256 = /^[a-f0-9]{64}$/;
 
 export class ImageValidationStage implements Stage {
   name = "image-validation";
-  version = "2.1.0";
+  version = "2.2.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],
@@ -63,6 +66,8 @@ export class ImageValidationStage implements Stage {
 
     const critical = this.collectCriticalIssues(ctx, slots, images);
     this.checkIllustrations(ctx, illustrated, critical);
+    this.checkShippedSizes(ctx, critical);
+    this.checkAltText(images, critical);
     const stored = await ctx.evidenceStore.readImageAssets();
     this.checkEvidenceParity(slots, images, stored, critical);
 
@@ -148,6 +153,11 @@ export class ImageValidationStage implements Stage {
         );
         continue;
       }
+      if (!illustrationFitsVertical(asset.resolution.illustrationId, ctx.domainSpec.vertical)) {
+        critical.push(
+          `static illustration ${asset.resolution.illustrationId} does not fit vertical ${ctx.domainSpec.vertical ?? "(undeclared)"}; the slot must stay unresolved`,
+        );
+      }
       if (images[asset.placement]) {
         critical.push(
           `static illustration ${asset.placement} also delivered an image file; a slot has one source`,
@@ -168,6 +178,47 @@ export class ImageValidationStage implements Stage {
     for (const placement of Object.keys(delivered)) {
       if (!illustrated.some((asset) => asset.placement === placement))
         critical.push(`delivered static illustration ${placement} was never planned`);
+    }
+  }
+
+  /**
+   * Every harvested or generated raster must be the optimised output for its slot: within the
+   * slot's byte cap and render width. An oversized or unoptimised file fails
+   * closed here even if a stage upstream was bypassed.
+   */
+  private checkShippedSizes(ctx: BuildContext, critical: string[]): void {
+    for (const asset of ctx.imageAssetManifest?.assets ?? []) {
+      // Client-provided files are published unchanged (build contract T08).
+      if (asset.source === "provided" || !isOptimizableRaster(asset.mimeType)) continue;
+      const profile = slotRenderProfile({ id: asset.slotId, placement: asset.placement });
+      if (asset.byteLength > profile.maxBytes)
+        critical.push(
+          `oversized image ${asset.placement}: ${asset.byteLength} bytes exceeds the ${profile.kind} cap of ${profile.maxBytes}`,
+        );
+      if (asset.width > profile.maxWidth)
+        critical.push(
+          `unoptimised image ${asset.placement}: ${asset.width}px wide exceeds the ${profile.kind} render width ${profile.maxWidth}`,
+        );
+    }
+  }
+
+  /**
+   * No delivered image may announce an identifier: alt is a description, or
+   * empty for a decorative role, never the slot id, placement, path or file
+   * name it was assembled under.
+   */
+  private checkAltText(
+    images: NonNullable<NonNullable<BuildContext["siteConfig"]>["images"]>,
+    critical: string[],
+  ): void {
+    for (const [placement, entry] of Object.entries(images)) {
+      const alt = entry.alt ?? "";
+      const slot = { id: placement, placement };
+      if (alt === "" && isDecorativeSlot(slot)) continue;
+      const fileName = entry.src.split("/").pop() ?? "";
+      if (!isDescriptiveAlt(alt, slot) || alt === entry.src || alt === fileName) {
+        critical.push(`image ${placement} ships non-descriptive alt text ${JSON.stringify(alt)}`);
+      }
     }
   }
 

@@ -12,6 +12,41 @@ export const STATIC_ILLUSTRATION_PLACEMENT = "/:hero";
 /** The built-in illustration (CRM rows → relationship graph) used for the home hero. */
 export const HOME_HERO_ILLUSTRATION_ID = "crm-to-graph";
 
+/**
+ * Which client verticals each built-in illustration truthfully depicts. The
+ * CRM rows → relationship graph diagram describes a data / CRM / software
+ * business; on a roofer's or plumber's home page it is a wrong picture, not a
+ * fallback. An illustration is eligible only for a declared vertical whose
+ * tokens include one of these; an undeclared vertical never matches.
+ */
+export const STATIC_ILLUSTRATION_VERTICALS: Readonly<Record<string, readonly string[]>> = {
+  [HOME_HERO_ILLUSTRATION_ID]: [
+    "ai",
+    "analytics",
+    "automation",
+    "crm",
+    "data",
+    "saas",
+    "software",
+    "technology",
+    "tech",
+  ],
+};
+
+/** True when the illustration fits the client's declared vertical. */
+export function illustrationFitsVertical(
+  illustrationId: string,
+  vertical: string | undefined,
+): boolean {
+  const fits = STATIC_ILLUSTRATION_VERTICALS[illustrationId];
+  if (!fits || !vertical) return false;
+  const tokens = vertical
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  return tokens.some((token) => fits.includes(token));
+}
+
 /** Compiled generation instruction for a slot that must be produced, not reused. */
 export interface ImageGenerationBrief {
   slotId: string;
@@ -22,6 +57,8 @@ export interface ImageGenerationBrief {
   exclusions?: string[];
   aspectRatio?: string;
   imageSize?: "1K" | "2K" | "4K";
+  /** The slot's alt guidance, carried so the generated image ships real alt text. */
+  altText?: string;
 }
 
 export type ImageAssetResolution =
