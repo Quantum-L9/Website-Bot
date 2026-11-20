@@ -11,6 +11,7 @@ import {
   DEFAULT_COMMAND_TIMEOUT_MS,
   WebsiteBotAdapter,
 } from "../../src/adapters/WebsiteBotAdapter.js";
+import { ContextResolver } from "../../src/core/ContextResolver.js";
 
 describe("WebsiteBotAdapter command timeout", () => {
   test("defaults to the CLI default when no timeout is configured", () => {
@@ -30,5 +31,13 @@ describe("WebsiteBotAdapter command timeout", () => {
     await adapter.resolveExecutionContext({ timeout: 10_000 });
     const result = await adapter.executeCommand("sleep 1 && true", process.cwd());
     strictEqual(result.exitCode, 0);
+  });
+
+  test("ContextResolver applies the configured command timeout", async () => {
+    const adapter = new WebsiteBotAdapter();
+    await new ContextResolver(adapter).resolve({ timeout: 500 });
+    const result = await adapter.executeCommand("sleep 5 && true", process.cwd());
+    ok(result.exitCode !== 0, "a command killed by the timeout does not succeed");
+    ok(result.duration < 4000, `stopped near the 500ms limit, took ${result.duration}ms`);
   });
 });
