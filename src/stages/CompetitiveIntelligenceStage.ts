@@ -1,5 +1,5 @@
 // L9_META: layer=stage, role=competitive_intelligence, stage_index=3, status=active, version=1.1.0
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { CompetitiveLandscapeArtifact } from "@quantum-l9/bot-interop";
 import { createModuleLogger } from "../core/logger.js";
@@ -140,15 +140,55 @@ function parsePatterns(value: unknown, source: string): HarvestedPattern[] {
   });
 }
 
+const VERBATIM_EXCERPT_CHARS = 48;
+
+export function donorNuggetRequest(donor: AcceptedDonorEvidence): {
+  prompt: string;
+  images: string[];
+} {
+  const prompt = [
+    "Extract the strongest user-facing concepts from this competitor's SEO landscape and crawl evidence.",
+    'Return ONLY JSON: {"nuggets": [{"evidence": "...", "invariant": "abstract, reusable statement", "disposition": "one of PORT|PORT_WITH_HARDENING|CONFIGURE|MERGE_WITH_EXISTING|KEEP_LOCAL|REJECT", "beneficiary_destination": "which part of the site benefits", "risk": "...", "acceptance_test": "..."}]}.',
+    "Evidence may include page text and one homepage screenshot. The sealed evidence field must stay an abstract invariant and must not copy that page text.",
+    `Donor domain: ${donor.domain}`,
+    `Crawled page evidence: ${JSON.stringify(
+      donor.pages.map((page) => ({
+        url: page.url,
+        excerpt: page.content_excerpt ?? "",
+      })),
+    )}`,
+  ].join("\n\n");
+  const images = donor.screenshot_paths.filter((path) => existsSync(path)).slice(0, 1);
+  return { prompt, images };
+}
+
+export function nuggetCopiesPageExcerpt(
+  evidence: string,
+  pages: Array<{ content_excerpt?: string }>,
+): boolean {
+  const haystack = evidence.replace(/\s+/g, " ").trim();
+  if (haystack.length === 0) return false;
+  for (const page of pages) {
+    const excerpt = page.content_excerpt?.replace(/\s+/g, " ").trim() ?? "";
+    if (excerpt.length < VERBATIM_EXCERPT_CHARS) continue;
+    const last = excerpt.length - VERBATIM_EXCERPT_CHARS;
+    for (let start = 0; start <= last; start += 1) {
+      if (haystack.includes(excerpt.slice(start, start + VERBATIM_EXCERPT_CHARS))) return true;
+    }
+  }
+  return false;
+}
+
 async function strategizeJson(
   ctx: BuildContext,
   operation: "DONOR_NUGGET_EXTRACTION" | "PATTERN_SYNTHESIS" | "WEBSITE_BLUEPRINT",
   description: string,
   systemPrompt: string,
   userPrompt: string,
+  images?: string[],
 ): Promise<Record<string, unknown>> {
   const task = websiteImproveTask(operation, ctx.clientId, description);
-  const first = await ctx.llm.strategize(task, systemPrompt, userPrompt);
+  const first = await ctx.llm.strategize(task, systemPrompt, userPrompt, images);
   try {
     const parsed = extractJson(first) as Record<string, unknown>;
     if (!isRecord(parsed)) throw new Error("expected a JSON object");
@@ -157,7 +197,7 @@ async function strategizeJson(
     const reason = error instanceof Error ? error.message : String(error);
     logger.warn({ operation, reason }, "Improve-op JSON invalid; attempting one bounded repair");
     const repairPrompt = `${userPrompt}\n\n---\nYour previous response was rejected: ${reason}\nRespond again with ONLY a single valid JSON value. No prose, no markdown fences.`;
-    const second = await ctx.llm.strategize(task, systemPrompt, repairPrompt);
+    const second = await ctx.llm.strategize(task, systemPrompt, repairPrompt, images);
     return extractJson(second) as Record<string, unknown>;
   }
 }
@@ -207,15 +247,9 @@ export function donorCandidateUrls(
     .filter((observation) => observation.domain === candidate.domain)
     .sort((a, b) => a.rank - b.rank)
     .map((observation) => observation.url);
-  const urls = [...new Set([...fromRefs, ...fromDomain])];
-  try {
-    const first = urls[0] ? new URL(urls[0]) : new URL(`https://${candidate.domain}`);
-    const root = `${first.protocol}//${first.host}/`;
-    if (!urls.includes(root)) urls.push(root);
-  } catch {
-    // Unparseable URL: leave the observed list as-is.
-  }
-  return urls;
+  const ranked = [...new Set([...fromRefs, ...fromDomain])];
+  const root = `https://${candidate.domain}/`;
+  return [root, ...ranked.filter((url) => url !== root)];
 }
 
 export async function acquireAcceptedDonors(
@@ -413,23 +447,23 @@ export class CompetitiveIntelligenceStage implements Stage {
       Omit<HarvestedPattern, "pattern_id" | "donor_frequency"> & { donor: string }
     > = [];
     for (const donor of accepted) {
-      const prompt = [
-        `Extract the strongest user-facing concepts from this competitor's SEO landscape and crawl evidence.`,
-        `Return ONLY JSON: {"nuggets": [{"evidence": "...", "invariant": "abstract, reusable statement", "disposition": "one of PORT|PORT_WITH_HARDENING|CONFIGURE|MERGE_WITH_EXISTING|KEEP_LOCAL|REJECT", "beneficiary_destination": "which part of the site benefits", "risk": "...", "acceptance_test": "..."}]}.`,
-        `No competitor prose, no images, no trademarked phrasing — only abstract invariants.`,
-        `Donor domain: ${donor.domain}`,
-        `Crawled page evidence (URLs, digests only): ${JSON.stringify(
-          donor.pages.map((page) => ({ url: page.url, digest: page.content_digest })),
-        )}`,
-      ].join("\n\n");
+      const request = donorNuggetRequest(donor);
       const parsed = await strategizeJson(
         ctx,
         "DONOR_NUGGET_EXTRACTION",
         `[intelligence] donor nuggets for ${donor.domain}`,
         "You harvest reusable design concepts from market evidence. Never copy competitor prose or visual treatments.",
-        prompt,
+        request.prompt,
+        request.images,
       );
       for (const nugget of parsePatterns(parsed.nuggets ?? [], `donor ${donor.domain}`)) {
+        const sealed = [
+          nugget.evidence,
+          nugget.invariant,
+          nugget.acceptance_test,
+          nugget.beneficiary_destination,
+        ];
+        if (sealed.some((field) => nuggetCopiesPageExcerpt(field, donor.pages))) continue;
         nuggets.push({ ...nugget, donor: donor.domain });
       }
     }

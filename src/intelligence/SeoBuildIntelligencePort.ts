@@ -38,6 +38,8 @@ export interface SEOContentBlueprintRequest {
     route_id: string;
     path: string;
     purpose: string;
+    /** Keywords from the spec cluster whose target_page equals this route path. */
+    keywords?: string[];
   }>;
   business_facts: VerifiedBusinessFact[];
 }

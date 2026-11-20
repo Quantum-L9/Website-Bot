@@ -1045,6 +1045,12 @@ export function validateDomainSpec(parsed: unknown, specPath: string): DomainSpe
     typeof root.vertical === "string" && root.vertical.trim().length > 0,
     "vertical must be a non-empty string",
   );
+  if (root.market_research !== undefined) {
+    check(
+      root.market_research === "requested" || root.market_research === "not_requested",
+      "market_research must be requested or not_requested",
+    );
+  }
 
   validateGeography(root.geography, errors, check);
   validateRoutes(root.routes, errors, check);

@@ -157,11 +157,26 @@ export class RedesignContentAuthorityStage implements Stage {
     const counters = ctx.redesignCounters;
     const port = this.portFactory(ctx);
 
-    const routes = ctx.domainSpec.routes.map((route) => ({
-      route_id: route.slug,
-      path: route.slug,
-      purpose: route.purpose ?? route.title,
-    }));
+    const routeTargets = ctx.domainSpec.seo_contract?.route_targets ?? [];
+    const routes = ctx.domainSpec.routes.map((route) => {
+      const keywords: string[] = [];
+      const seen = new Set<string>();
+      for (const target of routeTargets) {
+        if (target.target_page !== route.slug) continue;
+        for (const keyword of target.keywords ?? []) {
+          const trimmed = keyword.trim();
+          if (trimmed.length === 0 || seen.has(trimmed)) continue;
+          seen.add(trimmed);
+          keywords.push(trimmed);
+        }
+      }
+      return {
+        route_id: route.slug,
+        path: route.slug,
+        purpose: route.purpose ?? route.title,
+        ...(keywords && keywords.length > 0 ? { keywords } : {}),
+      };
+    });
     const businessFacts = verifiedBusinessFactsFromSpec(ctx.domainSpec);
 
     const seoBlueprint = await port.createSEOContentBlueprint({

@@ -189,6 +189,15 @@ test("explicit business_facts override compiler-derived keys", () => {
   assert.equal(flat.business_facts?.custom_fact, true);
 });
 
+test("carries market_research and rejects unknown values", () => {
+  assert.equal(buildFlatSpec(rich({ market_research: "requested" })).market_research, "requested");
+  assert.equal(buildFlatSpec(rich({})).market_research, undefined);
+  assert.throws(
+    () => buildFlatSpec(rich({ market_research: "request" })),
+    /market_research must be/,
+  );
+});
+
 test("carries build_intent and rejects unknown values", () => {
   assert.equal(
     buildFlatSpec(rich({ build_intent: "REDESIGN_IMPROVE" })).build_intent,

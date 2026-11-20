@@ -140,7 +140,12 @@ export interface WebsiteFactoryLLM {
   generateSchema(prompt: string): Promise<string>;
   validateLayout(imagePaths: string[], context: string): Promise<string>;
   /** Dispatch with an explicit capability descriptor (REDESIGN_IMPROVE ops). */
-  strategize(task: TaskDescriptor, systemPrompt: string, userPrompt: string): Promise<string>;
+  strategize(
+    task: TaskDescriptor,
+    systemPrompt: string,
+    userPrompt: string,
+    images?: string[],
+  ): Promise<string>;
   recordUsage(
     stage: string,
     taskType: string,
@@ -540,13 +545,14 @@ export function createWebsiteFactoryLLM(
         json: true,
       });
     },
-    async strategize(task, systemPrompt, userPrompt) {
+    async strategize(task, systemPrompt, userPrompt, images) {
       return dispatch({
         task: { ...task, clientId, description: task.description ?? "[intelligence] improve_op" },
         systemPrompt,
         userPrompt,
         stage: "competitive-intelligence",
         usageTaskType: task.type,
+        images: images?.map(imageToDataUri),
       });
     },
     recordUsage(stage, taskType, inputTokens, outputTokens, costUsd, model) {
