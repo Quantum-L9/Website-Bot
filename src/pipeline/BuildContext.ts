@@ -1,4 +1,5 @@
 // L9_META: layer=pipeline, role=context_carrier, status=active, version=3.1.0
+import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
 import type {
   CompetitiveLandscapeArtifact,
@@ -421,8 +422,19 @@ export interface BuildContext {
   startedAt: Date;
 }
 
+// Per-process random base plus a counter: ids minted in the same millisecond
+// differ within a process (the counter) and across processes (the base).
+let buildIdSequence = randomBytes(4).readUInt32BE(0);
+
+/**
+ * `<clientId>-<epoch ms>-<8 hex>`. The prefix is unchanged; the suffix keeps
+ * builds that start in the same millisecond (parallel tests, fan-out runs)
+ * from sharing an id and so an on-disk build directory. Every character stays
+ * within safePathSegment's alphabet.
+ */
 export function makeBuildId(clientId: string): string {
-  return `${clientId}-${Date.now()}`;
+  buildIdSequence = (buildIdSequence + 1) >>> 0;
+  return `${clientId}-${Date.now()}-${buildIdSequence.toString(16).padStart(8, "0")}`;
 }
 
 /** Per-build on-disk root for staged images/manifests. Scoped by buildId so concurrent builds (and parallel tests) cannot clobber each other. */
