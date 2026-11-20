@@ -7,7 +7,7 @@
 // analytical evidence only — disposition is always DONOR_REFERENCE_ONLY.
 
 import { createHash } from "node:crypto";
-import { lookup } from "node:dns/promises";
+import { promises as dnsPromises } from "node:dns";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { BlockList, isIP } from "node:net";
 import { resolve } from "node:path";
@@ -16,6 +16,7 @@ import {
   PlaywrightScreenshotCapturer,
   type ScreenshotCapturer,
 } from "../ingestion/ScreenshotCapturer.js";
+import { stripHtmlTags } from "../lib/text-trim.mjs";
 
 export { NoopScreenshotCapturer } from "../ingestion/ScreenshotCapturer.js";
 
@@ -108,7 +109,7 @@ function addressBlocked(address: string): boolean {
 
 async function defaultResolveHost(hostname: string): Promise<string[]> {
   if (isIP(hostname)) return [hostname];
-  const records = await lookup(hostname, { all: true, verbatim: true });
+  const records = await dnsPromises.lookup(hostname, { all: true, verbatim: true });
   return records.map((record) => record.address);
 }
 
@@ -126,13 +127,59 @@ async function assertPublicHttps(
   }
 }
 
+function isHtml(contentType: string | undefined): boolean {
+  return !contentType || /text\/html|application\/xhtml\+xml/i.test(contentType);
+}
+
+function sameHost(left: string, right: string): boolean {
+  return left.replace(/\.$/, "").toLowerCase() === right.replace(/\.$/, "").toLowerCase();
+}
+
+function isTagBoundary(char: string | undefined): boolean {
+  return char === undefined || char === ">" || char === "/" || char.trim() === "";
+}
+
+/** Drop `<tag ...>...</tag ...>` including a spaced end tag such as `</script >`. */
+function dropElements(html: string, tagName: string): string {
+  const lower = html.toLowerCase();
+  const openToken = `<${tagName}`;
+  const closeToken = `</${tagName}`;
+  let result = "";
+  let cursor = 0;
+  while (cursor < html.length) {
+    const open = lower.indexOf(openToken, cursor);
+    if (open === -1) return result + html.slice(cursor);
+    if (!isTagBoundary(lower[open + openToken.length])) {
+      result += html.slice(cursor, open + 1);
+      cursor = open + 1;
+      continue;
+    }
+    const close = lower.indexOf(closeToken, open + openToken.length);
+    const closeEnd = close === -1 ? -1 : lower.indexOf(">", close + closeToken.length);
+    if (closeEnd === -1) return result + html.slice(cursor, open);
+    result += html.slice(cursor, open);
+    cursor = closeEnd + 1;
+  }
+  return result;
+}
+
+function collapseSpace(value: string): string {
+  let out = "";
+  let pending = false;
+  for (const char of value) {
+    if (char.trim() === "") {
+      pending = out.length > 0;
+      continue;
+    }
+    if (pending) out += " ";
+    pending = false;
+    out += char;
+  }
+  return out;
+}
+
 function textExcerpt(body: string): string {
-  const visible = body
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const visible = collapseSpace(stripHtmlTags(dropElements(dropElements(body, "script"), "style")));
   return visible.slice(0, EXCERPT_CHARS);
 }
 
@@ -184,7 +231,7 @@ export class HttpDonorIngestor implements DonorIngestor {
     const urls = request.candidate_urls.slice(0, Math.max(1, request.max_pages));
     for (const start of urls) {
       try {
-        const fetched = await this.fetchPublic(start);
+        const fetched = await this.fetchPublic(start, request.domain);
         if (!fetched) continue;
         pages.push({
           url: fetched.url,
@@ -244,9 +291,11 @@ export class HttpDonorIngestor implements DonorIngestor {
 
   private async fetchPublic(
     start: string,
+    donorHost: string,
   ): Promise<{ url: string; status: number; body: string } | null> {
     let current = new URL(start);
     for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+      if (!sameHost(current.hostname, donorHost)) return null;
       await assertPublicHttps(current, this.resolveHost);
       const response = await this.fetchImpl(current, {
         redirect: "manual",
@@ -260,6 +309,8 @@ export class HttpDonorIngestor implements DonorIngestor {
         continue;
       }
       if (!response.ok) return null;
+      if (!isHtml(response.headers.get("content-type") ?? undefined)) return null;
+      if (!sameHost(current.hostname, donorHost)) return null;
       const body = await readCappedBody(response);
       if (!body) return null;
       return { url: current.toString(), status: response.status, body };

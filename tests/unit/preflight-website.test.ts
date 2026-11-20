@@ -266,7 +266,6 @@ test("REDESIGN maps each SEO-Bot failure code to its remediation", async () => {
     ["SEO_BOT_AUTH_FAILED", /Seam key is stale/],
     ["SEO_BOT_UNREACHABLE", /Start SEO-Bot/],
     ["SEO_BOT_CAPABILITY_MISMATCH", /DataForSEO/],
-    ["SEO_BOT_ROUTER_VERSION_MISMATCH", /LLM router/],
   ];
   for (const [code, remediation] of cases) {
     const report = await runWebsitePreflight(

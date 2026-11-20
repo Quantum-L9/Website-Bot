@@ -10,6 +10,9 @@ geography:
     - NC
   primary_state: NC
 build_intent: REDESIGN_IMPROVE
+# The committed SEO-Bot fixtures are a purchased landscape. The replay must
+# request that research so donor DNS, HTML, and the blueprint lineage run.
+market_research: requested
 design:
   status: pending
 routes:

@@ -267,15 +267,6 @@ export class SeoBuildIntelligenceHttpClient implements SeoBuildIntelligencePort 
       );
     }
 
-    // 6. Router patch equality with the locally pinned promoted patch.
-    const localRouter = scopedPkgVersion("@quantum-l9", "llm-router");
-    if (snapshot.llm_router_version !== localRouter) {
-      throw new SeoBotPreflightError(
-        "SEO_BOT_ROUTER_VERSION_MISMATCH",
-        `SEO-Bot Router ${snapshot.llm_router_version} does not match Website-Bot Router ${localRouter}`,
-      );
-    }
-
     return snapshot;
   }
 

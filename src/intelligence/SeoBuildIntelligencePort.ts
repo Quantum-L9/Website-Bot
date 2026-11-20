@@ -56,7 +56,8 @@ export interface SeoBotPreflightResult {
   service: string;
   version: string;
   bot_interop_version: string;
-  llm_router_version: string;
+  /** Informational during the DeepSeek cutover. Not a readiness or compatibility veto. */
+  llm_router_version?: string;
   /** Server-side stamps and oracle checks carried by the producer's report. */
   produced_at?: string;
   preflight_id?: string;
@@ -74,11 +75,7 @@ export interface SeoBotPreflightResult {
 
 /** Typed preflight failure carrying the mapped SEO_BOT_* failure code. */
 export class SeoBotPreflightError extends Error {
-  readonly code:
-    | "SEO_BOT_UNREACHABLE"
-    | "SEO_BOT_AUTH_FAILED"
-    | "SEO_BOT_CAPABILITY_MISMATCH"
-    | "SEO_BOT_ROUTER_VERSION_MISMATCH";
+  readonly code: "SEO_BOT_UNREACHABLE" | "SEO_BOT_AUTH_FAILED" | "SEO_BOT_CAPABILITY_MISMATCH";
   constructor(code: SeoBotPreflightError["code"], message: string) {
     super(message);
     this.name = "SeoBotPreflightError";

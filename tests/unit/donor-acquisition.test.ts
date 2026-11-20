@@ -4,11 +4,15 @@
 // bounded replacement, exclusion policy, and the minimum evidence policy.
 
 import assert from "node:assert/strict";
+import { promises as dnsPromises } from "node:dns";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import type { ScreenshotCapturer } from "../../src/ingestion/ScreenshotCapturer.js";
+import {
+  PlaywrightScreenshotCapturer,
+  type ScreenshotCapturer,
+} from "../../src/ingestion/ScreenshotCapturer.js";
 import {
   type AcceptedDonorEvidence,
   type DonorIngestionRequest,
@@ -161,11 +165,46 @@ void test("donor fetch rejects loopback and a link-local redirect before the bod
   await ingestor.close();
 });
 
+void test("omitted resolveHost follows DNS and still rejects a loopback answer", async () => {
+  const original = dnsPromises.lookup;
+  const calls: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    calls.push(String(input));
+    return new Response(
+      "<html><body>Visible public page text for the donor excerpt.</body></html>",
+      {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      },
+    );
+  };
+  const asLookup = (address: string) =>
+    (async () => [{ address, family: 4 }]) as unknown as typeof dnsPromises.lookup;
+  try {
+    dnsPromises.lookup = asLookup("127.0.0.1");
+    const blocked = new HttpDonorIngestor(new RecordingCapturer(), { fetchImpl });
+    assert.equal(await blocked.ingest(donorRequest(["https://donor.example/"])), null);
+    assert.deepEqual(calls, []);
+    await blocked.close();
+
+    calls.length = 0;
+    dnsPromises.lookup = asLookup("93.184.216.34");
+    const allowed = new HttpDonorIngestor(new RecordingCapturer(), { fetchImpl });
+    const evidence = await allowed.ingest(donorRequest(["https://donor.example/"]));
+    assert.ok(evidence);
+    assert.deepEqual(calls, ["https://donor.example/"]);
+    await allowed.close();
+  } finally {
+    dnsPromises.lookup = original;
+  }
+});
+
 void test("a public https donor keeps a bounded excerpt and screenshots that URL", async () => {
   const capturer = new RecordingCapturer();
   const fetchImpl: typeof fetch = async () =>
     new Response("<html><body><h1>Hero headline for the layout</h1></body></html>", {
       status: 200,
+      headers: { "content-type": "text/html" },
     });
   const ingestor = new HttpDonorIngestor(capturer, {
     fetchImpl,
@@ -177,6 +216,61 @@ void test("a public https donor keeps a bounded excerpt and screenshots that URL
   assert.match(evidence.pages[0]?.content_digest ?? "", /^[0-9a-f]{64}$/);
   assert.equal(capturer.urls[0], "https://donor.example/service");
   await ingestor.close();
+});
+
+void test("donor excerpt drops script text when the end tag contains a space", async () => {
+  const fetchImpl: typeof fetch = async () =>
+    new Response(
+      "<html><body><script>secretToken</script >Visible offer for the donor page</body></html>",
+      { status: 200, headers: { "content-type": "text/html" } },
+    );
+  const ingestor = new HttpDonorIngestor(new RecordingCapturer(), {
+    fetchImpl,
+    resolveHost: async () => ["93.184.216.34"],
+  });
+  const evidence = await ingestor.ingest(donorRequest(["https://donor.example/service"]));
+  assert.ok(evidence);
+  const excerpt = evidence.pages[0]?.content_excerpt ?? "";
+  assert.equal(excerpt.includes("secretToken"), false);
+  assert.match(excerpt, /Visible offer for the donor page/);
+  await ingestor.close();
+});
+
+void test("a pdf response is not donor page evidence", async () => {
+  const calls: string[] = [];
+  const capturer = new RecordingCapturer();
+  const fetchImpl: typeof fetch = async (input) => {
+    calls.push(String(input));
+    return new Response("%PDF-1.7", {
+      status: 200,
+      headers: { "content-type": "application/pdf" },
+    });
+  };
+  const ingestor = new HttpDonorIngestor(capturer, {
+    fetchImpl,
+    resolveHost: async () => ["93.184.216.34"],
+  });
+  const evidence = await ingestor.ingest(donorRequest(["https://donor.example/file"]));
+  assert.equal(evidence, null);
+  assert.deepEqual(capturer.urls, []);
+  await ingestor.close();
+});
+
+void test("a screenshot that leaves the donor host is not recorded", async () => {
+  const capturer = new PlaywrightScreenshotCapturer(async () => ({
+    async goto() {},
+    url: () => "https://evil.example/phish",
+    async screenshot() {
+      throw new Error("screenshot must not be written off-host");
+    },
+    async close() {},
+  }));
+  const recorded = await capturer.capture({
+    url: "https://donor.example/service",
+    outputPath: join(tmpdir(), "off-host.png"),
+  });
+  assert.equal(recorded, undefined);
+  await capturer.close();
 });
 
 void test("nugget extraction sends the page excerpt and screenshot, and rejects a verbatim copy", async () => {
@@ -196,6 +290,18 @@ void test("nugget extraction sends the page excerpt and screenshot, and rejects 
   assert.equal(
     nuggetCopiesPageExcerpt("A reusable hero slot sits above the primary action.", donor.pages),
     false,
+  );
+  const tail = excerpt.slice(-48);
+  assert.equal(nuggetCopiesPageExcerpt(tail, donor.pages), true);
+  assert.equal(
+    nuggetCopiesPageExcerpt(
+      {
+        evidence: "An abstract slot above the primary action.",
+        invariant: tail,
+      },
+      donor.pages,
+    ),
+    true,
   );
 
   let body = "";

@@ -12,12 +12,15 @@
 // in the replayed landscape. Their pages are served from one committed HTML
 // fixture both to fetch() and to Playwright, whose `chromium.launch` is wrapped
 // so every page it opens routes `.example` to the fixture, lets loopback
-// through, and aborts anything else.
+// through, and aborts anything else. Node DNS for those names answers with a
+// public address so the production private-address check can run; every other
+// name still uses real DNS, and loopback stays blocked.
 //
 // A request no fixture matches is a test failure, never a silent pass-through.
 // Every request is appended to REPLAY_LOG so the test can assert what crossed
 // the boundary.
 
+import { promises as dnsPromises } from "node:dns";
 import { appendFileSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -40,6 +43,21 @@ function loadFixtures(kind) {
 }
 
 const DONOR_TLD = ".example";
+const REPLAY_PUBLIC_ADDRESS = "93.184.216.34";
+const realLookup = dnsPromises.lookup.bind(dnsPromises);
+
+function isExampleHost(hostname) {
+  const name = String(hostname).replace(/\.$/, "").toLowerCase();
+  return name === "example" || name.endsWith(DONOR_TLD);
+}
+
+dnsPromises.lookup = function replayLookup(hostname, options) {
+  if (!isExampleHost(hostname)) return realLookup(hostname, options);
+  const all = typeof options === "object" && options !== null && options.all === true;
+  const record = { address: REPLAY_PUBLIC_ADDRESS, family: 4 };
+  return all ? [record] : record;
+};
+
 const donorPage = readFileSync(join(fixturesDir, "web", "donor-page.html"), "utf-8");
 const deepseek = loadFixtures("deepseek");
 const gemini = loadFixtures("gemini");
@@ -57,15 +75,22 @@ async function bodyText(input, init) {
   return "";
 }
 
+function textOfContent(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .filter(Boolean)
+      .join("\n");
+  }
+  return JSON.stringify(content);
+}
+
 function promptOf(body) {
   try {
     const parsed = JSON.parse(body);
     if (Array.isArray(parsed.messages)) {
-      return parsed.messages
-        .map((message) =>
-          typeof message.content === "string" ? message.content : JSON.stringify(message.content),
-        )
-        .join("\n");
+      return parsed.messages.map((message) => textOfContent(message.content)).join("\n");
     }
     return JSON.stringify(parsed);
   } catch {

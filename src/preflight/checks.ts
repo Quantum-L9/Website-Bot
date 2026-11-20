@@ -253,8 +253,6 @@ function seoBotRemediation(
       return `Seam key is stale: set ${seam.keyVar} to SEO-Bot's current build-intelligence machine key (rotate both sides together).`;
     case "SEO_BOT_CAPABILITY_MISMATCH":
       return "Fix SEO-Bot's own readiness (DataForSEO credentials, LLM provider keys) — run its preflight and clear every non-PASS check.";
-    case "SEO_BOT_ROUTER_VERSION_MISMATCH":
-      return "Align the shared LLM router package between SEO-Bot and Website-Bot (same promoted patch) and redeploy SEO-Bot.";
   }
 }
 

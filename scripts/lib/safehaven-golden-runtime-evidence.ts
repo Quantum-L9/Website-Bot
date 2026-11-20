@@ -104,7 +104,7 @@ export interface SafeHavenRealRuntimeEvidence {
   }>;
   identity: {
     website_bot: { sha: string; worktree_state: WorktreeState; llm_router_version: string };
-    seo_bot: { sha: string; worktree_state: WorktreeState; llm_router_version: string };
+    seo_bot: { sha: string; worktree_state: WorktreeState; llm_router_version?: string };
     llm_router: { sha: string; worktree_state: WorktreeState; package_version: string };
     bot_interop: {
       compatible: boolean;
