@@ -67,20 +67,85 @@ export function stageModules(root: string): string[] {
 /** The stage's declared `name` and `version` class fields, read from source. */
 export function stageIdentity(root: string, module: string): StageIdentity {
   const source = readFileSync(join(root, module), "utf-8");
-  const name = /^\s+(?:readonly\s+)?name\s*=\s*"([^"]+)"/m.exec(source)?.[1];
-  const version = /^\s+(?:readonly\s+)?version\s*=\s*"([^"]+)"/m.exec(source)?.[1];
+  const name = classField(source, "name");
+  const version = classField(source, "version");
   if (!name) throw new Error(`${module}: no \`name = "..."\` field`);
   return { name, version, module };
 }
 
-const IMPORT = /^\s*(?:import|export)\s+(?!type\b)[^;]*?\sfrom\s+"(\.{1,2}\/[^"]+)"/gms;
+/**
+ * The string value of an indented `field = "..."` class field (optionally
+ * readonly), read line by line: no backtracking pattern runs over the source.
+ */
+function classField(source: string, field: string): string | undefined {
+  for (const line of source.split("\n")) {
+    if (!/^\s/.test(line)) continue;
+    const text = line.trim().replace(/^readonly\s+/, "");
+    if (!text.startsWith(field)) continue;
+    const rest = text.slice(field.length).trimStart();
+    if (!rest.startsWith("=")) continue;
+    const value = rest.slice(1).trimStart();
+    if (!value.startsWith('"')) continue;
+    const end = value.indexOf('"', 1);
+    if (end > 1) return value.slice(1, end);
+  }
+  return undefined;
+}
+
+/** A statement with its leading line and block comments removed. */
+function withoutLeadingComments(statement: string): string {
+  let text = statement.trimStart();
+  for (;;) {
+    if (text.startsWith("//")) {
+      const newline = text.indexOf("\n");
+      text = newline === -1 ? "" : text.slice(newline + 1).trimStart();
+    } else if (text.startsWith("/*")) {
+      const close = text.indexOf("*/");
+      text = close === -1 ? "" : text.slice(close + 2).trimStart();
+    } else return text.trimEnd();
+  }
+}
+
+/**
+ * The statement from its last line that begins with `import` or `export`: a
+ * chunk split on ";" can open with the tail of a preceding declaration
+ * (`}` closing an interface whose members end in ";").
+ */
+function statementStart(chunk: string): string {
+  const lines = chunk.split("\n");
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = (lines[index] ?? "").trimStart();
+    if (line.startsWith("import ") || line.startsWith("export "))
+      return [line, ...lines.slice(index + 1)].join("\n").trimEnd();
+  }
+  return chunk;
+}
+
+/**
+ * Relative specifiers of a module's non-type `import ... from` / `export ...
+ * from` statements, found by splitting statements on ";" (a linear scan).
+ */
+function relativeSpecifiers(source: string): string[] {
+  const specifiers: string[] = [];
+  for (const statement of source.split(";")) {
+    const text = statementStart(withoutLeadingComments(statement));
+    const keyword = ["import ", "export "].find((candidate) => text.startsWith(candidate));
+    if (!keyword || text.slice(keyword.length).trimStart().startsWith("type ")) continue;
+    const from = text.lastIndexOf(' from "');
+    if (from === -1) continue;
+    const start = from + ' from "'.length;
+    const end = text.indexOf('"', start);
+    const specifier = end === -1 ? "" : text.slice(start, end);
+    if (specifier.startsWith("./") || specifier.startsWith("../")) specifiers.push(specifier);
+  }
+  return specifiers;
+}
 
 /** Local, non-type imports of one module, resolved to repo-relative paths. */
 function localImports(root: string, module: string): string[] {
   const source = readFileSync(join(root, module), "utf-8");
   const found: string[] = [];
-  for (const match of source.matchAll(IMPORT)) {
-    const specifier = match[1] ?? "";
+  for (const specifier of relativeSpecifiers(source)) {
     const base = normalize(join(dirname(module), specifier));
     const candidates = [base.replace(/\.js$/, ".ts"), base, `${base}.ts`, join(base, "index.ts")];
     const hit = candidates.find(
@@ -155,6 +220,30 @@ export function currentStages(root: string, manifest: StageVersionManifest): Sta
   });
 }
 
+/** Every reason one stage's manifest entry does not describe it as it is now. */
+function stageProblems(manifest: StageVersionManifest, stage: StageState): string[] {
+  const { name, version, module } = stage.identity;
+  if (!version) return [`${name} (${module}): declares no version, so resume cannot key on it`];
+  const entry = manifest.stages[name];
+  if (!entry)
+    return [`${name}: missing from ${STAGE_VERSION_MANIFEST_PATH} (run npm run stages:manifest)`];
+  const problems: string[] = [];
+  if (entry.module !== module)
+    problems.push(`${name}: module is ${module}, manifest says ${entry.module}`);
+  problems.push(...historyProblems(name, entry.history));
+  const latest = entry.history.at(-1);
+  if (!latest) return problems;
+  if (latest.version !== version)
+    problems.push(`${name}: declares version ${version}, manifest records ${latest.version}`);
+  if (latest.fingerprint !== stage.fingerprint)
+    problems.push(
+      `${name}: output-shaping source changed (${latest.fingerprint.slice(0, 19)} -> ${stage.fingerprint.slice(0, 19)}) ` +
+        `without a manifest update: bump ${module}'s version, or record ` +
+        `\`npm run stages:manifest -- --unchanged ${name}="<reason>"\` if its output semantics did not change`,
+    );
+  return problems;
+}
+
 /** Every reason the committed manifest does not describe the current stages. */
 export function manifestProblems(root: string, manifest: StageVersionManifest): string[] {
   const problems: string[] = [];
@@ -164,33 +253,7 @@ export function manifestProblems(root: string, manifest: StageVersionManifest): 
   const names = new Set(stages.map((stage) => stage.identity.name));
   for (const name of Object.keys(manifest.stages))
     if (!names.has(name)) problems.push(`${name}: in the manifest but no stage declares it`);
-  for (const { identity, fingerprint } of stages) {
-    const { name, version, module } = identity;
-    if (!version) {
-      problems.push(`${name} (${module}): declares no version, so resume cannot key on it`);
-      continue;
-    }
-    const entry = manifest.stages[name];
-    if (!entry) {
-      problems.push(
-        `${name}: missing from ${STAGE_VERSION_MANIFEST_PATH} (run npm run stages:manifest)`,
-      );
-      continue;
-    }
-    if (entry.module !== module)
-      problems.push(`${name}: module is ${module}, manifest says ${entry.module}`);
-    problems.push(...historyProblems(name, entry.history));
-    const latest = entry.history.at(-1);
-    if (!latest) continue;
-    if (latest.version !== version)
-      problems.push(`${name}: declares version ${version}, manifest records ${latest.version}`);
-    if (latest.fingerprint !== fingerprint)
-      problems.push(
-        `${name}: output-shaping source changed (${latest.fingerprint.slice(0, 19)} -> ${fingerprint.slice(0, 19)}) ` +
-          `without a manifest update: bump ${module}'s version, or record ` +
-          `\`npm run stages:manifest -- --unchanged ${name}="<reason>"\` if its output semantics did not change`,
-      );
-  }
+  for (const stage of stages) problems.push(...stageProblems(manifest, stage));
   return problems;
 }
 
