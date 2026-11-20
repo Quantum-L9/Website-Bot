@@ -35,6 +35,12 @@ export interface ResolvedImageAsset {
   height: number;
   byteLength: number;
   sha256: string;
+  /**
+   * Digest of the input file when the shipped bytes were re-encoded (source-site
+   * and generated images are optimised for their slot). Lets the gallery
+   * recognise a photo already shown in a slot whose shipped digest differs.
+   */
+  originalSha256?: string;
   sourceUrl?: string;
   originalPath?: string;
   promptHash?: string;

@@ -663,6 +663,7 @@ export class ImageAssetPlanningStage implements Stage {
       height: shipped.height,
       byteLength: shipped.byteLength,
       sha256: shipped.sha256,
+      ...(shipped.sha256 === inspected.sha256 ? {} : { originalSha256: inspected.sha256 }),
       sourceUrl: extra.sourceUrl,
       originalPath: extra.originalPath,
       disposition: dispositionForSource(source),
