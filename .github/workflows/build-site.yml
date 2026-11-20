@@ -56,7 +56,7 @@ jobs:
       CLIENT_ID: ${{ github.event.client_payload.client_id || github.event.inputs.client_id || vars.CLIENT_ID }}
       SPEC_PATH: ${{ github.event.client_payload.spec_path || github.event.inputs.spec_path || 'examples/supplemental-insurance-pros/domain_spec.normalized.yaml' }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
 
