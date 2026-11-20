@@ -75,7 +75,7 @@ export function validateReadinessLadder(ladder: unknown): asserts ladder is Read
     throw new Error(`readiness ladder must record all ${READINESS_LEVELS.length} levels`);
   value.levels.forEach((entry, index) => {
     const expected = READINESS_LEVELS[index];
-    if (!entry || entry.level !== expected)
+    if (entry?.level !== expected)
       throw new Error(`readiness ladder level ${index} must be ${expected}`);
     if (!STATES.has(entry.state))
       throw new Error(`readiness ${expected} state ${JSON.stringify(entry.state)} is invalid`);

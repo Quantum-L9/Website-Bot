@@ -31,7 +31,7 @@ const SHA256 = /^[a-f0-9]{64}$/;
 
 export class ImageValidationStage implements Stage {
   name = "image-validation";
-  version = "2.2.0";
+  version = "2.2.1";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],

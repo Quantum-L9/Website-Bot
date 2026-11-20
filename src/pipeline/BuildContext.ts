@@ -255,6 +255,8 @@ export interface SiteImageEntry {
   width: number;
   height: number;
   source: "provided" | "source-site" | "generated";
+  /** Narrower renditions of `src` for the <img srcset>, ascending by width. */
+  variants?: Array<{ src: string; width: number }>;
 }
 
 /**

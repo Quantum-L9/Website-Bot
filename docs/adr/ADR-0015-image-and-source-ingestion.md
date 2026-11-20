@@ -42,6 +42,26 @@ source website → crawl/extract → asset inventory → map to placements
    crawl to the seed host unless `allowSubdomains` is set. Spec load validates
    `sourceSite.url`.
 
+## Amendment (2026-11-20) — responsive renditions, client-image bytes, alt text
+- **srcset renditions.** Every re-encoded raster (source-site and generated)
+  ships narrower renditions beside its full-size file: hero 640/960/1280w,
+  content 480/800w, never at or above the shipped width; logos and the OG
+  card get none. `ResolvedImageAsset.variants` records them, the assembler
+  copies them, and Hero, Gallery and content sections render `srcset`/`sizes`
+  only when they exist.
+- **Client-provided images stay byte-identical.** No opt-in optimisation path
+  is added: the client owns those bytes and build contract T08 pins them. A
+  provided image therefore renders with a plain `src` and no renditions.
+  Revisit only with an explicit operator decision that also amends T08.
+- **Alt text describes the image.** A blueprint's `composition_guidance` is a
+  production instruction: it goes to the generation brief's `composition`,
+  never to alt text. Alt comes from, in order: the operator's slot alt, the
+  provided image's alt, the harvested image's alt then title, or, for a
+  generated image, the subject it was generated to show (derived from the
+  business vertical and, for the hero, its locality). The last resort is the
+  section-derived alt; a brief, slot id or file name is never alt text. The
+  image manifest records the shipped alt so a resumed build restores it.
+
 ## Consequences
 - Image work cannot block a text-only factory run.
 - Stages must not import provider SDKs; they call `ImageGenerator`.
