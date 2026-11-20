@@ -13,6 +13,7 @@ import { ImageValidationStage } from "../stages/ImageValidationStage.js";
 import { LeadEndpointVerificationStage } from "../stages/LeadEndpointVerificationStage.js";
 import { PlaceholderScanStage } from "../stages/PlaceholderScanStage.js";
 import { PostHogSnippetStage } from "../stages/PostHogSnippetStage.js";
+import { PreDeployBlindJudgeStage } from "../stages/PreDeployBlindJudgeStage.js";
 import { ProvisionClientStage } from "../stages/ProvisionClientStage.js";
 import { RedesignContentAuthorityStage } from "../stages/RedesignContentAuthorityStage.js";
 import { RedesignIntegrityReceiptStage } from "../stages/RedesignIntegrityReceiptStage.js";
@@ -93,6 +94,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "pre-deploy-blind-judge",
     "client-source-publish",
     "release-receipt",
   ],
@@ -107,6 +109,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "pre-deploy-blind-judge",
     "client-source-publish",
     "vercel-deploy",
     "release-receipt",
@@ -305,8 +308,11 @@ export function buildFactoryExecutionPlan(
   // The production build is not terminal success: every route is rendered in a
   // real browser and validated before any receipt or publication.
   if (options.mode !== "plan") stages.push(new SiteBuildStage(), new RenderedSiteValidationStage());
+  // The blind judge gates every mode that publishes or deploys: it runs on the
+  // built candidate before anything leaves the process (readiness level
+  // blind_judge_vs_baseline). local-proof records that level as NOT_RUN.
   if (options.mode === "publish-proof" || options.mode === "end-to-end")
-    stages.push(new ClientSourcePublishStage());
+    stages.push(new PreDeployBlindJudgeStage(), new ClientSourcePublishStage());
   // publish-proof reaches a Vercel PREVIEW when credentials are present, so the
   // receipt can bind real deployment evidence; VercelDeployStage itself refuses
   // production without WEBSITE_BOT_ALLOW_PRODUCTION=true. Without a token the
