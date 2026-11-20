@@ -1,8 +1,8 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import { sectionVariant } from "../../styles/variants";
 import type { StructuredSectionView } from "../SectionRegistry";
 import StructuredBlocks from "../StructuredBlocks.astro";
-import { sectionVariant } from "../../styles/variants";
 
 // siteConfig is emitted `as const`, so an empty galleryImages becomes `never[]`
 // in text-only builds; the explicit element type keeps .map() well-typed.

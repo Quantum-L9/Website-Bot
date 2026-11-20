@@ -2,11 +2,11 @@
 import { siteConfig } from "../lib/siteConfig";
 import "../styles/global.css";
 import {
+  type CatalogFont,
   DEFAULT_FONT_FAMILY,
   findCatalogFont,
   fontFaceCss,
   fontStack,
-  type CatalogFont,
 } from "../styles/fontCatalog";
 
 interface Props {
@@ -83,7 +83,8 @@ const DS_VARS: Record<string, string> = {
 };
 for (const [token, cssVar] of Object.entries(DS_VARS)) {
   const value = designTokens[token];
-  if (typeof value === "string" && SAFE_CSS_VALUE.test(value)) designVars.push(`${cssVar}:${value}`);
+  if (typeof value === "string" && SAFE_CSS_VALUE.test(value))
+    designVars.push(`${cssVar}:${value}`);
 }
 // Self-hosted fonts (fontCatalog.ts): only catalog families can load, so the
 // stack and @font-face come from the catalog, never from free text. The
