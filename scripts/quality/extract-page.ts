@@ -6,10 +6,10 @@
 // <details> are opened and lazy images forced eager first, so the model is
 // what a visitor can see, not what the source happened to contain.
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import { extname, join, normalize, relative, resolve, sep } from "node:path";
+import { extname, join, relative, resolve, sep } from "node:path";
 import type { ImageModel, PageModel } from "./site-quality-checks.js";
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -39,31 +39,68 @@ export function trimTrailingSlashes(value: string): string {
   return value.slice(0, end);
 }
 
-/** Resolve a request path to a file inside root, Astro-style (dir → index.html). */
-export function resolveStaticFile(root: string, urlPath: string): string | undefined {
-  let decoded: string;
+/**
+ * Every servable file under root, keyed by the URL paths that address it
+ * (Astro-style: /x, /x/ and /x/index.html all name x/index.html; /x also
+ * names x.html). Built once from the directory listing, so a request path is
+ * only ever a map key — never joined onto the filesystem — and traversal
+ * (../) cannot name a file outside root.
+ */
+export function indexDirectory(root: string): Map<string, string> {
+  const base = resolve(root);
+  const index = new Map<string, string>();
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(path);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const url = `/${relative(base, path).split(sep).join("/")}`;
+      index.set(url, path);
+      if (entry.name === "index.html") {
+        const dirUrl = url.slice(0, -"index.html".length);
+        index.set(dirUrl, path);
+        if (dirUrl.length > 1) index.set(dirUrl.slice(0, -1), path);
+      } else if (entry.name.endsWith(".html") && !index.has(url.slice(0, -".html".length))) {
+        index.set(url.slice(0, -".html".length), path);
+      }
+    }
+  };
+  walk(base);
+  return index;
+}
+
+/** The URL path of a request target, decoded; undefined when undecodable. */
+function requestPath(target: string): string | undefined {
+  const query = target.indexOf("?");
   try {
-    decoded = decodeURIComponent(urlPath.split("?")[0] ?? "/");
+    return decodeURIComponent(query === -1 ? target : target.slice(0, query)) || "/";
   } catch {
     return undefined;
   }
-  const candidate = resolve(root, `.${normalize(decoded)}`);
-  if (candidate !== root && !candidate.startsWith(`${root}${sep}`)) return undefined;
-  for (const path of [candidate, join(candidate, "index.html"), `${candidate}.html`]) {
-    if (existsSync(path) && statSync(path).isFile()) return path;
-  }
-  return undefined;
+}
+
+/** Resolve a request path to a file inside root, Astro-style (dir → index.html). */
+export function resolveStaticFile(
+  root: string | Map<string, string>,
+  urlPath: string,
+): string | undefined {
+  const index = typeof root === "string" ? indexDirectory(root) : root;
+  const path = requestPath(urlPath);
+  return path === undefined ? undefined : index.get(path);
 }
 
 /** A loopback static server for a dist directory. */
 export async function serveDirectory(
   root: string,
 ): Promise<{ url: string; close(): Promise<void> }> {
-  const base = resolve(root);
+  const files = indexDirectory(root);
   const server: Server = createServer((request, response) => {
-    const file = resolveStaticFile(base, request.url ?? "/");
+    const file = resolveStaticFile(files, request.url ?? "/");
     if (!file) {
-      const notFound = resolveStaticFile(base, "/404.html");
+      const notFound = files.get("/404.html");
       response.writeHead(404, { "content-type": CONTENT_TYPES[".html"] });
       response.end(notFound ? readFileSync(notFound) : "Not found");
       return;
