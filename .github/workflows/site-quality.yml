@@ -1,0 +1,75 @@
+# L9_META: layer=configuration, role=tracked_file, status=active, version=1.0.0
+name: Site Quality
+
+# Rendered-site quality gate. On every PR a site is built through the REAL
+# pipeline — content generation, structured-content projection, section
+# assembly and the Astro production build — from committed replay fixtures
+# (fixtures/replay, with the richer structured-content response in
+# tests/quality/replay-overlay). No provider secret is read: SEO-Bot, DeepSeek,
+# Gemini and donor pages are replayed (tests/e2e-replay/replay-preload.mjs).
+# The deterministic checker (scripts/quality/check-site.ts) then renders every
+# built route in Chromium and fails on repeated filler, run-on labels, internal
+# component labels, empty FAQ answers or controls, cross-client literals, thin
+# pages and broken images. The paid blind judge (npm run quality:judge) is
+# never run here.
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: site-quality-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  site-quality:
+    name: Site quality — real assembled content, rendered checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@quantum-l9'
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts && npm rebuild better-sqlite3
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build workspace packages
+        run: npm run interop:build
+      # The checker and the pipeline's rendered-site validation both render in
+      # headless Chromium; a missing browser fails the gate, never skips it.
+      - name: Install Playwright Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Quality checker unit tests (clean PASS, SafeHaven-style FAIL)
+        run: npm run quality:test
+      - name: Build the replay site through the real content and section path
+        run: npm run quality:replay
+        env:
+          NODE_ENV: test
+      - name: Check the rendered site
+        run: npm run quality:check:replay
+      - name: Upload quality report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: site-quality-report
+          path: |
+            build/site-quality/replay/quality-report.json
+            build/site-quality/replay/replay-build.json
+          if-no-files-found: warn
+          retention-days: 14
