@@ -59,7 +59,7 @@ export function businessNameFromSpec(specPath: string): string | undefined {
 export function parseArgs(argv: string[]): CheckInvocation {
   const dist = flag(argv, "dist");
   const url = flag(argv, "url");
-  if (!dist === !url) throw new Error("exactly one of --dist or --url is required");
+  if (Boolean(dist) === Boolean(url)) throw new Error("exactly one of --dist or --url is required");
   const spec = flag(argv, "spec");
   const businessName =
     flag(argv, "business-name") ?? (spec ? businessNameFromSpec(spec) : undefined);
@@ -152,10 +152,12 @@ async function cli(): Promise<void> {
     console.log(
       `${page.path}: HTTP ${page.status}, ${page.words}/${page.floor} words, ${page.findings} finding(s)`,
     );
-  for (const finding of report.findings)
+  for (const finding of report.findings) {
+    const evidence = finding.evidence ? ` — "${finding.evidence}"` : "";
     console.log(
-      `[${finding.severity.toUpperCase()}] ${finding.check} ${finding.page}: ${finding.detail}${finding.evidence ? ` — "${finding.evidence}"` : ""}`,
+      `[${finding.severity.toUpperCase()}] ${finding.check} ${finding.page}: ${finding.detail}${evidence}`,
     );
+  }
   for (const error of report.errors) console.error(`error: ${error}`);
   console.log(`site-quality report: ${invocation.reportPath}`);
   console.log(`STATUS: ${report.status}`);

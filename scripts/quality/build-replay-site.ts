@@ -116,7 +116,8 @@ function fixtureTree(
     }
   };
   walk(overlay);
-  return { dir, overlaid: overlaid.sort() };
+  overlaid.sort((a, b) => a.localeCompare(b));
+  return { dir, overlaid };
 }
 
 interface ReplayEntry {

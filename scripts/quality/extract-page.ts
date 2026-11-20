@@ -32,6 +32,13 @@ const CONTENT_TYPES: Record<string, string> = {
   ".xml": "application/xml",
 };
 
+/** A URL or path without trailing slashes (no regex: linear on any input). */
+export function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
+}
+
 /** Resolve a request path to a file inside root, Astro-style (dir → index.html). */
 export function resolveStaticFile(root: string, urlPath: string): string | undefined {
   let decoded: string;
@@ -95,7 +102,9 @@ export function discoverRoutes(distDir: string): string[] {
     }
   };
   walk(root);
-  return [...routes].sort((a, b) => (a === "/" ? -1 : b === "/" ? 1 : a.localeCompare(b)));
+  const rest = [...routes].filter((route) => route !== "/");
+  rest.sort((a, b) => a.localeCompare(b));
+  return routes.has("/") ? ["/", ...rest] : rest;
 }
 
 /**
@@ -274,7 +283,7 @@ export async function extractSite(
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
     for (const route of routes) {
-      const url = `${baseUrl.replace(/\/+$/, "")}${route === "/" ? "/" : route}`;
+      const url = `${trimTrailingSlashes(baseUrl)}${route}`;
       const response = await page.goto(url, { waitUntil: "load", timeout: 45_000 });
       const status = response?.status() ?? 0;
       const raw = await page.evaluate<RawPage>(EXTRACT_SOURCE);

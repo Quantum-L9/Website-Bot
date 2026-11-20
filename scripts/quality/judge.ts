@@ -33,7 +33,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { serveDirectory } from "./extract-page.js";
+import { serveDirectory, trimTrailingSlashes } from "./extract-page.js";
 
 export const JUDGE_REPORT_SCHEMA = "website-bot.blind-judge-report/v1";
 export const EXIT_CODES = { PASS: 0, FAIL: 1, BLOCKED: 2, NOT_RUN: 2 } as const;
@@ -145,9 +145,8 @@ export function orientations(seed: string, trials: number): Array<"A" | "B"> {
   const sides: Array<"A" | "B"> = [];
   for (let index = 0; index < trials; index += 1) {
     const previous = sides[index - 1];
-    sides.push(
-      index % 3 === 1 && previous ? (previous === "A" ? "B" : "A") : rng() < 0.5 ? "A" : "B",
-    );
+    if (index % 3 === 1 && previous) sides.push(previous === "A" ? "B" : "A");
+    else sides.push(rng() < 0.5 ? "A" : "B");
   }
   return sides;
 }
@@ -162,23 +161,55 @@ export function wilsonLowerBound(wins: number, n: number, z = 1.96): number {
   return (centre - margin) / denominator;
 }
 
+/** The judge's JSON object, with one optional surrounding code fence removed. */
+function parseVerdict(raw: string): Record<string, unknown> | undefined {
+  let text = raw.trim();
+  if (text.startsWith("```")) {
+    const newline = text.indexOf("\n");
+    text = newline === -1 ? "" : text.slice(newline + 1);
+    if (text.trimEnd().endsWith("```")) text = text.trimEnd().slice(0, -3);
+  }
+  try {
+    const value = JSON.parse(text.trim()) as unknown;
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Dimension scores turned candidate-relative (the judge scores B relative to A). */
+function candidateDelta(
+  dims: Record<string, unknown>,
+  candidateSide: "A" | "B",
+): Record<string, number> {
+  const delta: Record<string, number> = {};
+  const sign = candidateSide === "B" ? 1 : -1;
+  for (const dimension of DIMENSIONS) {
+    const value = Number(dims[dimension]);
+    if (Number.isFinite(value) && value >= -2 && value <= 2) delta[dimension] = sign * value;
+  }
+  return delta;
+}
+
+function candidatePreference(
+  preference: unknown,
+  candidateSide: "A" | "B",
+): Trial["candidate_preference"] {
+  if (preference === "TIE") return "TIE";
+  if (preference === candidateSide) return "CANDIDATE";
+  if (preference === "A" || preference === "B") return "BASELINE";
+  return "INVALID";
+}
+
 /** Normalize one blind verdict back to candidate-vs-baseline orientation. */
 export function normalizeTrial(
   raw: string,
   candidateSide: "A" | "B",
 ): Omit<Trial, "pair" | "trial"> {
-  let parsed: Record<string, unknown>;
-  try {
-    const text = raw
-      .trim()
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/```$/, "")
-      .trim();
-    const value = JSON.parse(text) as unknown;
-    if (!value || typeof value !== "object" || Array.isArray(value))
-      throw new Error("not an object");
-    parsed = value as Record<string, unknown>;
-  } catch {
+  const parsed = parseVerdict(raw);
+  if (!parsed)
     return {
       candidate_side: candidateSide,
       raw_preference: null,
@@ -187,35 +218,20 @@ export function normalizeTrial(
       candidate_critical_defects: [],
       error: "unparseable judge output",
     };
-  }
   const preference = parsed.preference;
-  const dims = (parsed.dimensions ?? {}) as Record<string, unknown>;
-  const delta: Record<string, number> = {};
-  for (const dimension of DIMENSIONS) {
-    const value = Number(dims[dimension]);
-    if (Number.isFinite(value) && value >= -2 && value <= 2)
-      // Scores are B relative to A: keep them when the candidate is B.
-      delta[dimension] = candidateSide === "B" ? value : -value;
-  }
-  const validPreference = preference === "A" || preference === "B" || preference === "TIE";
+  const delta = candidateDelta((parsed.dimensions ?? {}) as Record<string, unknown>, candidateSide);
   const complete = Object.keys(delta).length === DIMENSIONS.length;
+  const normalized = complete ? candidatePreference(preference, candidateSide) : "INVALID";
   const defects = parsed[candidateSide === "A" ? "critical_defects_a" : "critical_defects_b"];
   return {
     candidate_side: candidateSide,
     raw_preference: typeof preference === "string" ? preference : null,
-    candidate_preference:
-      !validPreference || !complete
-        ? "INVALID"
-        : preference === "TIE"
-          ? "TIE"
-          : preference === candidateSide
-            ? "CANDIDATE"
-            : "BASELINE",
+    candidate_preference: normalized,
     candidate_delta: delta,
     candidate_critical_defects: Array.isArray(defects)
       ? defects.filter((item): item is string => typeof item === "string" && item !== "NONE")
       : [],
-    ...(!validPreference || !complete
+    ...(normalized === "INVALID"
       ? { error: "judge output missing preference or a dimension" }
       : {}),
   };
@@ -257,11 +273,11 @@ function flag(argv: string[], name: string): string | undefined {
 export function parseJudgeArgs(argv: string[]): JudgeInvocation {
   const candidateDist = flag(argv, "candidate-dist");
   const candidateUrl = flag(argv, "candidate-url");
-  if (!candidateDist === !candidateUrl)
+  if (Boolean(candidateDist) === Boolean(candidateUrl))
     throw new Error("exactly one of --candidate-dist or --candidate-url is required");
   const baselineUrl = flag(argv, "baseline-url");
   const baselineShots = flag(argv, "baseline-screenshots");
-  if (!baselineUrl === !baselineShots)
+  if (Boolean(baselineUrl) === Boolean(baselineShots))
     throw new Error("exactly one of --baseline-url or --baseline-screenshots is required");
   const pages = (flag(argv, "pages") ?? "")
     .split(",")
@@ -332,127 +348,167 @@ export function defaultJudgeDeps(env: NodeJS.ProcessEnv = process.env): JudgeDep
   };
 }
 
-/** Run the blind judge and write its report. An outcome is reported, never thrown. */
-export async function runJudge(invocation: JudgeInvocation, deps: JudgeDeps): Promise<JudgeReport> {
-  const reasons = new Set<string>();
-  const errors: string[] = [];
-  const trials: Trial[] = [];
-  let instructionSha: string | null = null;
-  const candidateLabel = invocation.candidate.dist ?? invocation.candidate.url ?? "";
-  const baselineLabel = invocation.baseline.screenshots ?? invocation.baseline.url ?? "";
-  const pairs = invocation.pages.length * invocation.viewports.length;
+const messageOf = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
-  const missing = JUDGE_CREDENTIALS.filter((name) => !deps.env[name]?.trim());
-  if (missing.length) {
-    reasons.add("MISSING_EVALUATOR_CREDENTIALS");
-    errors.push(`evaluator credentials missing: ${missing.join(", ")}`);
-  } else {
-    let server: { url: string; close(): Promise<void> } | undefined;
+interface RunState {
+  reasons: Set<string>;
+  errors: string[];
+  trials: Trial[];
+}
+
+/** Capture the candidate and locate (or capture) the baseline for one pair. */
+async function capturePair(
+  invocation: JudgeInvocation,
+  deps: JudgeDeps,
+  candidateBase: string,
+  runDir: string,
+  page: string,
+  viewport: ViewportName,
+): Promise<{ candidate: string; baseline: string }> {
+  const name = `${pageFileName(page)}_${viewport}.png`;
+  const candidate = join(runDir, `candidate${name}`);
+  await deps.capture(`${candidateBase}${page}`, viewport, candidate);
+  if (invocation.baseline.screenshots) {
+    const baseline = join(invocation.baseline.screenshots, name);
+    if (!existsSync(baseline)) throw new Error(`baseline screenshot ${baseline} is missing`);
+    return { candidate, baseline };
+  }
+  const baseline = join(runDir, `baseline${name}`);
+  await deps.capture(
+    `${trimTrailingSlashes(invocation.baseline.url ?? "")}${page}`,
+    viewport,
+    baseline,
+  );
+  return { candidate, baseline };
+}
+
+/** Every blind trial for one captured pair. */
+async function judgePair(
+  invocation: JudgeInvocation,
+  judge: Awaited<ReturnType<JudgeDeps["loadJudge"]>>,
+  instruction: string,
+  pair: { id: string; page: string; viewport: ViewportName; candidate: string; baseline: string },
+  state: RunState,
+): Promise<void> {
+  const purpose = pair.page === "/" ? "home page" : pair.page.concat(" page");
+  const userPrompt = [
+    `ROUTE PURPOSE: ${purpose}`,
+    `VIEWPORT: ${pair.viewport}`,
+    "Evaluate IMAGE A and IMAGE B below.",
+  ].join("\n");
+  const sides = orientations(`${invocation.runId}:${pair.id}`, invocation.trials);
+  for (const [index, side] of sides.entries()) {
+    const images: [string, string] =
+      side === "A" ? [pair.candidate, pair.baseline] : [pair.baseline, pair.candidate];
     try {
-      const instruction = readFileSync(JUDGE_INSTRUCTION, "utf-8");
-      instructionSha = createHash("sha256").update(instruction).digest("hex");
-      const runDir = join(resolve(invocation.reportPath, ".."), `captures-${invocation.runId}`);
-      mkdirSync(runDir, { recursive: true });
-      let candidateBase = invocation.candidate.url;
-      if (invocation.candidate.dist) {
-        server = await serveDirectory(invocation.candidate.dist);
-        candidateBase = server.url;
-      }
-      const judge = await deps.loadJudge(invocation.clientId);
-      for (const page of invocation.pages)
-        for (const viewport of invocation.viewports) {
-          const pair = `${page}::${viewport}`;
-          const name = `${pageFileName(page)}_${viewport}.png`;
-          const candidateFile = join(runDir, `candidate${name}`);
-          let baselineFile = join(runDir, `baseline${name}`);
-          try {
-            await deps.capture(
-              `${candidateBase?.replace(/\/+$/, "")}${page}`,
-              viewport,
-              candidateFile,
-            );
-            if (invocation.baseline.screenshots) {
-              baselineFile = join(invocation.baseline.screenshots, name);
-              if (!existsSync(baselineFile))
-                throw new Error(`baseline screenshot ${baselineFile} is missing`);
-            } else
-              await deps.capture(
-                `${invocation.baseline.url?.replace(/\/+$/, "")}${page}`,
-                viewport,
-                baselineFile,
-              );
-          } catch (error) {
-            reasons.add("CAPTURE_FAILED");
-            errors.push(`${pair}: ${error instanceof Error ? error.message : String(error)}`);
-            continue;
-          }
-          const sides = orientations(`${invocation.runId}:${pair}`, invocation.trials);
-          for (const [index, side] of sides.entries()) {
-            const images: [string, string] =
-              side === "A" ? [candidateFile, baselineFile] : [baselineFile, candidateFile];
-            const userPrompt = [
-              `ROUTE PURPOSE: ${page === "/" ? "home page" : `${page} page`}`,
-              `VIEWPORT: ${viewport}`,
-              "Evaluate IMAGE A and IMAGE B below.",
-            ].join("\n");
-            try {
-              const raw = await judge.judge(instruction, userPrompt, images);
-              const trial = { pair, trial: index + 1, ...normalizeTrial(raw, side) };
-              if (trial.candidate_preference === "INVALID") reasons.add("VERDICT_INVALID");
-              trials.push(trial);
-            } catch (error) {
-              reasons.add("EVALUATION_FAILED");
-              errors.push(
-                `${pair}#${index + 1}: ${error instanceof Error ? error.message : String(error)}`,
-              );
-            }
-          }
-        }
+      // Sequential by design: one paid call at a time, in a reproducible order.
+      const raw = await judge.judge(instruction, userPrompt, images);
+      const trial = { pair: pair.id, trial: index + 1, ...normalizeTrial(raw, side) };
+      if (trial.candidate_preference === "INVALID") state.reasons.add("VERDICT_INVALID");
+      state.trials.push(trial);
     } catch (error) {
-      reasons.add("UNEXPECTED_ERROR");
-      errors.push(error instanceof Error ? error.message : String(error));
-    } finally {
-      await server?.close().catch(() => undefined);
+      state.reasons.add("EVALUATION_FAILED");
+      state.errors.push(`${pair.id}#${index + 1}: ${messageOf(error)}`);
     }
   }
+}
 
-  const summary = aggregate(trials);
-  if (!missing.length && trials.length !== pairs * invocation.trials)
-    reasons.add("INCOMPLETE_COVERAGE");
-  const criticalDefects = trials.some((trial) => trial.candidate_critical_defects.length > 0);
-  if (criticalDefects) reasons.add("CANDIDATE_CRITICAL_DEFECT");
-  let status: JudgeReport["status"];
-  if (missing.length) status = "NOT_RUN";
-  else if (
-    [
-      "CAPTURE_FAILED",
-      "EVALUATION_FAILED",
-      "VERDICT_INVALID",
-      "UNEXPECTED_ERROR",
-      "INCOMPLETE_COVERAGE",
-    ].some((reason) => reasons.has(reason))
-  )
-    status = "BLOCKED";
-  else if (summary.decisive === 0) {
+/** Capture and judge every page × viewport; returns the judge instruction digest. */
+async function judgeAll(
+  invocation: JudgeInvocation,
+  deps: JudgeDeps,
+  state: RunState,
+): Promise<string> {
+  const instruction = readFileSync(JUDGE_INSTRUCTION, "utf-8");
+  const runDir = join(resolve(invocation.reportPath, ".."), `captures-${invocation.runId}`);
+  mkdirSync(runDir, { recursive: true });
+  const server = invocation.candidate.dist
+    ? await serveDirectory(invocation.candidate.dist)
+    : undefined;
+  try {
+    const candidateBase = trimTrailingSlashes(server?.url ?? invocation.candidate.url ?? "");
+    const judge = await deps.loadJudge(invocation.clientId);
+    for (const page of invocation.pages)
+      for (const viewport of invocation.viewports) {
+        const id = `${page}::${viewport}`;
+        let files: { candidate: string; baseline: string };
+        try {
+          files = await capturePair(invocation, deps, candidateBase, runDir, page, viewport);
+        } catch (error) {
+          state.reasons.add("CAPTURE_FAILED");
+          state.errors.push(`${id}: ${messageOf(error)}`);
+          continue;
+        }
+        await judgePair(invocation, judge, instruction, { id, page, viewport, ...files }, state);
+      }
+  } finally {
+    await server?.close().catch(() => undefined);
+  }
+  return createHash("sha256").update(instruction).digest("hex");
+}
+
+const BLOCKING_REASONS = [
+  "CAPTURE_FAILED",
+  "EVALUATION_FAILED",
+  "VERDICT_INVALID",
+  "UNEXPECTED_ERROR",
+  "INCOMPLETE_COVERAGE",
+];
+
+/** Outcome from the run's reasons and the aggregate; adds the deciding reason. */
+function decide(
+  reasons: Set<string>,
+  summary: JudgeReport["aggregate"],
+  ran: boolean,
+): JudgeReport["status"] {
+  if (!ran) return "NOT_RUN";
+  if (BLOCKING_REASONS.some((reason) => reasons.has(reason))) return "BLOCKED";
+  if (summary.decisive === 0) {
     reasons.add("NO_DECISIVE_TRIALS");
-    status = "FAIL";
-  } else if ((summary.wilson_lower_bound ?? 0) <= 0.5 || criticalDefects) {
-    if ((summary.wilson_lower_bound ?? 0) <= 0.5) reasons.add("CANDIDATE_NOT_PREFERRED");
-    status = "FAIL";
-  } else status = "PASS";
+    return "FAIL";
+  }
+  const preferred = (summary.wilson_lower_bound ?? 0) > 0.5;
+  if (!preferred) reasons.add("CANDIDATE_NOT_PREFERRED");
+  return preferred && !reasons.has("CANDIDATE_CRITICAL_DEFECT") ? "PASS" : "FAIL";
+}
 
+/** Run the blind judge and write its report. An outcome is reported, never thrown. */
+export async function runJudge(invocation: JudgeInvocation, deps: JudgeDeps): Promise<JudgeReport> {
+  const state: RunState = { reasons: new Set(), errors: [], trials: [] };
+  const pairs = invocation.pages.length * invocation.viewports.length;
+  let instructionSha: string | null = null;
+  const missing = JUDGE_CREDENTIALS.filter((name) => !deps.env[name]?.trim());
+  if (missing.length) {
+    state.reasons.add("MISSING_EVALUATOR_CREDENTIALS");
+    state.errors.push(`evaluator credentials missing: ${missing.join(", ")}`);
+  } else {
+    try {
+      instructionSha = await judgeAll(invocation, deps, state);
+    } catch (error) {
+      state.reasons.add("UNEXPECTED_ERROR");
+      state.errors.push(messageOf(error));
+    }
+    if (state.trials.length !== pairs * invocation.trials) state.reasons.add("INCOMPLETE_COVERAGE");
+  }
+  const summary = aggregate(state.trials);
+  if (state.trials.some((trial) => trial.candidate_critical_defects.length > 0))
+    state.reasons.add("CANDIDATE_CRITICAL_DEFECT");
+  const status = decide(state.reasons, summary, missing.length === 0);
+  const reasons = [...state.reasons];
+  reasons.sort((a, b) => a.localeCompare(b));
   const report: JudgeReport = {
     schema: JUDGE_REPORT_SCHEMA,
     run_id: invocation.runId,
     status,
-    reasons: [...reasons].sort(),
-    candidate: candidateLabel,
-    baseline: baselineLabel,
+    reasons,
+    candidate: invocation.candidate.dist ?? invocation.candidate.url ?? "",
+    baseline: invocation.baseline.screenshots ?? invocation.baseline.url ?? "",
     pairs,
-    trials,
+    trials: state.trials,
     aggregate: summary,
     instruction_sha256: instructionSha,
-    errors,
+    errors: state.errors,
   };
   mkdirSync(resolve(invocation.reportPath, ".."), { recursive: true });
   writeFileSync(invocation.reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");

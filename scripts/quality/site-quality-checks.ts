@@ -190,13 +190,27 @@ export const DEFAULT_OPTIONS: Omit<SiteQualityOptions, "businessName"> = {
 };
 
 /** Rendered text that can only come from a template printing raw data. */
-const TEMPLATE_ARTIFACTS: Array<[RegExp, string]> = [
-  [/\{\{[^}]*\}\}/, "unrendered {{ }} placeholder"],
-  [/\[object Object\]/, "[object Object]"],
-  [/(^|\s)(undefined|null|NaN)(\s|$)/, "raw undefined/null/NaN"],
-  [/lorem ipsum/i, "lorem ipsum"],
-  [/\bTODO\b|\bTBD\b|\bFIXME\b/, "TODO/TBD marker"],
-  [/Validated fixture content for/i, "structural-validator filler copy"],
+const RAW_VALUE_TOKENS = new Set(["undefined", "null", "NaN"]);
+const MARKER_TOKENS = new Set(["TODO", "TBD", "FIXME"]);
+const TEMPLATE_ARTIFACTS: Array<[(text: string) => boolean, string]> = [
+  [
+    (text) => {
+      const open = text.indexOf("{{");
+      return open !== -1 && text.indexOf("}}", open + 2) !== -1;
+    },
+    "unrendered {{ }} placeholder",
+  ],
+  [(text) => text.includes("[object Object]"), "[object Object]"],
+  [
+    (text) => text.split(/\s/).some((token) => RAW_VALUE_TOKENS.has(token)),
+    "raw undefined/null/NaN",
+  ],
+  [(text) => text.toLowerCase().includes("lorem ipsum"), "lorem ipsum"],
+  [(text) => text.split(/[^A-Za-z]/).some((token) => MARKER_TOKENS.has(token)), "TODO/TBD marker"],
+  [
+    (text) => text.toLowerCase().includes("validated fixture content for"),
+    "structural-validator filler copy",
+  ],
 ];
 
 export function normalizeText(value: string): string {
@@ -296,28 +310,15 @@ export function floorFor(path: string, floors: WordFloors): number {
   return floors.content;
 }
 
-export function checkPage(page: PageModel, options: SiteQualityOptions): Finding[] {
-  const findings: Finding[] = [];
-  const add = (check: CheckId, severity: Severity, detail: string, evidence?: string) =>
-    findings.push({
-      check,
-      severity,
-      page: page.path,
-      detail,
-      ...(evidence ? { evidence: excerpt(evidence) } : {}),
-    });
+type Add = (check: CheckId, severity: Severity, detail: string, evidence?: string) => void;
 
-  if (page.status < 200 || page.status > 299) {
-    add("page-unrenderable", "fail", `document returned HTTP ${page.status}`);
-    return findings;
-  }
+const isHttpError = (status: number | null): boolean =>
+  status !== null && (status < 200 || status > 299);
 
-  // Duplicate and near-duplicate paragraphs within the page.
-  const candidates = page.paragraphs.filter(
-    (paragraph) => wordCount(paragraph) >= options.minDuplicateWords,
-  );
+function checkDuplicates(page: PageModel, options: SiteQualityOptions, add: Add): void {
   const seen = new Map<string, number>();
-  for (const paragraph of candidates) {
+  for (const paragraph of page.paragraphs) {
+    if (wordCount(paragraph) < options.minDuplicateWords) continue;
     const key = normalizeText(paragraph);
     seen.set(key, (seen.get(key) ?? 0) + 1);
   }
@@ -325,148 +326,169 @@ export function checkPage(page: PageModel, options: SiteQualityOptions): Finding
     if (count > 1)
       add("duplicate-paragraph", "fail", `paragraph repeated ${count}x on the page`, key);
   const unique = [...seen.keys()];
-  for (let left = 0; left < unique.length; left += 1)
-    for (let right = left + 1; right < unique.length; right += 1) {
-      const similarity = jaccard(unique[left] ?? "", unique[right] ?? "");
+  unique.forEach((left, index) => {
+    for (const right of unique.slice(index + 1)) {
+      const similarity = jaccard(left, right);
       if (similarity >= options.nearDuplicateThreshold)
         add(
           "near-duplicate-paragraph",
           "fail",
           `two paragraphs are ${Math.round(similarity * 100)}% similar`,
-          `${unique[left]} ⟷ ${unique[right]}`,
+          `${left} ⟷ ${right}`,
         );
     }
+  });
+}
 
-  // Navigation / button run-ons and empty labels.
-  for (const control of page.controls) {
-    const name = control.text.trim() || control.accessibleName.trim();
-    if (!name) {
-      add(
-        "empty-control-label",
-        "fail",
-        `${control.href !== undefined ? "link" : "button"} has no visible text or accessible name`,
-        control.href,
-      );
-      continue;
-    }
-    const count = wordCount(control.text);
-    if (control.inNav && count > 5)
-      add("nav-label-run-on", "fail", `navigation label has ${count} words`, control.text);
-    else if (!control.inNav && control.href === undefined && count > 8)
-      add("button-label-run-on", "fail", `button label has ${count} words`, control.text);
-    else if (isTitleCaseRunOn(control.text, 7))
-      add("run-on-text", "fail", "control text is a run-on of title-case labels", control.text);
+function checkControl(control: ControlModel, add: Add): void {
+  const name = control.text.trim() || control.accessibleName.trim();
+  if (!name) {
+    const kind = control.href === undefined ? "button" : "link";
+    add(
+      "empty-control-label",
+      "fail",
+      `${kind} has no visible text or accessible name`,
+      control.href,
+    );
+    return;
   }
+  const count = wordCount(control.text);
+  if (control.inNav && count > 5)
+    add("nav-label-run-on", "fail", `navigation label has ${count} words`, control.text);
+  else if (!control.inNav && control.href === undefined && count > 8)
+    add("button-label-run-on", "fail", `button label has ${count} words`, control.text);
+  else if (isTitleCaseRunOn(control.text, 7))
+    add("run-on-text", "fail", "control text is a run-on of title-case labels", control.text);
+}
+
+/** How many control labels a paragraph is made of, and the words left over. */
+function labelCoverage(paragraph: string, labels: string[]): { matched: number; rest: string } {
+  let rest = ` ${normalizeText(paragraph)} `;
+  let matched = 0;
+  for (const label of labels) {
+    const needle = ` ${label} `;
+    while (rest.includes(needle)) {
+      rest = rest.replace(needle, " ");
+      matched += 1;
+    }
+  }
+  return { matched, rest };
+}
+
+/** The old site's buttons pasted in as body copy: a paragraph that is mostly this page's own control labels. */
+function checkControlsAsCopy(page: PageModel, add: Add): void {
+  const labels = [
+    ...new Set(
+      page.controls
+        .map((control) => normalizeText(control.text))
+        .filter((label) => label && label.split(" ").length <= 6),
+    ),
+  ];
+  if (labels.length < 2) return;
+  labels.sort((a, b) => b.length - a.length || a.localeCompare(b));
+  for (const paragraph of page.paragraphs) {
+    const { matched, rest } = labelCoverage(paragraph, labels);
+    const total = wordCount(paragraph);
+    if (matched >= 2 && total >= 4 && wordCount(rest) / total <= 0.25)
+      add(
+        "controls-as-body-copy",
+        "fail",
+        `body copy is made of ${matched} navigation/button labels`,
+        paragraph,
+      );
+  }
+}
+
+function checkCopy(page: PageModel, options: SiteQualityOptions, add: Add): void {
+  for (const control of page.controls) checkControl(control, add);
   for (const paragraph of page.paragraphs)
     if (isTitleCaseRunOn(paragraph))
       add("run-on-text", "fail", "body copy is a run-on of title-case labels", paragraph);
-
-  // The old site's buttons pasted in as body copy: a paragraph that is mostly
-  // this page's own control labels.
-  const controlLabels = new Set(
-    page.controls
-      .map((control) => normalizeText(control.text))
-      .filter((label) => label && label.split(" ").length <= 6),
-  );
-  if (controlLabels.size >= 2)
-    for (const paragraph of page.paragraphs) {
-      let remainder = ` ${normalizeText(paragraph)} `;
-      let matched = 0;
-      for (const label of [...controlLabels].sort((a, b) => b.length - a.length)) {
-        const needle = ` ${label} `;
-        while (remainder.includes(needle)) {
-          remainder = remainder.replace(needle, " ");
-          matched += 1;
-        }
-      }
-      const total = wordCount(paragraph);
-      if (matched >= 2 && total >= 4 && wordCount(remainder) / total <= 0.25)
-        add(
-          "controls-as-body-copy",
-          "fail",
-          `body copy is made of ${matched} navigation/button labels`,
-          paragraph,
-        );
-    }
-
-  // FAQ entries must answer.
+  checkControlsAsCopy(page, add);
   for (const faq of page.faqs)
     if (!faq.answer.trim())
       add("empty-faq-answer", "fail", "FAQ question has no answer", faq.question);
-
-  // Internal labels and template artifacts.
   const internal = new Set(options.internalLabels.map(normalizeText));
   const shortCopy = page.paragraphs.filter((paragraph) => wordCount(paragraph) <= 4);
-  for (const text of new Set([
+  const labelled = new Set([
     ...page.headings.map((heading) => heading.text),
     ...page.labels,
     ...shortCopy,
-  ])) {
+  ]);
+  for (const text of labelled)
     if (internal.has(normalizeText(text)))
       add("internal-label-visible", "fail", "internal component label is visible", text);
-  }
   for (const text of visibleStrings(page))
-    for (const [pattern, name] of TEMPLATE_ARTIFACTS)
-      if (pattern.test(text)) add("template-artifact-visible", "fail", name, text);
+    for (const [matches, name] of TEMPLATE_ARTIFACTS)
+      if (matches(text)) add("template-artifact-visible", "fail", name, text);
+}
 
-  // H1/H2 equal to the business name outside the hero.
+function checkStructure(page: PageModel, options: SiteQualityOptions, add: Add): void {
   const business = normalizeText(options.businessName);
-  if (business)
-    for (const heading of page.headings)
-      if (heading.level <= 2 && !heading.inHero && normalizeText(heading.text) === business)
-        add(
-          "heading-equals-business-name",
-          "fail",
-          `H${heading.level} is only the business name outside the hero`,
-          heading.text,
-        );
-
+  for (const heading of page.headings)
+    if (
+      business &&
+      heading.level <= 2 &&
+      !heading.inHero &&
+      normalizeText(heading.text) === business
+    )
+      add(
+        "heading-equals-business-name",
+        "fail",
+        `H${heading.level} is only the business name outside the hero`,
+        heading.text,
+      );
   if (!page.headings.some((heading) => heading.level === 1)) add("no-h1", "fail", "page has no H1");
-
-  // Thin pages.
   const count = wordCount(page.mainText);
   const floor = floorFor(page.path, options.wordFloors);
   if (count < floor)
     add("word-count-floor", "fail", `main content has ${count} words; floor is ${floor}`);
-
-  // Literals that belong to another client.
-  const fullText = normalizeText(`${page.title} ${page.fullText}`);
+  const fullText = ` ${normalizeText(`${page.title} ${page.fullText}`)} `;
   for (const literal of options.crossClientLiterals) {
     const needle = normalizeText(literal);
-    if (!needle || business.includes(needle)) continue;
-    if (` ${fullText} `.includes(` ${needle} `))
+    if (needle && !business.includes(needle) && fullText.includes(` ${needle} `))
       add("cross-client-literal", "fail", `another client's literal "${literal}" is rendered`);
   }
+}
 
-  // Imagery.
-  for (const image of page.images) {
-    if (!image.src.trim()) {
-      add("image-missing-src", "fail", "img has no src");
-      continue;
-    }
-    if (
-      (image.status !== null && (image.status < 200 || image.status > 299)) ||
-      image.naturalWidth === 0
-    )
-      add(
-        "image-broken",
-        "fail",
-        image.status !== null && (image.status < 200 || image.status > 299)
-          ? `image returned HTTP ${image.status}`
-          : "image did not decode (naturalWidth 0)",
-        displaySrc(image.src),
-      );
-    if (image.bytes !== null && image.bytes > options.maxImageBytes)
-      add(
-        "image-oversized",
-        "fail",
-        `image is ${image.bytes} bytes; limit is ${options.maxImageBytes}`,
-        displaySrc(image.src),
-      );
-    if (image.alt === null)
-      add("image-missing-alt", "warn", "img has no alt attribute", displaySrc(image.src));
+function checkImage(image: ImageModel, options: SiteQualityOptions, add: Add): void {
+  if (!image.src.trim()) {
+    add("image-missing-src", "fail", "img has no src");
+    return;
   }
+  const src = displaySrc(image.src);
+  if (isHttpError(image.status))
+    add("image-broken", "fail", `image returned HTTP ${image.status}`, src);
+  else if (image.naturalWidth === 0)
+    add("image-broken", "fail", "image did not decode (naturalWidth 0)", src);
+  if (image.bytes !== null && image.bytes > options.maxImageBytes)
+    add(
+      "image-oversized",
+      "fail",
+      `image is ${image.bytes} bytes; limit is ${options.maxImageBytes}`,
+      src,
+    );
+  if (image.alt === null) add("image-missing-alt", "warn", "img has no alt attribute", src);
+}
 
+export function checkPage(page: PageModel, options: SiteQualityOptions): Finding[] {
+  const findings: Finding[] = [];
+  const add: Add = (check, severity, detail, evidence) =>
+    findings.push({
+      check,
+      severity,
+      page: page.path,
+      detail,
+      ...(evidence ? { evidence: excerpt(evidence) } : {}),
+    });
+  if (isHttpError(page.status)) {
+    add("page-unrenderable", "fail", `document returned HTTP ${page.status}`);
+    return findings;
+  }
+  checkDuplicates(page, options, add);
+  checkCopy(page, options, add);
+  checkStructure(page, options, add);
+  for (const image of page.images) checkImage(image, options, add);
   return findings;
 }
 
@@ -487,7 +509,7 @@ export function checkSite(pages: PageModel[], options: SiteQualityOptions): Find
       findings.push({
         check: "cross-page-duplicate-paragraph",
         severity: "fail",
-        page: [...set].sort().join(","),
+        page: [...set].sort((a, b) => a.localeCompare(b)).join(","),
         detail: `paragraph repeated on ${set.size} pages`,
         evidence: excerpt(key),
       });
@@ -516,7 +538,9 @@ export function buildReport(
   const byCheck: Record<string, number> = {};
   for (const finding of findings) byCheck[finding.check] = (byCheck[finding.check] ?? 0) + 1;
   const fail = findings.filter((finding) => finding.severity === "fail").length;
-  const status = errors.length || pages.length === 0 ? "BLOCKED" : fail ? "FAIL" : "PASS";
+  let status: SiteQualityReport["status"] = "PASS";
+  if (errors.length || pages.length === 0) status = "BLOCKED";
+  else if (fail) status = "FAIL";
   return {
     schema: SITE_QUALITY_REPORT_SCHEMA,
     status,

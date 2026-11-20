@@ -329,6 +329,20 @@ export function defaultDeps(env = process.env) {
   };
 }
 
+/** Visible text of an HTML body, tags dropped (a linear scan, no backtracking). */
+function stripTags(html) {
+  let text = "";
+  let depth = 0;
+  for (const char of html) {
+    if (char === "<") depth = 1;
+    else if (char === ">" && depth) {
+      depth = 0;
+      text += " ";
+    } else if (!depth) text += char;
+  }
+  return text;
+}
+
 /** Non-shell reachability probe of the exact target. */
 async function probeTarget(url, deps, state) {
   try {
@@ -338,7 +352,7 @@ async function probeTarget(url, deps, state) {
     if (
       response.status === 401 ||
       response.status === 403 ||
-      isAuthWall(response.url, body.replace(/<[^>]*>/g, " "))
+      isAuthWall(response.url, stripTags(body))
     ) {
       state.errors.push(`target is behind an authentication wall (HTTP ${response.status})`);
       state.reasons.add("AUTH_WALL");
