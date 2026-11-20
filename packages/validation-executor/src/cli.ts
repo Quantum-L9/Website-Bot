@@ -9,14 +9,14 @@ async function tryLoadAdapter(
   modulePath: string,
   className: string,
   warnLabel: string,
-): Promise<RepositoryAdapter | undefined> {
+): Promise<RepositoryAdapter | null> {
   try {
     const adapterModule = await import(modulePath);
     const AdapterClass = adapterModule[className];
     return new AdapterClass();
   } catch (error) {
     console.warn(`${warnLabel} not available, falling back to default adapter`, error);
-    return undefined;
+    return null;
   }
 }
 

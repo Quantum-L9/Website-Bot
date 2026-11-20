@@ -7,7 +7,31 @@ import type {
   ValidationGateStatus,
 } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
+import { type TerminationDetail, terminationCauses } from "../utils/termination.js";
 import type { EvidenceCollector } from "./EvidenceCollector.js";
+
+/**
+ * Tally of preflight outcomes for the completion log. Timeouts are counted next
+ * to failures and errors, so a run that fails on a timed-out check does not log
+ * as "0 failed, 0 errors".
+ */
+export function summarizePreflightOutcomes(results: PreflightCheck[]): {
+  total: number;
+  passed: number;
+  failed: number;
+  errors: number;
+  timeouts: number;
+} {
+  const count = (status: PreflightCheck["status"]) =>
+    results.filter((r) => r.status === status).length;
+  return {
+    total: results.length,
+    passed: count("Passed"),
+    failed: count("Failed"),
+    errors: count("Error"),
+    timeouts: count("Timeout"),
+  };
+}
 
 /**
  * PreflightEngine implements Step 4 of the validation specification:
@@ -43,6 +67,7 @@ export class PreflightEngine {
           command: check.command,
           status: result.status,
           exit_code: result.exit_code,
+          termination_signal: result.termination_signal,
           duration: result.duration,
           stdout: "", // Will be captured by command execution
           stderr: "", // Will be captured by command execution
@@ -70,15 +95,7 @@ export class PreflightEngine {
       }
     }
 
-    this.logger.info(
-      {
-        total: results.length,
-        passed: results.filter((r) => r.status === "Passed").length,
-        failed: results.filter((r) => r.status === "Failed").length,
-        errors: results.filter((r) => r.status === "Error").length,
-      },
-      "Preflight execution completed",
-    );
+    this.logger.info(summarizePreflightOutcomes(results), "Preflight execution completed");
 
     return results;
   }
@@ -103,17 +120,20 @@ export class PreflightEngine {
       const duration = result.duration;
 
       // Determine status and classification based on exit code and output
+      const timedOut = result.timedOut === true;
+      const terminationSignal = result.terminationSignal ?? null;
       const { status, classification } = this.classifyResult(
         result.exitCode,
         result.stdout,
         result.stderr,
+        timedOut,
       );
 
       const executedCheck: PreflightCheck = {
         ...check,
         status,
         exit_code: result.exitCode,
-        termination_signal: null,
+        termination_signal: terminationSignal,
         started_at: startedAt,
         ended_at: endedAt,
         duration,
@@ -122,6 +142,7 @@ export class PreflightEngine {
           result.exitCode,
           result.stdout,
           result.stderr,
+          { timedOut, terminationSignal, duration },
         ),
         root_cause_group: null, // Will be set during analysis phase
         evidence_references: [
@@ -170,13 +191,19 @@ export class PreflightEngine {
    * Classify the result based on exit code and output
    */
   private classifyResult(
-    exitCode: number,
+    exitCode: number | null,
     stdout: string,
     stderr: string,
+    timedOut = false,
   ): {
     status: PreflightStatus;
     classification: PrimaryFailureClassification | null;
   } {
+    // A timeout kill is decided by the runner, not inferred from output text.
+    if (timedOut) {
+      return { status: "Timeout", classification: "Timeout" };
+    }
+
     if (exitCode === 0) {
       return { status: "Passed", classification: null };
     }
@@ -239,12 +266,13 @@ export class PreflightEngine {
   /**
    * Identify contributing causes from command output
    */
-  private identifyContributingCauses(exitCode: number, _stdout: string, stderr: string): string[] {
-    const causes = [];
-
-    if (exitCode !== 0) {
-      causes.push(`Non-zero exit code: ${exitCode}`);
-    }
+  private identifyContributingCauses(
+    exitCode: number | null,
+    _stdout: string,
+    stderr: string,
+    termination: TerminationDetail = { timedOut: false, terminationSignal: null, duration: 0 },
+  ): string[] {
+    const causes = terminationCauses(exitCode, termination);
 
     const errorOutput = stderr.toLowerCase();
     if (errorOutput.includes("warning")) {
