@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import { sectionVariant } from "../../styles/variants";
 import ConceptualIllustration from "../ConceptualIllustration.astro";
 import type { StructuredSectionView } from "../SectionRegistry";
 import StructuredBlocks from "../StructuredBlocks.astro";
@@ -36,6 +37,20 @@ const heroBackdrop = heroImage !== undefined && heroImage.source === "generated"
 const illustrations: Record<string, { illustrationId: string; source: string }> =
   siteConfig.illustrations ?? {};
 const heroIllustration = heroImage ? undefined : illustrations[`${path}:hero`];
+// Design-system variant (ds_hero_variant), constrained by what this page has.
+// No image and no illustration: always the full-bleed statement band, never an
+// empty half. A generated image keeps the backdrop treatment unless centred is
+// asked for; a protected photo or an illustration is never washed over, so it
+// is shown split or centred.
+const requestedVariant = sectionVariant("hero", siteConfig.designTokens as Record<string, unknown>);
+const variant =
+  heroImage === undefined && heroIllustration === undefined
+    ? "statement"
+    : requestedVariant === "centered"
+      ? "centered"
+      : heroBackdrop
+        ? "backdrop"
+        : "split";
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
@@ -46,7 +61,7 @@ const structuredHeadline = structured?.heading;
 // Without a heading the legacy headline already is the eyebrow; never repeat it.
 const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.businessName;
 ---
-<section class={heroBackdrop ? 'hero hero--image' : 'hero'} data-section={name} data-section-id={structured?.sectionId}>
+<section class={variant === "backdrop" ? 'hero hero--image' : 'hero'} data-section={name} data-section-id={structured?.sectionId} data-variant={variant}>
   <div class="hero__content">
     <p class="eyebrow">{eyebrow}</p>
     {structured ? (
