@@ -163,10 +163,12 @@ export class PreDeployBlindJudgeStage implements Stage {
     if (report.status === "PASS") return { state: "PASS", evidence_ref };
     if (report.status === "FAIL")
       return { state: "FAIL", evidence_ref, reason: `${report.reasons.join(", ")}; ${summary}` };
+    const cause = report.reasons.join(", ") || report.status;
+    const firstError = report.errors[0];
     return {
       state: report.status,
       evidence_ref: null,
-      reason: `${report.reasons.join(", ") || report.status}${report.errors.length ? `: ${report.errors[0]}` : ""}`,
+      reason: firstError ? `${cause}: ${firstError}` : cause,
     };
   }
 }
