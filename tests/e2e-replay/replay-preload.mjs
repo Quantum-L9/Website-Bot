@@ -57,15 +57,22 @@ async function bodyText(input, init) {
   return "";
 }
 
+function textOfContent(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .filter(Boolean)
+      .join("\n");
+  }
+  return JSON.stringify(content);
+}
+
 function promptOf(body) {
   try {
     const parsed = JSON.parse(body);
     if (Array.isArray(parsed.messages)) {
-      return parsed.messages
-        .map((message) =>
-          typeof message.content === "string" ? message.content : JSON.stringify(message.content),
-        )
-        .join("\n");
+      return parsed.messages.map((message) => textOfContent(message.content)).join("\n");
     }
     return JSON.stringify(parsed);
   } catch {
