@@ -87,7 +87,7 @@ void test("D01 a valid DeepSeek text response is returned through generateConten
   const call = h.calls[0];
   assert.equal(call.url, "https://api.deepseek.com/chat/completions");
   assert.equal(call.headers.Authorization, "Bearer ds-key");
-  assert.equal(call.body.model, "deepseek-flash");
+  assert.equal(call.body.model, "deepseek-v4-pro");
   assert.equal(call.body.stream, false);
   const messages = call.body.messages as Array<{ role: string; content: string }>;
   assert.equal(messages[0].role, "system");
@@ -129,7 +129,7 @@ void test("D03 strategic reasoning enables thinking with low effort and a bounde
   const llm2 = createWebsiteFactoryLLM("c", { env, transport: h2.transport });
   await llm2.strategize(task, "sys", "user");
   assert.equal(h2.calls[0].body.max_tokens, 16000);
-  assert.equal(h2.calls[0].body.model, "deepseek-flash"); // never escalated automatically
+  assert.equal(h2.calls[0].body.model, "deepseek-v4-pro"); // never escalated automatically
 });
 
 void test("D04 routine content and schema generation disable thinking", async () => {
@@ -282,7 +282,7 @@ void test("D10b failures without reported usage stay charged; the allowance clos
   const h = harness(() => ({ status: 503 }));
   // Allowance fits exactly one worst-case content reservation.
   const llm = createWebsiteFactoryLLM("c", {
-    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.0045" } as NodeJS.ProcessEnv,
+    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.0121" } as NodeJS.ProcessEnv,
     transport: h.transport,
   });
   await assert.rejects(() => llm.generateContent("a"), isLlmFailure(/HTTP 503/));
@@ -292,9 +292,9 @@ void test("D10b failures without reported usage stay charged; the allowance clos
 
 void test("D11 multiple stages share one cumulative allowance", async () => {
   const h = harness();
-  // Each content call reserves ~$0.0036 (bytes + 3000 output tokens at peak); actual is tiny.
+  // Each content call reserves about $0.0121 (bytes + 3000 output tokens at pro peak); actual is tiny.
   const llm = createWebsiteFactoryLLM("c", {
-    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.004" } as NodeJS.ProcessEnv,
+    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.013" } as NodeJS.ProcessEnv,
     transport: h.transport,
   });
   await llm.generateContent("a");
@@ -308,12 +308,12 @@ void test("D11 multiple stages share one cumulative allowance", async () => {
   const total = usage.reduce((sum, u) => sum + u.costUsd, 0);
   assert.ok(
     Math.abs(
-      total - 3 * deepseekCostUsd(DEEPSEEK_PEAK_PRICING["deepseek-flash"], completion().usage),
+      total - 3 * deepseekCostUsd(DEEPSEEK_PEAK_PRICING["deepseek-v4-pro"], completion().usage),
     ) < 1e-12,
   );
   // After committed spend, a reservation larger than the remainder is refused pre-dispatch.
   const hungry = createWebsiteFactoryLLM("c", {
-    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.006" } as NodeJS.ProcessEnv,
+    env: { ...KEY_ONLY, LLM_BUILD_BUDGET_USD: "0.020" } as NodeJS.ProcessEnv,
     transport: harness(() => ({
       json: completion({ usage: { prompt_tokens: 1000, completion_tokens: 3000 } }),
     })).transport,
@@ -335,8 +335,8 @@ void test("D12 provider-reported tokens and computed cost are recorded exactly",
   assert.equal(usage.status, "success");
   assert.equal(usage.stage, "content-generation");
   assert.equal(usage.taskType, "page_copy");
-  // 40 hit × $0.006 + 60 miss × $0.30 + 50 out × $1.20, per 1M tokens (peak).
-  assert.ok(Math.abs(usage.costUsd - (40 * 0.006 + 60 * 0.3 + 50 * 1.2) / 1e6) < 1e-15);
+  // 40 hit × $0.044 + 60 miss × $1.32 + 50 out × $3.96, per 1M tokens (pro peak).
+  assert.ok(Math.abs(usage.costUsd - (40 * 0.044 + 60 * 1.32 + 50 * 3.96) / 1e6) < 1e-15);
   assert.deepEqual(llm.flushUsage(), []);
   // Without a hit/miss split every prompt token is priced as a cache miss.
   const pricing = DEEPSEEK_PEAK_PRICING["deepseek-flash"];
@@ -444,7 +444,10 @@ void test("D18 validateLayout sends screenshots as DeepSeek image parts and keep
   writeFileSync(shot, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]));
   const verdict = JSON.stringify({ verdict: "pass", defects: [], summary: "clean" });
   const h = harness([{ json: completion({}, verdict) }]);
-  const llm = createWebsiteFactoryLLM("c", { env: KEY_ONLY, transport: h.transport });
+  const llm = createWebsiteFactoryLLM("c", {
+    env: { ...KEY_ONLY, DEEPSEEK_MODEL: "deepseek-flash" } as NodeJS.ProcessEnv,
+    transport: h.transport,
+  });
   assert.equal(await llm.validateLayout([shot], "Page: /, Viewport: desktop (1440x900)"), verdict);
   const body = h.calls[0].body;
   assert.deepEqual(body.thinking, { type: "disabled" });

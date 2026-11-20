@@ -14,7 +14,7 @@ This repository contains the L9 Website Factory Bot — a deterministic website 
 | Build output | `dist/` | Astro static build convention and local validation bundle |
 | Deployment target | Vercel | deployment scripts and docs |
 | CRM direction | Configurable CRM provider (`CRM_PROVIDER`), phase 2 | env contract and verification scripts |
-| LLM adapter | Direct DeepSeek (`deepseek-flash`) | `src/services/llm.ts` |
+| LLM adapter | Direct DeepSeek (`deepseek-v4-pro`) | `src/services/llm.ts` |
 | LLM provider contract | DeepSeek text/reasoning/vision; Gemini images only | `contracts/llm_router_integration.yaml` (v2.0.0) |
 
 Unsupported values remain `Unknown` until the operator supplies them. Do not invent contact, license, disclaimer, analytics, CRM, or deployment values.

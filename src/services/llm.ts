@@ -79,7 +79,7 @@ const SEARCH_GROUNDED_TASKS: ReadonlySet<TaskType> = new Set([
 
 export const DEEPSEEK_PROVIDER = "deepseek";
 export const DEEPSEEK_DEFAULT_BASE_URL = "https://api.deepseek.com";
-export const DEEPSEEK_DEFAULT_MODEL = "deepseek-flash";
+export const DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro";
 
 interface ModelPricing {
   cacheHitPerMTok: number;

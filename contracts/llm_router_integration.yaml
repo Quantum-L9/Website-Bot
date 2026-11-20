@@ -21,7 +21,7 @@ contract:
   automatic_model_escalation: false
 
 models:
-  default: deepseek-flash
+  default: deepseek-v4-pro
   allowed:
     deepseek-flash: { vision: true }
     deepseek-v4-pro: { vision: false }
