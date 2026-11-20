@@ -7,6 +7,7 @@ import type {
   ValidationGateStatus,
 } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
+import { type TerminationDetail, terminationCauses } from "../utils/termination.js";
 import type { EvidenceCollector } from "./EvidenceCollector.js";
 
 /**
@@ -112,10 +113,13 @@ export class E2EEngine {
       const duration = result.duration;
 
       // Determine status and classification based on exit code and output
+      const timedOut = result.timedOut === true;
+      const terminationSignal = result.terminationSignal ?? null;
       const { status, classification, assertionError } = this.classifyTestResult(
         result.exitCode,
         result.stdout,
         result.stderr,
+        timedOut,
       );
 
       const executedTest: E2ETestResult = {
@@ -131,6 +135,7 @@ export class E2EEngine {
           result.exitCode,
           result.stdout,
           result.stderr,
+          { timedOut, terminationSignal, duration },
         ),
         root_cause_group: null, // Will be set during analysis phase
         evidence_references: [
@@ -179,14 +184,20 @@ export class E2EEngine {
    * Classify test result based on exit code and output
    */
   private classifyTestResult(
-    exitCode: number,
+    exitCode: number | null,
     stdout: string,
     stderr: string,
+    timedOut = false,
   ): {
     status: E2EStatus;
     classification: PrimaryFailureClassification | null;
     assertionError: string | null;
   } {
+    // A timeout kill is decided by the runner, not inferred from output text.
+    if (timedOut) {
+      return { status: "Timeout", classification: "Timeout", assertionError: null };
+    }
+
     if (exitCode === 0) {
       return { status: "Passed", classification: null, assertionError: null };
     }
@@ -332,12 +343,13 @@ export class E2EEngine {
   /**
    * Identify contributing causes from test output
    */
-  private identifyContributingCauses(exitCode: number, stdout: string, stderr: string): string[] {
-    const causes = [];
-
-    if (exitCode !== 0) {
-      causes.push(`Non-zero exit code: ${exitCode}`);
-    }
+  private identifyContributingCauses(
+    exitCode: number | null,
+    stdout: string,
+    stderr: string,
+    termination: TerminationDetail,
+  ): string[] {
+    const causes = terminationCauses(exitCode, termination);
 
     const output = `${stdout}\n${stderr}`.toLowerCase();
 

@@ -30,6 +30,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Strict TypeScript
         run: npm run typecheck
+      # The root tsconfig covers src/scripts/tests only, so the validation
+      # executor package (run below through tsx, which does not type-check)
+      # needs its own strict pass.
+      - name: Validation executor TypeScript
+        run: npx --no-install tsc --noEmit -p packages/validation-executor/tsconfig.json
       - name: Spec drift and validity guard
         run: npm run normalize-spec:check
       - name: Release evidence JSON Schemas
