@@ -21,7 +21,6 @@ import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/type
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import type { BuildIntent } from "./BuildIntent.js";
 import type { AssemblyManifest } from "./evidence/AssemblyManifest.js";
-import type { ReadinessObservations } from "./evidence/ReadinessLadder.js";
 import type { BuildProof } from "./evidence/BuildProof.js";
 import type { DeploymentEvidence } from "./evidence/DeploymentEvidence.js";
 import type { EvidenceIndex } from "./evidence/EvidenceIndex.js";
@@ -29,6 +28,7 @@ import type { EvidenceStore } from "./evidence/EvidenceStore.js";
 import type { ImageAssetManifest, ResolvedImageAsset } from "./evidence/ImageAssetManifest.js";
 import type { ImageAssetPlan } from "./evidence/ImageAssetPlan.js";
 import type { PublicationEvidence } from "./evidence/PublicationEvidence.js";
+import type { ReadinessObservations } from "./evidence/ReadinessLadder.js";
 import type { EvidenceGateStatus, ReleaseReceipt } from "./evidence/ReleaseReceipt.js";
 import type { SourceSiteManifest } from "./evidence/SourceSiteManifest.js";
 import type { SpendLedger } from "./SpendLedger.js";

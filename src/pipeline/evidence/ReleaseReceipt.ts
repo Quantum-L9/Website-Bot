@@ -1,8 +1,8 @@
 // L9_META: layer=pipeline, role=release_receipt_contract, status=active, version=2.1.0
 import type { ExecutionMode } from "../BuildContext.js";
 import type { EvidenceReference } from "./EvidenceReference.js";
-import { type ReadinessLadder, validateReadinessLadder } from "./ReadinessLadder.js";
 import { validateEvidenceReference } from "./EvidenceReference.js";
+import { type ReadinessLadder, validateReadinessLadder } from "./ReadinessLadder.js";
 
 export type EvidenceGateStatus = "pending" | "passed" | "failed" | "skipped";
 export type ReleaseReceiptStatus = "planned" | "partial" | "succeeded" | "failed";
