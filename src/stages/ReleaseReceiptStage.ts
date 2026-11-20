@@ -4,6 +4,7 @@ import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import { sha256Text } from "../pipeline/evidence/EvidenceCanonicalizer.js";
 import { recordToReference } from "../pipeline/evidence/EvidenceReference.js";
+import { buildReadinessLadder } from "../pipeline/evidence/ReadinessLadder.js";
 import type {
   LeadCaptureReceipt,
   ReleaseGate,
@@ -15,7 +16,7 @@ const logger = createModuleLogger("stage:release-receipt");
 
 export class ReleaseReceiptStage implements Stage {
   name = "release-receipt";
-  version = "2.2.0";
+  version = "2.3.0";
   evidence = {
     inputs: (ctx: BuildContext) => {
       if (ctx.mode === "end-to-end")
@@ -118,6 +119,8 @@ export class ReleaseReceiptStage implements Stage {
         visual_qa: ctx.qualityEvidence.visualQa,
       },
       lead_capture: leadCapture,
+      // Every level this build did not observe is NOT_RUN, never inferred.
+      readiness: buildReadinessLadder(ctx.readiness),
       created_at: createdAt,
     };
 

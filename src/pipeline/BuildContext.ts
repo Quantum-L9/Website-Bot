@@ -21,6 +21,7 @@ import type { ProvisioningReceipt, ProvisioningSpec } from "../provisioning/type
 import type { WebsiteFactoryLLM } from "../services/llm.js";
 import type { BuildIntent } from "./BuildIntent.js";
 import type { AssemblyManifest } from "./evidence/AssemblyManifest.js";
+import type { ReadinessObservations } from "./evidence/ReadinessLadder.js";
 import type { BuildProof } from "./evidence/BuildProof.js";
 import type { DeploymentEvidence } from "./evidence/DeploymentEvidence.js";
 import type { EvidenceIndex } from "./evidence/EvidenceIndex.js";
@@ -349,6 +350,12 @@ export interface BuildContext {
    */
   spendLedger?: SpendLedger;
   qualityEvidence: QualityEvidence;
+  /**
+   * Readiness levels this build observed (src/pipeline/evidence/ReadinessLadder.ts).
+   * Stages record only what they judged; every other level is NOT_RUN in the
+   * release receipt, never inferred from another level.
+   */
+  readiness?: ReadinessObservations;
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
   /**

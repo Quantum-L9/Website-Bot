@@ -57,6 +57,32 @@ void test("local-proof mode persists a partial receipt with explicit remote gaps
   }
 });
 
+void test("every persisted receipt carries the readiness ladder, unobserved levels NOT_RUN", async () => {
+  const ctx = fixtureContext();
+  try {
+    await persistLocalProof(ctx);
+    ctx.readiness = {
+      client_build_quality_check: { state: "FAIL", evidence_ref: "quality/report.json" },
+    };
+    await new ReleaseReceiptStage(() => new Date("2026-07-20T00:00:02.000Z")).run(ctx);
+    const ladder = (await ctx.evidenceStore.readReleaseReceipt())?.value.readiness;
+    assert.ok(ladder, "the local-proof receipt records the ladder");
+    assert.deepEqual(
+      ladder.levels.map((entry) => [entry.level, entry.state]),
+      [
+        ["structural_ci", "NOT_RUN"],
+        ["replay_quality_gate", "NOT_RUN"],
+        ["live_provider_canary", "NOT_RUN"],
+        ["client_build_quality_check", "FAIL"],
+        ["blind_judge_vs_baseline", "NOT_RUN"],
+        ["operator_deploy_approval", "NOT_RUN"],
+      ],
+    );
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test("end-to-end receipt finalizes only after passed visual QA", async () => {
   const ctx = fixtureContext();
   try {
