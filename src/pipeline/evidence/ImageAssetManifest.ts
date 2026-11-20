@@ -9,6 +9,7 @@
 // image manifest. Presence of the copied files is already attested by the
 // assembly manifest; this record adds source, hashes, dimensions, and cost.
 
+import { basename, dirname, join } from "node:path";
 import { sha256Text } from "./EvidenceCanonicalizer.js";
 
 export type ImageSource = "provided" | "source-site" | "generated";
@@ -19,6 +20,33 @@ export type ReuseDisposition =
   | "reference-only"
   | "unknown-rights"
   | "rejected";
+
+/**
+ * A narrower rendition of a shipped image, for the <img srcset>. Produced only
+ * for re-encoded (source-site and generated) rasters; a client-provided file is
+ * published byte-for-byte and has none (build contract T08).
+ */
+export interface ImageVariant {
+  width: number;
+  height: number;
+  /** File name relative to public/images/ in the generated site. */
+  fileName: string;
+  byteLength: number;
+  sha256: string;
+}
+
+/** Variant file name in the site: `hero.webp` at 640w → `hero-640w.webp`. */
+export function variantFileName(fileName: string, width: number): string {
+  const dot = fileName.lastIndexOf(".");
+  return dot === -1
+    ? `${fileName}-${width}w`
+    : `${fileName.slice(0, dot)}-${width}w${fileName.slice(dot)}`;
+}
+
+/** Where a variant is staged: beside the staged full-size file, same naming rule. */
+export function variantStagedPath(absolutePath: string, width: number): string {
+  return join(dirname(absolutePath), variantFileName(basename(absolutePath), width));
+}
 
 /** A fully inspected image staged for assembly into the generated site. */
 export interface ResolvedImageAsset {
@@ -48,6 +76,8 @@ export interface ResolvedImageAsset {
   estimatedCostUsd?: number;
   disposition: ReuseDisposition;
   provenanceWarnings: string[];
+  /** Narrower renditions for srcset, each staged at variantStagedPath(absolutePath, width). */
+  variants?: ImageVariant[];
 }
 
 /** One image's provenance as recorded in the manifest (post-assembly). */
@@ -68,6 +98,9 @@ export interface ImageAssetEvidence {
   estimatedCostUsd?: number;
   disposition: ReuseDisposition;
   provenanceWarnings: string[];
+  /** The alt text shipped for this image, so a resumed build restores it. */
+  altText?: string;
+  variants?: ImageVariant[];
 }
 
 export interface ImageAssetManifest {
@@ -97,6 +130,8 @@ export function evidenceFromResolved(asset: ResolvedImageAsset): ImageAssetEvide
     estimatedCostUsd: asset.estimatedCostUsd,
     disposition: asset.disposition,
     provenanceWarnings: asset.provenanceWarnings,
+    altText: asset.altText,
+    ...(asset.variants?.length ? { variants: asset.variants } : {}),
   };
 }
 
