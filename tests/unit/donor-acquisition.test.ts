@@ -308,7 +308,11 @@ void test("nugget extraction sends the page excerpt and screenshot, and rejects 
   const previousMemory = process.env.L9_MEMORY_MODE;
   process.env.L9_MEMORY_MODE = "disabled";
   const llm = createWebsiteFactoryLLM("client-a", {
-    env: { DEEPSEEK_API_KEY: "test-key", L9_MEMORY_MODE: "disabled" },
+    env: {
+      DEEPSEEK_API_KEY: "test-key",
+      DEEPSEEK_MODEL: "deepseek-flash",
+      L9_MEMORY_MODE: "disabled",
+    },
     transport: async (_url, init) => {
       body = String(init?.body ?? "");
       return new Response(
