@@ -9,6 +9,8 @@
 //   (vendored Inter, so the machine's installed fonts do not matter),
 //   animations and caret off, reduced motion, fixed locale and timezone, no
 //   off-origin requests, images settled, build-time dynamic text masked.
+//   A capture is accepted only once two consecutive screenshots are
+//   byte-identical; a page that never settles fails closed as unstable.
 // - compare: a per-pixel comparison run inside Chromium's canvas (no image
 //   library), writing expected / actual / diff PNGs as inspectable evidence.
 // - approval: references are trusted only through an approval record naming
@@ -82,6 +84,8 @@ export interface CapturedScreenshot {
   sha256: string;
   width: number;
   height: number;
+  /** Screenshots taken before two consecutive ones were byte-identical (>= 2). */
+  capture_attempts?: number;
 }
 
 export interface CaptureResult {
@@ -112,8 +116,21 @@ export interface ScreenshotComparison {
   detail: string;
   diff_pixels: number;
   diff_ratio: number;
+  /**
+   * Smallest rectangle enclosing every differing pixel, in screenshot pixels;
+   * absent when nothing differs. Also quoted in `detail`, so the changed
+   * region is readable from a log even when the evidence PNGs are not.
+   */
+  diff_bbox?: DiffBoundingBox;
   /** Evidence written for a failure, relative to the evidence directory. */
   evidence?: { expected: string; actual: string; diff: string };
+}
+
+export interface DiffBoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface VisualRegressionReport {
@@ -285,6 +302,61 @@ export interface CaptureOptions {
   viewports?: readonly RenderViewport[];
   /** Applied after the page settles; a test hook for deliberately broken variants only. */
   injectCss?: (viewport: RenderViewport) => string | undefined;
+  /**
+   * Script evaluated in the page after it settles; a test hook for
+   * deliberately unstable variants only (CSS cannot express one: capture
+   * cancels CSS animations to their initial state on every screenshot).
+   */
+  injectScript?: (viewport: RenderViewport) => string | undefined;
+  /** Most screenshots taken per view while waiting for two identical ones. */
+  maxStableAttempts?: number;
+}
+
+/**
+ * Upper bound on screenshots per view. Playwright's own toHaveScreenshot
+ * likewise waits for two consecutive identical screenshots; a view that has
+ * not converged after this many is reported unstable rather than compared.
+ */
+export const DEFAULT_MAX_STABLE_ATTEMPTS = 5;
+
+/** Thrown when a view never produces two consecutive identical screenshots. */
+export class CaptureUnstableError extends Error {
+  constructor(
+    readonly route: string,
+    readonly viewport: string,
+    readonly attempts: number,
+    readonly distinctImages: number,
+  ) {
+    super(
+      `capture unstable: ${route}@${viewport} (no two consecutive screenshots were byte-identical in ${attempts} attempts; ${distinctImages} distinct images)`,
+    );
+    this.name = "CaptureUnstableError";
+  }
+}
+
+/**
+ * Take screenshots until two consecutive ones are byte-identical, returning
+ * the stable bytes and how many screenshots it took. Fails closed with
+ * CaptureUnstableError when `maxAttempts` screenshots never converge.
+ */
+export async function captureStable(
+  shoot: () => Promise<Buffer>,
+  route: string,
+  viewport: string,
+  maxAttempts: number = DEFAULT_MAX_STABLE_ATTEMPTS,
+): Promise<{ bytes: Buffer; attempts: number }> {
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 2) {
+    throw new Error(`maxStableAttempts must be an integer >= 2 (got ${maxAttempts})`);
+  }
+  let previous = await shoot();
+  const seen = new Set([sha256(previous)]);
+  for (let attempts = 2; attempts <= maxAttempts; attempts++) {
+    const current = await shoot();
+    seen.add(sha256(current));
+    if (current.equals(previous)) return { bytes: current, attempts };
+    previous = current;
+  }
+  throw new CaptureUnstableError(route, viewport, maxAttempts, seen.size);
 }
 
 /** Capture one route at one viewport under the pinned conditions. */
@@ -309,17 +381,32 @@ async function captureRoute(
     if (extra) await page.addStyleTag({ content: extra });
     await page.evaluate(FONTS_READY_EXPRESSION);
     await page.evaluate(SETTLE_IMAGES_EXPRESSION);
-    const bytes = await page.screenshot({
-      fullPage: true,
-      animations: "disabled",
-      caret: "hide",
-      scale: "css",
-      mask: [page.locator(DYNAMIC_CONTENT_SELECTOR)],
-      maskColor: "#ff00ff",
-    });
+    const script = options.injectScript?.(viewport);
+    if (script) await page.evaluate(script);
+    const { bytes, attempts } = await captureStable(
+      () =>
+        page.screenshot({
+          fullPage: true,
+          animations: "disabled",
+          caret: "hide",
+          scale: "css",
+          mask: [page.locator(DYNAMIC_CONTENT_SELECTOR)],
+          maskColor: "#ff00ff",
+        }),
+      slug,
+      viewport.name,
+      options.maxStableAttempts,
+    );
     const file = screenshotName(route, viewport.name);
     writeFileSync(join(options.outDir, file), bytes);
-    return { route: slug, viewport: viewport.name, file, sha256: sha256(bytes), ...pngSize(bytes) };
+    return {
+      route: slug,
+      viewport: viewport.name,
+      file,
+      sha256: sha256(bytes),
+      ...pngSize(bytes),
+      capture_attempts: attempts,
+    };
   } finally {
     await page.close();
   }
@@ -410,6 +497,7 @@ const COMPARE_FUNCTION = `async ({ expected, actual, threshold }) => {
   const context = out.getContext("2d");
   const diff = context.createImageData(width, height);
   let differing = 0;
+  let minX = width, minY = height, maxX = -1, maxY = -1;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
@@ -419,6 +507,10 @@ const COMPARE_FUNCTION = `async ({ expected, actual, threshold }) => {
         : 255;
       if (delta > threshold) {
         differing++;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
         diff.data[i] = 255; diff.data[i + 1] = 0; diff.data[i + 2] = 0; diff.data[i + 3] = 255;
       } else {
         const grey = Math.round((pa[i] + pa[i + 1] + pa[i + 2]) / 3);
@@ -430,6 +522,7 @@ const COMPARE_FUNCTION = `async ({ expected, actual, threshold }) => {
   context.putImageData(diff, 0, 0);
   return {
     width, height, differing,
+    bbox: differing === 0 ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 },
     sameSize: a.width === b.width && a.height === b.height,
     expectedSize: [a.width, a.height], actualSize: [b.width, b.height],
     diffPng: out.toDataURL("image/png").split(",")[1],
@@ -440,10 +533,29 @@ interface CanvasComparison {
   width: number;
   height: number;
   differing: number;
+  bbox: DiffBoundingBox | null;
   sameSize: boolean;
   expectedSize: [number, number];
   actualSize: [number, number];
   diffPng: string;
+}
+
+export const formatBoundingBox = (box: DiffBoundingBox): string =>
+  `x=${box.x} y=${box.y} w=${box.width} h=${box.height}`;
+
+/** Human-readable verdict for one comparison, naming the changed region when there is one. */
+export function comparisonDetail(
+  result: Pick<
+    CanvasComparison,
+    "width" | "height" | "differing" | "bbox" | "sameSize" | "expectedSize" | "actualSize"
+  >,
+  ratio: number,
+  tolerance: VisualTolerance,
+): string {
+  const region = result.bbox ? `; differing region ${formatBoundingBox(result.bbox)}` : "";
+  return result.sameSize
+    ? `${result.differing} of ${result.width * result.height} pixels differ (${(ratio * 100).toFixed(3)}%, allowed ${(tolerance.maxDiffRatio * 100).toFixed(3)}%)${region}`
+    : `size changed from ${result.expectedSize.join("x")} to ${result.actualSize.join("x")}${region}`;
 }
 
 export interface CompareOptions {
@@ -496,16 +608,14 @@ export async function compareScreenshots(options: CompareOptions): Promise<Visua
       );
       const ratio = result.differing / (result.width * result.height);
       const pass = result.sameSize && ratio <= tolerance.maxDiffRatio;
-      const detail = result.sameSize
-        ? `${result.differing} of ${result.width * result.height} pixels differ (${(ratio * 100).toFixed(3)}%, allowed ${(tolerance.maxDiffRatio * 100).toFixed(3)}%)`
-        : `size changed from ${result.expectedSize.join("x")} to ${result.actualSize.join("x")}`;
       const comparison: ScreenshotComparison = {
         ...base,
         status: pass ? "PASS" : "FAIL",
-        detail,
+        detail: comparisonDetail(result, ratio, tolerance),
         diff_pixels: result.differing,
         diff_ratio: ratio,
       };
+      if (result.bbox) comparison.diff_bbox = result.bbox;
       if (!pass) {
         const stem = reference.file.replace(/\.png$/, "");
         mkdirSync(options.evidenceDir, { recursive: true });
