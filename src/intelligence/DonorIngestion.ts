@@ -149,8 +149,14 @@ function isHtml(contentType: string | undefined): boolean {
   return !contentType || /text\/html|application\/xhtml\+xml/i.test(contentType);
 }
 
+/** Host identity for donor checks: the apex and its `www` name are one donor. */
+function donorHostKey(hostname: string): string {
+  const name = hostname.replace(/\.$/, "").toLowerCase();
+  return name.startsWith("www.") ? name.slice("www.".length) : name;
+}
+
 function sameHost(left: string, right: string): boolean {
-  return left.replace(/\.$/, "").toLowerCase() === right.replace(/\.$/, "").toLowerCase();
+  return donorHostKey(left) === donorHostKey(right);
 }
 
 function isHtmlWhitespaceChar(char: string): boolean {

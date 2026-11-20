@@ -276,6 +276,44 @@ void test("a public https donor keeps a bounded excerpt and screenshots that URL
   await ingestor.close();
 });
 
+void test("the apex and www names of the donor are one host; another host is not", async () => {
+  const calls: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    const url = String(input);
+    calls.push(url);
+    if (url === "https://donor.example/") {
+      return new Response(null, {
+        status: 301,
+        headers: { location: "https://www.donor.example/" },
+      });
+    }
+    if (url === "https://other.example/") {
+      return new Response("<html><body>Unrelated page</body></html>", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+    }
+    return new Response("<html><body>Canonical donor page text</body></html>", {
+      status: 200,
+      headers: { "content-type": "text/html" },
+    });
+  };
+  const ingestor = new HttpDonorIngestor(new RecordingCapturer(), {
+    fetchImpl,
+    resolveHost: async () => ["93.184.216.34"],
+  });
+  const redirected = await ingestor.ingest(donorRequest(["https://donor.example/"]));
+  assert.ok(redirected);
+  assert.equal(redirected.pages[0]?.url, "https://www.donor.example/");
+  const ranked = await ingestor.ingest(donorRequest(["https://www.donor.example/services"]));
+  assert.ok(ranked);
+  calls.length = 0;
+  const unrelated = await ingestor.ingest(donorRequest(["https://other.example/"]));
+  assert.equal(unrelated, null);
+  assert.deepEqual(calls, []);
+  await ingestor.close();
+});
+
 void test("a pdf response is not donor page evidence", async () => {
   const calls: string[] = [];
   const capturer = new RecordingCapturer();
