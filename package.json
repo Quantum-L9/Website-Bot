@@ -31,6 +31,8 @@
     "site:test:e2e": "node scripts/run-site-factory-tests.mjs --scope=e2e",
     "site:disposable-e2e": "npx tsx scripts/run-disposable-site-factory-e2e.ts",
     "e2e:replay": "node --import tsx --test tests/e2e-replay/pipeline-replay.test.ts",
+    "stages:manifest": "npx tsx scripts/stage-version-manifest.ts --update",
+    "stages:manifest:check": "npx tsx scripts/stage-version-manifest.ts",
     "quality:replay": "npx tsx scripts/quality/build-replay-site.ts --out build/site-quality/replay --overlay tests/quality/replay-overlay",
     "quality:check": "npx tsx scripts/quality/check-site.ts",
     "quality:check:replay": "npx tsx scripts/quality/check-site.ts --dist build/site-quality/replay/site/dist --spec fixtures/replay/replay-spec.yaml --report build/site-quality/replay/quality-report.json",

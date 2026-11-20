@@ -228,6 +228,31 @@ void test("resume refuses reuse of a stage whose version changed and names it", 
   }
 });
 
+void test("resume refuses a checkpoint recorded before the stage declared a version", async () => {
+  // Reuse keys on the declared version only (L9-COORD-001): a checkpoint with
+  // no recorded version is never matched by a stage that now declares one.
+  const ctx = fixtureContext();
+  const counter: Counter = { runs: 0 };
+  try {
+    ctx.llm = fakeLLM(0.1);
+    ctx.spendLedger = openLedger(ctx, false);
+    const unversioned = { ...paidStage("research", counter), version: undefined };
+    await runOnce(ctx, [unversioned, failingOnce("authority", { runs: 0 })]);
+    ctx.resume = true;
+    ctx.spendLedger = openLedger(ctx, true);
+    assert.equal(
+      await runOnce(ctx, [paidStage("research", counter), failingOnce("authority", { runs: 1 })]),
+      undefined,
+    );
+    assert.equal(counter.runs, 2, "the newly versioned stage re-executed");
+    const refused = economics(ctx).runs[1]?.refused_stages ?? [];
+    assert.equal(refused[0]?.stage, "research");
+    assert.match(refused[0]?.reason ?? "", /version changed unrecorded -> 1\.0\.0/);
+  } finally {
+    cleanupContext(ctx);
+  }
+});
+
 void test("resume refuses a changed spec, naming the completed stages bound to it", async () => {
   const ctx = fixtureContext();
   try {

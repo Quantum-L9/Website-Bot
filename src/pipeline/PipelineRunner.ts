@@ -386,8 +386,13 @@ export class PipelineRunner {
       ctx.resume = false;
       logger.warn({ stage: stage.name, reason }, "Resume refused for stage; re-executing");
     };
-    if (checkpoint.stageVersion && stage.version && checkpoint.stageVersion !== stage.version)
-      return refuse(`stage version changed ${checkpoint.stageVersion} -> ${stage.version}`);
+    // Reuse is keyed on the declared version (config/stage-version-manifest.json
+    // keeps it honest): a checkpoint with no recorded version, or one recorded
+    // by a stage that then declared one, is never matched.
+    if (checkpoint.stageVersion !== stage.version)
+      return refuse(
+        `stage version changed ${checkpoint.stageVersion ?? "unrecorded"} -> ${stage.version ?? "undeclared"}`,
+      );
     if (recorded && recorded.spec_digest !== ledger.specDigest)
       return refuse(
         `spec digest changed ${recorded.spec_digest.slice(0, 12)} -> ${ledger.specDigest.slice(0, 12)}`,
@@ -440,8 +445,7 @@ export class PipelineRunner {
   ): Promise<boolean> {
     if (!ctx.resume || !stage.evidence?.resumable || !checkpoint) return false;
     if (!(await checkpointIsValid(ctx, checkpoint))) return false;
-    if (checkpoint.stageVersion && stage.version && checkpoint.stageVersion !== stage.version)
-      return false;
+    if (checkpoint.stageVersion !== stage.version) return false;
     if (stage.evidence.externalMutation) {
       if (!stage.canResume || !(await stage.canResume(ctx, checkpoint))) {
         throw new BuildError(

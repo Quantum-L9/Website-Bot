@@ -623,6 +623,8 @@ export function deriveLayoutTokens(
 
 export class DesignIntelligenceStage implements Stage {
   name = "design-intelligence";
+  // Declared so resume can key checkpoint reuse on it (config/stage-version-manifest.json).
+  version = "1.0.0";
 
   /**
    * Approved layout evidence only: the sealed design direction under
