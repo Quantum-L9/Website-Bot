@@ -35,6 +35,11 @@ jobs:
       # needs its own strict pass.
       - name: Validation executor TypeScript
         run: npx --no-install tsc --noEmit -p packages/validation-executor/tsconfig.json
+      # Unit suite under a hard exit deadline: a leaked handle (timer, worker
+      # thread, message port) hangs `node --test` after every test has passed;
+      # this turns that into a bounded failure instead of a stalled job.
+      - name: Validation executor unit tests (bounded exit)
+        run: node packages/validation-executor/scripts/run-bounded-tests.mjs --timeout-ms 120000 test/unit
       - name: Spec drift and validity guard
         run: npm run normalize-spec:check
       - name: Release evidence JSON Schemas
