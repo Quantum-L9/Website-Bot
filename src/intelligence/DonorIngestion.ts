@@ -7,7 +7,7 @@
 // analytical evidence only — disposition is always DONOR_REFERENCE_ONLY.
 
 import { createHash } from "node:crypto";
-import { lookup } from "node:dns/promises";
+import { promises as dnsPromises } from "node:dns";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { BlockList, isIP } from "node:net";
 import { resolve } from "node:path";
@@ -109,7 +109,7 @@ function addressBlocked(address: string): boolean {
 
 async function defaultResolveHost(hostname: string): Promise<string[]> {
   if (isIP(hostname)) return [hostname];
-  const records = await lookup(hostname, { all: true, verbatim: true });
+  const records = await dnsPromises.lookup(hostname, { all: true, verbatim: true });
   return records.map((record) => record.address);
 }
 
@@ -143,6 +143,20 @@ async function assertPublicHttps(
   if (addresses.length === 0 || addresses.some(addressBlocked)) {
     throw new UnsafeDonorTarget("donor URL resolves to a local or private address");
   }
+}
+
+function isHtml(contentType: string | undefined): boolean {
+  return !contentType || /text\/html|application\/xhtml\+xml/i.test(contentType);
+}
+
+/** Host identity for donor checks: the apex and its `www` name are one donor. */
+function donorHostKey(hostname: string): string {
+  const name = hostname.replace(/\.$/, "").toLowerCase();
+  return name.startsWith("www.") ? name.slice("www.".length) : name;
+}
+
+function sameHost(left: string, right: string): boolean {
+  return donorHostKey(left) === donorHostKey(right);
 }
 
 function isHtmlWhitespaceChar(char: string): boolean {
@@ -267,7 +281,7 @@ export class HttpDonorIngestor implements DonorIngestor {
     const urls = request.candidate_urls.slice(0, Math.max(1, request.max_pages));
     for (const start of urls) {
       try {
-        const fetched = await this.fetchPublic(start);
+        const fetched = await this.fetchPublic(start, request.domain);
         if (!fetched) continue;
         pages.push({
           url: fetched.url,
@@ -327,9 +341,11 @@ export class HttpDonorIngestor implements DonorIngestor {
 
   private async fetchPublic(
     start: string,
+    donorHost: string,
   ): Promise<{ url: string; status: number; body: string } | null> {
     let current = new URL(start);
     for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+      if (!sameHost(current.hostname, donorHost)) return null;
       await assertPublicHttps(current, this.resolveHost);
       const response = await this.fetchImpl(current, {
         redirect: "manual",
@@ -343,6 +359,8 @@ export class HttpDonorIngestor implements DonorIngestor {
         continue;
       }
       if (!response.ok) return null;
+      if (!isHtml(response.headers.get("content-type") ?? undefined)) return null;
+      if (!sameHost(current.hostname, donorHost)) return null;
       const body = await readCappedBody(response);
       if (!body) return null;
       return { url: current.toString(), status: response.status, body };

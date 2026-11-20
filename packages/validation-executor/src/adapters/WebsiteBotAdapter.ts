@@ -23,8 +23,7 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
   /** Set from ValidationConfig.timeout (CLI --timeout) when the context resolves. */
   private commandTimeoutMs = DEFAULT_COMMAND_TIMEOUT_MS;
 
-  async resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext> {
-    this.logger.info("Resolving Website-Bot execution context");
+  applyRunConfiguration(config: ValidationConfig): void {
     if (
       typeof config.timeout === "number" &&
       Number.isFinite(config.timeout) &&
@@ -32,6 +31,11 @@ export class WebsiteBotAdapter implements RepositoryAdapter {
     ) {
       this.commandTimeoutMs = config.timeout;
     }
+  }
+
+  async resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext> {
+    this.logger.info("Resolving Website-Bot execution context");
+    this.applyRunConfiguration(config);
 
     const targetRoots = [process.cwd()];
     const sourceRevision = await this.getGitRevision();

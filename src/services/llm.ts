@@ -79,7 +79,9 @@ const SEARCH_GROUNDED_TASKS: ReadonlySet<TaskType> = new Set([
 
 export const DEEPSEEK_PROVIDER = "deepseek";
 export const DEEPSEEK_DEFAULT_BASE_URL = "https://api.deepseek.com";
-export const DEEPSEEK_DEFAULT_MODEL = "deepseek-flash";
+export const DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro";
+/** Model for calls that carry images; the default text model has no vision. */
+export const DEEPSEEK_DEFAULT_VISION_MODEL = "deepseek-flash";
 
 interface ModelPricing {
   cacheHitPerMTok: number;
@@ -172,6 +174,8 @@ interface ResolvedConfig {
   endpoint: string;
   model: string;
   pricing: ModelPricing;
+  visionModel: string;
+  visionPricing: ModelPricing;
   timeoutMs: number;
   maxRequests: number;
   budgetUsd: number;
@@ -271,6 +275,12 @@ export function createWebsiteFactoryLLM(
       fail(
         `DEEPSEEK_MODEL ${model} has no verified pricing; allowed: ${Object.keys(DEEPSEEK_PEAK_PRICING).join(", ")}`,
       );
+    const visionModel = env.DEEPSEEK_VISION_MODEL?.trim() || DEEPSEEK_DEFAULT_VISION_MODEL;
+    const visionPricing = DEEPSEEK_PEAK_PRICING[visionModel];
+    if (!visionPricing)
+      fail(
+        `DEEPSEEK_VISION_MODEL ${visionModel} has no verified pricing; allowed: ${Object.keys(DEEPSEEK_PEAK_PRICING).join(", ")}`,
+      );
     const baseUrl = (env.DEEPSEEK_BASE_URL?.trim() || DEEPSEEK_DEFAULT_BASE_URL).replace(
       /\/+$/,
       "",
@@ -279,6 +289,8 @@ export function createWebsiteFactoryLLM(
     const resolved: ResolvedConfig = {
       model,
       pricing,
+      visionModel,
+      visionPricing,
       endpoint: `${baseUrl}/chat/completions`,
       timeoutMs: positiveInt("LLM_PROVIDER_TIMEOUT_MS", 60_000),
       maxRequests: positiveInt("LLM_MAX_REQUESTS_PER_BUILD", 200),
@@ -316,8 +328,14 @@ export function createWebsiteFactoryLLM(
     }
     const cfg = getConfig();
     const images = spec.images ?? [];
-    if (images.length > 0 && !cfg.pricing.vision)
-      fail(`Model ${cfg.model} does not support image input (${stage})`);
+    // Calls with images use the configured vision model; every other call uses the text
+    // model. The choice is fixed by configuration: no fallback, no escalation.
+    const { model, pricing } =
+      images.length > 0
+        ? { model: cfg.visionModel, pricing: cfg.visionPricing }
+        : { model: cfg.model, pricing: cfg.pricing };
+    if (images.length > 0 && !pricing.vision)
+      fail(`Model ${model} does not support image input (${stage})`);
 
     const memoryContext = await hydrateWebsiteContext(
       clientId,
@@ -344,8 +362,7 @@ export function createWebsiteFactoryLLM(
         `Budget exhausted for ${stage}: LLM_MAX_REQUESTS_PER_BUILD (${cfg.maxRequests}) reached; not dispatched`,
       );
     const reservation =
-      (inputBound * cfg.pricing.cacheMissPerMTok + maxTokens * cfg.pricing.outputPerMTok) /
-      1_000_000;
+      (inputBound * pricing.cacheMissPerMTok + maxTokens * pricing.outputPerMTok) / 1_000_000;
     const remaining = cfg.budgetUsd - committedUsd - reservedUsd;
     if (reservation > remaining + 1e-12)
       fail(
@@ -360,7 +377,7 @@ export function createWebsiteFactoryLLM(
             ...images.map((url) => ({ type: "image_url" as const, image_url: { url } })),
           ];
     const body: Record<string, unknown> = {
-      model: cfg.model,
+      model,
       messages: [
         { role: "system", content: systemContent },
         { role: "user", content: userContent },
@@ -384,7 +401,7 @@ export function createWebsiteFactoryLLM(
         stage,
         taskType: spec.usageTaskType,
         provider: DEEPSEEK_PROVIDER,
-        model: cfg.model,
+        model,
         inputTokens: 0,
         outputTokens: 0,
         costUsd: 0,
@@ -432,20 +449,20 @@ export function createWebsiteFactoryLLM(
       return failUnreported(`DeepSeek response for ${stage} carried no usage`);
 
     const usage = completion.usage;
-    const costUsd = deepseekCostUsd(cfg.pricing, usage);
+    const costUsd = deepseekCostUsd(pricing, usage);
     reservedUsd -= reservation;
     committedUsd += costUsd;
     const choice = completion.choices?.[0];
     const content = choice?.message?.content;
     const finishReason = choice?.finish_reason ?? "missing";
-    const model = completion.model ?? cfg.model;
+    const servedModel = completion.model ?? model;
     const accepted =
       finishReason === "stop" && typeof content === "string" && content.trim() !== "";
     pushUsage({
       stage,
       taskType: spec.usageTaskType,
       provider: DEEPSEEK_PROVIDER,
-      model,
+      model: servedModel,
       inputTokens: nonNegativeInt(usage.prompt_tokens),
       outputTokens: nonNegativeInt(usage.completion_tokens),
       costUsd,
@@ -458,7 +475,7 @@ export function createWebsiteFactoryLLM(
         clientId,
         stage,
         provider: DEEPSEEK_PROVIDER,
-        model,
+        model: servedModel,
         inputTokens: nonNegativeInt(usage.prompt_tokens),
         outputTokens: nonNegativeInt(usage.completion_tokens),
         costUsd,

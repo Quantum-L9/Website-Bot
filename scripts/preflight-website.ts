@@ -20,7 +20,11 @@ import {
   runWebsitePreflight,
 } from "../src/preflight/run.js";
 import type { PreflightDeps } from "../src/preflight/types.js";
-import { DEEPSEEK_DEFAULT_MODEL, DEEPSEEK_PEAK_PRICING } from "../src/services/llm.js";
+import {
+  DEEPSEEK_DEFAULT_MODEL,
+  DEEPSEEK_DEFAULT_VISION_MODEL,
+  DEEPSEEK_PEAK_PRICING,
+} from "../src/services/llm.js";
 import { hydrateSecretsIfConfigured } from "./lib/hydrate-secrets.mjs";
 
 let args: ReturnType<typeof parseWebsiteArgs>;
@@ -62,6 +66,10 @@ const report = await runWebsitePreflight(
     timeoutMs: args.timeoutMs,
     knownDeepSeekModels: Object.keys(DEEPSEEK_PEAK_PRICING),
     defaultDeepSeekModel: DEEPSEEK_DEFAULT_MODEL,
+    visionDeepSeekModels: Object.entries(DEEPSEEK_PEAK_PRICING)
+      .filter(([, pricing]) => pricing.vision)
+      .map(([model]) => model),
+    defaultDeepSeekVisionModel: DEEPSEEK_DEFAULT_VISION_MODEL,
     // Same settings SeoBuildIntelligencePreflightStage reads at run time.
     seoBot: {
       url: process.env.SEO_BOT_URL,

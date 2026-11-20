@@ -307,6 +307,11 @@ export interface ValidationConfig {
 }
 
 export interface RepositoryAdapter {
+  /**
+   * Apply run configuration (such as the command timeout) before any command
+   * runs. Optional and non-throwing, so an adapter without one is unaffected.
+   */
+  applyRunConfiguration?(config: ValidationConfig): void;
   resolveExecutionContext(config: ValidationConfig): Promise<ExecutionContext>;
   discoverPreflightChecks(profile?: string): Promise<PreflightCheckDefinition[]>;
   discoverE2ETests(profile?: string): Promise<E2ETestDefinition[]>;

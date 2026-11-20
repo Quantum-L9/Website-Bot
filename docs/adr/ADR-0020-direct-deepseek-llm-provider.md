@@ -26,8 +26,12 @@ Perplexity (search-grounded) and required both keys before any call.
 2. Runtime credentials for text, reasoning and vision: `DEEPSEEK_API_KEY` only. Image
    generation keeps `GEMINI_API_KEY` in `src/services/images/GeminiImageGenerator.ts` and never
    crosses the text adapter.
-3. Default model `deepseek-flash`; `DEEPSEEK_MODEL` may select `deepseek-v4-pro`. Only models
-   with verified pricing are accepted; there is **no automatic model escalation**.
+3. Default model `deepseek-v4-pro` (the reasoning model) serves every call without images.
+   Calls that carry images (donor screenshots, visual QA) use `DEEPSEEK_VISION_MODEL`,
+   default `deepseek-flash`, because the reasoning model rejects image input. Both are fixed
+   by configuration; `DEEPSEEK_MODEL` may select `deepseek-flash` for text too. Only models
+   with verified pricing are accepted; there is **no automatic model escalation** and no
+   fallback.
 4. Thinking is enabled (`reasoning_effort: low`, output bounded by
    `expectedOutputTokens + DEEPSEEK_REASONING_TOKEN_ALLOWANCE`) only for tasks that declare
    `requiresReasoning`; routine content, schema and vision calls run with thinking disabled.

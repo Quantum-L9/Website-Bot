@@ -109,7 +109,6 @@ for (const code of [
   "SEO_BOT_UNREACHABLE",
   "SEO_BOT_AUTH_FAILED",
   "SEO_BOT_CAPABILITY_MISMATCH",
-  "SEO_BOT_ROUTER_VERSION_MISMATCH",
 ] as const) {
   void test(`preflight failure ${code} fails the build closed with that code`, async () => {
     const ctx = makeCtx();

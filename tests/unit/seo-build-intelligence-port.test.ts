@@ -354,15 +354,13 @@ test("preflight maps a bot-interop mismatch to SEO_BOT_CAPABILITY_MISMATCH", asy
   );
 });
 
-test("preflight maps a Router patch mismatch to SEO_BOT_ROUTER_VERSION_MISMATCH", async () => {
+test("preflight admits a ready producer when the informational router version differs", async () => {
   const snapshot = preflightSnapshot({ llm_router_version: "9.9.9" });
   const client = preflightClient((url) => {
     if (url.endsWith("/health")) return healthOk();
     return new Response(JSON.stringify(snapshot), { status: 200 });
   });
-  await assert.rejects(
-    () => client.preflight(),
-    (error: unknown) =>
-      error instanceof SeoBotPreflightError && error.code === "SEO_BOT_ROUTER_VERSION_MISMATCH",
-  );
+  const result = await client.preflight();
+  assert.equal(result.status, "ready");
+  assert.equal(result.llm_router_version, "9.9.9");
 });

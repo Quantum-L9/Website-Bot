@@ -162,18 +162,38 @@ export function donorNuggetRequest(donor: AcceptedDonorEvidence): {
   return { prompt, images };
 }
 
+function collapseSpace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function fieldCopiesExcerpt(field: string, excerpt: string): boolean {
+  const normalized = collapseSpace(field);
+  for (let index = 0; index <= excerpt.length - VERBATIM_EXCERPT_CHARS; index += 1) {
+    if (normalized.includes(excerpt.slice(index, index + VERBATIM_EXCERPT_CHARS))) return true;
+  }
+  return false;
+}
+
 export function nuggetCopiesPageExcerpt(
-  evidence: string,
+  fields:
+    | string
+    | {
+        evidence?: string;
+        invariant?: string;
+        acceptance_test?: string;
+        beneficiary_destination?: string;
+      },
   pages: Array<{ content_excerpt?: string }>,
 ): boolean {
-  const haystack = evidence.replace(/\s+/g, " ").trim();
-  if (haystack.length === 0) return false;
+  const texts =
+    typeof fields === "string"
+      ? [fields]
+      : [fields.evidence, fields.invariant, fields.acceptance_test, fields.beneficiary_destination];
   for (const page of pages) {
-    const excerpt = page.content_excerpt?.replace(/\s+/g, " ").trim() ?? "";
+    const excerpt = collapseSpace(page.content_excerpt ?? "");
     if (excerpt.length < VERBATIM_EXCERPT_CHARS) continue;
-    const last = excerpt.length - VERBATIM_EXCERPT_CHARS;
-    for (let start = 0; start <= last; start += 1) {
-      if (haystack.includes(excerpt.slice(start, start + VERBATIM_EXCERPT_CHARS))) return true;
+    for (const text of texts) {
+      if (typeof text === "string" && fieldCopiesExcerpt(text, excerpt)) return true;
     }
   }
   return false;
@@ -457,13 +477,7 @@ export class CompetitiveIntelligenceStage implements Stage {
         request.images,
       );
       for (const nugget of parsePatterns(parsed.nuggets ?? [], `donor ${donor.domain}`)) {
-        const sealed = [
-          nugget.evidence,
-          nugget.invariant,
-          nugget.acceptance_test,
-          nugget.beneficiary_destination,
-        ];
-        if (sealed.some((field) => nuggetCopiesPageExcerpt(field, donor.pages))) continue;
+        if (nuggetCopiesPageExcerpt(nugget, donor.pages)) continue;
         nuggets.push({ ...nugget, donor: donor.domain });
       }
     }
