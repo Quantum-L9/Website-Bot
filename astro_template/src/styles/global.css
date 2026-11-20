@@ -76,9 +76,9 @@ h3 { font-size: var(--step-h3); }
 h4 { font-size: var(--step-h4); }
 p, ul, ol, dl { margin: 0 0 1em; }
 p { text-wrap: pretty; }
-main :is(ul, ol):not([class]) { padding-left: 1.25rem; }
-main :is(ul, ol):not([class]) > li + li { margin-top: 0.35rem; }
-main :is(ul, ol):not([class]) > li::marker { color: var(--ds-ink); }
+main :is(ul, ol):not([class], nav ul) { padding-left: 1.25rem; }
+main :is(ul, ol):not([class], nav ul) > li + li { margin-top: 0.35rem; }
+main :is(ul, ol):not([class], nav ul) > li::marker { color: var(--ds-ink); }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -423,8 +423,8 @@ input:focus, textarea:focus, select:focus { outline: 3px solid var(--ds-ink); ou
 .hero[data-variant="statement"] :is(.eyebrow, .hero__subheading, .hero__content > p) { color: inherit; }
 .hero[data-variant="statement"] h1 { max-width: 18ch; }
 .hero[data-variant="statement"] .hero__content { max-width: 52rem; }
-/* Backdrop: a generated image behind the copy under a legibility gradient
-   (protected photos are never used this way; see Hero.astro). */
+/* Backdrop: a generated image behind the copy under a legibility gradient.
+   Protected photos are never used this way, which the hero component enforces. */
 .hero--image { position: relative; grid-template-columns: 1fr; overflow: hidden; border-radius: var(--radius-lg); min-height: min(36rem, 80vh); }
 .hero--image .hero__image {
   position: absolute;
@@ -614,6 +614,39 @@ input:focus, textarea:focus, select:focus { outline: 3px solid var(--ds-ink); ou
   .gallery[data-variant="feature"] .gallery-grid { grid-template-columns: repeat(3, 1fr); }
   .gallery[data-variant="feature"] .gallery-grid > :first-child { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
 }
+
+/* ── Related pages ────────────────────────────────────────────────────────────
+   The assembler ends a route with nav.related-links (a ul of internal links).
+   It reads as a closing row of page links, not a stray bulleted list. The
+   visible label is generated content with empty alt text, so assistive
+   technology hears only the nav's own aria-label. */
+.related-links { padding-block: var(--space-6) var(--space-7); border-top: 1px solid var(--ds-divider); }
+.related-links::before {
+  content: "Related pages" / "";
+  display: block;
+  margin-bottom: var(--space-3);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ds-ink);
+}
+.related-links ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.related-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ds-text);
+  background: var(--color-background);
+  border: 1px solid var(--ds-control-border);
+  border-radius: 999px;
+}
+.related-links a::after { content: "\2192" / ""; color: var(--ds-ink); }
+.related-links a:hover { color: var(--ds-ink); border-color: var(--ds-ink); text-decoration: underline; }
 
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 .site-footer { padding: var(--space-7) 0 var(--space-8); border-top: 1px solid var(--ds-divider); color: var(--ds-muted); font-size: 0.95rem; }

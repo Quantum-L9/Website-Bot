@@ -121,12 +121,24 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
   const ordered = [...bySegment.entries()].sort(([a], [b]) =>
     a === "Home" ? -1 : b === "Home" ? 1 : a.localeCompare(b),
   );
+  // A group whose only page carries the group's own name ("Home" -> Home,
+  // "Contact" -> Contact) would render as a heading repeating its one link.
+  // Those pages are gathered into one leading, unlabelled group of top-level
+  // links; a heading is shown only where it names more than its single link.
+  const sameName = (a: string, b: string) =>
+    a.toLowerCase().replace(/[^a-z0-9]+/g, "") === b.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const topLevel: Array<{ href: string; title: string }> = [];
   for (const [label, items] of ordered) {
+    if (items.length === 1 && sameName(items[0]!.title, label)) {
+      topLevel.push(items[0]!);
+      continue;
+    }
     footerGroups.push({
       label: label[0]!.toUpperCase() + label.slice(1),
       items: items.sort((a, b) => b.title.length - a.title.length),
     });
   }
+  if (topLevel.length > 0) footerGroups.unshift({ label: "", items: topLevel });
 }
 ---
 <!doctype html>
@@ -174,7 +186,7 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
         <nav class="footer-nav" aria-label="Footer">
           {footerGroups.map(group => (
             <div class="footer-nav__group">
-              <h2>{group.label}</h2>
+              {group.label && <h2>{group.label}</h2>}
               {group.items.map(item => <a href={item.href}>{item.title}</a>)}
             </div>
           ))}

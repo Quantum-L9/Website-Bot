@@ -9,7 +9,11 @@
 //      primary-coloured text on a primary background, i.e. invisible);
 //   3. at 390px the header is one row with an accessible menu toggle (native
 //      popover: expanded state exposed, Escape closes, no JavaScript) instead
-//      of a nav wrapped into a column.
+//      of a nav wrapped into a column;
+//   4. the assembler's closing nav.related-links renders as a labelled row of
+//      page links, not a stray bulleted list;
+//   5. the footer nav never shows a group heading that only repeats its one
+//      link ("HOME / Home").
 // The palette deliberately uses a light primary where white text fails WCAG AA,
 // the case that broke button contrast before. Requires the Playwright chromium
 // binary; its absence fails this test, never skips it.
@@ -259,5 +263,79 @@ void test("at 1440px the nav is inline and the toggle is not shown", async () =>
     "document.documentElement.scrollWidth - window.innerWidth",
   )) as number;
   assert.ok(overflow <= 0, `no horizontal scroll (${overflow}px)`);
+  await page.close();
+});
+
+void test("related pages render as a labelled link row, not a stray bulleted list", async () => {
+  for (const width of [1440, 390]) {
+    const { page } = await open(width);
+    const related = (await page.evaluate(`(() => {
+      const nav = document.querySelector("main nav.related-links");
+      if (!nav) return null;
+      const list = nav.querySelector("ul");
+      const items = [...nav.querySelectorAll("li")];
+      const links = [...nav.querySelectorAll("a")].map((link) => {
+        const rect = link.getBoundingClientRect();
+        return { left: rect.left, right: rect.right, height: rect.height };
+      });
+      return {
+        label: getComputedStyle(nav, "::before").content,
+        listStyle: getComputedStyle(list).listStyleType,
+        paddingLeft: getComputedStyle(list).paddingLeft,
+        markers: items.map((item) => getComputedStyle(item).listStyleType),
+        links,
+        borderTop: getComputedStyle(nav).borderTopStyle,
+      };
+    })()`)) as {
+      label: string;
+      listStyle: string;
+      paddingLeft: string;
+      markers: string[];
+      links: Array<{ left: number; right: number; height: number }>;
+      borderTop: string;
+    } | null;
+    assert.ok(related, `the fixture home route renders nav.related-links at ${width}px`);
+    assert.match(related.label, /Related pages/, "the row carries a visible label");
+    assert.equal(related.listStyle, "none", "no bullets");
+    assert.equal(related.paddingLeft, "0px", "no list indent");
+    assert.ok(
+      related.markers.every((style) => style === "none"),
+      `every item is unbulleted: ${related.markers.join(", ")}`,
+    );
+    assert.equal(related.borderTop, "solid", "set off from the page content");
+    assert.ok(related.links.length > 0);
+    for (const link of related.links) {
+      assert.ok(link.height >= 44, `touch target ${link.height}px`);
+      assert.ok(link.left >= 0 && link.right <= width, `link on screen at ${width}px`);
+    }
+    await page.close();
+  }
+});
+
+void test("the footer nav never repeats a single link as its own group heading", async () => {
+  const { page } = await open(1440);
+  const groups =
+    (await page.evaluate(`[...document.querySelectorAll("footer .footer-nav__group")].map((group) => ({
+    heading: group.querySelector("h2")?.textContent.trim() ?? null,
+    links: [...group.querySelectorAll("a")].map((link) => link.textContent.trim()),
+  }))`)) as Array<{ heading: string | null; links: string[] }>;
+  assert.ok(groups.length > 0, "footer nav renders");
+  const norm = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  for (const group of groups) {
+    if (group.heading === null) continue;
+    assert.ok(
+      !(group.links.length === 1 && norm(group.links[0] ?? "") === norm(group.heading)),
+      `heading "${group.heading}" only repeats its link`,
+    );
+  }
+  // The pages that used to repeat themselves are still reachable, gathered unlabelled.
+  const unlabelled = groups
+    .filter((group) => group.heading === null)
+    .flatMap((group) => group.links);
+  assert.ok(unlabelled.includes("Home"), `Home stays in the footer: ${JSON.stringify(groups)}`);
+  assert.ok(
+    unlabelled.includes("Contact"),
+    `Contact stays in the footer: ${JSON.stringify(groups)}`,
+  );
   await page.close();
 });
