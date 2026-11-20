@@ -13,6 +13,7 @@
     "dev": "tsc --watch",
     "test": "node --test --import=tsx test/**/*.test.ts",
     "test:unit": "node --test --import=tsx test/unit/*.test.ts",
+    "test:unit:bounded": "node scripts/run-bounded-tests.mjs --timeout-ms 120000 test/unit",
     "test:integration": "node --test --import=tsx test/integration/*.test.ts",
     "test:coverage": "c8 --reporter=text --reporter=html node --test --import=tsx test/**/*.test.ts",
     "lint": "eslint src/",
