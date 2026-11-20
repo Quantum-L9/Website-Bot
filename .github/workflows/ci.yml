@@ -57,6 +57,17 @@ jobs:
           npm run pipeline:plan
         env:
           NODE_ENV: test
+          # Keeps the visual regression captures, expected/actual/diff PNGs
+          # and reports so a failure can be inspected after the run.
+          WB_VISUAL_EVIDENCE_DIR: ${{ runner.temp }}/wb-visual-evidence
+      - name: Upload visual regression evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wb-visual-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/wb-visual-evidence
+          if-no-files-found: warn
+          retention-days: 14
       # Real generated source -> astro check -> astro build -> headless browser
       # render of every route. A template astro cannot parse (e.g. a comment
       # ahead of the frontmatter fence) passes the structural suite above but
