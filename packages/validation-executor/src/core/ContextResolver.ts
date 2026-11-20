@@ -18,6 +18,10 @@ export class ContextResolver {
 
   async resolve(config: ValidationConfig): Promise<ExecutionContext> {
     this.logger.info("Resolving execution context");
+    // The adapter applies run configuration, including the command timeout,
+    // as part of resolving its own context. The fields below stay the
+    // executor's context; this call is what makes --timeout reach commands.
+    await this.adapter.resolveExecutionContext(config);
 
     const targetRoots = await this.resolveTargetRoots(config);
     const sourceRevision = await this.resolveSourceRevision();
