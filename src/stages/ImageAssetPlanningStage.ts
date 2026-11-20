@@ -16,8 +16,11 @@ import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
 import {
   buildImageAssetManifest,
+  type ImageVariant,
   type ResolvedImageAsset,
   type ReuseDisposition,
+  variantFileName,
+  variantStagedPath,
 } from "../pipeline/evidence/ImageAssetManifest.js";
 import {
   type ImageAssetPlan,
@@ -47,8 +50,9 @@ import {
   type ImageOptimizationRecord,
   isOptimizableRaster,
   type OptimizedImage,
+  type OptimizedImageSet,
   optimizationRecord,
-  optimizeImageForSlot,
+  optimizeImageWithVariants,
 } from "../services/images/ImageOptimizer.js";
 
 const logger = createModuleLogger("stage:image-asset-planning");
@@ -60,7 +64,8 @@ interface StageRequest {
   sourcePath: string;
   inspected: InspectedImage;
   extra: {
-    altText?: string;
+    /** Descriptions of this image, best first; the first descriptive one ships. */
+    altCandidates: Array<string | undefined>;
     sourceUrl?: string;
     originalPath?: string;
     provenanceWarnings?: string[];
@@ -100,7 +105,36 @@ function dispositionForSource(_source: ResolvedImageAsset["source"]): ReuseDispo
  * source-site assets; a blueprint's provenance only decides whether generation
  * may follow as the last resort — never that it replaces reuse.
  */
-export function slotsFromVisualRequirements(requirements: VisualRequirement[]): ImageSlotSpec[] {
+/** Business facts a blueprint slot's generation subject is derived from. */
+export interface VisualSubjectContext {
+  vertical?: string;
+  /** Where the business works (e.g. the primary state), for the hero. */
+  locality?: string;
+}
+
+/**
+ * What a generated image for this requirement depicts, from business facts
+ * only: the hero establishes the trade and its locality; any other role shows
+ * the trade. Undefined without a vertical — then nothing is claimed and alt
+ * text falls back to the section the image illustrates. The subject is the
+ * single source of both the generation prompt and the shipped alt text, so the
+ * alt describes what the image was made to show.
+ */
+export function visualRequirementSubject(
+  requirement: Pick<VisualRequirement, "role">,
+  context: VisualSubjectContext,
+): string | undefined {
+  const vertical = context.vertical?.trim().replace(/[-_]+/g, " ");
+  if (!vertical) return undefined;
+  const trade = `${vertical.charAt(0).toUpperCase()}${vertical.slice(1)} services`;
+  const locality = context.locality?.trim();
+  return requirement.role === "hero" && locality ? `${trade} in ${locality}` : trade;
+}
+
+export function slotsFromVisualRequirements(
+  requirements: VisualRequirement[],
+  context: VisualSubjectContext = {},
+): ImageSlotSpec[] {
   const basePlacementOf = (requirement: VisualRequirement): string =>
     requirement.route_id === "global"
       ? `global:${requirement.role}`
@@ -124,14 +158,30 @@ export function slotsFromVisualRequirements(requirements: VisualRequirement[]): 
       requirement.preferred_provenance.includes("generated") &&
       !isFactualSlot({ id: requirement.slot_id, placement: base });
     const collides = (sectionsByPlacement.get(base)?.size ?? 0) > 1;
+    const placement = collides ? sectionQualifiedPlacement(base, requirement.section_id) : base;
+    // composition_guidance ("above-fold hero establishing the trade and
+    // locality") is an instruction for producing the image, not a description
+    // of it: it goes to the generation brief and is never alt text. Alt comes
+    // from the image's own context (provided/harvested alt) or, for a
+    // generated image, from the subject it was generated to show.
+    const subject = visualRequirementSubject(requirement, context);
+    const composition = requirement.composition_guidance?.trim();
     return {
       id: requirement.slot_id,
-      placement: collides ? sectionQualifiedPlacement(base, requirement.section_id) : base,
+      placement,
       required: requirement.required,
       preferredSources: allowsGenerated
         ? ["provided", "source-site", "generated"]
         : ["provided", "source-site"],
-      altText: requirement.composition_guidance,
+      ...(subject || composition
+        ? {
+            generation: {
+              intent: `Image for ${placement}`,
+              ...(subject ? { subject } : {}),
+              ...(composition ? { composition } : {}),
+            },
+          }
+        : {}),
     };
   });
   // The manifest's uniqueness key is the placement and the plan's is the slot
@@ -172,9 +222,16 @@ export function mergeBlueprintAndSpecSlots(
     const overlap = specSlots.filter(
       (spec) => spec.id === slot.id || spec.placement === slot.placement,
     );
-    return overlap.some((spec) => spec.required) && !slot.required
-      ? { ...slot, required: true }
-      : slot;
+    // The operator's own description of the image (altText, generation brief)
+    // outranks the blueprint's derived one.
+    const authoredAlt = overlap.find((spec) => spec.altText?.trim())?.altText;
+    const authoredGeneration = overlap.find((spec) => spec.generation)?.generation;
+    return {
+      ...slot,
+      ...(overlap.some((spec) => spec.required) ? { required: true } : {}),
+      ...(authoredAlt ? { altText: authoredAlt } : {}),
+      ...(authoredGeneration ? { generation: authoredGeneration } : {}),
+    };
   });
   return [
     ...reconciled,
@@ -272,7 +329,7 @@ export function withIdentifiedLogo(
 
 export class ImageAssetPlanningStage implements Stage {
   name = "image-asset-planning";
-  version = "2.2.0";
+  version = "2.3.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Persist the plan and the (provided + source-site) delivered manifest whenever
@@ -407,7 +464,10 @@ export class ImageAssetPlanningStage implements Stage {
         "REDESIGN_IMPROVE image planning requires the sealed WebsiteBuildBlueprint",
       );
     }
-    const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements);
+    const blueprintSlots = slotsFromVisualRequirements(blueprint.payload.visual_requirements, {
+      vertical: ctx.domainSpec.vertical,
+      locality: ctx.domainSpec.geography?.primary_state,
+    });
     const routeSections = new Map(
       blueprint.payload.routes.map((route) => [
         route.route_id,
@@ -463,7 +523,10 @@ export class ImageAssetPlanningStage implements Stage {
         source: "provided",
         sourcePath: match.absolutePath,
         inspected: match.inspected,
-        extra: { altText: slot.altText ?? match.spec.altText, originalPath: match.absolutePath },
+        extra: {
+          altCandidates: [slot.altText, match.spec.altText],
+          originalPath: match.absolutePath,
+        },
       };
     }
     if (resolution.source !== "source-site") return undefined;
@@ -483,7 +546,8 @@ export class ImageAssetPlanningStage implements Stage {
           }
         : inspectImage(readFileSync(candidate.localPath)),
       extra: {
-        altText: slot.altText ?? candidate.altText,
+        // The harvested image's own context: its alt, then its title.
+        altCandidates: [slot.altText, candidate.altText, candidate.title],
         sourceUrl: candidate.sourceUrl,
         provenanceWarnings: [
           "source-site asset reused; verify client ownership before publication",
@@ -622,9 +686,13 @@ export class ImageAssetPlanningStage implements Stage {
   }
 
   /** Shipped alt text: never the slot id or a path; a missing description fails the build. */
-  private altFor(ctx: BuildContext, slot: ImageSlotSpec, imageAlt: string | undefined): string {
+  private altFor(
+    ctx: BuildContext,
+    slot: ImageSlotSpec,
+    candidates: ReadonlyArray<string | undefined>,
+  ): string {
     try {
-      return resolveAltText(slot, [imageAlt, slot.altText], {
+      return resolveAltText(slot, candidates, {
         businessName: ctx.domainSpec.business_name,
         routes: ctx.domainSpec.routes,
       });
@@ -647,6 +715,8 @@ export class ImageAssetPlanningStage implements Stage {
     let extension =
       EXTENSION_BY_MIME[inspected.mimeType] ?? basename(sourcePath).split(".").pop() ?? "img";
     let absolutePath = sourcePath;
+    let variants: ImageVariant[] = [];
+    const outputFileName = (ext: string): string => `${slugify(slot.id)}.${ext}`;
     if (!ctx.dryRun) {
       const stagedDir = resolve(stagingRoot, subdir);
       mkdirSync(stagedDir, { recursive: true });
@@ -655,11 +725,13 @@ export class ImageAssetPlanningStage implements Stage {
         // for its slot and must fit the slot's byte cap; failure stops the
         // build. A client-provided file is published byte-for-byte (build
         // contract T08: published client image bytes equal the input file).
-        const optimized = await optimizeOrFail(readFileSync(sourcePath), slot);
+        const optimizedSet = await optimizeOrFail(readFileSync(sourcePath), slot);
+        const optimized = optimizedSet.image;
         shipped = inspectImage(optimized.bytes);
         extension = optimized.extension;
         absolutePath = resolve(stagedDir, `${shipped.sha256}.${extension}`);
         writeFileSync(absolutePath, optimized.bytes);
+        variants = writeVariants(absolutePath, outputFileName(extension), optimizedSet);
         optimizations.push(optimizationRecord(slot, source, optimized));
       } else {
         absolutePath = resolve(stagedDir, `${inspected.sha256}.${extension}`);
@@ -671,8 +743,8 @@ export class ImageAssetPlanningStage implements Stage {
       placement: slot.placement,
       source,
       absolutePath,
-      outputFileName: `${slugify(slot.id)}.${extension}`,
-      altText: this.altFor(ctx, slot, extra.altText),
+      outputFileName: outputFileName(extension),
+      altText: this.altFor(ctx, slot, extra.altCandidates),
       mimeType: shipped.mimeType,
       width: shipped.width,
       height: shipped.height,
@@ -683,21 +755,50 @@ export class ImageAssetPlanningStage implements Stage {
       originalPath: extra.originalPath,
       disposition: dispositionForSource(source),
       provenanceWarnings: extra.provenanceWarnings ?? [],
+      ...(variants.length ? { variants } : {}),
     };
     ctx.resolvedImages?.set(slot.placement, asset);
     return asset;
   }
 }
 
-/** Optimise for the slot, mapping an optimisation failure to a build failure. */
-export async function optimizeOrFail(bytes: Buffer, slot: ImageSlotSpec): Promise<OptimizedImage> {
+/**
+ * Optimise for the slot (full size plus srcset variants), mapping an
+ * optimisation failure to a build failure.
+ */
+export async function optimizeOrFail(
+  bytes: Buffer,
+  slot: ImageSlotSpec,
+): Promise<OptimizedImageSet> {
   try {
-    return await optimizeImageForSlot(bytes, slot);
+    return await optimizeImageWithVariants(bytes, slot);
   } catch (error) {
     if (error instanceof ImageOptimizationError)
       throw new BuildError("VALIDATION_FAILED", `Image optimisation failed: ${error.message}`);
     throw error;
   }
+}
+
+/**
+ * Stage each srcset variant beside the full-size file (variantStagedPath) and
+ * describe it for the manifest; the site file name derives from the shipped one.
+ */
+export function writeVariants(
+  absolutePath: string,
+  outputFileName: string,
+  optimized: OptimizedImageSet,
+): ImageVariant[] {
+  return optimized.variants.map((variant: OptimizedImage) => {
+    writeFileSync(variantStagedPath(absolutePath, variant.width), variant.bytes);
+    const inspected = inspectImage(variant.bytes);
+    return {
+      width: variant.width,
+      height: variant.height,
+      fileName: variantFileName(outputFileName, variant.width),
+      byteLength: inspected.byteLength,
+      sha256: inspected.sha256,
+    };
+  });
 }
 
 /** Records already written by an earlier stage of this build, if any. */

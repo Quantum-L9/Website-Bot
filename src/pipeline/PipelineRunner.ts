@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import type Database from "better-sqlite3";
 import { createModuleLogger } from "../core/logger.js";
+import { MissingAltTextError, resolveAltText } from "../services/images/ImageAltText.js";
 import { budgetedLLM } from "./BudgetedLLM.js";
 import { type BuildContext, clientAssetRoot, clientPersistentAssetRoot } from "./BuildContext.js";
 import { getBuildDb, llmUsage, syncEvidenceIndexToDb } from "./BuildDB.js";
@@ -10,7 +11,11 @@ import { BuildError } from "./BuildError.js";
 import type { EconomicsRunStatus } from "./evidence/BuildEconomics.js";
 import { sanitizeEvidenceDetails, sanitizeEvidenceText } from "./evidence/EvidenceCanonicalizer.js";
 import type { EvidenceKind, EvidenceReference } from "./evidence/EvidenceReference.js";
-import type { ImageAssetManifest, ResolvedImageAsset } from "./evidence/ImageAssetManifest.js";
+import {
+  type ImageAssetManifest,
+  type ResolvedImageAsset,
+  variantStagedPath,
+} from "./evidence/ImageAssetManifest.js";
 import type { StageFailureEvidence } from "./evidence/StageFailureEvidence.js";
 import { admitPaidStage } from "./PaidStageAdmission.js";
 import { checkpointDigest, checkpointIsValid, type StageCheckpoint } from "./StageCheckpoint.js";
@@ -21,11 +26,40 @@ const logger = createModuleLogger("pipeline:runner");
  * Resolve the on-disk path for a persisted generated asset, preferring the
  * persistent prompt-hash cache, then the per-build copy, then the original.
  */
+/** Alt text for a hydrated asset: recorded alt, operator slot alt, or section-derived. */
+function hydratedAltText(ctx: BuildContext, asset: ImageAssetManifest["assets"][number]): string {
+  const slot = { id: asset.slotId, placement: asset.placement };
+  const slotAlt = ctx.domainSpec.assets?.imageSlots?.find(
+    (candidate) => candidate.id === asset.slotId,
+  )?.altText;
+  try {
+    return resolveAltText(slot, [asset.altText, slotAlt], {
+      businessName: ctx.domainSpec.business_name,
+      routes: ctx.domainSpec.routes,
+    });
+  } catch (error) {
+    if (error instanceof MissingAltTextError)
+      throw new BuildError("VALIDATION_FAILED", error.message);
+    throw error;
+  }
+}
+
 function resolveAssetAbsolutePath(
   asset: ImageAssetManifest["assets"][number],
   generatedRoot: string,
   buildGeneratedRoot: string,
 ): string {
+  // ImageGenerationStage stages the optimised file as
+  // `<promptHash>-<sha256[0:16]>.<ext>`; `<promptHash>.png` is the raw provider
+  // output, whose bytes differ from the manifest's sha256.
+  const extension = asset.outputPath.split(".").pop();
+  const optimizedName = asset.promptHash
+    ? `${asset.promptHash}-${asset.sha256.slice(0, 16)}.${extension}`
+    : undefined;
+  for (const root of [generatedRoot, buildGeneratedRoot]) {
+    const candidate = optimizedName ? resolve(root, optimizedName) : undefined;
+    if (candidate && existsSync(candidate)) return candidate;
+  }
   const hashedPersistent = asset.promptHash
     ? resolve(generatedRoot, `${asset.promptHash}.png`)
     : undefined;
@@ -386,8 +420,13 @@ export class PipelineRunner {
       ctx.resume = false;
       logger.warn({ stage: stage.name, reason }, "Resume refused for stage; re-executing");
     };
-    if (checkpoint.stageVersion && stage.version && checkpoint.stageVersion !== stage.version)
-      return refuse(`stage version changed ${checkpoint.stageVersion} -> ${stage.version}`);
+    // Reuse is keyed on the declared version (config/stage-version-manifest.json
+    // keeps it honest): a checkpoint with no recorded version, or one recorded
+    // by a stage that then declared one, is never matched.
+    if (checkpoint.stageVersion !== stage.version)
+      return refuse(
+        `stage version changed ${checkpoint.stageVersion ?? "unrecorded"} -> ${stage.version ?? "undeclared"}`,
+      );
     if (recorded && recorded.spec_digest !== ledger.specDigest)
       return refuse(
         `spec digest changed ${recorded.spec_digest.slice(0, 12)} -> ${ledger.specDigest.slice(0, 12)}`,
@@ -440,8 +479,7 @@ export class PipelineRunner {
   ): Promise<boolean> {
     if (!ctx.resume || !stage.evidence?.resumable || !checkpoint) return false;
     if (!(await checkpointIsValid(ctx, checkpoint))) return false;
-    if (checkpoint.stageVersion && stage.version && checkpoint.stageVersion !== stage.version)
-      return false;
+    if (checkpoint.stageVersion !== stage.version) return false;
     if (stage.evidence.externalMutation) {
       if (!stage.canResume || !(await stage.canResume(ctx, checkpoint))) {
         throw new BuildError(
@@ -487,9 +525,10 @@ export class PipelineRunner {
         source: asset.source,
         absolutePath,
         outputFileName,
-        altText:
-          ctx.domainSpec.assets?.imageSlots?.find((slot) => slot.id === asset.slotId)?.altText ??
-          asset.slotId,
+        // The manifest records the alt that shipped; a manifest from before it
+        // did falls back to the operator's slot alt, then to the alt derived
+        // from the section — never the slot id (ImageAltText).
+        altText: hydratedAltText(ctx, asset),
         mimeType: asset.mimeType,
         width: asset.width,
         height: asset.height,
@@ -502,6 +541,13 @@ export class PipelineRunner {
         estimatedCostUsd: asset.estimatedCostUsd,
         disposition: asset.disposition,
         provenanceWarnings: asset.provenanceWarnings,
+        // Variants are reused only when every staged rendition is still beside the file.
+        ...(asset.variants?.length &&
+        asset.variants.every((variant) =>
+          existsSync(variantStagedPath(absolutePath, variant.width)),
+        )
+          ? { variants: asset.variants }
+          : {}),
       };
       ctx.resolvedImages.set(asset.placement, resolved);
     }

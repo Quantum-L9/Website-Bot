@@ -69,8 +69,10 @@ export function aspectMatches(slot: ImageSlotSpec, width: number, height: number
 }
 
 function altKeywordMatch(slot: ImageSlotSpec, altText: string | undefined): boolean {
-  if (!altText || !slot.altText) return false;
-  const wanted = slot.altText
+  // What the slot should show: the operator's alt, else the generation subject.
+  const description = slot.altText ?? slot.generation?.subject;
+  if (!altText || !description) return false;
+  const wanted = description
     .toLowerCase()
     .split(/\W+/)
     .filter((word) => word.length > 3);

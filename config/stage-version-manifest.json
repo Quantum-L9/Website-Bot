@@ -1,0 +1,307 @@
+{
+  "schema": "website-bot.stage-version-manifest/v1",
+  "non_output_shaping": [
+    "src/core/logger.ts",
+    "src/pipeline/BuildError.ts",
+    "src/pipeline/BuildContext.ts"
+  ],
+  "extra_sources": {
+    "site-assembler": [
+      "astro_template/src",
+      "astro_template/package.json",
+      "astro_template/astro.config.mjs"
+    ]
+  },
+  "stages": {
+    "client-source-publish": {
+      "module": "src/stages/ClientSourcePublishStage.ts",
+      "history": [
+        {
+          "version": "3.0.0",
+          "fingerprint": "sha256:812e01d45b3cc32932294c49f14e57ef02c32a27233020173949d62d92ccd8e5"
+        }
+      ]
+    },
+    "competitive-intelligence": {
+      "module": "src/stages/CompetitiveIntelligenceStage.ts",
+      "history": [
+        {
+          "version": "1.1.0",
+          "fingerprint": "sha256:0f2180a8838b04b09de306a6dde6faa0ef63bfc7efdfada815f5400dcf7c85e7"
+        }
+      ]
+    },
+    "content-generation": {
+      "module": "src/stages/ContentGenerationStage.ts",
+      "history": [
+        {
+          "version": "3.0.0",
+          "fingerprint": "sha256:79f9fd12b7f7eb36ea6bb1c03941997d0fddac208b9ed839eb5bfbf423b66c3f"
+        }
+      ]
+    },
+    "design-intelligence": {
+      "module": "src/stages/DesignIntelligenceStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:f4d26fdc0d9371219c8bd91a46f5b6f5a36f1447300f6254a71663677e5383eb"
+        }
+      ]
+    },
+    "design-reference-acquisition": {
+      "module": "src/stages/DesignReferenceAcquisitionStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:0f879ab231711199895ded5b76807f816a1f5663940bb11725c237c7464dab35"
+        }
+      ]
+    },
+    "domain-spec-loader": {
+      "module": "src/stages/DomainSpecLoaderStage.ts",
+      "history": [
+        {
+          "version": "2.1.0",
+          "fingerprint": "sha256:eefe6000a74785f2b0e4d01d848b32fcb8296228e5435d57e8863121c7845614"
+        }
+      ]
+    },
+    "handoff-emitter": {
+      "module": "src/stages/HandoffEmitterStage.ts",
+      "history": [
+        {
+          "version": "5.0.0",
+          "fingerprint": "sha256:993ebc5853a08e3bf6b710c223033211b4c4905357b79a06cef4eade1e2ccc77"
+        }
+      ]
+    },
+    "image-asset-planning": {
+      "module": "src/stages/ImageAssetPlanningStage.ts",
+      "history": [
+        {
+          "version": "2.2.0",
+          "fingerprint": "sha256:ea2020bad9954fccda5b331e795a0fc275019608a4c3b453d7c08ceb2c02bdb6"
+        },
+        {
+          "version": "2.3.0",
+          "fingerprint": "sha256:75539d6c6096c189ff79950512d0c24f323672e98e47a89b402c8043faac6553"
+        }
+      ]
+    },
+    "image-generation": {
+      "module": "src/stages/ImageGenerationStage.ts",
+      "history": [
+        {
+          "version": "2.0.0",
+          "fingerprint": "sha256:abf78d49609bb660eae997a63eb205f15dee4e1fa5753ea74301032856f40fac"
+        },
+        {
+          "version": "2.1.0",
+          "fingerprint": "sha256:3f3de65d5b0d959f4579018de77dd209e98efc79f23228d2484965cb13fc6004"
+        }
+      ]
+    },
+    "image-validation": {
+      "module": "src/stages/ImageValidationStage.ts",
+      "history": [
+        {
+          "version": "2.2.0",
+          "fingerprint": "sha256:b89b1f2f53e5a4bc54593b2b8e05598918461b9d95c17dfdef0c5939b7477903"
+        },
+        {
+          "version": "2.2.1",
+          "fingerprint": "sha256:39bb67a833460ea6657c4dc6c18cd1d969dad003d9ae24526427e796a53f8714"
+        }
+      ]
+    },
+    "lead-endpoint-verification": {
+      "module": "src/stages/LeadEndpointVerificationStage.ts",
+      "history": [
+        {
+          "version": "1.1.0",
+          "fingerprint": "sha256:c78a82761c086d61ad38a14ed65a26e946a063823101162e1b35cbd7d05602ed"
+        }
+      ]
+    },
+    "placeholder-scan": {
+      "module": "src/stages/PlaceholderScanStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:282990ad68b3227a93523ed1bac19db9ad0fbb571abe8c29ea6b54b918ff3dd9"
+        }
+      ]
+    },
+    "posthog-snippet": {
+      "module": "src/stages/PostHogSnippetStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:e971b9ce587cfe667bad127d0b1d0539f6434be647a846f29250c094798fe4fe"
+        }
+      ]
+    },
+    "provision-client": {
+      "module": "src/stages/ProvisionClientStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:34413c4a45afb16d2d704543040dde976a5faeba77405ddfc174f1a855019a00"
+        }
+      ]
+    },
+    "redesign-content-authority": {
+      "module": "src/stages/RedesignContentAuthorityStage.ts",
+      "history": [
+        {
+          "version": "1.1.0",
+          "fingerprint": "sha256:fc146ac067864ad1f9d1a4b02958c5779b50614ec9a748d1ef3395bd0bd17abd"
+        }
+      ]
+    },
+    "redesign-integrity-receipt": {
+      "module": "src/stages/RedesignIntegrityReceiptStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:5362afe4270ae7542ed7329ab421ed8eb763b96f9d4b46f1be2307e2c3f11ad8"
+        }
+      ]
+    },
+    "redesign-schema-serializer": {
+      "module": "src/stages/RedesignSchemaSerializerStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:019f89e88bd42f0639cb212b5cdf4131430b4aad53a0db3499058c52a66f4891"
+        }
+      ]
+    },
+    "release-receipt": {
+      "module": "src/stages/ReleaseReceiptStage.ts",
+      "history": [
+        {
+          "version": "2.2.0",
+          "fingerprint": "sha256:6fde6b2ca27c63cfdc7ea5de460963aae771fc1098203cf0acd47ccb20fef469"
+        }
+      ]
+    },
+    "release-receipt-finalizer": {
+      "module": "src/stages/ReleaseReceiptFinalizerStage.ts",
+      "history": [
+        {
+          "version": "1.2.0",
+          "fingerprint": "sha256:9c2a399406b722a2a1d5a22538c99e7a7e0e978b4ebfb9b5fe494c7e5c0734aa"
+        }
+      ]
+    },
+    "rendered-site-validation": {
+      "module": "src/stages/RenderedSiteValidationStage.ts",
+      "history": [
+        {
+          "version": "1.1.0",
+          "fingerprint": "sha256:739d0a5d6780b0c5766ad26468532b4ff583bf51e408d619ecea449702a55018"
+        },
+        {
+          "version": "1.1.1",
+          "fingerprint": "sha256:c8f5debc9bc75a6ed28c65d16e7a957caa7f23d510df446324552421a81cd958"
+        }
+      ]
+    },
+    "schema-generator": {
+      "module": "src/stages/SchemaGeneratorStage.ts",
+      "history": [
+        {
+          "version": "2.2.0",
+          "fingerprint": "sha256:9e2539ad8dab15edd2cf4c0b75f2785d391aa56ccf42f424a103bbf2b5dba602"
+        }
+      ]
+    },
+    "seo-baseline": {
+      "module": "src/stages/SEOBaselineStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:53c3334ed9b2ebfd97c83792cea1663f0a33e4d0c2582ccb766b3a96f9e42134"
+        }
+      ]
+    },
+    "seo-build-intelligence-preflight": {
+      "module": "src/stages/SeoBuildIntelligencePreflightStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:8da2e46b36cda1978c7b43a300eac71b921a4cf4bd0dfc6ea169b626de249379"
+        }
+      ]
+    },
+    "site-assembler": {
+      "module": "src/stages/SiteAssemblerStage.ts",
+      "history": [
+        {
+          "version": "3.8.0",
+          "fingerprint": "sha256:41c516d14317fd5871d5011613bd200f70245fc77af507b9a314f0d547af1c1e"
+        },
+        {
+          "version": "3.9.0",
+          "fingerprint": "sha256:8eb505429236c7f2d618aad89f6adf4d9da49cc5ee4a6a8574a69a5a66345311"
+        }
+      ]
+    },
+    "site-build": {
+      "module": "src/stages/SiteBuildStage.ts",
+      "history": [
+        {
+          "version": "3.0.0",
+          "fingerprint": "sha256:ac93e61b973d61832068967d4aa8ef5974c9c0bf588c669effd08189c44ffe03"
+        }
+      ]
+    },
+    "source-site-ingestion": {
+      "module": "src/stages/SourceSiteIngestionStage.ts",
+      "history": [
+        {
+          "version": "2.0.0",
+          "fingerprint": "sha256:36f8e8b7979989cf2d3079bfd7dfa13d56683534ffafd4b6d3a6f90736fe6c78"
+        }
+      ]
+    },
+    "structured-content-projection": {
+      "module": "src/stages/StructuredContentProjectionStage.ts",
+      "history": [
+        {
+          "version": "2.0.0",
+          "fingerprint": "sha256:9fcef0c9d395fc8f3fe30c54d6da04075a199548fb5c6afbfaecd13a01d1fedc"
+        }
+      ]
+    },
+    "unknown-resolver": {
+      "module": "src/stages/UnknownResolverStage.ts",
+      "history": [
+        {
+          "version": "3.0.0",
+          "fingerprint": "sha256:c687434d747db75beae1ae59132a9d2ae06c5ddccf9dd2bd49f58d426c69adc2"
+        }
+      ]
+    },
+    "vercel-deploy": {
+      "module": "src/stages/VercelDeployStage.ts",
+      "history": [
+        {
+          "version": "4.0.0",
+          "fingerprint": "sha256:601a621479dd24c8da92d5ee5bde9571b20f0630fcf2a36580b9254887322b83"
+        }
+      ]
+    },
+    "visual-qa": {
+      "module": "src/stages/VisualQAStage.ts",
+      "history": [
+        {
+          "version": "4.0.0",
+          "fingerprint": "sha256:e7c2b42233c377fa68c0f7bdc8199b2a0bc2a927f88ff7bcb8383e5db9067c16"
+        }
+      ]
+    }
+  }
+}

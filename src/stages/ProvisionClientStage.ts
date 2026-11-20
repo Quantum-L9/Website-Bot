@@ -10,6 +10,8 @@ const logger = createModuleLogger("stage:provision-client");
 
 export class ProvisionClientStage implements Stage {
   name = "provision-client";
+  // Declared so resume can key checkpoint reuse on it (config/stage-version-manifest.json).
+  version = "1.0.0";
 
   constructor(
     private readonly specPath: string,

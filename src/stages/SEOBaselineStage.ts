@@ -8,6 +8,8 @@ const DATAFORSEO_URL = "https://api.dataforseo.com/v3/serp/google/organic/live/a
 
 export class SEOBaselineStage implements Stage {
   name = "seo-baseline";
+  // Declared so resume can key checkpoint reuse on it (config/stage-version-manifest.json).
+  version = "1.0.0";
 
   async run(ctx: BuildContext): Promise<void> {
     const login = process.env.DATAFORSEO_LOGIN;
