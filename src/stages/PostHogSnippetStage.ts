@@ -87,6 +87,8 @@ function eventWiringScript(): string {
 
 export class PostHogSnippetStage implements Stage {
   name = "posthog-snippet";
+  // Declared so resume can key checkpoint reuse on it (config/stage-version-manifest.json).
+  version = "1.0.0";
 
   async run(ctx: BuildContext): Promise<void> {
     const legacyKey = process.env.POSTHOG_KEY;

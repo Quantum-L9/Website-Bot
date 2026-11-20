@@ -165,7 +165,7 @@ export function routeVisualExpectations(ctx: BuildContext): Map<string, RouteVis
 
 export class RenderedSiteValidationStage implements Stage {
   name = "rendered-site-validation";
-  version = "1.1.0";
+  version = "1.1.1";
   evidence = {
     inputs: (_ctx: BuildContext) => ["build" as const],
     outputs: (_ctx: BuildContext) => [],
