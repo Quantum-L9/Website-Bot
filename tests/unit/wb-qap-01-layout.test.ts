@@ -86,7 +86,7 @@ void test("two supported layout variants and the ordinary route yield distinct p
     for (const variant of [editorial, diagram]) {
       assert.match(
         variant,
-        /<SectionRenderer name=\{section\.name\} content=\{section\.content\} layout=\{layout\} \/>/,
+        /<SectionRenderer name=\{section\.name\} content=\{section\.content\} structured=\{section\.structured \?\? undefined\} layout=\{layout\} \/>/,
       );
     }
     assert.doesNotMatch(home, /const layout|layout=\{/);
@@ -112,7 +112,7 @@ void test("a page-type template is not a layout request and keeps the legacy pag
     assert.equal(legacy.replaceAll("Legacy", "Plain"), plain);
     assert.match(
       legacy,
-      /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+      /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} structured=\{section\.structured \?\? undefined\} \/>\)\}/,
     );
     assert.doesNotMatch(legacy, /const layout/);
   } finally {

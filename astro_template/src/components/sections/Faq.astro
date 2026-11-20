@@ -5,46 +5,24 @@ import StructuredBlocks from "../StructuredBlocks.astro";
 interface Props {
   name?: string;
   content: string;
-  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  /** The section's structured copy (COPY and REDESIGN_IMPROVE); Q/A pairs come from `faqs`. */
   structured?: StructuredSectionView;
 }
-const { name = "faq", content, structured } = Astro.props;
-const paragraphs = content
-  .split(/\n{2,}/)
-  .map((value) => value.trim())
-  .filter(Boolean);
-const heading = paragraphs[0] || "Frequently asked questions";
-// Heuristic: a paragraph whose first sentence ends with "?" is a question; the
-// remainder (if any) is its answer. Non-question paragraphs render as plain rows.
-const qa = paragraphs.slice(1).map((paragraph) => {
-  const match = paragraph.match(/^(.+?\?)\s+(.+)$/s);
-  if (match && match[1].includes("?")) {
-    return { question: match[1], answer: match[2] };
-  }
-  return { question: paragraph, answer: "" };
-});
+const { name = "faq", structured } = Astro.props;
+if (!structured)
+  throw new Error(`missing-structured-section: ${name} renders only structured copy`);
+// Only complete pairs render: a question without an answer is never shown.
+const faqs = (structured.faqs ?? []).filter((item) => item.question.trim() && item.answer.trim());
 ---
-{structured ? (
-  <section class="faq" data-section={name} data-section-id={structured.sectionId}>
-    <h2>{structured.heading ?? structured.eyebrow ?? "Frequently asked questions"}</h2>
-    {structured.subheading && <p class="faq__intro">{structured.subheading}</p>}
-    <StructuredBlocks blocks={structured.blocks} />
-    {(structured.faqs ?? []).map((item) => (
-      <details class="faq__item">
-        <summary>{item.question}</summary>
-        <p>{item.answer}</p>
-      </details>
-    ))}
-    {structured.cta && <p class="faq__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
-  </section>
-) : (
-  <section class="faq" data-section={name}>
-    <h2>{heading}</h2>
-    {qa.map((item) => (
-      <details class="faq__item">
-        <summary>{item.question}</summary>
-        {item.answer && <p>{item.answer}</p>}
-      </details>
-    ))}
-  </section>
-)}
+<section class="faq" data-section={name} data-section-id={structured.sectionId}>
+  <h2>{structured.heading ?? structured.eyebrow ?? "Frequently asked questions"}</h2>
+  {structured.subheading && <p class="faq__intro">{structured.subheading}</p>}
+  <StructuredBlocks blocks={structured.blocks} />
+  {faqs.map((item) => (
+    <details class="faq__item">
+      <summary>{item.question}</summary>
+      <p>{item.answer}</p>
+    </details>
+  ))}
+  {structured.cta && <p class="faq__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+</section>

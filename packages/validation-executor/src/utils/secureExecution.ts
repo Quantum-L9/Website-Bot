@@ -114,10 +114,19 @@ export function resolveTrustedExecutable(name: string): string {
 }
 
 export interface CommandResult {
-  exitCode: number;
+  /**
+   * The process exit status, or null when the process ended without one
+   * (killed by a signal, including a timeout kill). 127 is reserved for a
+   * process that could not be spawned at all (e.g. ENOENT).
+   */
+  exitCode: number | null;
   stdout: string;
   stderr: string;
   duration: number;
+  /** Signal that terminated the process, or null when it exited normally. */
+  terminationSignal: string | null;
+  /** True when the process was killed because it outlived its timeout. */
+  timedOut: boolean;
 }
 
 export interface ExecutionOptions {
@@ -284,16 +293,33 @@ function spawnSyncOptions(options: ExecutionOptions) {
   };
 }
 
-function toCommandResult(result: SpawnSyncReturns<string>, startTime: number): CommandResult {
+function spawnErrorCode(error: Error | undefined): string | undefined {
+  return (error as NodeJS.ErrnoException | undefined)?.code;
+}
+
+/**
+ * Map a spawnSync result to a CommandResult without inventing an exit status.
+ * A timeout kill (error code ETIMEDOUT) or any other signal termination has no
+ * exit status, so exitCode is null and the signal is recorded. Only a process
+ * that never started (spawn error such as ENOENT) reports 127.
+ */
+export function toCommandResult(
+  result: SpawnSyncReturns<string>,
+  startTime: number,
+): CommandResult {
   const duration = Date.now() - startTime;
-  let exitCode = 0;
+  const timedOut = spawnErrorCode(result.error) === "ETIMEDOUT";
+  const terminationSignal = result.signal ?? null;
+  let exitCode: number | null = null;
   if (result.status !== null) exitCode = result.status;
-  else if (result.error) exitCode = 127;
+  else if (result.error && !timedOut && terminationSignal === null) exitCode = 127;
   return {
     exitCode,
     stdout: result.stdout || "",
     stderr: result.stderr || (result.error ? result.error.message : ""),
     duration,
+    terminationSignal,
+    timedOut,
   };
 }
 

@@ -5,29 +5,19 @@ import StructuredBlocks from "../StructuredBlocks.astro";
 interface Props {
   name?: string;
   content: string;
-  /** REDESIGN_IMPROVE accepted section; rendered semantically when present. */
+  /** The section's structured copy (COPY and REDESIGN_IMPROVE). */
   structured?: StructuredSectionView;
 }
-const { name = "section", content, structured } = Astro.props;
-const paragraphs = content
-  .split(/\n{2,}/)
-  .map((value) => value.trim())
-  .filter(Boolean);
-const heading = paragraphs[0] && paragraphs[0].length <= 90 ? paragraphs.shift() : undefined;
-const label = name.replaceAll("_", " ");
+const { name = "section", structured } = Astro.props;
+if (!structured)
+  throw new Error(`missing-structured-section: ${name} renders only structured copy`);
+// The eyebrow is shown only when the copy supplies one; the internal component
+// name is never rendered as visible text.
 ---
-{structured ? (
-  <section class="prose" data-section={name} data-section-id={structured.sectionId}>
-    {structured.eyebrow && structured.heading && <p class="eyebrow">{structured.eyebrow}</p>}
-    <h2>{structured.heading ?? structured.eyebrow ?? label}</h2>
-    {structured.subheading && <p class="prose__subheading">{structured.subheading}</p>}
-    <StructuredBlocks blocks={structured.blocks} />
-    {structured.cta && <p class="prose__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
-  </section>
-) : (
-  <section class="prose" data-section={name}>
-    {heading && <p class="eyebrow">{label}</p>}
-    <h2>{heading ?? label}</h2>
-    {paragraphs.map(paragraph => <p>{paragraph}</p>)}
-  </section>
-)}
+<section class="prose" data-section={name} data-section-id={structured.sectionId}>
+  {structured.eyebrow && structured.heading && <p class="eyebrow">{structured.eyebrow}</p>}
+  {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
+  {structured.subheading && <p class="prose__subheading">{structured.subheading}</p>}
+  <StructuredBlocks blocks={structured.blocks} />
+  {structured.cta && <p class="prose__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
+</section>

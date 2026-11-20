@@ -319,10 +319,15 @@ export interface RepositoryAdapter {
     command: string,
     workingDir: string,
   ): Promise<{
-    exitCode: number;
+    /** Exit status, or null when the process was terminated without one. */
+    exitCode: number | null;
     stdout: string;
     stderr: string;
     duration: number;
+    /** Signal that terminated the process, when known. */
+    terminationSignal?: string | null;
+    /** True when the command was killed for outliving its timeout. */
+    timedOut?: boolean;
   }>;
   storeEvidence(evidenceId: string, data: any): Promise<string>;
   loadBaseline?(testId: string): Promise<any>;

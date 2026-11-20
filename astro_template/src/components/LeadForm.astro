@@ -5,23 +5,19 @@ import StructuredBlocks from "./StructuredBlocks.astro";
 
 interface Props {
   content?: string;
-  /** REDESIGN_IMPROVE accepted section; its copy renders semantically above the form. */
+  /** The section's structured copy (COPY and REDESIGN_IMPROVE); renders above the form. */
   structured?: StructuredSectionView;
 }
-const { content = "", structured } = Astro.props;
+const { structured } = Astro.props;
 // Only a verified HTTPS action (validated by the assembler) renders a live form.
 // Without one the section stays informational and says inquiries are not
 // enabled, instead of offering a submit that cannot reach anyone (WB-QAP-03).
 const action = siteConfig.leadFormAction;
 const cta = siteConfig.primaryCta;
-const paragraphs = content
-  .split(/\n{2,}/)
-  .map((value) => value.trim().replace(/\*\*/g, ""))
-  .filter(Boolean);
+// Copy comes only from the structured section; without one (a verified form
+// with no copy of its own) the heading is the CTA label or a plain contact line.
 const heading =
-  (structured ? (structured.heading ?? structured.eyebrow) : paragraphs[0]) ||
-  cta?.label ||
-  `Contact ${siteConfig.businessName}`;
+  structured?.heading || structured?.eyebrow || cta?.label || `Contact ${siteConfig.businessName}`;
 const phone = siteConfig.phone;
 const allRoutes: Array<{ href: string; title: string }> =
   (siteConfig as unknown as { routes?: Array<{ href: string; title: string }> }).routes ?? [];
@@ -31,15 +27,9 @@ const serviceOptions = allRoutes.filter(
 ---
 <section id={action ? "quote" : undefined} class="lead-form" data-section="contact_form" data-section-id={structured?.sectionId}>
   <h2>{heading}</h2>
-  {structured ? (
-    <>
-      {structured.subheading && <p>{structured.subheading}</p>}
-      <StructuredBlocks blocks={structured.blocks} />
-    </>
-  ) : (
-    paragraphs.slice(1).map(paragraph => <p>{paragraph}</p>)
-  )}
-  {phone && <p class="lead-form__phone">Call or text <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
+  {structured?.subheading && <p>{structured.subheading}</p>}
+  {structured && <StructuredBlocks blocks={structured.blocks} />}
+  {phone && <p class="lead-form__phone">Call <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
   {action ? (
   <form method="post" action={action} data-lead-form>
     <div class="lead-form__grid">

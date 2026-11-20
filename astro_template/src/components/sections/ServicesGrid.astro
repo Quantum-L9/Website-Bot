@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "../../lib/siteConfig";
+import { sectionVariant } from "../../styles/variants";
 import type { StructuredSectionView } from "../SectionRegistry";
 import StructuredBlocks from "../StructuredBlocks.astro";
 
@@ -26,8 +27,10 @@ const showCards = structured?.serviceCards !== false;
 const services = allRoutes.filter(
   (route) => route.href.startsWith("/services/") && route.href !== "/services/",
 );
+// Design-system variant chosen from approved direction (ds_services_variant).
+const variant = sectionVariant("services", siteConfig.designTokens as Record<string, unknown>);
 ---
-<section class="services-grid" data-section={name} data-section-id={structured?.sectionId}>
+<section class="services-grid" data-section={name} data-section-id={structured?.sectionId} data-variant={variant}>
   {structured ? (
     <>
       <h2>{structured.heading ?? structured.eyebrow ?? "Our Services"}</h2>

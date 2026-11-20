@@ -1,136 +1,194 @@
-// L9_META: layer=stage, role=content_generation, stage_index=4, status=active, version=2.3.0
+// L9_META: layer=stage, role=content_generation, stage_index=4, status=active, version=3.0.0
+//
+// COPY-path content authority. Two sources, one structured contract
+// (services/content/sectionContent.ts):
+//  - a crawled source site is ported block by block, each component claiming
+//    its own heading/paragraphs/list/Q&A structure (sourceCopy.ts);
+//  - without a crawl, each page is generated in ONE call as JSON — every
+//    section of the page together, grounded in the spec's business facts,
+//    value proposition, conversion authority and client vision.
+// Both paths pass the same validation: shape (non-empty FAQ answers, real
+// steps, short badges), no navigation/button run-ons, no business-name
+// headings outside the hero, and no duplicate or near-duplicate bodies across
+// any two sections of the site.
 import { createModuleLogger } from "../core/logger.js";
-import { trimChars } from "../lib/text-trim.mjs";
-import type { BuildContext } from "../pipeline/BuildContext.js";
+import type { BuildContext, DomainSpec } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { stripMarkdownDecorators } from "../services/content/plainText.js";
-import { assembleSourceSection, matchSourcePage } from "../services/content/sourceCopy.js";
+import {
+  type FaqPair,
+  normalizeComponentKey,
+  type SectionContent,
+  setSection,
+} from "../services/content/sectionContent.js";
+import {
+  crossSectionIssues,
+  MAX_HEADING_WORDS,
+  type SectionIssue,
+  shapeIssues,
+} from "../services/content/sectionValidation.js";
+import {
+  matchSourcePage,
+  reconstructPageSections,
+  SourceReconstructionError,
+} from "../services/content/sourceCopy.js";
+import { extractJson, JsonExtractionError } from "../services/extractJson.js";
 
 const logger = createModuleLogger("stage:content-generation");
-const MIN_WORDS = 80;
-const SHORT_SECTION_MIN_WORDS = 8;
-const SHORT_SECTIONS = /^(gallery|cta|final_cta|contact_form|trust_bar|trust_signals)$/;
-const MAX_H1_WORDS = 12;
+/** Minimum prose words for a generic (paragraph) section. */
+const PROSE_MIN_WORDS = 40;
 const BANNED_CLAIMS = ["guaranteed", "we guarantee", "100% success", "always win"];
 const MAX_RETRIES = 2;
-const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
-const bannedClaim = (value: string) =>
-  BANNED_CLAIMS.find((claim) => value.toLowerCase().includes(claim));
-const sectionKey = (component: string) =>
-  trimChars(
-    component
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_"),
-    "_",
-  );
-const minWordsFor = (component: string) =>
-  SHORT_SECTIONS.test(sectionKey(component)) ? SHORT_SECTION_MIN_WORDS : MIN_WORDS;
 
-function stripHeadlineMarkup(headline: string): string {
-  const unwrapped = headline.replace(/^\*\*(.*)\*\*$/s, "$1").replace(/^__(.*)__$/s, "$1");
-  return trimChars(unwrapped, "*").trim();
-}
+type Route = DomainSpec["routes"][number];
 
-function parseHeadlineAndBody(content: string): { headline: string; body: string } {
-  const normalized = content.replaceAll("\r\n", "\n");
-  const lines = normalized.split("\n");
-  const headline = stripHeadlineMarkup((lines[0] ?? "").trim());
-  let blankIndex = -1;
-  for (let i = 1; i < lines.length; i += 1) {
-    if (lines[i].trim() === "") {
-      blankIndex = i;
-      break;
-    }
-  }
-  const body =
-    blankIndex === -1
-      ? ""
-      : lines
-          .slice(blankIndex + 1)
-          .join("\n")
-          .trim();
-  return { headline, body };
-}
-
-function formatTakenList(label: string, values: readonly string[]): string {
-  if (values.length === 0) return "";
-  return [label, ...values.map((value) => `- "${value}"`)].join("\n");
-}
-
-function takenHeadlineBlock(headlines: readonly string[]): string {
-  return formatTakenList(
-    "Already used headlines (do not repeat, even paraphrased as the same CTA):",
-    headlines,
-  );
-}
-
-type SlotIssue = {
-  message: string;
-  correction: string;
+/** What each component must carry, stated to the model and checked by shapeIssues. */
+const COMPONENT_GUIDE: Record<string, string> = {
+  hero: `"heading" (the page's single H1) and "subheading" (one or two sentences on who this page serves and why).`,
+  faq: `"heading" and "faqs": 3-6 objects {"question","answer"}; every answer is 1-3 complete sentences.`,
+  process: `"heading", optional "subheading", and "steps": 3-5 strings, each one concrete action in one sentence.`,
+  trust_bar: `"heading" and "badges": 3-5 short trust points (at most 8 words each) taken only from the business facts; omit any you cannot support.`,
+  trust_signals: `"heading" and "badges": 3-5 short trust points (at most 8 words each) taken only from the business facts.`,
+  service_area: `"heading" and "paragraphs": 1-2 paragraphs naming only the states/areas given.`,
+  cta: `"heading" and "paragraphs": one sentence inviting the visitor to act.`,
+  final_cta: `"heading" and "paragraphs": one sentence inviting the visitor to act.`,
+  contact_form: `"heading" and "paragraphs": one sentence on what happens after someone gets in touch.`,
+  gallery: `"heading" and optionally one short paragraph introducing the work shown.`,
 };
+const PROSE_GUIDE = `"heading" and "paragraphs": 2-3 paragraphs, at least ${PROSE_MIN_WORDS} words in total, specific to this section's topic.`;
 
-function validateSlot(
-  key: string,
-  content: string,
-  seenH1s: Set<string>,
-  takenHeadlines: readonly string[],
-  minWords: number,
-): SlotIssue | undefined {
-  const { headline, body } = parseHeadlineAndBody(content);
-  const h1Words = countWords(headline);
-  const bodyWords = countWords(body);
-  const banned = bannedClaim(content);
+const bannedClaim = (value: string, extra: readonly string[]) =>
+  [...BANNED_CLAIMS, ...extra].find(
+    (claim) => claim && value.toLowerCase().includes(claim.toLowerCase()),
+  );
 
-  if (!headline) {
-    return {
-      message: `${key}: empty H1`,
-      correction: `The headline (line 1) was empty; put a unique headline of at most ${MAX_H1_WORDS} words on line 1.`,
-    };
+function asStrings(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map(cleanText)
+    .filter(Boolean);
+}
+
+function cleanText(value: string): string {
+  return stripMarkdownDecorators(value).replace(/\s+/g, " ").trim();
+}
+
+function asFaqs(value: unknown): FaqPair[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): FaqPair[] => {
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    const question = typeof record.question === "string" ? cleanText(record.question) : "";
+    const answer = typeof record.answer === "string" ? cleanText(record.answer) : "";
+    return [{ question, answer }];
+  });
+}
+
+export function parsePageSections(
+  raw: string,
+  components: readonly string[],
+): { sections: Map<string, SectionContent>; problems: string[] } {
+  const problems: string[] = [];
+  const sections = new Map<string, SectionContent>();
+  let parsed: unknown;
+  try {
+    parsed = extractJson(raw);
+  } catch (error) {
+    const detail = error instanceof JsonExtractionError ? error.message : String(error);
+    return { sections, problems: [`response was not JSON (${detail})`] };
   }
-  if (h1Words > MAX_H1_WORDS) {
-    return {
-      message: `${key}: H1 has ${h1Words} words, maximum ${MAX_H1_WORDS}`,
-      correction: `The headline had ${h1Words} words; keep line 1 to ${MAX_H1_WORDS} words or fewer.`,
-    };
+  const list =
+    parsed &&
+    typeof parsed === "object" &&
+    Array.isArray((parsed as { sections?: unknown }).sections)
+      ? ((parsed as { sections: unknown[] }).sections ?? [])
+      : [];
+  const byComponent = new Map<string, Record<string, unknown>>();
+  for (const entry of list) {
+    if (!entry || typeof entry !== "object") continue;
+    const record = entry as Record<string, unknown>;
+    if (typeof record.component === "string")
+      byComponent.set(normalizeComponentKey(record.component), record);
   }
-  if (!body) {
-    return {
-      message: `${key}: missing body after headline`,
-      correction: `The body after the headline was missing; add a blank line, then at least ${minWords} words.`,
-    };
+  for (const component of components) {
+    const key = normalizeComponentKey(component);
+    const record = byComponent.get(key);
+    if (!record) {
+      problems.push(`missing section for component "${component}"`);
+      continue;
+    }
+    const subheading =
+      typeof record.subheading === "string" ? cleanText(record.subheading) : undefined;
+    sections.set(component, {
+      component: key,
+      heading: typeof record.heading === "string" ? cleanText(record.heading) : "",
+      ...(subheading ? { subheading } : {}),
+      paragraphs: asStrings(record.paragraphs),
+      steps: asStrings(record.steps),
+      faqs: asFaqs(record.faqs),
+      badges: asStrings(record.badges),
+      provenance: "generated",
+    });
   }
-  if (bodyWords < minWords) {
-    return {
-      message: `${key}: generated content has ${bodyWords} words, minimum ${minWords}`,
-      correction: `It contained ${bodyWords} words; provide at least ${minWords}.`,
-    };
+  return { sections, problems };
+}
+
+function listFacts(spec: DomainSpec): string[] {
+  const lines: string[] = [];
+  const facts = spec.business_facts ?? {};
+  const factLines = Object.entries(facts).map(
+    ([key, value]) => `- ${key}: ${Array.isArray(value) ? value.join("; ") : String(value)}`,
+  );
+  lines.push(
+    factLines.length
+      ? ["Verified business facts (the ONLY facts you may state):", ...factLines].join("\n")
+      : "No verified business facts are on file: make no factual claims about years, licences, awards, ratings, warranties, response times or offers.",
+  );
+  const vp = spec.value_proposition;
+  if (vp) {
+    const parts: Array<[string, string[]]> = [
+      ["Target customers", vp.target_customer],
+      ["Problems solved", vp.problem],
+      ["Outcomes", vp.outcome],
+      ["How", vp.mechanism],
+      ["Differentiators", vp.differentiators],
+      ["Reasons to believe", vp.reasons_to_believe],
+      ["Boundaries (do not claim beyond these)", vp.boundaries],
+    ];
+    for (const [label, values] of parts)
+      if (values?.length) lines.push(`${label}: ${values.join("; ")}`);
   }
-  if (banned) {
-    return {
-      message: `${key}: banned claim "${banned}" persists after retry`,
-      correction: `It contained the prohibited claim "${banned}"; remove that claim and any equivalent promise.`,
-    };
+  const ca = spec.conversion_authority;
+  if (ca?.primary_action) {
+    lines.push(`Primary call to action (use verbatim as the CTA heading): ${ca.primary_action}`);
+    if (ca.secondary_actions.length)
+      lines.push(`Secondary actions: ${ca.secondary_actions.join("; ")}`);
+  } else {
+    lines.push(
+      "No primary offer is defined: never invent an offer (free, discount, within N hours).",
+    );
   }
-  const h1Key = headline.toLowerCase();
-  if (seenH1s.has(h1Key)) {
-    return {
-      message: `${key}: duplicate H1 "${headline}"`,
-      correction: [
-        `The headline collided with another section ("${headline}"); write a unique headline.`,
-        takenHeadlineBlock(takenHeadlines),
-      ]
-        .filter(Boolean)
-        .join("\n"),
-    };
+  const vision = spec.client_vision;
+  if (vision) {
+    const parts: Array<[string, string[] | undefined]> = [
+      ["Client's desired outcomes", vision.desired_outcomes],
+      ["Brand attributes (tone)", vision.brand_attributes],
+      ["Conversion priorities", vision.conversion_priorities],
+      ["Explicit constraints", vision.explicit_constraints],
+    ];
+    for (const [label, values] of parts)
+      if (values?.length) lines.push(`${label}: ${values.join("; ")}`);
   }
-  return undefined;
+  const forbidden = spec.content_guardrails?.forbidden_claims ?? [];
+  if (forbidden.length) lines.push(`Forbidden claims: ${forbidden.join("; ")}`);
+  return lines;
 }
 
 export class ContentGenerationStage implements Stage {
   name = "content-generation";
-  version = "2.3.0";
+  version = "3.0.0";
 
   async run(ctx: BuildContext): Promise<void> {
     this.assertNotRedesign(ctx);
@@ -149,31 +207,12 @@ export class ContentGenerationStage implements Stage {
         "Source-site reconstruction requires crawled pages. Refusing to invent copy.",
       );
     }
-    const { vertical, business_name, geography, routes } = ctx.domainSpec;
-    const phone = ctx.domainSpec.seo_contract?.phone?.trim();
-    const seenH1s = new Set<string>();
-    const takenHeadlines: string[] = [];
-    for (const route of routes) {
-      for (const component of route.components) {
-        const key = `${route.slug}:${component}`;
-        if (hasPages) {
-          ctx.generatedContent.set(key, this.reconstructSection(ctx, route, component, key));
-          continue;
-        }
-        await this.generateSection(ctx, {
-          route,
-          component,
-          key,
-          phone,
-          vertical,
-          business_name,
-          geography,
-          seenH1s,
-          takenHeadlines,
-        });
-      }
+    const accepted = new Map<string, SectionContent>();
+    if (hasPages) this.reconstruct(ctx, accepted);
+    else {
+      for (const route of ctx.domainSpec.routes) await this.generatePage(ctx, route, accepted);
     }
-    logger.info({ sections: ctx.generatedContent.size }, "Content generation complete");
+    logger.info({ sections: accepted.size }, "Content generation complete");
   }
 
   private assertNotRedesign(ctx: BuildContext): void {
@@ -188,89 +227,178 @@ export class ContentGenerationStage implements Stage {
     );
   }
 
-  private reconstructSection(
-    ctx: BuildContext,
-    route: BuildContext["domainSpec"]["routes"][number],
-    component: string,
-    key: string,
-  ): string {
-    const page = matchSourcePage(ctx.sourceSiteManifest, route.slug);
-    if (!page) {
-      throw new BuildError(
-        "CONTENT_VALIDATION_FAILED",
-        `${key}: source-site reconstruction is on but no crawled page matched ${route.slug}`,
-      );
+  /** Port every route from its own crawled page; validation is the same as generation's. */
+  private reconstruct(ctx: BuildContext, accepted: Map<string, SectionContent>): void {
+    const seen = new Set<string>();
+    const spec = ctx.domainSpec;
+    for (const route of spec.routes) {
+      const page = matchSourcePage(ctx.sourceSiteManifest, route.slug);
+      if (!page) {
+        throw new BuildError(
+          "CONTENT_VALIDATION_FAILED",
+          `${route.slug}: source-site reconstruction is on but no crawled page matched ${route.slug}`,
+        );
+      }
+      let sections: Map<string, SectionContent>;
+      try {
+        sections = reconstructPageSections({
+          page,
+          components: route.components,
+          primaryAction: spec.conversion_authority?.primary_action,
+          businessName: spec.business_name,
+          seenBlockFingerprints: seen,
+        });
+      } catch (error) {
+        if (error instanceof SourceReconstructionError)
+          throw new BuildError("CONTENT_VALIDATION_FAILED", `${route.slug}: ${error.message}`);
+        throw error;
+      }
+      const candidates = this.keyed(route, sections);
+      // Source copy is ported verbatim; only structural defects are checked
+      // (no word floor: the client's own copy is not padded).
+      const issues = this.validate(ctx, accepted, candidates, 0);
+      if (issues.length) {
+        throw new BuildError(
+          "CONTENT_VALIDATION_FAILED",
+          `source reconstruction of ${route.slug} failed validation: ${issues.map((issue) => `${issue.key}: ${issue.message}`).join("; ")}`,
+        );
+      }
+      this.commit(ctx, accepted, candidates);
     }
-    return assembleSourceSection(page, component);
   }
 
-  private async generateSection(
+  private keyed(route: Route, sections: Map<string, SectionContent>): Map<string, SectionContent> {
+    const out = new Map<string, SectionContent>();
+    for (const component of route.components) {
+      const section = sections.get(component);
+      if (section) out.set(`${route.slug}:${component}`, section);
+    }
+    return out;
+  }
+
+  private validate(
     ctx: BuildContext,
-    section: {
-      route: BuildContext["domainSpec"]["routes"][number];
-      component: string;
-      key: string;
-      phone: string | undefined;
-      vertical: string;
-      business_name: string;
-      geography: { states: string[] };
-      seenH1s: Set<string>;
-      takenHeadlines: string[];
-    },
+    accepted: Map<string, SectionContent>,
+    candidates: Map<string, SectionContent>,
+    minProseWords: number,
+  ): SectionIssue[] {
+    const forbidden = ctx.domainSpec.content_guardrails?.forbidden_claims ?? [];
+    const issues: SectionIssue[] = [];
+    for (const [key, section] of candidates) {
+      issues.push(...shapeIssues(key, section, minProseWords));
+      const text = [
+        section.heading,
+        section.subheading ?? "",
+        ...section.paragraphs,
+        ...section.steps,
+        ...section.badges,
+        ...section.faqs.flatMap((faq) => [faq.question, faq.answer]),
+      ].join(" ");
+      if (/\[[^\]]*(phone|name|address|email|city)[^\]]*\]/i.test(text))
+        issues.push({ key, message: "contains a bracketed placeholder" });
+      if (section.provenance === "generated") {
+        const banned = bannedClaim(text, forbidden);
+        if (banned) issues.push({ key, message: `prohibited claim "${banned}"` });
+      }
+    }
+    issues.push(...crossSectionIssues(accepted, candidates, ctx.domainSpec.business_name));
+    return issues;
+  }
+
+  private commit(
+    ctx: BuildContext,
+    accepted: Map<string, SectionContent>,
+    candidates: Map<string, SectionContent>,
+  ): void {
+    for (const [key, section] of candidates) {
+      accepted.set(key, section);
+      setSection(ctx.generatedContent, key, section);
+    }
+  }
+
+  private pagePrompt(
+    ctx: BuildContext,
+    route: Route,
+    accepted: Map<string, SectionContent>,
+    correction: string,
+  ): string {
+    const spec = ctx.domainSpec;
+    const phone = spec.seo_contract?.phone?.trim();
+    const sectionsWanted = route.components.map((component) => {
+      const key = normalizeComponentKey(component);
+      return `- "${component}": ${COMPONENT_GUIDE[key] ?? PROSE_GUIDE}`;
+    });
+    const written = [...accepted.values()].map(
+      (section) =>
+        `- "${section.heading}": ${(section.subheading ?? section.paragraphs[0] ?? section.steps[0] ?? section.faqs[0]?.question ?? "").slice(0, 120)}`,
+    );
+    return [
+      `Write every section of the "${route.title}" page (route slug "${route.slug}") for ${spec.business_name}, a ${spec.vertical} business serving ${spec.geography.states.join(", ")}.`,
+      route.purpose ? `Page purpose: ${route.purpose}` : "",
+      ...listFacts(spec),
+      phone
+        ? `Known phone: ${phone}. Mention it at most once on the page. Never invent another number or write placeholders.`
+        : "No phone is on file. Omit phone numbers. Never write placeholders such as [phone number].",
+      "Sections, in page order, each with the fields named:",
+      ...sectionsWanted,
+      "Each section covers a different aspect of this page: never restate another section's points, sentences or headings.",
+      `Every heading is unique across the site, at most ${MAX_HEADING_WORDS} words, and is not the business name (except the hero may be).`,
+      "Never invent years of experience, awards, certifications, ratings, guarantees, statistics, prices, response times or third-party endorsements; state only facts given above.",
+      "Use active voice and second person. Plain text inside JSON strings; no markdown.",
+      written.length
+        ? [
+            "Already written elsewhere on the site (do not repeat these headings or points):",
+            ...written,
+          ].join("\n")
+        : "",
+      'Respond with JSON only: {"sections":[{"component":"<name>","heading":"...","subheading":"...","paragraphs":["..."],"steps":["..."],"faqs":[{"question":"...","answer":"..."}],"badges":["..."]}]} — one object per component listed, omitting fields that component does not use.',
+      correction,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  private async generatePage(
+    ctx: BuildContext,
+    route: Route,
+    accepted: Map<string, SectionContent>,
   ): Promise<void> {
-    const { route, component, key, phone, seenH1s, takenHeadlines } = section;
-    const minWords = minWordsFor(component);
-    const keyName = sectionKey(component);
-    const ctaHint = /^(contact_form|cta|final_cta)$/.test(keyName)
-      ? 'First line must be a concrete offer headline. For roofing and home services use exactly: Free Roof Inspection Within 24 Hours. Never write "Tell us about the job", "Take the next step", or similar uninviting filler.'
-      : "";
-    let content = "";
+    const phone = ctx.domainSpec.seo_contract?.phone?.trim();
+    const primaryAction = ctx.domainSpec.conversion_authority?.primary_action?.trim();
     let correction = "";
+    let lastIssues: string[] = [];
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
-      content = await ctx.llm.generateContent(
-        [
-          `Write the ${component} section for the "${route.title}" page of a ${section.vertical} business.`,
-          `This page is route slug "${route.slug}" titled "${route.title}"; headlines must be specific to this page and must not reuse a home-page CTA.`,
-          `Business: ${section.business_name}. States served: ${section.geography.states.join(", ")}.`,
-          phone
-            ? `Known phone: ${phone}. Use this number when a phone is needed. Never invent a number and never write bracketed placeholders such as [phone number].`
-            : "No phone is on file. Omit phone numbers. Never write bracketed placeholders such as [phone number].",
-          `Line 1 must be the headline (at most ${MAX_H1_WORDS} words, unique across pages).`,
-          `Then a blank line.`,
-          `Then the body: minimum ${minWords} words. Similar roofing copy across pages is acceptable.`,
-          `Do not include guaranteed outcomes, win rates, or legal advice.`,
-          `Never invent years of experience, awards, certifications, guarantees, statistics, or third-party brand endorsements. State only facts given in this prompt; otherwise omit them.`,
-          "Use active voice and second person. Output plain text only. Do not wrap the headline in markdown.",
-          ctaHint,
-          takenHeadlineBlock(takenHeadlines),
-          correction,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      );
-      if (phone) {
-        content = content.replace(/\[(?:your |insert |add |enter )?phone(?: number)?\]/gi, phone);
+      let raw = await ctx.llm.generateContent(this.pagePrompt(ctx, route, accepted, correction));
+      if (phone) raw = raw.replace(/\[(?:your |insert |add |enter )?phone(?: number)?\]/gi, phone);
+      const { sections, problems } = parsePageSections(raw, route.components);
+      // The CTA heading is the operator's primary action whenever one exists.
+      if (primaryAction) {
+        for (const section of sections.values()) {
+          if (/^(cta|final_cta|contact_form)$/.test(section.component))
+            section.heading = primaryAction;
+        }
       }
-      content = stripMarkdownDecorators(content);
-      const issue = validateSlot(key, content, seenH1s, takenHeadlines, minWords);
-      if (!issue) break;
-      if (attempt === MAX_RETRIES) {
-        throw new BuildError("CONTENT_VALIDATION_FAILED", issue.message);
+      const candidates = this.keyed(route, sections);
+      const issues = [
+        ...problems,
+        ...this.validate(ctx, accepted, candidates, PROSE_MIN_WORDS).map(
+          (issue) => `${issue.key}: ${issue.message}`,
+        ),
+      ];
+      if (!issues.length) {
+        this.commit(ctx, accepted, candidates);
+        return;
       }
+      lastIssues = issues;
       correction = [
-        "Your previous answer failed validation.",
-        issue.correction,
-        "Rewrite the complete section from scratch.",
-      ]
-        .filter(Boolean)
-        .join("\n");
+        "Your previous answer failed validation:",
+        ...issues.map((issue) => `- ${issue}`),
+        "Rewrite the complete page JSON from scratch.",
+      ].join("\n");
     }
-    const { headline, body } = parseHeadlineAndBody(content);
-    if (seenH1s.has(headline.toLowerCase())) {
-      throw new BuildError("CONTENT_VALIDATION_FAILED", `${key}: duplicate H1 "${headline}"`);
-    }
-    seenH1s.add(headline.toLowerCase());
-    takenHeadlines.push(headline);
-    ctx.generatedContent.set(key, `${headline}\n\n${body}`);
+    throw new BuildError(
+      "CONTENT_VALIDATION_FAILED",
+      `${route.slug}: generated page failed validation after ${MAX_RETRIES + 1} attempts: ${lastIssues.join("; ")}`,
+    );
   }
 }

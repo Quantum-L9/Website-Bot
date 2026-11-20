@@ -9,15 +9,25 @@
 // unchanged build must match it exactly; each deliberately broken variant
 // must fail on exactly the viewports it breaks. Requires the Playwright
 // chromium binary; its absence fails this test, never skips it.
+//
+// The baseline oracle is proven reproducible before any test uses it: a
+// second capture of the unchanged build must match it pixel for pixel, so
+// renderer instability surfaces as one clear before() failure rather than as
+// every later comparison failing against an outlier baseline.
+//
+// Evidence (captures, expected / actual / diff PNGs, reports) goes to
+// WB_VISUAL_EVIDENCE_DIR when set, and is kept there for CI to upload;
+// otherwise to a temporary directory removed after the run.
 
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { after, before, test } from "node:test";
 import type { RenderViewport } from "../../../src/validation/rendered-site.js";
 import {
   type CaptureResult,
+  CaptureUnstableError,
   captureScreenshots,
   compareScreenshots,
   DEFAULT_VISUAL_TOLERANCE,
@@ -32,7 +42,15 @@ import {
   VISUAL_ROUTES,
 } from "../../helpers/visualReferenceFixture.js";
 
-const scratch = mkdtempSync(join(tmpdir(), "wb-visual-"));
+const evidenceRoot = process.env.WB_VISUAL_EVIDENCE_DIR?.trim();
+const keepEvidence = Boolean(evidenceRoot);
+const scratch = evidenceRoot
+  ? resolve(evidenceRoot, "wb-visual-regression")
+  : mkdtempSync(join(tmpdir(), "wb-visual-"));
+if (keepEvidence) {
+  rmSync(scratch, { recursive: true, force: true });
+  mkdirSync(scratch, { recursive: true });
+}
 let site: BuiltReferenceSite;
 let baseline: CaptureResult;
 const baselineDir = join(scratch, "baseline");
@@ -47,12 +65,21 @@ before(
       outDir: baselineDir,
       fontDir: VISUAL_FONT_DIR,
     });
+    // Oracle self-check: the baseline must itself be reproducible.
+    const recheck = await compareVariant("baseline-recheck");
+    const unreproducible = recheck.comparisons.filter((comparison) => comparison.diff_pixels !== 0);
+    assert.deepEqual(
+      unreproducible,
+      [],
+      `baseline oracle is not reproducible on this renderer; evidence in ${join(scratch, "baseline-recheck", "evidence")}: ${JSON.stringify(unreproducible, null, 2)}`,
+    );
+    assert.equal(recheck.status, "PASS");
   },
   { timeout: 900_000 },
 );
 
 after(() => {
-  rmSync(scratch, { recursive: true, force: true });
+  if (!keepEvidence) rmSync(scratch, { recursive: true, force: true });
   if (site) cleanupContext(site.ctx);
 });
 
@@ -102,6 +129,39 @@ void test("determinism: re-rendering the unchanged build reproduces the baseline
   const report = await compareVariant("unchanged");
   assert.equal(report.status, "PASS", JSON.stringify(report.comparisons, null, 2));
   assert.ok(report.comparisons.every((comparison) => comparison.diff_pixels === 0));
+});
+
+void test("stability: a view that repaints between screenshots fails closed as capture unstable", async () => {
+  // Every animation frame writes a fresh timestamp into the page heading, so
+  // no two screenshots can be byte-identical however long capture waits.
+  const flicker = `(() => {
+    const target = document.querySelector("h1") ?? document.body;
+    const tick = () => { target.textContent = String(performance.now()); requestAnimationFrame(tick); };
+    tick();
+  })()`;
+  await assert.rejects(
+    captureScreenshots({
+      distDir: site.distDir,
+      routes: ["/contact"],
+      outDir: join(scratch, "unstable", "actual"),
+      fontDir: VISUAL_FONT_DIR,
+      viewports: [{ name: "mobile", width: 390, height: 844 }],
+      injectScript: () => flicker,
+      maxStableAttempts: 3,
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof CaptureUnstableError, String(error));
+      assert.match(error.message, /^capture unstable: \/contact@mobile /);
+      assert.equal(error.attempts, 3);
+      return true;
+    },
+  );
+});
+
+void test("stability: every accepted capture was confirmed by two identical screenshots", () => {
+  for (const shot of baseline.screenshots) {
+    assert.ok((shot.capture_attempts ?? 0) >= 2, `${shot.file}: ${shot.capture_attempts}`);
+  }
 });
 
 void test("unapproved view: a rendered route/viewport with no approved reference fails, never passes silently", async () => {
@@ -189,9 +249,17 @@ for (const variant of VARIANTS) {
       variant.expected,
       JSON.stringify(report.comparisons, null, 2),
     );
-    // Every failure is inspectable: expected, actual and a diff that marks the change.
+    // Every failure is inspectable: expected, actual and a diff that marks the
+    // change, plus the changed region in the detail so a bare log locates it.
     for (const comparison of report.comparisons.filter((entry) => entry.status === "FAIL")) {
       assert.ok(comparison.evidence, `${comparison.route}@${comparison.viewport} has evidence`);
+      const box = comparison.diff_bbox;
+      assert.ok(box, `${comparison.route}@${comparison.viewport} names its differing region`);
+      assert.ok(box.width > 0 && box.height > 0 && box.x >= 0 && box.y >= 0, JSON.stringify(box));
+      assert.match(
+        comparison.detail,
+        new RegExp(`differing region x=${box.x} y=${box.y} w=${box.width} h=${box.height}$`),
+      );
       const dir = join(scratch, variant.name.split(":")[0], "evidence");
       for (const file of Object.values(comparison.evidence)) {
         assert.ok(existsSync(join(dir, file)), file);
@@ -205,6 +273,7 @@ for (const variant of VARIANTS) {
     // The untouched viewports and routes still match exactly.
     for (const comparison of report.comparisons.filter((entry) => entry.status === "PASS")) {
       assert.equal(comparison.diff_pixels, 0, `${comparison.route}@${comparison.viewport}`);
+      assert.equal(comparison.diff_bbox, undefined);
     }
   });
 }
