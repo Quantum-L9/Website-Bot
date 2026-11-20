@@ -6,6 +6,7 @@
 
 import { dirname } from "node:path";
 import { parse } from "yaml";
+import { marketResearchRequested } from "../intelligence/first-party-authority.js";
 import { SeoBotPreflightError } from "../intelligence/SeoBuildIntelligencePort.js";
 import type { DomainSpec } from "../pipeline/BuildContext.js";
 import { parseBuildIntent } from "../pipeline/BuildIntent.js";
@@ -290,9 +291,12 @@ export async function checkSeoBot(
     return fail(name, `${seam.urlVar} not set`, seoBotRemediation("SEO_BOT_UNREACHABLE", seam));
   if (isMissing(key)) return fail(name, `${seam.keyVar} not set`, SECRET_REMEDIATION(seam.keyVar));
   try {
+    // Same readiness contract as SeoBuildIntelligencePreflightStage: market
+    // research (DataForSEO, competitive landscape) is required only when the
+    // spec requests it; a first-party spec is its own authority.
     const result = await deps
       .seoBotPort(url as string, key as string, options.timeoutMs)
-      .preflight();
+      .preflight({ requireMarketResearch: marketResearchRequested(spec) });
     return pass(
       name,
       `${url} status=${result.status} version=${result.version} router=${result.llm_router_version}`,
