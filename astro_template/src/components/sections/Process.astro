@@ -12,7 +12,7 @@ const { name = "process", structured } = Astro.props;
 if (!structured) throw new Error(`missing-structured-section: ${name} renders only structured copy`);
 ---
 <section class="process" data-section={name} data-section-id={structured.sectionId}>
-  {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
+  <h2>{structured.heading ?? structured.eyebrow ?? "Our process"}</h2>
   {structured.subheading && <p class="process__intro">{structured.subheading}</p>}
   <StructuredBlocks blocks={structured.blocks} variant="process" />
   {structured.cta && <p class="process__cta"><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}

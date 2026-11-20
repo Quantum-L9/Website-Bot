@@ -14,7 +14,7 @@ if (!structured) throw new Error(`missing-structured-section: ${name} renders on
 const faqs = (structured.faqs ?? []).filter((item) => item.question.trim() && item.answer.trim());
 ---
 <section class="faq" data-section={name} data-section-id={structured.sectionId}>
-  {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
+  <h2>{structured.heading ?? structured.eyebrow ?? "Frequently asked questions"}</h2>
   {structured.subheading && <p class="faq__intro">{structured.subheading}</p>}
   <StructuredBlocks blocks={structured.blocks} />
   {faqs.map((item) => (

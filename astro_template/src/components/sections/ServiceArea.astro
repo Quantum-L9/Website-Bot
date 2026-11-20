@@ -12,7 +12,7 @@ const { name = "service_area", structured } = Astro.props;
 if (!structured) throw new Error(`missing-structured-section: ${name} renders only structured copy`);
 ---
 <section class="service-area" data-section={name} data-section-id={structured.sectionId}>
-  {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
+  <h2>{structured.heading ?? structured.eyebrow ?? "Service area"}</h2>
   {structured.subheading && <p>{structured.subheading}</p>}
   <StructuredBlocks blocks={structured.blocks} />
   {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}

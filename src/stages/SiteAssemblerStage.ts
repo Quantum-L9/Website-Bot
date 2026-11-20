@@ -1591,7 +1591,9 @@ export function structuredFromSection(
     text,
   }));
   if (section.steps.length) blocks.push({ kind: "steps", items: [...section.steps] });
-  if (section.badges.length) blocks.push({ kind: "bullets", items: [...section.badges] });
+  // Trust points are badges; any other section's list items are a plain list.
+  const trust = section.component === "trust_bar" || section.component === "trust_signals";
+  if (section.badges.length && !trust) blocks.push({ kind: "bullets", items: [...section.badges] });
   return {
     sectionId,
     heading: section.heading,
@@ -1599,5 +1601,6 @@ export function structuredFromSection(
     blocks,
     cta: null,
     ...(section.faqs.length ? { faqs: section.faqs.map((faq) => ({ ...faq })) } : {}),
+    ...(trust && section.badges.length ? { badges: [...section.badges] } : {}),
   };
 }

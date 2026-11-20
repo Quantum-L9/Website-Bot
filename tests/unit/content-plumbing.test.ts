@@ -244,7 +244,11 @@ void test("(2) the COPY assembler hands every section its structured fields", as
     const faq = sections.find((section: { name: string }) => section.name === "faq");
     assert.equal(faq.structured.faqs.length, 2);
     const trust = sections.find((section: { name: string }) => section.name === "trust_bar");
-    assert.equal(trust.structured.blocks.at(-1).kind, "bullets");
+    assert.deepEqual(trust.structured.badges, [
+      "Licensed and insured",
+      "Locally owned in Charlotte",
+      "Insurance claim assistance",
+    ]);
   } finally {
     cleanupContext(ctx);
   }

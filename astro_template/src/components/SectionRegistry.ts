@@ -54,6 +54,11 @@ export interface StructuredSectionView {
   readonly subheading?: string;
   readonly blocks: readonly StructuredBlock[];
   readonly cta: { readonly label: string; readonly href: string } | null;
+  /**
+   * COPY-path trust points (lane wb-content-plumbing): short badges rendered
+   * by TrustBar as its badge list. REDESIGN sections never set it.
+   */
+  readonly badges?: readonly string[];
   /** Route-level FAQ data, attached only to a planned FAQ section. */
   readonly faqs?: readonly { readonly question: string; readonly answer: string }[];
   /**

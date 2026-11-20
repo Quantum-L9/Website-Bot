@@ -10,20 +10,18 @@ interface Props {
 }
 const { name = "trust_bar", structured } = Astro.props;
 if (!structured) throw new Error(`missing-structured-section: ${name} renders only structured copy`);
-// Short trust points arrive as a bullets block and render as badges; any
-// other block (an intro paragraph) renders as written. Nothing is split or
-// labelled by the template.
-const badges = structured.blocks.filter((block) => block.kind === "bullets");
-const other = structured.blocks.filter((block) => block.kind !== "bullets");
+// Blocks render exactly as authored; COPY trust points arrive as `badges`
+// and render as the badge list. Nothing is split or labelled by the template.
+const badges = structured.badges ?? [];
 ---
 <section class="trust-bar" data-section={name} data-section-id={structured.sectionId}>
   {(structured.heading ?? structured.eyebrow) && <h2>{structured.heading ?? structured.eyebrow}</h2>}
   {structured.subheading && <p>{structured.subheading}</p>}
-  <StructuredBlocks blocks={other} />
-  {badges.map((block) => block.kind === "bullets" && (
+  <StructuredBlocks blocks={structured.blocks} />
+  {badges.length > 0 && (
     <ul class="trust-bar__badges">
-      {block.items.map((item) => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span><span>{item}</span></li>)}
+      {badges.map((item) => <li class="trust-bar__badge"><span class="trust-bar__check" aria-hidden="true">✓</span><span>{item}</span></li>)}
     </ul>
-  ))}
+  )}
   {structured.cta && <p><a class="btn btn--primary" href={structured.cta.href}>{structured.cta.label}</a></p>}
 </section>
