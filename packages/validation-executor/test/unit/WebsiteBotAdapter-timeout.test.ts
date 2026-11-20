@@ -12,6 +12,7 @@ import {
   WebsiteBotAdapter,
 } from "../../src/adapters/WebsiteBotAdapter.js";
 import { ContextResolver } from "../../src/core/ContextResolver.js";
+import type { RepositoryAdapter } from "../../src/types/index.js";
 
 describe("WebsiteBotAdapter command timeout", () => {
   test("defaults to the CLI default when no timeout is configured", () => {
@@ -39,5 +40,29 @@ describe("WebsiteBotAdapter command timeout", () => {
     const result = await adapter.executeCommand("sleep 5 && true", process.cwd());
     ok(result.exitCode !== 0, "a command killed by the timeout does not succeed");
     ok(result.duration < 4000, `stopped near the 500ms limit, took ${result.duration}ms`);
+  });
+
+  test("ContextResolver still resolves with an adapter that cannot resolve its own context", async () => {
+    // The CLI falls back to an adapter whose resolveExecutionContext throws
+    // when it cannot identify the repository; resolution must not call it.
+    const fallback: RepositoryAdapter = {
+      async resolveExecutionContext() {
+        throw new Error("Repository adapter not implemented");
+      },
+      async discoverPreflightChecks() {
+        return [];
+      },
+      async discoverE2ETests() {
+        return [];
+      },
+      async executeCommand() {
+        return { exitCode: 0, stdout: "", stderr: "", duration: 0 };
+      },
+      async storeEvidence(evidenceId) {
+        return evidenceId;
+      },
+    };
+    const context = await new ContextResolver(fallback).resolve({ timeout: 500 });
+    ok(context.target_roots.length > 0, "the executor's own context still resolves");
   });
 });

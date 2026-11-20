@@ -62,6 +62,9 @@ export interface PreflightOptions {
   /** Known DeepSeek model ids (priced); a model outside this set is retired/unknown. */
   knownDeepSeekModels: readonly string[];
   defaultDeepSeekModel: string;
+  /** Priced DeepSeek model ids that accept image input; the vision model must be one. */
+  visionDeepSeekModels: readonly string[];
+  defaultDeepSeekVisionModel: string;
   /**
    * SEO-Bot seam configuration, resolved by the CLI. `urlVar` / `keyVar` name
    * the settings so remediations can point at them; values are never printed.

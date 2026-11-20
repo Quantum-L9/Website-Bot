@@ -123,6 +123,8 @@ function options(
     timeoutMs: 1_000,
     knownDeepSeekModels: ["deepseek-flash", "deepseek-pro"],
     defaultDeepSeekModel: "deepseek-flash",
+    visionDeepSeekModels: ["deepseek-flash"],
+    defaultDeepSeekVisionModel: "deepseek-flash",
     secretSource: { bootstrapPresent: false, sourceMode: "process_env_only" },
     seoBot: SEAM,
     ...overrides,
@@ -228,6 +230,21 @@ test("a retired DeepSeek model fails before dispatch", async () => {
   const check = find(report, "llm.deepseek_model");
   assert.equal(check.status, "FAIL");
   assert.match(check.remediation ?? "", /deepseek-flash/);
+});
+
+test("the vision model must be a priced model that accepts images", async () => {
+  const deps = () => fakeDeps({ files: { [SPEC_PATH]: specYaml() } });
+  const byDefault = await runWebsitePreflight(options(), deps());
+  assert.equal(find(byDefault, "llm.deepseek_vision_model").status, "PASS");
+  for (const model of ["deepseek-pro", "deepseek-vision-typo"]) {
+    const report = await runWebsitePreflight(
+      options({ env: { DEEPSEEK_VISION_MODEL: model } }),
+      deps(),
+    );
+    const check = find(report, "llm.deepseek_vision_model");
+    assert.equal(check.status, "FAIL", model);
+    assert.match(check.remediation ?? "", /DEEPSEEK_VISION_MODEL/);
+  }
 });
 
 test("Gemini key is required only when image generation is enabled", async () => {
