@@ -15,7 +15,7 @@ import { join } from "node:path";
 import test from "node:test";
 import type { VisualRequirement } from "@quantum-l9/bot-interop";
 import sharp from "sharp";
-import { srcsetFor } from "../../astro_template/src/lib/responsiveImage.js";
+import { gallerySizes, srcsetFor } from "../../astro_template/src/lib/responsiveImage.js";
 import type { ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
 import {
   buildImageAssetManifest,
@@ -188,6 +188,15 @@ void test("S2: srcset lists renditions plus the full file ascending; none withou
     }),
     "/images/hero-640w.webp 640w, /images/hero-960w.webp 960w, /images/hero.webp 1920w",
   );
+});
+
+void test("S2: gallery sizes widen the spanning first item of feature and mosaic layouts", () => {
+  // global.css: feature's first item spans the full row; mosaic's spans 2 of 4 columns.
+  assert.equal(gallerySizes("feature", 0), "100vw");
+  assert.match(gallerySizes("feature", 1), /33vw/);
+  assert.equal(gallerySizes("mosaic", 0), "(min-width: 40rem) 50vw, 100vw");
+  assert.match(gallerySizes("mosaic", 1), /\(min-width: 800px\) 25vw/);
+  assert.equal(gallerySizes("grid", 0), gallerySizes("grid", 3));
 });
 
 // ---- A1: alt text -----------------------------------------------------------

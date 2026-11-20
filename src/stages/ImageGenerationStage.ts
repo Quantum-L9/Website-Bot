@@ -111,7 +111,7 @@ function canonicalJson(value: unknown): string {
 
 export class ImageGenerationStage implements Stage {
   name = "image-generation";
-  version = "2.0.0";
+  version = "2.1.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Overwrite image_assets with the complete (provided + source-site + generated)

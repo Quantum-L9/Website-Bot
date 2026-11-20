@@ -19,3 +19,24 @@ export function srcsetFor(image: ResponsiveImage): string | undefined {
     .map((entry) => `${entry.src} ${entry.width}w`)
     .join(", ");
 }
+
+/** Default grid: minmax(14rem, 1fr) tracks — one, two, then up to four columns. */
+const GALLERY_GRID_SIZES = "(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw";
+
+/**
+ * `sizes` for one gallery item, mirroring global.css: from 800px the `mosaic`
+ * variant is four columns with the first item spanning two, and the `feature`
+ * variant is three columns with the first item spanning the full row. A
+ * spanning item advertised at a single column's width would be served a
+ * rendition too narrow for it.
+ */
+export function gallerySizes(variant: string, index: number): string {
+  const first = index === 0;
+  if (variant === "feature")
+    return first ? "100vw" : "(min-width: 800px) 33vw, (min-width: 40rem) 50vw, 100vw";
+  if (variant === "mosaic")
+    return first
+      ? "(min-width: 40rem) 50vw, 100vw"
+      : "(min-width: 800px) 25vw, (min-width: 40rem) 50vw, 100vw";
+  return GALLERY_GRID_SIZES;
+}

@@ -342,7 +342,7 @@ function actionKey(value: string): string {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.8.0";
+  version = "3.9.0";
   evidence = {
     // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.

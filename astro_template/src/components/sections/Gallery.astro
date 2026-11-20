@@ -1,5 +1,5 @@
 ---
-import { srcsetFor } from "../../lib/responsiveImage";
+import { gallerySizes, srcsetFor } from "../../lib/responsiveImage";
 import { siteConfig } from "../../lib/siteConfig";
 import { sectionVariant } from "../../styles/variants";
 import type { StructuredSectionView } from "../SectionRegistry";
@@ -15,9 +15,6 @@ type GalleryImage = {
   source?: string;
   variants?: ReadonlyArray<{ src: string; width: number }>;
 };
-// .gallery-grid tracks are minmax(14rem, 1fr) inside the page container:
-// one column on phones, two on tablets, three or four on desktops.
-const GALLERY_SIZES = "(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw";
 
 interface Props {
   name?: string;
@@ -64,8 +61,8 @@ const variant = sectionVariant("gallery", siteConfig.designTokens as Record<stri
     )}
     {items.length > 0 && (
     <div class="gallery-grid">
-      {items.slice(0, 7).map(entry => (
-        <img src={entry.src} srcset={srcsetFor(entry)} sizes={srcsetFor(entry) ? GALLERY_SIZES : undefined} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" data-asset-source={entry.source} data-image-slot={image && entry.src === image.src ? imageSlot : undefined} />
+      {items.slice(0, 7).map((entry, index) => (
+        <img src={entry.src} srcset={srcsetFor(entry)} sizes={srcsetFor(entry) ? gallerySizes(variant, index) : undefined} alt={entry.alt} width={entry.width} height={entry.height} loading="lazy" decoding="async" data-asset-source={entry.source} data-image-slot={image && entry.src === image.src ? imageSlot : undefined} />
       ))}
       {hasGalleryRoute && (
         <a class="gallery-cta" href="/gallery">

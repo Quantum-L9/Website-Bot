@@ -329,7 +329,7 @@ export function withIdentifiedLogo(
 
 export class ImageAssetPlanningStage implements Stage {
   name = "image-asset-planning";
-  version = "2.2.0";
+  version = "2.3.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Persist the plan and the (provided + source-site) delivered manifest whenever
