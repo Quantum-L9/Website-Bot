@@ -266,7 +266,7 @@ void test("hero, prose and lead-form link colouring no longer overrides button t
   assert.doesNotMatch(css, /\.hero__content a \{ color: var\(--color-primary\); \}/);
   assert.match(
     css,
-    /:is\(\.prose, \.lead-form, \.hero__content\) a:not\(\.btn\) \{ color: var\(--color-primary\); \}/,
+    /:is\(\.prose, \.lead-form, \.hero__content\) a:not\(\.btn\) \{ color: var\(--ds-ink\); \}/,
   );
   assert.match(css, /:where\(:root\[data-design~="contrast"\]\)/);
 });

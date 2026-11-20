@@ -3,6 +3,8 @@ import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
+import { FONT_CATALOG, findCatalogFont } from "../../astro_template/src/styles/fontCatalog.js";
+import { SECTION_VARIANT_OPTIONS } from "../../astro_template/src/styles/variants.js";
 
 const logger = createModuleLogger("stage:design-intelligence");
 
@@ -22,6 +24,9 @@ function isColor(value: unknown): value is string {
 function isFont(value: unknown): value is string {
   return typeof value === "string" && /^[A-Za-z0-9]+(?:[ ._-][A-Za-z0-9]+)*$/.test(value);
 }
+
+/** Families a generated site can actually load (self-hosted; see fontCatalog.ts). */
+export const SUPPORTED_FONT_FAMILIES: readonly string[] = FONT_CATALOG.map((font) => font.family);
 
 export function normalizeDesignTokens(
   palette: Record<string, string> = {},
@@ -47,9 +52,19 @@ export function normalizeDesignTokens(
   for (const key of FONT_KEYS) {
     if (!isFont(tokens[key]))
       throw new BuildError("VALIDATION_FAILED", `Design token '${key}' must be a valid font name`);
+    // Fail closed: a family the template cannot self-host would silently render
+    // as the visitor's default sans-serif.
+    const font = findCatalogFont(tokens[key]);
+    if (!font) {
+      throw new BuildError(
+        "VALIDATION_FAILED",
+        `Design token '${key}' names '${tokens[key]}', which is not in the self-hosted font ` +
+          `catalog (${SUPPORTED_FONT_FAMILIES.join(", ")})`,
+      );
+    }
+    tokens[key] = font.family;
   }
   for (const key of COLOR_KEYS) if (tokens[key] !== undefined) tokens[key] = tokens[key].trim();
-  for (const key of FONT_KEYS) tokens[key] = tokens[key].trim();
   return tokens;
 }
 
@@ -258,6 +273,312 @@ export function deriveOnPrimaryToken(primary: string | undefined): Record<string
   return contrast(0, luminance) >= 4.5 ? { layout_on_primary: "#000000" } : {};
 }
 
+/** Opaque colour as #rrggbb, or undefined when it cannot be resolved statically. */
+function toHex(raw: string | undefined): string | undefined {
+  const rgb = raw === undefined ? undefined : opaqueRgb(raw);
+  if (!rgb) return undefined;
+  return `#${rgb.map((channel) => Math.round(channel).toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Linear sRGB mix of two #rrggbb colours: weight 0 is `from`, 1 is `to`. */
+function mix(from: string, to: string, weight: number): string {
+  const a = hexChannels(from) ?? [0, 0, 0];
+  const b = hexChannels(to) ?? [0, 0, 0];
+  return `#${[0, 1, 2]
+    .map((index) =>
+      Math.round(a[index] + (b[index] - a[index]) * weight)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+/** WCAG 2.x contrast ratio between two opaque colours; undefined when either is unresolvable. */
+export function contrastRatio(a: string, b: string): number | undefined {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  return la === undefined || lb === undefined ? undefined : contrast(la, lb);
+}
+
+const AA_TEXT = 4.5;
+const AA_NON_TEXT = 3;
+
+/** Black or white, whichever reads better on `background` (one always reaches >= 4.58:1). */
+function bestMonochrome(background: string): string {
+  return (contrastRatio("#ffffff", background) ?? 0) >= (contrastRatio("#000000", background) ?? 0)
+    ? "#ffffff"
+    : "#000000";
+}
+
+function passesOn(foreground: string, backgrounds: readonly string[], minimum: number): boolean {
+  return backgrounds.every((background) => (contrastRatio(foreground, background) ?? 0) >= minimum);
+}
+
+/**
+ * Every foreground/background pairing the template paints from the ds_*
+ * contrast tokens, with the WCAG AA minimum it must meet (4.5:1 for text, 3:1
+ * for form-control boundaries, WCAG 1.4.11). The derivation below guarantees
+ * each pair; tests/unit/wb-design-system.test.ts proves it per palette.
+ */
+export const CONTRAST_PAIRS: ReadonlyArray<readonly [string, string, number]> = [
+  ["ds_text", "background", AA_TEXT],
+  ["ds_text", "ds_surface", AA_TEXT],
+  ["ds_text", "ds_field", AA_TEXT],
+  ["ds_muted", "background", AA_TEXT],
+  ["ds_muted", "ds_surface", AA_TEXT],
+  ["ds_ink", "background", AA_TEXT],
+  ["ds_ink", "ds_surface", AA_TEXT],
+  ["ds_on_primary", "primary", AA_TEXT],
+  ["ds_control_border", "background", AA_NON_TEXT],
+  ["ds_control_border", "ds_field", AA_NON_TEXT],
+];
+
+/**
+ * Contrast-safe colour roles derived from the palette, never replacing it:
+ * the palette's own colours are kept wherever they already pass, and only a
+ * failing pairing is moved, toward the readable text colour, just far enough.
+ * Returns {} when the palette cannot be resolved statically (translucent or
+ * malformed colours); the template then keeps its colour-mix() defaults.
+ */
+export function deriveContrastTokens(palette: Record<string, string>): Record<string, string> {
+  const background = toHex(palette.background ?? "#ffffff");
+  const primary = toHex(palette.primary);
+  const declaredText = toHex(palette.text ?? "#17212b");
+  if (!background || !primary || !declaredText) return {};
+  const text = passesOn(declaredText, [background], AA_TEXT)
+    ? declaredText
+    : bestMonochrome(background);
+  const firstPassing = (candidates: string[], against: string[], minimum: number): string =>
+    candidates.find((candidate) => passesOn(candidate, against, minimum)) ?? text;
+  // Alternate section surface and form-field fill: a slight tint toward the text colour.
+  const surface =
+    [0.05, 0.035, 0.02]
+      .map((weight) => mix(background, text, weight))
+      .find((candidate) => passesOn(text, [candidate], AA_TEXT)) ?? background;
+  const field =
+    [0.04, 0.025, 0.01]
+      .map((weight) => mix(background, text, weight))
+      .find((candidate) => passesOn(text, [candidate], AA_TEXT)) ?? background;
+  const steps = (from: number, to: number, step: number): number[] => {
+    const values: number[] = [];
+    for (let value = from; step > 0 ? value <= to + 1e-9 : value >= to - 1e-9; value += step)
+      values.push(Number(value.toFixed(3)));
+    return values;
+  };
+  return {
+    ds_text: text,
+    ds_surface: surface,
+    ds_field: field,
+    // Secondary copy: as soft as AA allows on both page surfaces, never softer.
+    ds_muted: firstPassing(
+      steps(0.38, 0, -0.04).map((weight) => mix(text, background, weight)),
+      [background, surface],
+      AA_TEXT,
+    ),
+    // Brand-coloured text (links, eyebrows, ghost buttons): the primary itself
+    // when legible, otherwise the primary nudged toward the text colour.
+    ds_ink: firstPassing(
+      steps(0, 1, 0.1).map((weight) => mix(primary, text, weight)),
+      [background, surface],
+      AA_TEXT,
+    ),
+    ds_on_primary: bestMonochrome(primary),
+    ds_control_border: firstPassing(
+      steps(0.3, 1, 0.05).map((weight) => mix(background, text, weight)),
+      [background, field],
+      AA_NON_TEXT,
+    ),
+    ds_divider: mix(background, text, 0.14),
+  };
+}
+
+/**
+ * Design personalities (design-system v2): approved direction words select ONE
+ * coherent set of section variants and a type/spacing scale, instead of
+ * toggling isolated single-word knobs. Order is the tie-break; a personality
+ * any rejected attribute names is excluded; no match keeps "classic".
+ */
+export const SECTION_VARIANTS = SECTION_VARIANT_OPTIONS;
+
+interface Personality {
+  readonly name: string;
+  readonly words: readonly string[];
+  readonly ratio: number;
+  /** Section padding at desktop, rem. */
+  readonly space: number;
+  readonly hero: (typeof SECTION_VARIANTS.hero)[number];
+  readonly services: (typeof SECTION_VARIANTS.services)[number];
+  readonly cta: (typeof SECTION_VARIANTS.cta)[number];
+  readonly gallery: (typeof SECTION_VARIANTS.gallery)[number];
+}
+
+export const PERSONALITIES: readonly Personality[] = [
+  {
+    name: "editorial",
+    words: [
+      "editorial",
+      "magazine",
+      "story",
+      "storytelling",
+      "narrative",
+      "literary",
+      "elegant",
+      "refined",
+      "timeless",
+      "heritage",
+      "classic",
+      "traditional",
+    ],
+    ratio: 1.333,
+    space: 5,
+    hero: "split",
+    services: "list",
+    cta: "panel",
+    gallery: "mosaic",
+  },
+  {
+    name: "bold",
+    words: [
+      "bold",
+      "confident",
+      "industrial",
+      "strong",
+      "rugged",
+      "dramatic",
+      "striking",
+      "powerful",
+      "energetic",
+      "expressive",
+      "urgent",
+    ],
+    ratio: 1.3,
+    space: 4,
+    hero: "statement",
+    services: "media",
+    cta: "band",
+    gallery: "grid",
+  },
+  {
+    name: "minimal",
+    words: [
+      "minimal",
+      "minimalist",
+      "clean",
+      "restrained",
+      "understated",
+      "quiet",
+      "simple",
+      "calm",
+      "focused",
+      "subtle",
+    ],
+    ratio: 1.2,
+    space: 5.5,
+    hero: "centered",
+    services: "list",
+    cta: "split",
+    gallery: "grid",
+  },
+  {
+    name: "warm",
+    words: [
+      "friendly",
+      "warm",
+      "approachable",
+      "welcoming",
+      "community",
+      "family",
+      "neighborly",
+      "human",
+      "caring",
+      "trustworthy",
+      "local",
+    ],
+    ratio: 1.25,
+    space: 4.5,
+    hero: "split",
+    services: "cards",
+    cta: "band",
+    gallery: "mosaic",
+  },
+  {
+    name: "premium",
+    words: [
+      "premium",
+      "luxurious",
+      "luxury",
+      "sophisticated",
+      "layered",
+      "depth",
+      "cinematic",
+      "immersive",
+      "upscale",
+      "polished",
+    ],
+    ratio: 1.333,
+    space: 5.5,
+    hero: "backdrop",
+    services: "media",
+    cta: "split",
+    gallery: "feature",
+  },
+];
+
+const CLASSIC: Personality = {
+  name: "classic",
+  words: [],
+  ratio: 1.25,
+  space: 4.5,
+  hero: "split",
+  services: "cards",
+  cta: "band",
+  gallery: "grid",
+};
+
+/** Fluid size reaching `max` rem at a 1280px viewport, never below `floor` rem. */
+function fluid(max: number, floor = 1): string {
+  const min = Math.max(floor, max * 0.72);
+  return `clamp(${rem(min)}, ${Number((max * 1.25).toFixed(3))}vw, ${rem(max)})`;
+}
+
+/**
+ * Section variants plus type and spacing scale for one personality, as
+ * ds_* tokens recorded in the generated siteConfig.designTokens (so a build's
+ * choices are inspectable and testable). Always returns a full set.
+ */
+export function deriveDesignSystem(
+  desiredPhrases: readonly string[],
+  rejectedPhrases: readonly string[] = [],
+): Record<string, string> {
+  const desired = wordsOf(desiredPhrases);
+  const rejected = wordsOf(rejectedPhrases);
+  let chosen = CLASSIC;
+  let best = 0;
+  for (const personality of PERSONALITIES) {
+    if (personality.words.some((word) => rejected.has(word))) continue;
+    const score = personality.words.filter((word) => desired.has(word)).length;
+    if (score > best) {
+      best = score;
+      chosen = personality;
+    }
+  }
+  const { ratio } = chosen;
+  return {
+    ds_personality: chosen.name,
+    ds_hero_variant: chosen.hero,
+    ds_services_variant: chosen.services,
+    ds_cta_variant: chosen.cta,
+    ds_gallery_variant: chosen.gallery,
+    ds_type_ratio: String(ratio),
+    ds_fs_display: fluid(Math.min(4.5, ratio ** 5 * 1.1), 2),
+    ds_fs_h1: fluid(ratio ** 4, 1.75),
+    ds_fs_h2: fluid(ratio ** 3, 1.5),
+    ds_fs_h3: fluid(ratio ** 2, 1.2),
+    ds_fs_h4: fluid(ratio, 1.05),
+    ds_section_space: `clamp(${rem(chosen.space * 0.62)}, ${Number((chosen.space * 1.25).toFixed(3))}vw, ${rem(chosen.space)})`,
+  };
+}
+
 /**
  * Derive CSS-ready layout tokens from approved design attributes. Returns an
  * empty object when nothing in the vocabulary matches, so an unconfigured site
@@ -312,17 +633,15 @@ export class DesignIntelligenceStage implements Stage {
     if (!ctx.designTokens) return;
     const direction = ctx.websiteBlueprint?.payload.design_direction;
     const vision = ctx.domainSpec.client_vision;
+    const desired = direction
+      ? [...direction.principles, ...direction.desired_attributes]
+      : [...(vision?.brand_attributes ?? []), ...(vision?.visual_preferences ?? [])];
+    const rejected = direction ? direction.rejected_attributes : [];
     const layout = {
-      ...(direction
-        ? deriveLayoutTokens(
-            [...direction.principles, ...direction.desired_attributes],
-            direction.rejected_attributes,
-          )
-        : deriveLayoutTokens([
-            ...(vision?.brand_attributes ?? []),
-            ...(vision?.visual_preferences ?? []),
-          ])),
+      ...deriveLayoutTokens(desired, rejected),
       ...deriveOnPrimaryToken(ctx.designTokens.primary),
+      ...deriveDesignSystem(desired, rejected),
+      ...deriveContrastTokens(ctx.designTokens),
     };
     if (Object.keys(layout).length === 0) return;
     ctx.designTokens = { ...ctx.designTokens, ...layout };
@@ -510,7 +829,8 @@ export class DesignIntelligenceStage implements Stage {
     const prompt = [
       `Generate CSS brand tokens for a ${vertical} business named "${business_name}" operating in ${geography.primary_state}.`,
       "Return ONLY a JSON object with primary, secondary, accent, background, text, font_heading, and font_body.",
-      "Colors must be CSS hex/rgb/hsl/named values. Fonts must be plain font-family names.",
+      "Colors must be CSS hex/rgb/hsl/named values.",
+      `font_heading and font_body must each be exactly one of: ${SUPPORTED_FONT_FAMILIES.join(", ")}.`,
       ...guidance,
     ]
       .filter(Boolean)

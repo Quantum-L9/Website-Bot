@@ -2,6 +2,7 @@
 import { siteConfig } from "../../lib/siteConfig";
 import type { StructuredSectionView } from "../SectionRegistry";
 import StructuredBlocks from "../StructuredBlocks.astro";
+import { sectionVariant } from "../../styles/variants";
 
 interface Props {
   name?: string;
@@ -23,8 +24,10 @@ const heading = structured
   : paragraphs[0] || cta?.label || siteConfig.businessName;
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
+// Design-system variant chosen from approved direction (ds_cta_variant).
+const variant = sectionVariant("cta", siteConfig.designTokens as Record<string, unknown>);
 ---
-<section class="cta-banner" data-section={name} data-section-id={structured?.sectionId}>
+<section class="cta-banner" data-section={name} data-section-id={structured?.sectionId} data-variant={variant}>
   {cta ? (
     <a class="cta-banner__link" href={cta.href} aria-label={heading}>
       <h2>{heading}</h2>

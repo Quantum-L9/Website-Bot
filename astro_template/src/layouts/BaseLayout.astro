@@ -1,6 +1,13 @@
 ---
 import { siteConfig } from "../lib/siteConfig";
 import "../styles/global.css";
+import {
+  DEFAULT_FONT_FAMILY,
+  findCatalogFont,
+  fontFaceCss,
+  fontStack,
+  type CatalogFont,
+} from "../styles/fontCatalog";
 
 interface Props {
   title: string;
@@ -55,6 +62,43 @@ for (const [group, keys] of Object.entries(LAYOUT_GROUPS)) {
   designGroups.push(group);
   for (const [cssVar, value] of entries) designVars.push(`${cssVar}:${value}`);
 }
+// Design system v2: contrast-safe colour roles and the type/spacing scale
+// DesignIntelligenceStage derived (ds_* tokens). Each is applied on its own
+// when present and well formed; global.css falls back to colour-mix() defaults.
+const DS_VARS: Record<string, string> = {
+  ds_text: "--ds-text",
+  ds_surface: "--ds-surface",
+  ds_field: "--ds-field",
+  ds_muted: "--ds-muted",
+  ds_ink: "--ds-ink",
+  ds_on_primary: "--ds-on-primary",
+  ds_control_border: "--ds-control-border",
+  ds_divider: "--ds-divider",
+  ds_fs_display: "--step-display",
+  ds_fs_h1: "--step-h1",
+  ds_fs_h2: "--step-h2",
+  ds_fs_h3: "--step-h3",
+  ds_fs_h4: "--step-h4",
+  ds_section_space: "--space-section",
+};
+for (const [token, cssVar] of Object.entries(DS_VARS)) {
+  const value = designTokens[token];
+  if (typeof value === "string" && SAFE_CSS_VALUE.test(value)) designVars.push(`${cssVar}:${value}`);
+}
+// Self-hosted fonts (fontCatalog.ts): only catalog families can load, so the
+// stack and @font-face come from the catalog, never from free text. The
+// generated tokens.css names the family; the stack here adds the right
+// serif/sans fallbacks while the face loads.
+const headingFont = findCatalogFont(designTokens.font_heading);
+const bodyFont = findCatalogFont(designTokens.font_body);
+if (headingFont) designVars.push(`--font-heading:${fontStack(headingFont)}`);
+if (bodyFont) designVars.push(`--font-body:${fontStack(bodyFont)}`);
+const usedFonts: CatalogFont[] = [
+  headingFont ?? findCatalogFont(DEFAULT_FONT_FAMILY)!,
+  bodyFont ?? findCatalogFont(DEFAULT_FONT_FAMILY)!,
+];
+const fontFaces = fontFaceCss(usedFonts);
+const preloadFonts = [...new Set(usedFonts.map((font) => font.faces[0]!.file))];
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Footer sitemap: group every published route by its top-level segment so
@@ -99,19 +143,50 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
     {ogImageUrl && <meta name="twitter:card" content="summary_large_image" />}
     {jsonLd.map(value => <script is:inline type="application/ld+json" set:html={value} />)}
+    {preloadFonts.map(href => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <style is:inline set:html={fontFaces} />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
-    <header class="site-header">
+    <header class="site-header" data-menu="closed">
       <div class="site-header__inner">
         {logo && <a href="/" class="site-logo"><img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} decoding="async" data-image-slot="global:logo" /></a>}
         {!logo && <a href="/" class="site-wordmark">{siteConfig.businessName}</a>}
-        <nav class="site-nav" aria-label="Primary">{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav>
+        {siteConfig.nav.length > 0 && (
+          <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
+            <span class="site-menu-toggle__icon" aria-hidden="true"></span>
+            <span class="site-menu-toggle__label">Menu</span>
+          </button>
+        )}
+        <nav class="site-nav" id="site-nav" aria-label="Primary">{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav>
         {telHref && <a class="btn btn-phone" href={telHref}>{phone}</a>}
       </div>
     </header>
+    {/* Mobile menu: without JavaScript the toggle stays hidden and the nav
+        wraps under the header; with it, the button discloses the nav and
+        reports its state through aria-expanded. Escape closes and returns focus. */}
+    <script is:inline>
+      (() => {
+        const header = document.querySelector(".site-header");
+        const toggle = header && header.querySelector(".site-menu-toggle");
+        if (!header || !toggle) return;
+        document.documentElement.classList.add("has-menu-toggle");
+        toggle.hidden = false;
+        const set = (open) => {
+          header.dataset.menu = open ? "open" : "closed";
+          toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        };
+        toggle.addEventListener("click", () => set(toggle.getAttribute("aria-expanded") !== "true"));
+        header.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+            set(false);
+            toggle.focus();
+          }
+        });
+      })();
+    </script>
     <main id="main-content">{pageHeading && <h1 class="page-title">{pageHeading}</h1>}<slot /></main>
-    <footer>
+    <footer class="site-footer">
       <p data-visual-dynamic="build-year">© {new Date().getFullYear()} {siteConfig.businessName}</p>
       {footerGroups.length > 0 && (
         <nav class="footer-nav" aria-label="Footer">
