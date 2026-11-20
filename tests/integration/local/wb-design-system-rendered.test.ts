@@ -7,8 +7,9 @@
 //   1. the chosen fonts actually load (self-hosted, no CDN, not a fallback);
 //   2. the ghost phone button on the primary CTA band is legible (it used to be
 //      primary-coloured text on a primary background, i.e. invisible);
-//   3. at 390px the header is one row with an accessible menu toggle
-//      (aria-expanded, Escape closes) instead of a nav wrapped into a column.
+//   3. at 390px the header is one row with an accessible menu toggle (native
+//      popover: expanded state exposed, Escape closes, no JavaScript) instead
+//      of a nav wrapped into a column.
 // The palette deliberately uses a light primary where white text fails WCAG AA,
 // the case that broke button contrast before. Requires the Playwright chromium
 // binary; its absence fails this test, never skips it.
@@ -189,31 +190,63 @@ void test("at 390px the header is one row with an accessible menu toggle", async
   assert.equal(header.navDisplay, "none", "the nav is collapsed behind the toggle");
   const toggle = page.locator(".site-menu-toggle");
   assert.ok(await toggle.isVisible(), "menu toggle is visible");
-  assert.equal(await toggle.getAttribute("aria-expanded"), "false");
-  assert.equal(await toggle.getAttribute("aria-controls"), "site-nav");
   assert.equal(await toggle.evaluate((element) => element.tagName), "BUTTON");
+  assert.equal(await toggle.getAttribute("popovertarget"), "site-nav");
+  // The browser exposes the disclosure state to assistive technology (read from
+  // Chromium's own accessibility tree, which is what screen readers consume).
+  const cdp = await page.context().newCDPSession(page);
+  const expanded = async (): Promise<boolean | undefined> => {
+    const { nodes } = (await cdp.send("Accessibility.getFullAXTree")) as {
+      nodes: Array<{
+        role?: { value?: string };
+        name?: { value?: string };
+        properties?: Array<{ name: string; value: { value?: unknown } }>;
+      }>;
+    };
+    const button = nodes.find(
+      (node) => node.role?.value === "button" && node.name?.value === "Menu",
+    );
+    const state = button?.properties?.find((property) => property.name === "expanded");
+    return state?.value.value as boolean | undefined;
+  };
+  assert.equal(await expanded(), false, "collapsed state is exposed");
   // Keyboard: focus and Enter open it, links are on screen, Escape closes and returns focus.
   await toggle.focus();
   await page.keyboard.press("Enter");
-  assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(
+    await page.evaluate(`document.querySelector("#site-nav").matches(":popover-open")`),
+    true,
+  );
+  assert.equal(await expanded(), true, "expanded state is exposed");
   const links = (await page.evaluate(`[...document.querySelectorAll("#site-nav a")].map((link) => {
     const rect = link.getBoundingClientRect();
-    return { left: rect.left, right: rect.right, height: rect.height, shown: rect.width > 0 };
-  })`)) as Array<{ left: number; right: number; height: number; shown: boolean }>;
+    return { left: rect.left, right: rect.right, top: rect.top, height: rect.height, shown: rect.width > 0 };
+  })`)) as Array<{ left: number; right: number; top: number; height: number; shown: boolean }>;
   assert.ok(links.length > 0, "nav has links");
   for (const link of links) {
     assert.ok(
-      link.shown && link.left >= 0 && link.right <= 390,
-      `link on screen ${JSON.stringify(link)}`,
+      link.shown && link.left >= 0 && link.right <= 390 && link.top >= header.height,
+      `link on screen below the bar ${JSON.stringify(link)}`,
     );
     assert.ok(link.height >= 44, `touch target ${link.height}px`);
   }
   await page.keyboard.press("Escape");
-  assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+  assert.equal(
+    await page.evaluate(`document.querySelector("#site-nav").matches(":popover-open")`),
+    false,
+  );
   assert.equal(await page.evaluate("document.activeElement.className"), "site-menu-toggle");
+  assert.equal(await expanded(), false, "collapsed again after Escape");
   assert.equal(
     await page.evaluate(`getComputedStyle(document.querySelector("#site-nav")).display`),
     "none",
+  );
+  // No client JavaScript is involved.
+  assert.equal(
+    await page.evaluate(
+      "document.querySelectorAll('script:not([type=\"application/ld+json\"])').length",
+    ),
+    0,
   );
   await page.close();
 });

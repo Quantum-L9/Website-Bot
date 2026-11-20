@@ -166,7 +166,6 @@ hr { border: 0; border-top: 1px solid var(--ds-divider); margin: var(--space-6) 
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
-.site-menu-toggle[hidden] { display: none; }
 .site-menu-toggle__icon,
 .site-menu-toggle__icon::before,
 .site-menu-toggle__icon::after {
@@ -181,43 +180,67 @@ hr { border: 0; border-top: 1px solid var(--ds-divider); margin: var(--space-6) 
 .site-menu-toggle__icon::after { content: ""; position: absolute; left: 0; }
 .site-menu-toggle__icon::before { top: -6px; }
 .site-menu-toggle__icon::after { top: 6px; }
-.site-menu-toggle[aria-expanded="true"] .site-menu-toggle__icon { background: transparent; }
-.site-menu-toggle[aria-expanded="true"] .site-menu-toggle__icon::before { top: 0; transform: rotate(45deg); }
-.site-menu-toggle[aria-expanded="true"] .site-menu-toggle__icon::after { top: 0; transform: rotate(-45deg); }
 .site-menu-toggle__label { font-size: 0.9rem; font-weight: 600; }
+/* Wide screens: the popover nav is an ordinary inline nav (author styles beat
+   the UA's closed-popover display:none and its top-layer box). */
+@media (min-width: 900px) {
+  .site-nav[popover] {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    color: inherit;
+    background: none;
+  }
+}
 @media (max-width: 899px) {
   .site-header__inner { gap: var(--space-3); }
   .site-logo, .site-wordmark { margin-right: auto; }
   .site-wordmark { font-size: 1rem; }
   .btn.btn-phone { font-size: 0.85rem; padding: 0.5rem 0.8rem; order: 2; }
-  .site-menu-toggle { order: 3; }
+  .site-menu-toggle { display: inline-flex; order: 3; }
   .site-menu-toggle__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  /* Without JavaScript the nav wraps into rows under the brand, never a column. */
-  .site-nav { order: 4; flex-basis: 100%; margin-left: 0; gap: 0 var(--space-4); }
-  /* With the toggle, the bar stays one row and the nav is a disclosure panel under it. */
-  .has-menu-toggle .site-header__inner { flex-wrap: nowrap; }
-  .has-menu-toggle .site-menu-toggle:not([hidden]) { display: inline-flex; }
-  .has-menu-toggle .site-nav { display: none; }
-  .has-menu-toggle .site-header[data-menu="open"] .site-nav {
+  /* The bar is one row; the nav opens as a panel under it. The author
+     .site-nav display would otherwise override the UA's closed-popover hiding. */
+  .site-header__inner:has(.site-nav[popover]) { flex-wrap: nowrap; }
+  .site-nav[popover]:not(:popover-open) { display: none; }
+  .site-nav:popover-open {
+    position: fixed;
+    inset: 4.4rem 0 auto 0;
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 4.4rem);
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    position: absolute;
-    top: 100%;
-    left: -1rem;
-    right: -1rem;
     padding: var(--space-2) 1rem var(--space-4);
+    color: var(--ds-text);
     background: var(--color-background);
+    border: 0;
     border-bottom: 1px solid var(--ds-divider);
     box-shadow: var(--shadow-card);
+    overflow-y: auto;
   }
-  .has-menu-toggle .site-header[data-menu="open"] .site-nav a {
+  .site-nav:popover-open a {
     display: flex;
     align-items: center;
     min-height: 2.75rem;
     border-bottom: 1px solid var(--ds-divider);
   }
+}
+/* Without popover support the toggle could not open anything: hide it and let
+   the nav wrap into rows under the brand (never a column). */
+@supports not selector(:popover-open) {
+  .site-header .site-menu-toggle { display: none; }
+  .site-header .site-nav[popover] { display: flex; }
+  .site-header .site-header__inner:has(.site-nav[popover]) { flex-wrap: wrap; }
+  .site-header .site-nav { order: 4; flex-basis: 100%; margin-left: 0; gap: 0 var(--space-4); }
 }
 
 /* ── Sections, surfaces and bands ─────────────────────────────────────────── */
@@ -547,7 +570,7 @@ input:focus, textarea:focus, select:focus { outline: 3px solid var(--ds-ink); ou
 .cta-banner[data-variant="band"] {
   border-radius: 0;
   margin-block: 0;
-  padding-block: clamp(3rem, 8vw, 5.5rem);
+  padding: clamp(3rem, 8vw, 5.5rem) 0;
   box-shadow: 0 0 0 100vmax var(--color-primary);
   clip-path: inset(0 -100vmax);
 }

@@ -148,43 +148,24 @@ const footerGroups: Array<{ label: string; items: Array<{ href: string; title: s
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
-    <header class="site-header" data-menu="closed">
+    <header class="site-header">
       <div class="site-header__inner">
         {logo && <a href="/" class="site-logo"><img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} decoding="async" data-image-slot="global:logo" /></a>}
         {!logo && <a href="/" class="site-wordmark">{siteConfig.businessName}</a>}
+        {/* Mobile menu without JavaScript: the native Popover API. The button
+            exposes the expanded state to assistive technology, Enter/Space open
+            it, Escape and an outside click close it and return focus. On wide
+            screens (and in browsers without popover support) the nav is inline. */}
         {siteConfig.nav.length > 0 && (
-          <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
+          <button class="site-menu-toggle" type="button" popovertarget="site-nav">
             <span class="site-menu-toggle__icon" aria-hidden="true"></span>
             <span class="site-menu-toggle__label">Menu</span>
           </button>
         )}
-        <nav class="site-nav" id="site-nav" aria-label="Primary">{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav>
+        <nav class="site-nav" id="site-nav" aria-label="Primary" popover>{siteConfig.nav.map(item => <a href={item.href}>{item.label}</a>)}</nav>
         {telHref && <a class="btn btn-phone" href={telHref}>{phone}</a>}
       </div>
     </header>
-    {/* Mobile menu: without JavaScript the toggle stays hidden and the nav
-        wraps under the header; with it, the button discloses the nav and
-        reports its state through aria-expanded. Escape closes and returns focus. */}
-    <script is:inline>
-      (() => {
-        const header = document.querySelector(".site-header");
-        const toggle = header && header.querySelector(".site-menu-toggle");
-        if (!header || !toggle) return;
-        document.documentElement.classList.add("has-menu-toggle");
-        toggle.hidden = false;
-        const set = (open) => {
-          header.dataset.menu = open ? "open" : "closed";
-          toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        };
-        toggle.addEventListener("click", () => set(toggle.getAttribute("aria-expanded") !== "true"));
-        header.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
-            set(false);
-            toggle.focus();
-          }
-        });
-      })();
-    </script>
     <main id="main-content">{pageHeading && <h1 class="page-title">{pageHeading}</h1>}<slot /></main>
     <footer class="site-footer">
       <p data-visual-dynamic="build-year">© {new Date().getFullYear()} {siteConfig.businessName}</p>
