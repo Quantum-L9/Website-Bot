@@ -26,6 +26,14 @@ export interface ImageGenerationResult {
   model: string;
   /** Estimated cost of this generation in USD, when the provider reports it. */
   estimatedCostUsd?: number;
+  /** The image config actually sent to the provider (not the prompt words). */
+  requestConfig?: { aspectRatio?: string; imageSize?: ImageSizeHint };
+  /**
+   * Why the sent config differs from the request (an unsupported ratio mapped
+   * to the nearest supported one, a size tier the model does not offer). The
+   * optimisation step then crops/resizes deterministically to the slot.
+   */
+  adjustments?: string[];
 }
 
 export interface ImageGenerator {
@@ -54,9 +62,11 @@ export class FakeImageGenerator implements ImageGenerator {
   }
 
   private encodePng(): Buffer {
-    // Minimal valid 1x1 opaque PNG. Static content keeps fake generations stable.
+    // Minimal 1x1 opaque RGB PNG with valid chunk CRCs (a real decoder must
+    // accept it: generated output is decoded and re-encoded for its slot).
+    // Static content keeps fake generations stable.
     const base64 =
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNoaGgAAAMEAYEezv+mAAAAAElFTkSuQmCC";
     const buffer = Buffer.from(base64, "base64");
     if (!PNG_SIGNATURE.every((value, index) => buffer[index] === value)) {
       throw new Error("FakeImageGenerator produced an invalid PNG");

@@ -41,6 +41,14 @@ import {
   type InspectedImage,
   inspectImage,
 } from "../services/images/ImageInspector.js";
+import {
+  ImageOptimizationError,
+  type ImageOptimizationRecord,
+  isOptimizableRaster,
+  type OptimizedImage,
+  optimizationRecord,
+  optimizeImageForSlot,
+} from "../services/images/ImageOptimizer.js";
 
 const logger = createModuleLogger("stage:image-asset-planning");
 
@@ -284,6 +292,7 @@ export class ImageAssetPlanningStage implements Stage {
       provided: provided.map(this.toCandidate),
       sourceCandidates,
       generationEnabled,
+      vertical: ctx.domainSpec.vertical,
     });
     ctx.imageAssetPlan = plan;
 
@@ -314,7 +323,7 @@ export class ImageAssetPlanningStage implements Stage {
     this.reportUnusedPlacedImages(providedSpecs, plan);
 
     const stagingRoot = clientAssetRoot(ctx);
-    const resolved = this.resolvePlannedAssets(
+    const resolved = await this.resolvePlannedAssets(
       ctx,
       plan,
       slots,
@@ -397,15 +406,16 @@ export class ImageAssetPlanningStage implements Stage {
     );
   }
 
-  private resolvePlannedAssets(
+  private async resolvePlannedAssets(
     ctx: BuildContext,
     plan: ImageAssetPlan,
     slots: ImageSlotSpec[],
     provided: InspectedProvided[],
     sourceCandidates: IngestedImage[],
     stagingRoot: string,
-  ): ResolvedImageAsset[] {
+  ): Promise<ResolvedImageAsset[]> {
     const resolved: ResolvedImageAsset[] = [];
+    const optimizations: ImageOptimizationRecord[] = [];
     for (const planned of plan.assets) {
       const slot = slots.find((candidate) => candidate.id === planned.slotId);
       if (!slot) continue;
@@ -414,10 +424,16 @@ export class ImageAssetPlanningStage implements Stage {
         const match = provided.find((entry) => entry.spec.id === resolution.candidateId);
         if (!match) continue;
         resolved.push(
-          this.stageAsset(ctx, stagingRoot, slot, "provided", match.absolutePath, match.inspected, {
-            altText: slot.altText ?? match.spec.altText,
-            originalPath: match.absolutePath,
-          }),
+          await this.stageAsset(
+            ctx,
+            stagingRoot,
+            slot,
+            "provided",
+            match.absolutePath,
+            match.inspected,
+            { altText: slot.altText ?? match.spec.altText, originalPath: match.absolutePath },
+            optimizations,
+          ),
         );
       } else if (resolution.source === "source-site") {
         const candidate = sourceCandidates.find((entry) => entry.id === resolution.candidateId);
@@ -432,19 +448,29 @@ export class ImageAssetPlanningStage implements Stage {
             }
           : inspectImage(readFileSync(candidate.localPath));
         resolved.push(
-          this.stageAsset(ctx, stagingRoot, slot, "source-site", candidate.localPath, inspected, {
-            altText: slot.altText ?? candidate.altText,
-            sourceUrl: candidate.sourceUrl,
-            provenanceWarnings: [
-              "source-site asset reused; verify client ownership before publication",
-            ],
-          }),
+          await this.stageAsset(
+            ctx,
+            stagingRoot,
+            slot,
+            "source-site",
+            candidate.localPath,
+            inspected,
+            {
+              altText: slot.altText ?? candidate.altText,
+              sourceUrl: candidate.sourceUrl,
+              provenanceWarnings: [
+                "source-site asset reused; verify client ownership before publication",
+              ],
+            },
+            optimizations,
+          ),
         );
       }
       // 'generated' resolutions are filled by the generation stage;
       // 'static-illustration' is rendered by the template as inline SVG and has
       // no file to stage; 'unresolved' non-required slots are left empty.
     }
+    if (!ctx.dryRun) writeOptimizationEvidence(stagingRoot, optimizations);
     return resolved;
   }
 
@@ -577,7 +603,7 @@ export class ImageAssetPlanningStage implements Stage {
     return results;
   }
 
-  private stageAsset(
+  private async stageAsset(
     ctx: BuildContext,
     stagingRoot: string,
     slot: ImageSlotSpec,
@@ -590,30 +616,42 @@ export class ImageAssetPlanningStage implements Stage {
       originalPath?: string;
       provenanceWarnings?: string[];
     },
-  ): ResolvedImageAsset {
-    const extension =
-      EXTENSION_BY_MIME[inspected.mimeType] ?? basename(sourcePath).split(".").pop() ?? "img";
-    const outputFileName = `${slugify(slot.id)}.${extension}`;
+    optimizations: ImageOptimizationRecord[],
+  ): Promise<ResolvedImageAsset> {
     const subdir = source === "source-site" ? "source-site" : "provided";
+    let shipped: InspectedImage = inspected;
+    let extension =
+      EXTENSION_BY_MIME[inspected.mimeType] ?? basename(sourcePath).split(".").pop() ?? "img";
     let absolutePath = sourcePath;
     if (!ctx.dryRun) {
       const stagedDir = resolve(stagingRoot, subdir);
       mkdirSync(stagedDir, { recursive: true });
-      absolutePath = resolve(stagedDir, `${inspected.sha256}.${extension}`);
-      copyFileSync(sourcePath, absolutePath);
+      if (isOptimizableRaster(inspected.mimeType)) {
+        // Every shipped raster is cropped/resized/re-encoded for its slot and
+        // must fit the slot's byte cap; failure stops the build.
+        const optimized = await optimizeOrFail(readFileSync(sourcePath), slot);
+        shipped = inspectImage(optimized.bytes);
+        extension = optimized.extension;
+        absolutePath = resolve(stagedDir, `${shipped.sha256}.${extension}`);
+        writeFileSync(absolutePath, optimized.bytes);
+        optimizations.push(optimizationRecord(slot, source, optimized));
+      } else {
+        absolutePath = resolve(stagedDir, `${inspected.sha256}.${extension}`);
+        copyFileSync(sourcePath, absolutePath);
+      }
     }
     const asset: ResolvedImageAsset = {
       slotId: slot.id,
       placement: slot.placement,
       source,
       absolutePath,
-      outputFileName,
+      outputFileName: `${slugify(slot.id)}.${extension}`,
       altText: extra.altText ?? slot.altText ?? slot.id,
-      mimeType: inspected.mimeType,
-      width: inspected.width,
-      height: inspected.height,
-      byteLength: inspected.byteLength,
-      sha256: inspected.sha256,
+      mimeType: shipped.mimeType,
+      width: shipped.width,
+      height: shipped.height,
+      byteLength: shipped.byteLength,
+      sha256: shipped.sha256,
       sourceUrl: extra.sourceUrl,
       originalPath: extra.originalPath,
       disposition: dispositionForSource(source),
@@ -622,4 +660,44 @@ export class ImageAssetPlanningStage implements Stage {
     ctx.resolvedImages?.set(slot.placement, asset);
     return asset;
   }
+}
+
+/** Optimise for the slot, mapping an optimisation failure to a build failure. */
+export async function optimizeOrFail(bytes: Buffer, slot: ImageSlotSpec): Promise<OptimizedImage> {
+  try {
+    return await optimizeImageForSlot(bytes, slot);
+  } catch (error) {
+    if (error instanceof ImageOptimizationError)
+      throw new BuildError("VALIDATION_FAILED", `Image optimisation failed: ${error.message}`);
+    throw error;
+  }
+}
+
+/** Merge this stage's optimisation records into the build's evidence file. */
+export function writeOptimizationEvidence(
+  stagingRoot: string,
+  records: ImageOptimizationRecord[],
+): void {
+  if (records.length === 0) return;
+  const dir = resolve(stagingRoot, "manifests");
+  mkdirSync(dir, { recursive: true });
+  const path = resolve(dir, "image-optimization.json");
+  const existing: ImageOptimizationRecord[] = existsSync(path)
+    ? (JSON.parse(readFileSync(path, "utf-8")) as { images: ImageOptimizationRecord[] }).images
+    : [];
+  const bySlot = new Map(existing.map((record) => [record.slotId, record]));
+  for (const record of records) bySlot.set(record.slotId, record);
+  const images = [...bySlot.values()];
+  const totals = images.reduce(
+    (sum, record) => ({
+      originalBytes: sum.originalBytes + record.originalBytes,
+      optimizedBytes: sum.optimizedBytes + record.optimizedBytes,
+    }),
+    { originalBytes: 0, optimizedBytes: 0 },
+  );
+  writeFileSync(
+    path,
+    `${JSON.stringify({ schema: "website-bot.image-optimization/v1", totals, images }, null, 2)}\n`,
+    "utf-8",
+  );
 }

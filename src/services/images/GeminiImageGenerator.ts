@@ -11,6 +11,7 @@ import type {
   ImageGenerationRequest,
   ImageGenerationResult,
   ImageGenerator,
+  ImageSizeHint,
 } from "./ImageGenerator.js";
 
 const logger = createModuleLogger("service:gemini-image");
@@ -21,6 +22,91 @@ export interface GeminiImageOptions {
   endpointBase?: string;
   /** Per-image cost estimate recorded for budgeting and evidence. */
   costPerImageUsd?: number;
+}
+
+/**
+ * Aspect ratios accepted by `generationConfig.imageConfig.aspectRatio`
+ * (Gemini API reference, ImageConfig; output table for gemini-2.5-flash-image).
+ * The newer 3.1 / Nano Banana 2.1 models add the extreme ratios.
+ */
+const BASE_ASPECT_RATIOS = [
+  "1:1",
+  "2:3",
+  "3:2",
+  "3:4",
+  "4:3",
+  "4:5",
+  "5:4",
+  "9:16",
+  "16:9",
+  "21:9",
+] as const;
+const EXTENDED_ASPECT_RATIOS = ["1:4", "4:1", "1:8", "8:1"] as const;
+
+/**
+ * Models documented with 1K/2K/4K size tiers. gemini-2.5-flash-image ("legacy
+ * Nano Banana") documents a single size per ratio, and the API returns an
+ * error when a model receives a config field it does not support, so the size
+ * is only sent to these families.
+ */
+const SIZE_TIER_MODEL = /^gemini-(3-pro-image|3\.1-flash-image|3\.1-flash-lite-image|nano-banana)/;
+const EXTENDED_RATIO_MODEL = /^gemini-(3\.1-flash-image|nano-banana-2\.1)/;
+
+function ratioValue(ratio: string): number {
+  const [w, h] = ratio.split(":").map(Number);
+  return w / h;
+}
+
+/** Ratios this model accepts, for the request config. */
+export function supportedAspectRatios(model: string): readonly string[] {
+  return EXTENDED_RATIO_MODEL.test(model)
+    ? [...BASE_ASPECT_RATIOS, ...EXTENDED_ASPECT_RATIOS]
+    : BASE_ASPECT_RATIOS;
+}
+
+export function modelSupportsImageSize(model: string): boolean {
+  return SIZE_TIER_MODEL.test(model);
+}
+
+/**
+ * The image config to send for a request: the requested ratio when the model
+ * accepts it, else the nearest accepted ratio (by log-distance); the size tier
+ * only where the model offers tiers. Every deviation is recorded.
+ */
+export function geminiImageConfig(
+  model: string,
+  request: Pick<ImageGenerationRequest, "aspectRatio" | "imageSize">,
+): { config: { aspectRatio?: string; imageSize?: ImageSizeHint }; adjustments: string[] } {
+  const config: { aspectRatio?: string; imageSize?: ImageSizeHint } = {};
+  const adjustments: string[] = [];
+  const requested = request.aspectRatio?.trim().replace(/\s+/g, "").replace(/[x/]/, ":");
+  if (requested) {
+    const supported = supportedAspectRatios(model);
+    const parsed = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/.exec(requested);
+    if (supported.includes(requested)) {
+      config.aspectRatio = requested;
+    } else if (parsed && Number(parsed[2]) > 0) {
+      const target = Math.log(Number(parsed[1]) / Number(parsed[2]));
+      const nearest = [...supported].sort(
+        (a, b) =>
+          Math.abs(Math.log(ratioValue(a)) - target) - Math.abs(Math.log(ratioValue(b)) - target),
+      )[0];
+      config.aspectRatio = nearest;
+      adjustments.push(
+        `aspectRatio ${request.aspectRatio} is not accepted by ${model}; requested nearest ${nearest} and the slot crop is applied after generation`,
+      );
+    } else {
+      adjustments.push(`aspectRatio ${request.aspectRatio} is not a ratio; not sent`);
+    }
+  }
+  if (request.imageSize) {
+    if (modelSupportsImageSize(model)) config.imageSize = request.imageSize;
+    else
+      adjustments.push(
+        `imageSize ${request.imageSize} not sent: ${model} has no size tiers; the output is resized to the slot after generation`,
+      );
+  }
+  return { config, adjustments };
 }
 
 interface GeminiInlineData {
@@ -57,6 +143,7 @@ export class GeminiImageGenerator implements ImageGenerator {
     request: ImageGenerationRequest,
   ): Promise<ImageGenerationResult | undefined> {
     const url = `${this.endpointBase}/v1beta/models/${this.model}:generateContent`;
+    const { config, adjustments } = geminiImageConfig(this.model, request);
     const parts: Array<Record<string, unknown>> = [{ text: request.prompt }];
     for (const reference of request.referenceImages ?? []) {
       parts.push({
@@ -67,7 +154,10 @@ export class GeminiImageGenerator implements ImageGenerator {
     const response = await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": this.apiKey },
-      body: JSON.stringify({ contents: [{ role: "user", parts }] }),
+      body: JSON.stringify({
+        contents: [{ role: "user", parts }],
+        ...(Object.keys(config).length > 0 ? { generationConfig: { imageConfig: config } } : {}),
+      }),
     });
     if (!response.ok) {
       throw new Error(`Gemini image generation failed: HTTP ${response.status}`);
@@ -111,6 +201,8 @@ export class GeminiImageGenerator implements ImageGenerator {
       mimeType: inline.mimeType ?? "image/png",
       model: this.model,
       estimatedCostUsd: this.costPerImageUsd,
+      requestConfig: config,
+      adjustments,
     };
   }
 }

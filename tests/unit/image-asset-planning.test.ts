@@ -17,17 +17,11 @@ import {
 } from "../../src/services/images/ImageAssetPlanner.js";
 import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
 import { SiteAssemblerStage } from "../../src/stages/SiteAssemblerStage.js";
+import { realPng } from "../helpers/realImage.js";
 import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
-const PNG_1x1 = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-  "base64",
-);
 function pngWith(width: number, height: number): Buffer {
-  const buffer = Buffer.from(PNG_1x1);
-  buffer.writeUInt32BE(width, 16);
-  buffer.writeUInt32BE(height, 20);
-  return buffer;
+  return realPng(width, height);
 }
 
 const heroSlot: ImageSlotSpec = {
@@ -165,16 +159,22 @@ void test("provided images resolve, copy into public/images, and register in sit
     assert.equal(ctx.imageAssetManifest?.assets.length, 2);
 
     await new SiteAssemblerStage().run(ctx);
-    assert.ok(existsSync(join(ctx.outputDir, "public/images/home-hero.png")), "hero image copied");
-    assert.ok(existsSync(join(ctx.outputDir, "public/images/site-logo.png")), "logo image copied");
+    assert.ok(
+      existsSync(join(ctx.outputDir, "public/images/home-hero.webp")),
+      "hero image optimised and copied",
+    );
+    assert.ok(
+      existsSync(join(ctx.outputDir, "public/images/site-logo.webp")),
+      "logo image optimised and copied",
+    );
 
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");
-    assert.match(config, /\/images\/home-hero\.png/);
+    assert.match(config, /\/images\/home-hero\.webp/);
     assert.match(config, /"global:logo"/);
     assert.match(config, /"source": ?"provided"/);
 
     assert.ok(
-      ctx.assemblyManifest?.files.some((file) => file.path === "public/images/home-hero.png"),
+      ctx.assemblyManifest?.files.some((file) => file.path === "public/images/home-hero.webp"),
       "hero image recorded in assembly manifest",
     );
   } finally {
