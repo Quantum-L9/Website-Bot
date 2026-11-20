@@ -1,10 +1,11 @@
 // L9_META: layer=stage, role=design_intelligence, stage_index=3, status=active, version=3.0.0
+
+import { FONT_CATALOG, findCatalogFont } from "../../astro_template/src/styles/fontCatalog.js";
+import { SECTION_VARIANT_OPTIONS } from "../../astro_template/src/styles/variants.js";
 import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
-import { FONT_CATALOG, findCatalogFont } from "../../astro_template/src/styles/fontCatalog.js";
-import { SECTION_VARIANT_OPTIONS } from "../../astro_template/src/styles/variants.js";
 
 const logger = createModuleLogger("stage:design-intelligence");
 
