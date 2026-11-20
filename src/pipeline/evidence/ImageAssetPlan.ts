@@ -57,6 +57,8 @@ export interface ImageGenerationBrief {
   exclusions?: string[];
   aspectRatio?: string;
   imageSize?: "1K" | "2K" | "4K";
+  /** The slot's alt guidance, carried so the generated image ships real alt text. */
+  altText?: string;
 }
 
 export type ImageAssetResolution =

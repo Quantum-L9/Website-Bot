@@ -27,6 +27,7 @@ import {
 import type { ImageGenerationBrief } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 import { createImageGenerator } from "../services/images/GeminiImageGenerator.js";
+import { MissingAltTextError, resolveAltText } from "../services/images/ImageAltText.js";
 import { ImageBudget, ImageBudgetExceededError } from "../services/images/ImageBudget.js";
 import type { ImageGenerator } from "../services/images/ImageGenerator.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
@@ -45,6 +46,24 @@ interface CacheMetadata {
   /** Image config actually sent to the provider, and why it differs from the brief. */
   requestConfig?: { aspectRatio?: string; imageSize?: string };
   adjustments?: string[];
+}
+
+/** Shipped alt text for a generated slot; a missing description fails the build. */
+function altOrFail(
+  ctx: BuildContext,
+  slot: ImageSlotSpec,
+  candidates: Array<string | undefined>,
+): string {
+  try {
+    return resolveAltText(slot, candidates, {
+      businessName: ctx.domainSpec.business_name,
+      routes: ctx.domainSpec.routes,
+    });
+  } catch (error) {
+    if (error instanceof MissingAltTextError)
+      throw new BuildError("VALIDATION_FAILED", error.message);
+    throw error;
+  }
 }
 
 function slugify(value: string): string {
@@ -209,7 +228,7 @@ export class ImageGenerationStage implements Stage {
   }
 
   private async resolveAsset(
-    _ctx: BuildContext,
+    ctx: BuildContext,
     params: ResolveAssetParams,
   ): Promise<ResolvedImageAsset> {
     const { cacheRoot, slot, fingerprint } = params;
@@ -242,7 +261,12 @@ export class ImageGenerationStage implements Stage {
       source: "generated",
       absolutePath,
       outputFileName: `${slugify(slot.id)}.${extension}`,
-      altText: slot.altText ?? params.brief.subject ?? slot.id,
+      altText: altOrFail(ctx, slot, [
+        slot.altText,
+        params.brief.altText,
+        params.brief.subject,
+        params.brief.intent,
+      ]),
       mimeType: inspected.mimeType,
       width: inspected.width,
       height: inspected.height,

@@ -272,6 +272,7 @@ function briefFromSlot(slot: ImageSlotSpec): ImageGenerationBrief {
     exclusions: slot.generation?.exclusions,
     aspectRatio: slot.aspectRatio,
     imageSize: slot.imageSize,
+    ...(slot.altText ? { altText: slot.altText } : {}),
   };
 }
 

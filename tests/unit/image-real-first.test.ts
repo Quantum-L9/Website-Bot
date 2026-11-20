@@ -11,6 +11,9 @@
 //     integrity receipt counted it as filled.
 
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import sharp from "sharp";
 import type { ImageSlotSpec } from "../../src/pipeline/BuildContext.js";
@@ -23,15 +26,25 @@ import {
 import type { IngestedImage } from "../../src/pipeline/evidence/SourceSiteManifest.js";
 import { GeminiImageGenerator } from "../../src/services/images/GeminiImageGenerator.js";
 import {
+  isDescriptiveAlt,
+  MissingAltTextError,
+  resolveAltText,
+} from "../../src/services/images/ImageAltText.js";
+import {
   GENERATED_IMAGES_PER_PAGE_CAP,
   planImageAssets,
 } from "../../src/services/images/ImageAssetPlanner.js";
+import { FakeImageGenerator } from "../../src/services/images/ImageGenerator.js";
 import {
   ImageOptimizationError,
   optimizeImageForSlot,
   slotRenderProfile,
 } from "../../src/services/images/ImageOptimizer.js";
 import { compileImagePrompt } from "../../src/services/images/ImagePromptCompiler.js";
+import { ImageAssetPlanningStage } from "../../src/stages/ImageAssetPlanningStage.js";
+import { ImageGenerationStage } from "../../src/stages/ImageGenerationStage.js";
+import { realPng } from "../helpers/realImage.js";
+import { cleanupContext, fixtureContext } from "../helpers/siteFactoryFixture.js";
 
 // ---- D1: provider request config -------------------------------------------
 
@@ -324,4 +337,83 @@ void test("D4: a CRM / data software client may still use the CRM→graph illust
     vertical: "crm_software",
   });
   assert.equal(plan.assets[0].resolution.source, "static-illustration");
+});
+
+// ---- alt text: never a slot id, placement or path (CTO integration finding) ----
+
+void test("alt: a slot id, placement, path or file name is never accepted as alt text", () => {
+  const hero = { id: "/:hero", placement: "/:hero" };
+  for (const bad of [
+    "/:hero",
+    "Image for /:hero",
+    "/images/home-hero.webp",
+    "hero.png",
+    "global:logo",
+    "",
+  ]) {
+    assert.equal(isDescriptiveAlt(bad, hero), false, bad);
+  }
+  assert.equal(isDescriptiveAlt("Slate roof over a brick porch", hero), true);
+});
+
+void test("alt: falls back to the section it illustrates, decorative roles are empty, logos name the business", () => {
+  const context = {
+    businessName: "Acme Roofing",
+    routes: [{ slug: "/services", title: "Services" }],
+  };
+  assert.equal(
+    resolveAltText({ id: "/:hero", placement: "/:hero" }, [undefined, "/:hero"], context),
+    "Acme Roofing hero image, Home page",
+  );
+  assert.equal(
+    resolveAltText({ id: "svc", placement: "/services:service#installs" }, [], context),
+    "Acme Roofing installs service image, Services page",
+  );
+  assert.equal(resolveAltText({ id: "bg", placement: "/:background" }, [], context), "");
+  assert.equal(
+    resolveAltText({ id: "global:logo", placement: "global:logo" }, [], context),
+    "Acme Roofing logo",
+  );
+  assert.throws(
+    () => resolveAltText({ id: "/:hero", placement: "/:hero" }, ["/:hero"]),
+    MissingAltTextError,
+  );
+});
+
+void test("alt: no shipped image (provided, source-site or generated) has alt equal to its slot id or a path", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "wb-alt-"));
+  const photoPath = join(dir, "porch.png");
+  writeFileSync(photoPath, realPng(1600, 900));
+  const ctx = fixtureContext({
+    client_id: "alt-text-client",
+    assets: {
+      generation: { enabled: true },
+      providedImages: [{ id: "porch", path: photoPath, intendedPlacement: "/:hero" }],
+      imageSlots: [
+        { id: "/:hero", placement: "/:hero", required: true, aspectRatio: "16:9" },
+        {
+          id: "/services:service",
+          placement: "/services:service",
+          required: false,
+          aspectRatio: "3:2",
+          preferredSources: ["generated"],
+        },
+      ],
+    },
+  });
+  try {
+    await new ImageAssetPlanningStage().run(ctx);
+    await new ImageGenerationStage(new FakeImageGenerator()).run(ctx);
+    const assets = [...(ctx.resolvedImages?.values() ?? [])];
+    assert.equal(assets.length, 2);
+    for (const asset of assets) {
+      assert.notEqual(asset.altText, asset.slotId);
+      assert.notEqual(asset.altText, asset.placement);
+      assert.doesNotMatch(asset.altText, /\/|\.(png|jpe?g|webp)$/);
+      assert.ok(isDescriptiveAlt(asset.altText, { id: asset.slotId, placement: asset.placement }));
+    }
+  } finally {
+    cleanupContext(ctx);
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

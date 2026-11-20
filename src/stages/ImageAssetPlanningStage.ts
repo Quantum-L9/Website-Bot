@@ -25,6 +25,7 @@ import {
 } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
+import { MissingAltTextError, resolveAltText } from "../services/images/ImageAltText.js";
 import {
   basePlacement,
   isBrandMarkCandidate,
@@ -620,6 +621,20 @@ export class ImageAssetPlanningStage implements Stage {
     return results;
   }
 
+  /** Shipped alt text: never the slot id or a path; a missing description fails the build. */
+  private altFor(ctx: BuildContext, slot: ImageSlotSpec, imageAlt: string | undefined): string {
+    try {
+      return resolveAltText(slot, [imageAlt, slot.altText], {
+        businessName: ctx.domainSpec.business_name,
+        routes: ctx.domainSpec.routes,
+      });
+    } catch (error) {
+      if (error instanceof MissingAltTextError)
+        throw new BuildError("VALIDATION_FAILED", error.message);
+      throw error;
+    }
+  }
+
   private async stageAsset(
     ctx: BuildContext,
     stagingRoot: string,
@@ -657,7 +672,7 @@ export class ImageAssetPlanningStage implements Stage {
       source,
       absolutePath,
       outputFileName: `${slugify(slot.id)}.${extension}`,
-      altText: extra.altText ?? slot.altText ?? slot.id,
+      altText: this.altFor(ctx, slot, extra.altText),
       mimeType: shipped.mimeType,
       width: shipped.width,
       height: shipped.height,
