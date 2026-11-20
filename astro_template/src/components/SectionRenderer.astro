@@ -1,4 +1,5 @@
 ---
+import { srcsetFor } from "../lib/responsiveImage";
 import { siteConfig } from "../lib/siteConfig";
 import { slotForSection } from "../lib/visualEnhancements";
 import LeadForm from "./LeadForm.astro";
@@ -70,7 +71,14 @@ const visualSlot = slotForSection(name);
 // index well-typed (same pattern as Hero.astro).
 const images: Record<
   string,
-  { src: string; alt: string; width: number; height: number; source?: string }
+  {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+    source?: string;
+    variants?: ReadonlyArray<{ src: string; width: number }>;
+  }
 > = siteConfig.images ?? {};
 const image = imagePlacement ? images[imagePlacement] : undefined;
 if (imagePlacement && !image) {
@@ -82,6 +90,7 @@ if (imagePlacement && !image) {
 // grid; every other bound section renders its image beside its content.
 const galleryImage = name === "gallery" ? image : undefined;
 const contentImage = name === "hero" || name === "gallery" ? undefined : image;
+const contentSrcset = contentImage ? srcsetFor(contentImage) : undefined;
 const blockVariant =
   name === "services_overview" ? "content-block--stacked" : "content-block--split";
 ---
@@ -91,7 +100,7 @@ const blockVariant =
       <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement} data-section-for={structured?.sectionId}>
         <Component name={name} content={content} structured={structured} />
         <figure class="content-block__visual">
-          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
+          <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" srcset={contentSrcset} sizes={contentSrcset ? "(min-width: 800px) 45vw, 100vw" : undefined} data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
         </figure>
       </div>
     </VisualEnhancementSlot>
@@ -99,7 +108,7 @@ const blockVariant =
     <div class:list={["content-block", blockVariant]} data-image-placement={imagePlacement} data-section-for={structured?.sectionId}>
       <Component name={name} content={content} structured={structured} />
       <figure class="content-block__visual">
-        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" sizes="(min-width: 800px) 45vw, 100vw" data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
+        <img src={contentImage.src} alt={contentImage.alt} width={contentImage.width} height={contentImage.height} loading="lazy" decoding="async" srcset={contentSrcset} sizes={contentSrcset ? "(min-width: 800px) 45vw, 100vw" : undefined} data-asset-source={contentImage.source} data-image-slot={imagePlacement} />
       </figure>
     </div>
   )

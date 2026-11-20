@@ -31,6 +31,11 @@ export interface SlotRenderProfile {
   aspectRatio?: string;
   format: OptimizedFormat;
   maxBytes: number;
+  /**
+   * Narrower widths also emitted for the <img srcset>, so a phone does not
+   * download the 2x-desktop file. Only widths below the shipped width are made.
+   */
+  variantWidths: readonly number[];
 }
 
 /**
@@ -39,7 +44,13 @@ export interface SlotRenderProfile {
  * under the multi-megabyte sets the 08-16 run shipped.
  */
 export const RENDER_PROFILES: Readonly<Record<SlotRenderProfile["kind"], SlotRenderProfile>> = {
-  hero: { kind: "hero", maxWidth: 1920, format: "webp", maxBytes: 450_000 },
+  hero: {
+    kind: "hero",
+    maxWidth: 1920,
+    format: "webp",
+    maxBytes: 450_000,
+    variantWidths: [640, 960, 1280],
+  },
   og: {
     kind: "og",
     maxWidth: 1200,
@@ -47,9 +58,17 @@ export const RENDER_PROFILES: Readonly<Record<SlotRenderProfile["kind"], SlotRen
     aspectRatio: "1200:630",
     format: "jpeg",
     maxBytes: 300_000,
+    // Crawlers fetch one card; it is never rendered through srcset.
+    variantWidths: [],
   },
-  logo: { kind: "logo", maxWidth: 640, format: "webp", maxBytes: 120_000 },
-  content: { kind: "content", maxWidth: 1280, format: "webp", maxBytes: 300_000 },
+  logo: { kind: "logo", maxWidth: 640, format: "webp", maxBytes: 120_000, variantWidths: [] },
+  content: {
+    kind: "content",
+    maxWidth: 1280,
+    format: "webp",
+    maxBytes: 300_000,
+    variantWidths: [480, 800],
+  },
 };
 
 export interface OptimizableSlot {
@@ -171,21 +190,16 @@ function shapeForSlot(
   return { pipeline, width: targetWidth, height: targetHeight };
 }
 
-/**
- * Optimise one image for one slot. Deterministic for a given input and slot.
- * `overrides` exists for tests and stricter callers; it can only tighten.
- */
-export async function optimizeImageForSlot(
+/** Encode at the first quality on the ladder that fits the byte cap. */
+async function encodeWithinCap(
   input: Buffer,
+  decoded: { info: OutputInfo },
+  shaped: Shaped,
   slot: OptimizableSlot,
-  overrides: { maxBytes?: number } = {},
+  profile: SlotRenderProfile,
+  maxBytes: number,
+  adjustments: string[],
 ): Promise<OptimizedImage> {
-  const profile = slotRenderProfile(slot);
-  const maxBytes = Math.min(profile.maxBytes, overrides.maxBytes ?? profile.maxBytes);
-  const adjustments: string[] = [];
-  const decoded = await decodeFully(input, slot.id);
-  const shaped = shapeForSlot(decoded, slot, profile, adjustments);
-
   for (const quality of QUALITY_LADDER) {
     // Sequential on purpose: stop at the first quality that fits the cap.
     const bytes = await encode(shaped.pipeline, profile.format, quality);
@@ -209,6 +223,59 @@ export async function optimizeImageForSlot(
   throw new ImageOptimizationError(
     `image for slot ${slot.id} exceeds its ${maxBytes}-byte cap at ${shaped.width}x${shaped.height} even at quality ${QUALITY_LADDER.at(-1)}`,
   );
+}
+
+/**
+ * Optimise one image for one slot. Deterministic for a given input and slot.
+ * `overrides` exists for tests and stricter callers; it can only tighten.
+ */
+export async function optimizeImageForSlot(
+  input: Buffer,
+  slot: OptimizableSlot,
+  overrides: { maxBytes?: number } = {},
+): Promise<OptimizedImage> {
+  return (await optimizeImageWithVariants(input, slot, { ...overrides, variants: false })).image;
+}
+
+/** The full-size slot image plus its narrower srcset renditions. */
+export interface OptimizedImageSet {
+  image: OptimizedImage;
+  /** Ascending by width; every entry is narrower than `image`. */
+  variants: OptimizedImage[];
+}
+
+/**
+ * Optimise one image for its slot and, from the same decode, emit the
+ * profile's narrower variant widths (never a width at or above the shipped
+ * one, so a small original yields no variants). Every variant keeps the
+ * slot's crop and must fit the same byte cap.
+ */
+export async function optimizeImageWithVariants(
+  input: Buffer,
+  slot: OptimizableSlot,
+  overrides: { maxBytes?: number; variants?: boolean } = {},
+): Promise<OptimizedImageSet> {
+  const profile = slotRenderProfile(slot);
+  const maxBytes = Math.min(profile.maxBytes, overrides.maxBytes ?? profile.maxBytes);
+  const adjustments: string[] = [];
+  const decoded = await decodeFully(input, slot.id);
+  const shaped = shapeForSlot(decoded, slot, profile, adjustments);
+  const image = await encodeWithinCap(input, decoded, shaped, slot, profile, maxBytes, adjustments);
+  const variants: OptimizedImage[] = [];
+  if (overrides.variants === false) return { image, variants };
+  for (const width of [...profile.variantWidths].sort((a, b) => a - b)) {
+    if (width >= image.width) continue;
+    const variantProfile: SlotRenderProfile = { ...profile, maxWidth: width };
+    const variantShape = shapeForSlot(decoded, slot, variantProfile, []);
+    variants.push(
+      await encodeWithinCap(input, decoded, variantShape, slot, variantProfile, maxBytes, []),
+    );
+  }
+  if (variants.length)
+    adjustments.push(
+      `srcset variants: ${variants.map((variant) => `${variant.width}w`).join(", ")}`,
+    );
+  return { image, variants };
 }
 
 /** Vector and animated inputs are not re-encoded as single-frame rasters. */

@@ -34,7 +34,11 @@ import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspect
 import type { ImageOptimizationRecord } from "../services/images/ImageOptimizer.js";
 import { optimizationRecord } from "../services/images/ImageOptimizer.js";
 import { compileImagePrompt } from "../services/images/ImagePromptCompiler.js";
-import { optimizeOrFail, writeOptimizationEvidence } from "./ImageAssetPlanningStage.js";
+import {
+  optimizeOrFail,
+  writeOptimizationEvidence,
+  writeVariants,
+} from "./ImageAssetPlanningStage.js";
 
 const logger = createModuleLogger("stage:image-generation");
 
@@ -107,7 +111,7 @@ function canonicalJson(value: unknown): string {
 
 export class ImageGenerationStage implements Stage {
   name = "image-generation";
-  version = "2.0.0";
+  version = "2.1.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     // Overwrite image_assets with the complete (provided + source-site + generated)
@@ -244,7 +248,8 @@ export class ImageGenerationStage implements Stage {
       placement: slot.placement,
       aspectRatio: params.brief.aspectRatio,
     };
-    const optimized = await optimizeOrFail(bytes, { ...slot, ...optimizableSlot });
+    const optimizedSet = await optimizeOrFail(bytes, { ...slot, ...optimizableSlot });
+    const optimized = optimizedSet.image;
     const record = optimizationRecord(optimizableSlot, "generated", optimized);
     record.adjustments = [...(materialized.adjustments ?? []), ...record.adjustments];
     params.optimizations.push(record);
@@ -255,12 +260,14 @@ export class ImageGenerationStage implements Stage {
       `${fingerprint}-${inspected.sha256.slice(0, 16)}.${extension}`,
     );
     writeFileSync(absolutePath, optimized.bytes);
+    const outputFileName = `${slugify(slot.id)}.${extension}`;
+    const variants = writeVariants(absolutePath, outputFileName, optimizedSet);
     return {
       slotId: slot.id,
       placement: slot.placement,
       source: "generated",
       absolutePath,
-      outputFileName: `${slugify(slot.id)}.${extension}`,
+      outputFileName,
       altText: altOrFail(ctx, slot, [
         slot.altText,
         params.brief.altText,
@@ -277,6 +284,7 @@ export class ImageGenerationStage implements Stage {
       estimatedCostUsd: cost,
       disposition: "approved-client-owned",
       provenanceWarnings: [],
+      ...(variants.length ? { variants } : {}),
     };
   }
 
