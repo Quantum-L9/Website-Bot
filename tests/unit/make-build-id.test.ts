@@ -23,3 +23,15 @@ test("the id keeps the clientId and timestamp prefix and is a safe path segment"
   assert.match(id, /^acme-roofing-1795000000123-[0-9a-f]{8}$/);
   assert.equal(safePathSegment(id, "buildId"), id);
 });
+
+test("a long client id still yields a safe path segment of at most 128 characters", (t) => {
+  t.mock.method(Date, "now", () => 1_795_000_000_123);
+  for (const length of [105, 106, 114, 115, 127]) {
+    const clientId = `c${"x".repeat(length - 1)}`;
+    const id = makeBuildId(clientId);
+    assert.ok(id.length <= 128, `${length}: ${id.length}`);
+    assert.equal(safePathSegment(id, "buildId"), id);
+    assert.match(id, /-1795000000123-[0-9a-f]{8}$/);
+    assert.ok(id.startsWith(clientId.slice(0, 100)), "keeps the client id prefix");
+  }
+});

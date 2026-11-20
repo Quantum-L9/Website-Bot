@@ -422,6 +422,9 @@ export interface BuildContext {
   startedAt: Date;
 }
 
+/** safePathSegment's limit: build ids name on-disk directories. */
+const BUILD_ID_MAX_LENGTH = 128;
+
 // Per-process random base plus a counter: ids minted in the same millisecond
 // differ within a process (the counter) and across processes (the base).
 let buildIdSequence = randomBytes(4).readUInt32BE(0);
@@ -430,11 +433,15 @@ let buildIdSequence = randomBytes(4).readUInt32BE(0);
  * `<clientId>-<epoch ms>-<8 hex>`. The prefix is unchanged; the suffix keeps
  * builds that start in the same millisecond (parallel tests, fan-out runs)
  * from sharing an id and so an on-disk build directory. Every character stays
- * within safePathSegment's alphabet.
+ * within safePathSegment's alphabet, and the id within its 128-character limit.
  */
 export function makeBuildId(clientId: string): string {
   buildIdSequence = (buildIdSequence + 1) >>> 0;
-  return `${clientId}-${Date.now()}-${buildIdSequence.toString(16).padStart(8, "0")}`;
+  const suffix = `-${Date.now()}-${buildIdSequence.toString(16).padStart(8, "0")}`;
+  // safePathSegment admits at most 128 characters. A long client id gives up
+  // its tail rather than the timestamp or the uniqueness suffix, so every id
+  // the old `<clientId>-<ms>` form could hold still fits.
+  return `${clientId.slice(0, Math.max(1, BUILD_ID_MAX_LENGTH - suffix.length))}${suffix}`;
 }
 
 /** Per-build on-disk root for staged images/manifests. Scoped by buildId so concurrent builds (and parallel tests) cannot clobber each other. */
