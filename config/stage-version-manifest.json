@@ -82,6 +82,10 @@
         {
           "version": "2.2.0",
           "fingerprint": "sha256:ea2020bad9954fccda5b331e795a0fc275019608a4c3b453d7c08ceb2c02bdb6"
+        },
+        {
+          "version": "2.3.0",
+          "fingerprint": "sha256:75539d6c6096c189ff79950512d0c24f323672e98e47a89b402c8043faac6553"
         }
       ]
     },
@@ -91,6 +95,10 @@
         {
           "version": "2.0.0",
           "fingerprint": "sha256:abf78d49609bb660eae997a63eb205f15dee4e1fa5753ea74301032856f40fac"
+        },
+        {
+          "version": "2.1.0",
+          "fingerprint": "sha256:3f3de65d5b0d959f4579018de77dd209e98efc79f23228d2484965cb13fc6004"
         }
       ]
     },
@@ -100,6 +108,10 @@
         {
           "version": "2.2.0",
           "fingerprint": "sha256:b89b1f2f53e5a4bc54593b2b8e05598918461b9d95c17dfdef0c5939b7477903"
+        },
+        {
+          "version": "2.2.1",
+          "fingerprint": "sha256:39bb67a833460ea6657c4dc6c18cd1d969dad003d9ae24526427e796a53f8714"
         }
       ]
     },
@@ -190,6 +202,10 @@
         {
           "version": "1.1.0",
           "fingerprint": "sha256:739d0a5d6780b0c5766ad26468532b4ff583bf51e408d619ecea449702a55018"
+        },
+        {
+          "version": "1.1.1",
+          "fingerprint": "sha256:c8f5debc9bc75a6ed28c65d16e7a957caa7f23d510df446324552421a81cd958"
         }
       ]
     },
@@ -226,6 +242,10 @@
         {
           "version": "3.8.0",
           "fingerprint": "sha256:41c516d14317fd5871d5011613bd200f70245fc77af507b9a314f0d547af1c1e"
+        },
+        {
+          "version": "3.9.0",
+          "fingerprint": "sha256:8eb505429236c7f2d618aad89f6adf4d9da49cc5ee4a6a8574a69a5a66345311"
         }
       ]
     },
