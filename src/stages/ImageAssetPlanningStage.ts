@@ -626,9 +626,11 @@ export class ImageAssetPlanningStage implements Stage {
     if (!ctx.dryRun) {
       const stagedDir = resolve(stagingRoot, subdir);
       mkdirSync(stagedDir, { recursive: true });
-      if (isOptimizableRaster(inspected.mimeType)) {
-        // Every shipped raster is cropped/resized/re-encoded for its slot and
-        // must fit the slot's byte cap; failure stops the build.
+      if (source !== "provided" && isOptimizableRaster(inspected.mimeType)) {
+        // Every harvested (source-site) raster is cropped/resized/re-encoded
+        // for its slot and must fit the slot's byte cap; failure stops the
+        // build. A client-provided file is published byte-for-byte (build
+        // contract T08: published client image bytes equal the input file).
         const optimized = await optimizeOrFail(readFileSync(sourcePath), slot);
         shipped = inspectImage(optimized.bytes);
         extension = optimized.extension;

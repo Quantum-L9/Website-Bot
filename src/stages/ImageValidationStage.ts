@@ -180,13 +180,14 @@ export class ImageValidationStage implements Stage {
   }
 
   /**
-   * Every shipped raster must be the optimised output for its slot: within the
+   * Every harvested or generated raster must be the optimised output for its slot: within the
    * slot's byte cap and render width. An oversized or unoptimised file fails
    * closed here even if a stage upstream was bypassed.
    */
   private checkShippedSizes(ctx: BuildContext, critical: string[]): void {
     for (const asset of ctx.imageAssetManifest?.assets ?? []) {
-      if (!isOptimizableRaster(asset.mimeType)) continue;
+      // Client-provided files are published unchanged (build contract T08).
+      if (asset.source === "provided" || !isOptimizableRaster(asset.mimeType)) continue;
       const profile = slotRenderProfile({ id: asset.slotId, placement: asset.placement });
       if (asset.byteLength > profile.maxBytes)
         critical.push(

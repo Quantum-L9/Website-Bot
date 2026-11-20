@@ -1,7 +1,8 @@
 // L9_META: layer=service, role=image_optimizer, status=active, version=1.0.0
 //
-// Every raster the site ships (provided, source-site, generated) passes through
-// here before it is staged: centre-cropped to the slot's aspect ratio when it
+// Every harvested (source-site) and generated raster passes through here before
+// it is staged (client-provided files are published byte-for-byte under build
+// contract T08): centre-cropped to the slot's aspect ratio when it
 // differs, resized to the largest width the slot renders at (never enlarged),
 // and re-encoded (WebP; the OG card stays JPEG for crawler compatibility). The
 // result carries its real width/height for the <img> attributes. An input that
