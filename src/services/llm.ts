@@ -362,8 +362,7 @@ export function createWebsiteFactoryLLM(
         `Budget exhausted for ${stage}: LLM_MAX_REQUESTS_PER_BUILD (${cfg.maxRequests}) reached; not dispatched`,
       );
     const reservation =
-      (inputBound * pricing.cacheMissPerMTok + maxTokens * pricing.outputPerMTok) /
-      1_000_000;
+      (inputBound * pricing.cacheMissPerMTok + maxTokens * pricing.outputPerMTok) / 1_000_000;
     const remaining = cfg.budgetUsd - committedUsd - reservedUsd;
     if (reservation > remaining + 1e-12)
       fail(
