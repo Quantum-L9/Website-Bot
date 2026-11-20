@@ -184,6 +184,10 @@
         {
           "version": "2.2.0",
           "fingerprint": "sha256:6fde6b2ca27c63cfdc7ea5de460963aae771fc1098203cf0acd47ccb20fef469"
+        },
+        {
+          "version": "2.3.0",
+          "fingerprint": "sha256:099aa619b3ccf40aeb0c79cd4314f8bd8c56997ccb75a24815f604ed282f10a3"
         }
       ]
     },
@@ -193,6 +197,10 @@
         {
           "version": "1.2.0",
           "fingerprint": "sha256:9c2a399406b722a2a1d5a22538c99e7a7e0e978b4ebfb9b5fe494c7e5c0734aa"
+        },
+        {
+          "version": "1.3.0",
+          "fingerprint": "sha256:ace3ec399098843fc5dea4f85bf989482b92cc315fbe75acac160ddf73bfe099"
         }
       ]
     },

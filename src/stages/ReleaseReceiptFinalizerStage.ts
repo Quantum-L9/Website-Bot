@@ -2,6 +2,7 @@
 import { createModuleLogger } from "../core/logger.js";
 import type { BuildContext } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
+import { buildReadinessLadder } from "../pipeline/evidence/ReadinessLadder.js";
 import type { ReleaseReceipt } from "../pipeline/evidence/ReleaseReceipt.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
 
@@ -9,7 +10,7 @@ const logger = createModuleLogger("stage:release-receipt-finalizer");
 
 export class ReleaseReceiptFinalizerStage implements Stage {
   name = "release-receipt-finalizer";
-  version = "1.2.0";
+  version = "1.3.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [
       "assembly" as const,
@@ -56,6 +57,8 @@ export class ReleaseReceiptFinalizerStage implements Stage {
         seo_baseline: ctx.qualityEvidence.seoBaseline,
         visual_qa: "passed",
       },
+      // Re-recorded: stages after the receipt (visual QA) may have observed levels.
+      readiness: buildReadinessLadder(ctx.readiness),
       finalized_at: new Date().toISOString(),
     };
     await ctx.evidenceStore.writeReleaseReceipt(finalized);

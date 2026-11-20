@@ -28,6 +28,7 @@ import type { EvidenceStore } from "./evidence/EvidenceStore.js";
 import type { ImageAssetManifest, ResolvedImageAsset } from "./evidence/ImageAssetManifest.js";
 import type { ImageAssetPlan } from "./evidence/ImageAssetPlan.js";
 import type { PublicationEvidence } from "./evidence/PublicationEvidence.js";
+import type { ReadinessObservations } from "./evidence/ReadinessLadder.js";
 import type { EvidenceGateStatus, ReleaseReceipt } from "./evidence/ReleaseReceipt.js";
 import type { SourceSiteManifest } from "./evidence/SourceSiteManifest.js";
 import type { SpendLedger } from "./SpendLedger.js";
@@ -351,6 +352,12 @@ export interface BuildContext {
    */
   spendLedger?: SpendLedger;
   qualityEvidence: QualityEvidence;
+  /**
+   * Readiness levels this build observed (src/pipeline/evidence/ReadinessLadder.ts).
+   * Stages record only what they judged; every other level is NOT_RUN in the
+   * release receipt, never inferred from another level.
+   */
+  readiness?: ReadinessObservations;
   buildIntent: BuildIntent;
   websiteBlueprint?: WebsiteBuildBlueprintArtifact;
   /**

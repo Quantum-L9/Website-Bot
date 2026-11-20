@@ -147,6 +147,9 @@
         }
       }
     },
+    "readiness": {
+      "$ref": "#/$defs/readiness_ladder"
+    },
     "created_at": {
       "type": "string",
       "format": "date-time"
@@ -195,6 +198,175 @@
           "pattern": "^[a-f0-9]{64}$"
         }
       }
+    },
+    "readiness_ladder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "levels"],
+      "description": "Explicit readiness per build: six distinct levels, each judged on its own evidence; a level is never inferred from another.",
+      "properties": {
+        "schema": {
+          "const": "website-bot.readiness-ladder/v1"
+        },
+        "levels": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "structural_ci"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "replay_quality_gate"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "live_provider_canary"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "client_build_quality_check"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "blind_judge_vs_baseline"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/readiness_entry"
+                },
+                {
+                  "properties": {
+                    "level": {
+                      "const": "operator_deploy_approval"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "items": false,
+          "minItems": 6,
+          "maxItems": 6
+        }
+      }
+    },
+    "readiness_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "state", "evidence_ref"],
+      "properties": {
+        "level": {
+          "enum": [
+            "structural_ci",
+            "replay_quality_gate",
+            "live_provider_canary",
+            "client_build_quality_check",
+            "blind_judge_vs_baseline",
+            "operator_deploy_approval"
+          ]
+        },
+        "state": {
+          "enum": ["PASS", "FAIL", "NOT_RUN", "BLOCKED"]
+        },
+        "evidence_ref": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": ["PASS", "FAIL"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_ref": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": ["NOT_RUN", "BLOCKED"]
+              }
+            }
+          },
+          "then": {
+            "required": ["reason"]
+          }
+        }
+      ]
     }
   },
   "x_l9_meta": {

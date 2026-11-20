@@ -2,6 +2,7 @@
 import type { ExecutionMode } from "../BuildContext.js";
 import type { EvidenceReference } from "./EvidenceReference.js";
 import { validateEvidenceReference } from "./EvidenceReference.js";
+import { type ReadinessLadder, validateReadinessLadder } from "./ReadinessLadder.js";
 
 export type EvidenceGateStatus = "pending" | "passed" | "failed" | "skipped";
 export type ReleaseReceiptStatus = "planned" | "partial" | "succeeded" | "failed";
@@ -62,6 +63,12 @@ export interface ReleaseReceipt {
     visual_qa: EvidenceGateStatus;
   };
   lead_capture?: LeadCaptureReceipt;
+  /**
+   * Explicit readiness level per build. Every receipt this version writes
+   * carries it; it stays optional on read so receipts persisted before it
+   * existed still load (they simply record no ladder).
+   */
+  readiness?: ReadinessLadder;
   created_at: string;
   finalized_at?: string;
 }
@@ -163,6 +170,15 @@ function validateReceiptLeadCapture(receipt: Partial<ReleaseReceipt>): void {
   }
 }
 
+function validateReceiptReadiness(receipt: Partial<ReleaseReceipt>): void {
+  if (receipt.readiness === undefined) return;
+  try {
+    validateReadinessLadder(receipt.readiness);
+  } catch (error) {
+    throw new Error(`release receipt ${(error as Error).message}`);
+  }
+}
+
 function validateReceiptTimestamps(receipt: Partial<ReleaseReceipt>): void {
   if (!receipt.created_at || Number.isNaN(Date.parse(receipt.created_at)))
     throw new Error("release receipt created_at is invalid");
@@ -205,6 +221,7 @@ export function validateReleaseReceipt(value: unknown): asserts value is Release
   validateReceiptCorrelation(receipt);
   validateReceiptQa(receipt);
   validateReceiptLeadCapture(receipt);
+  validateReceiptReadiness(receipt);
   validateReceiptTimestamps(receipt);
   validateReceiptStatusConsistency(receipt);
 }
