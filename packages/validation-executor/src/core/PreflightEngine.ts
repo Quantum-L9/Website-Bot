@@ -270,7 +270,7 @@ export class PreflightEngine {
     exitCode: number | null,
     _stdout: string,
     stderr: string,
-    termination: TerminationDetail = { timedOut: false, terminationSignal: null, duration: 0 },
+    termination: TerminationDetail,
   ): string[] {
     const causes = terminationCauses(exitCode, termination);
 

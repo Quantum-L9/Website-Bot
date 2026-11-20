@@ -347,7 +347,7 @@ export class E2EEngine {
     exitCode: number | null,
     stdout: string,
     stderr: string,
-    termination: TerminationDetail = { timedOut: false, terminationSignal: null, duration: 0 },
+    termination: TerminationDetail,
   ): string[] {
     const causes = terminationCauses(exitCode, termination);
 
