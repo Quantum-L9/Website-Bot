@@ -59,7 +59,7 @@ void test("materializes the fixture into a client-specific Astro project", async
       assert.doesNotMatch(source, /const layout|layout=\{/);
       assert.match(
         source,
-        /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+        /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} structured=\{section\.structured \?\? undefined\} \/>\)\}/,
       );
     }
     const layout = readFileSync(join(ctx.outputDir, "src/layouts/BaseLayout.astro"), "utf-8");
@@ -241,7 +241,7 @@ void test("binds each published placement to the section it was planned for", as
     );
     assert.match(
       home,
-      /<SectionRenderer name=\{section\.name\} content=\{section\.content\} imagePlacement=\{section\.imagePlacement\} \/>/,
+      /<SectionRenderer name=\{section\.name\} content=\{section\.content\} structured=\{section\.structured \?\? undefined\} imagePlacement=\{section\.imagePlacement\} \/>/,
     );
     const services = readFileSync(join(ctx.outputDir, "src/pages/services/index.astro"), "utf-8");
     assert.deepEqual(
@@ -256,7 +256,7 @@ void test("binds each published placement to the section it was planned for", as
     assert.doesNotMatch(contact, /imagePlacement/);
     assert.match(
       contact,
-      /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} \/>\)\}/,
+      /\{sections\.map\(section => <SectionRenderer name=\{section\.name\} content=\{section\.content\} structured=\{section\.structured \?\? undefined\} \/>\)\}/,
     );
     // Every bound placement is published in the image registry the renderer reads.
     const config = readFileSync(join(ctx.outputDir, "src/lib/siteConfig.ts"), "utf-8");

@@ -5,6 +5,25 @@
 // assets. They are foundation contracts consumed by the (future) source-site
 // crawler and the image asset planner; nothing here reaches out to the network.
 
+/**
+ * One content block observed in a crawled page's main content: a heading and
+ * the paragraphs, list items and question/answer pairs that follow it until
+ * the next heading. Header, nav, footer, forms, buttons, button-styled links
+ * and the document <title> are excluded at extraction, so a block never carries
+ * navigation or call-to-action text as body copy.
+ */
+export interface SourceContentBlock {
+  /** Heading text; absent for copy that precedes the first heading. */
+  heading?: string;
+  /** 1–6 for a heading, 0 for the leading unheaded block. */
+  level: number;
+  paragraphs: string[];
+  /** List items (<li>), in document order. */
+  items: string[];
+  /** Explicit Q/A pairs: a question heading, <summary> or <dt> and its answer. */
+  qa: Array<{ question: string; answer: string }>;
+}
+
 /** A single crawled page, reduced to the structured signals later stages need. */
 export interface IngestedPage {
   url: string;
@@ -16,6 +35,8 @@ export interface IngestedPage {
   bodyText?: string;
   phones?: string[];
   nav?: Array<{ href: string; label: string }>;
+  /** Structured main-content blocks (absent on manifests from crawler < 1.2). */
+  blocks?: SourceContentBlock[];
   screenshotPath?: string;
   depth: number;
 }

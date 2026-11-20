@@ -19,6 +19,7 @@ import {
   resolveSectionRenderer,
   SECTION_LAYOUT_VARIANTS,
   type SectionLayoutVariant,
+  type StructuredBlock,
   type StructuredSectionView,
 } from "../../astro_template/src/components/SectionRegistry.js";
 import { isConceptualIllustration } from "../../astro_template/src/lib/conceptualIllustrations.js";
@@ -38,6 +39,7 @@ import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
 import { staticIllustrationAssets } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
+import { getSection, type SectionContent } from "../services/content/sectionContent.js";
 import {
   firstSourcePhone,
   isTopNavHref,
@@ -1213,11 +1215,27 @@ export class SiteAssemblerStage implements Stage {
    */
   private primaryCta(ctx: BuildContext): { label: string; href: string } | null {
     const label = ctx.domainSpec.conversion_authority?.primary_action?.trim();
-    if (!label || !this.leadFormAction(ctx)) return null;
     const formRoute = ctx.domainSpec.routes.find((route) =>
       route.components.some((component) => normalizeComponentName(component) === "contact_form"),
     );
-    return formRoute ? { label, href: `${normalizeRouteSlug(formRoute.slug)}#quote` } : null;
+    if (label && this.leadFormAction(ctx) && formRoute)
+      return { label, href: `${normalizeRouteSlug(formRoute.slug)}#quote` };
+    return this.phoneCta(ctx);
+  }
+
+  /**
+   * Conversion path when no verified lead form can receive an inquiry (lane
+   * wb-content-plumbing, defect 6): call the business's own number — the
+   * operator's seo_contract.phone, else the phone observed on the crawled
+   * source site — instead of silently dropping the primary CTA. The label
+   * names the action and the number; no offer is invented. No phone, no CTA.
+   */
+  private phoneCta(ctx: BuildContext): { label: string; href: string } | null {
+    const phone =
+      ctx.domainSpec.seo_contract?.phone?.trim() || firstSourcePhone(ctx.sourceSiteManifest);
+    const digits = phone?.replace(/[^\d+]/g, "") ?? "";
+    if (!phone || digits.replace(/\D/g, "").length < 7) return null;
+    return { label: `Call ${phone}`, href: `tel:${digits}` };
   }
 
   /**
@@ -1267,6 +1285,41 @@ export class SiteAssemblerStage implements Stage {
         "env://SEO_BOT_SITE_GITHUB_TOKEN",
       seoBotVercelDeployHookRef:
         deploy?.seo_bot_vercel_deploy_hook_ref ?? process.env.SEO_BOT_SITE_VERCEL_HOOK_REF,
+    };
+  }
+
+  /**
+   * COPY-path structured view (lane wb-content-plumbing): the typed section
+   * ContentGenerationStage produced, rendered field by field — paragraphs,
+   * steps, FAQ pairs, badges — so no template re-parses a string into
+   * invented structure. Content supplied only as plain text (fixtures, older
+   * callers) maps to a heading plus its paragraphs, never to steps/FAQs/badges.
+   * A section with no content at all (gallery, a gated contact form) gets null.
+   */
+  private legacyStructuredView(
+    ctx: BuildContext,
+    routeSlug: string,
+    component: string,
+    name: string,
+    content: string | undefined,
+  ): StructuredSectionView | null {
+    // Page-local identity: the component name (the route is the page itself).
+    const sectionId = name;
+    const typed =
+      getSection(ctx.generatedContent, `${routeSlug}:${component}`) ??
+      getSection(ctx.generatedContent, `${normalizeRouteSlug(routeSlug)}:${component}`);
+    if (typed) return structuredFromSection(sectionId, typed);
+    if (content === undefined || !content.trim()) return null;
+    const [heading = "", ...paragraphs] = content
+      .replaceAll("\r\n", "\n")
+      .split(/\n{2,}/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return {
+      sectionId,
+      heading,
+      blocks: paragraphs.map((text) => ({ kind: "paragraph" as const, text })),
+      cta: null,
     };
   }
 
@@ -1393,11 +1446,17 @@ export const siteConfig = {
             `Missing generated content for ${slug}:${component}`,
           );
         }
+        const structured = this.legacyStructuredView(ctx, route.slug, component, name, content);
         // Every section of a route with a bound image carries imagePlacement
         // (null when unbound) so the emitted `as const` array has one shape.
         return routeImages
-          ? { name, content: content ?? "", imagePlacement: routeImages[componentIndex] ?? null }
-          : { name, content: content ?? "" };
+          ? {
+              name,
+              content: content ?? "",
+              structured,
+              imagePlacement: routeImages[componentIndex] ?? null,
+            }
+          : { name, content: content ?? "", structured };
       });
       const routeSchemas = config.schemas.perRoute[slug] ?? [];
       // Exactly one H1 per rendered page (rendered-site single_h1 gate). The hero
@@ -1413,7 +1472,7 @@ export const siteConfig = {
       const imageProp = routeImages ? " imagePlacement={section.imagePlacement}" : "";
       write(
         pagePath,
-        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content}${layoutProp}${imageProp} />)}\n</BaseLayout>\n`,
+        `---\nimport BaseLayout from '${prefix}layouts/BaseLayout.astro';\nimport SectionRenderer from '${prefix}components/SectionRenderer.astro';\nconst sections = ${json(sections)} as const;\nconst routeSchemas: readonly object[] = ${json(routeSchemas)};\n${layoutDeclaration}---\n<BaseLayout title={${json(head.title)}} description={${json(head.description)}} noindex={${Boolean(route.noindex)}} routeSchemas={routeSchemas}${pageHeading}>\n  {sections.map(section => <SectionRenderer name={section.name} content={section.content} structured={section.structured ?? undefined}${layoutProp}${imageProp} />)}\n</BaseLayout>\n`,
       );
     }
   }
@@ -1520,4 +1579,28 @@ export const siteConfig = {
       );
     }
   }
+}
+
+/** Typed section → the StructuredSectionView every section component renders. */
+export function structuredFromSection(
+  sectionId: string,
+  section: SectionContent,
+): StructuredSectionView {
+  const blocks: StructuredBlock[] = section.paragraphs.map((text) => ({
+    kind: "paragraph" as const,
+    text,
+  }));
+  if (section.steps.length) blocks.push({ kind: "steps", items: [...section.steps] });
+  // Trust points are badges; any other section's list items are a plain list.
+  const trust = section.component === "trust_bar" || section.component === "trust_signals";
+  if (section.badges.length && !trust) blocks.push({ kind: "bullets", items: [...section.badges] });
+  return {
+    sectionId,
+    heading: section.heading,
+    ...(section.subheading ? { subheading: section.subheading } : {}),
+    blocks,
+    cta: null,
+    ...(section.faqs.length ? { faqs: section.faqs.map((faq) => ({ ...faq })) } : {}),
+    ...(trust && section.badges.length ? { badges: [...section.badges] } : {}),
+  };
 }
