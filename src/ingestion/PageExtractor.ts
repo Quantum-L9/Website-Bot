@@ -7,6 +7,7 @@
 // markup); good enough for real marketing sites and fully deterministic in CI.
 
 import { stripHtmlTags } from "../lib/text-trim.mjs";
+import type { SourceContentBlock } from "../pipeline/evidence/SourceSiteManifest.js";
 
 export type ImageOrigin =
   | "img"
@@ -41,6 +42,8 @@ export interface ExtractedPage {
   bodyText?: string;
   phones: string[];
   nav: ExtractedNavItem[];
+  /** Main-content structure: heading → paragraphs, list items, Q/A pairs. */
+  blocks: SourceContentBlock[];
   links: string[];
   images: RawImageCandidate[];
   stylesheets: string[];
@@ -316,6 +319,90 @@ function collectImages(
   return images;
 }
 
+/** Chrome and conversion UI that must never be ported as body copy. */
+const NON_CONTENT_ELEMENTS = [
+  "head",
+  "script",
+  "style",
+  "noscript",
+  "template",
+  "svg",
+  "header",
+  "nav",
+  "footer",
+  "form",
+  "button",
+  "select",
+  "iframe",
+];
+/** A link styled or declared as a button is a CTA, not prose. */
+const BUTTON_LINK =
+  /<a\b(?=[^>]*(?:\bclass\s*=\s*["'][^"']*\b(?:btn|button|cta)[\w-]*\b[^"']*["']|\brole\s*=\s*["']button["']|\bhref\s*=\s*["']tel:))[^>]*>[\s\S]*?<\/a>/gi;
+const CONTENT_TOKEN = /<(h[1-6]|p|li|summary|dt|dd)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+const MIN_PARAGRAPH_CHARS = 20;
+
+function stripElements(html: string, names: readonly string[]): string {
+  let out = html;
+  for (const name of names) {
+    out = out.replace(new RegExp(`<${name}\\b[\\s\\S]*?<\\/${name}>`, "gi"), " ");
+  }
+  return out;
+}
+
+/**
+ * Reduce main content to ordered blocks. A heading opens a block; following
+ * <p>/<dd> become paragraphs, <li> become items. A question heading, <summary>
+ * or <dt> pairs with the first answer text that follows it. Text equal to the
+ * document title is dropped, so the <title> never re-enters as body copy.
+ */
+export function extractContentBlocks(html: string, title?: string): SourceContentBlock[] {
+  const main = stripElements(html.replace(/<!--[\s\S]*?-->/g, " "), NON_CONTENT_ELEMENTS).replace(
+    BUTTON_LINK,
+    " ",
+  );
+  const titleKey = title ? normalizeText(title) : undefined;
+  const blocks: SourceContentBlock[] = [];
+  let current: SourceContentBlock = { level: 0, paragraphs: [], items: [], qa: [] };
+  let pendingQuestion: string | undefined;
+  const flush = (): void => {
+    if (current.heading || current.paragraphs.length || current.items.length || current.qa.length)
+      blocks.push(current);
+  };
+  for (const match of main.matchAll(CONTENT_TOKEN)) {
+    const tag = match[1].toLowerCase();
+    const text = stripTags(match[2]);
+    if (!text || (titleKey && normalizeText(text) === titleKey)) continue;
+    if (/^h[1-6]$/.test(tag)) {
+      if (pendingQuestion && current.heading === pendingQuestion) pendingQuestion = undefined;
+      flush();
+      current = { heading: text, level: Number(tag.slice(1)), paragraphs: [], items: [], qa: [] };
+      pendingQuestion = text.endsWith("?") ? text : undefined;
+      continue;
+    }
+    if (tag === "summary" || tag === "dt") {
+      pendingQuestion = text;
+      continue;
+    }
+    if (tag === "li") {
+      current.items.push(text);
+      continue;
+    }
+    // <p> or <dd>
+    if (pendingQuestion) {
+      current.qa.push({ question: pendingQuestion, answer: text });
+      pendingQuestion = undefined;
+      continue;
+    }
+    if (text.length >= MIN_PARAGRAPH_CHARS) current.paragraphs.push(text);
+  }
+  flush();
+  return blocks;
+}
+
+function normalizeText(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 export function extractPage(html: string, baseUrl: string): ExtractedPage {
   const { title, metaTags } = extractHeadMetadata(html);
   const { description, ogImage } = extractMetaDescription(metaTags);
@@ -333,6 +420,7 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
   const textExcerpt = bodyText ? bodyText.slice(0, 500) : undefined;
   const phones = extractPhones(html);
   const nav = extractNav(html, baseUrl);
+  const blocks = extractContentBlocks(html, title);
 
   const links: string[] = [];
   for (const match of html.matchAll(/<a\b[^>]*>/gi)) {
@@ -349,6 +437,7 @@ export function extractPage(html: string, baseUrl: string): ExtractedPage {
     bodyText,
     phones,
     nav,
+    blocks,
     links,
     images,
     stylesheets,

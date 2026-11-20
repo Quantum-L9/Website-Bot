@@ -34,7 +34,7 @@ import { extractHexColors, inferPalette } from "./SourcePalette.js";
 import { assertUrlAllowed, isForbiddenAddress, isUrlAllowed } from "./UrlPolicy.js";
 
 const logger = createModuleLogger("ingestion:crawler");
-export const CRAWLER_VERSION = "1.1.0";
+export const CRAWLER_VERSION = "1.2.0";
 
 export interface CrawlOptions {
   seedUrl: string;
@@ -267,6 +267,7 @@ export class SourceCrawler {
       bodyText: extracted.bodyText,
       phones: extracted.phones,
       nav: extracted.nav,
+      blocks: extracted.blocks,
       depth,
     };
     if (this.opts.captureScreenshots) {
