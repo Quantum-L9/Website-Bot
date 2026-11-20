@@ -171,6 +171,7 @@ void test("the complete synthetic run is the only PASS, and the stage agrees wit
     assert.deepEqual(assessVisualQaReport(onDisk, run(inv, true)), {
       problems: [],
       critical: false,
+      major: false,
     });
     // The same report with a non-zero exit is not a pass either.
     assert.ok(assessVisualQaReport(onDisk, run(inv, false)).problems.length > 0);
@@ -238,10 +239,16 @@ void test("F01 only a well-formed conclusive evaluator result approves or fails 
     JSON.stringify({ verdict, defects, summary: "synthetic" });
   const critical = { severity: "critical", description: "Hero overlaps navigation." };
   const minor = { severity: "minor", description: "Footer spacing is tight." };
+  const major = { severity: "major", description: "One sentence repeats in three sections." };
   const cases: Array<[unknown, string]> = [
     [PASS_VERDICT, "ok"],
     [result("pass", [minor]), "ok"],
     [CRITICAL_VERDICT, "critical"],
+    // A major defect is a defect whatever verdict word the evaluator chose.
+    [result("pass", [major]), "major"],
+    [result("pass", [minor, major]), "major"],
+    [result("fail", [major]), "major"],
+    [result("fail", [major, critical]), "critical"],
     [`\`\`\`json\n${PASS_VERDICT}\n\`\`\``, "ok"],
     // Prose is never a verdict, in either direction.
     ["No critical issues found.", "inconclusive"],
@@ -392,6 +399,25 @@ void test("NEGATIVE a critical evaluator finding fails and is flagged for the st
     assert.equal(report.status, "FAIL");
     const onDisk = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
     assert.equal(assessVisualQaReport(onDisk, run(inv, false)).critical, true);
+  });
+});
+
+void test("NEGATIVE a major evaluator finding labelled 'pass' fails and is flagged for the stage", async () => {
+  const majorPass = JSON.stringify({
+    verdict: "pass",
+    defects: [{ severity: "major", description: "Internal label TRUST SIGNALS is visible." }],
+    summary: "Layout fine.",
+  });
+  await withDir(async (dir) => {
+    const inv = invocation(dir);
+    const report = await qa.runVisualQa(inv, fakeDeps({ evaluator: async () => majorPass }));
+    assert.equal(report.status, "FAIL");
+    assert.ok(report.reasons.includes("MAJOR_FINDING"));
+    const onDisk = JSON.parse(readFileSync(inv.reportPath, "utf-8"));
+    const assessed = assessVisualQaReport(onDisk, run(inv, false));
+    assert.equal(assessed.major, true);
+    assert.equal(assessed.critical, false);
+    assert.ok(assessed.problems.length > 0);
   });
 });
 

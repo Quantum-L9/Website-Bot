@@ -6,8 +6,8 @@
 // tags: [verification, vision, qa, layout, screenshots]
 // owner: igor_beylin
 // status: active
-// version: 2.0.0
-// updated: 2026-10-24
+// version: 2.1.0
+// updated: 2026-11-20
 // /L9_META
 
 /**
@@ -18,8 +18,9 @@
  *
  *   PASS    every page x viewport returned HTTP 2xx, was screenshotted, and
  *           received a conclusive non-critical evaluator verdict
- *   FAIL    a defect was observed (critical verdict, non-2xx page, a redirect
- *           away from the requested route, capture error)
+ *   FAIL    a defect was observed (critical or major verdict, non-2xx page,
+ *           an authentication wall such as Vercel login/SSO, a redirect away
+ *           from the requested route, capture error)
  *   BLOCKED the run could not judge (missing input, Playwright, credentials,
  *           evaluator, unreachable target, inconclusive or failed evaluation)
  *
@@ -198,9 +199,12 @@ function hasDuplicateKeys(text) {
  * Evaluator verdict for one screenshot, from the strict JSON result the
  * validateLayout prompt (src/services/llm.ts) requires:
  *   {"verdict":"pass"|"fail"|"blocked","defects":[{"severity","description"}],"summary"}
- * Only a well-formed "pass" with no critical defect is "ok", and only a
- * well-formed "fail" naming a critical defect is "critical". Prose, refusals,
- * "blocked", malformed, duplicated or self-contradictory results are
+ * Only a well-formed "pass" with no critical and no major defect is "ok". A
+ * well-formed "fail" naming a critical defect is "critical"; a well-formed
+ * result naming a major (but no critical) defect is "major" — a defect, never
+ * an approval, even when the evaluator labelled it "pass". Prose, refusals,
+ * "blocked", malformed, duplicated or self-contradictory results (a "pass"
+ * naming a critical defect, a "fail" naming only minor ones) are
  * "inconclusive" and can never approve a screenshot.
  */
 export function verdictFor(analysis) {
@@ -226,9 +230,50 @@ export function verdictFor(analysis) {
   )
     return "inconclusive";
   const critical = defects.some((defect) => defect.severity === "critical");
-  if (verdict === "pass" && !critical) return "ok";
+  const major = defects.some((defect) => defect.severity === "major");
   if (verdict === "fail" && critical) return "critical";
+  if ((verdict === "fail" || verdict === "pass") && !critical && major) return "major";
+  if (verdict === "pass" && !critical) return "ok";
   return "inconclusive";
+}
+
+/** Hosts and paths that only ever serve an authentication wall, never the site. */
+/** Host (and subdomains), or host + path prefix. The site under test never lives on these. */
+const AUTH_WALL_HOSTS = ["vercel.com", "accounts.google.com", "github.com/login"];
+const AUTH_WALL_PATH = /^\/(?:login|signin|sign-in|sso|auth|_vercel\/sso|sso-api)(?:\/|$)/i;
+const AUTH_WALL_TEXT = [
+  /\blog in to vercel\b/i,
+  /\bcontinue with (?:saml )?sso\b/i,
+  /\bvercel authentication\b/i,
+  /\bthis deployment is protected\b/i,
+];
+
+/**
+ * An authentication wall instead of the site: the browser ended on a login or
+ * SSO URL (Vercel deployment protection redirects to vercel.com/login or a
+ * /sso path), or the page that rendered is a login screen such as "Log in to
+ * Vercel". A screenshot of it is evidence of the wall, never of the site.
+ */
+export function isAuthWall(finalUrl, pageText) {
+  if (typeof finalUrl === "string") {
+    try {
+      const url = new URL(finalUrl);
+      const hostPath = `${url.hostname}${url.pathname}`;
+      if (
+        AUTH_WALL_HOSTS.some(
+          (marker) =>
+            url.hostname === marker ||
+            url.hostname.endsWith(`.${marker}`) ||
+            hostPath.startsWith(marker),
+        )
+      )
+        return true;
+      if (AUTH_WALL_PATH.test(url.pathname)) return true;
+    } catch {
+      // not a URL: judged by text alone
+    }
+  }
+  return typeof pageText === "string" && AUTH_WALL_TEXT.some((pattern) => pattern.test(pageText));
 }
 
 /**
@@ -264,6 +309,7 @@ export function defaultDeps(env = process.env) {
               });
               return { status: response ? response.status() : 0, url: page.url() };
             },
+            text: () => page.innerText("body").catch(() => ""),
             screenshot: (path) => page.screenshot({ path, fullPage: true }),
             close: () => context.close(),
           };
@@ -283,10 +329,35 @@ export function defaultDeps(env = process.env) {
   };
 }
 
+/** Visible text of an HTML body, tags dropped (a linear scan, no backtracking). */
+function stripTags(html) {
+  let text = "";
+  let depth = 0;
+  for (const char of html) {
+    if (char === "<") depth = 1;
+    else if (char === ">" && depth) {
+      depth = 0;
+      text += " ";
+    } else if (!depth) text += char;
+  }
+  return text;
+}
+
 /** Non-shell reachability probe of the exact target. */
 async function probeTarget(url, deps, state) {
   try {
     const response = await deps.fetch(`${url}/`, { redirect: "follow" });
+    const body = typeof response.text === "function" ? await response.text().catch(() => "") : "";
+    // Deployment protection answers 401/403 or a login page: a wall, not an outage.
+    if (
+      response.status === 401 ||
+      response.status === 403 ||
+      isAuthWall(response.url, stripTags(body))
+    ) {
+      state.errors.push(`target is behind an authentication wall (HTTP ${response.status})`);
+      state.reasons.add("AUTH_WALL");
+      return false;
+    }
     if (response.ok) return true;
   } catch (error) {
     state.errors.push(`reachability: ${messageOf(error)}`);
@@ -313,6 +384,12 @@ async function captureOne(page, capture, file, state) {
     const navigation = await page.goto(capture.url);
     capture.http_status = navigation.status;
     capture.final_url = navigation.url ?? null;
+    const text = typeof page.text === "function" ? await page.text() : "";
+    if (isAuthWall(capture.final_url, text)) {
+      capture.status = "auth_wall";
+      state.reasons.add("AUTH_WALL");
+      return;
+    }
     if (!landedOnRoute(capture.url, capture.final_url)) {
       capture.status = "redirected";
       state.reasons.add("ROUTE_REDIRECTED");
@@ -403,6 +480,7 @@ async function evaluateAll(evaluator, viewports, state) {
       evaluation.analysis = typeof analysis === "string" ? analysis : null;
       if (evaluation.verdict === "inconclusive") state.reasons.add("EVALUATION_INCONCLUSIVE");
       if (evaluation.verdict === "critical") state.reasons.add("CRITICAL_FINDING");
+      if (evaluation.verdict === "major") state.reasons.add("MAJOR_FINDING");
     } catch (error) {
       evaluation.verdict = "error";
       evaluation.error = messageOf(error);
@@ -411,7 +489,14 @@ async function evaluateAll(evaluator, viewports, state) {
   }
 }
 
-const DEFECT_REASONS = ["CRITICAL_FINDING", "HTTP_NOT_OK", "ROUTE_REDIRECTED", "CAPTURE_FAILED"];
+const DEFECT_REASONS = [
+  "AUTH_WALL",
+  "CRITICAL_FINDING",
+  "MAJOR_FINDING",
+  "HTTP_NOT_OK",
+  "ROUTE_REDIRECTED",
+  "CAPTURE_FAILED",
+];
 
 function outcome(reasons) {
   if (reasons.size === 0) return "PASS";

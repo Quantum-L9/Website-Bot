@@ -1,4 +1,14 @@
-// L9_META: layer=script, role=site_factory_structural_validator, status=active, version=1.2.0
+// L9_META: layer=script, role=site_factory_structural_validator, status=active, version=1.3.0
+//
+// STRUCTURAL-ONLY. Every component is filled with a fixed placeholder
+// sentence and no LLM runs, so this command proves that a spec assembles,
+// builds and renders — it says NOTHING about the quality of generated copy.
+// Its result carries `contentSource: "structural-placeholder"` and
+// `contentQuality: "NOT_JUDGED"` so no caller can read it as a content pass.
+// Real assembled copy is judged by .github/workflows/site-quality.yml
+// (scripts/quality: the replay build through the real content and section
+// path, then the rendered-site quality checker), which also rejects this
+// placeholder sentence wherever it is rendered.
 import { mkdirSync, readFileSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
@@ -17,8 +27,9 @@ const specPath =
   "fixtures/ci-test-spec.yaml";
 // --build: after structural validation, run the REAL production build
 // (npm install + astro check + astro build) and render every route in a real
-// browser — the LLM-free proof that generated source → production build →
-// rendered site works end to end for the given spec.
+// browser — the LLM-free proof that assembled source → production build →
+// rendered site works end to end for the given spec. The copy it renders is
+// the structural placeholder below, not generated content.
 const realBuild = process.argv.includes("--build");
 // --result=<path>: also write the result JSON to a file (stdout carries logs too),
 // for callers such as scripts/site-preview.mjs that bind a receipt to it.
@@ -29,6 +40,8 @@ const parsed = parse(readFileSync(specPath, "utf-8")) as unknown;
 const spec = validateDomainSpec(parsed, specPath);
 const buildId = `structural-${Date.now()}`;
 const outputDir = resolve("build", "validation", spec.client_id);
+/** Fixed, self-describing placeholder: never generated copy, never a quality signal. */
+const STRUCTURAL_PLACEHOLDER_CONTENT = "structural-placeholder";
 const generatedContent = new Map<string, string>();
 for (const route of spec.routes) {
   for (const component of route.components) {
@@ -106,6 +119,9 @@ try {
     outputDir: ctx.outputDir,
     routes: spec.routes.length,
     routeSlugs: spec.routes.map((route) => route.slug),
+    scope: "structural-only",
+    contentSource: STRUCTURAL_PLACEHOLDER_CONTENT,
+    contentQuality: "NOT_JUDGED",
     sourceDigest: ctx.assemblyManifest.sourceDigest,
     evidenceDir: evidenceStore.rootDir,
     designSource: nativeDesign ? "native-design-intelligence" : "validator-fixed-tokens",
