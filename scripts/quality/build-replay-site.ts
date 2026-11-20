@@ -140,9 +140,13 @@ async function main(): Promise<number> {
 
   const seoBot = await startSeoBotReplayServer(join(fixtures.dir, "seo-bot"), API_KEY);
   try {
-    const env: NodeJS.ProcessEnv = {};
-    for (const name of PASSTHROUGH) if (process.env[name]) env[name] = process.env[name];
-    Object.assign(env, {
+    // Fixed key set: the allow-listed runner variables, then the replay settings.
+    const passthrough = PASSTHROUGH.flatMap((name) => {
+      const value = process.env[name];
+      return value ? [[name, value] as const] : [];
+    });
+    const env: NodeJS.ProcessEnv = {
+      ...Object.fromEntries(passthrough),
       REPLAY_FIXTURES_DIR: fixtures.dir,
       REPLAY_LOG: log,
       SEO_BOT_URL: seoBot.url,
@@ -153,7 +157,7 @@ async function main(): Promise<number> {
       INFISICAL_CLIENT_ID: "",
       INFISICAL_CLIENT_SECRET: "",
       INFISICAL_PROJECT_ID: "",
-    });
+    };
     const { code } = await run(env, [
       "--mode=local-proof",
       "--redesign",
