@@ -166,10 +166,15 @@ export function nuggetCopiesPageExcerpt(
   evidence: string,
   pages: Array<{ content_excerpt?: string }>,
 ): boolean {
+  const haystack = evidence.replace(/\s+/g, " ").trim();
+  if (haystack.length === 0) return false;
   for (const page of pages) {
     const excerpt = page.content_excerpt?.replace(/\s+/g, " ").trim() ?? "";
     if (excerpt.length < VERBATIM_EXCERPT_CHARS) continue;
-    if (evidence.includes(excerpt.slice(0, VERBATIM_EXCERPT_CHARS))) return true;
+    const last = excerpt.length - VERBATIM_EXCERPT_CHARS;
+    for (let start = 0; start <= last; start += 1) {
+      if (haystack.includes(excerpt.slice(start, start + VERBATIM_EXCERPT_CHARS))) return true;
+    }
   }
   return false;
 }
@@ -452,7 +457,13 @@ export class CompetitiveIntelligenceStage implements Stage {
         request.images,
       );
       for (const nugget of parsePatterns(parsed.nuggets ?? [], `donor ${donor.domain}`)) {
-        if (nuggetCopiesPageExcerpt(nugget.evidence, donor.pages)) continue;
+        const sealed = [
+          nugget.evidence,
+          nugget.invariant,
+          nugget.acceptance_test,
+          nugget.beneficiary_destination,
+        ];
+        if (sealed.some((field) => nuggetCopiesPageExcerpt(field, donor.pages))) continue;
         nuggets.push({ ...nugget, donor: donor.domain });
       }
     }

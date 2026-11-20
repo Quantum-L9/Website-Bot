@@ -161,6 +161,60 @@ void test("donor fetch rejects loopback and a link-local redirect before the bod
   await ingestor.close();
 });
 
+void test("donor excerpt drops script text when the end tag contains a space", async () => {
+  const capturer = new RecordingCapturer();
+  const html =
+    "<html><body><script>SECRET_TOKEN</script >" +
+    "<style>SECRET_STYLE</style\n>" +
+    "<h1>Visible headline</h1></body></html>";
+  const fetchImpl: typeof fetch = async () => new Response(html, { status: 200 });
+  const ingestor = new HttpDonorIngestor(capturer, {
+    fetchImpl,
+    resolveHost: async () => ["93.184.216.34"],
+  });
+  const evidence = await ingestor.ingest(donorRequest(["https://donor.example/service"]));
+  assert.ok(evidence);
+  const excerpt = evidence.pages[0]?.content_excerpt ?? "";
+  assert.equal(excerpt.includes("SECRET_TOKEN"), false);
+  assert.equal(excerpt.includes("SECRET_STYLE"), false);
+  assert.match(excerpt, /Visible headline/);
+  await ingestor.close();
+});
+
+void test("an unresolvable donor name is fetched and a resolver error is not", async () => {
+  const calls: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    calls.push(String(input));
+    return new Response("<html><body><h1>Fixture page</h1></body></html>", { status: 200 });
+  };
+  const missing = Object.assign(new Error("getaddrinfo ENOTFOUND donor-6.plumbing.example"), {
+    code: "ENOTFOUND",
+  });
+  const replayed = new HttpDonorIngestor(new RecordingCapturer(), {
+    fetchImpl,
+    resolveHost: async () => {
+      throw missing;
+    },
+  });
+  const evidence = await replayed.ingest(donorRequest(["https://donor-6.plumbing.example/"]));
+  assert.ok(evidence);
+  assert.match(evidence.pages[0]?.content_excerpt ?? "", /Fixture page/);
+  assert.deepEqual(calls, ["https://donor-6.plumbing.example/"]);
+  await replayed.close();
+
+  calls.length = 0;
+  const failed = new HttpDonorIngestor(new RecordingCapturer(), {
+    fetchImpl,
+    resolveHost: async () => {
+      throw new Error("dns unavailable");
+    },
+  });
+  const rejected = await failed.ingest(donorRequest(["https://donor-6.plumbing.example/"]));
+  assert.equal(rejected, null);
+  assert.deepEqual(calls, []);
+  await failed.close();
+});
+
 void test("a public https donor keeps a bounded excerpt and screenshots that URL", async () => {
   const capturer = new RecordingCapturer();
   const fetchImpl: typeof fetch = async () =>
@@ -193,6 +247,8 @@ void test("nugget extraction sends the page excerpt and screenshot, and rejects 
   assert.equal(request.prompt.includes("digests only"), false);
   assert.deepEqual(request.images, [shot]);
   assert.equal(nuggetCopiesPageExcerpt(excerpt, donor.pages), true);
+  const laterWindow = excerpt.slice(excerpt.length - 48);
+  assert.equal(nuggetCopiesPageExcerpt(`Abstract claim: ${laterWindow}`, donor.pages), true);
   assert.equal(
     nuggetCopiesPageExcerpt("A reusable hero slot sits above the primary action.", donor.pages),
     false,

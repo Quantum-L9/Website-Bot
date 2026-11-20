@@ -159,10 +159,17 @@ export class RedesignContentAuthorityStage implements Stage {
 
     const routeTargets = ctx.domainSpec.seo_contract?.route_targets ?? [];
     const routes = ctx.domainSpec.routes.map((route) => {
-      const matched = routeTargets.find((target) => target.target_page === route.slug);
-      const keywords = (matched?.keywords ?? [])
-        .map((keyword) => keyword.trim())
-        .filter((keyword) => keyword.length > 0);
+      const keywords: string[] = [];
+      const seen = new Set<string>();
+      for (const target of routeTargets) {
+        if (target.target_page !== route.slug) continue;
+        for (const keyword of target.keywords ?? []) {
+          const trimmed = keyword.trim();
+          if (trimmed.length === 0 || seen.has(trimmed)) continue;
+          seen.add(trimmed);
+          keywords.push(trimmed);
+        }
+      }
       return {
         route_id: route.slug,
         path: route.slug,
