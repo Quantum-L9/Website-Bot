@@ -11,6 +11,8 @@ import test from "node:test";
 import { BuildError } from "../../src/pipeline/BuildError.js";
 import {
   createWebsiteFactoryLLM,
+  DEEPSEEK_DEFAULT_MODEL,
+  DEEPSEEK_DEFAULT_VISION_MODEL,
   DEEPSEEK_PEAK_PRICING,
   deepseekCostUsd,
   type LlmTransport,
@@ -459,10 +461,10 @@ void test("D18 validateLayout sends screenshots as DeepSeek image parts and keep
   assert.ok(
     String((parts[1].image_url as { url: string }).url).startsWith("data:image/png;base64,"),
   );
-  // A model without verified vision support refuses before dispatch.
+  // A vision model without verified image support refuses before dispatch.
   const pro = harness();
   const noVision = createWebsiteFactoryLLM("c", {
-    env: { ...KEY_ONLY, DEEPSEEK_MODEL: "deepseek-v4-pro" } as NodeJS.ProcessEnv,
+    env: { ...KEY_ONLY, DEEPSEEK_VISION_MODEL: "deepseek-v4-pro" } as NodeJS.ProcessEnv,
     transport: pro.transport,
   });
   await assert.rejects(
@@ -470,4 +472,26 @@ void test("D18 validateLayout sends screenshots as DeepSeek image parts and keep
     isLlmFailure(/does not support image input/),
   );
   assert.equal(pro.calls.length, 0);
+});
+
+void test("the default reasoning model serves text and image calls go to the vision model", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "vqa-"));
+  const shot = join(dir, "home_desktop.png");
+  writeFileSync(shot, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]));
+  const verdict = JSON.stringify({ verdict: "pass", defects: [], summary: "clean" });
+  const h = harness([
+    { json: completion({ model: "deepseek-flash" }, verdict) },
+    { json: completion({ model: "deepseek-v4-pro" }) },
+  ]);
+  const llm = createWebsiteFactoryLLM("c", {
+    env: { ...KEY_ONLY } as NodeJS.ProcessEnv,
+    transport: h.transport,
+  });
+  assert.equal(await llm.validateLayout([shot], "Page: /"), verdict);
+  await llm.generateSchema("organization schema for the home page");
+  assert.equal(h.calls.length, 2);
+  assert.equal(h.calls[0].body.model, DEEPSEEK_DEFAULT_VISION_MODEL);
+  assert.equal(h.calls[1].body.model, DEEPSEEK_DEFAULT_MODEL);
+  assert.equal(DEEPSEEK_PEAK_PRICING[DEEPSEEK_DEFAULT_VISION_MODEL]?.vision, true);
+  assert.equal(DEEPSEEK_PEAK_PRICING[DEEPSEEK_DEFAULT_MODEL]?.vision, false);
 });

@@ -22,6 +22,9 @@ contract:
 
 models:
   default: deepseek-v4-pro
+  # Calls that carry images use this model; every other call uses the default.
+  # Fixed by configuration (DEEPSEEK_VISION_MODEL): not a fallback or an escalation.
+  vision: deepseek-flash
   allowed:
     deepseek-flash: { vision: true }
     deepseek-v4-pro: { vision: false }
@@ -111,6 +114,7 @@ env_vars:
   optional:
     - CLIENT_ID
     - DEEPSEEK_MODEL
+    - DEEPSEEK_VISION_MODEL
     - DEEPSEEK_BASE_URL
     - LLM_PROVIDER_TIMEOUT_MS
     - LLM_BUILD_BUDGET_USD
