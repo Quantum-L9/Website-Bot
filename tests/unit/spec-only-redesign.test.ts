@@ -284,10 +284,10 @@ void test("content authority sends the first-party record and no landscape", asy
         keywords: ["crm transformation"],
       },
       {
-        cluster_name: "home-aeo",
+        cluster_name: "home-local",
         target_page: "/",
-        intent: "informational",
-        keywords: ["crm transformation", "ai revops"],
+        intent: "commercial",
+        keywords: ["crm transformation", "raleigh implementation"],
       },
     ],
   };
@@ -295,7 +295,7 @@ void test("content authority sends the first-party record and no landscape", asy
   assert.ok(seen);
   assert.deepEqual(seen.routes.find((route) => route.path === "/")?.keywords, [
     "crm transformation",
-    "ai revops",
+    "raleigh implementation",
   ]);
   assert.equal(seen.routes.find((route) => route.path === "/contact")?.keywords, undefined);
   assert.equal(seen.competitive_landscape, undefined);

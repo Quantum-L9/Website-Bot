@@ -10,8 +10,9 @@ geography:
     - NC
   primary_state: NC
 build_intent: REDESIGN_IMPROVE
-# The committed SEO-Bot fixtures are a purchased landscape. The replay must
-# request that research so donor DNS, HTML, and the blueprint lineage run.
+# The sealed replay fixtures are a competitive landscape. Market research is
+# opt-in, so this run has to request it or the pipeline seals first-party
+# authority and rejects the landscape blueprint.
 market_research: requested
 design:
   status: pending

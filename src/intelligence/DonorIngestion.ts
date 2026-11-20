@@ -113,15 +113,33 @@ async function defaultResolveHost(hostname: string): Promise<string[]> {
   return records.map((record) => record.address);
 }
 
+function isUnresolvableName(error: unknown): boolean {
+  if (typeof error !== "object" || error === null || !("code" in error)) return false;
+  const code = (error as { code?: unknown }).code;
+  return code === "ENOTFOUND" || code === "ENODATA";
+}
+
 async function assertPublicHttps(
   url: URL,
   resolveHost: DonorFetchDeps["resolveHost"],
 ): Promise<void> {
   if (url.protocol !== "https:") throw new UnsafeDonorTarget("donor URL must be https");
   if (!url.hostname) throw new UnsafeDonorTarget("donor URL has no host");
-  const addresses = isIP(url.hostname)
-    ? [url.hostname]
-    : await (resolveHost ?? defaultResolveHost)(url.hostname);
+  let addresses: string[];
+  if (isIP(url.hostname)) {
+    addresses = [url.hostname];
+  } else {
+    try {
+      addresses = await (resolveHost ?? defaultResolveHost)(url.hostname);
+    } catch (error) {
+      // No address exists to classify as private. Fetch is the next boundary:
+      // a real resolver failure fails there too, while a name with no public
+      // DNS record can still be answered by the caller-supplied fetch.
+      if (isUnresolvableName(error)) return;
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new UnsafeDonorTarget(reason);
+    }
+  }
   if (addresses.length === 0 || addresses.some(addressBlocked)) {
     throw new UnsafeDonorTarget("donor URL resolves to a local or private address");
   }
@@ -135,51 +153,77 @@ function sameHost(left: string, right: string): boolean {
   return left.replace(/\.$/, "").toLowerCase() === right.replace(/\.$/, "").toLowerCase();
 }
 
-function isTagBoundary(char: string | undefined): boolean {
-  return char === undefined || char === ">" || char === "/" || char.trim() === "";
+function isHtmlWhitespaceChar(char: string): boolean {
+  return char === " " || char === "\n" || char === "\r" || char === "\t" || char === "\f";
 }
 
-/** Drop `<tag ...>...</tag ...>` including a spaced end tag such as `</script >`. */
-function dropElements(html: string, tagName: string): string {
+function isHtmlWhitespace(value: string): boolean {
+  for (const char of value) {
+    if (!isHtmlWhitespaceChar(char)) return false;
+  }
+  return true;
+}
+
+function indexOfTag(lower: string, mark: string, from: number): number {
+  let cursor = from;
+  while (cursor < lower.length) {
+    const found = lower.indexOf(mark, cursor);
+    if (found === -1) return -1;
+    const next = lower[found + mark.length];
+    if (next === undefined || next === ">" || next === "/" || isHtmlWhitespaceChar(next)) {
+      return found;
+    }
+    cursor = found + 1;
+  }
+  return -1;
+}
+
+function endOfCloseTag(html: string, closeAt: number, markLength: number): number {
+  const gt = html.indexOf(">", closeAt + markLength);
+  if (gt === -1) return -1;
+  if (!isHtmlWhitespace(html.slice(closeAt + markLength, gt))) return -1;
+  return gt + 1;
+}
+
+/** Drop `<tag>…</tag>` bodies, including an end tag with whitespace before `>`. */
+function dropTaggedRegions(html: string, tag: string): string {
   const lower = html.toLowerCase();
-  const openToken = `<${tagName}`;
-  const closeToken = `</${tagName}`;
+  const openMark = `<${tag}`;
+  const closeMark = `</${tag}`;
   let result = "";
   let cursor = 0;
   while (cursor < html.length) {
-    const open = lower.indexOf(openToken, cursor);
-    if (open === -1) return result + html.slice(cursor);
-    if (!isTagBoundary(lower[open + openToken.length])) {
-      result += html.slice(cursor, open + 1);
-      cursor = open + 1;
-      continue;
+    const open = indexOfTag(lower, openMark, cursor);
+    if (open === -1) {
+      result += html.slice(cursor);
+      return result;
     }
-    const close = lower.indexOf(closeToken, open + openToken.length);
-    const closeEnd = close === -1 ? -1 : lower.indexOf(">", close + closeToken.length);
-    if (closeEnd === -1) return result + html.slice(cursor, open);
-    result += html.slice(cursor, open);
-    cursor = closeEnd + 1;
+    result += `${html.slice(cursor, open)} `;
+    const openEnd = html.indexOf(">", open + openMark.length);
+    if (openEnd === -1) return result;
+    let search = openEnd + 1;
+    let closed = false;
+    while (search < html.length) {
+      const close = indexOfTag(lower, closeMark, search);
+      if (close === -1) return result;
+      const after = endOfCloseTag(html, close, closeMark.length);
+      if (after === -1) {
+        search = close + closeMark.length;
+        continue;
+      }
+      cursor = after;
+      closed = true;
+      break;
+    }
+    if (!closed) return result;
   }
   return result;
 }
 
-function collapseSpace(value: string): string {
-  let out = "";
-  let pending = false;
-  for (const char of value) {
-    if (char.trim() === "") {
-      pending = out.length > 0;
-      continue;
-    }
-    if (pending) out += " ";
-    pending = false;
-    out += char;
-  }
-  return out;
-}
-
 function textExcerpt(body: string): string {
-  const visible = collapseSpace(stripHtmlTags(dropElements(dropElements(body, "script"), "style")));
+  const visible = stripHtmlTags(dropTaggedRegions(dropTaggedRegions(body, "script"), "style"))
+    .replace(/\s+/g, " ")
+    .trim();
   return visible.slice(0, EXCERPT_CHARS);
 }
 

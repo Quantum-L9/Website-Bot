@@ -159,8 +159,8 @@ export class RedesignContentAuthorityStage implements Stage {
 
     const routeTargets = ctx.domainSpec.seo_contract?.route_targets ?? [];
     const routes = ctx.domainSpec.routes.map((route) => {
-      const seen = new Set<string>();
       const keywords: string[] = [];
+      const seen = new Set<string>();
       for (const target of routeTargets) {
         if (target.target_page !== route.slug) continue;
         for (const keyword of target.keywords ?? []) {
