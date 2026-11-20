@@ -56,6 +56,10 @@ const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
 // A structured section's own resolved CTA replaces it, so the hero never shows two.
 const cta = structured?.cta ?? siteConfig.primaryCta;
+// With no verified lead form the primary CTA falls back to calling the business
+// (SiteAssemblerStage.phoneCta). A second phone button beside it would be the
+// same action twice; the header keeps the number either way.
+const phoneButtonHref = cta?.href?.startsWith("tel:") ? undefined : telHref;
 // The approved heading owns the page H1; the legacy headline is its fallback.
 const structuredHeadline = structured?.heading;
 // Without a heading the legacy headline already is the eyebrow; never repeat it.
@@ -76,10 +80,10 @@ const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.busine
         {paragraphs.map(paragraph => <p>{paragraph.replace(/\*\*/g, '')}</p>)}
       </>
     )}
-    {(cta || telHref) && (
+    {(cta || phoneButtonHref) && (
       <div class="hero__actions">
         {cta && <a class="btn btn--primary" href={cta.href}>{cta.label}</a>}
-        {telHref && <a class="btn btn--ghost" href={telHref}>{phone}</a>}
+        {phoneButtonHref && <a class="btn btn--ghost" href={phoneButtonHref}>{phone}</a>}
       </div>
     )}
   </div>
