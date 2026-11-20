@@ -173,14 +173,15 @@ function verdictProblem(
 /**
  * Judge one verifier report against the run that requested it. `problems` is
  * empty only for a PASS; `critical` is true when the evaluator reported a
- * critical defect. The report's own status is necessary, never sufficient.
+ * critical defect and `major` when it reported a major one (both fail the
+ * gate). The report's own status is necessary, never sufficient.
  */
 export function assessVisualQaReport(
   raw: unknown,
   run: VisualQaRun,
-): { problems: string[]; critical: boolean } {
+): { problems: string[]; critical: boolean; major: boolean } {
   if (!raw || typeof raw !== "object")
-    return { problems: ["report is not an object"], critical: false };
+    return { problems: ["report is not an object"], critical: false, major: false };
   const report = raw as VisualQaReport;
   const captures = Array.isArray(report.captures) ? (report.captures as ReportCapture[]) : [];
   const evaluations = Array.isArray(report.evaluations)
@@ -198,7 +199,8 @@ export function assessVisualQaReport(
     }
   }
   const critical = evaluations.some((evaluation) => evaluation?.verdict === "critical");
-  return { problems, critical };
+  const major = evaluations.some((evaluation) => evaluation?.verdict === "major");
+  return { problems, critical, major };
 }
 
 export class VisualQAStage implements Stage {
@@ -285,7 +287,7 @@ export class VisualQAStage implements Stage {
       logger.error({ reportPath }, "Visual QA verifier wrote no readable report; gate failed");
       return;
     }
-    const { problems, critical } = assessVisualQaReport(report, {
+    const { problems, critical, major } = assessVisualQaReport(report, {
       runId,
       url,
       pages,
@@ -293,10 +295,10 @@ export class VisualQAStage implements Stage {
       reportPath,
       exitedZero,
     });
-    if (critical)
+    if (critical || major)
       throw new BuildError(
         "VISUAL_QA_FAILED",
-        `Visual QA evaluator reported critical defects (report: ${reportPath})`,
+        `Visual QA evaluator reported ${critical ? "critical" : "major"} defects (report: ${reportPath})`,
         false,
         { reportPath },
       );

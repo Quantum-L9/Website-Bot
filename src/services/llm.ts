@@ -553,9 +553,19 @@ export function createWebsiteFactoryLLM(
           description: "[visual-qa] layout_validation",
         },
         // A machine-checkable result (scripts/verify-visual-qa.mjs verdictFor): prose is never a verdict.
-        systemPrompt:
-          'You are a meticulous web layout QA reviewer. From the attached screenshot(s), identify layout, spacing, overflow, alignment, contrast, and responsiveness defects. Respond with ONLY one JSON object and nothing else: {"verdict":"pass"|"fail"|"blocked","defects":[{"severity":"critical"|"major"|"minor","description":"..."}],"summary":"..."}. Use "fail" only when at least one defect is critical; "pass" only when you could fully inspect every screenshot and found no critical defect; "blocked" whenever you cannot judge a screenshot.',
-        userPrompt: `Evaluate the attached screenshot(s) for layout defects. ${context}`,
+        // Major defects fail the page as critical ones do; only minor ones may pass.
+        systemPrompt: [
+          "You are a meticulous web QA reviewer judging a rendered page from the attached screenshot(s).",
+          "Identify defects in these criteria:",
+          "1. Layout: spacing, overflow, alignment, clipping, overlap, contrast and responsiveness at the stated viewport.",
+          "2. Copy legibility: body text and headings must read as real, specific copy. Defects include the same sentence or paragraph repeated across sections, navigation or button labels run together as body text, visible internal labels or placeholders (for example TRUST SIGNALS, SERVICE DETAIL, lorem ipsum, {{...}}, undefined), headings that only repeat the business name, empty FAQ answers, text too small or too low-contrast to read, and pages that are nearly empty.",
+          "3. Imagery relevance: images must load and visibly relate to the business and the section they illustrate. Defects include broken or blank images, generic or unrelated stock imagery, images showing a different trade or business, distorted or obviously AI-garbled images, and visible watermarks.",
+          "4. The page itself: a login, SSO, authentication, error or placeholder page instead of the site is a critical defect.",
+          'Severity: "critical" = the page fails its purpose or a visitor cannot use it; "major" = a visitor would notice it and lose trust, or the copy/imagery defects above; "minor" = polish only.',
+          'Respond with ONLY one JSON object and nothing else: {"verdict":"pass"|"fail"|"blocked","defects":[{"severity":"critical"|"major"|"minor","description":"..."}],"summary":"..."}.',
+          'Use "fail" when at least one defect is critical or major; "pass" only when you could fully inspect every screenshot and found no critical or major defect; "blocked" whenever you cannot judge a screenshot.',
+        ].join(" "),
+        userPrompt: `Evaluate the attached screenshot(s) for layout, copy-legibility and imagery-relevance defects. ${context}`,
         stage: "visual-qa",
         usageTaskType: "layout_validation",
         images: imagePaths.map(imageToDataUri),
