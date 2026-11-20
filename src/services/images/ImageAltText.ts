@@ -70,7 +70,7 @@ function pageName(slot: AltSlot, routes: AltContext["routes"]): string | undefin
   if (slug === undefined) return undefined;
   const titled = routes?.find((route) => route.slug === slug)?.title?.trim();
   if (titled) return titled;
-  return slug === "/" ? "Home" : words(slug.split("/").filter(Boolean).pop() ?? "");
+  return slug === "/" ? "Home" : words(slug.split("/").filter(Boolean).at(-1) ?? "");
 }
 
 /**
@@ -87,7 +87,8 @@ export function sectionAlt(slot: AltSlot, context: AltContext): string | undefin
   const section = placementSectionId(slot.placement);
   const subject = [section ? words(section) : undefined, role].filter(Boolean).join(" ");
   const page = pageName(slot, context.routes);
-  return `${business} ${subject} image${page ? `, ${page} page` : ""}`;
+  const pageSuffix = page ? `, ${page} page` : "";
+  return `${business} ${subject} image${pageSuffix}`;
 }
 
 /**
