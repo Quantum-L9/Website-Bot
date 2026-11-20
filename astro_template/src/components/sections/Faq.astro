@@ -9,7 +9,8 @@ interface Props {
   structured?: StructuredSectionView;
 }
 const { name = "faq", structured } = Astro.props;
-if (!structured) throw new Error(`missing-structured-section: ${name} renders only structured copy`);
+if (!structured)
+  throw new Error(`missing-structured-section: ${name} renders only structured copy`);
 // Only complete pairs render: a question without an answer is never shown.
 const faqs = (structured.faqs ?? []).filter((item) => item.question.trim() && item.answer.trim());
 ---

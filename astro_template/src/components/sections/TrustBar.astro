@@ -9,7 +9,8 @@ interface Props {
   structured?: StructuredSectionView;
 }
 const { name = "trust_bar", structured } = Astro.props;
-if (!structured) throw new Error(`missing-structured-section: ${name} renders only structured copy`);
+if (!structured)
+  throw new Error(`missing-structured-section: ${name} renders only structured copy`);
 // Blocks render exactly as authored; COPY trust points arrive as `badges`
 // and render as the badge list. Nothing is split or labelled by the template.
 const badges = structured.badges ?? [];
