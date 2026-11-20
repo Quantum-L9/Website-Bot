@@ -196,7 +196,10 @@ describe("E2EEngine termination evidence", () => {
     const env = await createTestEnvironment();
     try {
       const adapter = new FixedResultAdapter(TIMED_OUT);
-      const engine = new E2EEngine(adapter, await EvidenceCollector.create(adapter, env.evidenceDir));
+      const engine = new E2EEngine(
+        adapter,
+        await EvidenceCollector.create(adapter, env.evidenceDir),
+      );
       const pending: E2ETestResult = {
         suite_id: "s",
         suite_name: "s",
