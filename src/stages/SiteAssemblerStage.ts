@@ -37,6 +37,7 @@ import type {
 import { clientAssetRoot } from "../pipeline/BuildContext.js";
 import { BuildError } from "../pipeline/BuildError.js";
 import type { EvidenceKind } from "../pipeline/evidence/EvidenceReference.js";
+import { variantFileName, variantStagedPath } from "../pipeline/evidence/ImageAssetManifest.js";
 import { staticIllustrationAssets } from "../pipeline/evidence/ImageAssetPlan.js";
 import type { IngestedImage } from "../pipeline/evidence/SourceSiteManifest.js";
 import type { Stage } from "../pipeline/PipelineRunner.js";
@@ -54,7 +55,10 @@ import {
   routeSlugFromPlacement,
 } from "../services/images/ImageAssetPlanner.js";
 import { EXTENSION_BY_MIME, inspectImage } from "../services/images/ImageInspector.js";
-import { isOptimizableRaster, optimizeImageForSlot } from "../services/images/ImageOptimizer.js";
+import {
+  isOptimizableRaster,
+  optimizeImageWithVariants,
+} from "../services/images/ImageOptimizer.js";
 import {
   buildAssemblyManifest,
   normalizeComponentName,
@@ -178,6 +182,8 @@ interface GalleryExtra {
   height: number;
   sha256: string;
   source: "provided" | "source-site";
+  /** srcset renditions: site file name (under gallery/) and its staged path. */
+  variants?: Array<{ width: number; fileName: string; path: string }>;
 }
 
 /**
@@ -189,9 +195,9 @@ async function optimizedGalleryExtra(extra: GalleryExtra, dir: string): Promise<
   if (extra.source !== "source-site") return extra;
   const bytes = readFileSync(extra.path);
   if (!isOptimizableRaster(inspectImage(bytes).mimeType)) return extra;
-  let optimized: Awaited<ReturnType<typeof optimizeImageForSlot>>;
+  let optimizedSet: Awaited<ReturnType<typeof optimizeImageWithVariants>>;
   try {
-    optimized = await optimizeImageForSlot(bytes, {
+    optimizedSet = await optimizeImageWithVariants(bytes, {
       id: `gallery:${extra.fileName}`,
       placement: "global:gallery",
     });
@@ -201,16 +207,28 @@ async function optimizedGalleryExtra(extra: GalleryExtra, dir: string): Promise<
       `Gallery photo ${extra.fileName} could not be optimised: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+  const optimized = optimizedSet.image;
   mkdirSync(dir, { recursive: true });
   const path = resolve(dir, `${extra.sha256}.${optimized.extension}`);
   writeFileSync(path, optimized.bytes);
   const stem = extra.fileName.replace(/\.[^.]+$/, "");
+  const fileName = `${stem}.${optimized.extension}`;
+  const variants = optimizedSet.variants.map((variant) => {
+    const variantPath = variantStagedPath(path, variant.width);
+    writeFileSync(variantPath, variant.bytes);
+    return {
+      width: variant.width,
+      fileName: variantFileName(fileName, variant.width),
+      path: variantPath,
+    };
+  });
   return {
     ...extra,
-    fileName: `${stem}.${optimized.extension}`,
+    fileName,
     path,
     width: optimized.width,
     height: optimized.height,
+    ...(variants.length ? { variants } : {}),
   };
 }
 
@@ -263,7 +281,7 @@ function sourceGalleryExtra(image: IngestedImage): GalleryExtra | undefined {
   return {
     fileName: `${image.id}${extname(image.localPath) || ".jpg"}`,
     path: image.localPath,
-    alt: image.altText || image.surroundingText || "Project photo",
+    alt: image.altText || image.title || image.surroundingText || "Project photo",
     width: image.width,
     height: image.height,
     sha256: image.sha256,
@@ -324,7 +342,7 @@ function actionKey(value: string): string {
 
 export class SiteAssemblerStage implements Stage {
   name = "site-assembler";
-  version = "3.8.0";
+  version = "3.9.0";
   evidence = {
     // A site with planned images consumes the delivered image_assets evidence
     // (written by planning/generation) before it materializes public/images.
@@ -919,6 +937,14 @@ export class SiteAssemblerStage implements Stage {
         width: asset.width,
         height: asset.height,
         source: asset.source,
+        ...(asset.variants?.length
+          ? {
+              variants: asset.variants.map((variant) => ({
+                src: `/images/${variant.fileName}`,
+                width: variant.width,
+              })),
+            }
+          : {}),
       };
     }
     return registry;
@@ -1230,6 +1256,14 @@ export class SiteAssemblerStage implements Stage {
       width: image.width,
       height: image.height,
       source: image.source,
+      ...(image.variants?.length
+        ? {
+            variants: image.variants.map((variant) => ({
+              src: `/images/gallery/${variant.fileName}`,
+              width: variant.width,
+            })),
+          }
+        : {}),
     }));
   }
 
@@ -1246,6 +1280,16 @@ export class SiteAssemblerStage implements Stage {
       const target = safeChild(root, `public/images/${asset.outputFileName}`);
       mkdirSync(dirname(target), { recursive: true });
       copyFileSync(asset.absolutePath, target);
+      for (const variant of asset.variants ?? []) {
+        const staged = variantStagedPath(asset.absolutePath, variant.width);
+        if (!existsSync(staged)) {
+          throw new BuildError(
+            "SITE_ASSEMBLY_FAILED",
+            `Resolved image variant missing on disk: ${staged}`,
+          );
+        }
+        copyFileSync(staged, safeChild(root, `public/images/${variant.fileName}`));
+      }
     }
     this.copyGalleryImages(root, ctx);
   }
@@ -1255,6 +1299,8 @@ export class SiteAssemblerStage implements Stage {
       const target = safeChild(root, `public/images/gallery/${image.fileName}`);
       mkdirSync(dirname(target), { recursive: true });
       copyFileSync(image.path, target);
+      for (const variant of image.variants ?? [])
+        copyFileSync(variant.path, safeChild(root, `public/images/gallery/${variant.fileName}`));
     }
   }
 

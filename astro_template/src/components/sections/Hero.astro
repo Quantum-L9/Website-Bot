@@ -1,4 +1,5 @@
 ---
+import { srcsetFor } from "../../lib/responsiveImage";
 import { siteConfig } from "../../lib/siteConfig";
 import { sectionVariant } from "../../styles/variants";
 import ConceptualIllustration from "../ConceptualIllustration.astro";
@@ -22,7 +23,14 @@ const paragraphs = rest
   .filter(Boolean);
 const images: Record<
   string,
-  { src: string; alt: string; width: number; height: number; source?: string }
+  {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+    source?: string;
+    variants?: ReadonlyArray<{ src: string; width: number }>;
+  }
 > = siteConfig.images ?? {};
 const path = Astro.url.pathname !== "/" ? Astro.url.pathname.replace(/\/$/, "") : "/";
 const logo = images["global:logo"];
@@ -51,6 +59,15 @@ const variant =
       : heroBackdrop
         ? "backdrop"
         : "split";
+// Rendered width per variant (global.css): the backdrop spans the viewport, the
+// split column is ~45% of it from 800px, a centred image is capped at 60rem.
+const heroSrcset = heroImage ? srcsetFor(heroImage) : undefined;
+const heroSizes =
+  variant === "backdrop"
+    ? "100vw"
+    : variant === "centered"
+      ? "(min-width: 60rem) 60rem, 100vw"
+      : "(min-width: 800px) 45vw, 100vw";
 const phone = siteConfig.phone;
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
 // Verified label + destination, or null: no default offer and no dead anchor (WB-QAP-03).
@@ -91,6 +108,8 @@ const eyebrow = (structuredHeadline && structured?.eyebrow) || siteConfig.busine
     <img
       class="hero__image"
       src={heroImage.src}
+      srcset={heroSrcset}
+      sizes={heroSrcset ? heroSizes : undefined}
       alt={heroImage.alt}
       width={heroImage.width}
       height={heroImage.height}
