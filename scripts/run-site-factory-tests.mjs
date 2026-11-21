@@ -48,14 +48,20 @@ if (
 ) {
   env.L9_MEMORY_MODE = "disabled";
 }
-// Per-test default timeout, so a test whose promise never settles fails by
-// name instead of stalling the whole step until an outer kill. 240 s is five
-// times the slowest test without its own timeout (47.8 s, measured locally on
-// a full local run). Tests that declare their own `timeout` keep it.
+// Per-test default timeout for the offline scopes, so a test whose promise
+// never settles fails by name instead of stalling the whole step until an
+// outer kill. 240 s is five times the slowest offline test without its own
+// timeout (47.8 s, measured locally on a full local run). Tests that declare
+// their own `timeout` keep it. The credentialed scopes (github, vercel, e2e,
+// all) get no default: their tests wait on live services by design, e.g. a
+// Vercel deployment may poll for up to VERCEL_MAX_POLLS x
+// VERCEL_POLL_INTERVAL_MS (10 minutes by default).
+const OFFLINE_SCOPES = new Set(["local", "evidence", "provisioning"]);
 const TEST_TIMEOUT_MS = 240_000;
+const timeoutArgs = OFFLINE_SCOPES.has(scope) ? [`--test-timeout=${TEST_TIMEOUT_MS}`] : [];
 const result = spawnSync(
   process.execPath,
-  ["--import", "tsx", "--test", `--test-timeout=${TEST_TIMEOUT_MS}`, ...files],
+  ["--import", "tsx", "--test", ...timeoutArgs, ...files],
   {
     stdio: "inherit",
     env,
