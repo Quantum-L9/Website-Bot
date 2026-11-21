@@ -142,6 +142,15 @@
         }
       ]
     },
+    "pre-deploy-blind-judge": {
+      "module": "src/stages/PreDeployBlindJudgeStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:6fbfc6b1bd593714f46149e1b2273a6d7ca5fe2900d78b6c7cd14411efb961a6"
+        }
+      ]
+    },
     "provision-client": {
       "module": "src/stages/ProvisionClientStage.ts",
       "history": [

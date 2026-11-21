@@ -71,6 +71,7 @@ export type BuildErrorCode =
   | "HANDOFF_ACK_MISMATCH"
   | "SEO_BASELINE_FAILED"
   | "VISUAL_QA_FAILED"
+  | "PRE_DEPLOY_JUDGE_BLOCKED"
   | "HANDOFF_EMIT_FAILED"
   | "LLM_CALL_FAILED"
   | "DB_ERROR"
@@ -110,6 +111,13 @@ export const BUILD_ERROR_POLICIES: Partial<Record<BuildErrorCode, BuildErrorPoli
     retry: "external-reverify",
     redactEvidence: true,
     remediation: "Reconcile the client branch head before retrying publication.",
+  },
+  PRE_DEPLOY_JUDGE_BLOCKED: {
+    owner: "pre-deploy-blind-judge",
+    retry: "after-input-fix",
+    redactEvidence: false,
+    remediation:
+      "Read the judge report named in the failure. FAIL: improve the candidate and rebuild. NOT_RUN or BLOCKED: provide DEEPSEEK_API_KEY and the spec's assets.sourceSite.url baseline, or record an explicit operator waiver with WEBSITE_BOT_BLIND_JUDGE_WAIVER=<reason>.",
   },
   VERCEL_POLL_TIMEOUT: {
     owner: "vercel-deploy",
