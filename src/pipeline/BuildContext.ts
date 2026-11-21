@@ -424,6 +424,8 @@ export interface BuildContext {
   resolvedImages?: Map<string, ResolvedImageAsset>;
   imageProvenanceWarnings?: string[];
   renderedSiteValidationPath?: string;
+  /** Rendered-site quality report written by SiteQualityCheckStage. */
+  siteQualityReportPath?: string;
   baselineRanks?: Record<string, number | null>;
   visualQaPassed: boolean;
   unresolvedErrorFlags?: string[];

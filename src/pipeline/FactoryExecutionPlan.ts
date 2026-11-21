@@ -26,6 +26,7 @@ import { SEOBaselineStage } from "../stages/SEOBaselineStage.js";
 import { SeoBuildIntelligencePreflightStage } from "../stages/SeoBuildIntelligencePreflightStage.js";
 import { SiteAssemblerStage } from "../stages/SiteAssemblerStage.js";
 import { SiteBuildStage } from "../stages/SiteBuildStage.js";
+import { SiteQualityCheckStage } from "../stages/SiteQualityCheckStage.js";
 import { SourceSiteIngestionStage } from "../stages/SourceSiteIngestionStage.js";
 import { StructuredContentProjectionStage } from "../stages/StructuredContentProjectionStage.js";
 import { UnknownResolverStage } from "../stages/UnknownResolverStage.js";
@@ -81,6 +82,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "site-quality-check",
     "release-receipt",
   ],
   "publish-proof": [
@@ -94,6 +96,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "site-quality-check",
     "pre-deploy-blind-judge",
     "client-source-publish",
     "release-receipt",
@@ -109,6 +112,7 @@ const MANDATORY: Record<ExecutionMode, string[]> = {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "site-quality-check",
     "pre-deploy-blind-judge",
     "client-source-publish",
     "vercel-deploy",
@@ -306,8 +310,15 @@ export function buildFactoryExecutionPlan(
     new PostHogSnippetStage(),
   );
   // The production build is not terminal success: every route is rendered in a
-  // real browser and validated before any receipt or publication.
-  if (options.mode !== "plan") stages.push(new SiteBuildStage(), new RenderedSiteValidationStage());
+  // real browser and validated, and the rendered copy must pass the factory's
+  // quality checker (readiness level client_build_quality_check), before any
+  // receipt or publication.
+  if (options.mode !== "plan")
+    stages.push(
+      new SiteBuildStage(),
+      new RenderedSiteValidationStage(),
+      new SiteQualityCheckStage(),
+    );
   // The blind judge gates every mode that publishes or deploys: it runs on the
   // built candidate before anything leaves the process (readiness level
   // blind_judge_vs_baseline). local-proof records that level as NOT_RUN.

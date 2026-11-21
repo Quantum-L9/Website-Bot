@@ -21,16 +21,9 @@
 // a failure, never a skip.
 
 import { spawn } from "node:child_process";
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fixtureTree } from "../../tests/e2e-replay/replay-fixture-tree.js";
 import { startSeoBotReplayServer } from "../../tests/e2e-replay/seo-bot-replay-server.js";
 
 const REPO = resolve(import.meta.dirname, "..", "..");
@@ -91,33 +84,6 @@ function run(
     child.on("error", reject);
     child.on("close", (code) => resolvePromise({ code, output }));
   });
-}
-
-/** Fixture tree = committed replay fixtures with each overlay file replacing its namesake. */
-function fixtureTree(
-  out: string,
-  overlay: string | undefined,
-): { dir: string; overlaid: string[] } {
-  if (!overlay) return { dir: FIXTURES, overlaid: [] };
-  const dir = join(out, "fixtures");
-  cpSync(FIXTURES, dir, { recursive: true });
-  const overlaid: string[] = [];
-  const walk = (from: string) => {
-    for (const entry of readdirSync(from, { withFileTypes: true })) {
-      const path = join(from, entry.name);
-      if (entry.isDirectory()) walk(path);
-      else {
-        const rel = relative(overlay, path);
-        if (!existsSync(join(FIXTURES, rel)))
-          throw new Error(`overlay file ${rel} replaces no committed replay fixture`);
-        cpSync(path, join(dir, rel));
-        overlaid.push(rel);
-      }
-    }
-  };
-  walk(overlay);
-  overlaid.sort((a, b) => a.localeCompare(b));
-  return { dir, overlaid };
 }
 
 interface ReplayEntry {
