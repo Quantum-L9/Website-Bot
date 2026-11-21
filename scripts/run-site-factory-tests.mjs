@@ -3,6 +3,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { runWithWatchdog } from "./site-test-watchdog.mjs";
 
 const scopeArg = process.argv.find((argument) => argument.startsWith("--scope="));
 const scope = scopeArg?.slice("--scope=".length) ?? "all";
@@ -48,23 +49,40 @@ if (
 ) {
   env.L9_MEMORY_MODE = "disabled";
 }
-// Per-test default timeout for the offline scopes, so a test whose promise
-// never settles fails by name instead of stalling the whole step until an
-// outer kill. 240 s is five times the slowest offline test without its own
-// timeout (47.8 s, measured locally on a full local run). Tests that declare
-// their own `timeout` keep it. The credentialed scopes (github, vercel, e2e,
-// all) get no default: their tests wait on live services by design, e.g. a
-// Vercel deployment may poll for up to VERCEL_MAX_POLLS x
-// VERCEL_POLL_INTERVAL_MS (10 minutes by default).
+// Offline scopes run with two guards:
+// - a per-test default timeout, so a test whose promise never settles fails by
+//   name. 240 s is five times the slowest offline test without its own
+//   timeout (47.8 s, measured locally on a full local run). Tests that declare
+//   their own `timeout` keep it.
+// - a per-file wall-clock watchdog (scripts/site-test-watchdog.mjs), for a
+//   file whose process stays open with no test running (a handle held open
+//   after the tests finish), which --test-timeout cannot see. It writes a
+//   diagnostic report to build/test-watchdog/, kills the file's process and
+//   fails the run naming it. FILE_LIMIT_MS is documented with its measurement
+//   in the PR that introduced it.
+// The credentialed scopes (github, vercel, e2e, all) get neither: their tests
+// wait on live services by design, e.g. a Vercel deployment may poll for up
+// to VERCEL_MAX_POLLS x VERCEL_POLL_INTERVAL_MS (10 minutes by default).
 const OFFLINE_SCOPES = new Set(["local", "evidence", "provisioning"]);
 const TEST_TIMEOUT_MS = 240_000;
-const timeoutArgs = OFFLINE_SCOPES.has(scope) ? [`--test-timeout=${TEST_TIMEOUT_MS}`] : [];
-const result = spawnSync(
-  process.execPath,
-  ["--import", "tsx", "--test", ...timeoutArgs, ...files],
-  {
-    stdio: "inherit",
+const FILE_LIMIT_MS = Number(process.env.SITE_TEST_FILE_LIMIT_MS ?? 480_000);
+const WATCHDOG_REPORT_DIR = "build/test-watchdog";
+
+if (OFFLINE_SCOPES.has(scope)) {
+  const { maxFileSeconds, status } = await runWithWatchdog({
+    files,
+    nodeArgs: ["--import", "tsx", `--test-timeout=${TEST_TIMEOUT_MS}`],
     env,
-  },
-);
+    limitMs: FILE_LIMIT_MS,
+    reportDir: WATCHDOG_REPORT_DIR,
+  });
+  console.error(
+    `site-test watchdog: longest test file ran ${maxFileSeconds}s (limit ${FILE_LIMIT_MS / 1_000}s)`,
+  );
+  process.exit(status);
+}
+const result = spawnSync(process.execPath, ["--import", "tsx", "--test", ...files], {
+  stdio: "inherit",
+  env,
+});
 process.exit(result.status ?? 1);
