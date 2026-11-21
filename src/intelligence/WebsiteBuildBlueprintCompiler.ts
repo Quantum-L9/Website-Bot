@@ -173,7 +173,7 @@ export function ensureCanonicalSlotCoverage(
       content_slots: uniqueSlots(section.content_slots),
     }));
   } else if (specComponents.length > 0) {
-    next = specComponents.map(specComponentSection);
+    next = specComponents.map((component, index) => specComponentSection(component, index));
   } else {
     next = [
       {
