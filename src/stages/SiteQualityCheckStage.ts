@@ -44,7 +44,7 @@ function describe(finding: Finding): string {
 
 export class SiteQualityCheckStage implements Stage {
   name = "site-quality-check";
-  version = "1.0.0";
+  version = "1.0.1";
   evidence = {
     inputs: (_ctx: BuildContext) => ["build" as const],
     outputs: (_ctx: BuildContext) => [],
