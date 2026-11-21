@@ -182,11 +182,33 @@ export const EXTRACT_SOURCE = String.raw`(async () => {
     .map((el) => ({ level: Number(el.tagName.slice(1)), text: text(el), inHero: Boolean(heroOf(el)) }))
     .filter((heading) => heading.text);
 
-  const paragraphs = [...main.querySelectorAll("p, blockquote, dd, li")]
-    .filter((el) => visible(el) && !el.closest(chrome) && !el.closest("summary"))
-    .filter((el) => !(el.tagName === "LI" && el.querySelector("p, li")))
-    .filter((el) => !(el.tagName !== "LI" && el.closest("li")) || el.tagName === "P")
-    .map(text)
+  // Each piece of body text is collected once. A block with no collected block
+  // inside it contributes its text; a block that contains collected blocks
+  // (blockquote > p, dd > p, li > p, nested lists) contributes only its OWN
+  // text, with those blocks removed, so nested text is never counted twice and
+  // a container's direct text is never lost. A quote's attribution
+  // (blockquote > footer > cite) is page chrome and is never a paragraph, so a
+  // quote is not compared against itself plus its cite. Separate elements
+  // with similar text stay separate paragraphs.
+  const blocks = [...main.querySelectorAll("p, blockquote, dd, li")]
+    .filter((el) => visible(el) && !el.closest(chrome) && !el.closest("summary"));
+  const ownText = (el, nested) => {
+    nested.forEach((child) => child.setAttribute("data-wb-nested-block", ""));
+    const copy = el.cloneNode(true);
+    nested.forEach((child) => child.removeAttribute("data-wb-nested-block"));
+    for (const node of copy.querySelectorAll("[data-wb-nested-block], " + chrome)) node.remove();
+    copy.style.position = "absolute";
+    copy.style.left = "-99999px";
+    document.body.appendChild(copy);
+    const value = text(copy);
+    copy.remove();
+    return value;
+  };
+  const paragraphs = blocks
+    .map((el) => {
+      const nested = blocks.filter((other) => other !== el && el.contains(other));
+      return nested.length ? ownText(el, nested) : text(el);
+    })
     .filter(Boolean);
 
   const labelSelector = "[class*='eyebrow'],[class*='kicker'],[class*='overline'],[class*='badge'],[class*='label'],[class*='tag']";
