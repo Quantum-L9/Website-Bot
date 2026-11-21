@@ -328,6 +328,132 @@ void test("WBV2-022: sections are padded to spec-component parity (golden run #5
   assert.equal(sections.length, 4);
 });
 
+/* --------- spec-only seam: no SEO-Bot sections (wb-d12) ------------ */
+
+// The Quantum AI Partners spec's routes and components, in spec order
+// (inputs/quantum_ai_partners/domain_spec.normalized.yaml). It requests no
+// market research, so the model supplies no sections for any route.
+const QAP_ROUTES: Array<{ slug: string; components: string[] }> = [
+  {
+    slug: "/",
+    components: [
+      "hero",
+      "problem",
+      "crm_transformation",
+      "process",
+      "revops_activation",
+      "close_deals",
+      "faq",
+      "final_cta",
+    ],
+  },
+  {
+    slug: "/crm-transformation",
+    components: [
+      "hero",
+      "data_to_graph",
+      "enrichment_and_evidence",
+      "three_dimensional_experience",
+      "process",
+      "faq",
+      "final_cta",
+    ],
+  },
+  {
+    slug: "/revops",
+    components: [
+      "hero",
+      "opportunity_discovery",
+      "governed_actions",
+      "deal_progression",
+      "close_deals",
+      "faq",
+      "final_cta",
+    ],
+  },
+  {
+    slug: "/how-it-works",
+    components: [
+      "hero",
+      "process",
+      "illustrative_relationship_graph",
+      "opportunity_to_action",
+      "close_deals",
+      "faq",
+      "final_cta",
+    ],
+  },
+  { slug: "/contact", components: ["hero", "qualified_inquiry", "contact_availability"] },
+];
+
+void test("spec-only: every route keeps every spec component in order, hero first (QAP canary)", () => {
+  const qapSpec = spec({
+    routes: QAP_ROUTES.map((route) => ({
+      slug: route.slug,
+      title: route.slug,
+      components: route.components,
+    })),
+  } as Partial<DomainSpec>);
+  const base = inputFor({ __spec: qapSpec } as never);
+  const blueprint = compileWebsiteBuildBlueprint({
+    ...base,
+    model: { ...base.model, routes: [] },
+  });
+  for (const expected of QAP_ROUTES) {
+    const route = blueprint.payload.routes.find((candidate) => candidate.path === expected.slug);
+    assert.ok(route, `route ${expected.slug} is compiled`);
+    assert.deepEqual(
+      route.sections.map((section) => section.objective),
+      expected.components,
+      `${expected.slug} keeps its spec components in spec order`,
+    );
+    assert.deepEqual(
+      route.sections.map((section) => section.section_id),
+      expected.components.map((_, index) => `spec-component-${index + 1}`),
+    );
+    assert.ok(
+      route.sections.every((section) => section.section_id !== "canonical-coverage"),
+      `${expected.slug} has no fabricated placeholder section`,
+    );
+  }
+  const home = blueprint.payload.routes.find((route) => route.path === "/");
+  assert.equal(home?.sections.length, 8);
+  assert.equal(home?.sections[0]?.component_class, "hero");
+});
+
+void test("spec-only: missing canonical slots attach to a real spec section", () => {
+  const sections = ensureCanonicalSlotCoverage([], ["hero", "problem", "final_cta"]);
+  assert.deepEqual(
+    sections.map((section) => section.component_class),
+    ["hero", "problem", "final_cta"],
+  );
+  const covered = new Set(sections.flatMap((section) => section.content_slots));
+  for (const slot of [
+    "primary_offer",
+    "service_overview",
+    "differentiation",
+    "trust",
+    "process",
+    "project_proof",
+    "local_relevance",
+    "objection_handling",
+    "faq",
+    "conversion",
+    "metadata",
+  ])
+    assert.ok(covered.has(slot as never), `slot ${slot} must be covered`);
+  // The uncovered remainder lands on the first real section, the hero.
+  assert.ok(sections[0]?.content_slots.includes("metadata" as never));
+});
+
+void test("the canonical-coverage placeholder appears only when there are no spec components", () => {
+  const sections = ensureCanonicalSlotCoverage([], []);
+  assert.deepEqual(
+    sections.map((section) => section.section_id),
+    ["canonical-coverage"],
+  );
+});
+
 void test("WBV2-010: visual requirements are derived deterministically from structure", () => {
   const routes = compileWebsiteBuildBlueprint(inputFor()).payload.routes;
   const first = deriveVisualRequirements(routes);
