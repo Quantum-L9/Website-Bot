@@ -23,6 +23,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import { FileEvidenceStore } from "../../src/pipeline/evidence/FileEvidenceStore.js";
+import { fixtureTree, QUALITY_OVERLAY } from "./replay-fixture-tree.js";
 import { startSeoBotReplayServer } from "./seo-bot-replay-server.js";
 
 const REPO = resolve(import.meta.dirname, "..", "..");
@@ -96,12 +97,16 @@ void test("REDESIGN local-proof replays end-to-end to a built site and a release
   const clientAssets = join(REPO, "build", "assets", CLIENT_ID);
   rmSync(clientAssets, { recursive: true, force: true });
 
-  const seoBot = await startSeoBotReplayServer(join(FIXTURES, "seo-bot"), API_KEY);
+  // The structured-content response carries production-volume copy (the same
+  // overlay the site-quality CI build uses): local-proof now stops at the
+  // rendered-site quality check, and plumbing-sized copy is below its floors.
+  const replay = fixtureTree(work, QUALITY_OVERLAY);
+  const seoBot = await startSeoBotReplayServer(join(replay.dir, "seo-bot"), API_KEY);
   try {
     const env: NodeJS.ProcessEnv = {};
     for (const name of PASSTHROUGH) if (process.env[name]) env[name] = process.env[name];
     Object.assign(env, {
-      REPLAY_FIXTURES_DIR: FIXTURES,
+      REPLAY_FIXTURES_DIR: replay.dir,
       REPLAY_LOG: log,
       SEO_BOT_URL: seoBot.url,
       SEO_BOT_API_KEY: API_KEY,
@@ -189,6 +194,11 @@ void test("REDESIGN local-proof replays end-to-end to a built site and a release
     assert.equal(stored.value.client_id, CLIENT_ID);
     assert.equal(stored.value.correlation.all_required_identities_match, true);
     assert.ok(stored.value.evidence.build, "receipt references build evidence");
+    const quality = stored.value.readiness?.levels.find(
+      (entry) => entry.level === "client_build_quality_check",
+    );
+    assert.equal(quality?.state, "PASS", "the rendered-site quality checker passed this build");
+    assert.match(quality?.evidence_ref ?? "", /site-quality-report\.json$/);
 
     // 6. The built site carries the replayed structured content.
     const home = readFileSync(join(outputDir, "dist", "index.html"), "utf-8");

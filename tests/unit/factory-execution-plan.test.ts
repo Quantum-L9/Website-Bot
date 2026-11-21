@@ -54,6 +54,7 @@ test("end-to-end plan owns the complete proof-gated topology", () => {
     "posthog-snippet",
     "site-build",
     "rendered-site-validation",
+    "site-quality-check",
     "pre-deploy-blind-judge",
     "client-source-publish",
     "vercel-deploy",
@@ -65,6 +66,26 @@ test("end-to-end plan owns the complete proof-gated topology", () => {
     "terminal-convergence",
   ]);
   assert.ok(plan.requiredEvidence.includes("handoff"));
+});
+
+test("every mode that builds a site runs the quality checker right after rendered validation, and cannot skip it", () => {
+  for (const mode of ["local-proof", "publish-proof", "end-to-end"] as const) {
+    const plan = buildFactoryExecutionPlan({ mode, specPath: "fixtures/ci-test-spec.yaml" });
+    const names = plan.stages.map((stage) => stage.name);
+    assert.equal(
+      names.indexOf("site-quality-check"),
+      names.indexOf("rendered-site-validation") + 1,
+      mode,
+    );
+    assert.ok(names.indexOf("site-quality-check") < names.indexOf("release-receipt"), mode);
+    assert.ok(plan.mandatoryStages.includes("site-quality-check"), `${mode} cannot skip it`);
+  }
+  const plan = buildFactoryExecutionPlan({ mode: "plan", specPath: "fixtures/ci-test-spec.yaml" });
+  assert.equal(
+    plan.stages.some((stage) => stage.name === "site-quality-check"),
+    false,
+    "plan mode builds nothing to check",
+  );
 });
 
 test("mandatory evidence stages cannot be skipped", () => {

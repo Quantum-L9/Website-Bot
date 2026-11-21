@@ -289,6 +289,15 @@
         }
       ]
     },
+    "site-quality-check": {
+      "module": "src/stages/SiteQualityCheckStage.ts",
+      "history": [
+        {
+          "version": "1.0.0",
+          "fingerprint": "sha256:3a09586b6f530d6df24e510ebde33954e5316641928916f3dbdbbc366e0fe2ab"
+        }
+      ]
+    },
     "source-site-ingestion": {
       "module": "src/stages/SourceSiteIngestionStage.ts",
       "history": [

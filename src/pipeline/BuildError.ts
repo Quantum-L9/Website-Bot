@@ -72,6 +72,7 @@ export type BuildErrorCode =
   | "SEO_BASELINE_FAILED"
   | "VISUAL_QA_FAILED"
   | "PRE_DEPLOY_JUDGE_BLOCKED"
+  | "SITE_QUALITY_CHECK_FAILED"
   | "HANDOFF_EMIT_FAILED"
   | "LLM_CALL_FAILED"
   | "DB_ERROR"
@@ -118,6 +119,13 @@ export const BUILD_ERROR_POLICIES: Partial<Record<BuildErrorCode, BuildErrorPoli
     redactEvidence: false,
     remediation:
       "Read the judge report named in the failure. FAIL: improve the candidate and rebuild. NOT_RUN or BLOCKED: provide DEEPSEEK_API_KEY and the spec's assets.sourceSite.url baseline, or record an explicit operator waiver with WEBSITE_BOT_BLIND_JUDGE_WAIVER=<reason>.",
+  },
+  SITE_QUALITY_CHECK_FAILED: {
+    owner: "site-quality-check",
+    retry: "after-input-fix",
+    redactEvidence: false,
+    remediation:
+      "The built site failed the rendered-site quality checker (or could not be judged). Read the quality report named in the failure: each finding names the page, the check and the evidence. Fix the content or assembly and rebuild; there is no waiver.",
   },
   VERCEL_POLL_TIMEOUT: {
     owner: "vercel-deploy",

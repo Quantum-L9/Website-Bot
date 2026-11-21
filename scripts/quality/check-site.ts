@@ -13,31 +13,21 @@
 //     [--business-name <name>] [--pages /,/about] [--report <path>]
 //   npx tsx scripts/quality/check-site.ts --url <https://site> --pages /,/about ...
 //
+// The checking itself lives in src/validation/site-quality/run.ts, shared
+// with the pipeline's site-quality stage.
+//
 // The business name comes from --business-name or the spec's business_name;
 // it is required (the business-name heading and cross-client checks need it).
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parse } from "yaml";
-import { type BrowserLike, discoverRoutes, extractSite, serveDirectory } from "./extract-page.js";
-import {
-  buildReport,
-  DEFAULT_OPTIONS,
-  type SiteQualityOptions,
-  type SiteQualityReport,
-} from "./site-quality-checks.js";
+import { type CheckInvocation, runSiteQuality } from "../../src/validation/site-quality/run.js";
+
+export { type CheckInvocation, runSiteQuality } from "../../src/validation/site-quality/run.js";
 
 export const EXIT_CODES = { PASS: 0, FAIL: 1, BLOCKED: 2 } as const;
-
-export interface CheckInvocation {
-  dist?: string;
-  url?: string;
-  pages?: string[];
-  businessName: string;
-  reportPath: string;
-  options?: Partial<Omit<SiteQualityOptions, "businessName">>;
-}
 
 function flag(argv: string[], name: string): string | undefined {
   const inline = argv.find((argument) => argument.startsWith(`--${name}=`));
@@ -77,64 +67,6 @@ export function parseArgs(argv: string[]): CheckInvocation {
     businessName,
     reportPath: resolve(flag(argv, "report") ?? "build/site-quality/report.json"),
   };
-}
-
-async function launchChromium(): Promise<{ browser: BrowserLike; close(): Promise<void> }> {
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch();
-  return {
-    browser: {
-      newPage: async (options) => {
-        const page = await browser.newPage(options);
-        return {
-          goto: (target, gotoOptions) => page.goto(target, gotoOptions),
-          evaluate: <T>(source: string) => page.evaluate(source) as Promise<T>,
-          close: () => page.close(),
-        };
-      },
-    },
-    close: () => browser.close(),
-  };
-}
-
-/** Run one check; a run outcome is reported, never thrown. */
-export async function runSiteQuality(
-  invocation: CheckInvocation,
-  launch: () => Promise<{ browser: BrowserLike; close(): Promise<void> }> = launchChromium,
-): Promise<SiteQualityReport> {
-  const options: SiteQualityOptions = {
-    ...DEFAULT_OPTIONS,
-    ...invocation.options,
-    businessName: invocation.businessName,
-  };
-  const target = invocation.dist ?? invocation.url ?? "";
-  const errors: string[] = [];
-  let pages: Awaited<ReturnType<typeof extractSite>> = [];
-  let server: { url: string; close(): Promise<void> } | undefined;
-  let session: { browser: BrowserLike; close(): Promise<void> } | undefined;
-  try {
-    let routes = invocation.pages;
-    let baseUrl = invocation.url;
-    if (invocation.dist) {
-      if (!existsSync(resolve(invocation.dist, "index.html")))
-        throw new Error(`no built site at ${invocation.dist} (index.html missing)`);
-      routes ??= discoverRoutes(invocation.dist);
-      server = await serveDirectory(invocation.dist);
-      baseUrl = server.url;
-    }
-    if (!routes?.length || !baseUrl) throw new Error("no routes to check");
-    session = await launch();
-    pages = await extractSite(session.browser, baseUrl, routes);
-  } catch (error) {
-    errors.push(error instanceof Error ? error.message : String(error));
-  } finally {
-    await session?.close().catch(() => undefined);
-    await server?.close().catch(() => undefined);
-  }
-  const report = buildReport(target, pages, options, errors);
-  mkdirSync(dirname(invocation.reportPath), { recursive: true });
-  writeFileSync(invocation.reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
-  return report;
 }
 
 async function cli(): Promise<void> {
