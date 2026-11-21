@@ -295,6 +295,10 @@
         {
           "version": "1.0.0",
           "fingerprint": "sha256:3a09586b6f530d6df24e510ebde33954e5316641928916f3dbdbbc366e0fe2ab"
+        },
+        {
+          "version": "1.0.1",
+          "fingerprint": "sha256:68be57c6ec2d2621afacd83e3b1ec461e550b956cd65e5f532ae21da53bfef3e"
         }
       ]
     },

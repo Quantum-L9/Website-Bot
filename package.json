@@ -37,7 +37,7 @@
     "quality:check": "npx tsx scripts/quality/check-site.ts",
     "quality:check:replay": "npx tsx scripts/quality/check-site.ts --dist build/site-quality/replay/site/dist --spec fixtures/replay/replay-spec.yaml --report build/site-quality/replay/quality-report.json",
     "quality:judge": "npx tsx scripts/quality/judge.ts",
-    "quality:test": "node --import tsx --test tests/quality/site-quality-checks.test.ts tests/quality/check-site.test.ts tests/quality/judge.test.ts tests/quality/visual-qa-gate.test.ts",
+    "quality:test": "node --import tsx --test tests/quality/site-quality-checks.test.ts tests/quality/check-site.test.ts tests/quality/extract-nesting.test.ts tests/quality/judge.test.ts tests/quality/visual-qa-gate.test.ts",
     "verify:all": "npm run interop:test && npm run typecheck && npm run normalize-spec:check && npm run evidence:schemas && npm run evidence:contract-parity && npm run interop:parity && npm run blueprint:v1-eradication && npm run site:validate && npm run evidence:test && npm run site:test:local && npm run provision:test && npm run pipeline:plan && npm run alignment:boundaries && npm run llm:wiring && npm run recursive:schemas && npm run recursive:test",
     "provision:plan": "npx tsx scripts/provision-client.ts --plan",
     "provision:client": "npx tsx scripts/provision-client.ts",

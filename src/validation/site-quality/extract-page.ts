@@ -182,10 +182,16 @@ export const EXTRACT_SOURCE = String.raw`(async () => {
     .map((el) => ({ level: Number(el.tagName.slice(1)), text: text(el), inHero: Boolean(heroOf(el)) }))
     .filter((heading) => heading.text);
 
-  const paragraphs = [...main.querySelectorAll("p, blockquote, dd, li")]
-    .filter((el) => visible(el) && !el.closest(chrome) && !el.closest("summary"))
-    .filter((el) => !(el.tagName === "LI" && el.querySelector("p, li")))
-    .filter((el) => !(el.tagName !== "LI" && el.closest("li")) || el.tagName === "P")
+  // Each piece of body text is collected once, from the innermost block that
+  // carries it: a block is dropped when another collected block sits inside
+  // it (blockquote > p, dd > p, li > p, nested lists). A quote's attribution
+  // (blockquote > footer > cite) is page chrome and is never a paragraph, so a
+  // quote is not compared against itself plus its cite. Separate elements
+  // with similar text stay separate paragraphs.
+  const blocks = [...main.querySelectorAll("p, blockquote, dd, li")]
+    .filter((el) => visible(el) && !el.closest(chrome) && !el.closest("summary"));
+  const paragraphs = blocks
+    .filter((el) => !blocks.some((other) => other !== el && el.contains(other)))
     .map(text)
     .filter(Boolean);
 
