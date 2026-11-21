@@ -48,8 +48,17 @@ if (
 ) {
   env.L9_MEMORY_MODE = "disabled";
 }
-const result = spawnSync(process.execPath, ["--import", "tsx", "--test", ...files], {
-  stdio: "inherit",
-  env,
-});
+// Per-test default timeout, so a test whose promise never settles fails by
+// name instead of stalling the whole step until an outer kill. 240 s is five
+// times the slowest test without its own timeout (47.8 s, measured locally on
+// a full local run). Tests that declare their own `timeout` keep it.
+const TEST_TIMEOUT_MS = 240_000;
+const result = spawnSync(
+  process.execPath,
+  ["--import", "tsx", "--test", `--test-timeout=${TEST_TIMEOUT_MS}`, ...files],
+  {
+    stdio: "inherit",
+    env,
+  },
+);
 process.exit(result.status ?? 1);
