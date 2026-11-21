@@ -26,22 +26,23 @@ export function parseEtime(etime) {
   return Number(days) * 86_400 + hours * 3_600 + minutes * 60 + seconds;
 }
 
+/** `ps` from a fixed system directory, never resolved through PATH. */
+const PS = ["/bin/ps", "/usr/bin/ps"].find((candidate) => existsSync(candidate));
+
 /** Direct children of `parentPid` that run one of `files`, with their age. */
 export function testChildren(parentPid, files) {
-  const listing = spawnSync("ps", ["-A", "-o", "pid=,ppid=,etime=,args="], { encoding: "utf8" });
+  if (!PS) return [];
+  const listing = spawnSync(PS, ["-A", "-o", "pid=,ppid=,etime=,args="], { encoding: "utf8" });
   if (listing.status !== 0) return [];
   const children = [];
   for (const line of listing.stdout.split("\n")) {
-    const match = line.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/);
-    if (!match || Number(match[2]) !== parentPid) continue;
-    const args = match[4];
-    const file = files.find((candidate) => args.endsWith(` ${candidate}`));
-    if (file) children.push({ pid: Number(match[1]), ageSeconds: parseEtime(match[3]), file });
+    const [pid, ppid, etime, ...args] = line.trim().split(/\s+/);
+    if (Number(ppid) !== parentPid || args.length === 0) continue;
+    const file = files.find((candidate) => args.at(-1) === candidate);
+    if (file) children.push({ pid: Number(pid), ageSeconds: parseEtime(etime), file });
   }
   return children;
 }
-
-const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 function newReport(reportDir, pid, before) {
   if (!existsSync(reportDir)) return undefined;
@@ -49,6 +50,45 @@ function newReport(reportDir, pid, before) {
     (entry) => entry.includes(`.${pid}.`) && entry.endsWith(".json") && !before.has(entry),
   );
   return name ? join(reportDir, name) : undefined;
+}
+
+/** Resolves the report `pid` writes into `reportDir`, or undefined after `timeoutMs`. */
+function waitForReport(reportDir, pid, before, timeoutMs = 10_000) {
+  return new Promise((done) => {
+    const started = Date.now();
+    const timer = setInterval(() => {
+      const report = newReport(reportDir, pid, before);
+      if (report || Date.now() - started >= timeoutMs) {
+        clearInterval(timer);
+        done(report);
+      }
+    }, 250);
+  });
+}
+
+/** Captures a diagnostic report from a stalled child, then kills it. */
+async function stopStalledChild(entry, directory, limitMs, log) {
+  const before = new Set(existsSync(directory) ? readdirSync(directory) : []);
+  try {
+    process.kill(entry.pid, REPORT_SIGNAL);
+  } catch {
+    return undefined;
+  }
+  const report = await waitForReport(directory, entry.pid, before);
+  try {
+    process.kill(entry.pid, "SIGKILL");
+  } catch {
+    // already gone
+  }
+  log(
+    `site-test watchdog: ${entry.file} (pid ${entry.pid}) was still running after ${entry.ageSeconds}s, over the ${limitMs / 1_000}s per-file limit; killed.`,
+  );
+  log(
+    report
+      ? `diagnostic report: ${report}\n${summarizeReport(report)}`
+      : "diagnostic report: not written",
+  );
+  return { file: entry.file, pid: entry.pid, ageSeconds: entry.ageSeconds, report };
 }
 
 /** The parts of a diagnostic report that say what held the process open. */
@@ -92,7 +132,8 @@ export async function runWithWatchdog({
   const reportOptions = `--report-on-signal --report-signal=${REPORT_SIGNAL} --report-directory=${directory}`;
   // NODE_TEST_CONTEXT marks a process as a node:test child; inherited, it
   // would make this `node --test` behave as one instead of running the files.
-  const { NODE_TEST_CONTEXT: _inheritedTestContext, ...baseEnv } = env;
+  const baseEnv = { ...env };
+  delete baseEnv.NODE_TEST_CONTEXT;
   const child = spawn(process.execPath, [...nodeArgs, "--test", ...files], {
     stdio: "inherit",
     env: { ...baseEnv, NODE_OPTIONS: `${env.NODE_OPTIONS ?? ""} ${reportOptions}`.trim() },
@@ -105,45 +146,26 @@ export async function runWithWatchdog({
     if (polling) return;
     polling = true;
     try {
+      const due = [];
       for (const entry of testChildren(child.pid, files)) {
         maxFileSeconds = Math.max(maxFileSeconds, entry.ageSeconds);
         if (handled.has(entry.pid) || entry.ageSeconds * 1_000 < limitMs) continue;
         handled.add(entry.pid);
-        const before = new Set(existsSync(directory) ? readdirSync(directory) : []);
-        try {
-          process.kill(entry.pid, REPORT_SIGNAL);
-        } catch {
-          continue;
-        }
-        let report;
-        for (let waited = 0; waited < 10_000 && !report; waited += 250) {
-          await sleep(250);
-          report = newReport(directory, entry.pid, before);
-        }
-        try {
-          process.kill(entry.pid, "SIGKILL");
-        } catch {
-          // already gone
-        }
-        stalled.push({ file: entry.file, pid: entry.pid, ageSeconds: entry.ageSeconds, report });
-        log(
-          `site-test watchdog: ${entry.file} (pid ${entry.pid}) was still running after ${entry.ageSeconds}s, over the ${limitMs / 1_000}s per-file limit; killed.`,
-        );
-        log(
-          report
-            ? `diagnostic report: ${report}\n${summarizeReport(report)}`
-            : "diagnostic report: not written",
-        );
+        due.push(entry);
       }
+      const stopped = await Promise.all(
+        due.map((entry) => stopStalledChild(entry, directory, limitMs, log)),
+      );
+      stalled.push(...stopped.filter(Boolean));
     } finally {
       polling = false;
     }
   }, pollMs);
   const status = await new Promise((done) => child.on("exit", (code) => done(code ?? 1)));
   clearInterval(poll);
-  for (const entry of stalled)
-    log(
-      `site-test watchdog: FAILED ${entry.file}: stalled past ${limitMs / 1_000}s${entry.report ? ` (report ${entry.report})` : ""}`,
-    );
+  for (const entry of stalled) {
+    const where = entry.report ? ` (report ${entry.report})` : "";
+    log(`site-test watchdog: FAILED ${entry.file}: stalled past ${limitMs / 1_000}s${where}`);
+  }
   return { status: stalled.length > 0 && status === 0 ? 1 : status, stalled, maxFileSeconds };
 }
