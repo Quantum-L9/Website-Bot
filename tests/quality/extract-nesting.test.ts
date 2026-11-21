@@ -24,6 +24,8 @@ import { launchChromium } from "../../src/validation/site-quality/run.js";
 const QUOTE =
   "The operational test is whether a team can follow through on every qualified account, week after week, without losing the thread of what was promised to the buyer.";
 const ATTRIBUTION = "Head of Revenue Operations, a fictional regional distributor";
+const WARNING =
+  "Important: every recommendation is reviewed by a person before it reaches a customer.";
 const SIMILAR =
   "The operational test is whether a team can follow through on every qualified account, week after week, without losing track of what was promised to the buyer.";
 
@@ -33,6 +35,7 @@ const PAGES: Record<string, string> = {
   definition: `<dl><dt>What is the operational test?</dt><dd><p>${QUOTE}</p></dd></dl>`,
   "separate-same": `<p>${QUOTE}</p><p>${QUOTE}</p>`,
   "separate-similar": `<p>${QUOTE}</p><p>${SIMILAR}</p>`,
+  "container-text": `<blockquote>${WARNING}<ul><li>${QUOTE}</li></ul></blockquote>`,
   "quote-and-paragraph": `<blockquote><p>${QUOTE}</p><footer><cite>${ATTRIBUTION}</cite></footer></blockquote><p>${SIMILAR}</p>`,
 };
 
@@ -52,13 +55,14 @@ test.before(async () => {
     );
   }
   const server = await serveDirectory(work);
-  const session = await launchChromium();
+  let session: Awaited<ReturnType<typeof launchChromium>> | undefined;
   try {
+    session = await launchChromium();
     const routes = Object.keys(PAGES).map((name) => `/${name}/`);
     const extracted = await extractSite(session.browser, server.url, routes);
     for (const page of extracted) pages.set(page.path.replaceAll("/", ""), page);
   } finally {
-    await session.close();
+    await session?.close();
     await server.close();
   }
 });
@@ -105,4 +109,9 @@ test("a quote and a separate similar paragraph elsewhere are still compared", ()
     duplicateFindings("quote-and-paragraph").map((finding) => finding.check),
     ["near-duplicate-paragraph"],
   );
+});
+
+test("a container's own text is kept once when a nested block is collected separately", () => {
+  assert.deepEqual(pages.get("container-text")?.paragraphs, [WARNING, QUOTE]);
+  assert.deepEqual(duplicateFindings("container-text"), []);
 });
