@@ -1,4 +1,4 @@
-// L9_META: layer=script, role=site_test_watchdog, status=active, version=1.0.0
+// L9_META: layer=script, role=site_test_watchdog, status=active, version=1.1.0
 //
 // Per-file wall-clock watchdog for the offline site-factory test scopes.
 //
@@ -10,9 +10,15 @@
 // watches the per-file children instead: a child alive longer than the limit
 // gets a Node diagnostic report (libuv handles, workers, JS stack) written to
 // a known directory, is then killed, and the run fails naming the file.
+//
+// Node writes a report progressively, so its file exists before it is
+// complete. Reports are written to a staging subdirectory and published (an
+// atomic rename) only once the file parses as one whole JSON document; the
+// child is killed only after that, so a report is never read half-written and
+// never truncated by the kill.
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 export const REPORT_SIGNAL = "SIGUSR2";
@@ -44,20 +50,43 @@ export function testChildren(parentPid, files) {
   return children;
 }
 
-function newReport(reportDir, pid, before) {
-  if (!existsSync(reportDir)) return undefined;
-  const name = readdirSync(reportDir).find(
-    (entry) => entry.includes(`.${pid}.`) && entry.endsWith(".json") && !before.has(entry),
-  );
-  return name ? join(reportDir, name) : undefined;
+/** Subdirectory Node writes reports into; only complete ones leave it. */
+export const STAGING_SUBDIR = ".incoming";
+
+/** Parsed report when `path` holds one complete JSON document, else undefined. */
+function completeReport(path) {
+  try {
+    const report = JSON.parse(readFileSync(path, "utf8"));
+    return report && typeof report === "object" && report.header ? report : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
-/** Resolves the report `pid` writes into `reportDir`, or undefined after `timeoutMs`. */
-function waitForReport(reportDir, pid, before, timeoutMs = 10_000) {
+/**
+ * Publishes the report `pid` wrote into `stagingDir` once it is complete:
+ * Node writes a report progressively, so a file can exist before its last
+ * byte. Completion is the file parsing as one whole JSON document with its
+ * header; only then is it renamed (atomic within a filesystem) into
+ * `reportDir`. Returns the published path, or undefined while incomplete.
+ */
+export function publishCompleteReport(stagingDir, reportDir, pid) {
+  if (!existsSync(stagingDir)) return undefined;
+  const name = readdirSync(stagingDir).find(
+    (entry) => entry.includes(`.${pid}.`) && entry.endsWith(".json"),
+  );
+  if (!name || !completeReport(join(stagingDir, name))) return undefined;
+  const published = join(reportDir, name);
+  renameSync(join(stagingDir, name), published);
+  return published;
+}
+
+/** Resolves the published report for `pid`, or undefined after `timeoutMs`. */
+function waitForReport(stagingDir, reportDir, pid, timeoutMs = 30_000) {
   return new Promise((done) => {
     const started = Date.now();
     const timer = setInterval(() => {
-      const report = newReport(reportDir, pid, before);
+      const report = publishCompleteReport(stagingDir, reportDir, pid);
       if (report || Date.now() - started >= timeoutMs) {
         clearInterval(timer);
         done(report);
@@ -66,15 +95,18 @@ function waitForReport(reportDir, pid, before, timeoutMs = 10_000) {
   });
 }
 
-/** Captures a diagnostic report from a stalled child, then kills it. */
+/**
+ * Captures a complete diagnostic report from a stalled child, then kills it.
+ * The kill waits for the report to be complete, so it never truncates one.
+ */
 async function stopStalledChild(entry, directory, limitMs, log) {
-  const before = new Set(existsSync(directory) ? readdirSync(directory) : []);
+  const staging = join(directory, STAGING_SUBDIR);
   try {
     process.kill(entry.pid, REPORT_SIGNAL);
   } catch {
     return undefined;
   }
-  const report = await waitForReport(directory, entry.pid, before);
+  const report = await waitForReport(staging, directory, entry.pid);
   try {
     process.kill(entry.pid, "SIGKILL");
   } catch {
@@ -86,7 +118,7 @@ async function stopStalledChild(entry, directory, limitMs, log) {
   log(
     report
       ? `diagnostic report: ${report}\n${summarizeReport(report)}`
-      : "diagnostic report: not written",
+      : "diagnostic report: not completed before the kill",
   );
   return { file: entry.file, pid: entry.pid, ageSeconds: entry.ageSeconds, report };
 }
@@ -128,8 +160,8 @@ export async function runWithWatchdog({
   log = (line) => console.error(line),
 }) {
   const directory = resolve(reportDir);
-  mkdirSync(directory, { recursive: true });
-  const reportOptions = `--report-on-signal --report-signal=${REPORT_SIGNAL} --report-directory=${directory}`;
+  mkdirSync(join(directory, STAGING_SUBDIR), { recursive: true });
+  const reportOptions = `--report-on-signal --report-signal=${REPORT_SIGNAL} --report-directory=${join(directory, STAGING_SUBDIR)}`;
   // NODE_TEST_CONTEXT marks a process as a node:test child; inherited, it
   // would make this `node --test` behave as one instead of running the files.
   const baseEnv = { ...env };

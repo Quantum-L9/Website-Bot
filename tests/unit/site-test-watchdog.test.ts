@@ -6,12 +6,14 @@
 // file is untouched.
 
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 // @ts-expect-error -- plain .mjs script without type declarations
-import { parseEtime, runWithWatchdog } from "../../scripts/site-test-watchdog.mjs";
+import * as watchdog from "../../scripts/site-test-watchdog.mjs";
+
+const { parseEtime, publishCompleteReport, runWithWatchdog } = watchdog;
 
 const IDLE = "tests/fixtures/site-test-watchdog/idle-forever.fixture.mjs";
 const QUICK = "tests/fixtures/site-test-watchdog/quick.fixture.mjs";
@@ -82,6 +84,37 @@ test("a run whose files all exit is untouched", async () => {
     })) as { status: number; stalled: Stalled[] };
     assert.equal(result.status, 0);
     assert.deepEqual(result.stalled, []);
+  } finally {
+    rmSync(reportDir, { recursive: true, force: true });
+  }
+});
+
+test("a report still being written is never published; the complete one is, atomically", () => {
+  const reportDir = mkdtempSync(join(tmpdir(), "site-test-watchdog-"));
+  const staging = join(reportDir, ".incoming");
+  mkdirSync(staging);
+  const name = "report.20261121.000000.4242.0.001.json";
+  const complete = JSON.stringify({
+    header: { reportVersion: 3 },
+    libuv: [{ type: "async", is_active: true, is_referenced: true }],
+    workers: [],
+  });
+  try {
+    // Node has created the file and written part of it: the race the
+    // watchdog used to lose under load ("Unexpected end of JSON input").
+    writeFileSync(join(staging, name), complete.slice(0, complete.length / 2));
+    assert.equal(publishCompleteReport(staging, reportDir, 4242), undefined);
+    assert.equal(existsSync(join(reportDir, name)), false, "nothing half-written is published");
+
+    // Another process's report is never taken for this one.
+    writeFileSync(join(staging, "report.20261121.000000.9999.0.001.json"), complete);
+    assert.equal(publishCompleteReport(staging, reportDir, 4242), undefined);
+
+    writeFileSync(join(staging, name), complete);
+    const published = publishCompleteReport(staging, reportDir, 4242);
+    assert.equal(published, join(reportDir, name));
+    assert.deepEqual(JSON.parse(readFileSync(published, "utf8")).header, { reportVersion: 3 });
+    assert.equal(existsSync(join(staging, name)), false, "moved, not copied");
   } finally {
     rmSync(reportDir, { recursive: true, force: true });
   }
