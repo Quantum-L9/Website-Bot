@@ -316,7 +316,7 @@ export async function acquireAcceptedDonors(
 
 export class CompetitiveIntelligenceStage implements Stage {
   name = "competitive-intelligence";
-  version = "1.1.0";
+  version = "1.2.0";
   evidence = {
     inputs: (_ctx: BuildContext) => [],
     outputs: (_ctx: BuildContext) => [],

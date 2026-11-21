@@ -28,6 +28,10 @@
         {
           "version": "1.1.0",
           "fingerprint": "sha256:0f2180a8838b04b09de306a6dde6faa0ef63bfc7efdfada815f5400dcf7c85e7"
+        },
+        {
+          "version": "1.2.0",
+          "fingerprint": "sha256:7e38e827d049e1f4bccb5be74e0bb6f072bd396fa470cbed8224ffc145b2bd27"
         }
       ]
     },
@@ -223,6 +227,11 @@
         {
           "version": "1.1.1",
           "fingerprint": "sha256:c8f5debc9bc75a6ed28c65d16e7a957caa7f23d510df446324552421a81cd958"
+        },
+        {
+          "version": "1.1.1",
+          "fingerprint": "sha256:4d90ad9af1019562c720c615f89e026c2b3ebefe8079473377feb72e29305b91",
+          "output_unchanged": "imports only slotsForSpecComponent from WebsiteBuildBlueprintCompiler, which is unchanged; the wb-d12 fix is confined to ensureCanonicalSlotCoverage, whose output is versioned by competitive-intelligence 1.2.0"
         }
       ]
     },
@@ -263,6 +272,11 @@
         {
           "version": "3.9.0",
           "fingerprint": "sha256:8eb505429236c7f2d618aad89f6adf4d9da49cc5ee4a6a8574a69a5a66345311"
+        },
+        {
+          "version": "3.9.0",
+          "fingerprint": "sha256:b5c9fec7c6d77a1af05cb04ef8a7aa2736413fdec2a5e83c53b593246152a1b2",
+          "output_unchanged": "imports only slotsForSpecComponent from WebsiteBuildBlueprintCompiler, which is unchanged; the wb-d12 fix is confined to ensureCanonicalSlotCoverage, whose output is versioned by competitive-intelligence 1.2.0"
         }
       ]
     },

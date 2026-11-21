@@ -144,26 +144,48 @@ function sectionMatchesComponent(section: WebsiteBlueprintSection, component: st
   );
 }
 
+function specComponentSection(component: string, index: number): WebsiteBlueprintSection {
+  return {
+    section_id: `spec-component-${index + 1}`,
+    component_class: component.toLowerCase().replace(/\s+/g, "-"),
+    objective: component,
+    content_slots: slotsForSpecComponent(component),
+    pattern_refs: [],
+    proof_requirements: [],
+  };
+}
+
+/**
+ * The route's sections with every canonical content slot covered. When
+ * SEO-Bot supplies no sections (the spec-only path), every spec component
+ * becomes a section in spec order; the `canonical-coverage` placeholder is
+ * used only when there are no spec components either, so no component is
+ * displaced by a fabricated section.
+ */
 export function ensureCanonicalSlotCoverage(
   sections: WebsiteBlueprintSection[],
   specComponents: string[] = [],
 ): WebsiteBlueprintSection[] {
-  const next: WebsiteBlueprintSection[] =
-    sections.length > 0
-      ? sections.map((section) => ({
-          ...section,
-          content_slots: uniqueSlots(section.content_slots),
-        }))
-      : [
-          {
-            section_id: "canonical-coverage",
-            component_class: "prose",
-            objective: "canonical content-slot coverage",
-            content_slots: [],
-            pattern_refs: [],
-            proof_requirements: [],
-          },
-        ];
+  let next: WebsiteBlueprintSection[];
+  if (sections.length > 0) {
+    next = sections.map((section) => ({
+      ...section,
+      content_slots: uniqueSlots(section.content_slots),
+    }));
+  } else if (specComponents.length > 0) {
+    next = specComponents.map((component, index) => specComponentSection(component, index));
+  } else {
+    next = [
+      {
+        section_id: "canonical-coverage",
+        component_class: "prose",
+        objective: "canonical content-slot coverage",
+        content_slots: [],
+        pattern_refs: [],
+        proof_requirements: [],
+      },
+    ];
+  }
 
   for (const component of specComponents) {
     const derived = slotsForSpecComponent(component);
@@ -180,16 +202,8 @@ export function ensureCanonicalSlotCoverage(
     next[0].content_slots = uniqueSlots([...next[0].content_slots, ...missing]);
   }
 
-  while (next.length < specComponents.length) {
-    const component = specComponents[next.length]!;
-    next.push({
-      section_id: `spec-component-${next.length + 1}`,
-      component_class: component.toLowerCase().replace(/\s+/g, "-"),
-      objective: component,
-      content_slots: slotsForSpecComponent(component),
-      pattern_refs: [],
-      proof_requirements: [],
-    });
+  for (const [index, component] of specComponents.entries()) {
+    if (index >= next.length) next.push(specComponentSection(component, index));
   }
   return next;
 }
